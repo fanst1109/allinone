@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L4: Nhiệt độ, tương phản & tâm lý màu — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 980px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  label.ctrl { display: block; font-size: 13px; font-weight: 600; color: #334155; margin: 10px 0 2px; }
+  input[type=range] { width: 100%; max-width: 420px; accent-color: var(--accent); }
+  .readout {
+    display: inline-block; margin-top: 8px; padding: 6px 12px; border-radius: 8px;
+    font-weight: 700; font-size: 14px; background: var(--accent-soft); color: var(--accent-hover);
+  }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .badge.warm { background: #ffe4d6; color: #b45309; }
+  .badge.cool { background: #d6ecff; color: #1d4ed8; }
+  .badge.mid  { background: #eee; color: #555; }
+
+  /* Module 1 layout */
+  .wheel-wrap { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .wheel-col { flex: 1 1 220px; min-width: 0; text-align: center; }
+  .scene-col { flex: 2 1 320px; min-width: 0; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+  .scene-caption { font-size: 13px; color: #475569; margin-top: 8px; }
+  .scene-labels { display: flex; gap: 12px; margin-top: 6px; }
+  .scene-labels > div { flex: 1; text-align: center; font-size: 13px; font-weight: 600; }
+
+  /* Module 2 — simultaneous contrast */
+  .sim-stage { display: flex; gap: 14px; flex-wrap: wrap; }
+  .sim-panel {
+    flex: 1 1 200px; min-width: 0; min-height: 170px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #e3e1dc;
+  }
+  .sim-fg { width: 84px; height: 84px; border-radius: 8px; }
+  .sim-proof {
+    margin-top: 14px; text-align: center; font-size: 14px; font-weight: 600; color: #334155;
+    background: #f8fafc; border: 1px dashed var(--accent); border-radius: 8px; padding: 10px;
+  }
+  .sim-proof code { background: #fff; padding: 2px 8px; border-radius: 6px; font-size: 15px; }
+  .sim-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 24px; margin-top: 10px; }
+  .presets { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .presets button {
+    border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; padding: 7px 13px;
+    font-size: 13px; font-weight: 600; color: #1e293b; cursor: pointer; transition: all .12s;
+  }
+  .presets button:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* Module 3 — psychology */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  .swatch {
+    border: 2px solid transparent; border-radius: 10px; height: 68px; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;
+    font-size: 12px; font-weight: 700; transition: transform .1s, border-color .1s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch.active { border-color: var(--accent); }
+  .psy-card {
+    margin-top: 14px; border: 1px solid #e3e1dc; border-radius: 10px; padding: 14px 16px;
+    background: #fdfdfd; font-size: 14px; line-height: 1.6;
+  }
+  .psy-card h3 { margin: 0 0 6px; font-size: 17px; }
+  .psy-card .row { margin: 4px 0; }
+  .psy-card .k { font-weight: 700; color: #334155; }
+  .psy-card .cult { margin-top: 8px; padding: 8px 10px; background: #fff7ed; border-left: 3px solid #f59e0b; border-radius: 6px; font-size: 13px; }
+  .psy-empty { color: #94a3b8; font-style: italic; font-size: 13px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-color-harmony/visualization.html">← L3</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Nhiệt độ & tương phản</span>
+  <span class="sep">·</span>
+  <a href="../../02-Composition/lesson-05-composition-principles/visualization.html">L5: Nguyên lý bố cục →</a>
+</nav>
+<main>
+  <h1>Nhiệt độ · tương phản · tâm lý màu</h1>
+  <div class="lead">Ba công cụ tương tác: cảm nhận màu <strong>tiến/lùi</strong>, thấy <strong>cùng một mã màu trông khác nhau</strong> khi đổi nền, và khám phá <strong>ý nghĩa cảm xúc</strong> của từng màu.</div>
+
+  <!-- ============ MODULE 1 ============ -->
+  <div class="module">
+    <h2>1. Nhiệt độ màu & chiều sâu</h2>
+    <div class="sub">Kéo quanh vòng màu. Màu nóng (đỏ/cam/vàng) tiến ra trước; màu lạnh (lục/lam/tím) lùi ra sau.</div>
+    <div class="wheel-wrap">
+      <div class="wheel-col">
+        <svg id="wheel" width="220" height="220" viewBox="0 0 200 200" aria-label="Vòng màu"></svg>
+        <label class="ctrl" for="hue">Góc sắc (hue): <span id="hue-val">30</span>°</label>
+        <input type="range" id="hue" min="0" max="359" value="30">
+        <div><span class="readout" id="temp-readout">—</span></div>
+      </div>
+      <div class="scene-col">
+        <svg id="scene" width="400" height="180" viewBox="0 0 400 180" aria-label="Cảnh minh họa chiều sâu"></svg>
+        <div class="scene-labels">
+          <div id="lbl-a">—</div>
+          <div id="lbl-b">—</div>
+        </div>
+        <div class="scene-caption">
+          Hai chấm <strong>cùng đường kính pixel</strong>, đặt trên <strong>cùng một nền xám</strong>. Mắt vẫn đọc chấm nóng <em>gần hơn</em> và chấm lạnh <em>xa hơn</em> — đó là hiệu ứng tiến/lùi.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 2 ============ -->
+  <div class="module">
+    <h2>2. Tương phản đồng thời (simultaneous contrast)</h2>
+    <div class="sub">Ô vuông ở giữa hai bên dùng <strong>y hệt một mã màu</strong>. Đổi nền hai bên và quan sát: chúng <em>trông</em> khác nhau, dù máy đo ra cùng một hex.</div>
+
+    <div class="sim-stage">
+      <div class="sim-panel" id="panelA"><div class="sim-fg" id="fgA"></div></div>
+      <div class="sim-panel" id="panelB"><div class="sim-fg" id="fgB"></div></div>
+    </div>
+    <div class="sim-proof">
+      Cả hai ô giữa đều là <code id="fg-hex">#8c8c8c</code> — <span id="fg-desc">xám trung tính</span>. Chỉ nền khác nhau.
+    </div>
+
+    <div class="presets">
+      <button data-preset="value">Ảo giác sáng-tối</button>
+      <button data-preset="hue-rb">Ảo giác sắc: đỏ | lam</button>
+      <button data-preset="hue-go">Ảo giác sắc: lục | cam</button>
+    </div>
+
+    <div class="sim-controls">
+      <div>
+        <label class="ctrl">Độ sáng ô giữa (foreground): <span id="fgl-val">55</span>%</label>
+        <input type="range" id="fgl" min="0" max="100" value="55">
+      </div>
+      <div></div>
+      <div>
+        <label class="ctrl">Nền trái — sắc: <span id="ah-val">0</span>°</label>
+        <input type="range" id="ah" min="0" max="359" value="0">
+        <label class="ctrl">Nền trái — độ sáng: <span id="al-val">50</span>%</label>
+        <input type="range" id="al" min="0" max="100" value="50">
+      </div>
+      <div>
+        <label class="ctrl">Nền phải — sắc: <span id="bh-val">240</span>°</label>
+        <input type="range" id="bh" min="0" max="359" value="240">
+        <label class="ctrl">Nền phải — độ sáng: <span id="bl-val">50</span>%</label>
+        <input type="range" id="bl" min="0" max="100" value="50">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 3 ============ -->
+  <div class="module">
+    <h2>3. Tâm lý & ý nghĩa màu</h2>
+    <div class="sub">Click một màu để xem liên tưởng thường gặp và <strong>lưu ý khác biệt văn hóa</strong>.</div>
+    <div class="swatch-grid" id="swatches"></div>
+    <div class="psy-card" id="psy-card"><span class="psy-empty">Chọn một màu ở trên để xem ý nghĩa.</span></div>
+  </div>
+</main>
+
+<script>
+// ===================== Tiện ích màu =====================
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  var k = function(n){ return (n + h/30) % 12; };
+  var a = s * Math.min(l, 1 - l);
+  var f = function(n){ return l - a * Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1))); };
+  return [Math.round(f(0)*255), Math.round(f(8)*255), Math.round(f(4)*255)];
+}
+function hslToHex(h, s, l) {
+  var rgb = hslToRgb(h, s, l);
+  return '#' + rgb.map(function(x){ return x.toString(16).padStart(2,'0'); }).join('');
+}
+function hsl(h, s, l) { return 'hsl(' + h + ',' + s + '%,' + l + '%)'; }
+
+// Phân loại nhiệt độ theo góc sắc
+function classify(h) {
+  h = ((h % 360) + 360) % 360;
+  if (h <= 60 || h >= 330) return { temp: 'NÓNG', depth: 'TIẾN', cls: 'warm' };
+  if (h >= 90 && h <= 270) return { temp: 'LẠNH', depth: 'LÙI', cls: 'cool' };
+  return { temp: 'PHA', depth: 'trung tính', cls: 'mid' };
+}
+
+// ===================== MODULE 1 =====================
+var CX = 100, CY = 100, R_OUT = 92, R_IN = 52;
+function ang(hue) { return (hue - 90) * Math.PI / 180; } // hue 0 = đỉnh trên, quay theo chiều kim
+
+function buildWheel() {
+  var svg = document.getElementById('wheel');
+  var ns = 'http://www.w3.org/2000/svg';
+  var step = 6;
+  for (var a = 0; a < 360; a += step) {
+    var a1 = ang(a), a2 = ang(a + step);
+    var x1o = CX + R_OUT*Math.cos(a1), y1o = CY + R_OUT*Math.sin(a1);
+    var x2o = CX + R_OUT*Math.cos(a2), y2o = CY + R_OUT*Math.sin(a2);
+    var x2i = CX + R_IN*Math.cos(a2),  y2i = CY + R_IN*Math.sin(a2);
+    var x1i = CX + R_IN*Math.cos(a1),  y1i = CY + R_IN*Math.sin(a1);
+    var p = document.createElementNS(ns, 'path');
+    p.setAttribute('d',
+      'M'+x1o+' '+y1o+' A'+R_OUT+' '+R_OUT+' 0 0 1 '+x2o+' '+y2o+
+      ' L'+x2i+' '+y2i+' A'+R_IN+' '+R_IN+' 0 0 0 '+x1i+' '+y1i+' Z');
+    p.setAttribute('fill', hsl(a + step/2, 85, 55));
+    svg.appendChild(p);
+  }
+  // nhãn NÓNG / LẠNH
+  function txt(x, y, s, fill) {
+    var t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-size', '11'); t.setAttribute('font-weight', '800');
+    t.setAttribute('fill', fill); t.textContent = s;
+    svg.appendChild(t);
+  }
+  txt(CX, CY - 4, 'NÓNG', '#b45309');
+  txt(CX, CY + 12, 'LẠNH', '#1d4ed8');
+  // marker
+  var m = document.createElementNS(ns, 'circle');
+  m.setAttribute('id', 'wheel-marker');
+  m.setAttribute('r', '9'); m.setAttribute('fill', '#fff');
+  m.setAttribute('stroke', '#1e293b'); m.setAttribute('stroke-width', '3');
+  svg.appendChild(m);
+}
+
+function buildScene() {
+  var svg = document.getElementById('scene');
+  var ns = 'http://www.w3.org/2000/svg';
+  // hai panel nền xám giống hệt
+  [[0,'A'],[210,'B']].forEach(function(pair){
+    var x = pair[0];
+    var bg = document.createElementNS(ns, 'rect');
+    bg.setAttribute('x', x); bg.setAttribute('y', 0);
+    bg.setAttribute('width', 190); bg.setAttribute('height', 180);
+    bg.setAttribute('rx', 10); bg.setAttribute('fill', '#d9d9d9');
+    svg.appendChild(bg);
+    var c = document.createElementNS(ns, 'circle');
+    c.setAttribute('id', 'dot' + pair[1]);
+    c.setAttribute('cx', x + 95); c.setAttribute('cy', 90);
+    c.setAttribute('r', 46);
+    svg.appendChild(c);
+  });
+}
+
+function renderModule1() {
+  var h = +document.getElementById('hue').value;
+  document.getElementById('hue-val').textContent = h;
+  // marker
+  var rMid = (R_OUT + R_IN) / 2, a = ang(h);
+  var m = document.getElementById('wheel-marker');
+  m.setAttribute('cx', CX + rMid*Math.cos(a));
+  m.setAttribute('cy', CY + rMid*Math.sin(a));
+  m.setAttribute('fill', hsl(h, 85, 55));
+  // readout
+  var info = classify(h);
+  var ro = document.getElementById('temp-readout');
+  ro.innerHTML = 'Hue ' + h + '° · <span class="badge ' + info.cls + '">' + info.temp +
+    '</span> · xu hướng <strong>' + info.depth + '</strong>';
+
+  // Scene: A = màu đang chọn; B = đối nhiệt (nếu A nóng → B lạnh, ngược lại)
+  var hB;
+  if (info.cls === 'warm') hB = 210;
+  else if (info.cls === 'cool') hB = 30;
+  else hB = (h + 180) % 360;
+  var infoB = classify(hB);
+  document.getElementById('dotA').setAttribute('fill', hsl(h, 80, 55));
+  document.getElementById('dotB').setAttribute('fill', hsl(hB, 80, 55));
+
+  function lbl(info) {
+    return '<span class="badge ' + info.cls + '">' + info.temp + '</span> — ' +
+      (info.depth === 'TIẾN' ? 'như gần hơn' : info.depth === 'LÙI' ? 'như xa hơn' : 'trung tính');
+  }
+  document.getElementById('lbl-a').innerHTML = lbl(info);
+  document.getElementById('lbl-b').innerHTML = lbl(infoB);
+}
+
+// ===================== MODULE 2 =====================
+var el = function(id){ return document.getElementById(id); };
+function renderModule2() {
+  var fgl = +el('fgl').value;
+  var ah = +el('ah').value, al = +el('al').value;
+  var bh = +el('bh').value, bl = +el('bl').value;
+  el('fgl-val').textContent = fgl;
+  el('ah-val').textContent = ah; el('al-val').textContent = al;
+  el('bh-val').textContent = bh; el('bl-val').textContent = bl;
+
+  // Foreground: xám (sat 0) theo độ sáng — CÙNG mã cho cả hai ô
+  var fgHex = hslToHex(0, 0, fgl);
+  el('fgA').style.background = fgHex;
+  el('fgB').style.background = fgHex;
+  el('fg-hex').textContent = fgHex;
+  el('fg-desc').textContent = fgl > 65 ? 'xám sáng' : fgl < 35 ? 'xám tối' : 'xám trung tính';
+
+  // Nền: bão hòa 70% để hue rõ; L cực trị (0/100) tự thành đen/trắng
+  el('panelA').style.background = hslToHex(ah, 70, al);
+  el('panelB').style.background = hslToHex(bh, 70, bl);
+}
+
+var PRESETS = {
+  'value':  { fgl: 55, ah: 0,   al: 100, bh: 0,   bl: 0  },   // xám trên trắng vs đen
+  'hue-rb': { fgl: 55, ah: 0,   al: 50,  bh: 240, bl: 50 },   // xám trên đỏ vs lam
+  'hue-go': { fgl: 60, ah: 120, al: 50,  bh: 30,  bl: 55 }    // xám trên lục vs cam
+};
+function applyPreset(name) {
+  var p = PRESETS[name]; if (!p) return;
+  el('fgl').value = p.fgl;
+  el('ah').value = p.ah; el('al').value = p.al;
+  el('bh').value = p.bh; el('bl').value = p.bl;
+  renderModule2();
+}
+
+// ===================== MODULE 3 =====================
+var COLORS = [
+  { name: 'Đỏ',   bg: hsl(0,80,50),   ink:'#fff', pos:'năng lượng, đam mê, khẩn cấp', neg:'nguy hiểm, giận dữ, thua lỗ ("in the red")', use:'nút "Mua ngay", biển STOP, khuyến mãi', cult:'Phương Tây: nguy hiểm/dừng. Việt Nam & Trung Quốc: MAY MẮN, hỉ sự — lì xì đỏ, thiệp cưới đỏ.' },
+  { name: 'Cam',  bg: hsl(28,90,55),  ink:'#fff', pos:'thân thiện, nhiệt tình, sáng tạo', neg:'rẻ tiền, ồn ào nếu lạm dụng', use:'CTA phụ, thương hiệu food & giải trí', cult:'Ấn Độ/Phật giáo: màu thiêng (áo cà sa). Hà Lan: màu hoàng gia, thể thao.' },
+  { name: 'Vàng', bg: hsl(50,95,55),  ink:'#3a2f00', pos:'vui, lạc quan, thu hút chú ý', neg:'cảnh báo, hèn nhát ("yellow")', use:'biển báo, giá rẻ, sản phẩm trẻ em', cult:'Trung Quốc phong kiến: màu HOÀNG ĐẾ, tôn quý. Vài văn hóa: tang tóc / ghen tuông.' },
+  { name: 'Lục',  bg: hsl(140,60,42), ink:'#fff', pos:'thiên nhiên, tăng trưởng, an toàn', neg:'thiếu kinh nghiệm, đố kỵ', use:'app sức khỏe, chỉ số "tăng", nút xác nhận', cult:'Đạo Hồi: màu THIÊNG (thiên đàng). Trung Quốc: "đội nón lục" = bị cắm sừng.' },
+  { name: 'Lam',  bg: hsl(215,75,50), ink:'#fff', pos:'bình tĩnh, tin cậy, chuyên nghiệp', neg:'lạnh lùng, buồn ("feeling blue")', use:'ngân hàng, tech, mạng xã hội', cult:'Phổ biến an toàn nhất toàn cầu. Iran: từng gắn với tang; phương Tây: bé trai.' },
+  { name: 'Tím',  bg: hsl(275,55,50), ink:'#fff', pos:'sang trọng, sáng tạo, huyền bí', neg:'phô trương, khó gần', use:'mỹ phẩm cao cấp, thương hiệu sáng tạo', cult:'Châu Âu: hoàng gia (thuốc nhuộm xưa rất đắt). Thái/Brazil: gắn với tang.' },
+  { name: 'Trắng',bg: '#ffffff',       ink:'#334155', pos:'tinh khiết, tối giản, sạch sẽ', neg:'trống trải, vô trùng', use:'nền, thời trang tối giản, y tế', cult:'Phương Tây: cưới hỏi, tinh khiết. ĐÔNG Á (VN/TQ/Nhật/Hàn): TANG TÓC, khăn tang.' },
+  { name: 'Đen',  bg: '#111111',       ink:'#fff', pos:'sang trọng, quyền lực, thanh lịch', neg:'tang tóc, u ám (phương Tây)', use:'thời trang cao cấp, luxury, chữ', cult:'Phương Tây: tang lễ. Nhưng trong thời trang: đẳng cấp. Một số vùng châu Phi: trưởng thành.' }
+];
+
+function buildSwatches() {
+  var grid = document.getElementById('swatches');
+  COLORS.forEach(function(c, i){
+    var d = document.createElement('div');
+    d.className = 'swatch';
+    d.style.background = c.bg; d.style.color = c.ink;
+    if (c.name === 'Trắng') d.style.border = '2px solid #e2e8f0';
+    d.textContent = c.name;
+    d.onclick = function(){ selectColor(i, d); };
+    grid.appendChild(d);
+  });
+}
+function selectColor(i, node) {
+  document.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('active'); });
+  node.classList.add('active');
+  var c = COLORS[i];
+  document.getElementById('psy-card').innerHTML =
+    '<h3 style="color:' + (c.bg==='#ffffff' ? '#334155' : c.bg) + '">' + c.name + '</h3>' +
+    '<div class="row"><span class="k">Tích cực:</span> ' + c.pos + '</div>' +
+    '<div class="row"><span class="k">Tiêu cực:</span> ' + c.neg + '</div>' +
+    '<div class="row"><span class="k">Ứng dụng:</span> ' + c.use + '</div>' +
+    '<div class="cult"><strong>⚠ Khác biệt văn hóa:</strong> ' + c.cult + '</div>';
+}
+
+// ===================== Khởi tạo =====================
+buildWheel();
+buildScene();
+document.getElementById('hue').addEventListener('input', renderModule1);
+renderModule1();
+
+['fgl','ah','al','bh','bl'].forEach(function(id){
+  el(id).addEventListener('input', renderModule2);
+});
+document.querySelectorAll('.presets button').forEach(function(b){
+  b.onclick = function(){ applyPreset(b.getAttribute('data-preset')); };
+});
+renderModule2();
+
+buildSwatches();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

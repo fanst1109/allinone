@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L2: Mô hình màu — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 920px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+
+  .module {
+    background: #fff; border: 1px solid #e6e1e4; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  .flex { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .col-stage { flex: 0 0 auto; }
+  .col-ctrl { flex: 1 1 260px; min-width: 0; }
+
+  /* Sân trộn màu (Venn 3 vòng) */
+  .stage {
+    position: relative; width: 260px; max-width: 100%; aspect-ratio: 1 / 0.9;
+    border-radius: 14px; overflow: hidden; margin: 0 auto;
+  }
+  .stage.add { background: #000; }
+  .stage.sub { background: #fff; border: 1px solid #e2e8f0; }
+  .lamp { position: absolute; width: 62%; aspect-ratio: 1; border-radius: 50%; }
+  .stage.add .lamp { mix-blend-mode: screen; }
+  .stage.sub .lamp { mix-blend-mode: multiply; }
+  .lamp.top  { left: 19%; top: 4%; }
+  .lamp.bl   { left: 5%;  top: 34%; }
+  .lamp.br   { left: 33%; top: 34%; }
+  .stage-cap { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 6px; }
+
+  /* Slider */
+  .row { display: flex; align-items: center; gap: 10px; margin: 9px 0; }
+  .row .tag { width: 30px; font-weight: 800; font-size: 13px; flex-shrink: 0; text-align: center; border-radius: 6px; padding: 2px 0; color: #fff; }
+  .tag.r { background: #e11d48; } .tag.g { background: #16a34a; } .tag.b { background: #2563eb; }
+  .tag.c { background: #06b6d4; } .tag.m { background: #db2777; } .tag.y { background: #ca8a04; }
+  .row input[type=range] { flex: 1; width: 100%; min-width: 0; accent-color: var(--accent); }
+  .row .num { width: 46px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 13px; color: #334155; flex-shrink: 0; }
+
+  /* Swatch + readout */
+  .sw { width: 100%; height: 62px; border-radius: 10px; border: 1px solid #e2e8f0; margin: 6px 0 10px; }
+  .readout { font-size: 13px; line-height: 1.7; }
+  .readout .kv { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #eee; padding: 3px 0; }
+  .readout .kv b { color: #1e293b; font-variant-numeric: tabular-nums; }
+  .readout .lbl { color: #64748b; }
+  .hex { font-family: ui-monospace, Menlo, monospace; font-weight: 800; letter-spacing: .5px; }
+
+  .note { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 13px; color: #831843; margin-top: 10px; }
+  .note.dark { background: #f1f5f9; border-left-color: #475569; color: #334155; }
+
+  /* Chips preset */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .chips button {
+    border: 1px solid #cbd5e1; background: #fff; border-radius: 999px;
+    padding: 5px 11px; font-size: 12px; font-weight: 600; cursor: pointer; color: #334155;
+  }
+  .chips button:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); }
+
+  /* Toggle */
+  .toggle { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
+  .toggle button { border: 0; background: #fff; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; color: #64748b; }
+  .toggle button.on { background: var(--accent); color: #fff; }
+
+  .swwrap { padding: 14px; border-radius: 12px; }
+  .swwrap.add { background: #0b0b0f; }
+  .swwrap.sub { background: #f8fafc; border: 1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-color-wheel-properties/visualization.html">← L1</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Mô hình màu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-color-harmony/visualization.html">L3: Hòa sắc →</a>
+</nav>
+<main>
+  <h1>Mô hình màu — trộn ánh sáng vs trộn mực</h1>
+  <div class="lead">Kéo slider để thấy hai cơ chế ngược nhau: <strong>cộng màu (RGB, ánh sáng)</strong> đi từ đen ra trắng, <strong>trừ màu (CMY, mực)</strong> đi từ trắng ra đen. Vùng giao của ba vòng là màu trộn thật.</div>
+
+  <!-- ===== MODULE 1: RGB ADDITIVE ===== -->
+  <div class="module">
+    <h2>1. Cộng màu (RGB) — ba đèn chiếu chồng</h2>
+    <div class="sub">Nền đen. Chồng ánh sáng đỏ + lục + lam → càng sáng. Cả ba đầy → trắng.</div>
+    <div class="flex">
+      <div class="col-stage">
+        <div class="stage add">
+          <div class="lamp top" id="lr"></div>
+          <div class="lamp bl"  id="lg"></div>
+          <div class="lamp br"  id="lb"></div>
+        </div>
+        <div class="stage-cap">Đỏ + Lục = vàng · Lục + Lam = lục lam · giữa = trắng</div>
+      </div>
+      <div class="col-ctrl">
+        <div class="row"><span class="tag r">R</span><input type="range" id="ar" min="0" max="255" value="255"><span class="num" id="arn">255</span></div>
+        <div class="row"><span class="tag g">G</span><input type="range" id="ag" min="0" max="255" value="255"><span class="num" id="agn">255</span></div>
+        <div class="row"><span class="tag b">B</span><input type="range" id="ab" min="0" max="255" value="255"><span class="num" id="abn">255</span></div>
+        <div class="sw" id="asw"></div>
+        <div class="readout">
+          <div class="kv"><span class="lbl">Kết quả RGB</span><b id="argb">255, 255, 255</b></div>
+          <div class="kv"><span class="lbl">Hex</span><b class="hex" id="ahex">#FFFFFF</b></div>
+          <div class="kv"><span class="lbl">HSL</span><b id="ahsl">0°, 0%, 100%</b></div>
+        </div>
+        <div class="chips">
+          <button data-a="255,0,0">Đỏ</button>
+          <button data-a="0,255,0">Lục</button>
+          <button data-a="0,0,255">Lam</button>
+          <button data-a="255,255,0">Đỏ+Lục</button>
+          <button data-a="255,255,255">Cả ba → trắng</button>
+          <button data-a="0,0,0">Tắt hết</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODULE 2: CMY SUBTRACTIVE ===== -->
+  <div class="module">
+    <h2>2. Trừ màu (CMY) — ba lớp mực trên giấy trắng</h2>
+    <div class="sub">Nền trắng. Mỗi mực hút bớt một ánh sáng → càng phủ càng tối. Cả ba đầy → đen.</div>
+    <div class="flex">
+      <div class="col-stage">
+        <div class="stage sub">
+          <div class="lamp top" id="ic"></div>
+          <div class="lamp bl"  id="im"></div>
+          <div class="lamp br"  id="iy"></div>
+        </div>
+        <div class="stage-cap">Cyan + Yellow = lục · Cyan + Magenta = lam · giữa = đen</div>
+      </div>
+      <div class="col-ctrl">
+        <div class="row"><span class="tag c">C</span><input type="range" id="sc" min="0" max="100" value="100"><span class="num" id="scn">100%</span></div>
+        <div class="row"><span class="tag m">M</span><input type="range" id="sm" min="0" max="100" value="100"><span class="num" id="smn">100%</span></div>
+        <div class="row"><span class="tag y">Y</span><input type="range" id="sy" min="0" max="100" value="100"><span class="num" id="syn">100%</span></div>
+        <div class="sw" id="ssw"></div>
+        <div class="readout">
+          <div class="kv"><span class="lbl">Ánh sáng phản xạ RGB</span><b id="srgb">0, 0, 0</b></div>
+          <div class="kv"><span class="lbl">Hex</span><b class="hex" id="shex">#000000</b></div>
+          <div class="kv"><span class="lbl">Mực (C, M, Y)</span><b id="scmy">100%, 100%, 100%</b></div>
+        </div>
+        <div class="chips">
+          <button data-s="100,0,0">Cyan</button>
+          <button data-s="0,0,100">Yellow</button>
+          <button data-s="100,0,100">Cyan+Yellow → lục</button>
+          <button data-s="100,100,0">Cyan+Magenta → lam</button>
+          <button data-s="100,100,100">Cả ba → đen</button>
+          <button data-s="0,0,0">Giấy trắng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODULE 3: CONVERSION + TOGGLE ===== -->
+  <div class="module">
+    <h2>3. Chuyển đổi RGB → Hex → HSL &amp; góc nhìn cộng/trừ</h2>
+    <div class="sub">Kéo RGB, xem hex + HSL + HSV cập nhật tức thời. Bấm toggle để xem cùng màu như <em>ánh sáng phát ra</em> (cộng) hay <em>mực phản xạ</em> (trừ).</div>
+    <div class="toggle" id="mode">
+      <button data-mode="add" class="on">💡 Cộng màu (ánh sáng)</button>
+      <button data-mode="sub">🖌 Trừ màu (mực)</button>
+    </div>
+    <div class="flex">
+      <div class="col-ctrl">
+        <div class="row"><span class="tag r">R</span><input type="range" id="cr" min="0" max="255" value="30"><span class="num" id="crn">30</span></div>
+        <div class="row"><span class="tag g">G</span><input type="range" id="cg" min="0" max="255" value="144"><span class="num" id="cgn">144</span></div>
+        <div class="row"><span class="tag b">B</span><input type="range" id="cb" min="0" max="255" value="255"><span class="num" id="cbn">255</span></div>
+        <div class="swwrap add" id="cwrap"><div class="sw" id="csw" style="margin:0"></div></div>
+      </div>
+      <div class="col-ctrl">
+        <div class="readout">
+          <div class="kv"><span class="lbl">RGB</span><b id="crgb">30, 144, 255</b></div>
+          <div class="kv"><span class="lbl">Hex</span><b class="hex" id="chex">#1E90FF</b></div>
+          <div class="kv"><span class="lbl">HSL</span><b id="chsl">210°, 100%, 56%</b></div>
+          <div class="kv"><span class="lbl">HSV</span><b id="chsv">210°, 88%, 100%</b></div>
+          <div class="kv"><span class="lbl">CMY tương đương</span><b id="ccmy">88%, 44%, 0%</b></div>
+        </div>
+        <div class="note" id="cnote"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===== Hàm dùng chung =====
+function clamp255(n){ return Math.max(0, Math.min(255, Math.round(n))); }
+function hx(n){ return clamp255(n).toString(16).padStart(2,'0').toUpperCase(); }
+function toHex(r,g,b){ return '#' + hx(r) + hx(g) + hx(b); }
+function css(r,g,b){ return 'rgb(' + clamp255(r) + ',' + clamp255(g) + ',' + clamp255(b) + ')'; }
+
+// RGB (0-255) -> HSL (H trong [0,360), S,L theo %)
+function rgbToHsl(R,G,B){
+  var r=R/255, g=G/255, b=B/255;
+  var mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn;
+  var l=(mx+mn)/2, h=0, s=0;
+  if(d!==0){
+    s = d/(1 - Math.abs(2*l - 1));
+    if(mx===r) h = 60*(((g-b)/d)%6);
+    else if(mx===g) h = 60*((b-r)/d + 2);
+    else h = 60*((r-g)/d + 4);
+  }
+  if(h<0) h += 360;
+  return { h:h, s:s*100, l:l*100 };
+}
+// RGB -> HSV
+function rgbToHsv(R,G,B){
+  var r=R/255, g=G/255, b=B/255;
+  var mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn;
+  var h=0, s = (mx===0?0:d/mx), v=mx;
+  if(d!==0){
+    if(mx===r) h = 60*(((g-b)/d)%6);
+    else if(mx===g) h = 60*((b-r)/d + 2);
+    else h = 60*((r-g)/d + 4);
+  }
+  if(h<0) h += 360;
+  return { h:h, s:s*100, v:v*100 };
+}
+function fmtHsl(o){ return Math.round(o.h) + '°, ' + Math.round(o.s) + '%, ' + Math.round(o.l) + '%'; }
+function fmtHsv(o){ return Math.round(o.h) + '°, ' + Math.round(o.s) + '%, ' + Math.round(o.v) + '%'; }
+function $(id){ return document.getElementById(id); }
+
+// ===== MODULE 1: RGB additive =====
+function renderAdd(){
+  var r=+$('ar').value, g=+$('ag').value, b=+$('ab').value;
+  $('arn').textContent=r; $('agn').textContent=g; $('abn').textContent=b;
+  // Đèn: mỗi vòng chỉ một kênh, blend screen trên nền đen -> giao = cộng
+  $('lr').style.background = css(r,0,0);
+  $('lg').style.background = css(0,g,0);
+  $('lb').style.background = css(0,0,b);
+  $('asw').style.background = css(r,g,b);
+  $('argb').textContent = r + ', ' + g + ', ' + b;
+  $('ahex').textContent = toHex(r,g,b);
+  $('ahsl').textContent = fmtHsl(rgbToHsl(r,g,b));
+}
+['ar','ag','ab'].forEach(function(id){ $(id).addEventListener('input', renderAdd); });
+document.querySelectorAll('.chips button[data-a]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var v = btn.dataset.a.split(',');
+    $('ar').value=v[0]; $('ag').value=v[1]; $('ab').value=v[2]; renderAdd();
+  });
+});
+
+// ===== MODULE 2: CMY subtractive =====
+function renderSub(){
+  var c=+$('sc').value/100, m=+$('sm').value/100, y=+$('sy').value/100;
+  $('scn').textContent=Math.round(c*100)+'%'; $('smn').textContent=Math.round(m*100)+'%'; $('syn').textContent=Math.round(y*100)+'%';
+  // Mỗi mực hút một kênh; blend multiply trên nền trắng -> giao = trừ
+  $('ic').style.background = css(255*(1-c), 255, 255);   // cyan hút đỏ
+  $('im').style.background = css(255, 255*(1-m), 255);   // magenta hút lục
+  $('iy').style.background = css(255, 255, 255*(1-y));   // yellow hút lam
+  var R=255*(1-c), G=255*(1-m), B=255*(1-y);
+  $('ssw').style.background = css(R,G,B);
+  $('srgb').textContent = clamp255(R) + ', ' + clamp255(G) + ', ' + clamp255(B);
+  $('shex').textContent = toHex(R,G,B);
+  $('scmy').textContent = Math.round(c*100)+'%, '+Math.round(m*100)+'%, '+Math.round(y*100)+'%';
+}
+['sc','sm','sy'].forEach(function(id){ $(id).addEventListener('input', renderSub); });
+document.querySelectorAll('.chips button[data-s]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var v = btn.dataset.s.split(',');
+    $('sc').value=v[0]; $('sm').value=v[1]; $('sy').value=v[2]; renderSub();
+  });
+});
+
+// ===== MODULE 3: conversion + toggle =====
+var mode = 'add';
+function renderConv(){
+  var r=+$('cr').value, g=+$('cg').value, b=+$('cb').value;
+  $('crn').textContent=r; $('cgn').textContent=g; $('cbn').textContent=b;
+  $('csw').style.background = css(r,g,b);
+  $('crgb').textContent = r + ', ' + g + ', ' + b;
+  $('chex').textContent = toHex(r,g,b);
+  $('chsl').textContent = fmtHsl(rgbToHsl(r,g,b));
+  $('chsv').textContent = fmtHsv(rgbToHsv(r,g,b));
+  var C=Math.round((1-r/255)*100), M=Math.round((1-g/255)*100), Y=Math.round((1-b/255)*100);
+  $('ccmy').textContent = C+'%, '+M+'%, '+Y+'%';
+  var wrap = $('cwrap'), note = $('cnote');
+  if(mode==='add'){
+    wrap.className = 'swwrap add';
+    note.className = 'note dark';
+    note.innerHTML = '💡 <strong>Cộng màu:</strong> màn hình phát ra ánh sáng ' + toHex(r,g,b) +
+      '. Đây là tổng của ' + r + ' đỏ + ' + g + ' lục + ' + b + ' lam. Tăng cả ba → sáng dần về trắng.';
+  } else {
+    wrap.className = 'swwrap sub';
+    note.className = 'note';
+    note.innerHTML = '🖌 <strong>Trừ màu:</strong> để in màu này, máy phủ mực <strong>C ' + C + '%, M ' + M +
+      '%, Y ' + Y + '%</strong> lên giấy trắng (C = 1 − R/255, ...). Mực hút bớt ánh sáng → phản xạ lại đúng ' + toHex(r,g,b) + '.';
+  }
+}
+['cr','cg','cb'].forEach(function(id){ $(id).addEventListener('input', renderConv); });
+document.querySelectorAll('#mode button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    mode = btn.dataset.mode;
+    document.querySelectorAll('#mode button').forEach(function(x){ x.classList.remove('on'); });
+    btn.classList.add('on');
+    renderConv();
+  });
+});
+
+renderAdd(); renderSub(); renderConv();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

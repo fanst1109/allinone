@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L8: Tỉ lệ & cấu trúc hình — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf2f8;
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 960px; }
+
+  .lead { color: #6b5563; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f3d7e6; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(157,23,77,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; color: #831843; }
+  .module .sub { color: #9d6a83; font-size: 13px; margin-bottom: 14px; }
+
+  .stage { text-align: center; }
+  canvas { max-width: 100%; height: auto; background: #fffafc; border-radius: 10px; border: 1px solid #f6dce9; }
+
+  /* Controls */
+  .ctl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0 6px; }
+  .ctl label { font-size: 13px; font-weight: 700; color: #6b2547; }
+  input[type=range] { flex: 1; min-width: 140px; max-width: 340px; accent-color: var(--accent); }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; }
+  .presets button {
+    border: 1px solid #e9a8c8; background: #fff; color: #9d174d;
+    border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: all .12s;
+  }
+  .presets button:hover { background: var(--accent-soft); }
+  .presets button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Readout */
+  .readout {
+    margin-top: 12px; background: #fff5fa; border: 1px solid #f6dce9; border-radius: 10px;
+    padding: 12px 14px; font-size: 14px; line-height: 1.75; color: #4a2036;
+  }
+  .readout b { color: #9d174d; }
+  .pill {
+    display: inline-block; padding: 1px 9px; border-radius: 999px; font-weight: 700; font-size: 13px;
+  }
+  .pill.gold { background: #fde68a; color: #92400e; }
+  .pill.warn { background: #fbcfe0; color: #9d174d; }
+  .big { font-size: 22px; font-weight: 800; color: var(--accent); }
+
+  /* Bảng số đầu */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 6px; }
+  th, td { border: 1px solid #f3d7e6; padding: 6px 9px; text-align: left; }
+  th { background: #fce7f3; color: #831843; font-size: 12px; }
+  td.n { text-align: right; }
+  tr.hit td { background: #fef3c7; font-weight: 700; }
+
+  .note { font-size: 12.5px; color: #9d6a83; margin-top: 10px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-two-three-point-perspective/visualization.html">← L7</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tỉ lệ & cấu trúc</span>
+  <span class="sep">·</span>
+  <a href="../../03-Value-Form-Light/lesson-09-value-grayscale/visualization.html">L9: Value & thang xám →</a>
+</nav>
+<main>
+  <h1>Tỉ lệ & cấu trúc hình — mô phỏng sống</h1>
+  <div class="lead">Hai công cụ đo tỉ lệ: <strong>hình chữ nhật vàng</strong> (chia không gian) và <strong>thước số đầu</strong> (dựng người). Kéo slider, xem tỉ lệ đổi bằng con số.</div>
+
+  <!-- ===================== MODULE 1 ===================== -->
+  <div class="module">
+    <h2>1. Máy tạo hình chữ nhật vàng &amp; xoắn ốc</h2>
+    <div class="sub">Kéo tỉ số cạnh dài : cạnh ngắn. Chỉ ở φ ≈ 1.618, cắt một hình vuông ra thì phần còn lại vẫn là hình chữ nhật cùng tỉ lệ (tự-lặp) → xoắn ốc nối liền.</div>
+
+    <div class="stage">
+      <canvas id="cvGold" width="640" height="380"></canvas>
+    </div>
+
+    <div class="ctl">
+      <label for="ratio">Tỉ số dài : ngắn</label>
+      <input type="range" id="ratio" min="1" max="2.5" step="0.001" value="1.618">
+      <span class="pill gold" id="ratioVal">1.618</span>
+    </div>
+    <div class="presets" id="presets">
+      <button data-r="1">Vuông 1 : 1</button>
+      <button data-r="1.618" class="on">Vàng 1 : 1.618</button>
+      <button data-r="2">Đôi 1 : 2</button>
+    </div>
+
+    <div class="readout" id="goldOut"></div>
+    <div class="note">Cung phần tư trong mỗi hình vuông cắt ra nối thành xoắn ốc. Ở tỉ số vàng, xoắn ốc mượt và cắt hoài không hết; ở 1:2 chỉ cắt được vài bước rồi thành hình vuông; ở 1:1 hết ngay.</div>
+  </div>
+
+  <!-- ===================== MODULE 2 ===================== -->
+  <div class="module">
+    <h2>2. Thước tỉ lệ người theo "số đầu"</h2>
+    <div class="sub">Cùng một chiều cao, đổi số đầu → cái đầu to/nhỏ tương đối, các mốc vai · rốn · hông · gối dồn lại hay giãn ra. Nhiều đầu = dáng lý tưởng/anh hùng; ít đầu = dáng trẻ con.</div>
+
+    <div class="stage">
+      <canvas id="cvBody" width="640" height="440"></canvas>
+    </div>
+
+    <div class="ctl">
+      <label for="heads">Số đầu</label>
+      <input type="range" id="heads" min="4" max="8" step="0.5" value="8">
+      <span class="pill warn" id="headsVal">8.0 đầu</span>
+    </div>
+    <div class="presets" id="bodyPresets">
+      <button data-h="4">Bé 4</button>
+      <button data-h="6">Trẻ 6</button>
+      <button data-h="7.5">Người lớn 7.5</button>
+      <button data-h="8" class="on">Anh hùng 8</button>
+    </div>
+
+    <div class="readout" id="bodyOut"></div>
+
+    <table id="landmarkTbl">
+      <thead><tr><th>Mốc cơ thể</th><th>Vạch (số đầu từ đỉnh)</th><th>Vị trí (% chiều cao)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="note">Vạch "số đầu" = vị trí mốc chia cho cỡ một đầu. Ở dáng 8 đầu, điểm giữa cơ thể rơi đúng vào <b>hông (vạch 4)</b> — không phải rốn.</div>
+  </div>
+</main>
+
+<script>
+// ============================================================
+// MODULE 1 — Hình chữ nhật vàng + xoắn ốc (canvas)
+// ============================================================
+var PHI = (1 + Math.sqrt(5)) / 2; // 1.6180339887...
+var cvG = document.getElementById('cvGold');
+var gx = cvG.getContext('2d');
+
+function fmt(n, d) { d = d === undefined ? 2 : d; return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('vi-VN'); }
+
+// Carve squares theo cạnh ngắn; corner-center cho cung phần tư.
+// centers cycle TL,TR,BR,BL — góc quét [0,π/2],[π/2,π],[π,3π/2],[3π/2,2π]
+function drawGolden(ratio) {
+  var W = cvG.width, H = cvG.height;
+  gx.clearRect(0, 0, W, H);
+
+  // Chọn kích thước hình chữ nhật vừa canvas (landscape: dài ngang).
+  var pad = 30;
+  var availW = W - pad * 2, availH = H - pad * 2;
+  var shortSide, longSide;
+  // dài : ngắn = ratio  → long = ratio * short
+  // fit theo cả hai chiều
+  if (availW / availH >= ratio) {
+    longSide = availH * ratio; // giới hạn bởi chiều cao... đảo: long ngang
+    // long theo ngang, ngắn theo dọc
+    shortSide = availH;
+    longSide = shortSide * ratio;
+    if (longSide > availW) { longSide = availW; shortSide = longSide / ratio; }
+  } else {
+    longSide = availW;
+    shortSide = longSide / ratio;
+    if (shortSide > availH) { shortSide = availH; longSide = shortSide * ratio; }
+  }
+  var rw = longSide, rh = shortSide;
+  var ox = (W - rw) / 2, oy = (H - rh) / 2;
+
+  // --- carve ---
+  var x = ox, y = oy, w = rw, h = rh;
+  var seq = 0, steps = 0, count = 0;
+  var firstLeftoverRatio = null;
+  gx.lineWidth = 1;
+  while (Math.min(w, h) > 1.5 && steps < 14) {
+    var s = Math.min(w, h);
+    var sx, sy, cx, cy, a0, a1;
+    if (seq === 0) { // carve LEFT (landscape): center TL
+      sx = x; sy = y; cx = sx; cy = sy; a0 = 0; a1 = Math.PI / 2;
+      x += s; w -= s;
+    } else if (seq === 1) { // carve TOP (portrait): center TR
+      sx = x; sy = y; cx = sx + s; cy = sy; a0 = Math.PI / 2; a1 = Math.PI;
+      y += s; h -= s;
+    } else if (seq === 2) { // carve RIGHT (landscape): center BR
+      sx = x + w - s; sy = y; cx = sx + s; cy = sy + s; a0 = Math.PI; a1 = 1.5 * Math.PI;
+      w -= s;
+    } else { // carve BOTTOM (portrait): center BL
+      sx = x; sy = y + h - s; cx = sx; cy = sy + s; a0 = 1.5 * Math.PI; a1 = 2 * Math.PI;
+      h -= s;
+    }
+
+    // ô vuông cắt ra
+    gx.strokeStyle = '#f3b8d4';
+    gx.strokeRect(sx, sy, s, s);
+
+    // cung xoắn ốc
+    gx.strokeStyle = '#db2777';
+    gx.lineWidth = 2.4;
+    gx.beginPath();
+    gx.arc(cx, cy, s, a0, a1);
+    gx.stroke();
+    gx.lineWidth = 1;
+
+    count++;
+    if (count === 1) firstLeftoverRatio = (Math.min(w, h) > 0.5) ? (Math.max(w, h) / Math.min(w, h)) : null;
+    seq = (seq + 1) % 4;
+    steps++;
+  }
+
+  // viền ngoài + nhãn
+  gx.strokeStyle = '#831843';
+  gx.lineWidth = 2.5;
+  gx.strokeRect(ox, oy, rw, rh);
+  gx.lineWidth = 1;
+
+  gx.fillStyle = '#9d174d';
+  gx.font = '13px sans-serif';
+  gx.textAlign = 'center';
+  gx.fillText('dài = ' + fmt(rw, 0) + ' px', ox + rw / 2, oy - 10);
+  gx.save();
+  gx.textAlign = 'center';
+  gx.translate(ox - 12, oy + rh / 2);
+  gx.rotate(-Math.PI / 2);
+  gx.fillText('ngắn = ' + fmt(rh, 0), 0, 0);
+  gx.restore();
+
+  return { count: count, firstLeftoverRatio: firstLeftoverRatio };
+}
+
+function renderGold() {
+  var ratio = parseFloat(document.getElementById('ratio').value);
+  document.getElementById('ratioVal').textContent = fmt(ratio, 3);
+  var info = drawGolden(ratio);
+  var isGold = Math.abs(ratio - PHI) < 0.02;
+
+  var out = '';
+  out += 'Tỉ số hiện tại: <span class="big">' + fmt(ratio, 3) + '</span> &nbsp; (φ = 1.618)<br>';
+  if (isGold) {
+    out += '<span class="pill gold">HÌNH CHỮ NHẬT VÀNG ✓</span> cắt một hình vuông ra, phần còn lại tỉ số ';
+    out += '<b>' + (info.firstLeftoverRatio ? fmt(info.firstLeftoverRatio, 3) : '—') + '</b> — <b>vẫn là vàng</b> (tự-lặp), nên xoắn ốc nối mượt vô hạn. Cắt được <b>' + info.count + '</b> hình vuông trong khung.';
+  } else if (Math.abs(ratio - 2) < 0.02) {
+    out += 'Tỉ số <b>1 : 2</b>: cắt một hình vuông ra còn lại đúng một <b>hình vuông</b> (tỉ số 1), rồi hết. Không tự-lặp → xoắn ốc dừng sau <b>' + info.count + '</b> bước.';
+  } else if (Math.abs(ratio - 1) < 0.02) {
+    out += 'Tỉ số <b>1 : 1</b> (hình vuông): cắt một hình vuông là <b>hết luôn</b> — chỉ ' + info.count + ' ô, không có xoắn ốc.';
+  } else {
+    out += 'Cắt một hình vuông ra, phần còn lại tỉ số <b>' + (info.firstLeftoverRatio ? fmt(info.firstLeftoverRatio, 3) : '—') + '</b> — <b>khác</b> tỉ số ban đầu → KHÔNG tự-lặp. Chỉ φ mới giữ nguyên tỉ lệ qua mỗi lần cắt.';
+  }
+  document.getElementById('goldOut').innerHTML = out;
+
+  // đồng bộ nút preset
+  document.querySelectorAll('#presets button').forEach(function (b) {
+    b.classList.toggle('on', Math.abs(parseFloat(b.dataset.r) - ratio) < 0.02);
+  });
+}
+
+document.getElementById('ratio').addEventListener('input', renderGold);
+document.querySelectorAll('#presets button').forEach(function (b) {
+  b.onclick = function () { document.getElementById('ratio').value = b.dataset.r; renderGold(); };
+});
+
+// ============================================================
+// MODULE 2 — Thước tỉ lệ người theo số đầu (canvas)
+// ============================================================
+var cvB = document.getElementById('cvBody');
+var bx = cvB.getContext('2d');
+
+// Mốc dạng % chiều cao, nội suy giữa canon trẻ (điểm neo ~5 đầu) và người lớn 8 đầu.
+// t = 0 khi heads=4 (bé), t = 1 khi heads=8 (anh hùng).
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function landmarks(heads) {
+  var t = (heads - 4) / (8 - 4); // 0..1
+  t = Math.max(0, Math.min(1, t));
+  // fraction chiều cao (0 = đỉnh đầu, 1 = gót)
+  return {
+    vai:   lerp(0.22, 0.175, t),  // vai
+    ron:   lerp(0.50, 0.375, t),  // rốn
+    hong:  lerp(0.60, 0.500, t),  // hông (đáy chậu)
+    goi:   lerp(0.82, 0.750, t),  // gối
+    got:   1.0                     // gót
+  };
+}
+
+function drawBody(heads) {
+  var W = cvB.width, H = cvB.height;
+  bx.clearRect(0, 0, W, H);
+
+  var topY = 24, botY = H - 24;
+  var Hpx = botY - topY;          // chiều cao người trên canvas (cố định)
+  var cx = W * 0.60;              // trục người (chừa chỗ trái cho vạch)
+  var headH = Hpx / heads;        // cỡ 1 đầu
+  var headW = headH * 0.72;
+  var lm = landmarks(heads);
+
+  function yAt(frac) { return topY + frac * Hpx; }
+
+  // --- vạch số đầu (ruler) ---
+  bx.strokeStyle = '#f3b8d4';
+  bx.fillStyle = '#b06';
+  bx.font = '11px sans-serif';
+  bx.textAlign = 'right';
+  var rulerX = W * 0.14;
+  for (var k = 0; k <= Math.ceil(heads) + 0.001; k++) {
+    if (k > heads + 0.001) break;
+    var yy = topY + k * headH;
+    if (yy > botY + 0.5) break;
+    bx.beginPath();
+    bx.moveTo(rulerX, yy);
+    bx.lineTo(W - 14, yy);
+    bx.strokeStyle = (k % 1 === 0) ? '#f0c4da' : '#f8e3ee';
+    bx.stroke();
+    bx.fillStyle = '#c2477e';
+    bx.fillText(k, rulerX - 6, yy + 4);
+  }
+  // đầu lẻ cuối (nếu heads không nguyên)
+  if (Math.abs(heads - Math.round(heads)) > 0.01) {
+    var yEnd = botY;
+    bx.beginPath(); bx.moveTo(rulerX, yEnd); bx.lineTo(W - 14, yEnd); bx.strokeStyle = '#f0c4da'; bx.stroke();
+    bx.fillStyle = '#c2477e'; bx.fillText(fmt(heads, 1), rulerX - 6, yEnd + 4);
+  }
+
+  // --- silhouette người ---
+  bx.fillStyle = '#f9c6dd';
+  bx.strokeStyle = '#db2777';
+  bx.lineWidth = 2;
+
+  var yShoulder = yAt(lm.vai);
+  var yHip = yAt(lm.hong);
+  var yFeet = yAt(lm.got);
+  var yKnee = yAt(lm.goi);
+  var shoulderW = headW * 2.0;
+  var hipW = headW * 1.55;
+
+  // thân (vai -> hông) hình thang
+  bx.beginPath();
+  bx.moveTo(cx - shoulderW / 2, yShoulder);
+  bx.lineTo(cx + shoulderW / 2, yShoulder);
+  bx.lineTo(cx + hipW / 2, yHip);
+  bx.lineTo(cx - hipW / 2, yHip);
+  bx.closePath();
+  bx.fill(); bx.stroke();
+
+  // cổ
+  bx.beginPath();
+  bx.rect(cx - headW * 0.16, topY + headH * 0.9, headW * 0.32, yShoulder - (topY + headH * 0.9) + 1);
+  bx.fill(); bx.stroke();
+
+  // đầu (ellipse) — co/giãn theo số đầu
+  bx.beginPath();
+  bx.ellipse(cx, topY + headH / 2, headW / 2, headH / 2, 0, 0, Math.PI * 2);
+  bx.fill(); bx.stroke();
+
+  // chân (2 ống): hông -> gót, qua gối
+  var legW = headW * 0.42;
+  [-1, 1].forEach(function (side) {
+    var xTop = cx + side * hipW * 0.26;
+    var xBot = cx + side * hipW * 0.30;
+    bx.beginPath();
+    bx.moveTo(xTop - legW / 2, yHip);
+    bx.lineTo(xTop + legW / 2, yHip);
+    bx.lineTo(xBot + legW / 2, yFeet);
+    bx.lineTo(xBot - legW / 2, yFeet);
+    bx.closePath();
+    bx.fill(); bx.stroke();
+  });
+
+  // tay (2 ống): vai -> ~hông
+  var armW = headW * 0.34;
+  var yWrist = yAt(lerp(0.55, 0.48, (heads - 4) / 4));
+  [-1, 1].forEach(function (side) {
+    var xT = cx + side * shoulderW * 0.48;
+    var xB = cx + side * (shoulderW * 0.5 + armW * 0.2);
+    bx.beginPath();
+    bx.moveTo(xT - armW / 2, yShoulder + 2);
+    bx.lineTo(xT + armW / 2, yShoulder + 2);
+    bx.lineTo(xB + armW / 2, yWrist);
+    bx.lineTo(xB - armW / 2, yWrist);
+    bx.closePath();
+    bx.fill(); bx.stroke();
+  });
+
+  // --- mốc (dashed + nhãn) ---
+  var marks = [
+    { y: yShoulder, t: 'vai',  f: lm.vai },
+    { y: yAt(lm.ron), t: 'rốn', f: lm.ron },
+    { y: yHip, t: 'hông', f: lm.hong },
+    { y: yKnee, t: 'gối', f: lm.goi }
+  ];
+  bx.font = 'bold 12px sans-serif';
+  marks.forEach(function (m) {
+    var label = m.t + ' (vạch ' + fmt(m.f * heads, 1) + ')';
+    var lw = bx.measureText(label).width;
+    var labelX = W - 12;                 // mép phải nhãn, luôn nằm trong canvas
+    bx.strokeStyle = '#7c2d54';
+    bx.setLineDash([5, 4]);
+    bx.beginPath(); bx.moveTo(cx - shoulderW / 2 - 8, m.y); bx.lineTo(labelX - lw - 8, m.y); bx.stroke();
+    bx.setLineDash([]);
+    bx.fillStyle = '#7c2d54';
+    bx.textAlign = 'right';
+    bx.fillText(label, labelX, m.y - 3);
+  });
+  bx.textAlign = 'left';
+
+  // đường điểm giữa cơ thể (50%)
+  var yMid = topY + 0.5 * Hpx;
+  bx.strokeStyle = '#eab308';
+  bx.setLineDash([2, 3]);
+  bx.beginPath(); bx.moveTo(rulerX, yMid); bx.lineTo(W - 14, yMid); bx.stroke();
+  bx.setLineDash([]);
+  bx.fillStyle = '#a16207';
+  bx.font = '11px sans-serif';
+  bx.textAlign = 'left';
+  bx.fillText('điểm giữa', rulerX + 4, yMid - 4);
+
+  return { headH: headH, lm: lm };
+}
+
+function renderBody() {
+  var heads = parseFloat(document.getElementById('heads').value);
+  document.getElementById('headsVal').textContent = fmt(heads, 1) + ' đầu';
+  var info = drawBody(heads);
+
+  var kind;
+  if (heads <= 4.2) kind = '<span class="pill warn">em bé</span> đầu rất to, chân ngắn';
+  else if (heads <= 5.5) kind = '<span class="pill warn">trẻ nhỏ</span> đầu còn to';
+  else if (heads <= 6.5) kind = '<span class="pill warn">trẻ ~6 tuổi</span> cân đối dần';
+  else if (heads < 7.75) kind = '<span class="pill warn">người lớn thực tế</span> (~7.5 đầu)';
+  else kind = '<span class="pill gold">người hùng lý tưởng</span> (8 đầu)';
+
+  var midHeadLine = 0.5 * heads;
+  var out = '';
+  out += 'Dáng: ' + kind + '<br>';
+  out += '1 đầu = <b>' + fmt(100 / heads, 1) + '%</b> chiều cao. Cùng chiều cao, càng nhiều đầu thì đầu càng <b>nhỏ tương đối</b>.<br>';
+  out += 'Điểm giữa cơ thể rơi vào <b>vạch ' + fmt(midHeadLine, 1) + '</b> đầu — ';
+  if (heads >= 7.75) out += 'đúng ngay <b>hông</b>, dáng chuẩn heroic.';
+  else out += 'nằm cao hơn hông → nửa dưới (chân) ngắn hơn, đúng đặc điểm dáng trẻ.';
+  document.getElementById('bodyOut').innerHTML = out;
+
+  // bảng mốc
+  var lm = info.lm;
+  var rows = [
+    ['đỉnh đầu', 0, 0],
+    ['cằm (hết đầu)', 1, 100 / heads],
+    ['vai', lm.vai * heads, lm.vai * 100],
+    ['rốn', lm.ron * heads, lm.ron * 100],
+    ['hông (đáy chậu)', lm.hong * heads, lm.hong * 100],
+    ['gối', lm.goi * heads, lm.goi * 100],
+    ['gót chân', heads, 100]
+  ];
+  var tb = document.querySelector('#landmarkTbl tbody');
+  tb.innerHTML = rows.map(function (r) {
+    var hit = Math.abs(r[2] - 50) < 4 ? ' class="hit"' : '';
+    return '<tr' + hit + '><td>' + r[0] + '</td><td class="n">' + fmt(r[1], 1) + '</td><td class="n">' + fmt(r[2], 0) + '%</td></tr>';
+  }).join('');
+
+  document.querySelectorAll('#bodyPresets button').forEach(function (b) {
+    b.classList.toggle('on', Math.abs(parseFloat(b.dataset.h) - heads) < 0.01);
+  });
+}
+
+document.getElementById('heads').addEventListener('input', renderBody);
+document.querySelectorAll('#bodyPresets button').forEach(function (b) {
+  b.onclick = function () { document.getElementById('heads').value = b.dataset.h; renderBody(); };
+});
+
+// init
+renderGold();
+renderBody();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

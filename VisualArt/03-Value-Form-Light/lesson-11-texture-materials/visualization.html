@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L11: Chất liệu & kết cấu — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #6b3550; font-size: 15px; margin: 4px 0 22px; }
+
+  .module {
+    background: #fff; border: 1px solid #f0d8e6; border-radius: 14px;
+    padding: 18px 20px; margin-bottom: 22px; box-shadow: 0 1px 4px rgba(157,23,77,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 20px; color: #831843; }
+  .module .sub { color: #9d6b83; font-size: 13.5px; margin-bottom: 14px; }
+
+  .canvas-wrap { text-align: center; }
+  canvas {
+    max-width: 100%; height: auto; border-radius: 12px;
+    background: #fdf2f8; box-shadow: inset 0 0 0 1px #f3d6e6;
+  }
+
+  /* Chú giải 4 chất liệu */
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 16px; }
+  .legend .item { border: 1px solid #f0d8e6; border-radius: 10px; padding: 10px 12px; background: #fff7fb; }
+  .legend .item b { color: #be185d; font-size: 14px; }
+  .legend .item p { margin: 4px 0 0; font-size: 12.5px; color: #7a5266; line-height: 1.5; }
+
+  /* Bảng điều khiển tương tác */
+  .controls { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 14px; }
+  @media (min-width: 720px) { .controls { grid-template-columns: 1.1fr 1fr; } }
+
+  .mat-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .mat-btns button {
+    border: 1.5px solid #e6b9cf; background: #fff; color: #7a2b52;
+    border-radius: 999px; padding: 7px 15px; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; transition: all .13s;
+  }
+  .mat-btns button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .mat-btns button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .slider-row { margin: 14px 0; }
+  .slider-row label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #6b3550; margin-bottom: 6px; }
+  .slider-row label .v { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); height: 26px; }
+  .hint { font-size: 12px; color: #9d6b83; margin-top: 2px; }
+
+  .readout { background: #fff7fb; border: 1px solid #f0d8e6; border-radius: 10px; padding: 12px 14px; }
+  .readout h3 { margin: 0 0 8px; font-size: 14px; color: #831843; }
+  .readout .metric { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #f0d8e6; }
+  .readout .metric:last-child { border-bottom: 0; }
+  .readout .metric .k { color: #7a5266; }
+  .readout .metric .val { font-weight: 800; color: #be185d; font-variant-numeric: tabular-nums; }
+  .readout .desc { margin-top: 8px; font-size: 12.5px; color: #6b3550; line-height: 1.55; }
+  .readout .desc b { color: #be185d; }
+
+  /* Bảng tra nhanh */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; }
+  th, td { border: 1px solid #f0d8e6; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #fce7f3; color: #831843; font-size: 12.5px; }
+  td b { color: #be185d; }
+  .cheat-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../lesson-10-shading-basic-forms/visualization.html">← L10</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Chất liệu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-12-line-to-finished/visualization.html">L12: Phác thảo → hoàn chỉnh →</a>
+</nav>
+<main>
+  <h1>Chất liệu &amp; kết cấu — bốn cách ánh sáng kể chuyện</h1>
+  <div class="lead">Cùng một khối cầu, cùng một nguồn sáng trên-trái. Đổi <strong>cách bề mặt xử lý ánh sáng</strong> → ra gỗ, nhựa bóng, kim loại hay thủy tinh.</div>
+
+  <div class="module">
+    <h2>1. Bốn chất liệu, cùng một quả cầu</h2>
+    <div class="sub">Không đổi hình, không đổi đèn — chỉ đổi hành vi ánh sáng (khuếch tán / phản chiếu / khúc xạ).</div>
+    <div class="canvas-wrap">
+      <canvas id="gallery" width="480" height="520"></canvas>
+    </div>
+    <div class="legend">
+      <div class="item"><b>Matte / Nhám</b><p>Gỗ, vải, đất. Thuần khuếch tán: tông mềm, đốm sáng to &amp; mờ, không phản chiếu.</p></div>
+      <div class="item"><b>Glossy / Bóng</b><p>Nhựa, gốm men. Khuếch tán + một đốm sáng nhỏ, sắc, gần trắng — tương phản cục bộ cao.</p></div>
+      <div class="item"><b>Metal / Kim loại</b><p>Phản chiếu môi trường: dải sáng-tối đảo, tương phản mạnh, đốm sáng <b>nhuốm màu kim loại</b>.</p></div>
+      <div class="item"><b>Glass / Thủy tinh</b><p>Thấy xuyên (khúc xạ nền), mép sáng Fresnel, đốm sắc, và <b>caustic</b> gom sáng dưới đáy.</p></div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Phòng thí nghiệm ánh sáng</h2>
+    <div class="sub">Chọn chất liệu rồi kéo hai slider. Xác nhận quy luật: <strong>độ nhám đổi kích thước/độ sắc đốm sáng</strong>, <strong>specular đổi độ chói</strong>.</div>
+    <div class="mat-btns" id="matBtns"></div>
+    <div class="controls">
+      <div>
+        <div class="canvas-wrap">
+          <canvas id="lab" width="460" height="400"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="slider-row">
+          <label>Độ nhám (roughness) <span class="v" id="roughV">0.16</span></label>
+          <input type="range" id="rough" min="0" max="1" step="0.01" value="0.16">
+          <div class="hint">Trái = nhẵn như gương · Phải = ráp như đất. Điều khiển <b>kích thước &amp; độ sắc</b> đốm sáng.</div>
+        </div>
+        <div class="slider-row">
+          <label>Cường độ specular (k<sub>s</sub>) <span class="v" id="ksV">1.00</span></label>
+          <input type="range" id="ks" min="0" max="1" step="0.01" value="1">
+          <div class="hint">Điều khiển <b>độ chói</b> của đốm sáng — không đổi kích thước.</div>
+        </div>
+        <div class="readout">
+          <h3>Số đo đốm sáng (specular)</h3>
+          <div class="metric"><span class="k">Độ bóng n = 2^(1+(1−r)·9)</span><span class="val" id="mN">—</span></div>
+          <div class="metric"><span class="k">Nửa-góc đốm α = arccos(0.5^(1/n))</span><span class="val" id="mA">—</span></div>
+          <div class="metric"><span class="k">Độ chói đốm = k<sub>s</sub></span><span class="val" id="mK">—</span></div>
+          <div class="desc" id="mDesc">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>3. Bảng tra nhanh khi vẽ</h2>
+    <div class="sub">Trước khi tô mỗi vật, hỏi 3 câu: nhẵn/ráp? · dielectric/kim loại? · đục/trong?</div>
+    <div class="cheat-wrap">
+      <table>
+        <thead>
+          <tr><th>Chất liệu</th><th>Khuếch tán</th><th>Đốm sáng</th><th>Tương phản</th><th>Dấu hiệu riêng</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Matte</b></td><td>mạnh</td><td>to, mờ, không viền</td><td>mềm</td><td>không phản chiếu; ánh phản xạ nhẹ ở rìa tối</td></tr>
+          <tr><td><b>Glossy</b></td><td>vừa</td><td>nhỏ, sắc, gần trắng</td><td>cao tại đốm</td><td>đốm màu <b>nguồn sáng</b> (không nhuốm màu vật)</td></tr>
+          <tr><td><b>Metal</b></td><td>rất yếu</td><td>rất chói, <b>nhuốm màu KL</b></td><td>rất cao, đảo</td><td>phản chiếu môi trường; mép sáng gần bằng đỉnh</td></tr>
+          <tr><td><b>Glass</b></td><td>~0</td><td>nhỏ sắc (1–2 đốm)</td><td>tùy nền sau</td><td>thấy xuyên + khúc xạ + mép sáng + <b>caustic</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+// =============================================================
+// Engine đánh bóng khối cầu bằng phần mềm (per-pixel).
+// Ánh sáng tách 2 phần: khuếch tán (Lambert) + phản chiếu gương (Phong).
+// Mỗi chất liệu pha 2 phần này theo công thức riêng → ra vẻ ngoài khác nhau.
+// =============================================================
+
+// Hướng tới nguồn sáng (trên-trái, hơi ra phía người xem). Canvas y hướng xuống.
+var Lx = -0.5064, Ly = -0.6584, Lz = 0.5571;
+
+var MAT = {
+  matte:  { name: 'Matte',  vi: 'Nhám',      base: [168, 112, 62],  rough: 0.90, ks: 0.35 },
+  glossy: { name: 'Glossy', vi: 'Bóng',      base: [214, 58, 66],   rough: 0.16, ks: 1.00 },
+  metal:  { name: 'Metal',  vi: 'Kim loại',  base: [214, 176, 96],  rough: 0.20, ks: 1.00 },
+  glass:  { name: 'Glass',  vi: 'Thủy tinh', base: [150, 205, 225], rough: 0.06, ks: 1.00 }
+};
+
+function clamp255(v) { return v < 0 ? 0 : (v > 255 ? 255 : v); }
+function shininessOf(rough) { return Math.pow(2, 1 + (1 - rough) * 9); }
+
+// --- Nền: gradient + sọc mờ để khối thủy tinh có cái mà khúc xạ ---
+function paintBackground(ctx, W, H) {
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#fdeef6');
+  g.addColorStop(1, '#f2e0ea');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  for (var i = -1; i < W / 54 + 1; i++) {
+    ctx.fillStyle = (i % 2 === 0) ? '#f4cfe1' : '#e7d3e4';
+    ctx.fillRect(i * 54, 0, 27, H);
+  }
+  ctx.restore();
+}
+
+// --- Bóng đổ mềm dưới khối (đèn trên-trái → bóng đổ xuống-phải) ---
+function drawShadow(ctx, s) {
+  var gx = s.cx + s.R * 0.26, gy = s.cy + s.R * 1.02;
+  var rx = s.R * 1.02, ry = s.R * 0.26;
+  var a = (s.mat === 'glass') ? 0.18 : 0.32;
+  ctx.save();
+  ctx.translate(gx, gy);
+  ctx.scale(1, ry / rx);
+  var g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+  g.addColorStop(0, 'rgba(60,22,45,' + a + ')');
+  g.addColorStop(1, 'rgba(60,22,45,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, rx, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// --- Caustic: chùm sáng hội tụ qua thủy tinh, in đốm sáng trên bàn ---
+function drawCaustic(ctx, s) {
+  if (s.mat !== 'glass') return;
+  var gx = s.cx + s.R * 0.5, gy = s.cy + s.R * 1.0;
+  var rad = s.R * 0.6;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.translate(gx, gy);
+  ctx.scale(1, 0.5);
+  var g = ctx.createRadialGradient(0, 0, 0, 0, 0, rad);
+  g.addColorStop(0, 'rgba(255,248,222,0.95)');
+  g.addColorStop(0.45, 'rgba(255,240,190,0.35)');
+  g.addColorStop(1, 'rgba(255,240,190,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, rad, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// --- Đánh bóng một khối cầu vào buffer out (đọc bg cho khúc xạ + viền AA) ---
+function shadeSphere(out, bg, W, H, s) {
+  var cx = s.cx, cy = s.cy, R = s.R, mat = s.mat;
+  var base = MAT[mat].base;
+  var n = shininessOf(s.rough);
+  var ks = s.ks;
+
+  var x0 = Math.max(0, Math.floor(cx - R)), x1 = Math.min(W - 1, Math.ceil(cx + R));
+  var y0 = Math.max(0, Math.floor(cy - R)), y1 = Math.min(H - 1, Math.ceil(cy + R));
+
+  for (var y = y0; y <= y1; y++) {
+    for (var x = x0; x <= x1; x++) {
+      var dx = (x - cx) / R, dy = (y - cy) / R;
+      var r2 = dx * dx + dy * dy;
+      if (r2 > 1.0) continue;
+      var rr = Math.sqrt(r2);
+      var nz = Math.sqrt(1 - r2);
+      var nx = dx, ny = dy;
+
+      var NdotL = nx * Lx + ny * Ly + nz * Lz;
+      var diff = NdotL > 0 ? NdotL : 0;
+      // Phản xạ L quanh N: Rr = 2(N·L)N − L ; V = (0,0,1) nên R·V = Rr.z
+      var rz = 2 * NdotL * nz - Lz;
+      var spec = rz > 0 ? Math.pow(rz, n) : 0;
+
+      var r, g, b;
+
+      if (mat === 'matte') {
+        var lm = 0.30 + 0.85 * diff;
+        var sm = 255 * spec * ks * 0.5;
+        r = base[0] * lm + sm; g = base[1] * lm + sm; b = base[2] * lm + sm;
+
+      } else if (mat === 'glossy') {
+        var lg = 0.16 + 0.82 * diff;
+        var sg = 255 * spec * ks;               // đốm trắng (màu nguồn sáng)
+        r = base[0] * lg + sg; g = base[1] * lg + sg; b = base[2] * lg + sg;
+
+      } else if (mat === 'metal') {
+        // Phản chiếu môi trường: phản xạ V quanh N → Rv = 2(N·V)N − V, N·V = nz
+        var rvy = 2 * nz * ny;                  // thành phần y của tia phản chiếu
+        var up = -rvy;                          // hướng lên (canvas y xuống)
+        var band = 0.10 + 0.55 * s.rough;       // ráp → dải phản chiếu loang rộng, mềm
+        var env = 0.42 + 0.5 * up;              // trời sáng phía trên, sàn tối phía dưới
+        env += 0.55 * Math.exp(-(up * up) / (band * band)); // dải sáng ngang (đảo value)
+        if (env < 0.05) env = 0.05;
+        var hi = spec * ks;                     // đốm nhuốm màu kim loại
+        r = base[0] * env + hi * (255 * 0.45 + base[0] * 0.55);
+        g = base[1] * env + hi * (255 * 0.45 + base[1] * 0.55);
+        b = base[2] * env + hi * (255 * 0.45 + base[2] * 0.55);
+
+      } else { // glass
+        var disp = 40 * (1 - nz) * (0.35 + 0.65 * (1 - s.rough)); // khúc xạ mạnh ở rìa
+        var sx = x + nx * disp, sy = y + ny * disp;
+        sx = sx < 0 ? 0 : (sx > W - 1 ? W - 1 : sx);
+        sy = sy < 0 ? 0 : (sy > H - 1 ? H - 1 : sy);
+        var bi = ((sy | 0) * W + (sx | 0)) * 4;
+        var br = bg[bi], bgc = bg[bi + 1], bb = bg[bi + 2];
+        var tint = 0.14;                        // ám nhẹ màu thủy tinh
+        br = br * (1 - tint) + base[0] * tint;
+        bgc = bgc * (1 - tint) + base[1] * tint;
+        bb = bb * (1 - tint) + base[2] * tint;
+        var frost = s.rough * 0.55;             // kính mờ → nhòe về xám sáng
+        br = br * (1 - frost) + 205 * frost;
+        bgc = bgc * (1 - frost) + 205 * frost;
+        bb = bb * (1 - frost) + 205 * frost;
+        var fres = Math.pow(1 - nz, 3);         // mép sáng Fresnel
+        var rim = 255 * fres * 0.75;
+        var hg = 255 * spec * ks;               // đốm sáng sắc
+        r = br * 0.9 + rim + hg;
+        g = bgc * 0.9 + rim + hg;
+        b = bb * 0.9 + rim + hg;
+      }
+
+      // Viền mịn (anti-alias): pha với nền theo độ phủ ở rìa khối
+      var idx = (y * W + x) * 4;
+      var cov = (1 - rr) * R / 1.4;
+      if (cov > 1) cov = 1; if (cov < 0) cov = 0;
+      out[idx]     = clamp255(r * cov + bg[idx]     * (1 - cov));
+      out[idx + 1] = clamp255(g * cov + bg[idx + 1] * (1 - cov));
+      out[idx + 2] = clamp255(b * cov + bg[idx + 2] * (1 - cov));
+      out[idx + 3] = 255;
+    }
+  }
+}
+
+// --- Pipeline vẽ toàn canvas ---
+function renderCanvas(cv, list, labels) {
+  var ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  paintBackground(ctx, W, H);
+  list.forEach(function (s) { drawShadow(ctx, s); });
+  var bg = ctx.getImageData(0, 0, W, H);
+  var out = ctx.getImageData(0, 0, W, H);
+  list.forEach(function (s) { shadeSphere(out.data, bg.data, W, H, s); });
+  ctx.putImageData(out, 0, 0);
+  list.forEach(function (s) { drawCaustic(ctx, s); });
+  if (labels) {
+    ctx.textAlign = 'center';
+    ctx.font = '700 15px "Manrope Variable", sans-serif';
+    list.forEach(function (s) {
+      ctx.fillStyle = '#831843';
+      ctx.fillText(MAT[s.mat].name + ' · ' + MAT[s.mat].vi, s.cx, s.cy - s.R - 14);
+    });
+  }
+}
+
+// ============ 1. Gallery 4 chất liệu (2×2) ============
+(function () {
+  var cv = document.getElementById('gallery');
+  var R = 78;
+  var list = [
+    { cx: 140, cy: 150, R: R, mat: 'matte',  rough: MAT.matte.rough,  ks: MAT.matte.ks },
+    { cx: 340, cy: 150, R: R, mat: 'glossy', rough: MAT.glossy.rough, ks: MAT.glossy.ks },
+    { cx: 140, cy: 380, R: R, mat: 'metal',  rough: MAT.metal.rough,  ks: MAT.metal.ks },
+    { cx: 340, cy: 380, R: R, mat: 'glass',  rough: MAT.glass.rough,  ks: MAT.glass.ks }
+  ];
+  renderCanvas(cv, list, true);
+})();
+
+// ============ 2. Phòng thí nghiệm tương tác ============
+(function () {
+  var cv = document.getElementById('lab');
+  var roughEl = document.getElementById('rough');
+  var ksEl = document.getElementById('ks');
+  var roughV = document.getElementById('roughV');
+  var ksV = document.getElementById('ksV');
+  var mN = document.getElementById('mN'), mA = document.getElementById('mA'), mK = document.getElementById('mK');
+  var mDesc = document.getElementById('mDesc');
+  var btnBox = document.getElementById('matBtns');
+
+  var state = { mat: 'glossy', rough: 0.16, ks: 1.0 };
+
+  // Nút chọn chất liệu
+  ['matte', 'glossy', 'metal', 'glass'].forEach(function (m) {
+    var b = document.createElement('button');
+    b.textContent = MAT[m].name + ' · ' + MAT[m].vi;
+    b.dataset.mat = m;
+    b.onclick = function () {
+      state.mat = m;
+      // Đổi chất liệu → nạp lại preset nhám/specular tiêu biểu để thấy đúng "chất"
+      state.rough = MAT[m].rough;
+      state.ks = MAT[m].ks;
+      roughEl.value = state.rough;
+      ksEl.value = state.ks;
+      syncBtns();
+      draw();
+    };
+    btnBox.appendChild(b);
+  });
+  function syncBtns() {
+    Array.prototype.forEach.call(btnBox.children, function (b) {
+      b.classList.toggle('on', b.dataset.mat === state.mat);
+    });
+  }
+
+  function descOf(alpha) {
+    if (alpha > 28) return 'Đốm sáng <b>rộng, mờ</b> — bề mặt ráp (matte, gỗ/đất).';
+    if (alpha > 15) return 'Đốm sáng <b>vừa</b>, viền bắt đầu rõ — bán bóng.';
+    if (alpha > 6)  return 'Đốm sáng <b>nhỏ, rõ</b> — nhẵn (nhựa/sơn bóng).';
+    return 'Đốm sáng <b>rất nhỏ, sắc lẹm</b> — cực nhẵn (men sứ, kính).';
+  }
+
+  var pending = false;
+  function draw() {
+    var n = shininessOf(state.rough);
+    var alpha = Math.acos(Math.pow(0.5, 1 / n)) * 180 / Math.PI;
+    roughV.textContent = Number(state.rough).toFixed(2);
+    ksV.textContent = Number(state.ks).toFixed(2);
+    mN.textContent = n < 10 ? n.toFixed(1) : Math.round(n);
+    mA.textContent = alpha.toFixed(1) + '°';
+    mK.textContent = Number(state.ks).toFixed(2);
+    mDesc.innerHTML = descOf(alpha);
+
+    var list = [{ cx: 232, cy: 178, R: 128, mat: state.mat, rough: state.rough, ks: state.ks }];
+    renderCanvas(cv, list, false);
+  }
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; draw(); });
+  }
+
+  roughEl.oninput = function () { state.rough = parseFloat(roughEl.value); schedule(); };
+  ksEl.oninput = function () { state.ks = parseFloat(ksEl.value); schedule(); };
+
+  syncBtns();
+  draw();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

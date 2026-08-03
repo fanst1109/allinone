@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12: Phác thảo → hoàn chỉnh — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf6f7;
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #6b5560; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f0d9e4; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(157,23,77,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; color: #83184a; }
+  .module .sub { color: #8a7480; font-size: 13px; margin-bottom: 14px; }
+
+  /* ==== Layout scene + panel ==== */
+  .stage-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .canvas-col { flex: 1 1 380px; min-width: 0; }
+  .panel-col { flex: 1 1 280px; min-width: 0; }
+  .svg-frame {
+    background: #fbf8f6; border: 1px solid #ecd6e0; border-radius: 10px;
+    padding: 8px; box-shadow: inset 0 1px 4px rgba(0,0,0,.04);
+  }
+  svg { width: 100%; height: auto; display: block; border-radius: 6px; }
+
+  /* ==== Stage stepper ==== */
+  .stepper { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stepper button {
+    flex: 1 1 auto; min-width: 0; border: 1px solid #e6b9cd; background: #fff;
+    border-radius: 8px; padding: 8px 6px; cursor: pointer; font-size: 12.5px;
+    font-weight: 700; color: #83184a; transition: all .12s; line-height: 1.25;
+  }
+  .stepper button .n {
+    display: inline-flex; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent-hover); align-items: center;
+    justify-content: center; font-size: 11px; margin-right: 4px; flex-shrink: 0;
+  }
+  .stepper button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .stepper button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .stepper button.active .n { background: rgba(255,255,255,.3); color: #fff; }
+
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .slider-row label { font-size: 12px; font-weight: 700; color: #8a7480; white-space: nowrap; }
+  input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+
+  /* ==== Layer toggles ==== */
+  .toggles { display: flex; flex-direction: column; gap: 8px; }
+  .toggle {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border: 1px solid #efdbe4; border-radius: 8px; cursor: pointer; font-size: 13.5px;
+    font-weight: 600; color: #4a3540; transition: background .12s;
+  }
+  .toggle:hover { background: var(--accent-soft); }
+  .toggle input { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
+  .toggle .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(0,0,0,.12); }
+  .toggle .sw-line { background: repeating-linear-gradient(45deg,#db2777 0 3px,#fff 3px 6px); }
+  .toggle .sw-value { background: linear-gradient(90deg,#222,#eee); }
+  .toggle .sw-color { background: linear-gradient(90deg,#e8853f,#3f6fe8); }
+  .toggle .sw-detail { background: radial-gradient(circle at 35% 35%,#fff 0 18%,#c98 40%,#654 100%); }
+
+  .caption {
+    margin-top: 14px; padding: 12px 14px; border-left: 4px solid var(--accent);
+    background: var(--accent-soft); border-radius: 0 8px 8px 0; font-size: 13.5px;
+    line-height: 1.55; color: #4a2338;
+  }
+  .caption b { color: var(--accent-hover); }
+  .caption a { color: var(--accent-hover); font-weight: 700; }
+  .caption .tip { display: block; margin-top: 6px; font-size: 12px; color: #7a5566; }
+
+  /* ==== Cost-of-change module ==== */
+  .cost-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cost-btns button {
+    flex: 1 1 auto; border: 1px solid #e6b9cd; background: #fff; border-radius: 8px;
+    padding: 8px 6px; cursor: pointer; font-size: 12.5px; font-weight: 700; color: #83184a;
+    transition: all .12s;
+  }
+  .cost-btns button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .cost-btns button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .cost-bar-row { display: flex; align-items: center; gap: 10px; margin: 9px 0; }
+  .cost-label { width: 130px; font-size: 12.5px; font-weight: 700; color: #6b5560; flex-shrink: 0; }
+  .cost-track { flex: 1; height: 26px; background: #f6e7ee; border-radius: 6px; overflow: hidden; min-width: 0; }
+  .cost-fill {
+    height: 100%; display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 8px; color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap;
+    background: linear-gradient(90deg,#f472b6,#db2777); transition: width .4s ease; border-radius: 6px;
+  }
+  .cost-note { margin-top: 10px; font-size: 13px; color: #6b5560; line-height: 1.55; }
+
+  /* ==== Value scale strip ==== */
+  .vscale { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1px solid #e6d0da; }
+  .vstep {
+    flex: 1; aspect-ratio: 1 / 1.35; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end; padding-bottom: 4px; cursor: pointer;
+    font-size: 11px; font-weight: 700; position: relative;
+  }
+  .vstep .b { position: absolute; top: 4px; font-size: 11px; }
+  .vnote { margin-top: 10px; font-size: 13px; color: #6b5560; line-height: 1.55; min-height: 2.6em; }
+  .vnote b { color: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    .cost-label { width: 96px; font-size: 11px; }
+    .stepper button { font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../lesson-11-texture-materials/visualization.html">← L11</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Phác thảo → hoàn chỉnh</span>
+</nav>
+<main>
+  <h1>Từ phác thảo đến tranh hoàn chỉnh</h1>
+  <div class="lead">Một tĩnh vật (quả cầu + khối hộp) dựng theo <strong>4 lớp</strong>: Nét → Sắc độ → Màu → Hoàn chỉnh. Kéo thanh <em>giai đoạn</em> để xem tranh xây dần, hoặc bật/tắt riêng từng lớp để soi mỗi lớp đóng góp gì.</div>
+
+  <div class="module">
+    <h2>Dựng tranh theo lớp</h2>
+    <div class="sub">Ánh sáng chiếu từ trên-trái. Đơn vị bậc value: thang 9 bậc (0 đen → 8 trắng).</div>
+    <div class="stage-wrap">
+      <div class="canvas-col">
+        <div class="svg-frame">
+          <svg id="scene" width="640" height="440" viewBox="0 0 640 440" role="img" aria-label="Tĩnh vật quả cầu và khối hộp dựng theo lớp">
+            <defs>
+              <!-- Radial gradient cho quả cầu: bản grayscale (value) và bản màu (color) -->
+              <radialGradient id="gv-sphere" gradientUnits="userSpaceOnUse" cx="200" cy="290" r="98" fx="166" fy="252">
+                <stop offset="0%"  stop-color="hsl(0,0%,92%)"/>
+                <stop offset="30%" stop-color="hsl(0,0%,74%)"/>
+                <stop offset="62%" stop-color="hsl(0,0%,48%)"/>
+                <stop offset="88%" stop-color="hsl(0,0%,24%)"/>
+                <stop offset="100%" stop-color="hsl(0,0%,34%)"/>
+              </radialGradient>
+              <radialGradient id="gc-sphere" gradientUnits="userSpaceOnUse" cx="200" cy="290" r="98" fx="166" fy="252">
+                <stop offset="0%"  stop-color="hsl(36,58%,90%)"/>
+                <stop offset="30%" stop-color="hsl(26,72%,66%)"/>
+                <stop offset="62%" stop-color="hsl(16,66%,45%)"/>
+                <stop offset="88%" stop-color="hsl(9,54%,24%)"/>
+                <stop offset="100%" stop-color="hsl(18,40%,36%)"/>
+              </radialGradient>
+            </defs>
+
+            <!-- Giấy nền: luôn hiển thị -->
+            <rect x="0" y="0" width="640" height="440" fill="#fbf8f6"/>
+
+            <!-- ==== Nhóm fill của cảnh (value/color) ==== -->
+            <g id="g-scene">
+              <rect class="fill-shape" data-k="wall"  x="0" y="0" width="640" height="200"/>
+              <rect class="fill-shape" data-k="table" x="0" y="200" width="640" height="240"/>
+              <!-- bóng đổ -->
+              <ellipse class="fill-shape" data-k="sphShadow" cx="300" cy="372" rx="112" ry="24"/>
+              <ellipse class="fill-shape" data-k="cubeShadow" cx="548" cy="392" rx="76" ry="19"/>
+              <!-- khối hộp: mặt phải (tối) → mặt trước → mặt trên -->
+              <polygon class="fill-shape" data-k="cubeRight" points="520,252 560,214 560,340 520,378"/>
+              <polygon class="fill-shape" data-k="cubeFront" points="400,252 520,252 520,378 400,378"/>
+              <polygon class="fill-shape" data-k="cubeTop"   points="400,252 520,252 560,214 440,214"/>
+              <!-- quả cầu -->
+              <circle class="fill-shape" data-k="sphere" cx="200" cy="290" r="78"/>
+            </g>
+
+            <!-- ==== Lớp Nét: dựng hình ==== -->
+            <g id="g-line" fill="none">
+              <!-- lưới 1/3 + đường chân trời + điểm tụ (guides mờ) -->
+              <g stroke="#db2777" stroke-width="1" opacity="0.5">
+                <line x1="213" y1="0" x2="213" y2="440" stroke-dasharray="5 5"/>
+                <line x1="427" y1="0" x2="427" y2="440" stroke-dasharray="5 5"/>
+                <line x1="0" y1="147" x2="640" y2="147" stroke-dasharray="5 5"/>
+                <line x1="0" y1="293" x2="640" y2="293" stroke-dasharray="5 5"/>
+                <!-- đường chân trời -->
+                <line x1="0" y1="200" x2="640" y2="200" stroke-width="1.4" stroke-dasharray="none"/>
+                <!-- điểm tụ + tia hội tụ tới khối hộp -->
+                <circle cx="600" cy="200" r="4" fill="#db2777" stroke="none"/>
+                <line x1="600" y1="200" x2="400" y2="252" stroke-dasharray="3 4"/>
+                <line x1="600" y1="200" x2="400" y2="378" stroke-dasharray="3 4"/>
+                <line x1="600" y1="200" x2="440" y2="214" stroke-dasharray="3 4"/>
+              </g>
+              <!-- contour: outline vật thể (nét mực) -->
+              <g stroke="#3a2b32" stroke-width="1.8" opacity="0.9" stroke-linejoin="round">
+                <circle cx="200" cy="290" r="78"/>
+                <polygon points="400,252 520,252 560,214 440,214"/>
+                <polygon points="400,252 520,252 520,378 400,378"/>
+                <line x1="520" y1="252" x2="560" y2="214"/>
+                <line x1="560" y1="214" x2="560" y2="340"/>
+                <line x1="560" y1="340" x2="520" y2="378"/>
+              </g>
+            </g>
+
+            <!-- ==== Lớp Hoàn chỉnh: chất liệu, highlight, điểm nhấn ==== -->
+            <g id="g-detail">
+              <!-- vân gỗ mặt bàn -->
+              <g stroke="#3a2418" stroke-width="2" opacity="0.06">
+                <line x1="30" y1="238" x2="610" y2="234"/>
+                <line x1="30" y1="286" x2="610" y2="290"/>
+                <line x1="30" y1="336" x2="610" y2="330"/>
+                <line x1="30" y1="386" x2="610" y2="392"/>
+                <line x1="30" y1="424" x2="610" y2="420"/>
+              </g>
+              <!-- specular highlight trên quả cầu (bề mặt bóng) -->
+              <ellipse cx="168" cy="252" rx="15" ry="10" fill="#fff" opacity="0.9"/>
+              <ellipse cx="164" cy="248" rx="6" ry="4" fill="#fff"/>
+              <!-- ánh phản nâng rìa dưới-phải quả cầu -->
+              <path d="M 150 355 A 78 78 0 0 0 262 320" fill="none" stroke="hsl(30,45%,70%)" stroke-width="7" opacity="0.35" stroke-linecap="round"/>
+              <!-- điểm nhấn: accent tối nhất tại chân quả cầu (tiêu điểm) -->
+              <ellipse cx="214" cy="366" rx="46" ry="11" fill="#1a0f0a" opacity="0.45"/>
+              <!-- cạnh sáng trên khối hộp (edge sắc) -->
+              <line x1="400" y1="252" x2="520" y2="252" stroke="#fff" stroke-width="2" opacity="0.5"/>
+              <line x1="520" y1="252" x2="560" y2="214" stroke="#fff" stroke-width="1.5" opacity="0.4"/>
+              <!-- cạnh tối ranh giới mặt trước/phải (accent) -->
+              <line x1="520" y1="252" x2="520" y2="378" stroke="#000" stroke-width="2" opacity="0.28"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel-col">
+        <div class="stepper" id="stepper">
+          <button data-stage="1"><span class="n">1</span>Nét</button>
+          <button data-stage="2"><span class="n">2</span>Sắc độ</button>
+          <button data-stage="3"><span class="n">3</span>Màu</button>
+          <button data-stage="4"><span class="n">4</span>Hoàn chỉnh</button>
+        </div>
+        <div class="slider-row">
+          <label for="stageSlider">Giai đoạn</label>
+          <input type="range" id="stageSlider" min="1" max="4" step="1" value="1">
+          <span id="stageNum" style="font-weight:800;color:var(--accent-hover);width:14px;text-align:center">1</span>
+        </div>
+
+        <div class="toggles">
+          <label class="toggle"><input type="checkbox" id="t-line"><span class="swatch sw-line"></span>Nét — dựng hình (bố cục · tỉ lệ · phối cảnh)</label>
+          <label class="toggle"><input type="checkbox" id="t-value"><span class="swatch sw-value"></span>Sắc độ — mảng sáng-tối, khối</label>
+          <label class="toggle"><input type="checkbox" id="t-color"><span class="swatch sw-color"></span>Màu — phủ hòa sắc (đè lên sắc độ)</label>
+          <label class="toggle"><input type="checkbox" id="t-detail"><span class="swatch sw-detail"></span>Hoàn chỉnh — chất liệu · highlight · điểm nhấn</label>
+        </div>
+
+        <div class="caption" id="caption"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Vì sao đúng thứ tự này? — chi phí sửa lỗi</h2>
+    <div class="sub">Bấm xem: nếu phát hiện <strong>lỗi bố cục</strong> muộn thì phải làm lại bao nhiêu. Chi phí nhảy theo cấp số.</div>
+    <div class="cost-btns" id="costBtns">
+      <button data-cost="0">Phát hiện ở <b>Nét</b></button>
+      <button data-cost="1">Sau khi <b>Sắc độ</b></button>
+      <button data-cost="2">Sau khi <b>Màu</b></button>
+      <button data-cost="3">Sau khi <b>Hoàn chỉnh</b></button>
+    </div>
+    <div id="costBars"></div>
+    <div class="cost-note" id="costNote">Chọn một giai đoạn ở trên để xem chi phí làm lại.</div>
+  </div>
+
+  <div class="module">
+    <h2>Thang giá trị 9 bậc</h2>
+    <div class="sub">Ngôn ngữ chung của lớp Sắc độ. Bấm một bậc để xem nó nằm ở đâu trên quả cầu.</div>
+    <div class="vscale" id="vscale"></div>
+    <div class="vnote" id="vnote">Bấm một ô để xem vùng tương ứng trên quả cầu chiếu sáng từ trên-trái.</div>
+  </div>
+</main>
+
+<script>
+// ================= LỚP DỰNG TRANH =================
+// Bản đồ fill cho từng shape ở 2 chế độ: value (grayscale) & color.
+var FILLS = {
+  wall:       { value: 'hsl(0,0%,66%)',  color: 'hsl(210,14%,66%)' },
+  table:      { value: 'hsl(0,0%,52%)',  color: 'hsl(35,32%,52%)'  },
+  sphShadow:  { value: 'hsl(0,0%,20%)',  color: 'hsl(18,30%,20%)'  },
+  cubeShadow: { value: 'hsl(0,0%,22%)',  color: 'hsl(216,28%,22%)' },
+  cubeRight:  { value: 'hsl(0,0%,32%)',  color: 'hsl(220,46%,32%)' },
+  cubeFront:  { value: 'hsl(0,0%,58%)',  color: 'hsl(214,48%,56%)' },
+  cubeTop:    { value: 'hsl(0,0%,82%)',  color: 'hsl(210,42%,80%)' },
+  sphere:     { value: 'url(#gv-sphere)', color: 'url(#gc-sphere)' }
+};
+
+var state = { line: false, value: false, color: false, detail: false };
+
+// Preset cộng dồn cho từng giai đoạn 1..4
+var PRESETS = {
+  1: { line: true,  value: false, color: false, detail: false },
+  2: { line: true,  value: true,  color: false, detail: false },
+  3: { line: false, value: false, color: true,  detail: false },
+  4: { line: false, value: false, color: true,  detail: true  }
+};
+
+var CAPTIONS = {
+  1: '<b>Lớp 1 — Nét (phác hình).</b> Chốt <b>bố cục</b> (quy tắc 1/3), <b>tỉ lệ</b> (đo bằng đơn vị) và <b>phối cảnh</b> (đường chân trời + điểm tụ). Đây là quyết định nền tảng — rẻ nhất để sửa. <span class="tip">Kiến thức: Nhánh II — Bố cục &amp; Phối cảnh · <a href="../../index.html">xem lộ trình</a></span>',
+  2: '<b>Lớp 2 — Sắc độ (value).</b> Chia mảng sáng-tối, dựng khối 3D bằng <b>thang giá trị 9 bậc</b>. Value gánh phần lớn khả năng đọc hình → dựng đúng ở đây trước khi đụng màu. <span class="tip">Kiến thức: L09–L10 — Value &amp; Khối · <a href="../index.html">Nhánh III</a></span>',
+  3: '<b>Lớp 3 — Màu.</b> Phủ <b>hòa sắc bổ túc</b> (cầu <b>cam</b> ↔ hộp <b>lam</b>, lệch ≈180° trên vòng màu) — khớp độ sáng của màu với value đã dựng để khối không phẳng lại. <span class="tip">Kiến thức: Nhánh I — Màu sắc · <a href="../../01-Color/index.html">xem</a></span>',
+  4: '<b>Lớp 4 — Hoàn chỉnh.</b> Thêm <b>chất liệu</b> (vân bàn), <b>specular highlight</b>, và đặt <b>tương phản mạnh nhất</b> tại tiêu điểm (chân quả cầu) — mắt bị dẫn về đó. <span class="tip">Kiến thức: L11 — Chất liệu &amp; Chất cảm · <a href="../lesson-11-texture-materials/visualization.html">xem</a></span>'
+};
+
+var shapes = document.querySelectorAll('.fill-shape');
+var gLine = document.getElementById('g-line');
+var gDetail = document.getElementById('g-detail');
+var cap = document.getElementById('caption');
+var slider = document.getElementById('stageSlider');
+var stageNum = document.getElementById('stageNum');
+
+function applyFills() {
+  var mode = state.color ? 'color' : (state.value ? 'value' : null);
+  shapes.forEach(function(el) {
+    var k = el.getAttribute('data-k');
+    el.setAttribute('fill', mode ? FILLS[k][mode] : 'none');
+  });
+}
+
+function matchedStage() {
+  for (var s = 1; s <= 4; s++) {
+    var p = PRESETS[s];
+    if (p.line === state.line && p.value === state.value && p.color === state.color && p.detail === state.detail)
+      return s;
+  }
+  return 0;
+}
+
+function render() {
+  applyFills();
+  gLine.style.display = state.line ? '' : 'none';
+  gDetail.style.display = state.detail ? '' : 'none';
+
+  document.getElementById('t-line').checked = state.line;
+  document.getElementById('t-value').checked = state.value;
+  document.getElementById('t-color').checked = state.color;
+  document.getElementById('t-detail').checked = state.detail;
+
+  var st = matchedStage();
+  // stepper + slider phản chiếu giai đoạn khớp
+  document.querySelectorAll('#stepper button').forEach(function(b) {
+    b.classList.toggle('active', +b.getAttribute('data-stage') === st);
+  });
+  if (st) { slider.value = st; stageNum.textContent = st; }
+  else { stageNum.textContent = '–'; }
+
+  cap.innerHTML = st ? CAPTIONS[st]
+    : '<b>Chế độ tự khám phá.</b> Bạn đang bật/tắt lớp thủ công. <span class="tip">Mẹo: bật <b>Sắc độ</b> rồi tắt <b>Màu</b> để soi riêng cấu trúc value — đó là "bộ xương" gánh khả năng đọc hình. Lưu ý: khi bật Màu, màu đè lên và thay cho Sắc độ.</span>';
+}
+
+function setStage(n) {
+  state = Object.assign({}, PRESETS[n]);
+  render();
+}
+
+document.querySelectorAll('#stepper button').forEach(function(b) {
+  b.onclick = function() { setStage(+b.getAttribute('data-stage')); };
+});
+slider.oninput = function() { setStage(+slider.value); };
+
+[['t-line','line'],['t-value','value'],['t-color','color'],['t-detail','detail']].forEach(function(pair) {
+  document.getElementById(pair[0]).onchange = function(e) {
+    state[pair[1]] = e.target.checked;
+    render();
+  };
+});
+
+setStage(1);
+
+// ================= CHI PHÍ SỬA LỖI =================
+var COST = [
+  { label: 'Nét',        min: 2,   redo: 'Tẩy và vẽ lại vài đường.' },
+  { label: 'Sắc độ',     min: 20,  redo: 'Dựng lại toàn bộ mảng sáng-tối.' },
+  { label: 'Màu',        min: 60,  redo: 'Phủ lại toàn bộ màu.' },
+  { label: 'Hoàn chỉnh', min: 240, redo: 'Gần như vẽ lại cả tranh.' }
+];
+var costBars = document.getElementById('costBars');
+var costNote = document.getElementById('costNote');
+var maxCost = 240;
+
+function renderCost(sel) {
+  costBars.innerHTML = COST.map(function(c, i) {
+    var active = i === sel;
+    var w = active ? (c.min / maxCost * 100) : 0;
+    return '<div class="cost-bar-row">' +
+      '<div class="cost-label">' + (active ? '▶ ' : '') + c.label + '</div>' +
+      '<div class="cost-track"><div class="cost-fill" style="width:' + w + '%">' +
+        (active ? c.min + ' phút' : '') + '</div></div></div>';
+  }).join('');
+  if (sel >= 0) {
+    costNote.innerHTML = 'Phát hiện lỗi bố cục sau lớp <b>' + COST[sel].label + '</b> → ' + COST[sel].redo +
+      ' Ước tính <b>' + COST[sel].min + ' phút</b> làm lại.' +
+      (sel > 0 ? ' Đắt gấp <b>' + Math.round(COST[sel].min / COST[0].min) + ' lần</b> so với sửa ngay ở lớp Nét (2 phút).'
+               : ' Rẻ nhất — vì bố cục là quyết định nền tảng, chốt sớm khi còn dễ sửa.');
+  }
+}
+document.querySelectorAll('#costBtns button').forEach(function(b) {
+  b.onclick = function() {
+    var i = +b.getAttribute('data-cost');
+    document.querySelectorAll('#costBtns button').forEach(function(x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    renderCost(i);
+  };
+});
+renderCost(-1);
+
+// ================= THANG GIÁ TRỊ 9 BẬC =================
+var VSTEPS = [
+  { b: 0, l: 0,   note: '<b>Bậc 0 — đen.</b> Chỉ dùng cho accent sâu nhất, ví dụ ngay chân quả cầu nơi bóng đổ đậm nhất.' },
+  { b: 1, l: 12,  note: '<b>Bậc 1.</b> <b>Bóng đổ</b> của quả cầu trên mặt bàn.' },
+  { b: 2, l: 25,  note: '<b>Bậc 2.</b> <b>Bóng lõi (core shadow)</b> — dải tối nhất trên thân cầu, ở ranh giới sáng-tối (không nằm ở rìa ngoài cùng).' },
+  { b: 3, l: 37,  note: '<b>Bậc 3.</b> <b>Ánh phản (reflected light)</b> nâng rìa dưới cầu. Phải tối hơn nửa sáng — nếu sáng hơn sẽ "thủng" khối.' },
+  { b: 4, l: 50,  note: '<b>Bậc 4 — xám giữa.</b> <b>Nửa sáng (halftone)</b>, vùng chuyển tiếp sang tối.' },
+  { b: 5, l: 62,  note: '<b>Bậc 5.</b> Chuyển tiếp trong gia đình sáng.' },
+  { b: 6, l: 75,  note: '<b>Bậc 6.</b> <b>Vùng sáng (light)</b> — mặt cầu hướng thẳng nguồn sáng.' },
+  { b: 7, l: 87,  note: '<b>Bậc 7.</b> Rất sáng, quanh viền highlight.' },
+  { b: 8, l: 100, note: '<b>Bậc 8 — trắng.</b> <b>Highlight</b> — đốm phản chiếu nguồn sáng, rất nhỏ và sắc.' }
+];
+var vscale = document.getElementById('vscale');
+var vnote = document.getElementById('vnote');
+VSTEPS.forEach(function(v) {
+  var d = document.createElement('div');
+  d.className = 'vstep';
+  d.style.background = 'hsl(0,0%,' + v.l + '%)';
+  d.style.color = v.l < 50 ? '#fff' : '#111';
+  d.innerHTML = '<span class="b">' + v.b + '</span>' + v.l + '%';
+  d.onclick = function() { vnote.innerHTML = v.note; };
+  vscale.appendChild(d);
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

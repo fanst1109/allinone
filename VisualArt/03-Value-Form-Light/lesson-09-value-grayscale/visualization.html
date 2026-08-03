@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L9: Value & thang xám — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 920px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Thang value 9 bậc */
+  .scale { display: flex; gap: 3px; border-radius: 10px; overflow: hidden; }
+  .swatch {
+    flex: 1 1 0; min-width: 0; height: 64px; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center;
+    font-size: 11px; font-weight: 700; padding-bottom: 4px;
+    border: 3px solid transparent; box-sizing: border-box;
+    transition: transform .12s;
+  }
+  .swatch:hover { transform: translateY(-3px); }
+  .swatch.sel { border-color: var(--accent); }
+  .scale-readout {
+    margin-top: 12px; font-size: 14px; background: var(--accent-soft);
+    border-radius: 8px; padding: 10px 14px; color: #1e293b; line-height: 1.7;
+  }
+  .scale-readout b { color: var(--accent-hover); }
+
+  /* Canvas chung */
+  .canvas-wrap { text-align: center; }
+  canvas { border: 1px solid #e3e1dc; border-radius: 10px; background: #fff; }
+
+  /* Slider */
+  .ctl { margin-top: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ctl label { font-size: 13px; font-weight: 700; color: #334155; }
+  input[type=range] { flex: 1; min-width: 160px; max-width: 360px; accent-color: var(--accent); }
+  .nbadge {
+    background: var(--accent); color: #fff; font-weight: 800; font-size: 15px;
+    border-radius: 8px; padding: 4px 12px; min-width: 34px; text-align: center;
+  }
+  .levels {
+    margin-top: 12px; font-size: 13px; color: #334155; line-height: 1.8;
+    background: #f8fafc; border: 1px solid #eef1f5; border-radius: 8px; padding: 10px 14px;
+  }
+  .levels .chip {
+    display: inline-block; margin: 2px 3px; padding: 2px 8px; border-radius: 6px;
+    font-weight: 700; font-size: 12px; border: 1px solid #cbd5e1;
+  }
+
+  /* Toggle nút */
+  .btn {
+    border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px;
+    cursor: pointer; background: var(--accent); color: #fff; transition: background .12s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.off { background: #e2e8f0; color: #334155; }
+
+  .caps { display: flex; gap: 12px; justify-content: center; margin-bottom: 8px; }
+  .caps div { flex: 1; text-align: center; font-size: 12px; font-weight: 700; color: #475569; }
+
+  .readout {
+    margin-top: 12px; font-size: 13px; line-height: 1.75; color: #1e293b;
+    background: #f8fafc; border: 1px solid #eef1f5; border-radius: 8px; padding: 10px 14px;
+  }
+  .readout .hi { color: var(--accent-hover); font-weight: 800; }
+  .readout .warn { color: #b45309; font-weight: 700; }
+  .note { font-size: 12px; color: #64748b; margin-top: 8px; font-style: italic; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../../02-Composition/lesson-08-proportion-structure/visualization.html">← L8</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Value & thang xám</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-shading-basic-forms/visualization.html">L10: Đổ bóng khối →</a>
+</nav>
+<main>
+  <h1>Value & thang xám — mô phỏng</h1>
+  <div class="lead">Value là <strong>độ đậm nhạt</strong> (sáng-tối), độc lập với màu. Chơi với 3 công cụ dưới đây để tự mắt thấy: value dựng khối, và value mạnh hơn hue.</div>
+
+  <div class="module">
+    <h2>1. Thang value 9 bậc</h2>
+    <div class="sub">Bấm một bậc để xem value của nó theo % và theo thang 0–255. Chia đều: bậc i có value = i/8 × 100%.</div>
+    <div class="scale" id="scale"></div>
+    <div class="scale-readout" id="scaleOut">Bấm một ô ở trên…</div>
+  </div>
+
+  <div class="module">
+    <h2>2. Posterize — gom về N bậc (notan)</h2>
+    <div class="sub">Khối cầu dưới đây được đổ bóng mượt. Kéo slider để gom cả nghìn mức xám về chỉ N mức. Ở 2–3 bậc, mắt <strong>vẫn đọc ra hình cầu</strong> — đó là bằng chứng chiều sâu nằm ở phân mảng sáng-tối.</div>
+    <div class="canvas-wrap">
+      <canvas id="post" width="520" height="320"></canvas>
+    </div>
+    <div class="ctl">
+      <label for="nRange">Số bậc value (N):</label>
+      <input type="range" id="nRange" min="2" max="9" step="1" value="9">
+      <span class="nbadge" id="nBadge">9</span>
+    </div>
+    <div class="levels" id="levels"></div>
+    <div class="note">N = 2 là notan cực đại: ngưỡng đúng ở 50% — pixel sáng hơn 50% thành trắng, tối hơn thành đen.</div>
+  </div>
+
+  <div class="module">
+    <h2>3. Bỏ màu → chỉ còn value</h2>
+    <div class="sub">Hai mảng đều có hình tròn ở giữa. Bấm nút để chuyển sang grayscale (chỉ giữ value) và xem hình nào còn đọc được.</div>
+    <div style="text-align:center; margin-bottom:10px;">
+      <button class="btn" id="toggle">Bỏ màu → chỉ value</button>
+    </div>
+    <div class="caps">
+      <div>Trái: đỏ trên lục (khác hue, gần bằng value)</div>
+      <div>Phải: xanh lam tối trên vàng sáng (chọi value mạnh)</div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="hue" width="520" height="260"></canvas>
+    </div>
+    <div class="readout" id="hueOut"></div>
+  </div>
+</main>
+
+<script>
+// ================= Tiện ích chung =================
+// Luminance Rec.601 — value nội tại của một màu RGB.
+function lum(r, g, b) { return 0.299 * r + 0.587 * g + 0.114 * b; }
+function pct(v255) { return Math.round(v255 / 255 * 100); }
+
+// ================= Module 1: thang value 9 bậc =================
+var scaleEl = document.getElementById('scale');
+var scaleOut = document.getElementById('scaleOut');
+var swatches = [];
+for (var i = 0; i < 9; i++) {
+  (function (idx) {
+    var v255 = Math.round(idx / 8 * 255);
+    var d = document.createElement('div');
+    d.className = 'swatch';
+    d.style.background = 'rgb(' + v255 + ',' + v255 + ',' + v255 + ')';
+    // Chữ nhãn: nền tối → chữ trắng, nền sáng → chữ đen
+    d.style.color = v255 < 128 ? '#fff' : '#111';
+    d.textContent = (idx + 1);
+    d.onclick = function () { selectSwatch(idx); };
+    scaleEl.appendChild(d);
+    swatches.push(d);
+  })(i);
+}
+function selectSwatch(idx) {
+  swatches.forEach(function (s, k) { s.classList.toggle('sel', k === idx); });
+  var vp = idx / 8 * 100;
+  var v255 = Math.round(idx / 8 * 255);
+  var roles = ['đen — bóng sâu nhất', 'tối', 'vùng tối của khối', 'tối vừa',
+    'midtone — xám giữa', 'sáng vừa', 'vùng sáng', 'rất sáng', 'trắng — highlight'];
+  scaleOut.innerHTML = 'Bậc <b>' + (idx + 1) + '</b> (i = ' + idx + '): value = <b>' +
+    (Math.round(vp * 10) / 10) + '%</b> · trên thang 0–255 = <b>' + v255 + '</b> · vai trò: ' + roles[idx] +
+    '<br><span style="color:#64748b">i/8 × 100% = ' + idx + '/8 × 100% = ' + (Math.round(vp * 10) / 10) + '%</span>';
+}
+selectSwatch(4); // mặc định chọn midtone
+
+// ================= Module 2: posterize khối cầu =================
+var post = document.getElementById('post');
+var pctx = post.getContext('2d');
+var W = post.width, H = post.height;
+var baseData = null;
+
+function drawSphereScene() {
+  // Nền: gradient dọc sáng trên → tối dưới (grayscale)
+  var bg = pctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#e6e6e6');
+  bg.addColorStop(0.62, '#c4c4c4');
+  bg.addColorStop(0.63, '#9c9c9c'); // đường chân "bàn"
+  bg.addColorStop(1, '#7a7a7a');
+  pctx.fillStyle = bg;
+  pctx.fillRect(0, 0, W, H);
+
+  var cx = 250, cy = 150, r = 100;
+
+  // Bóng đổ (cast shadow): ellipse mềm bằng radial gradient tối → trong suốt
+  var sg = pctx.createRadialGradient(cx + 24, cy + r - 4, 6, cx + 24, cy + r - 4, r * 1.25);
+  sg.addColorStop(0, 'rgba(30,30,30,0.55)');
+  sg.addColorStop(1, 'rgba(30,30,30,0)');
+  pctx.save();
+  pctx.translate(cx + 24, cy + r - 4);
+  pctx.scale(1, 0.32);
+  pctx.fillStyle = sg;
+  pctx.beginPath();
+  pctx.arc(0, 0, r * 1.25, 0, Math.PI * 2);
+  pctx.fill();
+  pctx.restore();
+
+  // Quả cầu: radial gradient highlight (trên-trái) → core shadow, kèm reflected light ở rìa
+  var g = pctx.createRadialGradient(cx - 42, cy - 46, 8, cx - 8, cy - 4, r * 1.15);
+  g.addColorStop(0.00, '#f6f6f6'); // highlight ~246 (96%)
+  g.addColorStop(0.16, '#e2e2e2'); // light
+  g.addColorStop(0.46, '#a2a2a2'); // midtone ~162
+  g.addColorStop(0.80, '#343434'); // core shadow ~52 (20%)
+  g.addColorStop(1.00, '#5a5a5a'); // reflected light ~90 (35%) ở rìa dưới
+  pctx.fillStyle = g;
+  pctx.beginPath();
+  pctx.arc(cx, cy, r, 0, Math.PI * 2);
+  pctx.fill();
+
+  baseData = pctx.getImageData(0, 0, W, H);
+}
+
+function posterize(N) {
+  if (!baseData) return;
+  var src = baseData.data;
+  var out = pctx.createImageData(W, H);
+  var d = out.data;
+  var steps = N - 1;
+  for (var p = 0; p < src.length; p += 4) {
+    var L = lum(src[p], src[p + 1], src[p + 2]);
+    var index = Math.round(L / 255 * steps);
+    var q = Math.round(index / steps * 255);
+    d[p] = d[p + 1] = d[p + 2] = q;
+    d[p + 3] = src[p + 3];
+  }
+  pctx.putImageData(out, 0, 0);
+}
+
+function renderLevels(N) {
+  var steps = N - 1;
+  var html = '<b>' + N + ' mức đầu ra:</b> ';
+  for (var k = 0; k < N; k++) {
+    var vp = Math.round(k / steps * 1000) / 10;
+    var v255 = Math.round(k / steps * 255);
+    html += '<span class="chip" style="background:rgb(' + v255 + ',' + v255 + ',' + v255 + ');color:' +
+      (v255 < 128 ? '#fff' : '#111') + '">' + vp + '%</span>';
+  }
+  document.getElementById('levels').innerHTML = html;
+}
+
+var nRange = document.getElementById('nRange');
+var nBadge = document.getElementById('nBadge');
+function updatePost() {
+  var N = parseInt(nRange.value, 10);
+  nBadge.textContent = N;
+  posterize(N);
+  renderLevels(N);
+}
+drawSphereScene();
+nRange.addEventListener('input', updatePost);
+updatePost();
+
+// ================= Module 3: bỏ màu → chỉ value =================
+var hue = document.getElementById('hue');
+var hctx = hue.getContext('2d');
+var HW = hue.width, HH = hue.height;
+var grayMode = false;
+
+// Mỗi mảng: nền + hình tròn, lưu RGB gốc
+var panels = [
+  { name: 'Trái', x0: 0,   bg: [40, 150, 60],   shape: [200, 60, 60] },   // lục nền, đỏ hình
+  { name: 'Phải', x0: 260, bg: [245, 235, 120], shape: [30, 40, 110] }    // vàng nền, lam hình
+];
+var panelW = 260;
+
+function rgbStr(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+function grayStr(c) { var L = Math.round(lum(c[0], c[1], c[2])); return 'rgb(' + L + ',' + L + ',' + L + ')'; }
+
+function drawHue() {
+  panels.forEach(function (pn) {
+    var bgFill = grayMode ? grayStr(pn.bg) : rgbStr(pn.bg);
+    var shFill = grayMode ? grayStr(pn.shape) : rgbStr(pn.shape);
+    hctx.fillStyle = bgFill;
+    hctx.fillRect(pn.x0, 0, panelW, HH);
+    hctx.fillStyle = shFill;
+    hctx.beginPath();
+    hctx.arc(pn.x0 + panelW / 2, HH / 2, 74, 0, Math.PI * 2);
+    hctx.fill();
+  });
+  // đường chia giữa
+  hctx.fillStyle = '#fff';
+  hctx.fillRect(panelW - 2, 0, 4, HH);
+}
+
+function renderHueOut() {
+  function line(pn) {
+    var Lb = lum(pn.bg[0], pn.bg[1], pn.bg[2]);
+    var Ls = lum(pn.shape[0], pn.shape[1], pn.shape[2]);
+    var contrast = Math.abs(pct(Lb) - pct(Ls));
+    var verdict = contrast < 10
+      ? '<span class="warn">→ chọi value chỉ ' + contrast + ' điểm → hình gần như biến mất khi bỏ màu.</span>'
+      : '<span class="hi">→ chọi value ' + contrast + ' điểm → hình vẫn rõ khi bỏ màu.</span>';
+    return '<b>' + pn.name + ':</b> nền value ' + pct(Lb) + '% · hình value ' + pct(Ls) + '% ' + verdict;
+  }
+  document.getElementById('hueOut').innerHTML =
+    line(panels[0]) + '<br>' + line(panels[1]) +
+    '<br><span style="color:#64748b">value tính bằng L = 0.299R + 0.587G + 0.114B rồi chia 255.</span>';
+}
+
+var toggle = document.getElementById('toggle');
+toggle.onclick = function () {
+  grayMode = !grayMode;
+  toggle.textContent = grayMode ? '↩ Hiện lại màu' : 'Bỏ màu → chỉ value';
+  toggle.classList.toggle('off', grayMode);
+  drawHue();
+};
+drawHue();
+renderHueOut();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

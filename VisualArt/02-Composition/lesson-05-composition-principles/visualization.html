@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L5: Nguyên lý bố cục — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 1040px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Layout: khung tranh + bảng điều khiển */
+  .stage { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .stage .frame-col { flex: 1 1 460px; min-width: 0; }
+  .stage .panel-col { flex: 1 1 300px; min-width: 0; }
+
+  #frame {
+    width: 600px; height: 400px; display: block; max-width: 100%;
+    border-radius: 8px; background: #fff; touch-action: none; cursor: crosshair;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08); border: 1px solid #e2e8f0;
+  }
+
+  /* Toggle chips */
+  .toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .toggles label {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+    color: #334155; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 999px;
+    padding: 6px 12px; cursor: pointer; user-select: none;
+  }
+  .toggles label:hover { border-color: var(--accent); }
+  .toggles input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+  .toggles .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+  .sw.thirds { background: #38bdf8; }
+  .sw.golden { background: #f59e0b; }
+  .sw.spiral { background: #a855f7; }
+  .sw.balance { background: var(--accent); }
+
+  .snaps { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .snaps button {
+    border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer;
+    background: var(--accent-soft); color: var(--accent-hover);
+  }
+  .snaps button:hover { background: #fbcfe8; }
+  .size-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 13px; color: #334155; font-weight: 600; }
+  .size-row input[type=range] { flex: 1; max-width: 260px; accent-color: var(--accent); }
+
+  /* Readout */
+  .status {
+    font-size: 15px; font-weight: 700; padding: 12px 14px; border-radius: 10px; margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .status.hit { background: #dcfce7; color: #15803d; }
+  .status.line { background: #e0f2fe; color: #0369a1; }
+  .status.center { background: #fef3c7; color: #92400e; }
+  .status.neutral { background: #f1f5f9; color: #475569; }
+
+  .readout { font-size: 13.5px; line-height: 1.85; color: #334155; }
+  .readout .k { color: #64748b; }
+  .readout b { color: #1e293b; }
+  .readout .pos { color: var(--accent-hover); font-weight: 800; }
+
+  /* See-saw cân bằng kế */
+  #seesaw { width: 300px; height: 130px; max-width: 100%; display: block; margin: 6px auto 2px; }
+  .verdict { text-align: center; font-size: 13.5px; font-weight: 700; padding: 8px; border-radius: 8px; margin-top: 4px; }
+  .verdict.bal { background: #dcfce7; color: #15803d; }
+  .verdict.tilt { background: #fee2e2; color: #b91c1c; }
+
+  .legend { font-size: 12.5px; color: #64748b; margin-top: 10px; line-height: 1.7; }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+  /* Overlay strokes trong SVG khung */
+  .third-line { stroke: #38bdf8; stroke-width: 1.5; opacity: 0.8; }
+  .power { fill: #38bdf8; opacity: 0.9; }
+  .power.on { fill: #16a34a; opacity: 1; }
+  .golden-line { stroke: #f59e0b; stroke-width: 1.2; stroke-dasharray: 6 4; opacity: 0.85; }
+  .golden-pt { fill: #f59e0b; }
+
+  @media (max-width: 480px) {
+    .stage .frame-col, .stage .panel-col { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../../01-Color/lesson-04-temperature-contrast-psychology/visualization.html">← L4</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Nguyên lý bố cục</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-one-point-perspective/visualization.html">L6: Phối cảnh 1 điểm →</a>
+</nav>
+<main>
+  <h1>Nguyên lý bố cục — khung tranh sống</h1>
+  <div class="lead">Kéo <strong>chủ thể (chấm hồng)</strong> trong khung. Bật/tắt các overlay để xem <strong>lưới 1/3</strong>, <strong>điểm &amp; xoắn ốc tỉ lệ vàng</strong>, và <strong>cân bằng kế</strong>. Trang báo khi chủ thể trúng giao điểm 1/3.</div>
+
+  <div class="module">
+    <h2>Khung tranh tương tác</h2>
+    <div class="sub">Đường 1/3 nằm ở 33.3% và 66.7% mỗi chiều · giao điểm là "điểm mạnh" hút mắt.</div>
+
+    <div class="stage">
+      <div class="frame-col">
+        <svg id="frame" width="600" height="400" viewBox="0 0 600 400" aria-label="Khung tranh">
+          <!-- nền khung -->
+          <rect x="0" y="0" width="600" height="400" fill="#ffffff"/>
+
+          <!-- Lưới 1/3 -->
+          <g id="g-thirds">
+            <line x1="200" y1="0" x2="200" y2="400" class="third-line"/>
+            <line x1="400" y1="0" x2="400" y2="400" class="third-line"/>
+            <line x1="0" y1="133.33" x2="600" y2="133.33" class="third-line"/>
+            <line x1="0" y1="266.67" x2="600" y2="266.67" class="third-line"/>
+            <circle cx="200" cy="133.33" r="6" class="power" data-px="200" data-py="133.33"/>
+            <circle cx="400" cy="133.33" r="6" class="power" data-px="400" data-py="133.33"/>
+            <circle cx="200" cy="266.67" r="6" class="power" data-px="200" data-py="266.67"/>
+            <circle cx="400" cy="266.67" r="6" class="power" data-px="400" data-py="266.67"/>
+          </g>
+
+          <!-- Điểm/đường tỉ lệ vàng -->
+          <g id="g-golden" style="display:none">
+            <line x1="229.18" y1="0" x2="229.18" y2="400" class="golden-line"/>
+            <line x1="370.82" y1="0" x2="370.82" y2="400" class="golden-line"/>
+            <line x1="0" y1="152.79" x2="600" y2="152.79" class="golden-line"/>
+            <line x1="0" y1="247.21" x2="600" y2="247.21" class="golden-line"/>
+            <circle cx="229.18" cy="152.79" r="5" class="golden-pt"/>
+            <circle cx="370.82" cy="152.79" r="5" class="golden-pt"/>
+            <circle cx="229.18" cy="247.21" r="5" class="golden-pt"/>
+            <circle cx="370.82" cy="247.21" r="5" class="golden-pt"/>
+          </g>
+
+          <!-- Xoắn ốc vàng (path sinh bằng JS) -->
+          <g id="g-spiral" style="display:none">
+            <path id="spiral-path" fill="none" stroke="#a855f7" stroke-width="2" opacity="0.85"/>
+            <circle id="spiral-eye" r="4" fill="#a855f7"/>
+          </g>
+
+          <!-- Trục cân bằng -->
+          <g id="g-axis" style="display:none">
+            <line x1="300" y1="0" x2="300" y2="400" stroke="#db2777" stroke-width="2" stroke-dasharray="4 5" opacity="0.7"/>
+          </g>
+
+          <!-- Chủ thể kéo được -->
+          <g id="subject">
+            <circle id="subj-halo" r="34" fill="#db2777" opacity="0.16"/>
+            <circle id="subj-dot" r="26" fill="#db2777" stroke="#fff" stroke-width="3"/>
+          </g>
+        </svg>
+
+        <div class="toggles">
+          <label><input type="checkbox" id="t-thirds" checked><span class="sw thirds"></span> Lưới 1/3 + giao điểm</label>
+          <label><input type="checkbox" id="t-golden"><span class="sw golden"></span> Điểm tỉ lệ vàng</label>
+          <label><input type="checkbox" id="t-spiral"><span class="sw spiral"></span> Xoắn ốc vàng</label>
+          <label><input type="checkbox" id="t-balance"><span class="sw balance"></span> Trục + cân bằng kế</label>
+        </div>
+
+        <div class="snaps">
+          <button data-x="400" data-y="266.67">Đặt vào giao điểm 1/3</button>
+          <button data-x="370.82" data-y="247.21">Vào điểm tỉ lệ vàng</button>
+          <button data-x="300" data-y="200">Về chính giữa (bullseye)</button>
+        </div>
+
+        <div class="size-row">
+          Kích thước chủ thể:
+          <input type="range" id="size" min="15" max="45" value="26" step="1">
+          <span id="size-val">26</span>
+        </div>
+      </div>
+
+      <div class="panel-col">
+        <div class="status neutral" id="status">Kéo chủ thể tới một chấm xanh (giao điểm 1/3).</div>
+        <div class="readout" id="readout"></div>
+
+        <div id="balance-box" style="display:none; margin-top:14px; border-top:1px dashed #e2e8f0; padding-top:12px;">
+          <div class="sub" style="margin-bottom:2px;">Cân bằng kế (bập bênh quanh trục giữa)</div>
+          <svg id="seesaw" viewBox="0 0 300 130" aria-label="Cân bằng kế">
+            <g id="beam-g">
+              <rect x="30" y="66" width="240" height="8" rx="4" fill="#94a3b8"/>
+              <circle id="beam-ball" cx="150" cy="60" r="12" fill="#db2777" stroke="#fff" stroke-width="2"/>
+            </g>
+            <polygon points="150,78 134,110 166,110" fill="#475569"/>
+            <line x1="110" y1="110" x2="190" y2="110" stroke="#475569" stroke-width="3"/>
+          </svg>
+          <div class="verdict bal" id="verdict">Cân bằng.</div>
+        </div>
+
+        <div class="legend">
+          <span class="dot" style="background:#38bdf8"></span>Đường/giao điểm 1/3 (33% · 67%)<br>
+          <span class="dot" style="background:#f59e0b"></span>Điểm tỉ lệ vàng (38.2% · 61.8%)<br>
+          <span class="dot" style="background:#a855f7"></span>Xoắn ốc vàng (φ ≈ 1.618)<br>
+          <span class="dot" style="background:#db2777"></span>Chủ thể · trục cân bằng
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Đọc số thế nào?</h2>
+    <div class="sub">Ba tầng thông tin của mô phỏng.</div>
+    <ul style="font-size:14px; line-height:1.9; color:#334155; margin:0; padding-left:20px;">
+      <li><b>Vị trí %</b>: chuyển tọa độ px sang phần trăm khung. Đường 1/3 rơi đúng <b>33.3%</b> và <b>66.7%</b> — khớp lưới xanh.</li>
+      <li><b>Trạng thái</b>: trúng giao điểm (xanh lá), nằm trên đường 1/3 (xanh dương), chính giữa/bullseye (vàng — cảnh báo tĩnh), hay vùng trung tính.</li>
+      <li><b>Cân bằng kế</b>: mô-men = trọng lượng thị giác × khoảng cách tới trục. Chủ thể càng to và càng xa trục → bập bênh nghiêng càng mạnh.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+// ===== Hằng số khung =====
+var VB_W = 600, VB_H = 400;
+var CX = VB_W / 2;                       // trục cân bằng giữa = 300
+var PHI = (1 + Math.sqrt(5)) / 2;        // 1.6180339887...
+var thirdsX = [VB_W / 3, 2 * VB_W / 3];  // 200, 400  -> 33.3%, 66.7%
+var thirdsY = [VB_H / 3, 2 * VB_H / 3];  // 133.33, 266.67
+var TOL_POINT = 22;                      // bán kính "trúng giao điểm" (đơn vị viewBox)
+var TOL_LINE  = 14;                      // ngưỡng "nằm trên đường"
+
+// ===== Trạng thái chủ thể =====
+var subj = { x: 300, y: 200, r: 26 };    // khởi đầu ở giữa (để thấy cảnh báo bullseye)
+
+var svg = document.getElementById('frame');
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+function toSvg(evt) {
+  var rect = svg.getBoundingClientRect();
+  return {
+    x: (evt.clientX - rect.left) / rect.width * VB_W,
+    y: (evt.clientY - rect.top) / rect.height * VB_H
+  };
+}
+
+function moveTo(p) {
+  subj.x = clamp(p.x, subj.r, VB_W - subj.r);
+  subj.y = clamp(p.y, subj.r, VB_H - subj.r);
+  render();
+}
+
+// ===== Tìm giao điểm 1/3 gần nhất =====
+function nearestPower() {
+  var best = { x: 0, y: 0, d: Infinity };
+  thirdsX.forEach(function (px) {
+    thirdsY.forEach(function (py) {
+      var d = Math.hypot(subj.x - px, subj.y - py);
+      if (d < best.d) best = { x: px, y: py, d: d };
+    });
+  });
+  return best;
+}
+
+function nearThirdLine() {
+  var dxLine = Math.min(Math.abs(subj.x - thirdsX[0]), Math.abs(subj.x - thirdsX[1]));
+  var dyLine = Math.min(Math.abs(subj.y - thirdsY[0]), Math.abs(subj.y - thirdsY[1]));
+  return Math.min(dxLine, dyLine);
+}
+
+function fmt(n, d) { d = d || 0; return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toString(); }
+
+// ===== Xoắn ốc vàng: sinh path logarit r = a·e^(k·θ), mỗi 1/4 vòng r×φ =====
+function buildSpiral() {
+  var ex = VB_W / PHI, ey = VB_H / PHI;         // "mắt" xoắn tại điểm vàng (370.82, 247.21)
+  var a = 1.3, k = (2 / Math.PI) * Math.log(PHI); // k để Δθ = π/2 -> r nhân φ
+  var phase = Math.PI, pts = [];
+  for (var t = 0; t <= 6.5 * Math.PI; t += 0.12) {
+    var r = a * Math.exp(k * t);
+    if (r > 470) break;
+    pts.push([ (ex + r * Math.cos(t + phase)).toFixed(1),
+               (ey + r * Math.sin(t + phase)).toFixed(1) ]);
+  }
+  document.getElementById('spiral-path').setAttribute('d',
+    'M' + pts.map(function (p) { return p[0] + ' ' + p[1]; }).join(' L'));
+  document.getElementById('spiral-eye').setAttribute('cx', ex.toFixed(1));
+  document.getElementById('spiral-eye').setAttribute('cy', ey.toFixed(1));
+}
+
+// ===== Render toàn bộ =====
+function render() {
+  // Chủ thể
+  document.getElementById('subject').setAttribute('transform', 'translate(' + subj.x + ',' + subj.y + ')');
+  document.getElementById('subj-dot').setAttribute('r', subj.r);
+  document.getElementById('subj-halo').setAttribute('r', subj.r + 8);
+
+  var np = nearestPower();
+  var lineDist = nearThirdLine();
+  var centerDist = Math.hypot(subj.x - CX, subj.y - VB_H / 2);
+
+  // Highlight giao điểm khi trúng
+  var powers = document.querySelectorAll('.power');
+  powers.forEach(function (c) {
+    var px = parseFloat(c.getAttribute('data-px')), py = parseFloat(c.getAttribute('data-py'));
+    var on = (np.d <= TOL_POINT && Math.abs(px - np.x) < 1 && Math.abs(py - np.y) < 1);
+    c.classList.toggle('on', on);
+    c.setAttribute('r', on ? 9 : 6);
+  });
+
+  // Trạng thái
+  var st = document.getElementById('status');
+  if (np.d <= TOL_POINT) {
+    st.className = 'status hit';
+    st.innerHTML = '✓ Trúng giao điểm 1/3! Đây là "điểm mạnh" — mắt bị hút vào đây trước tiên.';
+  } else if (lineDist <= TOL_LINE) {
+    st.className = 'status line';
+    st.innerHTML = '✓ Nằm trên đường 1/3 — tốt cho đường chân trời hoặc thân chủ thể.';
+  } else if (centerDist <= 24) {
+    st.className = 'status center';
+    st.innerHTML = '⚠ Chính giữa khung (bullseye) — dễ gây bố cục tĩnh, cứng nhắc. Thử kéo ra giao điểm 1/3.';
+  } else {
+    st.className = 'status neutral';
+    st.innerHTML = 'Vùng trung tính. Kéo chủ thể tới một chấm xanh (giao điểm 1/3) để thấy hiệu ứng.';
+  }
+
+  // Readout vị trí
+  var xPct = subj.x / VB_W * 100, yPct = subj.y / VB_H * 100;
+  var ro = '<div><span class="k">Vị trí:</span> x = <b>' + fmt(subj.x) + '</b> px (<span class="pos">' + fmt(xPct, 1) + '%</span>) · '
+         + 'y = <b>' + fmt(subj.y) + '</b> px (<span class="pos">' + fmt(yPct, 1) + '%</span>)</div>'
+         + '<div><span class="k">Giao điểm 1/3 gần nhất:</span> (' + fmt(np.x) + ', ' + fmt(np.y) + ') — cách <b>' + fmt(np.d) + '</b> px</div>';
+
+  // Nếu bật overlay vàng, báo khoảng cách tới điểm vàng gần nhất
+  if (document.getElementById('t-golden').checked) {
+    var gx = [VB_W - VB_W / PHI, VB_W / PHI], gy = [VB_H - VB_H / PHI, VB_H / PHI];
+    var bg = Infinity, bgx = 0, bgy = 0;
+    gx.forEach(function (px) { gy.forEach(function (py) {
+      var d = Math.hypot(subj.x - px, subj.y - py);
+      if (d < bg) { bg = d; bgx = px; bgy = py; }
+    }); });
+    ro += '<div><span class="k">Điểm tỉ lệ vàng gần nhất:</span> (' + fmt(bgx) + ', ' + fmt(bgy) + ') — cách <b>' + fmt(bg) + '</b> px'
+        + (bg <= TOL_POINT ? ' <span class="pos">✓ trúng!</span>' : '') + '</div>';
+  }
+  document.getElementById('readout').innerHTML = ro;
+
+  // Cân bằng kế
+  var showBal = document.getElementById('t-balance').checked;
+  document.getElementById('balance-box').style.display = showBal ? 'block' : 'none';
+  if (showBal) renderSeesaw();
+}
+
+function renderSeesaw() {
+  var W = Math.PI * subj.r * subj.r;                 // trọng lượng thị giác ~ diện tích
+  var Wmax = Math.PI * 45 * 45;
+  var d = subj.x - CX;                                // + = lệch phải, - = lệch trái
+  var moment = W * d;
+  var Mmax = Wmax * (VB_W / 2);
+  var tilt = clamp(moment / Mmax * 22, -22, 22);      // độ nghiêng bập bênh
+
+  // Beam ball vị trí ngang theo x chủ thể (0..600 -> 40..260 trên see-saw)
+  var bx = 40 + subj.x / VB_W * 220;
+  document.getElementById('beam-ball').setAttribute('cx', bx);
+  document.getElementById('beam-ball').setAttribute('r', clamp(subj.r * 0.32, 6, 15));
+  document.getElementById('beam-g').setAttribute('transform', 'rotate(' + tilt.toFixed(2) + ' 150 70)');
+
+  var v = document.getElementById('verdict');
+  if (Math.abs(d) < 12) {
+    v.className = 'verdict bal';
+    v.innerHTML = 'Mô-men ≈ 0 → cân bằng đối xứng (nhưng thường tĩnh).';
+  } else {
+    v.className = 'verdict tilt';
+    var side = d < 0 ? 'trái' : 'phải';
+    var counter = d < 0 ? 'phải' : 'trái';
+    v.innerHTML = 'Mô-men = W·d = ' + fmt(W) + ' × ' + fmt(Math.abs(d)) + ' → nghiêng <b>' + side + '</b>. '
+                + 'Cần đối trọng (khoảng âm rộng hoặc phần tử phụ) phía <b>' + counter + '</b>.';
+  }
+}
+
+// ===== Kéo thả (pointer events, hoạt động cả chuột & cảm ứng) =====
+var dragging = false;
+svg.addEventListener('pointerdown', function (e) {
+  dragging = true;
+  try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+  moveTo(toSvg(e));
+});
+svg.addEventListener('pointermove', function (e) { if (dragging) moveTo(toSvg(e)); });
+svg.addEventListener('pointerup', function () { dragging = false; });
+svg.addEventListener('pointercancel', function () { dragging = false; });
+
+// ===== Toggles =====
+document.getElementById('t-thirds').addEventListener('change', function () {
+  document.getElementById('g-thirds').style.display = this.checked ? '' : 'none';
+});
+document.getElementById('t-golden').addEventListener('change', function () {
+  document.getElementById('g-golden').style.display = this.checked ? '' : 'none';
+  render();
+});
+document.getElementById('t-spiral').addEventListener('change', function () {
+  document.getElementById('g-spiral').style.display = this.checked ? '' : 'none';
+});
+document.getElementById('t-balance').addEventListener('change', function () {
+  document.getElementById('g-axis').style.display = this.checked ? '' : 'none';
+  render();
+});
+
+// ===== Nút snap =====
+document.querySelectorAll('.snaps button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    moveTo({ x: parseFloat(b.getAttribute('data-x')), y: parseFloat(b.getAttribute('data-y')) });
+  });
+});
+
+// ===== Slider kích thước =====
+document.getElementById('size').addEventListener('input', function () {
+  subj.r = parseFloat(this.value);
+  document.getElementById('size-val').textContent = this.value;
+  moveTo({ x: subj.x, y: subj.y }); // re-clamp theo bán kính mới
+});
+
+buildSpiral();
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

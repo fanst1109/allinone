@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L6: Phối cảnh 1 điểm tụ — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf2f8;
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #6b5563; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f0d9e5; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(157,23,77,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; color: #831843; }
+  .module .sub { color: #9d7186; font-size: 13px; margin-bottom: 14px; }
+
+  /* Sân khấu canvas */
+  .stage-wrap { text-align: center; }
+  canvas {
+    background: #fffafc; border: 1px solid #f0d9e5; border-radius: 10px;
+    max-width: 100%; height: auto; touch-action: none; cursor: grab;
+  }
+  canvas.dragging { cursor: grabbing; }
+  .hint { font-size: 12px; color: #9d7186; margin-top: 8px; }
+
+  /* Điều khiển */
+  .ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px 22px; }
+  .ctl { }
+  .ctl label { display: block; font-size: 13px; font-weight: 700; color: #7a3a56; margin-bottom: 4px; }
+  .ctl label .v { color: var(--accent); font-weight: 800; }
+  .ctl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .checks { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
+  .checks label { font-size: 13px; font-weight: 600; color: #7a3a56; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  .checks input { accent-color: var(--accent); }
+
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button {
+    border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer;
+    transition: all .12s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { background: var(--accent-soft); color: var(--accent-hover); }
+  .btn-ghost:hover { background: #fbcfe8; }
+
+  /* Số liệu sống */
+  .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .stat { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+  .stat .k { font-size: 11px; font-weight: 700; color: #9d7186; text-transform: uppercase; letter-spacing: .4px; }
+  .stat .val { font-size: 20px; font-weight: 800; color: var(--accent-hover); }
+  .stat .val small { font-size: 12px; font-weight: 600; color: #9d7186; }
+  .formula { margin-top: 12px; font-size: 13px; color: #6b5563; line-height: 1.8; }
+  .formula code { background: #fff0f6; padding: 1px 6px; border-radius: 5px; color: #9d174d; font-weight: 700; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 12.5px; color: #6b5563; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-composition-principles/visualization.html">← L5</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Phối cảnh 1 điểm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-two-three-point-perspective/visualization.html">L7: Phối cảnh 2-3 điểm →</a>
+</nav>
+<main>
+  <h1>Phối cảnh 1 điểm tụ — sân khấu sống</h1>
+  <div class="lead">
+    <strong>Kéo chấm hồng (điểm tụ)</strong> đi khắp nơi, hoặc chỉnh <strong>độ cao đường chân trời</strong> và
+    <strong>độ sâu phòng</strong>. Mọi cạnh lùi vào sâu luôn hội tụ chính xác về điểm tụ; đường ngang giữ ngang, đường đứng giữ đứng.
+  </div>
+
+  <div class="module">
+    <h2>Sân khấu phối cảnh</h2>
+    <div class="sub">Một căn phòng nhìn thẳng + các khối hộp. Điểm tụ luôn nằm trên đường chân trời.</div>
+    <div class="stage-wrap">
+      <canvas id="cv" width="760" height="460"></canvas>
+      <div class="hint">💡 Chạm và kéo chấm hồng để di chuyển điểm tụ. Đường chân trời sẽ đi theo (điểm tụ luôn dính vào tầm mắt).</div>
+      <div class="legend">
+        <span><span class="swatch" style="background:#db2777"></span> Cạnh lùi (hội tụ về điểm tụ)</span>
+        <span><span class="swatch" style="background:#334155"></span> Mặt trước (vẽ đúng thật)</span>
+        <span><span class="swatch" style="background:#f9a8d4"></span> Mặt sau (thu nhỏ)</span>
+        <span><span class="swatch" style="background:#cbd5e1"></span> Đường chân trời = tầm mắt</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Điều khiển</h2>
+    <div class="sub">Chỉnh ba tham số cơ bản, thêm/bớt khối để so sánh trên–dưới tầm mắt.</div>
+    <div class="ctl-grid">
+      <div class="ctl">
+        <label>Độ cao đường chân trời (tầm mắt): <span class="v" id="l-eye">235</span> px</label>
+        <input type="range" id="s-eye" min="30" max="430" value="235">
+      </div>
+      <div class="ctl">
+        <label>Vị trí ngang điểm tụ: <span class="v" id="l-vpx">380</span> px</label>
+        <input type="range" id="s-vpx" min="40" max="720" value="380">
+      </div>
+      <div class="ctl">
+        <label>Độ sâu phòng (t): <span class="v" id="l-dep">0,60</span></label>
+        <input type="range" id="s-dep" min="30" max="85" value="60">
+      </div>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="c-tiles" checked> Sàn lát gạch</label>
+      <label><input type="checkbox" id="c-guides"> Đường dẫn tới điểm tụ</label>
+      <label><input type="checkbox" id="c-angle" checked> Nhãn góc cạnh lùi</label>
+    </div>
+    <div class="toolbar">
+      <button class="btn-primary" id="add">+ Thêm khối</button>
+      <button class="btn-ghost" id="del">− Bớt khối</button>
+      <button class="btn-ghost" id="reset">↺ Đặt lại</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Số liệu sống</h2>
+    <div class="sub">Cập nhật theo thời gian thực khi bạn kéo điểm tụ.</div>
+    <div class="readout">
+      <div class="stat"><div class="k">Điểm tụ (VP)</div><div class="val" id="r-vp">(380, 235)</div></div>
+      <div class="stat"><div class="k">Đường chân trời y</div><div class="val" id="r-hor">235</div></div>
+      <div class="stat"><div class="k">Mặt sau thu còn</div><div class="val" id="r-scale">40<small>% mặt trước</small></div></div>
+      <div class="stat"><div class="k">Góc cạnh lùi trên-trái</div><div class="val" id="r-ang">—</div></div>
+    </div>
+    <div class="formula">
+      Góc sau: <code>P' = P + t·(VP − P)</code> &nbsp;·&nbsp;
+      Mặt ở độ sâu t thu nhỏ theo hệ số <code>(1 − t)</code> &nbsp;·&nbsp;
+      Góc nghiêng cạnh lùi: <code>θ = arctan(|Δy| / |Δx|)</code> so với điểm tụ.
+    </div>
+  </div>
+</main>
+
+<script>
+// ===================== Trạng thái =====================
+var cv = document.getElementById('cv');
+var ctx = cv.getContext('2d');
+var W = cv.width, H = cv.height;
+
+// Khung mặt trước của phòng (vẽ đúng thật trong mặt tranh)
+var ROOM = { L: 130, R: 630, T: 70, B: 400 };
+
+var state = {
+  vpX: 380,
+  vpY: 235,   // đường chân trời = y của điểm tụ (điểm tụ luôn trên đường chân trời)
+  dep: 0.60,  // độ sâu t
+  tiles: true,
+  guides: false,
+  angle: true
+};
+
+// Khối hộp: mỗi khối là mặt trước (hình chữ nhật trong mặt tranh) + độ sâu dp + màu.
+var BOX_COLORS = ['#f472b6', '#c084fc', '#fb7185', '#f0abfc', '#e879f9'];
+var boxes = [];
+function defaultBoxes() {
+  return [
+    { x1: 175, y1: 305, x2: 255, y2: 375, dp: 0.42, c: '#f472b6' }, // thấp: dưới tầm mắt → thấy nóc
+    { x1: 470, y1: 100, x2: 560, y2: 165, dp: 0.40, c: '#c084fc' }  // cao: trên tầm mắt → thấy đáy
+  ];
+}
+
+// ===================== Hình học =====================
+function toBack(px, py) {   // nội suy điểm px,py về phía VP theo độ sâu t
+  return [px + state.dep * (state.vpX - px), py + state.dep * (state.vpY - py)];
+}
+function toVP(px, py, t) {  // nội suy tổng quát theo tham số t
+  return [px + t * (state.vpX - px), py + t * (state.vpY - py)];
+}
+
+// ===================== Vẽ tiện ích =====================
+function line(a, b, color, width, dash) {
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = width || 1;
+  if (dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+  ctx.restore();
+}
+function quad(p1, p2, p3, p4, fill) {
+  ctx.save();
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+  ctx.lineTo(p3[0], p3[1]); ctx.lineTo(p4[0], p4[1]); ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// ===================== Vẽ chính =====================
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  var vp = [state.vpX, state.vpY];
+
+  // --- Đường chân trời ---
+  line([0, state.vpY], [W, state.vpY], '#cbd5e1', 1.5, [7, 6]);
+  ctx.save();
+  ctx.fillStyle = '#94a3b8'; ctx.font = '12px sans-serif'; ctx.textBaseline = 'bottom';
+  ctx.fillText('Đường chân trời = tầm mắt', 8, state.vpY - 4);
+  ctx.restore();
+
+  // --- Phòng: các góc trước & sau ---
+  var fTL = [ROOM.L, ROOM.T], fTR = [ROOM.R, ROOM.T], fBR = [ROOM.R, ROOM.B], fBL = [ROOM.L, ROOM.B];
+  var bTL = toBack(fTL[0], fTL[1]), bTR = toBack(fTR[0], fTR[1]),
+      bBR = toBack(fBR[0], fBR[1]), bBL = toBack(fBL[0], fBL[1]);
+
+  // Mặt trong phòng (tô nhạt để có cảm giác 3D)
+  quad(fTL, fTR, bTR, bTL, 'rgba(219,39,119,0.045)'); // trần
+  quad(fBL, fBR, bBR, bBL, 'rgba(219,39,119,0.075)'); // sàn
+  quad(fTL, fBL, bBL, bTL, 'rgba(147,51,234,0.05)');  // tường trái
+  quad(fTR, fBR, bBR, bTR, 'rgba(147,51,234,0.05)');  // tường phải
+  quad(bTL, bTR, bBR, bBL, 'rgba(219,39,119,0.10)');  // tường sau
+
+  // Sàn lát gạch
+  if (state.tiles) {
+    // Đường trực giao (hội tụ về VP)
+    for (var i = 1; i < 6; i++) {
+      var fx = ROOM.L + (ROOM.R - ROOM.L) * i / 6;
+      var p = [fx, ROOM.B];
+      line(p, toBack(p[0], p[1]), 'rgba(219,39,119,0.28)', 1);
+    }
+    // Đường ngang (song song mặt tranh → giữ ngang), giãn theo phối cảnh
+    var us = [0.22, 0.42, 0.60, 0.76];
+    for (var k = 0; k < us.length; k++) {
+      var u = us[k] * state.dep;
+      var lft = toVP(ROOM.L, ROOM.B, u), rgt = toVP(ROOM.R, ROOM.B, u);
+      line(lft, rgt, 'rgba(219,39,119,0.28)', 1);
+    }
+  }
+
+  // Đường dẫn mờ kéo dài tới VP (tùy chọn)
+  if (state.guides) {
+    [fTL, fTR, fBR, fBL].forEach(function (c) {
+      line(c, vp, 'rgba(148,163,184,0.55)', 1, [3, 4]);
+    });
+  }
+
+  // Mặt sau (thu nhỏ) — hồng nhạt
+  ctx.save();
+  ctx.strokeStyle = '#f9a8d4'; ctx.lineWidth = 2; ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(bTL[0], bTL[1]); ctx.lineTo(bTR[0], bTR[1]);
+  ctx.lineTo(bBR[0], bBR[1]); ctx.lineTo(bBL[0], bBL[1]); ctx.closePath(); ctx.stroke();
+  ctx.restore();
+
+  // 4 cạnh lùi (hội tụ về VP) — hồng đậm
+  line(fTL, bTL, '#db2777', 2.5);
+  line(fTR, bTR, '#db2777', 2.5);
+  line(fBR, bBR, '#db2777', 2.5);
+  line(fBL, bBL, '#db2777', 2.5);
+
+  // Mặt trước (vẽ đúng thật) — xám đậm
+  ctx.save();
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 3; ctx.setLineDash([]);
+  ctx.strokeRect(ROOM.L, ROOM.T, ROOM.R - ROOM.L, ROOM.B - ROOM.T);
+  ctx.restore();
+
+  // Nhãn góc cạnh lùi trên-trái
+  if (state.angle) {
+    var mid = [(fTL[0] + bTL[0]) / 2, (fTL[1] + bTL[1]) / 2];
+    var ang = angleTo(fTL[0], fTL[1]);
+    ctx.save();
+    ctx.fillStyle = '#9d174d'; ctx.font = 'bold 12px sans-serif';
+    ctx.fillText(ang.toFixed(1) + '°', mid[0] + 6, mid[1] - 4);
+    ctx.restore();
+  }
+
+  // --- Các khối hộp ---
+  boxes.forEach(drawBox);
+
+  // --- Điểm tụ (vẽ trên cùng) ---
+  ctx.save();
+  ctx.beginPath(); ctx.arc(vp[0], vp[1], 13, 0, 2 * Math.PI);
+  ctx.fillStyle = 'rgba(219,39,119,0.18)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(vp[0], vp[1], 6.5, 0, 2 * Math.PI);
+  ctx.fillStyle = '#db2777'; ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#9d174d'; ctx.font = 'bold 12px sans-serif';
+  ctx.fillText('Điểm tụ', vp[0] + 16, vp[1] - 10);
+  ctx.restore();
+
+  updateReadout();
+}
+
+function angleTo(px, py) {
+  var dx = Math.abs(px - state.vpX), dy = Math.abs(py - state.vpY);
+  if (dx < 1e-6) return 90;
+  return Math.atan(dy / dx) * 180 / Math.PI;
+}
+
+function drawBox(b) {
+  var fTL = [b.x1, b.y1], fTR = [b.x2, b.y1], fBR = [b.x2, b.y2], fBL = [b.x1, b.y2];
+  var bk = function (p) { return [p[0] + b.dp * (state.vpX - p[0]), p[1] + b.dp * (state.vpY - p[1])]; };
+  var kTL = bk(fTL), kTR = bk(fTR), kBR = bk(fBR), kBL = bk(fBL);
+
+  var hex = b.c;
+  var faceTop = b.y1 > state.vpY;   // cả hộp dưới tầm mắt → thấy nóc
+  var faceBot = b.y2 < state.vpY;   // cả hộp trên tầm mắt → thấy đáy
+  var faceLeft = b.x1 > state.vpX;  // hộp bên phải VP → thấy mặt trái
+  var faceRight = b.x2 < state.vpX; // hộp bên trái VP → thấy mặt phải
+
+  // Tô mặt nhìn thấy (nhạt), rồi mặt trước (đậm hơn)
+  if (faceTop) quad(fTL, fTR, kTR, kTL, hexA(hex, 0.28));
+  if (faceBot) quad(fBL, fBR, kBR, kBL, hexA(hex, 0.28));
+  if (faceLeft) quad(fTL, fBL, kBL, kTL, hexA(hex, 0.22));
+  if (faceRight) quad(fTR, fBR, kBR, kTR, hexA(hex, 0.22));
+  quad(fTL, fTR, fBR, fBL, hexA(hex, 0.5));
+
+  // Cạnh lùi (hồng) từ 4 góc trước tới góc sau
+  line(fTL, kTL, '#db2777', 1.8);
+  line(fTR, kTR, '#db2777', 1.8);
+  line(fBR, kBR, '#db2777', 1.8);
+  line(fBL, kBL, '#db2777', 1.8);
+  // Khung sau
+  ctx.save(); ctx.strokeStyle = hex; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(kTL[0], kTL[1]); ctx.lineTo(kTR[0], kTR[1]);
+  ctx.lineTo(kBR[0], kBR[1]); ctx.lineTo(kBL[0], kBL[1]); ctx.closePath(); ctx.stroke(); ctx.restore();
+  // Khung trước
+  ctx.save(); ctx.strokeStyle = hex; ctx.lineWidth = 2.4; ctx.setLineDash([]);
+  ctx.strokeRect(b.x1, b.y1, b.x2 - b.x1, b.y2 - b.y1); ctx.restore();
+
+  // Nhãn nhìn thấy gì
+  var tag = faceTop ? 'thấy nóc' : (faceBot ? 'thấy đáy' : 'ngang tầm mắt');
+  ctx.save(); ctx.fillStyle = '#7a3a56'; ctx.font = '11px sans-serif';
+  ctx.fillText(tag, b.x1, b.y2 + 13); ctx.restore();
+}
+
+function hexA(hex, a) {
+  var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+// ===================== Số liệu sống =====================
+function updateReadout() {
+  document.getElementById('r-vp').textContent = '(' + Math.round(state.vpX) + ', ' + Math.round(state.vpY) + ')';
+  document.getElementById('r-hor').textContent = Math.round(state.vpY);
+  document.getElementById('r-scale').innerHTML = Math.round((1 - state.dep) * 100) + '<small>% mặt trước</small>';
+  var ang = angleTo(ROOM.L, ROOM.T);
+  document.getElementById('r-ang').textContent = ang.toFixed(1) + '°';
+}
+
+// ===================== Tương tác kéo điểm tụ =====================
+var dragging = false;
+function evtPos(e) {
+  var r = cv.getBoundingClientRect();
+  var sx = cv.width / r.width, sy = cv.height / r.height;
+  return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
+}
+function nearVP(p) {
+  var dx = p.x - state.vpX, dy = p.y - state.vpY;
+  return dx * dx + dy * dy <= 22 * 22;
+}
+cv.addEventListener('pointerdown', function (e) {
+  var p = evtPos(e);
+  if (nearVP(p)) {
+    dragging = true; cv.classList.add('dragging');
+    cv.setPointerCapture(e.pointerId);
+    moveVP(p);
+  }
+});
+cv.addEventListener('pointermove', function (e) {
+  if (!dragging) {
+    var p = evtPos(e);
+    cv.style.cursor = nearVP(p) ? 'grab' : 'default';
+    return;
+  }
+  moveVP(evtPos(e));
+});
+cv.addEventListener('pointerup', function (e) {
+  dragging = false; cv.classList.remove('dragging');
+});
+cv.addEventListener('pointercancel', function () { dragging = false; cv.classList.remove('dragging'); });
+
+function moveVP(p) {
+  state.vpX = clamp(p.x, 40, W - 40);
+  state.vpY = clamp(p.y, 30, H - 30);
+  syncSliders();
+  draw();
+}
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+// ===================== Sliders & nút =====================
+function syncSliders() {
+  document.getElementById('s-eye').value = Math.round(state.vpY);
+  document.getElementById('l-eye').textContent = Math.round(state.vpY);
+  document.getElementById('s-vpx').value = Math.round(state.vpX);
+  document.getElementById('l-vpx').textContent = Math.round(state.vpX);
+}
+document.getElementById('s-eye').addEventListener('input', function () {
+  state.vpY = +this.value; document.getElementById('l-eye').textContent = this.value; draw();
+});
+document.getElementById('s-vpx').addEventListener('input', function () {
+  state.vpX = +this.value; document.getElementById('l-vpx').textContent = this.value; draw();
+});
+document.getElementById('s-dep').addEventListener('input', function () {
+  state.dep = +this.value / 100;
+  document.getElementById('l-dep').textContent = state.dep.toFixed(2).replace('.', ',');
+  draw();
+});
+document.getElementById('c-tiles').addEventListener('change', function () { state.tiles = this.checked; draw(); });
+document.getElementById('c-guides').addEventListener('change', function () { state.guides = this.checked; draw(); });
+document.getElementById('c-angle').addEventListener('change', function () { state.angle = this.checked; draw(); });
+
+var addSeq = 0;
+document.getElementById('add').addEventListener('click', function () {
+  // Xen kẽ khối thấp (dưới sàn) và khối cao (trên trần) để so sánh trên/dưới tầm mắt.
+  var low = addSeq % 2 === 0;
+  var w = 60 + Math.round(Math.random() * 40), h = 55 + Math.round(Math.random() * 45);
+  var x1 = 150 + Math.round(Math.random() * 400);
+  var y1 = low ? (300 + Math.round(Math.random() * 70)) : (80 + Math.round(Math.random() * 60));
+  boxes.push({ x1: x1, y1: y1, x2: x1 + w, y2: y1 + h, dp: 0.34 + Math.random() * 0.24, c: BOX_COLORS[addSeq % BOX_COLORS.length] });
+  addSeq++;
+  draw();
+});
+document.getElementById('del').addEventListener('click', function () { boxes.pop(); draw(); });
+document.getElementById('reset').addEventListener('click', function () {
+  state.vpX = 380; state.vpY = 235; state.dep = 0.60;
+  boxes = defaultBoxes(); addSeq = 0;
+  document.getElementById('s-dep').value = 60;
+  document.getElementById('l-dep').textContent = '0,60';
+  syncSliders(); draw();
+});
+
+// ===================== Khởi động =====================
+boxes = defaultBoxes();
+syncSliders();
+draw();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

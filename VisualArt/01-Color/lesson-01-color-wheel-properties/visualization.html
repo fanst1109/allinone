@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L1: Bánh xe màu & thuộc tính màu — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 900px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Picker layout */
+  .picker { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .wheel-wrap { position: relative; flex: 0 0 auto; }
+  #wheel { display: block; cursor: crosshair; touch-action: none; border-radius: 50%; }
+  .picker-right { flex: 1 1 260px; min-width: 0; }
+
+  .swatch {
+    height: 96px; border-radius: 10px; border: 1px solid #e3e1dc;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.04); margin-bottom: 12px;
+  }
+
+  .slider-row { margin: 10px 0; }
+  .slider-row label {
+    display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;
+    color: #334155; margin-bottom: 4px;
+  }
+  .slider-row label .amt { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+
+  .readout { margin-top: 12px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
+  .readout .k { color: #64748b; font-weight: 600; }
+  .readout .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .readout code {
+    background: #f1f5f9; padding: 1px 7px; border-radius: 5px; font-size: 13px;
+    cursor: pointer; user-select: all;
+  }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+
+  /* Sắc độ swatches */
+  .tone-toggle button {
+    border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px;
+    cursor: pointer; background: var(--accent); color: #fff;
+  }
+  .tone-toggle button:hover { background: var(--accent-hover); }
+  .tone-rows { margin-top: 14px; display: none; }
+  .tone-rows.show { display: block; }
+  .tone-row { margin-bottom: 12px; }
+  .tone-row .rlab { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: #334155; }
+  .tone-row .rlab small { font-weight: 500; color: #64748b; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { flex: 1 1 60px; min-width: 56px; border-radius: 8px; overflow: hidden; border: 1px solid #e3e1dc; }
+  .chip .sw { height: 44px; }
+  .chip .cap { font-size: 10px; text-align: center; padding: 3px 2px; background: #fff; color: #475569; font-variant-numeric: tabular-nums; }
+
+  /* RYB static wheel */
+  .ryb-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .ryb-svg { flex: 0 0 auto; }
+  .legend { flex: 1 1 220px; min-width: 0; font-size: 13.5px; line-height: 1.7; }
+  .legend .tag { display: inline-block; padding: 1px 9px; border-radius: 6px; font-weight: 800; font-size: 12px; color: #fff; }
+  .legend .t1 { background: #db2777; }
+  .legend .t2 { background: #7c3aed; }
+  .legend .t3 { background: #64748b; }
+
+  /* 3 thuộc tính panel */
+  .attrs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .attr { border: 1px solid #e3e1dc; border-radius: 10px; padding: 12px 14px; background: #fdfdfc; }
+  .attr h3 { margin: 0 0 4px; font-size: 15px; color: var(--accent-hover); }
+  .attr p { margin: 0; font-size: 13px; color: #475569; }
+  .attr .now { font-size: 12px; color: #64748b; margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 480px) {
+    .picker { gap: 14px; }
+    .chip { flex: 1 1 44px; min-width: 44px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Bánh xe màu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-color-models/visualization.html">L2: Mô hình màu →</a>
+</nav>
+<main>
+  <h1>Bánh xe màu &amp; thuộc tính màu</h1>
+  <div class="lead">Kéo hoặc bấm vào <strong>vòng sắc</strong> để chọn Hue; kéo hai slider <strong>Saturation</strong> và <strong>Value</strong>. Ô màu, mã <strong>hex</strong>, <strong>RGB</strong> và <strong>HSL</strong> cập nhật tức thời.</div>
+
+  <div class="module">
+    <h2>Bộ chọn màu (HSV)</h2>
+    <div class="sub">Vòng ngoài là trục Hue (0°–360°) của mô hình màn hình (RGB/HSV). Hai slider điều khiển độ bão hòa &amp; độ sáng.</div>
+    <div class="picker">
+      <div class="wheel-wrap">
+        <canvas id="wheel" width="260" height="260"></canvas>
+      </div>
+      <div class="picker-right">
+        <div class="swatch" id="swatch"></div>
+        <div class="slider-row">
+          <label>Saturation (độ bão hòa) <span class="amt" id="s-amt">100%</span></label>
+          <input type="range" id="s-slider" min="0" max="100" value="100">
+        </div>
+        <div class="slider-row">
+          <label>Value (độ sáng) <span class="amt" id="v-amt">100%</span></label>
+          <input type="range" id="v-slider" min="0" max="100" value="100">
+        </div>
+        <div class="readout">
+          <span class="k">HSV</span><span class="v" id="r-hsv">0°, 100%, 100%</span>
+          <span class="k">HSL</span><span class="v" id="r-hsl">0°, 100%, 50%</span>
+          <span class="k">RGB</span><span class="v"><code id="r-rgb">rgb(255, 0, 0)</code></span>
+          <span class="k">hex</span><span class="v"><code id="r-hex">#FF0000</code></span>
+        </div>
+        <div class="hint">Mẹo: bấm vào mã hex/RGB để bôi đen sao chép nhanh.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Ba thuộc tính đang thay đổi gì?</h2>
+    <div class="sub">Ba trục độc lập của màu bạn vừa chọn.</div>
+    <div class="attrs">
+      <div class="attr">
+        <h3>Hue — sắc màu</h3>
+        <p>Vị trí trên vòng, 0°–360°. Trả lời "màu <em>gì</em>". Đổi Hue = xoay quanh vòng.</p>
+        <div class="now" id="now-h">Hiện tại: 0° (đỏ)</div>
+      </div>
+      <div class="attr">
+        <h3>Saturation — độ bão hòa</h3>
+        <p>Độ tinh khiết 0%–100%. 0% = xám vô sắc, 100% = tươi nhất.</p>
+        <div class="now" id="now-s">Hiện tại: 100%</div>
+      </div>
+      <div class="attr">
+        <h3>Value — độ sáng</h3>
+        <p>Sáng/tối 0%–100%. 0% = đen tuyền; 100% = rực nhất có thể.</p>
+        <div class="now" id="now-v">Hiện tại: 100%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Sắc độ: tint · shade · tone</h2>
+    <div class="sub">Từ màu đang chọn, pha dần với trắng / đen / xám. Bấm để hiện các dải sắc độ.</div>
+    <div class="tone-toggle">
+      <button id="tone-btn">Hiện tint / shade / tone</button>
+    </div>
+    <div class="tone-rows" id="tone-rows">
+      <div class="tone-row">
+        <div class="rlab">Tint <small>— + trắng · độ sáng cao, bão hòa giảm</small></div>
+        <div class="chips" id="row-tint"></div>
+      </div>
+      <div class="tone-row">
+        <div class="rlab">Shade <small>— + đen · độ sáng giảm, giữ bão hòa</small></div>
+        <div class="chips" id="row-shade"></div>
+      </div>
+      <div class="tone-row">
+        <div class="rlab">Tone <small>— + xám · bão hòa &amp; độ sáng đều giảm</small></div>
+        <div class="chips" id="row-tone"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Bánh xe họa sĩ (RYB) — 12 cung, ba bậc</h2>
+    <div class="sub">Đây là vòng của <strong>màu vẽ</strong> (mực, màu nước) — khác vòng HSV/RGB ở trên. Ba màu gốc là đỏ · vàng · lam.</div>
+    <div class="ryb-wrap">
+      <svg class="ryb-svg" width="260" height="260" viewBox="0 0 260 260" aria-label="Bánh xe màu họa sĩ 12 cung"></svg>
+      <div class="legend">
+        <p><span class="tag t1">Bậc 1</span> <strong>Primary</strong> — đỏ, vàng, lam. Không pha ra được, chia đều vòng (cách nhau 4 cung).</p>
+        <p><span class="tag t2">Bậc 2</span> <strong>Secondary</strong> — cam (đỏ+vàng), lục (vàng+lam), tím (lam+đỏ). Nằm giữa hai màu gốc.</p>
+        <p><span class="tag t3">Bậc 3</span> <strong>Tertiary</strong> — 6 màu ghép: đỏ-cam, vàng-cam, vàng-lục, lam-lục, lam-tím, đỏ-tím.</p>
+        <p style="color:#64748b;font-size:12.5px;">Đối diện nhau qua tâm (cách 6 cung) là cặp <strong>màu bổ túc</strong>: lam ⇄ cam, vàng ⇄ tím, đỏ ⇄ lục.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ================= Chuyển đổi màu =================
+// HSV → RGB. h ∈ [0,360), s,v ∈ [0,1]. Trả {r,g,b} 0..255.
+function hsv2rgb(h, s, v) {
+  var c = v * s;
+  var x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  var m = v - c;
+  var r, g, b;
+  if (h < 60)       { r = c; g = x; b = 0; }
+  else if (h < 120) { r = x; g = c; b = 0; }
+  else if (h < 180) { r = 0; g = c; b = x; }
+  else if (h < 240) { r = 0; g = x; b = c; }
+  else if (h < 300) { r = x; g = 0; b = c; }
+  else              { r = c; g = 0; b = x; }
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255)
+  };
+}
+// RGB (0..255) → HSL (h 0..360, s/l 0..100) — dùng để hiển thị đối chiếu.
+function rgb2hsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var l = (max + min) / 2, s = 0, h = 0;
+  var d = max - min;
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l - 1));
+    if (max === r)      h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else                h = 60 * ((r - g) / d + 4);
+    if (h < 0) h += 360;
+  }
+  return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+function hex2(n) { var s = n.toString(16).toUpperCase(); return s.length < 2 ? '0' + s : s; }
+function rgb2hex(r, g, b) { return '#' + hex2(r) + hex2(g) + hex2(b); }
+function hueName(h) {
+  var names = [[0,'đỏ'],[30,'cam'],[60,'vàng'],[90,'vàng lục'],[120,'lục'],[150,'lục lam'],
+               [180,'lơ (cyan)'],[210,'lam nhạt'],[240,'lam'],[270,'chàm'],[300,'cánh sen'],[330,'hồng sen']];
+  var best = names[0], bd = 999;
+  for (var i = 0; i < names.length; i++) {
+    var d = Math.min(Math.abs(h - names[i][0]), 360 - Math.abs(h - names[i][0]));
+    if (d < bd) { bd = d; best = names[i]; }
+  }
+  return best[1];
+}
+
+// ================= Trạng thái =================
+var state = { h: 0, s: 100, v: 100 };
+
+// ================= Vẽ vòng Hue =================
+var cv = document.getElementById('wheel');
+var ctx = cv.getContext('2d');
+var W = cv.width, cx = W / 2, cy = W / 2;
+var rOuter = W / 2 - 4, rInner = W / 2 - 34;
+
+// hue 0 ở đỉnh (12h), tăng theo chiều kim đồng hồ.
+function hueToAngle(h) { return (h - 90) * Math.PI / 180; }
+function angleToHue(a) { var d = a * 180 / Math.PI + 90; d %= 360; if (d < 0) d += 360; return d; }
+
+function drawWheel() {
+  ctx.clearRect(0, 0, W, W);
+  var step = 1; // độ
+  for (var h = 0; h < 360; h += step) {
+    var a0 = hueToAngle(h) - 0.02, a1 = hueToAngle(h + step) + 0.02;
+    var c = hsv2rgb(h, 1, 1);
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOuter, a0, a1);
+    ctx.arc(cx, cy, rInner, a1, a0, true);
+    ctx.closePath();
+    ctx.fillStyle = 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
+    ctx.fill();
+  }
+  // 12 vạch chia mỗi 30°
+  ctx.strokeStyle = 'rgba(255,255,255,.7)';
+  ctx.lineWidth = 1.5;
+  for (var k = 0; k < 12; k++) {
+    var a = hueToAngle(k * 30);
+    ctx.beginPath();
+    ctx.moveTo(cx + rInner * Math.cos(a), cy + rInner * Math.sin(a));
+    ctx.lineTo(cx + rOuter * Math.cos(a), cy + rOuter * Math.sin(a));
+    ctx.stroke();
+  }
+  // Con trỏ chọn hue
+  var am = hueToAngle(state.h);
+  var rm = (rInner + rOuter) / 2;
+  var mx = cx + rm * Math.cos(am), my = cy + rm * Math.sin(am);
+  ctx.beginPath();
+  ctx.arc(mx, my, 8, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#1e293b';
+  ctx.stroke();
+  // Ô tròn trung tâm = màu hiện tại
+  var cc = hsv2rgb(state.h, state.s / 100, state.v / 100);
+  ctx.beginPath();
+  ctx.arc(cx, cy, rInner - 6, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgb(' + cc.r + ',' + cc.g + ',' + cc.b + ')';
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0,0,0,.15)';
+  ctx.stroke();
+}
+
+// Kéo/bấm chọn hue
+var dragging = false;
+function pickFromEvent(e) {
+  var rect = cv.getBoundingClientRect();
+  var px = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  var py = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  // canvas có thể bị scale trên mobile → quy đổi về hệ toạ độ nội tại
+  px *= cv.width / rect.width;
+  py *= cv.height / rect.height;
+  var a = Math.atan2(py - cy, px - cx);
+  state.h = Math.round(angleToHue(a));
+  render();
+}
+cv.addEventListener('mousedown', function(e){ dragging = true; pickFromEvent(e); });
+window.addEventListener('mousemove', function(e){ if (dragging) pickFromEvent(e); });
+window.addEventListener('mouseup', function(){ dragging = false; });
+cv.addEventListener('touchstart', function(e){ dragging = true; pickFromEvent(e); e.preventDefault(); }, {passive:false});
+cv.addEventListener('touchmove', function(e){ if (dragging) { pickFromEvent(e); e.preventDefault(); } }, {passive:false});
+window.addEventListener('touchend', function(){ dragging = false; });
+
+// Sliders
+var sSlider = document.getElementById('s-slider');
+var vSlider = document.getElementById('v-slider');
+sSlider.addEventListener('input', function(){ state.s = +this.value; render(); });
+vSlider.addEventListener('input', function(){ state.v = +this.value; render(); });
+
+// ================= Render toàn cục =================
+function render() {
+  var rgb = hsv2rgb(state.h, state.s / 100, state.v / 100);
+  var hex = rgb2hex(rgb.r, rgb.g, rgb.b);
+  var hsl = rgb2hsl(rgb.r, rgb.g, rgb.b);
+  var rgbStr = 'rgb(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ')';
+
+  document.getElementById('swatch').style.background = hex;
+  document.getElementById('s-amt').textContent = state.s + '%';
+  document.getElementById('v-amt').textContent = state.v + '%';
+  document.getElementById('r-hsv').textContent = state.h + '°, ' + state.s + '%, ' + state.v + '%';
+  document.getElementById('r-hsl').textContent = hsl.h + '°, ' + hsl.s + '%, ' + hsl.l + '%';
+  document.getElementById('r-rgb').textContent = rgbStr;
+  document.getElementById('r-hex').textContent = hex;
+
+  document.getElementById('now-h').textContent = 'Hiện tại: ' + state.h + '° (' + hueName(state.h) + ')';
+  document.getElementById('now-s').textContent = 'Hiện tại: ' + state.s + '%';
+  document.getElementById('now-v').textContent = 'Hiện tại: ' + state.v + '%';
+
+  drawWheel();
+  if (toneShown) renderTones(rgb);
+}
+
+// ================= Sắc độ tint/shade/tone =================
+var toneShown = false;
+var toneBtn = document.getElementById('tone-btn');
+var toneRows = document.getElementById('tone-rows');
+toneBtn.addEventListener('click', function(){
+  toneShown = !toneShown;
+  toneRows.classList.toggle('show', toneShown);
+  toneBtn.textContent = toneShown ? 'Ẩn tint / shade / tone' : 'Hiện tint / shade / tone';
+  if (toneShown) renderTones(hsv2rgb(state.h, state.s / 100, state.v / 100));
+});
+
+function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+function mix(base, target, t) {
+  return { r: lerp(base.r, target.r, t), g: lerp(base.g, target.g, t), b: lerp(base.b, target.b, t) };
+}
+function chipHTML(c) {
+  var hex = rgb2hex(c.r, c.g, c.b);
+  return '<div class="chip"><div class="sw" style="background:' + hex + '"></div><div class="cap">' + hex + '</div></div>';
+}
+function renderTones(base) {
+  var white = { r: 255, g: 255, b: 255 }, black = { r: 0, g: 0, b: 0 }, gray = { r: 128, g: 128, b: 128 };
+  var steps = [0, 0.25, 0.5, 0.75];
+  document.getElementById('row-tint').innerHTML  = steps.map(function(t){ return chipHTML(mix(base, white, t)); }).join('');
+  document.getElementById('row-shade').innerHTML = steps.map(function(t){ return chipHTML(mix(base, black, t)); }).join('');
+  document.getElementById('row-tone').innerHTML  = steps.map(function(t){ return chipHTML(mix(base, gray, t)); }).join('');
+}
+
+// ================= Bánh xe RYB tĩnh =================
+(function buildRYB(){
+  var svg = document.querySelector('.ryb-svg');
+  var NS = 'http://www.w3.org/2000/svg';
+  // 12 cung RYB (màu xấp xỉ chuẩn họa sĩ) + bậc
+  var seg = [
+    ['#FE2712',1],['#FC600A',3],['#FB9902',2],['#FCCC1A',3],
+    ['#FEFE33',1],['#B2D732',3],['#66B032',2],['#347C98',3],
+    ['#0247FE',1],['#4424D6',3],['#8601AF',2],['#C21460',3]
+  ];
+  var cx = 130, cy = 130, rO = 116, rI = 46;
+  function pt(r, deg){ var a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+  for (var i = 0; i < 12; i++) {
+    var a0 = i * 30, a1 = (i + 1) * 30;
+    var p1 = pt(rO, a0), p2 = pt(rO, a1), p3 = pt(rI, a1), p4 = pt(rI, a0);
+    var d = 'M' + p1[0] + ',' + p1[1] +
+            ' A' + rO + ',' + rO + ' 0 0 1 ' + p2[0] + ',' + p2[1] +
+            ' L' + p3[0] + ',' + p3[1] +
+            ' A' + rI + ',' + rI + ' 0 0 0 ' + p4[0] + ',' + p4[1] + ' Z';
+    var path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', seg[i][0]);
+    path.setAttribute('stroke', '#fff');
+    path.setAttribute('stroke-width', '2');
+    svg.appendChild(path);
+    // nhãn bậc
+    var lp = pt((rO + rI) / 2, a0 + 15);
+    var txt = document.createElementNS(NS, 'text');
+    txt.setAttribute('x', lp[0]); txt.setAttribute('y', lp[1] + 4);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('font-size', '13');
+    txt.setAttribute('font-weight', '800');
+    // chữ trắng cho cung tối, chữ đậm cho cung sáng
+    var light = ['#FCCC1A','#FEFE33','#B2D732'].indexOf(seg[i][0]) >= 0;
+    txt.setAttribute('fill', light ? '#1e293b' : '#fff');
+    txt.textContent = seg[i][1];
+    svg.appendChild(txt);
+  }
+  // tâm
+  var c = document.createElementNS(NS, 'circle');
+  c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', rI - 4);
+  c.setAttribute('fill', '#fff'); c.setAttribute('stroke', '#e3e1dc');
+  svg.appendChild(c);
+  var ct = document.createElementNS(NS, 'text');
+  ct.setAttribute('x', cx); ct.setAttribute('y', cy - 2);
+  ct.setAttribute('text-anchor', 'middle'); ct.setAttribute('font-size', '11');
+  ct.setAttribute('font-weight', '700'); ct.setAttribute('fill', '#64748b');
+  ct.textContent = 'RYB';
+  svg.appendChild(ct);
+  var ct2 = document.createElementNS(NS, 'text');
+  ct2.setAttribute('x', cx); ct2.setAttribute('y', cy + 12);
+  ct2.setAttribute('text-anchor', 'middle'); ct2.setAttribute('font-size', '9');
+  ct2.setAttribute('fill', '#94a3b8');
+  ct2.textContent = '12 cung';
+  svg.appendChild(ct2);
+})();
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

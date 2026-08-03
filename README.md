@@ -57,6 +57,7 @@
 | Statistics | Thống kê — 3 tầng × 18 bài: mô tả dữ liệu → suy luận (CLT, kiểm định, hồi quy linear/multiple/logistic) → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |
 | VietnameseHistory | Lịch sử Việt Nam — 3 tầng × 8 bài: dựng nước & Bắc thuộc → các triều đại quân chủ → cận-hiện đại & Đổi mới | [VietnameseHistory/](./VietnameseHistory/) |
+| VisualArt | Mỹ thuật — 3 nhánh × 12 bài: màu sắc (bánh xe màu, mô hình RGB/CMY/HSL, hòa sắc) → bố cục & không gian (quy tắc 1/3, tỉ lệ vàng, phối cảnh 1-2-3 điểm) → giá trị, hình khối & ánh sáng (value, đổ bóng khối, chất liệu). Mỗi bài một công cụ tương tác | [VisualArt/](./VisualArt/) |
 | WorldHistory | Lịch sử thế giới — 3 tầng × 8 bài: cổ đại (văn minh sông → La Mã) → trung-cận đại (Phục hưng, Khai sáng) → hiện đại (Thế chiến, Chiến tranh Lạnh, toàn cầu hóa) | [WorldHistory/](./WorldHistory/) |
 
 > Mở [`index.html`](./index.html) ở root để xem trang chính có liên kết tới mọi lĩnh vực.

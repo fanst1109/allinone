@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L3: Hòa sắc — Mỹ thuật</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 940px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Layout wheel + controls */
+  .studio { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .wheel-col { flex: 0 0 auto; text-align: center; }
+  .ctrl-col { flex: 1 1 300px; min-width: 0; }
+  canvas#wheel { cursor: crosshair; touch-action: none; border-radius: 50%; }
+
+  /* Scheme buttons */
+  .schemes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .schemes button {
+    border: 1px solid #cbd5e1; background: #fff; border-radius: 999px;
+    padding: 7px 14px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;
+    transition: all .12s;
+  }
+  .schemes button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .schemes button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Sliders */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 13px; color: #475569; }
+  .slider-row label { width: 118px; flex-shrink: 0; font-weight: 600; }
+  .slider-row input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+  .slider-row .num { width: 52px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: #1e293b; }
+
+  .readout {
+    background: #fdf2f8; border: 1px solid #fbcfe8; border-radius: 8px;
+    padding: 10px 12px; font-size: 13px; color: #831843; line-height: 1.6; margin-top: 6px;
+  }
+  .readout b { color: #9d174d; }
+  .readout .ang { font-variant-numeric: tabular-nums; }
+
+  /* Palette swatches */
+  .palette { display: flex; flex-wrap: wrap; gap: 12px; }
+  .swatch { width: 108px; }
+  .swatch .chip { height: 70px; border-radius: 10px; border: 1px solid rgba(0,0,0,.08); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .swatch .meta { font-size: 12px; margin-top: 6px; line-height: 1.45; color: #475569; }
+  .swatch .meta .hex { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; color: #1e293b; text-transform: uppercase; }
+  .swatch .meta .role { color: #94a3b8; }
+
+  /* Poster */
+  .poster-wrap { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .poster-wrap svg { flex: 0 0 auto; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); max-width: 100%; height: auto; }
+  .poster-note { flex: 1 1 220px; font-size: 13px; color: #475569; line-height: 1.7; min-width: 0; }
+
+  .legend { font-size: 12px; color: #64748b; margin-top: 10px; }
+  .legend b { color: #334155; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-color-models/visualization.html">← L2</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Hòa sắc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-temperature-contrast-psychology/visualization.html">L4: Nhiệt độ & tương phản →</a>
+</nav>
+<main>
+  <h1>Hòa sắc — dựng palette từ một góc hue</h1>
+  <div class="lead">Chọn <strong>hue gốc</strong> trên vòng màu, bật một <strong>sơ đồ hòa sắc</strong>, xem các màu được tính theo <strong>góc</strong> cố định. Kéo <em>saturation</em> để thấy vì sao "đúng góc" chưa đủ.</div>
+
+  <div class="module">
+    <h2>1. Vòng màu &amp; sơ đồ</h2>
+    <div class="sub">Click hoặc kéo trên vòng để đặt hue gốc (góc) và saturation (bán kính). Marker &amp; đường nối vẽ đúng hình học của sơ đồ.</div>
+    <div class="studio">
+      <div class="wheel-col">
+        <canvas id="wheel" width="300" height="300"></canvas>
+        <div class="legend">Đỏ 0° ở đỉnh · theo chiều kim đồng hồ.</div>
+      </div>
+      <div class="ctrl-col">
+        <div class="schemes" id="schemes"></div>
+        <div class="slider-row">
+          <label>Hue gốc</label>
+          <input type="range" id="hue" min="0" max="359" value="210">
+          <span class="num" id="hue-num">210°</span>
+        </div>
+        <div class="slider-row">
+          <label>Saturation</label>
+          <input type="range" id="sat" min="20" max="100" value="72">
+          <span class="num" id="sat-num">72%</span>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Palette sinh ra (hex)</h2>
+    <div class="sub">Các ô màu tính từ hue của sơ đồ. Đơn sắc = 1 hue đổi độ sáng; các sơ đồ khác = mỗi hue một ô.</div>
+    <div class="palette" id="palette"></div>
+  </div>
+
+  <div class="module">
+    <h2>3. Áp thử lên poster mẫu</h2>
+    <div class="sub">Cùng một bố cục, đổi màu theo palette hiện tại — thấy ngay sơ đồ "cảm giác" thế nào.</div>
+    <div class="poster-wrap">
+      <svg id="poster" width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <rect id="pBg" x="0" y="0" width="400" height="300"></rect>
+        <circle id="pCircle" cx="112" cy="104" r="78"></circle>
+        <rect id="pRect" x="214" y="40" width="150" height="104" rx="6"></rect>
+        <circle id="pDot" cx="326" cy="94" r="22"></circle>
+        <polygon id="pTri" points="206,286 300,150 392,286"></polygon>
+        <rect id="pBar1" x="28" y="210" width="156" height="24" rx="4"></rect>
+        <rect id="pBar2" x="28" y="244" width="112" height="24" rx="4"></rect>
+        <rect id="pInk" x="214" y="168" width="150" height="12" rx="6"></rect>
+        <text id="pText" x="214" y="214" font-family="Manrope, sans-serif" font-size="30" font-weight="800">HÒA SẮC</text>
+      </svg>
+      <div class="poster-note" id="poster-note"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===== Chuyển đổi màu HSL → RGB/hex =====
+function hslToRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360;
+  var c = (1 - Math.abs(2 * l - 1)) * s;
+  var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  var m = l - c / 2, r, g, b;
+  if (h < 60)       { r = c; g = x; b = 0; }
+  else if (h < 120) { r = x; g = c; b = 0; }
+  else if (h < 180) { r = 0; g = c; b = x; }
+  else if (h < 240) { r = 0; g = x; b = c; }
+  else if (h < 300) { r = x; g = 0; b = c; }
+  else              { r = c; g = 0; b = x; }
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+}
+function hslToHex(h, s, l) {
+  var rgb = hslToRgb(h, s, l);
+  return '#' + rgb.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
+}
+
+// ===== Định nghĩa 6 sơ đồ (theo GÓC hue) =====
+var SCHEMES = {
+  mono:   { name: 'Đơn sắc',           offs: [0],                 mono: true },
+  analog: { name: 'Tương đồng',         offs: [-30, 0, 30] },
+  comp:   { name: 'Bổ túc',             offs: [0, 180] },
+  split:  { name: 'Bổ túc chia đôi',    offs: [0, 150, 210] },
+  triad:  { name: 'Bộ ba',              offs: [0, 120, 240] },
+  tetra:  { name: 'Bộ bốn',             offs: [0, 90, 180, 270] }
+};
+var ORDER = ['mono', 'analog', 'comp', 'split', 'triad', 'tetra'];
+
+// ===== Trạng thái =====
+var state = { hue: 210, sat: 0.72, scheme: 'comp' };
+
+// ===== Vòng màu: render 1 lần vào ImageData rồi cache =====
+var cv = document.getElementById('wheel');
+var ctx = cv.getContext('2d');
+var W = cv.width, H = cv.height;
+var CX = W / 2, CY = H / 2, R = W / 2 - 8;
+var wheelImg = null;
+
+function screenAngle(hue) { return (hue - 90) * Math.PI / 180; } // hue 0 -> đỉnh, clockwise
+function pointFor(hue, radiusFrac) {
+  var a = screenAngle(hue), rr = radiusFrac * R;
+  return [CX + rr * Math.cos(a), CY + rr * Math.sin(a)];
+}
+
+function buildWheel() {
+  var img = ctx.createImageData(W, H);
+  var d = img.data;
+  for (var y = 0; y < H; y++) {
+    for (var x = 0; x < W; x++) {
+      var dx = x - CX, dy = y - CY;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var idx = (y * W + x) * 4;
+      if (dist <= R) {
+        // hue = góc màn hình + 90 (đảo của screenAngle)
+        var hue = (Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360;
+        var sat = dist / R;
+        var rgb = hslToRgb(hue, sat, 0.5);
+        d[idx] = rgb[0]; d[idx + 1] = rgb[1]; d[idx + 2] = rgb[2]; d[idx + 3] = 255;
+      } else {
+        d[idx + 3] = 0;
+      }
+    }
+  }
+  wheelImg = img;
+}
+
+// ===== Các hue của sơ đồ hiện tại =====
+function schemeHues() {
+  return SCHEMES[state.scheme].offs.map(function (o) {
+    return ((state.hue + o) % 360 + 360) % 360;
+  });
+}
+
+// ===== Palette (mỗi phần tử: {h,s,l}) =====
+function currentSwatches() {
+  var sc = SCHEMES[state.scheme], out = [];
+  if (sc.mono) {
+    [0.84, 0.68, 0.52, 0.38, 0.24].forEach(function (L) {
+      out.push({ h: state.hue, s: state.sat, l: L });
+    });
+  } else {
+    schemeHues().forEach(function (h) {
+      out.push({ h: h, s: state.sat, l: 0.55 });
+    });
+  }
+  return out;
+}
+
+// ===== Vẽ vòng + marker + đường nối =====
+function drawWheel() {
+  ctx.putImageData(wheelImg, 0, 0);
+
+  // viền ngoài
+  ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,.15)'; ctx.lineWidth = 1; ctx.stroke();
+
+  var sc = SCHEMES[state.scheme];
+  var hues = schemeHues();
+  var rf = Math.max(state.sat, 0.28); // bán kính marker theo saturation
+
+  // đường nối
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,255,255,.95)';
+  ctx.lineJoin = 'round';
+  if (sc.mono) {
+    // đường bán kính từ tâm ra ngoài (biểu thị 1 hue, đổi L)
+    var pe = pointFor(state.hue, 1);
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(pe[0], pe[1]); ctx.stroke();
+    ctx.setLineDash([]);
+  } else {
+    var pts = hues.map(function (h) { return pointFor(h, rf); });
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    if (pts.length >= 3) ctx.closePath(); // tam giác / tứ giác khép kín
+    ctx.stroke();
+  }
+
+  // marker cho từng hue
+  var markHues = sc.mono ? [state.hue] : hues;
+  markHues.forEach(function (h, i) {
+    var frac = sc.mono ? Math.max(state.sat, 0.28) : rf;
+    var p = pointFor(h, frac);
+    var fill = hslToHex(h, sc.mono ? state.sat : state.sat, 0.5);
+    ctx.beginPath(); ctx.arc(p[0], p[1], i === 0 ? 11 : 9, 0, Math.PI * 2);
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.stroke();
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.stroke();
+  });
+}
+
+// ===== Render toàn bộ UI =====
+function fmtDeg(h) { return Math.round(h) + '°'; }
+
+function render() {
+  drawWheel();
+
+  // sliders numbers
+  document.getElementById('hue').value = Math.round(state.hue);
+  document.getElementById('sat').value = Math.round(state.sat * 100);
+  document.getElementById('hue-num').textContent = fmtDeg(state.hue);
+  document.getElementById('sat-num').textContent = Math.round(state.sat * 100) + '%';
+
+  // scheme buttons
+  Array.prototype.forEach.call(document.querySelectorAll('#schemes button'), function (b) {
+    b.classList.toggle('on', b.dataset.k === state.scheme);
+  });
+
+  var sc = SCHEMES[state.scheme];
+  var hues = schemeHues();
+
+  // readout
+  var ro = document.getElementById('readout');
+  var base = Math.round(state.hue);
+  if (sc.mono) {
+    ro.innerHTML = '<b>' + sc.name + '</b> · 1 hue <span class="ang">' + base + '°</span>, biến thiên độ sáng (L). ' +
+      'Saturation = ' + Math.round(state.sat * 100) + '%.';
+  } else {
+    var terms = sc.offs.map(function (o) {
+      var h = ((base + o) % 360 + 360) % 360;
+      var sign = o === 0 ? 'gốc' : (o > 0 ? '+' + o + '°' : o + '°');
+      return '<span class="ang">' + h + '°</span> (' + sign + ')';
+    });
+    ro.innerHTML = '<b>' + sc.name + '</b> · gốc <span class="ang">' + base + '°</span> → ' + terms.join(', ') +
+      '.<br>Công thức: (gốc + offset) mod 360.';
+  }
+
+  // palette swatches
+  var sw = currentSwatches();
+  var pal = document.getElementById('palette');
+  pal.innerHTML = '';
+  sw.forEach(function (c, i) {
+    var hex = hslToHex(c.h, c.s, c.l);
+    var el = document.createElement('div');
+    el.className = 'swatch';
+    var meta = sc.mono
+      ? '<span class="role">L ' + Math.round(c.l * 100) + '%</span>'
+      : '<span class="ang">' + Math.round(c.h) + '°</span>' + (i === 0 ? ' <span class="role">gốc</span>' : '');
+    el.innerHTML =
+      '<div class="chip" style="background:' + hex + '"></div>' +
+      '<div class="meta"><span class="hex">' + hex + '</span><br>' + meta + '</div>';
+    pal.appendChild(el);
+  });
+
+  paintPoster(sw);
+}
+
+// ===== Áp palette lên poster =====
+function paintPoster(sw) {
+  var hexes = sw.map(function (c) { return hslToHex(c.h, c.s, c.l); });
+  function pick(i) { return hexes[i % hexes.length]; }
+
+  // nền: tint rất nhạt của hue gốc; mực: shade đậm của hue gốc
+  var bg  = hslToHex(state.hue, Math.min(state.sat, 0.45), 0.93);
+  var ink = hslToHex(state.hue, Math.min(state.sat + 0.1, 0.55), 0.18);
+
+  document.getElementById('pBg').setAttribute('fill', bg);
+  document.getElementById('pCircle').setAttribute('fill', pick(0));
+  document.getElementById('pRect').setAttribute('fill', pick(1));
+  document.getElementById('pTri').setAttribute('fill', pick(2));
+  document.getElementById('pDot').setAttribute('fill', pick(3));
+  document.getElementById('pBar1').setAttribute('fill', pick(1));
+  document.getElementById('pBar2').setAttribute('fill', pick(2));
+  document.getElementById('pInk').setAttribute('fill', ink);
+  document.getElementById('pText').setAttribute('fill', ink);
+
+  document.getElementById('poster-note').innerHTML =
+    'Nền = tint nhạt của hue gốc (' + bg + '). Các khối lấy lần lượt từ palette; ' +
+    'chữ &amp; thanh nhấn dùng shade đậm (' + ink + ').<br><br>' +
+    '<b>Thử:</b> giảm <em>saturation</em> rồi tăng lại — thấy poster từ dịu sang chói. ' +
+    'Đúng góc hue chưa đủ; S/L và diện tích mới quyết định đẹp/xấu.';
+}
+
+// ===== Tương tác =====
+// scheme buttons
+var sbox = document.getElementById('schemes');
+ORDER.forEach(function (k) {
+  var b = document.createElement('button');
+  b.dataset.k = k; b.textContent = SCHEMES[k].name;
+  b.onclick = function () { state.scheme = k; render(); };
+  sbox.appendChild(b);
+});
+
+// sliders
+document.getElementById('hue').addEventListener('input', function (e) {
+  state.hue = +e.target.value; render();
+});
+document.getElementById('sat').addEventListener('input', function (e) {
+  state.sat = +e.target.value / 100; render();
+});
+
+// click / drag trên vòng
+function pickFromEvent(e) {
+  var rect = cv.getBoundingClientRect();
+  var scaleX = cv.width / rect.width, scaleY = cv.height / rect.height;
+  var t = e.touches ? e.touches[0] : e;
+  var mx = (t.clientX - rect.left) * scaleX;
+  var my = (t.clientY - rect.top) * scaleY;
+  var dx = mx - CX, dy = my - CY;
+  var dist = Math.sqrt(dx * dx + dy * dy);
+  state.hue = (Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360;
+  state.sat = Math.max(0.2, Math.min(1, dist / R));
+  render();
+}
+var dragging = false;
+cv.addEventListener('mousedown', function (e) { dragging = true; pickFromEvent(e); });
+window.addEventListener('mousemove', function (e) { if (dragging) pickFromEvent(e); });
+window.addEventListener('mouseup', function () { dragging = false; });
+cv.addEventListener('touchstart', function (e) { e.preventDefault(); pickFromEvent(e); }, { passive: false });
+cv.addEventListener('touchmove', function (e) { e.preventDefault(); pickFromEvent(e); }, { passive: false });
+
+// ===== Khởi động =====
+buildWheel();
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

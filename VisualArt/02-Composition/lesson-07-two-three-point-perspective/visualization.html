@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L7: Phối cảnh 2 & 3 điểm tụ — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6f9;
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+    --vpl: #0d9488;
+    --vpr: #d97706;
+  }
+  main { max-width: 900px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f1d6e4; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Toggle điểm tụ */
+  .seg-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .seg-btns button {
+    border: 1.5px solid #f0b5d0; background: #fff; color: #9d174d;
+    border-radius: 9px; padding: 9px 16px; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: all .12s;
+  }
+  .seg-btns button:hover { background: var(--accent-soft); }
+  .seg-btns button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .row .lbl { font-size: 13px; font-weight: 700; color: #475569; margin-right: 4px; }
+  .mini-btns button {
+    border: 1.5px solid #cbd5e1; background: #fff; color: #334155;
+    border-radius: 8px; padding: 7px 13px; font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .mini-btns button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-hover); }
+  .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; }
+
+  /* Khung SVG */
+  .stage { width: 100%; }
+  svg.scene { width: 100%; height: auto; display: block; background: #fbfcfe; border: 1px solid #e6e2ec; border-radius: 10px; touch-action: none; }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+
+  /* Sliders */
+  .sliders { display: none; }
+  .sliders.on { display: block; }
+  .slrow { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .slrow label { width: 130px; font-size: 13px; font-weight: 700; color: #475569; flex-shrink: 0; }
+  .slrow input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+  .slrow .valv { width: 52px; text-align: right; font-size: 13px; font-weight: 700; color: var(--accent-hover); font-variant-numeric: tabular-nums; }
+
+  /* Readout */
+  .readout { font-size: 14px; line-height: 1.7; }
+  .readout .k { display: inline-block; padding: 1px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+  .k.l { background: #ccfbf1; color: #0f766e; }
+  .k.r { background: #fef3c7; color: #b45309; }
+  .k.v { background: var(--accent-soft); color: var(--accent-hover); }
+  .readout ul { margin: 8px 0 0; padding-left: 20px; }
+  .readout code { background: #f1f5f9; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-top: 6px; }
+  .legend span::before { content: ""; display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  .lg-l::before { background: var(--vpl); }
+  .lg-r::before { background: var(--vpr); }
+  .lg-v::before { background: var(--accent); }
+  .lg-e::before { background: #334155; }
+  .lg-h::before { background: #94a3b8; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-one-point-perspective/visualization.html">← L6</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Phối cảnh 2-3 điểm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-proportion-structure/visualization.html">L8: Tỉ lệ & cấu trúc →</a>
+</nav>
+<main>
+  <h1>Phối cảnh 2 & 3 điểm tụ — dựng khối sống</h1>
+  <div class="lead">Chọn <strong>1 · 2 · 3 điểm tụ</strong>, rồi <strong>kéo các điểm tụ</strong> (chấm màu) và <strong>kéo góc khối</strong> (chấm đen). Khối hộp tự dựng lại, mọi cạnh luôn hội tụ đúng về điểm tụ của nó.</div>
+
+  <div class="module">
+    <h2>Bảng điều khiển</h2>
+    <div class="sub">Số điểm tụ = số bộ cạnh của khối bị nghiêng so với mặt tranh.</div>
+    <div class="seg-btns" id="modeBtns">
+      <button data-mode="1">1 điểm tụ</button>
+      <button data-mode="2">2 điểm tụ</button>
+      <button data-mode="3">3 điểm tụ</button>
+    </div>
+    <div class="row" id="vp3row" style="display:none">
+      <span class="lbl">Điểm tụ thứ 3:</span>
+      <span class="mini-btns" id="sideBtns">
+        <button data-side="above">▲ Ở trên (nhìn lên · worm's eye)</button>
+        <button data-side="below">▼ Ở dưới (nhìn xuống · bird's eye)</button>
+      </span>
+    </div>
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="guides" checked> Hiện tia hội tụ</label>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Khung dựng khối</h2>
+    <div class="sub">Đường xám ngang = đường chân trời (horizon). Kéo chấm để thay đổi.</div>
+    <div class="stage">
+      <svg class="scene" id="scene" width="680" height="480" viewBox="0 0 680 480" aria-label="Khung dựng phối cảnh"></svg>
+    </div>
+    <div class="legend">
+      <span class="lg-l">→ điểm tụ trái</span>
+      <span class="lg-r">→ điểm tụ phải</span>
+      <span class="lg-v">→ điểm tụ dọc (VP₃)</span>
+      <span class="lg-e">cạnh nhìn thấy</span>
+      <span class="lg-h">cạnh khuất</span>
+    </div>
+    <div class="hint">Mẹo: đẩy 2 điểm tụ ra thật xa hai bên để khối bớt méo. Kéo VP₃ lại gần khối để độ cao trông cực đoan hơn.</div>
+  </div>
+
+  <div class="module">
+    <h2>Kích thước khối</h2>
+    <div class="sub">Điều chỉnh tỉ lệ khối đang dựng.</div>
+
+    <div class="sliders" id="sl1">
+      <div class="slrow"><label>Chiều rộng</label><input type="range" id="s1w" min="40" max="180" step="1"><span class="valv" id="v1w"></span></div>
+      <div class="slrow"><label>Chiều cao</label><input type="range" id="s1h" min="40" max="140" step="1"><span class="valv" id="v1h"></span></div>
+      <div class="slrow"><label>Độ sâu (về VP)</label><input type="range" id="s1d" min="0.15" max="0.8" step="0.01"><span class="valv" id="v1d"></span></div>
+    </div>
+
+    <div class="sliders" id="sl2">
+      <div class="slrow"><label>Chiều cao</label><input type="range" id="s2h" min="50" max="150" step="1"><span class="valv" id="v2h"></span></div>
+      <div class="slrow"><label>Bề sâu mặt trái</label><input type="range" id="s2l" min="0.12" max="0.6" step="0.01"><span class="valv" id="v2l"></span></div>
+      <div class="slrow"><label>Bề sâu mặt phải</label><input type="range" id="s2r" min="0.12" max="0.6" step="0.01"><span class="valv" id="v2r"></span></div>
+    </div>
+
+    <div class="sliders" id="sl3">
+      <div class="slrow"><label>Cạnh sang trái</label><input type="range" id="s3a" min="0.15" max="0.6" step="0.01"><span class="valv" id="v3a"></span></div>
+      <div class="slrow"><label>Cạnh sang phải</label><input type="range" id="s3b" min="0.15" max="0.6" step="0.01"><span class="valv" id="v3b"></span></div>
+      <div class="slrow"><label>Cạnh đứng (về VP₃)</label><input type="range" id="s3c" min="0.15" max="0.7" step="0.01"><span class="valv" id="v3c"></span></div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Đọc kết quả</h2>
+    <div class="sub">Toạ độ điểm tụ hiện tại và cách các bộ cạnh hội tụ (đơn vị: px trong khung 680×480).</div>
+    <div class="readout" id="readout"></div>
+  </div>
+
+  <div class="module">
+    <h2>Cách dùng nhanh</h2>
+    <div class="readout">
+      <ul>
+        <li><strong>1 điểm tụ:</strong> nhìn thẳng vào một mặt — chỉ cạnh chiều sâu hội tụ, mặt trước phẳng.</li>
+        <li><strong>2 điểm tụ:</strong> nhìn vào góc — hai mặt bên chụm về 2 VP trên chân trời, cạnh đứng vẫn thẳng.</li>
+        <li><strong>3 điểm tụ:</strong> thêm VP₃ ở trên (nhìn lên) hoặc dưới (nhìn xuống) — cạnh đứng cũng chụm lại.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<script>
+// ============ Tiện ích hình học ============
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function lerp(p,q,t){ return { x: p.x+(q.x-p.x)*t, y: p.y+(q.y-p.y)*t }; }
+// giao điểm hai đường thẳng (p1p2) và (p3p4)
+function intersect(p1,p2,p3,p4){
+  var d1x=p2.x-p1.x, d1y=p2.y-p1.y, d2x=p4.x-p3.x, d2y=p4.y-p3.y;
+  var den=d1x*d2y-d1y*d2x;
+  if(Math.abs(den)<1e-9) return { x:(p2.x+p4.x)/2, y:(p2.y+p4.y)/2 };
+  var t=((p3.x-p1.x)*d2y-(p3.y-p1.y)*d2x)/den;
+  return { x:p1.x+d1x*t, y:p1.y+d1y*t };
+}
+// điểm trên đường (p -> vp) tại hoành độ X cho trước
+function xOnLine(p,vp,X){ var dx=vp.x-p.x; if(Math.abs(dx)<1e-6) return {x:X,y:p.y}; var t=(X-p.x)/dx; return { x:X, y:p.y+(vp.y-p.y)*t }; }
+
+var C = { accent:'#db2777', L:'#0d9488', R:'#d97706', edge:'#334155', hidden:'#94a3b8' };
+
+// ============ Trạng thái ============
+var HZ = 210; // đường chân trời (cố định)
+var state = {
+  mode: 2,
+  showGuides: true,
+  vp1: { x:340, y:HZ },
+  vpL: { x:90,  y:HZ },
+  vpR: { x:590, y:HZ },
+  vp3: { x:345, y:40 },
+  vp3side: 'above',
+  b1: { cx:330, cy:295, hw:120, hh:85, depth:0.5 },
+  b2: { x:330, cy:250, hh:110, leftFrac:0.34, rightFrac:0.34 },
+  b3: { N:{x:330,y:430}, a:0.33, b:0.33, c:0.34 }
+};
+
+// ============ Dựng khối theo từng chế độ ============
+function build1(){
+  var vp=state.vp1, b=state.b1;
+  var TL={x:b.cx-b.hw,y:b.cy-b.hh}, TR={x:b.cx+b.hw,y:b.cy-b.hh},
+      BR={x:b.cx+b.hw,y:b.cy+b.hh}, BL={x:b.cx-b.hw,y:b.cy+b.hh};
+  var d=b.depth;
+  var TLb=lerp(TL,vp,d), TRb=lerp(TR,vp,d), BRb=lerp(BR,vp,d), BLb=lerp(BL,vp,d);
+  return {
+    faces: [
+      { pts:[TL,TR,BR,BL], fill:'rgba(219,39,119,.10)' },       // mặt trước
+      { pts:[TL,TR,TRb,TLb], fill:'rgba(219,39,119,.05)' }      // mặt trên
+    ],
+    edges: [
+      [TL,TR,null,false],[TR,BR,null,false],[BR,BL,null,false],[BL,TL,null,false], // mặt trước
+      [TLb,TRb,null,true],[TRb,BRb,null,true],[BRb,BLb,null,true],[BLb,TLb,null,true], // mặt sau (khuất)
+      [TL,TLb,'vp1',false],[TR,TRb,'vp1',false],[BR,BRb,'vp1',false],[BL,BLb,'vp1',false] // cạnh chiều sâu
+    ],
+    guides: [[TL,'vp1'],[TR,'vp1'],[BR,'vp1'],[BL,'vp1']]
+  };
+}
+function build2(){
+  var L=state.vpL, R=state.vpR, b=state.b2;
+  var fx=b.x, FT={x:fx,y:b.cy-b.hh}, FB={x:fx,y:b.cy+b.hh};
+  var lx=fx+(L.x-fx)*b.leftFrac, rx=fx+(R.x-fx)*b.rightFrac;
+  var LT=xOnLine(FT,L,lx), LB=xOnLine(FB,L,lx);
+  var RT=xOnLine(FT,R,rx), RB=xOnLine(FB,R,rx);
+  var BT=intersect(LT,R,RT,L), BB=intersect(LB,R,RB,L);
+  return {
+    faces: [
+      { pts:[FT,LT,LB,FB], fill:'rgba(13,148,136,.10)' },   // mặt trái
+      { pts:[FT,RT,RB,FB], fill:'rgba(217,119,6,.10)' },    // mặt phải
+      { pts:[FT,LT,BT,RT], fill:'rgba(219,39,119,.07)' }    // mặt trên
+    ],
+    edges: [
+      [FT,FB,null,false],[LT,LB,null,false],[RT,RB,null,false], // cạnh đứng thẳng
+      [BT,BB,null,true],                                        // cạnh đứng sau (khuất) - vẫn thẳng
+      [FT,LT,'vpL',false],[FB,LB,'vpL',false],                  // mặt trái -> VPL
+      [FT,RT,'vpR',false],[FB,RB,'vpR',false],                  // mặt phải -> VPR
+      [LT,BT,'vpR',false],[RT,BT,'vpL',false],                  // mặt trên (nhìn thấy)
+      [LB,BB,'vpR',true],[RB,BB,'vpL',true]                     // mặt đáy (khuất)
+    ],
+    guides: [[FT,'vpL'],[FB,'vpL'],[FT,'vpR'],[FB,'vpR']]
+  };
+}
+function build3(){
+  var L=state.vpL, R=state.vpR, V=state.vp3, b=state.b3;
+  var N=b.N;
+  var A=lerp(N,L,b.a), B=lerp(N,R,b.b), Cc=lerp(N,V,b.c);
+  var AB=intersect(A,R,B,L);      // góc xa mặt trái-phải
+  var AC=intersect(A,V,Cc,L);     // đỉnh cạnh đứng bên trái
+  var BC=intersect(B,V,Cc,R);     // đỉnh cạnh đứng bên phải
+  var ABC=intersect(AB,V,AC,R);   // góc xa nhất
+  return {
+    faces: [
+      { pts:[N,A,AB,B],  fill:'rgba(219,39,119,.07)' }, // mặt gần (a-b)
+      { pts:[N,A,AC,Cc], fill:'rgba(13,148,136,.10)' }, // mặt trái (a-c)
+      { pts:[N,B,BC,Cc], fill:'rgba(217,119,6,.10)' }   // mặt phải (b-c)
+    ],
+    edges: [
+      // bộ sang trái -> VPL
+      [N,A,'vpL',false],[B,AB,'vpL',false],[Cc,AC,'vpL',false],[BC,ABC,'vpL',true],
+      // bộ sang phải -> VPR
+      [N,B,'vpR',false],[A,AB,'vpR',false],[Cc,BC,'vpR',false],[AC,ABC,'vpR',true],
+      // bộ dọc -> VP3
+      [N,Cc,'vp3',false],[A,AC,'vp3',false],[B,BC,'vp3',false],[AB,ABC,'vp3',true]
+    ],
+    guides: [[N,'vpL'],[N,'vpR'],[N,'vp3'],[A,'vp3'],[B,'vp3']]
+  };
+}
+function buildScene(){ return state.mode===1?build1():(state.mode===2?build2():build3()); }
+
+function vpOf(key){ return key==='vp1'?state.vp1 : key==='vpL'?state.vpL : key==='vpR'?state.vpR : state.vp3; }
+function colorOf(key){ return key==='vpL'?C.L : key==='vpR'?C.R : C.accent; }
+
+// ============ Điểm kéo (handles) ============
+function handles(){
+  var h=[];
+  if(state.mode===1){
+    h.push({ id:'vp1', p:state.vp1, color:C.accent, r:9, label:'VP' });
+    h.push({ id:'b1', p:{x:state.b1.cx,y:state.b1.cy}, color:'#0f172a', r:8, label:'kéo' });
+  } else {
+    h.push({ id:'vpL', p:state.vpL, color:C.L, r:9, label:'VP-trái' });
+    h.push({ id:'vpR', p:state.vpR, color:C.R, r:9, label:'VP-phải' });
+    if(state.mode===2){
+      h.push({ id:'b2', p:{x:state.b2.x,y:state.b2.cy}, color:'#0f172a', r:8, label:'kéo' });
+    } else {
+      h.push({ id:'vp3', p:state.vp3, color:C.accent, r:9, label:'VP₃' });
+      h.push({ id:'b3', p:state.b3.N, color:'#0f172a', r:8, label:'kéo' });
+    }
+  }
+  return h;
+}
+function setHandle(id,p){
+  if(id==='vp1'){ state.vp1.x=clamp(p.x,20,660); }
+  else if(id==='vpL'){ state.vpL.x=clamp(p.x,10,Math.min(state.vpR.x-50,650)); }
+  else if(id==='vpR'){ state.vpR.x=clamp(p.x,Math.max(state.vpL.x+50,30),670); }
+  else if(id==='vp3'){
+    state.vp3.x=clamp(p.x,20,660);
+    if(p.y < HZ-30){ state.vp3side='above'; state.vp3.y=clamp(p.y,10,HZ-40); }
+    else if(p.y > HZ+30){ state.vp3side='below'; state.vp3.y=clamp(p.y,HZ+40,470); }
+    else { state.vp3.y = state.vp3side==='above'? HZ-40 : HZ+40; }
+    syncSideBtns();
+  }
+  else if(id==='b1'){ state.b1.cx=clamp(p.x,60,620); state.b1.cy=clamp(p.y,60,420); }
+  else if(id==='b2'){ state.b2.x=clamp(p.x,130,550); state.b2.cy=clamp(p.y,60,420); }
+  else if(id==='b3'){ state.b3.N.x=clamp(p.x,60,620); state.b3.N.y=clamp(p.y,50,470); }
+}
+
+// ============ Vẽ ============
+var svg=document.getElementById('scene');
+function n(v){ return (Math.round(v*10)/10); }
+function ln(a,b,attrs){ return '<line x1="'+n(a.x)+'" y1="'+n(a.y)+'" x2="'+n(b.x)+'" y2="'+n(b.y)+'" '+attrs+'/>'; }
+function pg(pts,fill){ return '<polygon points="'+pts.map(function(p){return n(p.x)+','+n(p.y);}).join(' ')+'" fill="'+fill+'" stroke="none"/>'; }
+function ci(p,r,attrs){ return '<circle cx="'+n(p.x)+'" cy="'+n(p.y)+'" r="'+r+'" '+attrs+'/>'; }
+function tx(x,y,s,attrs){ return '<text x="'+n(x)+'" y="'+n(y)+'" '+attrs+'>'+s+'</text>'; }
+
+function render(){
+  var sc=buildScene();
+  var s='';
+  // đường chân trời
+  s+= ln({x:0,y:HZ},{x:680,y:HZ}, 'stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="2 5"');
+  s+= tx(8, HZ-7, 'đường chân trời', 'fill="#94a3b8" font-size="11" font-weight="600"');
+
+  // tia hội tụ (guides)
+  if(state.showGuides){
+    sc.guides.forEach(function(g){
+      var vp=vpOf(g[1]);
+      s+= ln(g[0], vp, 'stroke="'+colorOf(g[1])+'" stroke-width="1" stroke-dasharray="3 4" opacity="0.4"');
+    });
+  }
+
+  // mặt (fill)
+  sc.faces.forEach(function(f){ s+= pg(f.pts, f.fill); });
+
+  // cạnh khối
+  sc.edges.forEach(function(e){
+    if(e[3]) s+= ln(e[0],e[1], 'stroke="'+C.hidden+'" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round"');
+    else     s+= ln(e[0],e[1], 'stroke="'+C.edge+'" stroke-width="2.6" stroke-linecap="round"');
+  });
+
+  // điểm tụ + góc kéo
+  handles().forEach(function(hd){
+    if(hd.id.charAt(0)==='v'){ // vanishing point
+      s+= ln({x:hd.p.x-13,y:hd.p.y},{x:hd.p.x+13,y:hd.p.y}, 'stroke="'+hd.color+'" stroke-width="1.4" opacity="0.7"');
+      s+= ln({x:hd.p.x,y:hd.p.y-13},{x:hd.p.x,y:hd.p.y+13}, 'stroke="'+hd.color+'" stroke-width="1.4" opacity="0.7"');
+      s+= ci(hd.p, hd.r, 'fill="'+hd.color+'" stroke="#fff" stroke-width="2"');
+      var ty = hd.p.y>HZ ? hd.p.y+24 : hd.p.y-16;
+      s+= tx(hd.p.x, ty, hd.label, 'fill="'+hd.color+'" font-size="12" font-weight="800" text-anchor="middle"');
+    } else { // box anchor
+      s+= ci(hd.p, hd.r+3, 'fill="none" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.6"');
+      s+= ci(hd.p, hd.r, 'fill="#0f172a" stroke="#fff" stroke-width="2"');
+    }
+  });
+
+  svg.innerHTML=s;
+  renderReadout(sc);
+}
+
+function fmt(p){ return '('+Math.round(p.x)+', '+Math.round(p.y)+')'; }
+function renderReadout(sc){
+  var el=document.getElementById('readout'), h='';
+  if(state.mode===1){
+    h+= '<p><strong>Phối cảnh 1 điểm tụ.</strong> Nhìn thẳng vào một mặt. Chỉ bộ cạnh chiều sâu hội tụ về <span class="k v">VP</span>.</p>';
+    h+= '<ul><li>VP = <code>'+fmt(state.vp1)+'</code> trên đường chân trời y=210.</li>'
+      + '<li>Cạnh ngang &amp; dọc của mặt trước: <strong>không</strong> hội tụ (song song mặt tranh).</li>'
+      + '<li>4 cạnh chiều sâu: đâm về VP.</li></ul>';
+  } else if(state.mode===2){
+    h+= '<p><strong>Phối cảnh 2 điểm tụ.</strong> Nhìn vào góc. Hai bộ cạnh ngang hội tụ về <span class="k l">VP-trái</span> và <span class="k r">VP-phải</span>; cạnh đứng vẫn <strong>thẳng đứng</strong>.</p>';
+    h+= '<ul><li>VP-trái = <code>'+fmt(state.vpL)+'</code>, VP-phải = <code>'+fmt(state.vpR)+'</code> (cùng nằm trên chân trời y=210).</li>'
+      + '<li>Khoảng cách 2 VP = <code>'+Math.round(state.vpR.x-state.vpL.x)+' px</code>'+ (state.vpR.x-state.vpL.x < 300 ? ' — hơi gần, khối dễ méo. Kéo xa ra!' : ' — đủ xa, khối cân đối.') +'</li>'
+      + '<li>Cả cạnh đứng trước lẫn cạnh đứng sau đều thẳng đứng.</li></ul>';
+  } else {
+    var look = state.vp3side==='above' ? 'ở TRÊN → nhìn lên (worm’s eye)' : 'ở DƯỚI → nhìn xuống (bird’s eye)';
+    h+= '<p><strong>Phối cảnh 3 điểm tụ.</strong> Nhìn góc + ngửa/cúi. Thêm <span class="k v">VP₃</span> cho bộ cạnh <strong>đứng</strong> → cạnh đứng cũng hội tụ.</p>';
+    h+= '<ul><li>VP-trái = <code>'+fmt(state.vpL)+'</code>, VP-phải = <code>'+fmt(state.vpR)+'</code>.</li>'
+      + '<li>VP₃ = <code>'+fmt(state.vp3)+'</code> — '+look+'.</li>'
+      + '<li>Góc gần nhất N = <code>'+fmt(state.b3.N)+'</code>. Ba bộ cạnh chụm về ba điểm tụ khác nhau.</li></ul>';
+  }
+  el.innerHTML=h;
+}
+
+// ============ Kéo thả (pointer) ============
+var drag=null;
+function toSVG(evt){
+  var pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  var m=svg.getScreenCTM(); if(!m) return {x:0,y:0};
+  var q=pt.matrixTransform(m.inverse());
+  return { x:q.x, y:q.y };
+}
+svg.addEventListener('pointerdown', function(evt){
+  var p=toSVG(evt), best=null, bd=1e9;
+  handles().forEach(function(hd){
+    var d=Math.hypot(hd.p.x-p.x, hd.p.y-p.y);
+    if(d<bd){ bd=d; best=hd; }
+  });
+  if(best && bd<26){ drag=best.id; evt.preventDefault(); svg.setPointerCapture(evt.pointerId); }
+});
+svg.addEventListener('pointermove', function(evt){
+  if(!drag) return;
+  evt.preventDefault();
+  setHandle(drag, toSVG(evt));
+  render();
+});
+function endDrag(){ drag=null; }
+svg.addEventListener('pointerup', endDrag);
+svg.addEventListener('pointercancel', endDrag);
+
+// ============ Điều khiển UI ============
+function syncModeBtns(){
+  document.querySelectorAll('#modeBtns button').forEach(function(b){
+    b.classList.toggle('active', +b.dataset.mode===state.mode);
+  });
+  document.getElementById('vp3row').style.display = state.mode===3 ? 'flex' : 'none';
+  document.getElementById('sl1').classList.toggle('on', state.mode===1);
+  document.getElementById('sl2').classList.toggle('on', state.mode===2);
+  document.getElementById('sl3').classList.toggle('on', state.mode===3);
+}
+function syncSideBtns(){
+  document.querySelectorAll('#sideBtns button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.side===state.vp3side);
+  });
+}
+document.querySelectorAll('#modeBtns button').forEach(function(b){
+  b.onclick=function(){ state.mode=+b.dataset.mode; syncModeBtns(); render(); };
+});
+document.querySelectorAll('#sideBtns button').forEach(function(b){
+  b.onclick=function(){
+    state.vp3side=b.dataset.side;
+    if(state.vp3side==='above'){ state.vp3={x:345,y:40}; state.b3.N={x:330,y:430}; }
+    else { state.vp3={x:340,y:450}; state.b3.N={x:330,y:70}; }
+    syncSideBtns(); render();
+  };
+});
+document.getElementById('guides').onchange=function(e){ state.showGuides=e.target.checked; render(); };
+
+// sliders
+function bindSlider(inputId, valId, get, set, dec){
+  var inp=document.getElementById(inputId), val=document.getElementById(valId);
+  inp.value=get();
+  val.textContent = dec ? (+get()).toFixed(2) : Math.round(get());
+  inp.oninput=function(){ set(+inp.value); val.textContent = dec ? (+inp.value).toFixed(2) : Math.round(+inp.value); render(); };
+}
+bindSlider('s1w','v1w', function(){return state.b1.hw;}, function(v){state.b1.hw=v;});
+bindSlider('s1h','v1h', function(){return state.b1.hh;}, function(v){state.b1.hh=v;});
+bindSlider('s1d','v1d', function(){return state.b1.depth;}, function(v){state.b1.depth=v;}, true);
+bindSlider('s2h','v2h', function(){return state.b2.hh;}, function(v){state.b2.hh=v;});
+bindSlider('s2l','v2l', function(){return state.b2.leftFrac;}, function(v){state.b2.leftFrac=v;}, true);
+bindSlider('s2r','v2r', function(){return state.b2.rightFrac;}, function(v){state.b2.rightFrac=v;}, true);
+bindSlider('s3a','v3a', function(){return state.b3.a;}, function(v){state.b3.a=v;}, true);
+bindSlider('s3b','v3b', function(){return state.b3.b;}, function(v){state.b3.b=v;}, true);
+bindSlider('s3c','v3c', function(){return state.b3.c;}, function(v){state.b3.c=v;}, true);
+
+syncModeBtns();
+syncSideBtns();
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

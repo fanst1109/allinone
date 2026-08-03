@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L10: Đổ bóng khối cơ bản — VisualArt</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf5f9;
+    --accent: #db2777;
+    --accent-soft: #fce7f3;
+    --accent-hover: #9d174d;
+  }
+  main { max-width: 980px; }
+
+  .lead { color: #6b5563; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f0d9e6; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(157,23,77,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; color: #831843; }
+  .module .sub { color: #8a7280; font-size: 13px; margin-bottom: 14px; }
+
+  /* ----- Sân khấu canvas ----- */
+  .stage-wrap { text-align: center; }
+  canvas#stage {
+    display: block; width: 100%; max-width: 600px; height: auto; margin: 0 auto;
+    border-radius: 12px; border: 1px solid #f0d9e6; cursor: grab; touch-action: none;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,.05);
+  }
+  canvas#stage.dragging { cursor: grabbing; }
+  .hint {
+    font-size: 12.5px; color: #a06; background: var(--accent-soft);
+    border-radius: 8px; padding: 7px 12px; margin: 10px auto 0; max-width: 560px;
+  }
+
+  /* ----- Controls ----- */
+  .controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: center; margin-top: 14px; }
+  .ctl-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .ctl-group > .lbl { font-size: 12px; font-weight: 700; color: #7a5; color: #9d174d; margin-right: 2px; }
+  .seg-btn {
+    border: 1px solid #e6b8cf; background: #fff; color: #831843;
+    border-radius: 8px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .12s;
+  }
+  .seg-btn:hover { background: var(--accent-soft); }
+  .seg-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #831843; cursor: pointer; }
+  .chk input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+  .readout {
+    margin-top: 12px; text-align: center; font-size: 13.5px; color: #6b5563;
+  }
+  .readout b { color: #9d174d; }
+  .readout .arrow { font-size: 17px; }
+
+  /* ----- Legend 5 yếu tố ----- */
+  .legend { list-style: none; padding: 0; margin: 6px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .legend li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; }
+  .legend .sw { flex-shrink: 0; width: 34px; height: 34px; border-radius: 8px; border: 1px solid rgba(0,0,0,.12); }
+  .legend .nm { font-weight: 700; color: #831843; }
+  .legend .en { color: #a08; font-weight: 500; font-size: 12px; }
+  .legend .vv { color: #6b5563; }
+  .legend .val { display: inline-block; background: #f3e3ec; color: #9d174d; border-radius: 5px; padding: 0 6px; font-weight: 700; font-size: 12px; }
+
+  /* ----- Thang value ----- */
+  .scale { display: flex; height: 30px; border-radius: 8px; overflow: hidden; border: 1px solid #e6b8cf; margin: 6px 0 4px; }
+  .scale span { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+  .scale-cap { display: flex; justify-content: space-between; font-size: 11px; color: #8a7280; }
+
+  /* ----- Bảng khối ----- */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; }
+  th, td { border: 1px solid #f0d9e6; padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: #fbe8f1; font-size: 12px; color: #831843; }
+  td code { background: #f3e3ec; color: #9d174d; padding: 0 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">VisualArt</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-value-grayscale/visualization.html">← L9</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Đổ bóng khối</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-texture-materials/visualization.html">L11: Chất liệu →</a>
+</nav>
+<main>
+  <h1>Đổ bóng khối cơ bản — mô phỏng ánh sáng</h1>
+  <div class="lead">Kéo <strong>nguồn sáng</strong> quanh khối và xem 5 yếu tố sáng-tối cập nhật tức thời. Đổi giữa <strong>cầu · lập phương · trụ</strong> để thấy mặt cong và mặt phẳng phản ứng với ánh sáng khác nhau ra sao.</div>
+
+  <div class="module">
+    <h2>Sân khấu ánh sáng — kéo đèn để đổ bóng</h2>
+    <div class="sub">Kéo đốm sáng (☀) đi bất kỳ đâu. Highlight bám về phía đèn; bóng lõi và bóng đổ luôn nhảy sang phía đối diện.</div>
+
+    <div class="stage-wrap">
+      <canvas id="stage" width="600" height="460"></canvas>
+      <div class="hint">💡 Kéo đèn sang <b>trái</b> → highlight sang trái, bóng đổ sang <b>phải</b>. Kéo đèn lên <b>cao</b> → bóng đổ ngắn lại; hạ <b>thấp</b> → bóng đổ dài ra.</div>
+
+      <div class="controls">
+        <div class="ctl-group">
+          <span class="lbl">Khối:</span>
+          <button class="seg-btn active" data-shape="sphere">● Cầu</button>
+          <button class="seg-btn" data-shape="cube">■ Lập phương</button>
+          <button class="seg-btn" data-shape="cylinder">▮ Trụ</button>
+        </div>
+        <div class="ctl-group">
+          <span class="lbl">Hướng đèn:</span>
+          <button class="seg-btn" data-pre="tl">↖ Trên-trái</button>
+          <button class="seg-btn" data-pre="tr">↗ Trên-phải</button>
+          <button class="seg-btn" data-pre="side">→ Cạnh 90°</button>
+          <button class="seg-btn" data-pre="front">↑ Chính diện</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="lblToggle" checked> Hiện nhãn 5 yếu tố</label>
+      </div>
+
+      <div class="readout" id="readout"></div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Năm yếu tố ánh sáng (thang value 0–10)</h2>
+    <div class="sub">Trật tự sáng → tối trên một quả cầu chiếu sáng từ trên-trái. Số càng lớn càng tối.</div>
+
+    <div class="scale" id="scale"></div>
+    <div class="scale-cap"><span>0 · trắng tinh</span><span>10 · đen tuyền</span></div>
+
+    <ul class="legend">
+      <li><span class="sw" style="background:#fbfbfb"></span><span><span class="nm">Highlight</span> <span class="en">điểm sáng nhất</span><br><span class="vv">Phản chiếu trực tiếp nguồn sáng về mắt. <span class="val">value 0–1</span></span></span></li>
+      <li><span class="sw" style="background:#c9c9c9"></span><span><span class="nm">Vùng sáng / Half-tone</span> <span class="en">light</span><br><span class="vv">Mặt hứng đèn, chuyển dần theo độ cong. <span class="val">value 2–5</span></span></span></li>
+      <li><span class="sw" style="background:#242424"></span><span><span class="nm">Core shadow</span> <span class="en">bóng lõi</span><br><span class="vv">Tối NHẤT trên vật, ở terminator, lùi vào trong. <span class="val">value 8–9</span></span></span></li>
+      <li><span class="sw" style="background:#585858"></span><span><span class="nm">Reflected light</span> <span class="en">ánh phản</span><br><span class="vv">Nền hắt vào vùng tối — luôn trong "họ tối". <span class="val">value 6–7</span></span></span></li>
+      <li><span class="sw" style="background:#1a1520"></span><span><span class="nm">Cast shadow</span> <span class="en">bóng đổ</span><br><span class="vv">Trên nền, đậm ở chân → nhạt ở đuôi. <span class="val">value 9→5</span></span></span></li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h2>Cùng ánh sáng, khác khối</h2>
+    <div class="sub">Vì sao mặt cong chuyển value mượt còn mặt phẳng đổi tông đột ngột.</div>
+    <table>
+      <thead>
+        <tr><th>Khối</th><th>Kiểu chuyển value</th><th>Core shadow</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Cầu</b></td><td>Liên tục, mượt theo <b>mọi hướng</b> (cong 2 chiều)</td><td><b>Dải cong</b> vắt chéo</td></tr>
+        <tr><td><b>Lập phương</b></td><td><b>Đột ngột ở cạnh</b>; mỗi mặt = một tông phẳng (vd <code>trên 2</code> · <code>trái 4</code> · <code>phải 7</code>)</td><td>Không có gradient; = <b>mặt tối nhất</b></td></tr>
+        <tr><td><b>Trụ</b></td><td>Liên tục theo <b>chu vi</b>, không đổi <b>dọc trục</b></td><td><b>Vạch dọc</b> thẳng đứng</td></tr>
+        <tr><td><b>Nón</b></td><td>Như trụ nhưng dải <b>hội tụ về đỉnh</b></td><td>Dải <b>xiên</b>, rộng ở đáy</td></tr>
+      </tbody>
+    </table>
+    <div class="sub" style="margin-top:12px; margin-bottom:0;">Chi tiết định nghĩa, ví dụ số và bài tập: mở <b>📖 Đọc README</b> (nút nổi góc phải).</div>
+  </div>
+</main>
+
+<script>
+// ===================== Mô hình cảnh =====================
+var cv = document.getElementById('stage');
+var ctx = cv.getContext('2d');
+var W = cv.width, H = cv.height;
+var GROUND = 345;          // đường chân nền
+var CX = 300;              // trục ngang của khối
+
+var shape = 'sphere';
+var showLabels = true;
+var light = { x: 150, y: 95 };   // vị trí nguồn sáng (toạ độ canvas)
+
+// Tâm & bán kính danh nghĩa của mỗi khối (dùng để đặt nhãn) -------------
+var GEO = {
+  sphere:   { cx: CX, cy: GROUND - 92,  R: 92,  halfW: 92 },
+  cube:     { cx: CX, cy: GROUND - 86,  R: 86,  halfW: 86 * 0.866 },
+  cylinder: { cx: CX, cy: 205 + 70,     R: 92,  halfW: 70 }
+};
+var cubeFaces = null;      // set khi vẽ lập phương
+
+// ===================== Toán ánh sáng =====================
+function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+// Vector ánh sáng 3D suy ra từ vị trí đèn 2D (thêm lz hướng về mắt).
+function lightVec(cx, cy) {
+  var dx = light.x - cx, dy = light.y - cy;
+  var len = Math.hypot(dx, dy) || 1;
+  var lx = dx / len, ly = dy / len, lz = 0.55;
+  var l = Math.hypot(lx, ly, lz);
+  return [lx / l, ly / l, lz / l];
+}
+
+// Chuyển luminance (0 tối → 1 sáng) sang byte xám.
+function toGray(lum) { return Math.round(clamp(lum, 0, 1) * 255); }
+
+// ===================== Nền sân khấu =====================
+function drawBackdrop() {
+  // Tường
+  var wall = ctx.createLinearGradient(0, 0, 0, GROUND);
+  wall.addColorStop(0, '#f2eef4');
+  wall.addColorStop(1, '#e7e0ec');
+  ctx.fillStyle = wall;
+  ctx.fillRect(0, 0, W, GROUND);
+  // Sàn
+  var floor = ctx.createLinearGradient(0, GROUND, 0, H);
+  floor.addColorStop(0, '#ded6e4');
+  floor.addColorStop(1, '#cabfd2');
+  ctx.fillStyle = floor;
+  ctx.fillRect(0, GROUND, W, H - GROUND);
+  // Đường chân nền
+  ctx.strokeStyle = 'rgba(120,100,130,.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND); ctx.stroke();
+}
+
+// ===================== Bóng đổ (cast shadow) =====================
+function drawCastShadow(halfW) {
+  var lift = Math.max(28, GROUND - light.y);          // đèn cao bao nhiêu trên nền
+  var horiz = CX - light.x;                            // >0: đèn ở bên trái
+  var sign = horiz >= 0 ? 1 : -1;                      // bóng đổ về phía đối diện đèn
+  var stretch = clamp(halfW * (165 / lift), halfW * 0.55, halfW * 3.6);
+  var tipX = CX + sign * stretch + horiz * 0.12;
+
+  // Vệt bóng kéo dài, gradient đậm→trong suốt
+  var g = ctx.createLinearGradient(CX, GROUND, tipX, GROUND);
+  g.addColorStop(0, 'rgba(30,20,38,0.42)');
+  g.addColorStop(0.55, 'rgba(30,20,38,0.20)');
+  g.addColorStop(1, 'rgba(30,20,38,0)');
+  ctx.fillStyle = g;
+  var midX = (CX + tipX) / 2;
+  var halfLen = Math.abs(tipX - CX) / 2 + halfW * 0.85;
+  ctx.beginPath();
+  ctx.ellipse(midX, GROUND, halfLen, halfW * 0.34, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bóng tiếp xúc (contact shadow) — đậm & sắc ngay sát chân
+  ctx.fillStyle = 'rgba(20,12,26,0.5)';
+  ctx.beginPath();
+  ctx.ellipse(CX, GROUND, halfW * 0.92, halfW * 0.22, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  return { sign: sign, tipX: tipX };
+}
+
+// ===================== Khối CẦU =====================
+function drawSphere() {
+  var g = GEO.sphere, cx = g.cx, cy = g.cy, R = g.R;
+  var L = lightVec(cx, cy);
+  // Vector nửa-góc cho specular highlight
+  var hx = L[0], hy = L[1], hz = L[2] + 1;
+  var hl = Math.hypot(hx, hy, hz); hx /= hl; hy /= hl; hz /= hl;
+
+  var bx = Math.floor(cx - R - 1), by = Math.floor(cy - R - 1);
+  var bw = Math.ceil(2 * R + 2), bh = Math.ceil(2 * R + 2);
+  var img = ctx.getImageData(bx, by, bw, bh);
+  var d = img.data;
+
+  for (var j = 0; j < bh; j++) {
+    for (var i = 0; i < bw; i++) {
+      var px = bx + i, py = by + j;
+      var nx = (px - cx) / R, ny = (py - cy) / R;
+      var r2 = nx * nx + ny * ny;
+      if (r2 > 1 + 2.2 / R) continue;
+      var rr = Math.sqrt(r2);
+      var nz = Math.sqrt(Math.max(0, 1 - r2));
+
+      var t = nx * L[0] + ny * L[1] + nz * L[2];     // cos góc với đèn
+      var diffuse = Math.max(0, t);
+      // Ánh phản từ nền (dưới) hắt vào mặt hướng xuống — chỉ ở vùng tối
+      var bounce = Math.max(0, ny * 0.9 + nz * 0.1) * (1 - diffuse) * 0.22;
+      var lum = 0.10 + diffuse * 0.86 + bounce;
+      // Core shadow: đậm nhất ngay sau terminator (t hơi âm)
+      var core = clamp(1 - Math.abs(t + 0.12) / 0.22, 0, 1);
+      lum -= core * 0.10;
+      // Specular
+      var sdot = nx * hx + ny * hy + nz * hz;
+      if (sdot > 0) lum += Math.pow(sdot, 34) * 0.95;
+
+      var v = toGray(lum);
+      var cov = clamp((1 - rr) * R + 1, 0, 1);        // khử răng cưa ở rìa
+      var k = (j * bw + i) * 4;
+      d[k]     = v * cov + d[k]     * (1 - cov);
+      d[k + 1] = v * cov + d[k + 1] * (1 - cov);
+      d[k + 2] = v * cov + d[k + 2] * (1 - cov);
+    }
+  }
+  ctx.putImageData(img, bx, by);
+}
+
+// ===================== Khối TRỤ =====================
+function drawCylinder() {
+  var cx = CX, Rc = 70, topY = 205, botY = GROUND, ryTop = 22;
+  var L = lightVec(cx, (topY + botY) / 2);
+
+  // Thân trụ: mỗi cột 1 value (đổi theo chu vi ngang, không đổi dọc)
+  for (var px = Math.ceil(cx - Rc); px <= Math.floor(cx + Rc); px++) {
+    var nx = (px - cx) / Rc;
+    if (nx < -1) nx = -1; if (nx > 1) nx = 1;
+    var nz = Math.sqrt(Math.max(0, 1 - nx * nx));
+    var t = nx * L[0] + nz * L[2];                    // ny = 0 (thân thẳng đứng)
+    var diffuse = Math.max(0, t);
+    var bounce = Math.max(0, -t) * Math.pow(Math.abs(nx), 3) * 0.5;  // ánh phản ở rìa tối
+    var lum = 0.10 + diffuse * 0.86 + bounce;
+    var core = clamp(1 - Math.abs(t + 0.12) / 0.22, 0, 1);
+    lum -= core * 0.10;
+    if (t > 0) lum += Math.pow(t, 22) * 0.4;          // dải highlight dọc
+    ctx.fillStyle = 'rgb(' + [toGray(lum), toGray(lum), toGray(lum)].join(',') + ')';
+    ctx.fillRect(px, topY, 1, botY - topY);
+  }
+
+  // Nắp trên (mặt phẳng) — shade theo pháp tuyến (0,-1,0)
+  var capLum = clamp(0.12 + Math.max(0, -L[1]) * 0.82, 0, 1);
+  var cg = toGray(capLum);
+  ctx.fillStyle = 'rgb(' + [cg, cg, cg].join(',') + ')';
+  ctx.beginPath(); ctx.ellipse(cx, topY, Rc, ryTop, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(80,60,90,.35)'; ctx.lineWidth = 1; ctx.stroke();
+  // Viền thân
+  ctx.strokeStyle = 'rgba(80,60,90,.25)';
+  ctx.beginPath(); ctx.moveTo(cx - Rc, topY); ctx.lineTo(cx - Rc, botY); ctx.moveTo(cx + Rc, topY); ctx.lineTo(cx + Rc, botY); ctx.stroke();
+}
+
+// ===================== Khối LẬP PHƯƠNG =====================
+function drawCube() {
+  var g = GEO.cube, cx = g.cx, cy = g.cy, s = 86;
+  var w = s * 0.866;
+  var L = lightVec(cx, cy);
+
+  // 7 đỉnh của lục giác isometric
+  var V = {
+    top: [cx, cy - s], upR: [cx + w, cy - s / 2], loR: [cx + w, cy + s / 2],
+    bot: [cx, cy + s], loL: [cx - w, cy + s / 2], upL: [cx - w, cy - s / 2],
+    c:   [cx, cy]
+  };
+  // 3 mặt + pháp tuyến 3D gần đúng
+  var faces = [
+    { key: 'top',   poly: [V.top, V.upR, V.c, V.upL], n: [0, -1, 0] },
+    { key: 'right', poly: [V.upR, V.loR, V.bot, V.c], n: [0.7, 0, 0.7] },
+    { key: 'left',  poly: [V.upL, V.c, V.bot, V.loL], n: [-0.7, 0, 0.7] }
+  ];
+
+  cubeFaces = {};
+  faces.forEach(function (f) {
+    var dot = f.n[0] * L[0] + f.n[1] * L[1] + f.n[2] * L[2];
+    var lum = clamp(0.12 + Math.max(0, dot) * 0.9, 0, 1);
+    var gv = toGray(lum);
+    ctx.fillStyle = 'rgb(' + [gv, gv, gv].join(',') + ')';
+    ctx.beginPath();
+    ctx.moveTo(f.poly[0][0], f.poly[0][1]);
+    for (var p = 1; p < f.poly.length; p++) ctx.lineTo(f.poly[p][0], f.poly[p][1]);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(70,50,80,.28)'; ctx.lineWidth = 1; ctx.stroke();
+    // centroid
+    var mx = 0, my = 0;
+    f.poly.forEach(function (pt) { mx += pt[0]; my += pt[1]; });
+    cubeFaces[f.key] = { x: mx / f.poly.length, y: my / f.poly.length, lum: lum };
+  });
+}
+
+// ===================== Nguồn sáng (☀) =====================
+function drawLight() {
+  var x = light.x, y = light.y;
+  // quầng sáng
+  var glow = ctx.createRadialGradient(x, y, 2, x, y, 46);
+  glow.addColorStop(0, 'rgba(255,236,150,0.9)');
+  glow.addColorStop(1, 'rgba(255,236,150,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(x, y, 46, 0, Math.PI * 2); ctx.fill();
+  // tia
+  ctx.strokeStyle = '#f6c945'; ctx.lineWidth = 2;
+  for (var a = 0; a < 8; a++) {
+    var ang = a * Math.PI / 4;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(ang) * 15, y + Math.sin(ang) * 15);
+    ctx.lineTo(x + Math.cos(ang) * 23, y + Math.sin(ang) * 23);
+    ctx.stroke();
+  }
+  // lõi
+  ctx.fillStyle = '#ffd54a'; ctx.strokeStyle = '#e0a92a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#9d5c00'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('☀', x, y + 1);
+}
+
+// ===================== Nhãn 5 yếu tố =====================
+function labelBox(anchorX, anchorY, textX, textY, text, color) {
+  ctx.font = '600 12px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  var w = ctx.measureText(text).width;
+  // leader line
+  ctx.strokeStyle = 'rgba(157,23,77,.7)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(anchorX, anchorY); ctx.lineTo(textX, textY); ctx.stroke();
+  // anchor dot
+  ctx.fillStyle = color || '#db2777';
+  ctx.beginPath(); ctx.arc(anchorX, anchorY, 3.5, 0, Math.PI * 2); ctx.fill();
+  // pill
+  var padX = 7, bx = textX, bh = 19;
+  if (textX + w + padX * 2 > W - 4) bx = textX - w - padX * 2;    // lật sang trái nếu tràn
+  ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.strokeStyle = 'rgba(157,23,77,.35)'; ctx.lineWidth = 1;
+  roundRect(bx, textY - bh / 2, w + padX * 2, bh, 6); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#831843';
+  ctx.fillText(text, bx + padX, textY);
+}
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawLabels() {
+  if (shape === 'cube') return drawCubeLabels();
+  var g = GEO[shape], cx = g.cx, cy = g.cy, R = g.R;
+  var dx = light.x - cx, dy = light.y - cy;
+  var len = Math.hypot(dx, dy) || 1;
+  var ux = dx / len, uy = dy / len;                 // hướng tới đèn
+  // vuông góc (để đặt half-tone lệch sang bên)
+  var perpx = -uy, perpy = ux;
+
+  // Highlight — phía đèn
+  var hlx = cx + ux * R * 0.5, hly = cy + uy * R * 0.5;
+  labelBox(hlx, hly, cx + ux * (R + 34), cy + uy * (R + 30), 'Highlight', '#fff8dd');
+
+  // Half-tone — giữa sáng & terminator, lệch sang bên
+  var htx = cx + (ux * 0.55 + perpx * 0.7) * R, hty = cy + (uy * 0.55 + perpy * 0.7) * R;
+  labelBox(htx, hty, cx + (ux * 0.2 + perpx) * (R + 40), cy + (uy * 0.2 + perpy) * (R + 30), 'Half-tone', '#bdbdbd');
+
+  // Core shadow — đối diện đèn, lùi vào trong
+  var csx = cx - ux * R * 0.62, csy = cy - uy * R * 0.62;
+  labelBox(csx, csy, cx - ux * (R + 46), cy - uy * (R + 20), 'Core shadow', '#222');
+
+  // Reflected light — rìa phía tối, ngả xuống nền
+  var rvx = -ux, rvy = -uy + 1.0;
+  var rl = Math.hypot(rvx, rvy) || 1; rvx /= rl; rvy /= rl;
+  var rlx = cx + rvx * R * 0.94, rly = cy + rvy * R * 0.94;
+  labelBox(rlx, rly, cx + rvx * (R + 30), cy + rvy * (R + 26), 'Reflected light', '#5a5a5a');
+
+  // Cast shadow — trên nền, phía đối diện đèn
+  var sign = (cx - light.x) >= 0 ? 1 : -1;
+  var csx2 = cx + sign * R * 1.15, csy2 = GROUND + 14;
+  labelBox(csx2, csy2, cx + sign * (R * 1.15 + 12), GROUND + 30, 'Cast shadow', '#1a1520');
+}
+
+function drawCubeLabels() {
+  if (!cubeFaces) return;
+  var faces = [
+    ['top', cubeFaces.top], ['left', cubeFaces.left], ['right', cubeFaces.right]
+  ].sort(function (a, b) { return a[1].lum - b[1].lum; });   // sáng → tối
+  var names = ['Mặt hứng sáng', 'Half-tone', 'Core / form shadow'];
+  faces.forEach(function (f, i) {
+    var fx = f[1].x, fy = f[1].y;
+    var outX = fx + (fx - CX) * 0.4;
+    var lx = fx < CX ? fx - 40 : fx + 40;
+    labelBox(fx, fy, lx, fy - 12 + i * 4, names[i], i === 0 ? '#eee' : (i === 2 ? '#222' : '#aaa'));
+  });
+  var g = GEO.cube;
+  var sign = (CX - light.x) >= 0 ? 1 : -1;
+  labelBox(CX + sign * g.halfW * 1.2, GROUND + 14, CX + sign * (g.halfW * 1.2 + 12), GROUND + 30, 'Cast shadow', '#1a1520');
+}
+
+// ===================== Readout hướng =====================
+var DIRS = [
+  { a: 0, s: 'phải', ar: '→' }, { a: 45, s: 'trên-phải', ar: '↗' },
+  { a: 90, s: 'trên', ar: '↑' }, { a: 135, s: 'trên-trái', ar: '↖' },
+  { a: 180, s: 'trái', ar: '←' }, { a: 225, s: 'dưới-trái', ar: '↙' },
+  { a: 270, s: 'dưới', ar: '↓' }, { a: 315, s: 'dưới-phải', ar: '↘' }
+];
+function nearestDir(deg) {
+  deg = (deg % 360 + 360) % 360;
+  var best = DIRS[0], bd = 999;
+  DIRS.forEach(function (d) {
+    var diff = Math.abs(((deg - d.a) % 360 + 540) % 360 - 180);
+    if (diff < bd) { bd = diff; best = d; }
+  });
+  return best;
+}
+function updateReadout() {
+  var g = GEO[shape];
+  var deg = Math.atan2(-(light.y - g.cy), light.x - g.cx) * 180 / Math.PI;
+  var d = nearestDir(deg);
+  var opp = nearestDir(deg + 180);
+  document.getElementById('readout').innerHTML =
+    'Đèn: <b>' + d.s + ' <span class="arrow">' + d.ar + '</span></b> &nbsp;·&nbsp; ' +
+    'Highlight bám <b>' + d.s + '</b> &nbsp;·&nbsp; ' +
+    'Core shadow + bóng đổ về <b>' + opp.s + ' <span class="arrow">' + opp.ar + '</span></b>';
+}
+
+// ===================== Render tổng =====================
+function render() {
+  ctx.clearRect(0, 0, W, H);
+  drawBackdrop();
+  var halfW = GEO[shape].halfW;
+  drawCastShadow(halfW);
+  if (shape === 'sphere') drawSphere();
+  else if (shape === 'cube') drawCube();
+  else drawCylinder();
+  drawLight();
+  if (showLabels) drawLabels();
+  updateReadout();
+}
+
+// ===================== Tương tác =====================
+function canvasPos(e) {
+  var r = cv.getBoundingClientRect();
+  var sx = cv.width / r.width, sy = cv.height / r.height;
+  return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
+}
+function setLight(p) {
+  light.x = clamp(p.x, 12, W - 12);
+  light.y = clamp(p.y, 12, GROUND - 14);   // đèn luôn ở trên nền
+  render();
+}
+var dragging = false;
+cv.addEventListener('pointerdown', function (e) {
+  dragging = true; cv.classList.add('dragging');
+  cv.setPointerCapture(e.pointerId); setLight(canvasPos(e)); e.preventDefault();
+});
+cv.addEventListener('pointermove', function (e) { if (dragging) { setLight(canvasPos(e)); e.preventDefault(); } });
+cv.addEventListener('pointerup', function () { dragging = false; cv.classList.remove('dragging'); });
+cv.addEventListener('pointercancel', function () { dragging = false; cv.classList.remove('dragging'); });
+
+// Nút đổi khối
+document.querySelectorAll('.seg-btn[data-shape]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.seg-btn[data-shape]').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    shape = b.getAttribute('data-shape');
+    render();
+  });
+});
+// Preset hướng đèn
+var PRESETS = { tl: { x: 150, y: 90 }, tr: { x: 450, y: 90 }, side: { x: 545, y: 250 }, front: { x: 300, y: 70 } };
+document.querySelectorAll('.seg-btn[data-pre]').forEach(function (b) {
+  b.addEventListener('click', function () { setLight(PRESETS[b.getAttribute('data-pre')]); });
+});
+// Toggle nhãn
+document.getElementById('lblToggle').addEventListener('change', function (e) {
+  showLabels = e.target.checked; render();
+});
+
+// Thang value 0..10
+(function () {
+  var sc = document.getElementById('scale');
+  for (var i = 0; i <= 10; i++) {
+    var lum = 1 - i / 10;
+    var g = Math.round(lum * 255);
+    var sp = document.createElement('span');
+    sp.style.background = 'rgb(' + g + ',' + g + ',' + g + ')';
+    sp.style.color = lum > 0.5 ? '#333' : '#eee';
+    sp.textContent = i;
+    sc.appendChild(sp);
+  }
+})();
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

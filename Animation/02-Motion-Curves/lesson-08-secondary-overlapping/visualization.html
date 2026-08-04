@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L8: Chuyển động phụ & Nối tiếp trễ — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 980px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 22px; line-height: 1.6; }
+
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; line-height: 1.55; }
+
+  .stage {
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
+    padding: 6px; margin-bottom: 14px; text-align: center;
+  }
+  canvas { display: block; width: 100%; height: auto; border-radius: 6px; }
+
+  /* Controls */
+  .ctrls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 20px; }
+  .ctrl { font-size: 13px; }
+  .ctrl label { display: flex; justify-content: space-between; font-weight: 700; color: #334155; margin-bottom: 4px; }
+  .ctrl label .val { color: var(--accent-hover); font-variant-numeric: tabular-nums; }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .hint { color: #94a3b8; font-size: 11px; margin-top: 2px; }
+
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .toolbar button {
+    border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: background .12s, transform .05s;
+  }
+  .toolbar button:active { transform: translateY(1px); }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-flick { background: #fde68a; color: #78350f; }
+  .btn-flick:hover { background: #fcd34d; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+  .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #334155; margin-left: 4px; }
+  .chk input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .readout {
+    margin-top: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 10px 12px; font-size: 13px; line-height: 1.8; color: #334155;
+  }
+  .readout b { color: var(--accent-hover); font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-weight: 700; font-size: 12px; }
+  .tag.good { background: #dcfce7; color: #15803d; }
+  .tag.warn { background: #fef3c7; color: #b45309; }
+  .tag.bad  { background: #fee2e2; color: #b91c1c; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #64748b; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  ul.notes { margin: 6px 0 0; padding-left: 20px; font-size: 13.5px; color: #334155; line-height: 1.7; }
+  ul.notes code { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 4px; padding: 0 5px; font-size: 12.5px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-arcs-path/visualization.html">← L7</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Chuyển động phụ</span>
+  <span class="sep">·</span>
+  <a href="../../03-Character-Staging/lesson-09-walk-cycle/visualization.html">L9: Walk cycle →</a>
+</nav>
+<main>
+  <h1>Chuyển động phụ &amp; Nối tiếp trễ — mô phỏng sống</h1>
+  <div class="lead">
+    Phần cứng (đầu) dẫn; phần lỏng (đuôi, ăng-ten) <strong>trễ lại vì quán tính</strong> rồi đuổi theo &amp; lắng.
+    Vặn <strong>Độ trễ (drag)</strong> và <strong>Độ cứng (stiffness)</strong>, bấm <strong>Giật đầu</strong> để thấy
+    sóng overlap chạy dọc chuỗi rồi lắng về vị trí cân bằng.
+  </div>
+
+  <!-- ================= MODULE 1: CHUỖI ĐỐT ================= -->
+  <div class="module">
+    <h2>Chuỗi đốt trễ — sóng overlapping</h2>
+    <div class="sub">
+      Cái đầu (chấm cam đậm) tự quét qua lại. Chuỗi đốt bên dưới bám theo bằng lò xo có cản: mỗi đốt bám đốt trước nó,
+      nên độ trễ <em>cộng dồn</em> thành sóng. Tăng drag → đốt trễ &amp; đu đưa nhiều hơn nhưng vẫn lắng dần.
+    </div>
+    <div class="stage">
+      <canvas id="c1" width="760" height="320"></canvas>
+    </div>
+
+    <div class="ctrls">
+      <div class="ctrl">
+        <label>Độ trễ (drag) <span class="val" id="lb-drag">70%</span></label>
+        <input type="range" id="s-drag" min="0" max="100" value="70">
+        <div class="hint">Cao = ít giảm chấn → đu đưa nhiều, lắng chậm</div>
+      </div>
+      <div class="ctrl">
+        <label>Độ cứng (stiffness) <span class="val" id="lb-stiff">20%</span></label>
+        <input type="range" id="s-stiff" min="6" max="40" value="20">
+        <div class="hint">Cao = lò xo kéo về mạnh → bám sát, đuổi kịp nhanh</div>
+      </div>
+      <div class="ctrl">
+        <label>Số đốt <span class="val" id="lb-seg">7</span></label>
+        <input type="range" id="s-seg" min="3" max="10" value="7">
+        <div class="hint">Càng nhiều đốt, sóng chạy càng xa</div>
+      </div>
+      <div class="ctrl">
+        <label>Tốc độ quét đầu <span class="val" id="lb-spd">100%</span></label>
+        <input type="range" id="s-spd" min="0" max="220" value="100">
+        <div class="hint">0% = đầu đứng yên (dễ quan sát lắng)</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn-play" id="btn-play">⏸ Dừng</button>
+      <button class="btn-flick" id="btn-flick">↯ Giật đầu</button>
+      <button class="btn-reset" id="btn-reset">↺ Reset</button>
+      <label class="chk"><input type="checkbox" id="chk-mouse"> Kéo đầu bằng chuột</label>
+    </div>
+
+    <div class="readout" id="ro1">…</div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:#c2410c"></span> Đầu (phần dẫn)</span>
+      <span><span class="dot" style="background:#ea580c"></span> Đốt phụ (trễ dần)</span>
+      <span><span class="dot" style="background:#fdba74"></span> Ngọn (trễ nhất)</span>
+      <span>▏ đường đứt = vị trí ngang của đầu (mốc đo độ lệch)</span>
+    </div>
+  </div>
+
+  <!-- ================= MODULE 2: SECONDARY RATIO ================= -->
+  <div class="module">
+    <h2>Chuyển động phụ: hỗ trợ hay lấn át?</h2>
+    <div class="sub">
+      Nhân vật đi bộ: thân nhấp nhô là <strong>hành động chính</strong>; tay vung là <strong>chuyển động phụ</strong>.
+      Kéo biên độ tay để thấy khi nào phụ hỗ trợ, khi nào nó cướp mất tiêu điểm.
+    </div>
+    <div class="stage">
+      <canvas id="c2" width="760" height="240"></canvas>
+    </div>
+    <div class="ctrls">
+      <div class="ctrl">
+        <label>Biên độ tay vung (so với thân) <span class="val" id="lb-amp">30%</span></label>
+        <input type="range" id="s-amp" min="0" max="150" value="30">
+        <div class="hint">Mốc: biên độ nhấp nhô thân = 100%</div>
+      </div>
+    </div>
+    <div class="readout" id="ro2">…</div>
+  </div>
+
+  <!-- ================= MODULE 3: NOTES ================= -->
+  <div class="module">
+    <h2>Ghi chú cách đọc</h2>
+    <ul class="notes">
+      <li><b>Drag</b> (độ trễ) trong mô hình lò xo tương ứng <em>nghịch</em> với hệ số cản <code>c</code>: kéo drag lên = giảm <code>c</code> → đu đưa nhiều, lắng chậm.</li>
+      <li><b>Stiffness</b> (độ cứng) là hệ số <code>s</code> kéo mỗi đốt về đốt trước; cao thì bám sát, giật cục.</li>
+      <li>Mức đu đưa đo bằng hệ số tắt dần <code>ζ = c / (2√s)</code>: <code>ζ &lt; 1</code> đu đưa, <code>ζ ≥ 1</code> không. Đẹp thường <code>ζ ≈ 0.2–0.5</code> (xem README mục 5).</li>
+      <li>Đặt <b>Tốc độ quét đầu = 0%</b> rồi bấm <b>Giật đầu</b>: đầu đứng yên tại chỗ mới, xem chuỗi đuổi theo &amp; lắng — đây là follow-through thuần.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+// =====================================================================
+//  Tiện ích chung
+// =====================================================================
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+// =====================================================================
+//  MODULE 1 — Chuỗi đốt lò xo có cản (spring–damper chain)
+// =====================================================================
+var c1 = document.getElementById('c1');
+var g1 = c1.getContext('2d');
+var W1 = c1.width, H1 = c1.height;
+
+var M1 = {
+  running: true,
+  t: 0,                 // pha quét đầu
+  head: { x: W1 / 2, y: 64 },
+  headV: { x: 0, y: 0 },// vận tốc đầu (để giảm chấn tương đối)
+  headStatic: false,    // true sau khi "Giật đầu": đầu đứng tại chỗ, chuỗi lắng
+  nodes: [],            // {x,y,vx,vy}
+  trail: [],            // vệt mờ vị trí đầu
+  drag: 0.70,           // 0..1 (slider)
+  stiff: 0.20,          // 6..40 % -> 0.06..0.40
+  segN: 7,
+  speed: 1.0,           // 0..2.2
+  gap: 30,              // khoảng nghỉ giữa các đốt (theo trục dọc)
+  ampX: 210,            // biên độ quét ngang của đầu
+  mouseMode: false,
+  mouse: { x: 0, y: 0, inside: false }
+};
+
+function m1InitChain() {
+  M1.nodes = [];
+  for (var i = 0; i < M1.segN; i++) {
+    M1.nodes.push({ x: M1.head.x, y: M1.head.y + M1.gap * (i + 1), vx: 0, vy: 0 });
+  }
+  M1.headV = { x: 0, y: 0 };
+  M1.trail = [];
+}
+m1InitChain();
+
+// Hệ số cản TƯƠNG ĐỐI (giữa đốt và đốt trước). Đây là núm "drag":
+//   drag 0 -> 0.60 (bám chặt, lắng nhanh) ; drag 1 -> 0.08 (đu đưa lâu).
+// Giảm chấn theo VẬN TỐC TƯƠNG ĐỐI (không phải tuyệt đối) để dập năng lượng
+// sóng chạy dọc chuỗi -> chuỗi các đốt cùng tần số KHÔNG cộng hưởng nổ số.
+function m1DampRel() { return 0.60 - M1.drag * 0.52; }
+var M1_DAMP_ABS = 0.05;   // giảm chấn tuyệt đối nhỏ -> cả chuỗi cuối cùng dừng hẳn
+var M1_VMAX = 55;         // trần vận tốc (px/frame) — lưới an toàn chống nổ số
+
+function m1Step() {
+  // --- cập nhật vị trí ĐẦU (phần dẫn) + vận tốc đầu ---
+  var hx0 = M1.head.x, hy0 = M1.head.y;
+  if (M1.mouseMode && M1.mouse.inside) {
+    M1.head.x = clamp(M1.mouse.x, 40, W1 - 40);
+    M1.head.y = clamp(M1.mouse.y, 30, H1 * 0.55);
+  } else if (!M1.headStatic) {
+    M1.t += 0.028 * M1.speed;
+    M1.head.x = W1 / 2 + M1.ampX * Math.sin(M1.t);
+    M1.head.y = 64;
+  }
+  // nếu headStatic: giữ nguyên head.x/head.y -> chuỗi tự lắng
+  M1.headV.x = M1.head.x - hx0;
+  M1.headV.y = M1.head.y - hy0;
+
+  // vệt mờ vị trí đầu (để thấy độ lệch/offset)
+  M1.trail.push({ x: M1.head.x, y: M1.head.y });
+  if (M1.trail.length > 26) M1.trail.shift();
+
+  // --- vật lý lò xo có cản cho từng đốt ---
+  // snapshot vận tốc đầu-frame để việc giảm chấn tương đối không phụ thuộc thứ tự cập nhật
+  var ovx = [], ovy = [];
+  for (var q = 0; q < M1.nodes.length; q++) { ovx.push(M1.nodes[q].vx); ovy.push(M1.nodes[q].vy); }
+
+  var s = M1.stiff;
+  var cRel = m1DampRel();
+  for (var i = 0; i < M1.nodes.length; i++) {
+    var n = M1.nodes[i];
+    var prev = (i === 0) ? M1.head : M1.nodes[i - 1];
+    var pvx = (i === 0) ? M1.headV.x : ovx[i - 1];
+    var pvy = (i === 0) ? M1.headV.y : ovy[i - 1];
+    var tx = prev.x;                 // đích ngang = đốt trước
+    var ty = prev.y + M1.gap;        // đích dọc = đốt trước + khoảng nghỉ
+    // gia tốc = lò xo kéo về đích - cản(tương đối với đốt trước) - cản tuyệt đối nhỏ
+    var ax = s * (tx - n.x) - cRel * (n.vx - pvx) - M1_DAMP_ABS * n.vx;
+    var ay = s * (ty - n.y) - cRel * (n.vy - pvy) - M1_DAMP_ABS * n.vy;
+    n.vx += ax; n.vy += ay;
+    n.vx = clamp(n.vx, -M1_VMAX, M1_VMAX);
+    n.vy = clamp(n.vy, -M1_VMAX, M1_VMAX);
+    n.x += n.vx; n.y += n.vy;
+  }
+}
+
+function m1Draw() {
+  g1.clearRect(0, 0, W1, H1);
+
+  // đường đứt: vị trí ngang của đầu (mốc đo độ lệch)
+  g1.save();
+  g1.setLineDash([5, 6]);
+  g1.strokeStyle = '#fdba74';
+  g1.lineWidth = 1.5;
+  g1.beginPath(); g1.moveTo(M1.head.x, 0); g1.lineTo(M1.head.x, H1); g1.stroke();
+  g1.restore();
+
+  // vệt mờ đầu
+  for (var k = 0; k < M1.trail.length; k++) {
+    var tp = M1.trail[k];
+    g1.beginPath();
+    g1.arc(tp.x, tp.y, 3, 0, Math.PI * 2);
+    g1.fillStyle = 'rgba(234,88,12,' + (k / M1.trail.length * 0.28) + ')';
+    g1.fill();
+  }
+
+  // dây nối đầu -> các đốt
+  g1.beginPath();
+  g1.moveTo(M1.head.x, M1.head.y);
+  for (var i = 0; i < M1.nodes.length; i++) g1.lineTo(M1.nodes[i].x, M1.nodes[i].y);
+  g1.strokeStyle = '#ea580c';
+  g1.lineWidth = 4;
+  g1.lineJoin = 'round';
+  g1.lineCap = 'round';
+  g1.stroke();
+
+  // các đốt: to dần nhạt dần ra ngọn
+  for (var j = M1.nodes.length - 1; j >= 0; j--) {
+    var nd = M1.nodes[j];
+    var f = j / Math.max(1, M1.nodes.length - 1); // 0 gốc -> 1 ngọn
+    var r = 11 - 4 * f;
+    // màu: gốc cam đậm -> ngọn cam nhạt
+    var col = ['#ea580c', '#fb923c', '#fdba74'];
+    var ci = f < 0.34 ? 0 : (f < 0.7 ? 1 : 2);
+    g1.beginPath();
+    g1.arc(nd.x, nd.y, r, 0, Math.PI * 2);
+    g1.fillStyle = col[ci];
+    g1.fill();
+    g1.lineWidth = 1.5; g1.strokeStyle = '#fff'; g1.stroke();
+  }
+
+  // đầu (phần dẫn)
+  g1.beginPath();
+  g1.arc(M1.head.x, M1.head.y, 15, 0, Math.PI * 2);
+  g1.fillStyle = '#c2410c';
+  g1.fill();
+  g1.lineWidth = 2.5; g1.strokeStyle = '#fff'; g1.stroke();
+  // mắt nhỏ cho ngộ nghĩnh
+  g1.fillStyle = '#fff';
+  g1.beginPath(); g1.arc(M1.head.x - 5, M1.head.y - 3, 2.4, 0, Math.PI * 2); g1.fill();
+  g1.beginPath(); g1.arc(M1.head.x + 5, M1.head.y - 3, 2.4, 0, Math.PI * 2); g1.fill();
+}
+
+function m1Readout() {
+  var c = m1DampRel();
+  var s = M1.stiff;
+  var zeta = c / (2 * Math.sqrt(s));
+  var kind, tagCls;
+  if (zeta < 0.85) { kind = 'dưới tới hạn — đu đưa'; tagCls = 'good'; }
+  else if (zeta <= 1.15) { kind = 'gần tới hạn — lắng gọn'; tagCls = 'warn'; }
+  else { kind = 'trên tới hạn — ì, không đu đưa'; tagCls = 'bad'; }
+
+  // độ lệch ngọn so với đầu (theo trục ngang)
+  var tip = M1.nodes[M1.nodes.length - 1];
+  var lag = tip ? Math.abs(tip.x - M1.head.x) : 0;
+
+  document.getElementById('ro1').innerHTML =
+    'Độ cứng <b>s = ' + s.toFixed(2) + '</b> · hệ số cản <b>c = ' + c.toFixed(2) + '</b> · ' +
+    'hệ số tắt dần <b>ζ = ' + zeta.toFixed(2) + '</b> <span class="tag ' + tagCls + '">' + kind + '</span><br>' +
+    'Độ lệch ngang ngọn ↔ đầu: <b>' + lag.toFixed(0) + ' px</b>' +
+    (M1.headStatic ? ' · <b>đầu đang đứng yên → xem chuỗi lắng</b>' : '') +
+    (M1.mouseMode ? ' · chế độ kéo chuột' : '');
+}
+
+// =====================================================================
+//  MODULE 2 — Secondary action: hỗ trợ vs lấn át
+// =====================================================================
+var c2 = document.getElementById('c2');
+var g2 = c2.getContext('2d');
+var W2 = c2.width, H2 = c2.height;
+var M2 = { t: 0, ampRatio: 0.30 };
+var BODY_BOB = 26; // biên độ nhấp nhô thân (mốc 100%)
+
+function m2Draw() {
+  g2.clearRect(0, 0, W2, H2);
+
+  // nền sàn
+  g2.strokeStyle = '#fed7aa';
+  g2.lineWidth = 2;
+  g2.beginPath(); g2.moveTo(0, H2 - 30); g2.lineTo(W2, H2 - 30); g2.stroke();
+
+  M2.t += 0.045;
+  var cx = W2 / 2;
+  var baseY = H2 - 30;
+
+  // hành động CHÍNH: thân nhấp nhô (2 lần / bước)
+  var bob = BODY_BOB * Math.abs(Math.sin(M2.t)) * -1; // luôn nhô lên
+  var hipY = baseY - 90 + bob;
+
+  // chuyển động PHỤ: tay vung, biên độ = ampRatio * mốc
+  var armSwingBase = 46; // độ (deg) khi ratio = 100%
+  var armDeg = armSwingBase * M2.ampRatio * Math.sin(M2.t * 2);
+  var armRad = armDeg * Math.PI / 180;
+
+  // --- thân ---
+  g2.strokeStyle = '#c2410c';
+  g2.lineWidth = 8; g2.lineCap = 'round';
+  g2.beginPath(); g2.moveTo(cx, hipY); g2.lineTo(cx, hipY - 46); g2.stroke(); // cột sống
+
+  // --- chân (bước đơn giản) ---
+  var legSw = 22 * Math.sin(M2.t);
+  g2.lineWidth = 7; g2.strokeStyle = '#ea580c';
+  g2.beginPath(); g2.moveTo(cx, hipY); g2.lineTo(cx + legSw, baseY); g2.stroke();
+  g2.beginPath(); g2.moveTo(cx, hipY); g2.lineTo(cx - legSw, baseY); g2.stroke();
+
+  // --- đầu ---
+  g2.fillStyle = '#c2410c';
+  g2.beginPath(); g2.arc(cx, hipY - 60, 15, 0, Math.PI * 2); g2.fill();
+
+  // --- tay (chuyển động phụ) ---
+  var shoulder = { x: cx, y: hipY - 40 };
+  var armLen = 40;
+  var ax = shoulder.x + armLen * Math.sin(armRad);
+  var ay = shoulder.y + armLen * Math.cos(armRad);
+  var ax2 = shoulder.x - armLen * Math.sin(armRad);
+  var ay2 = shoulder.y + armLen * Math.cos(armRad);
+  // độ đậm tay tăng theo biên độ để "cảm" được sự lấn át
+  var overpower = M2.ampRatio > 0.7;
+  g2.lineWidth = 7;
+  g2.strokeStyle = overpower ? '#dc2626' : '#fb923c';
+  g2.beginPath(); g2.moveTo(shoulder.x, shoulder.y); g2.lineTo(ax, ay); g2.stroke();
+  g2.beginPath(); g2.moveTo(shoulder.x, shoulder.y); g2.lineTo(ax2, ay2); g2.stroke();
+
+  // cung minh hoạ biên độ vung tay
+  g2.setLineDash([3, 4]); g2.lineWidth = 1.5; g2.strokeStyle = '#fdba74';
+  g2.beginPath();
+  g2.arc(shoulder.x, shoulder.y, armLen, Math.PI / 2 - Math.abs(armRad), Math.PI / 2 + Math.abs(armRad));
+  g2.stroke();
+  g2.setLineDash([]);
+}
+
+function m2Readout() {
+  var pct = Math.round(M2.ampRatio * 100);
+  var verdict, cls;
+  if (pct <= 40) { verdict = 'Hỗ trợ tốt — vẫn đọc "đang đi" trước'; cls = 'good'; }
+  else if (pct <= 70) { verdict = 'Bắt đầu tranh chấp — mắt phân vân'; cls = 'warn'; }
+  else { verdict = 'Lấn át — tay cướp mất tiêu điểm'; cls = 'bad'; }
+  var px = Math.round(M2.ampRatio * BODY_BOB);
+  document.getElementById('ro2').innerHTML =
+    'Biên độ phụ = <b>' + pct + '%</b> mốc chính (≈ <b>' + px + ' px</b> nếu thân nhấp nhô ' + BODY_BOB + ' px) ' +
+    '<span class="tag ' + cls + '">' + verdict + '</span><br>' +
+    'Quy tắc: giữ phụ ≤ 30–40% để hỗ trợ; vượt ~70% là bắt đầu lấn át (xem README mục 2).';
+}
+
+// =====================================================================
+//  Vòng lặp chung (requestAnimationFrame)
+// =====================================================================
+function loop() {
+  if (M1.running) m1Step();
+  m1Draw();
+  m1Readout();
+  m2Draw();
+  m2Readout();
+  requestAnimationFrame(loop);
+}
+
+// =====================================================================
+//  Gắn điều khiển — MODULE 1
+// =====================================================================
+var sDrag = document.getElementById('s-drag');
+var sStiff = document.getElementById('s-stiff');
+var sSeg = document.getElementById('s-seg');
+var sSpd = document.getElementById('s-spd');
+
+sDrag.oninput = function () {
+  M1.drag = this.value / 100;
+  document.getElementById('lb-drag').textContent = this.value + '%';
+};
+sStiff.oninput = function () {
+  M1.stiff = this.value / 100;
+  document.getElementById('lb-stiff').textContent = this.value + '%';
+};
+sSeg.oninput = function () {
+  M1.segN = +this.value;
+  document.getElementById('lb-seg').textContent = this.value;
+  m1InitChain();
+};
+sSpd.oninput = function () {
+  M1.speed = this.value / 100;
+  document.getElementById('lb-spd').textContent = this.value + '%';
+};
+
+var btnPlay = document.getElementById('btn-play');
+btnPlay.onclick = function () {
+  M1.running = !M1.running;
+  this.textContent = M1.running ? '⏸ Dừng' : '▶ Chạy';
+};
+
+document.getElementById('btn-flick').onclick = function () {
+  // đầu nhảy tức thì sang một bên rồi đứng yên -> chuỗi whip & lắng
+  M1.headStatic = true;
+  M1.mouseMode = false;
+  document.getElementById('chk-mouse').checked = false;
+  var side = Math.random() < 0.5 ? -1 : 1;
+  M1.head.x = clamp(W1 / 2 + side * 150, 40, W1 - 40);
+  M1.head.y = 64;
+  if (!M1.running) { M1.running = true; btnPlay.textContent = '⏸ Dừng'; }
+};
+
+document.getElementById('btn-reset').onclick = function () {
+  M1.t = 0;
+  M1.headStatic = false;
+  M1.head = { x: W1 / 2, y: 64 };
+  m1InitChain();
+  M1.running = true;
+  btnPlay.textContent = '⏸ Dừng';
+};
+
+var chkMouse = document.getElementById('chk-mouse');
+chkMouse.onchange = function () {
+  M1.mouseMode = this.checked;
+  if (this.checked) M1.headStatic = false; // bật chuột thì thoát chế độ đứng yên
+};
+
+// toạ độ chuột -> toạ độ canvas (bù scale khi canvas co trên mobile)
+function canvasPos(evt, cvs) {
+  var rect = cvs.getBoundingClientRect();
+  var sx = cvs.width / rect.width, sy = cvs.height / rect.height;
+  var p = (evt.touches && evt.touches[0]) ? evt.touches[0] : evt;
+  return { x: (p.clientX - rect.left) * sx, y: (p.clientY - rect.top) * sy };
+}
+function m1Move(e) {
+  var q = canvasPos(e, c1);
+  M1.mouse.x = q.x; M1.mouse.y = q.y; M1.mouse.inside = true;
+  if (M1.mouseMode) e.preventDefault();
+}
+c1.addEventListener('mousemove', m1Move);
+c1.addEventListener('mouseleave', function () { M1.mouse.inside = false; });
+c1.addEventListener('touchmove', m1Move, { passive: false });
+c1.addEventListener('touchstart', m1Move, { passive: false });
+c1.addEventListener('touchend', function () { M1.mouse.inside = false; });
+
+// =====================================================================
+//  Gắn điều khiển — MODULE 2
+// =====================================================================
+document.getElementById('s-amp').oninput = function () {
+  M2.ampRatio = this.value / 100;
+  document.getElementById('lb-amp').textContent = this.value + '%';
+};
+
+// khởi động
+requestAnimationFrame(loop);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

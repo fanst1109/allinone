@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L1: Timing & Spacing — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 980px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Chọn kiểu spacing */
+  .modes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .modes button {
+    flex: 1 1 auto; min-width: 120px;
+    background: #fff; border: 1.5px solid #cbd5e1; border-radius: 9px;
+    padding: 9px 10px; cursor: pointer; font-size: 13px; font-weight: 700; color: #1e293b;
+    transition: all .12s; text-align: center; line-height: 1.3;
+  }
+  .modes button small { display: block; font-size: 11px; font-weight: 500; color: #64748b; margin-top: 2px; }
+  .modes button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .modes button.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .modes button.on small { color: #ffe6d5; }
+
+  /* Sliders / toggles */
+  .ctrls { display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: center; }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl label { font-size: 12px; font-weight: 700; color: #475569; }
+  .ctrl .val { color: var(--accent); font-weight: 800; }
+  .ctrl input[type=range] { width: 220px; max-width: 100%; accent-color: var(--accent); }
+  .fps-toggle { display: inline-flex; border: 1.5px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+  .fps-toggle button {
+    border: 0; background: #fff; padding: 7px 14px; font-weight: 700; font-size: 13px; cursor: pointer; color: #475569;
+  }
+  .fps-toggle button.on { background: var(--accent); color: #fff; }
+
+  /* Nút play/pause/reset */
+  .transport { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .transport button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #e2e8f0; color: #334155; }
+  .btn-ghost:hover { background: #cbd5e1; }
+
+  /* Canvas */
+  canvas { display: block; width: 100%; height: auto; border-radius: 10px; }
+  .track-wrap { background: #fafaf9; border: 1px solid #eee7df; border-radius: 10px; padding: 10px; }
+
+  /* Readout */
+  .readout { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .stat {
+    flex: 1 1 120px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 9px;
+    padding: 8px 12px; min-width: 110px;
+  }
+  .stat .k { font-size: 11px; font-weight: 700; color: #9a3412; text-transform: uppercase; letter-spacing: .4px; }
+  .stat .v { font-size: 20px; font-weight: 800; color: #7c2d12; line-height: 1.2; }
+  .stat .v small { font-size: 12px; font-weight: 600; color: #b45309; }
+
+  .note { font-size: 13px; color: #475569; background: #f8fafc; border-left: 3px solid var(--accent); padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 4px; }
+  .note b { color: var(--accent-hover); }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Timing & Spacing</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-squash-stretch/visualization.html">L2: Squash & Stretch →</a>
+</nav>
+<main>
+  <h1>Timing & Spacing — mô phỏng sống</h1>
+  <div class="lead">Cùng một quả bóng đi từ <strong>A → B</strong>. Chỉnh <strong>timing</strong> (số frame) và chọn <strong>spacing</strong> (cách rải frame), bấm <strong>Play</strong> để thấy cảm giác gia tốc đổi hẳn — dù timing y hệt.</div>
+
+  <div class="module">
+    <h2>1. Bảng điều khiển</h2>
+    <div class="sub">Đổi kiểu spacing bên dưới rồi so cùng số frame — chuyển động khác hẳn "tính cách".</div>
+    <div class="modes" id="modes">
+      <button data-mode="linear">Đều<small>linear · robot</small></button>
+      <button data-mode="in">Dồn đầu<small>ease-in · tăng tốc</small></button>
+      <button data-mode="out">Dồn cuối<small>ease-out · phanh lại</small></button>
+      <button data-mode="inout">Dồn 2 đầu<small>ease-in-out · tự nhiên</small></button>
+    </div>
+    <div class="ctrls">
+      <div class="ctrl">
+        <label>Timing — số frame: <span class="val" id="nf-val">12</span></label>
+        <input type="range" id="nf" min="4" max="48" step="1" value="12">
+      </div>
+      <div class="ctrl">
+        <label>fps (frame / giây)</label>
+        <div class="fps-toggle" id="fps">
+          <button data-fps="12">12</button>
+          <button data-fps="24" class="on">24</button>
+        </div>
+      </div>
+    </div>
+    <div class="transport">
+      <button class="btn-play" id="play">▶ Play</button>
+      <button class="btn-ghost" id="pause">⏸ Pause</button>
+      <button class="btn-ghost" id="reset">↺ Reset</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Frame</div><div class="v" id="s-frame">0 <small>/ 12</small></div></div>
+      <div class="stat"><div class="k">Thời gian</div><div class="v" id="s-time">0.00 <small>s</small></div></div>
+      <div class="stat"><div class="k">Vị trí</div><div class="v" id="s-pos">0 <small>px</small></div></div>
+      <div class="stat"><div class="k">Spacing frame này</div><div class="v" id="s-space">0 <small>px/frame</small></div></div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Đường chạy & các chấm spacing</h2>
+    <div class="sub">Mỗi <b>chấm</b> = vị trí bóng ở một frame. Chấm <b>dày</b> (chụm) = đi chậm · chấm <b>thưa</b> (giãn) = đi nhanh.</div>
+    <div class="track-wrap"><canvas id="track" width="900" height="200"></canvas></div>
+    <div class="note" id="track-note"></div>
+  </div>
+
+  <div class="module">
+    <h2>3. Timing chart — frame so với vị trí</h2>
+    <div class="sub">Trục ngang = frame, trục dọc = vị trí (0 ở A, cao nhất ở B). <b>Dốc đứng = nhanh</b>, <b>thoải = chậm</b>. Độ cong của đường chính là spacing.</div>
+    <div class="track-wrap"><canvas id="chart" width="900" height="360"></canvas></div>
+  </div>
+</main>
+
+<script>
+// ===================== State =====================
+var MODE_LABEL = {
+  linear: 'Đều (linear)', in: 'Dồn đầu (ease-in)',
+  out: 'Dồn cuối (ease-out)', inout: 'Dồn 2 đầu (ease-in-out)'
+};
+var MODE_NOTE = {
+  linear: 'Khoảng cách các chấm <b>bằng nhau</b> → tốc độ không đổi. Cảm giác máy móc, cứng như robot — hiếm khi hợp với vật sống.',
+  in:     'Chấm <b>dày ở đầu (A), thưa dần về cuối</b> → bóng khởi động chậm rồi <b>tăng tốc</b>. Giống thả rơi, xe rời bến.',
+  out:    'Chấm <b>thưa ở đầu, dày dần về cuối (B)</b> → bóng lao đi nhanh rồi <b>phanh lại</b>. Giống bóng lăn hết đà, xe thắng gấp.',
+  inout:  'Chấm <b>dày ở cả hai đầu, thưa ở giữa</b> → chậm–nhanh–chậm. Chuyển động <b>tự nhiên nhất</b> cho cơ thể người/động vật.'
+};
+
+var state = {
+  mode: 'inout',
+  N: 12,        // số frame (timing)
+  fps: 24,
+  playing: false,
+  progress: 0,  // 0..1
+  startTs: 0
+};
+
+// ===================== Easing (spacing) =====================
+function ease(mode, t) {
+  if (t <= 0) return 0; if (t >= 1) return 1;
+  switch (mode) {
+    case 'linear': return t;
+    case 'in':     return t * t;                 // p = t^2
+    case 'out':    return 2 * t - t * t;         // p = 2t - t^2
+    case 'inout':  return 3 * t * t - 2 * t * t * t; // smoothstep 3t^2 - 2t^3
+  }
+  return t;
+}
+
+// ===================== Track canvas =====================
+var trackCv = document.getElementById('track');
+var chartCv = document.getElementById('chart');
+
+function setupCanvas(cv) {
+  var dpr = window.devicePixelRatio || 1;
+  var w = cv.width, h = cv.height;        // logical size from attributes
+  cv.width = w * dpr; cv.height = h * dpr;
+  cv.style.aspectRatio = w + ' / ' + h;
+  var ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cv._w = w; cv._h = h;
+  return ctx;
+}
+var tctx = setupCanvas(trackCv);
+var cctx = setupCanvas(chartCv);
+
+var PAD = 48;               // lề trái/phải đường chạy
+function trackGeom() {
+  var w = trackCv._w, h = trackCv._h;
+  return { x0: PAD, x1: w - PAD, y: h * 0.62, L: (w - PAD) - PAD, w: w, h: h };
+}
+
+function drawTrack() {
+  var g = trackGeom();
+  tctx.clearRect(0, 0, g.w, g.h);
+
+  // Đường ray
+  tctx.strokeStyle = '#e2e8f0'; tctx.lineWidth = 6; tctx.lineCap = 'round';
+  tctx.beginPath(); tctx.moveTo(g.x0, g.y); tctx.lineTo(g.x1, g.y); tctx.stroke();
+
+  // Mốc A / B
+  tctx.fillStyle = '#94a3b8'; tctx.font = '700 14px Manrope Variable, sans-serif';
+  tctx.textAlign = 'center';
+  tctx.fillText('A', g.x0, g.y + 34);
+  tctx.fillText('B', g.x1, g.y + 34);
+  ['A','B'].forEach(function(_, i){
+    tctx.beginPath(); tctx.arc(i ? g.x1 : g.x0, g.y, 5, 0, 7); tctx.fillStyle = '#cbd5e1'; tctx.fill();
+  });
+
+  // Chấm spacing tại mỗi frame
+  for (var k = 0; k <= state.N; k++) {
+    var t = k / state.N;
+    var x = g.x0 + ease(state.mode, t) * g.L;
+    tctx.beginPath();
+    tctx.arc(x, g.y, 4, 0, 7);
+    tctx.fillStyle = 'rgba(234,88,12,0.55)';
+    tctx.fill();
+    // vạch nhỏ xuống dưới để thấy mật độ
+    tctx.strokeStyle = 'rgba(234,88,12,0.30)'; tctx.lineWidth = 1;
+    tctx.beginPath(); tctx.moveTo(x, g.y + 10); tctx.lineTo(x, g.y + 18); tctx.stroke();
+  }
+
+  // Quả bóng ở vị trí hiện tại
+  var e = ease(state.mode, state.progress);
+  var bx = g.x0 + e * g.L;
+  var grad = tctx.createRadialGradient(bx - 5, g.y - 24, 3, bx, g.y - 20, 18);
+  grad.addColorStop(0, '#fdba74'); grad.addColorStop(1, '#ea580c');
+  tctx.beginPath(); tctx.arc(bx, g.y - 20, 16, 0, 7);
+  tctx.fillStyle = grad; tctx.fill();
+  tctx.strokeStyle = '#c2410c'; tctx.lineWidth = 2; tctx.stroke();
+  // bóng đổ
+  tctx.beginPath(); tctx.ellipse(bx, g.y + 2, 14, 4, 0, 0, 7);
+  tctx.fillStyle = 'rgba(0,0,0,0.10)'; tctx.fill();
+}
+
+// ===================== Chart canvas =====================
+function drawChart() {
+  var w = chartCv._w, h = chartCv._h;
+  cctx.clearRect(0, 0, w, h);
+  var mL = 46, mR = 20, mT = 18, mB = 34;
+  var pw = w - mL - mR, ph = h - mT - mB;
+  var x0 = mL, y0 = h - mB;
+
+  // Lưới + trục
+  cctx.strokeStyle = '#eef2f7'; cctx.lineWidth = 1;
+  cctx.fillStyle = '#94a3b8'; cctx.font = '600 11px Manrope Variable, sans-serif';
+  for (var i = 0; i <= 4; i++) {
+    var gy = y0 - (ph * i / 4);
+    cctx.beginPath(); cctx.moveTo(x0, gy); cctx.lineTo(x0 + pw, gy); cctx.stroke();
+    cctx.textAlign = 'right'; cctx.textBaseline = 'middle';
+    cctx.fillText((i * 25) + '%', x0 - 6, gy);
+  }
+  cctx.strokeStyle = '#cbd5e1'; cctx.lineWidth = 1.5;
+  cctx.beginPath(); cctx.moveTo(x0, mT); cctx.lineTo(x0, y0); cctx.lineTo(x0 + pw, y0); cctx.stroke();
+  cctx.textAlign = 'center'; cctx.textBaseline = 'top';
+  cctx.fillText('frame 0 (A)', x0, y0 + 8);
+  cctx.fillText('frame ' + state.N + ' (B)', x0 + pw, y0 + 8);
+
+  // Đường cong spacing (lấy mẫu mịn)
+  cctx.strokeStyle = '#ea580c'; cctx.lineWidth = 2.5; cctx.lineJoin = 'round';
+  cctx.beginPath();
+  for (var s = 0; s <= 100; s++) {
+    var t = s / 100;
+    var px = x0 + t * pw;
+    var py = y0 - ease(state.mode, t) * ph;
+    if (s === 0) cctx.moveTo(px, py); else cctx.lineTo(px, py);
+  }
+  cctx.stroke();
+
+  // Chấm tại mỗi frame + đường gióng xuống trục
+  for (var k = 0; k <= state.N; k++) {
+    var tt = k / state.N;
+    var cxp = x0 + tt * pw;
+    var cyp = y0 - ease(state.mode, tt) * ph;
+    cctx.beginPath(); cctx.arc(cxp, cyp, 3.2, 0, 7);
+    cctx.fillStyle = '#c2410c'; cctx.fill();
+  }
+
+  // Con trỏ tiến trình hiện tại
+  var e = ease(state.mode, state.progress);
+  var curX = x0 + state.progress * pw;
+  var curY = y0 - e * ph;
+  cctx.strokeStyle = 'rgba(148,163,184,0.6)'; cctx.setLineDash([4, 4]); cctx.lineWidth = 1;
+  cctx.beginPath(); cctx.moveTo(curX, mT); cctx.lineTo(curX, y0); cctx.stroke();
+  cctx.beginPath(); cctx.moveTo(x0, curY); cctx.lineTo(curX, curY); cctx.stroke();
+  cctx.setLineDash([]);
+  cctx.beginPath(); cctx.arc(curX, curY, 6, 0, 7); cctx.fillStyle = '#ea580c'; cctx.fill();
+  cctx.strokeStyle = '#fff'; cctx.lineWidth = 2; cctx.stroke();
+}
+
+// ===================== Readout =====================
+var TRACK_PX = 640; // quãng đường "vật lý" quy ước để hiển thị px
+function fmt(n, d) { var p = Math.pow(10, d || 0); return Math.round(n * p) / p; }
+
+function updateReadout() {
+  var e = ease(state.mode, state.progress);
+  var frame = Math.round(state.progress * state.N);
+  var timeS = frame / state.fps;
+  var posPx = e * TRACK_PX;
+
+  // spacing của frame hiện tại = |p(frame) - p(frame-1)| * TRACK_PX
+  var spacing = 0;
+  if (frame >= 1) {
+    var pPrev = ease(state.mode, (frame - 1) / state.N);
+    var pCur  = ease(state.mode, frame / state.N);
+    spacing = (pCur - pPrev) * TRACK_PX;
+  }
+
+  document.getElementById('s-frame').innerHTML = frame + ' <small>/ ' + state.N + '</small>';
+  document.getElementById('s-time').innerHTML = fmt(timeS, 2).toFixed(2) + ' <small>s</small>';
+  document.getElementById('s-pos').innerHTML = fmt(posPx, 0) + ' <small>px</small>';
+  document.getElementById('s-space').innerHTML = fmt(spacing, 1) + ' <small>px/frame</small>';
+}
+
+function drawAll() { drawTrack(); drawChart(); updateReadout(); }
+
+// ===================== Animation loop =====================
+function duration() { return state.N / state.fps; } // giây
+
+function tick(ts) {
+  if (!state.playing) return;
+  if (!state.startTs) state.startTs = ts - state.progress * duration() * 1000;
+  var elapsed = (ts - state.startTs) / 1000;
+  state.progress = Math.min(elapsed / duration(), 1);
+  drawAll();
+  if (state.progress >= 1) {
+    state.playing = false;
+    document.getElementById('play').textContent = '▶ Play';
+  } else {
+    requestAnimationFrame(tick);
+  }
+}
+
+function play() {
+  if (state.playing) return;
+  if (state.progress >= 1) state.progress = 0; // đã chạy hết → chạy lại từ đầu
+  state.playing = true;
+  state.startTs = 0;
+  document.getElementById('play').textContent = '▶ Đang chạy…';
+  requestAnimationFrame(tick);
+}
+function pause() {
+  state.playing = false;
+  document.getElementById('play').textContent = '▶ Play';
+}
+function reset() {
+  state.playing = false;
+  state.progress = 0;
+  state.startTs = 0;
+  document.getElementById('play').textContent = '▶ Play';
+  drawAll();
+}
+
+// ===================== Wiring =====================
+var modeBtns = document.querySelectorAll('#modes button');
+function selectMode(m) {
+  state.mode = m;
+  modeBtns.forEach(function(b){ b.classList.toggle('on', b.dataset.mode === m); });
+  document.getElementById('track-note').innerHTML =
+    '<b>' + MODE_LABEL[m] + ':</b> ' + MODE_NOTE[m];
+  drawAll();
+}
+modeBtns.forEach(function(b){ b.onclick = function(){ selectMode(b.dataset.mode); }; });
+
+document.getElementById('nf').oninput = function() {
+  state.N = parseInt(this.value, 10);
+  document.getElementById('nf-val').textContent = state.N;
+  if (!state.playing) drawAll(); else drawAll();
+};
+
+document.querySelectorAll('#fps button').forEach(function(b){
+  b.onclick = function() {
+    state.fps = parseInt(b.dataset.fps, 10);
+    document.querySelectorAll('#fps button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    updateReadout();
+  };
+});
+
+document.getElementById('play').onclick = play;
+document.getElementById('pause').onclick = pause;
+document.getElementById('reset').onclick = reset;
+
+// Redraw khi xoay/resize (canvas dùng kích thước logic cố định nên chỉ vẽ lại)
+window.addEventListener('resize', function(){ drawAll(); });
+
+// Khởi tạo
+selectMode('inout');
+reset();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

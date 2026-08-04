@@ -27,6 +27,7 @@
 | Accounting | Kế toán — 3 tầng × 12 bài: nền tảng (phương trình kế toán, bút toán kép, ghi sổ, dồn tích) → báo cáo tài chính (BĐKT, KQKD, lưu chuyển tiền, mô hình 3 báo cáo) → phân tích & quản trị (tỷ số, CVP, ngân sách, định giá DCF) | [Accounting/](./Accounting/) |
 | AI-ML | Học máy & AI ứng dụng — 8 bài: pipeline ML, regression, neural net, embeddings, RAG, CLIP | [AI-ML/](./AI-ML/) |
 | Algorithms | Kỹ thuật & paradigm giải thuật — 8 tier × ~52 lesson (sort, search, greedy, DP, graph, string) | [Algorithms/](./Algorithms/) |
+| Animation | Hoạt hình — 3 nhánh × 12 bài: nguyên tắc cơ bản (timing/spacing, squash & stretch, anticipation, ease) → chuyển động & đường cong (keyframe, easing cubic-bezier, arcs, overlapping) → nhân vật & dựng cảnh (walk cycle, staging, cường điệu, pose→shot). Viz chạy realtime | [Animation/](./Animation/) |
 | Astronomy | Thiên văn học — 3 tầng × 8 bài: bầu trời & Hệ Mặt Trời → sao & thiên hà → vũ trụ học (Big Bang, vật chất tối) | [Astronomy/](./Astronomy/) |
 | Biology | Sinh học — 3 tầng × 8 bài, phân tử & tế bào → di truyền & tiến hóa → sinh lý & sinh thái | [Biology/](./Biology/) |
 | Chemistry | Hóa học đại cương — 2 tầng × 8 bài, cấu tạo chất → phản ứng → hóa sinh preview | [Chemistry/](./Chemistry/) |

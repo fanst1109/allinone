@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L7: Cung chuyển động — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 960px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e7e2da; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  svg { width: 100%; height: auto; display: block; background: #fff8f3; border: 1px solid #f1e4d8; border-radius: 10px; touch-action: none; }
+
+  /* Điều khiển */
+  .toolbar { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .toolbar button {
+    border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer;
+  }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #e2e8f0; color: #334155; }
+  .btn-ghost:hover { background: #cbd5e1; }
+
+  .seg-toggle { display: inline-flex; border: 1px solid #e0c3a8; border-radius: 8px; overflow: hidden; }
+  .seg-toggle button {
+    border: 0; background: #fff; color: #7c4a1e; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer;
+  }
+  .seg-toggle button.on { background: var(--accent); color: #fff; }
+
+  .readout {
+    margin-top: 12px; font-size: 13px; color: #334155; line-height: 1.9;
+    background: var(--accent-soft); border-radius: 8px; padding: 10px 14px;
+  }
+  .readout b { color: var(--accent-hover); }
+  .hint { color: #92400e; font-size: 12.5px; margin-top: 8px; font-style: italic; }
+
+  /* Sliders */
+  .sliders { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+  @media (min-width: 620px) { .sliders { grid-template-columns: 1fr 1fr 1fr; } }
+  .slider label { display: block; font-size: 12.5px; font-weight: 700; color: #475569; margin-bottom: 4px; }
+  .slider label .num { color: var(--accent-hover); }
+  .slider input[type=range] { width: 100%; accent-color: var(--accent); }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 22px; height: 0; border-top: 3px solid; display: inline-block; }
+  .swatch.dot { width: 10px; height: 10px; border-radius: 50%; border: 0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-easing-bezier/visualization.html">← L6</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Cung chuyển động</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-secondary-overlapping/visualization.html">L8: Chuyển động phụ →</a>
+</nav>
+<main>
+  <h1>Cung chuyển động — thẳng thì máy móc, cong thì sống</h1>
+  <div class="lead">Chuyển động tự nhiên đi theo <strong>cung</strong> vì cơ thể xoay quanh <strong>khớp</strong> và vật bay chịu <strong>trọng lực</strong>. Bật/tắt thẳng ↔ cung, kéo đỉnh đổi độ cong, xem vết quỹ đạo, và mô phỏng bóng ném parabol.</div>
+
+  <!-- ===== Module 1: Đường thẳng vs Cung ===== -->
+  <div class="module">
+    <h2>1. Đường thẳng ↔ Cung — kéo đỉnh để đổi độ cong</h2>
+    <div class="sub">Vật đi từ A tới B. Chấm cam mờ là <strong>vết quỹ đạo (motion path)</strong>. Kéo điểm ◆ để bẻ cong.</div>
+
+    <svg id="svg1" viewBox="0 0 600 300" aria-label="Mô phỏng đường thẳng và cung">
+      <!-- đường thẳng tham chiếu (dây cung) -->
+      <line id="chord1" x1="70" y1="210" x2="530" y2="210" stroke="#c9b8a8" stroke-width="2" stroke-dasharray="7 6"/>
+      <!-- cung Bézier -->
+      <path id="arc1" fill="none" stroke="#ea580c" stroke-width="3"/>
+      <!-- vết quỹ đạo (chấm strobo) -->
+      <g id="dots1"></g>
+      <!-- tay cầm đỉnh -->
+      <line id="handle1" stroke="#f4a26b" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <!-- điểm điều khiển đỉnh -->
+      <g id="ctrl1" style="cursor: grab;">
+        <circle cx="300" cy="80" r="13" fill="#ea580c" fill-opacity="0.15"/>
+        <path id="ctrlDiamond" d="" fill="#ea580c" stroke="#fff" stroke-width="2"/>
+      </g>
+      <!-- điểm đầu / cuối -->
+      <circle cx="70" cy="210" r="7" fill="#7c4a1e"/>
+      <text x="70" y="235" font-size="14" font-weight="700" fill="#7c4a1e" text-anchor="middle">A</text>
+      <circle cx="530" cy="210" r="7" fill="#7c4a1e"/>
+      <text x="530" y="235" font-size="14" font-weight="700" fill="#7c4a1e" text-anchor="middle">B</text>
+      <!-- vật di chuyển -->
+      <circle id="ball1" cx="70" cy="210" r="11" fill="#ea580c" stroke="#fff" stroke-width="2.5"/>
+    </svg>
+
+    <div class="legend">
+      <span><i class="swatch" style="border-color:#c9b8a8"></i> đường thẳng (dây cung)</span>
+      <span><i class="swatch" style="border-color:#ea580c"></i> cung Bézier</span>
+      <span><i class="swatch dot" style="background:#ea580c;opacity:.35"></i> vết quỹ đạo</span>
+    </div>
+
+    <div class="toolbar">
+      <span class="seg-toggle" id="mode1">
+        <button data-mode="straight">Đường thẳng</button>
+        <button data-mode="arc" class="on">Cung</button>
+      </span>
+      <button class="btn-play" id="play1">▶ Chạy</button>
+      <button class="btn-ghost" id="reset1">↺ Reset</button>
+    </div>
+
+    <div class="readout" id="ro1"></div>
+    <div class="hint">Mẹo: kéo ◆ ra xa dây cung → độ phồng (sagitta) tăng → cung gắt hơn. Kéo về sát dây → gần như thẳng → cảm giác máy móc.</div>
+  </div>
+
+  <!-- ===== Module 2: Bóng ném parabol ===== -->
+  <div class="module">
+    <h2>2. Bóng ném — parabol do trọng lực</h2>
+    <div class="sub">Phương ngang đi đều, phương dọc bị trọng lực kéo → quỹ đạo cong thành <strong>parabol</strong>. Đường nét đứt là quỹ đạo thẳng "máy móc" để so sánh.</div>
+
+    <svg id="svg2" viewBox="0 0 600 320" aria-label="Mô phỏng bóng ném parabol">
+      <!-- nền trời -->
+      <rect x="0" y="0" width="600" height="320" fill="#fff8f3"/>
+      <!-- mặt đất -->
+      <line x1="0" y1="280" x2="600" y2="280" stroke="#c9a074" stroke-width="2"/>
+      <rect x="0" y="280" width="600" height="40" fill="#f3e0cd"/>
+      <!-- quỹ đạo thẳng tham chiếu -->
+      <line id="straight2" stroke="#c9b8a8" stroke-width="2" stroke-dasharray="7 6"/>
+      <!-- quỹ đạo parabol dự đoán -->
+      <path id="pred2" fill="none" stroke="#f4a26b" stroke-width="2" stroke-dasharray="2 5"/>
+      <!-- vết thực -->
+      <polyline id="trail2" fill="none" stroke="#ea580c" stroke-width="3"/>
+      <!-- điểm phóng -->
+      <circle cx="70" cy="280" r="5" fill="#7c4a1e"/>
+      <!-- bóng -->
+      <circle id="ball2" cx="70" cy="280" r="12" fill="#ea580c" stroke="#fff" stroke-width="2.5"/>
+    </svg>
+
+    <div class="legend">
+      <span><i class="swatch" style="border-color:#c9b8a8"></i> quỹ đạo thẳng (máy móc)</span>
+      <span><i class="swatch" style="border-color:#f4a26b"></i> parabol dự đoán</span>
+      <span><i class="swatch" style="border-color:#ea580c"></i> vết bóng thực</span>
+    </div>
+
+    <div class="sliders">
+      <div class="slider">
+        <label>Lực ngang v<sub>x</sub>: <span class="num" id="lx">150</span></label>
+        <input type="range" id="sx" min="40" max="240" value="150">
+      </div>
+      <div class="slider">
+        <label>Lực ném lên v<sub>y0</sub>: <span class="num" id="ly">340</span></label>
+        <input type="range" id="sy" min="120" max="420" value="340">
+      </div>
+      <div class="slider">
+        <label>Trọng lực g: <span class="num" id="lg">650</span></label>
+        <input type="range" id="sg" min="400" max="1200" value="650">
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn-play" id="play2">▶ Ném</button>
+      <button class="btn-ghost" id="reset2">↺ Reset</button>
+    </div>
+
+    <div class="readout" id="ro2"></div>
+    <div class="hint">Tăng g → parabol gắt, thấp, bay nhanh → bóng "nặng". Giảm g → bay cao, lâu → "nhẹ". v<sub>x</sub> chỉ đổi tầm xa, không đổi độ cao.</div>
+  </div>
+</main>
+
+<script>
+// ============================================================
+// Tiện ích chung
+// ============================================================
+function $(id){ return document.getElementById(id); }
+function lerp(a, b, t){ return a + (b - a) * t; }
+// Bézier bậc hai qua 3 điểm A, C, B
+function quad(A, C, B, t){
+  var mt = 1 - t;
+  return {
+    x: mt*mt*A.x + 2*mt*t*C.x + t*t*B.x,
+    y: mt*mt*A.y + 2*mt*t*C.y + t*t*B.y
+  };
+}
+// Đổi toạ độ màn hình -> toạ độ SVG (tôn trọng viewBox)
+function toSvg(svg, clientX, clientY){
+  var pt = svg.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+// ============================================================
+// MODULE 1: Đường thẳng vs Cung
+// ============================================================
+var svg1 = $('svg1');
+var A1 = { x: 70,  y: 210 };
+var B1 = { x: 530, y: 210 };
+var C1 = { x: 300, y: 80 };   // điểm điều khiển đỉnh (kéo được)
+var mode1 = 'arc';
+var t1 = 0;
+var playing1 = false;
+var speed1 = 0.32;            // t đơn vị / giây
+
+var el1 = {
+  arc: $('arc1'), dots: $('dots1'), ball: $('ball1'),
+  handle: $('handle1'), ctrl: $('ctrl1'), diamond: $('ctrlDiamond'),
+  ro: $('ro1')
+};
+
+// vị trí trên quỹ đạo đang chọn tại tham số t
+function posOnPath1(t){
+  if (mode1 === 'straight') return { x: lerp(A1.x, B1.x, t), y: lerp(A1.y, B1.y, t) };
+  return quad(A1, C1, B1, t);
+}
+
+function drawPath1(){
+  // đường cung Bézier
+  el1.arc.setAttribute('d', 'M ' + A1.x + ' ' + A1.y + ' Q ' + C1.x + ' ' + C1.y + ' ' + B1.x + ' ' + B1.y);
+  el1.arc.style.display = (mode1 === 'arc') ? '' : 'none';
+
+  // tay cầm đỉnh: từ giữa dây cung tới C
+  var midX = (A1.x + B1.x) / 2, midY = (A1.y + B1.y) / 2;
+  el1.handle.setAttribute('x1', midX); el1.handle.setAttribute('y1', midY);
+  el1.handle.setAttribute('x2', C1.x); el1.handle.setAttribute('y2', C1.y);
+  el1.handle.style.display = (mode1 === 'arc') ? '' : 'none';
+
+  // hình thoi ◆ tại C
+  var d = 9;
+  el1.diamond.setAttribute('d',
+    'M ' + C1.x + ' ' + (C1.y - d) + ' L ' + (C1.x + d) + ' ' + C1.y +
+    ' L ' + C1.x + ' ' + (C1.y + d) + ' L ' + (C1.x - d) + ' ' + C1.y + ' Z');
+  el1.ctrl.querySelector('circle').setAttribute('cx', C1.x);
+  el1.ctrl.querySelector('circle').setAttribute('cy', C1.y);
+  el1.ctrl.style.display = (mode1 === 'arc') ? '' : 'none';
+
+  // vết quỹ đạo: 13 chấm strobo đều theo tham số
+  var N = 13, out = '';
+  for (var i = 0; i <= N; i++){
+    var p = posOnPath1(i / N);
+    out += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4" fill="#ea580c" fill-opacity="0.32"/>';
+  }
+  el1.dots.innerHTML = out;
+}
+
+function updateReadout1(){
+  // sagitta = khoảng cách từ giữa cung tới giữa dây cung (dây nằm ngang)
+  var chord = Math.abs(B1.x - A1.x);
+  var mid = quad(A1, C1, B1, 0.5);
+  var chordMidY = (A1.y + B1.y) / 2;
+  var sag = Math.abs(mid.y - chordMidY);
+  var Rapprox = sag > 0.5 ? (chord*chord) / (8*sag) + sag/2 : Infinity;
+
+  if (mode1 === 'straight'){
+    el1.ro.innerHTML = 'Chế độ <b>đường thẳng</b>: sagitta = <b>0</b>, bán kính R = <b>∞</b>. ' +
+      'Vật trượt thẳng A→B — cảm giác <b>máy móc / robot</b>. Các chấm vết cách <b>đều nhau</b> trên một đường thẳng.';
+  } else {
+    var feel = sag < 8 ? 'gần như thẳng — <b>máy móc</b>' :
+               sag < 40 ? 'cung thoải — nhẹ nhàng' :
+               sag < 90 ? 'cung rõ — sống động' : 'cung gắt — nặng / mạnh';
+    el1.ro.innerHTML = 'Chế độ <b>cung</b>: độ phồng sagitta ≈ <b>' + sag.toFixed(1) + ' px</b>' +
+      ' (dây cung L = ' + chord.toFixed(0) + '), bán kính xấp xỉ R ≈ <b>' +
+      (isFinite(Rapprox) ? Rapprox.toFixed(0) : '∞') + ' px</b>. Cảm giác: ' + feel + '.' +
+      '<br>Công thức: R ≈ L²/(8·s) + s/2 = ' + chord.toFixed(0) + '²/(8·' + sag.toFixed(1) + ') + ' +
+      (sag/2).toFixed(1) + ' ≈ ' + (isFinite(Rapprox) ? Rapprox.toFixed(0) : '∞') + '.';
+  }
+}
+
+function drawBall1(){
+  var p = posOnPath1(t1);
+  el1.ball.setAttribute('cx', p.x);
+  el1.ball.setAttribute('cy', p.y);
+}
+
+// Toggle chế độ
+$('mode1').querySelectorAll('button').forEach(function(b){
+  b.onclick = function(){
+    mode1 = b.getAttribute('data-mode');
+    $('mode1').querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    drawPath1(); drawBall1(); updateReadout1();
+  };
+});
+
+$('play1').onclick = function(){
+  playing1 = !playing1;
+  this.textContent = playing1 ? '⏸ Dừng' : '▶ Chạy';
+};
+$('reset1').onclick = function(){
+  playing1 = false; $('play1').textContent = '▶ Chạy';
+  t1 = 0; C1 = { x: 300, y: 80 }; mode1 = 'arc';
+  $('mode1').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-mode') === 'arc'); });
+  drawPath1(); drawBall1(); updateReadout1();
+};
+
+// Kéo điểm điều khiển C
+(function(){
+  var dragging = false;
+  function start(e){ dragging = true; el1.ctrl.style.cursor = 'grabbing'; move(e); e.preventDefault(); }
+  function move(e){
+    if (!dragging) return;
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX);
+    var cy = (e.touches ? e.touches[0].clientY : e.clientY);
+    var p = toSvg(svg1, cx, cy);
+    C1.x = Math.max(20, Math.min(580, p.x));
+    C1.y = Math.max(15, Math.min(285, p.y));
+    drawPath1(); drawBall1(); updateReadout1();
+  }
+  function end(){ dragging = false; el1.ctrl.style.cursor = 'grab'; }
+  el1.ctrl.addEventListener('pointerdown', start);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', end);
+})();
+
+// ============================================================
+// MODULE 2: Bóng ném parabol
+// ============================================================
+var svg2 = $('svg2');
+var LAUNCH = { x: 70, y: 280 };
+var GROUND = 280;
+var ball2 = { x: 70, y: 280, vx: 0, vy: 0 };
+var playing2 = false, landed = false;
+var trail2pts = [];
+
+var el2 = {
+  ball: $('ball2'), trail: $('trail2'), pred: $('pred2'), straight: $('straight2'), ro: $('ro2')
+};
+
+function params2(){
+  return { vx: +$('sx').value, vy0: +$('sy').value, g: +$('sg').value };
+}
+
+// vẽ parabol dự đoán + đường thẳng tham chiếu + readout
+function drawPredicted2(){
+  var p = params2();
+  $('lx').textContent = p.vx; $('ly').textContent = p.vy0; $('lg').textContent = p.g;
+
+  var T = 2 * p.vy0 / p.g;                 // thời gian bay (s)
+  var range = p.vx * T;                    // tầm xa (px)
+  var peakH = (p.vy0 * p.vy0) / (2 * p.g); // độ cao đỉnh (px)
+  var landX = LAUNCH.x + range;
+
+  // parabol dự đoán (sample 40 điểm)
+  var pts = [];
+  for (var i = 0; i <= 40; i++){
+    var t = T * i / 40;
+    var x = LAUNCH.x + p.vx * t;
+    var y = GROUND - (p.vy0 * t - 0.5 * p.g * t * t);
+    pts.push(x.toFixed(1) + ' ' + y.toFixed(1));
+  }
+  el2.pred.setAttribute('d', 'M ' + pts.join(' L '));
+
+  // đường thẳng "máy móc" từ điểm phóng tới điểm chạm
+  el2.straight.setAttribute('x1', LAUNCH.x); el2.straight.setAttribute('y1', GROUND);
+  el2.straight.setAttribute('x2', landX);    el2.straight.setAttribute('y2', GROUND);
+
+  el2.ro.innerHTML = 'Độ cao đỉnh = v<sub>y0</sub>²/(2g) = ' + p.vy0 + '²/(2·' + p.g + ') ≈ <b>' + peakH.toFixed(0) + ' px</b>' +
+    ' · Thời gian bay = 2·v<sub>y0</sub>/g ≈ <b>' + T.toFixed(2) + ' s</b>' +
+    ' · Tầm xa = v<sub>x</sub>·T ≈ <b>' + range.toFixed(0) + ' px</b>.' +
+    '<br>Quỹ đạo cong thành parabol vì phương dọc chậm dần khi lên (hang time ở đỉnh) rồi nhanh dần khi rơi.';
+}
+
+function launch2(){
+  var p = params2();
+  ball2 = { x: LAUNCH.x, y: GROUND, vx: p.vx, vy: -p.vy0 }; // vy âm = lên
+  trail2pts = [];
+  landed = false; playing2 = true;
+  $('play2').textContent = '⏸ Dừng';
+}
+
+function drawBall2(){
+  el2.ball.setAttribute('cx', ball2.x);
+  el2.ball.setAttribute('cy', ball2.y);
+  el2.trail.setAttribute('points', trail2pts.map(function(q){ return q.x.toFixed(1) + ',' + q.y.toFixed(1); }).join(' '));
+}
+
+$('play2').onclick = function(){
+  if (landed || !playing2){ launch2(); }
+  else { playing2 = false; this.textContent = '▶ Ném'; }
+};
+$('reset2').onclick = function(){
+  playing2 = false; landed = false; $('play2').textContent = '▶ Ném';
+  ball2 = { x: LAUNCH.x, y: GROUND, vx: 0, vy: 0 };
+  trail2pts = [];
+  drawPredicted2(); drawBall2();
+};
+['sx','sy','sg'].forEach(function(id){
+  $(id).addEventListener('input', function(){ drawPredicted2(); });
+});
+
+// ============================================================
+// Vòng lặp animation chung (requestAnimationFrame)
+// ============================================================
+var prevTs = null;
+function loop(ts){
+  if (prevTs === null) prevTs = ts;
+  var dt = (ts - prevTs) / 1000;
+  if (dt > 0.05) dt = 0.05;      // chống giật khi tab ẩn
+  prevTs = ts;
+
+  // Module 1
+  if (playing1){
+    t1 += speed1 * dt;
+    if (t1 >= 1) t1 -= 1;        // lặp vòng
+    drawBall1();
+  }
+
+  // Module 2
+  if (playing2 && !landed){
+    var p = params2();
+    ball2.vy += p.g * dt;
+    ball2.x  += ball2.vx * dt;
+    ball2.y  += ball2.vy * dt;
+    trail2pts.push({ x: ball2.x, y: ball2.y });
+    if (ball2.y >= GROUND && ball2.vy > 0){
+      ball2.y = GROUND; landed = true; playing2 = false;
+      $('play2').textContent = '▶ Ném lại';
+    }
+    drawBall2();
+  }
+
+  requestAnimationFrame(loop);
+}
+
+// Khởi tạo
+drawPath1(); drawBall1(); updateReadout1();
+drawPredicted2(); drawBall2();
+requestAnimationFrame(loop);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

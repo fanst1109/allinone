@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L6: Easing & Bezier — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6ee;
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+    --linear: #64748b;
+    --grid: #f0e6da;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #7c5a3a; font-size: 15px; margin-bottom: 20px; }
+
+  .module {
+    background: #fff; border: 1px solid #f0e0cd; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(120,70,20,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #98764f; font-size: 13px; margin-bottom: 14px; }
+
+  /* Layout editor: SVG trái, readout phải */
+  .editor-wrap { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .editor-svg { flex: 1 1 320px; min-width: 0; max-width: 420px; }
+  .editor-side { flex: 1 1 260px; min-width: 0; }
+
+  svg#editor {
+    width: 100%; height: auto; display: block;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    background: #fffdfa; border-radius: 10px;
+  }
+  .sq { fill: #fff; stroke: #e7d4bd; stroke-width: 1; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .axis { stroke: #cbb598; stroke-width: 1.5; }
+  .diag { stroke: #cbd5e1; stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .curve { fill: none; stroke: var(--accent); stroke-width: 3.5; stroke-linecap: round; }
+  .guide { stroke: #f0a56a; stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .anchor { fill: #7c4a1e; }
+  .handle { fill: var(--accent); stroke: #fff; stroke-width: 2.5; cursor: grab; }
+  .handle:active { cursor: grabbing; }
+  .hlabel { fill: #7c4a1e; font-size: 12px; font-weight: 700; }
+  .axlabel { fill: #98764f; font-size: 11px; font-weight: 600; }
+  .tick { fill: #b08a5e; font-size: 10px; }
+  .marker-line { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .8; }
+  .marker-dot { fill: var(--accent); stroke: #fff; stroke-width: 2; }
+
+  .readout {
+    background: #1f2937; color: #fde68a; border-radius: 10px;
+    padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 15px; font-weight: 700; letter-spacing: .3px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .readout .css { word-break: break-all; }
+  .readout button {
+    border: 0; border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 700;
+    background: var(--accent); color: #fff; cursor: pointer; flex-shrink: 0;
+  }
+  .readout button:hover { background: var(--accent-hover); }
+
+  .coords { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .coord { flex: 1 1 120px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+  .coord b { color: var(--accent-hover); }
+  .coord .num { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: #7c2d12; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .presets button {
+    border: 1px solid #e7c9a3; border-radius: 999px; padding: 7px 14px;
+    background: #fff; color: #7c4a1e; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .12s;
+  }
+  .presets button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .presets button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .opts { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: #7c5a3a; }
+  .opts label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .opts input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  /* Motion demo */
+  .demo-row { margin: 14px 0; }
+  .demo-row .rl { font-size: 12px; font-weight: 700; color: #7c5a3a; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .demo-row .rl .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .track {
+    position: relative; height: 54px; background: #fff7ed;
+    border: 1px solid #fed7aa; border-radius: 10px;
+  }
+  .track.linear-track { background: #f1f5f9; border-color: #e2e8f0; }
+  .dot {
+    position: absolute; top: 50%; width: 30px; height: 30px; border-radius: 50%;
+    transform: translate(-50%, -50%); box-shadow: 0 2px 6px rgba(0,0,0,.18);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    font-size: 11px; font-weight: 800;
+  }
+  .dot.eased { background: var(--accent); }
+  .dot.lin { background: var(--linear); }
+  .ghost {
+    position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%;
+    transform: translate(-50%, -50%); background: var(--accent); opacity: .28;
+    pointer-events: none;
+  }
+
+  .controls { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .controls button {
+    border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #e2e8f0; color: #334155; }
+  .btn-ghost:hover { background: #cbd5e1; }
+  .dur { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #7c5a3a; }
+  .dur input[type=range] { accent-color: var(--accent); width: 140px; max-width: 40vw; }
+  .live {
+    font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 700;
+    color: #7c2d12; background: #fff7ed; border: 1px solid #fed7aa;
+    border-radius: 8px; padding: 6px 12px; margin-left: auto;
+  }
+
+  .note { font-size: 13px; color: #7c5a3a; line-height: 1.7; }
+  .note code { background: #fff3e4; padding: 1px 6px; border-radius: 5px; font-size: 12px; color: #9a3412; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-keyframe-interpolation/visualization.html">← L5</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Easing & Bezier</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-arcs-path/visualization.html">L7: Cung chuyển động →</a>
+</nav>
+<main>
+  <h1>Trình chỉnh Easing & Cubic-Bezier</h1>
+  <div class="lead">Kéo hai tay nắm <strong>P1, P2</strong> để bẻ đường cong tốc độ, rồi bấm <strong>Play</strong> xem chấm chạy đúng theo easing đó. Trục ngang = <em>thời gian</em>, trục dọc = <em>tiến độ</em>, độ dốc = <em>tốc độ</em>.</div>
+
+  <div class="module">
+    <h2>Trình chỉnh đường cong (kéo tay nắm)</h2>
+    <div class="sub">P0=(0,0) và P3=(1,1) cố định. Kéo P1, P2 — x giới hạn [0,1], y được ra ngoài [0,1] để tạo overshoot/nảy.</div>
+    <div class="editor-wrap">
+      <div class="editor-svg">
+        <svg id="editor" viewBox="0 0 400 380" aria-label="Trình chỉnh cubic-bezier">
+          <!-- lưới -->
+          <g id="grid"></g>
+          <!-- ô đơn vị [0,1]x[0,1] -->
+          <rect id="unitsq" class="sq" />
+          <!-- trục -->
+          <line id="axis-x" class="axis" />
+          <line id="axis-y" class="axis" />
+          <!-- đường chéo linear (tùy chọn) -->
+          <line id="diag" class="diag" style="display:none" />
+          <!-- guide lines P0->P1, P3->P2 -->
+          <line id="guide1" class="guide" />
+          <line id="guide2" class="guide" />
+          <!-- marker khi play -->
+          <line id="mk-v" class="marker-line" style="display:none" />
+          <line id="mk-h" class="marker-line" style="display:none" />
+          <!-- đường cong -->
+          <path id="curve" class="curve" />
+          <!-- marker dot trên curve -->
+          <circle id="mk-dot" class="marker-dot" r="5" style="display:none" />
+          <!-- anchor cố định -->
+          <circle id="p0" class="anchor" r="4.5" />
+          <circle id="p3" class="anchor" r="4.5" />
+          <!-- handles -->
+          <circle id="h1" class="handle" r="9" />
+          <circle id="h2" class="handle" r="9" />
+          <text id="l1" class="hlabel">P1</text>
+          <text id="l2" class="hlabel">P2</text>
+          <!-- nhãn trục -->
+          <text id="lab-x" class="axlabel" text-anchor="middle">Thời gian →</text>
+          <text id="lab-y" class="axlabel" text-anchor="middle" transform="rotate(-90 14 190)">Giá trị (tiến độ)</text>
+        </svg>
+      </div>
+      <div class="editor-side">
+        <div class="readout">
+          <span class="css" id="css-str">cubic-bezier(0.25, 0.10, 0.25, 1.00)</span>
+          <button id="copy">Sao chép</button>
+        </div>
+        <div class="coords">
+          <div class="coord"><b>P1</b> = (<span class="num" id="p1x">0.25</span>, <span class="num" id="p1y">0.10</span>)</div>
+          <div class="coord"><b>P2</b> = (<span class="num" id="p2x">0.25</span>, <span class="num" id="p2y">1.00</span>)</div>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="opts">
+          <label><input type="checkbox" id="opt-diag"> Hiện đường chéo linear (so sánh)</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Cảm nhận tốc độ (Play để xem chấm chạy)</h2>
+    <div class="sub">Chấm cam chạy theo easing đang chỉnh; chấm xám chạy tốc độ đều (linear) để so. Cả hai xuất phát và về đích cùng lúc — chỉ khác cách phân bố tốc độ.</div>
+
+    <div class="demo-row">
+      <div class="rl"><span class="swatch" style="background:var(--accent)"></span> Easing đang chỉnh</div>
+      <div class="track" id="track-eased">
+        <div class="dot eased" id="dot-eased">▶</div>
+      </div>
+    </div>
+
+    <div class="demo-row">
+      <div class="rl"><span class="swatch" style="background:var(--linear)"></span> Linear (tham chiếu)</div>
+      <div class="track linear-track" id="track-lin">
+        <div class="dot lin" id="dot-lin">●</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-play" id="btn-play">▶ Play</button>
+      <button class="btn-ghost" id="btn-reset">↺ Reset</button>
+      <span class="dur">Thời lượng: <input type="range" id="dur" min="400" max="3000" step="100" value="1400"><span id="dur-val">1.4s</span></span>
+      <label class="dur"><input type="checkbox" id="opt-loop" checked style="accent-color:var(--accent)"> Lặp</label>
+      <label class="dur"><input type="checkbox" id="opt-ghost" checked style="accent-color:var(--accent)"> Dấu vết thời gian đều</label>
+      <span class="live" id="live">t = 0.00 · giá trị = 0.00</span>
+    </div>
+    <div class="note" style="margin-top:12px">
+      <strong>Dấu vết thời gian đều:</strong> các chấm mờ đặt tại những mốc <em>thời gian cách đều</em> (0, 0.1, 0.2 …). Chúng <strong>dồn lại chỗ vật chậm</strong>, <strong>giãn ra chỗ vật nhanh</strong> — chính là "spacing chart" của nguyên lý Timing &amp; Spacing.
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Cách đọc</h2>
+    <div class="note">
+      <p>• <strong>Dốc đứng = nhanh, thoai thoải = chậm, nằm ngang = đứng yên.</strong> Đường cong luôn đi từ góc dưới-trái <code>(0,0)</code> tới góc trên-phải <code>(1,1)</code>.</p>
+      <p>• Kéo <strong>P1</strong> lên cao → khởi đầu nhanh; để P1 nằm thấp-ngang → khởi đầu chậm (ease-in). Kéo <strong>P2</strong> lên sát <code>y=1</code> → về đích êm (ease-out).</p>
+      <p>• Kéo P2 <strong>lên trên y=1</strong> (thử preset <em>Nảy</em>) → đường cong vọt quá đích rồi lùi về = overshoot. Thời gian (x) luôn bị giữ trong <code>[0,1]</code>.</p>
+      <p>• Tham số vẽ đường cong <em>t</em> KHÔNG phải thời gian; chấm chạy dùng phép giải ngược (bisection) để tìm giá trị tại mỗi mốc thời gian thật.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===================== Hình học đồ thị =====================
+// x-value [0,1] -> px ; y-value [YMIN,YMAX] -> px (y=0 dưới, y=1 trên, dư chỗ cho overshoot)
+var X0 = 50, X1 = 370, W = X1 - X0;      // px cho x=0 .. x=1
+var YMIN = -0.4, YMAX = 1.4, YSPAN = YMAX - YMIN;
+var YTOP = 30, HY = 320;                  // px: y=YMAX ở YTOP, y=YMIN ở YTOP+HY
+function PX(vx){ return X0 + vx * W; }
+function PY(vy){ return YTOP + (YMAX - vy) / YSPAN * HY; }
+function invX(px){ return (px - X0) / W; }
+function invY(py){ return YMAX - (py - YTOP) / HY * YSPAN; }
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+
+// ===================== Trạng thái đường cong =====================
+var P1 = { x: 0.25, y: 0.10 };
+var P2 = { x: 0.25, y: 1.00 };
+
+var PRESETS = [
+  { name: "linear",      p1:[0,0],       p2:[1,1] },
+  { name: "ease",        p1:[0.25,0.10], p2:[0.25,1] },
+  { name: "ease-in",     p1:[0.42,0],    p2:[1,1] },
+  { name: "ease-out",    p1:[0,0],       p2:[0.58,1] },
+  { name: "ease-in-out", p1:[0.42,0],    p2:[0.58,1] },
+  { name: "Nảy",         p1:[0.68,-0.55],p2:[0.27,1.55] }
+];
+
+// ===================== Toán Bezier =====================
+function bezX(t){ var u = 1 - t; return 3*u*u*t*P1.x + 3*u*t*t*P2.x + t*t*t; }
+function bezY(t){ var u = 1 - t; return 3*u*u*t*P1.y + 3*u*t*t*P2.y + t*t*t; }
+// Giải ngược x(t) = xTarget bằng bisection (x đơn điệu tăng khi x1,x2 in [0,1])
+function solveT(xTarget){
+  var lo = 0, hi = 1, t = xTarget;
+  for (var i = 0; i < 32; i++){
+    t = (lo + hi) / 2;
+    var xv = bezX(t);
+    if (Math.abs(xv - xTarget) < 1e-6) break;
+    if (xv < xTarget) lo = t; else hi = t;
+  }
+  return t;
+}
+// Giá trị eased tại thời gian x (0..1)
+function easeAt(x){ return bezY(solveT(x)); }
+
+// ===================== Dựng lưới tĩnh =====================
+(function initStatic(){
+  var g = document.getElementById('grid');
+  var gl = "";
+  [0.25, 0.5, 0.75].forEach(function(v){
+    gl += '<line class="gridline" x1="'+PX(v)+'" y1="'+PY(0)+'" x2="'+PX(v)+'" y2="'+PY(1)+'"/>';
+    gl += '<line class="gridline" x1="'+PX(0)+'" y1="'+PY(v)+'" x2="'+PX(1)+'" y2="'+PY(v)+'"/>';
+  });
+  g.innerHTML = gl;
+
+  var sq = document.getElementById('unitsq');
+  sq.setAttribute('x', PX(0)); sq.setAttribute('y', PY(1));
+  sq.setAttribute('width', W); sq.setAttribute('height', PY(0) - PY(1));
+
+  document.getElementById('axis-x').setAttribute('x1', PX(0));
+  document.getElementById('axis-x').setAttribute('y1', PY(0));
+  document.getElementById('axis-x').setAttribute('x2', PX(1));
+  document.getElementById('axis-x').setAttribute('y2', PY(0));
+  document.getElementById('axis-y').setAttribute('x1', PX(0));
+  document.getElementById('axis-y').setAttribute('y1', PY(0));
+  document.getElementById('axis-y').setAttribute('x2', PX(0));
+  document.getElementById('axis-y').setAttribute('y2', PY(1));
+
+  document.getElementById('diag').setAttribute('x1', PX(0));
+  document.getElementById('diag').setAttribute('y1', PY(0));
+  document.getElementById('diag').setAttribute('x2', PX(1));
+  document.getElementById('diag').setAttribute('y2', PY(1));
+
+  document.getElementById('p0').setAttribute('cx', PX(0));
+  document.getElementById('p0').setAttribute('cy', PY(0));
+  document.getElementById('p3').setAttribute('cx', PX(1));
+  document.getElementById('p3').setAttribute('cy', PY(1));
+
+  document.getElementById('lab-x').setAttribute('x', PX(0.5));
+  document.getElementById('lab-x').setAttribute('y', PY(0) + 30);
+  // nhãn tick
+  var svg = document.getElementById('editor');
+  [['0', PX(0)-4, PY(0)+14], ['1', PX(1)+2, PY(0)+14], ['1', PX(0)-14, PY(1)+4], ['0', PX(0)-14, PY(0)+4]].forEach(function(t){
+    var el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    el.setAttribute('class', 'tick'); el.setAttribute('x', t[1]); el.setAttribute('y', t[2]);
+    el.textContent = t[0]; svg.insertBefore(el, document.getElementById('lab-x'));
+  });
+})();
+
+// ===================== Vẽ đường cong + handles =====================
+function drawCurve(){
+  var d = "M " + PX(0) + " " + PY(0);
+  for (var i = 1; i <= 60; i++){
+    var t = i / 60;
+    d += " L " + PX(bezX(t)).toFixed(2) + " " + PY(bezY(t)).toFixed(2);
+  }
+  document.getElementById('curve').setAttribute('d', d);
+
+  document.getElementById('guide1').setAttribute('x1', PX(0));
+  document.getElementById('guide1').setAttribute('y1', PY(0));
+  document.getElementById('guide1').setAttribute('x2', PX(P1.x));
+  document.getElementById('guide1').setAttribute('y2', PY(P1.y));
+  document.getElementById('guide2').setAttribute('x1', PX(1));
+  document.getElementById('guide2').setAttribute('y1', PY(1));
+  document.getElementById('guide2').setAttribute('x2', PX(P2.x));
+  document.getElementById('guide2').setAttribute('y2', PY(P2.y));
+
+  place('h1', 'l1', P1);
+  place('h2', 'l2', P2);
+}
+function place(hid, lid, P){
+  document.getElementById(hid).setAttribute('cx', PX(P.x));
+  document.getElementById(hid).setAttribute('cy', PY(P.y));
+  document.getElementById(lid).setAttribute('x', PX(P.x) + 12);
+  document.getElementById(lid).setAttribute('y', PY(P.y) - 10);
+}
+
+function fmt(v){ return (v < 0 ? '' : '') + v.toFixed(2); }
+function updateReadout(){
+  document.getElementById('p1x').textContent = fmt(P1.x);
+  document.getElementById('p1y').textContent = fmt(P1.y);
+  document.getElementById('p2x').textContent = fmt(P2.x);
+  document.getElementById('p2y').textContent = fmt(P2.y);
+  document.getElementById('css-str').textContent =
+    'cubic-bezier(' + fmt(P1.x) + ', ' + fmt(P1.y) + ', ' + fmt(P2.x) + ', ' + fmt(P2.y) + ')';
+  // highlight preset khớp
+  var btns = document.querySelectorAll('#presets button');
+  btns.forEach(function(b){
+    var pr = PRESETS[+b.dataset.i];
+    var match = near(P1.x, pr.p1[0]) && near(P1.y, pr.p1[1]) && near(P2.x, pr.p2[0]) && near(P2.y, pr.p2[1]);
+    b.classList.toggle('active', match);
+  });
+}
+function near(a, b){ return Math.abs(a - b) < 0.005; }
+
+function redraw(){ drawCurve(); updateReadout(); renderGhosts(); if (!playing) syncStaticDots(); }
+
+// ===================== Kéo handles =====================
+var svg = document.getElementById('editor');
+var dragging = null;
+function clientToData(e){
+  var pt = svg.createSVGPoint();
+  var src = e.touches ? e.touches[0] : e;
+  pt.x = src.clientX; pt.y = src.clientY;
+  var loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return { x: clamp(invX(loc.x), 0, 1), y: clamp(invY(loc.y), YMIN, YMAX) };
+}
+function startDrag(which){ return function(e){ e.preventDefault(); dragging = which; }; }
+document.getElementById('h1').addEventListener('pointerdown', startDrag('P1'));
+document.getElementById('h2').addEventListener('pointerdown', startDrag('P2'));
+window.addEventListener('pointermove', function(e){
+  if (!dragging) return;
+  var d = clientToData(e);
+  if (dragging === 'P1'){ P1.x = d.x; P1.y = d.y; } else { P2.x = d.x; P2.y = d.y; }
+  redraw();
+});
+window.addEventListener('pointerup', function(){ dragging = null; });
+
+// ===================== Presets =====================
+(function initPresets(){
+  var box = document.getElementById('presets');
+  PRESETS.forEach(function(pr, i){
+    var b = document.createElement('button');
+    b.textContent = pr.name; b.dataset.i = i;
+    b.onclick = function(){
+      P1 = { x: pr.p1[0], y: pr.p1[1] };
+      P2 = { x: pr.p2[0], y: pr.p2[1] };
+      redraw();
+    };
+    box.appendChild(b);
+  });
+})();
+
+// ===================== Đường chéo toggle =====================
+document.getElementById('opt-diag').addEventListener('change', function(e){
+  document.getElementById('diag').style.display = e.target.checked ? '' : 'none';
+});
+
+// ===================== Motion demo =====================
+var playing = false, rafId = null, startTs = 0;
+var dotE = document.getElementById('dot-eased');
+var dotL = document.getElementById('dot-lin');
+var mkV = document.getElementById('mk-v'), mkH = document.getElementById('mk-h'), mkDot = document.getElementById('mk-dot');
+var live = document.getElementById('live');
+
+function setDots(x, yE){
+  dotE.style.left = (yE * 100) + '%';
+  dotL.style.left = (x * 100) + '%';
+}
+function setMarker(x, yE, show){
+  var disp = show ? '' : 'none';
+  mkV.style.display = disp; mkH.style.display = disp; mkDot.style.display = disp;
+  if (!show) return;
+  mkV.setAttribute('x1', PX(x)); mkV.setAttribute('y1', PY(0));
+  mkV.setAttribute('x2', PX(x)); mkV.setAttribute('y2', PY(yE));
+  mkH.setAttribute('x1', PX(0)); mkH.setAttribute('y1', PY(yE));
+  mkH.setAttribute('x2', PX(x)); mkH.setAttribute('y2', PY(yE));
+  mkDot.setAttribute('cx', PX(x)); mkDot.setAttribute('cy', PY(yE));
+}
+function frame(ts){
+  if (!playing) return;
+  if (!startTs) startTs = ts;
+  var dur = +document.getElementById('dur').value;
+  var x = (ts - startTs) / dur;
+  if (x >= 1){
+    x = 1;
+    var yEnd = easeAt(1);
+    setDots(1, yEnd); setMarker(1, yEnd, true);
+    live.textContent = 't = 1.00 · giá trị = ' + yEnd.toFixed(2);
+    if (document.getElementById('opt-loop').checked){ startTs = ts; }
+    else { stop(); return; }
+  } else {
+    var yE = easeAt(x);
+    setDots(x, yE); setMarker(x, yE, true);
+    live.textContent = 't = ' + x.toFixed(2) + ' · giá trị = ' + yE.toFixed(2);
+  }
+  rafId = requestAnimationFrame(frame);
+}
+function play(){
+  if (playing) return;
+  playing = true; startTs = 0;
+  document.getElementById('btn-play').textContent = '❚❚ Pause';
+  rafId = requestAnimationFrame(frame);
+}
+function stop(){
+  playing = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  document.getElementById('btn-play').textContent = '▶ Play';
+}
+function syncStaticDots(){
+  // khi không chạy, giữ chấm ở đầu (x=0) và ẩn marker
+  setDots(0, easeAt(0)); setMarker(0, 0, false);
+}
+document.getElementById('btn-play').onclick = function(){ playing ? stop() : play(); };
+document.getElementById('btn-reset').onclick = function(){
+  stop(); startTs = 0; live.textContent = 't = 0.00 · giá trị = 0.00';
+  setDots(0, 0); setMarker(0, 0, false);
+};
+document.getElementById('dur').addEventListener('input', function(e){
+  document.getElementById('dur-val').textContent = (e.target.value / 1000).toFixed(1) + 's';
+});
+
+// ===================== Ghost marks (spacing) =====================
+function renderGhosts(){
+  var track = document.getElementById('track-eased');
+  // xóa ghost cũ
+  Array.prototype.slice.call(track.querySelectorAll('.ghost')).forEach(function(g){ g.remove(); });
+  if (!document.getElementById('opt-ghost').checked) return;
+  for (var k = 0; k <= 10; k++){
+    var x = k / 10;
+    var yE = easeAt(x);
+    var g = document.createElement('div');
+    g.className = 'ghost';
+    g.style.left = (yE * 100) + '%';
+    track.appendChild(g);
+  }
+}
+document.getElementById('opt-ghost').addEventListener('change', renderGhosts);
+
+// ===================== Copy CSS =====================
+document.getElementById('copy').onclick = function(){
+  var txt = document.getElementById('css-str').textContent;
+  var btn = this;
+  if (navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(function(){
+      btn.textContent = '✓ Đã chép'; setTimeout(function(){ btn.textContent = 'Sao chép'; }, 1200);
+    });
+  }
+};
+
+// ===================== Khởi động =====================
+redraw();
+syncStaticDots();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

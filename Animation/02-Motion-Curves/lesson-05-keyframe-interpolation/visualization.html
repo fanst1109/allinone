@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L5: Keyframe & nội suy — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 940px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Sân khấu SVG */
+  .stage-wrap { width: 100%; }
+  svg.stage { width: 100%; height: auto; display: block; background: #fffaf5; border: 1px solid #f0e6dc; border-radius: 10px; touch-action: none; }
+  .kf-dot { cursor: grab; }
+  .kf-dot:active { cursor: grabbing; }
+
+  /* Điều khiển */
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+  .controls button {
+    border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer;
+    transition: all .12s;
+  }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #e2e8f0; color: #334155; }
+  .btn-ghost:hover { background: #cbd5e1; }
+
+  /* Toggle công tắc tuyến tính/mượt */
+  .seg-toggle { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+  .seg-toggle button { border: 0; background: #fff; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer; color: #475569; }
+  .seg-toggle button.on { background: var(--accent); color: #fff; }
+
+  .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; user-select: none; }
+  .chk input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+  .kfcount { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #334155; }
+  .kfcount button { width: 30px; height: 30px; border: 1px solid #cbd5e1; background: #fff; border-radius: 7px; font-weight: 800; font-size: 15px; cursor: pointer; color: var(--accent); }
+  .kfcount button:hover { background: var(--accent-soft); }
+
+  /* Timeline scrub */
+  .timeline { margin-top: 16px; }
+  .timeline label { font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px; }
+  .scrub { width: 100%; accent-color: var(--accent); height: 22px; }
+  .tl-marks { position: relative; height: 22px; margin-top: 2px; }
+  .tl-marks .kfmark {
+    position: absolute; top: 0; transform: translateX(-50%);
+    font-size: 11px; font-weight: 800; color: var(--accent-hover);
+    background: var(--accent-soft); border: 1px solid #f7c9a3; border-radius: 5px;
+    padding: 1px 5px; cursor: ew-resize; white-space: nowrap; user-select: none; touch-action: none;
+  }
+
+  /* Readout */
+  .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 4px; }
+  .stat { background: #f8fafc; border: 1px solid #eef2f6; border-radius: 9px; padding: 10px 12px; }
+  .stat .k { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .4px; }
+  .stat .v { font-size: 20px; font-weight: 800; color: #1e293b; margin-top: 2px; }
+  .stat .v small { font-size: 12px; font-weight: 600; color: #94a3b8; }
+
+  .note { font-size: 13px; color: #475569; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 4px; }
+  .note code { background: #fff; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  /* legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: #475569; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 22px; height: 3px; border-radius: 2px; display: inline-block; }
+  .swatch.dash { height: 0; border-top: 2px dashed #94a3b8; }
+  .swatch.solid { background: var(--accent); height: 4px; }
+  .dot-swatch { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../../01-Principles/lesson-04-ease-in-out/visualization.html">← L4</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Keyframe & nội suy</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-easing-bezier/visualization.html">L6: Easing & Bezier →</a>
+</nav>
+<main>
+  <h1>Keyframe & Nội suy — phòng thí nghiệm chuyển động</h1>
+  <div class="lead">Kéo các <strong>keyframe</strong> (chấm cam) trên sân khấu, chỉnh <strong>thời điểm</strong> trên timeline, rồi bấm <strong>Play</strong> để xem máy tính điền các <strong>inbetween</strong>. Gạt công tắc <strong>tuyến tính ↔ mượt</strong> để thấy quỹ đạo đổi hình.</div>
+
+  <div class="module">
+    <h2>Sân khấu</h2>
+    <div class="sub">Vật (chấm lớn) luôn đi <strong>đúng qua</strong> mọi keyframe. Đường xám đứt = nối thẳng keyframe (tuyến tính thô); đường cam liền = quỹ đạo đang chạy.</div>
+    <div class="stage-wrap">
+      <svg class="stage" width="880" height="420" viewBox="0 0 880 420" id="stage">
+        <!-- lưới nền -->
+        <g id="grid" stroke="#f0e0d2" stroke-width="1"></g>
+        <path id="pathLinear" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 6" opacity="0.9"></path>
+        <path id="pathActive" fill="none" stroke="var(--accent)" stroke-width="3.5" opacity="0.95"></path>
+        <g id="ghosts"></g>
+        <g id="kfLayer"></g>
+        <circle id="mover" r="13" fill="var(--accent)" stroke="#fff" stroke-width="3"></circle>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch dash"></i> Nối thẳng keyframe (tuyến tính)</span>
+      <span><i class="swatch solid"></i> Quỹ đạo đang chạy</span>
+      <span><i class="dot-swatch" style="background:#fdba74"></i> Inbetween (ghost)</span>
+      <span><i class="dot-swatch" style="background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px #cbd5e1"></i> Vật</span>
+    </div>
+
+    <div class="controls">
+      <button class="btn-play" id="playBtn">▶ Play</button>
+      <button class="btn-ghost" id="resetBtn">↺ Reset</button>
+      <div class="seg-toggle" id="modeToggle">
+        <button data-mode="linear" class="on">Tuyến tính</button>
+        <button data-mode="smooth">Mượt (spline)</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="ghostChk" checked> Hiện inbetween (ghost)</label>
+      <label class="chk"><input type="checkbox" id="loopChk" checked> Lặp</label>
+      <span class="kfcount">Keyframe:
+        <button id="kfMinus" title="Bớt keyframe">−</button>
+        <b id="kfN">3</b>
+        <button id="kfPlus" title="Thêm keyframe">+</button>
+      </span>
+    </div>
+
+    <div class="timeline">
+      <label>Timeline — kéo nhãn K để đổi thời điểm, kéo thanh để scrub (tạm dừng và tua tay)</label>
+      <input type="range" class="scrub" id="scrub" min="0" max="1000" value="0">
+      <div class="tl-marks" id="tlMarks"></div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Số đọc trực tiếp</h2>
+    <div class="sub">Vị trí và tốc độ vật cập nhật theo thời gian. Tốc độ = độ dài quãng vật đi được mỗi giây (spacing/Δt).</div>
+    <div class="readout">
+      <div class="stat"><div class="k">Thời điểm τ</div><div class="v"><span id="ro-t">0.00</span> <small>/ 3.00 s</small></div></div>
+      <div class="stat"><div class="k">Tiến độ t (đoạn)</div><div class="v" id="ro-u">0.00</div></div>
+      <div class="stat"><div class="k">Vị trí (x, y)</div><div class="v" id="ro-pos">—</div></div>
+      <div class="stat"><div class="k">Tốc độ</div><div class="v"><span id="ro-spd">0</span> <small>px/s</small></div></div>
+    </div>
+    <div class="note" id="calcNote"></div>
+  </div>
+
+  <div class="module">
+    <h2>Đọc gì ở đây</h2>
+    <div class="sub">Ba điều cần để mắt vào khi bấm Play.</div>
+    <ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.8;color:#334155">
+      <li><b>Vật đi đúng qua keyframe:</b> dù tuyến tính hay mượt, chấm lớn luôn chạm từng chấm cam. Nội suy chỉ điền phần <i>giữa</i>.</li>
+      <li><b>Tuyến tính vs mượt:</b> với <b>2 keyframe</b>, đường cam liền trùng khít đường xám đứt (đều là đoạn thẳng). Thêm keyframe thứ 3 → tuyến tính tạo <i>góc gãy</i>, mượt <i>bo cong</i>. Đây là hai <b>quỹ đạo khác nhau</b>.</li>
+      <li><b>Spacing = tốc độ:</b> ghost cách đều thời gian. Ghost xa nhau → vật nhanh; sát nhau → chậm. Đây là spacing của <a href="../../01-Principles/lesson-01-timing-spacing/">Lesson 01</a>.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+// ============================================================
+//  Trạng thái
+// ============================================================
+var W = 880, H = 420, DUR = 3000; // ms
+// Keyframe: {x, y, t}  — t chuẩn hóa 0..1 trên timeline
+var PRESETS = {
+  3: [ {x:110, y:330, t:0.00}, {x:440, y:90,  t:0.50}, {x:770, y:330, t:1.00} ],
+  2: [ {x:130, y:120, t:0.00}, {x:750, y:320, t:1.00} ]
+};
+var KF = PRESETS[3].map(function(k){ return {x:k.x, y:k.y, t:k.t}; });
+var mode = 'linear';       // 'linear' | 'smooth'
+var showGhost = true;
+var loop = true;
+var progress = 0;          // 0..1 tiến độ toàn cục
+var playing = false;
+var rafId = null, lastTs = null;
+
+var svg = document.getElementById('stage');
+var NS = 'http://www.w3.org/2000/svg';
+
+// ============================================================
+//  Toán nội suy
+// ============================================================
+function sortedKF() {
+  return KF.slice().sort(function(a,b){ return a.t - b.t; });
+}
+
+function lerp(a, b, u) { return (1 - u) * a + u * b; }
+
+// Catmull-Rom cho một trục
+function catmull(p0, p1, p2, p3, u) {
+  var u2 = u*u, u3 = u2*u;
+  return 0.5 * (2*p1 + (-p0 + p2)*u + (2*p0 - 5*p1 + 4*p2 - p3)*u2 + (-p0 + 3*p1 - 3*p2 + p3)*u3);
+}
+
+// Vị trí tại tiến độ toàn cục g (0..1) theo 'mode'
+// Trả {x, y, seg, u, tau}
+function posAt(g) {
+  var ks = sortedKF();
+  var n = ks.length;
+  var t0 = ks[0].t, tN = ks[n-1].t;
+  var tau = t0 + g * (tN - t0);
+  // tìm đoạn i sao cho ks[i].t <= tau <= ks[i+1].t
+  var i = 0;
+  for (; i < n - 1; i++) { if (tau <= ks[i+1].t + 1e-9) break; }
+  if (i > n - 2) i = n - 2;
+  var span = ks[i+1].t - ks[i].t;
+  var u = span < 1e-9 ? 0 : (tau - ks[i].t) / span;
+  u = Math.max(0, Math.min(1, u));
+
+  var x, y;
+  if (mode === 'linear' || n < 3) {
+    x = lerp(ks[i].x, ks[i+1].x, u);
+    y = lerp(ks[i].y, ks[i+1].y, u);
+  } else {
+    var p0 = ks[Math.max(0, i-1)], p1 = ks[i], p2 = ks[i+1], p3 = ks[Math.min(n-1, i+2)];
+    x = catmull(p0.x, p1.x, p2.x, p3.x, u);
+    y = catmull(p0.y, p1.y, p2.y, p3.y, u);
+  }
+  return { x:x, y:y, seg:i, u:u, tau:tau };
+}
+
+// Dựng chuỗi điểm cho path (SVG d)
+function buildPath(useMode) {
+  var samples = 140;
+  var savedMode = mode; mode = useMode;
+  var d = '';
+  for (var s = 0; s <= samples; s++) {
+    var p = posAt(s / samples);
+    d += (s === 0 ? 'M' : 'L') + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ' ';
+  }
+  mode = savedMode;
+  return d.trim();
+}
+
+// Đường "nối thẳng keyframe" (luôn tuyến tính) để so sánh
+function linearConnectorPath() {
+  var ks = sortedKF();
+  var d = '';
+  for (var i = 0; i < ks.length; i++) {
+    d += (i === 0 ? 'M' : 'L') + ks[i].x.toFixed(1) + ' ' + ks[i].y.toFixed(1) + ' ';
+  }
+  return d.trim();
+}
+
+// ============================================================
+//  Vẽ
+// ============================================================
+function drawGrid() {
+  var g = document.getElementById('grid');
+  g.innerHTML = '';
+  for (var x = 0; x <= W; x += 80) {
+    var l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', x); l.setAttribute('y1', 0); l.setAttribute('x2', x); l.setAttribute('y2', H);
+    g.appendChild(l);
+  }
+  for (var y = 0; y <= H; y += 80) {
+    var h = document.createElementNS(NS, 'line');
+    h.setAttribute('x1', 0); h.setAttribute('y1', y); h.setAttribute('x2', W); h.setAttribute('y2', y);
+    g.appendChild(h);
+  }
+}
+
+function drawKeyframes() {
+  var layer = document.getElementById('kfLayer');
+  layer.innerHTML = '';
+  var ks = sortedKF();
+  ks.forEach(function(k, idx) {
+    var gWrap = document.createElementNS(NS, 'g');
+    var ring = document.createElementNS(NS, 'circle');
+    ring.setAttribute('cx', k.x); ring.setAttribute('cy', k.y); ring.setAttribute('r', 16);
+    ring.setAttribute('fill', '#fff'); ring.setAttribute('stroke', 'var(--accent)'); ring.setAttribute('stroke-width', 3);
+    ring.setAttribute('class', 'kf-dot');
+    var lbl = document.createElementNS(NS, 'text');
+    lbl.setAttribute('x', k.x); lbl.setAttribute('y', k.y + 5);
+    lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('font-size', 13);
+    lbl.setAttribute('font-weight', 800); lbl.setAttribute('fill', 'var(--accent-hover)');
+    lbl.setAttribute('pointer-events', 'none');
+    lbl.textContent = 'K' + (idx + 1);
+    // gắn drag: cần biết đây là keyframe nào trong mảng KF gốc
+    var origIndex = KF.indexOf(k);
+    ring.addEventListener('pointerdown', function(e){ startDragKF(e, origIndex); });
+    gWrap.appendChild(ring);
+    gWrap.appendChild(lbl);
+    layer.appendChild(gWrap);
+  });
+}
+
+function drawGhosts() {
+  var layer = document.getElementById('ghosts');
+  layer.innerHTML = '';
+  if (!showGhost) return;
+  var steps = 22;
+  for (var s = 0; s <= steps; s++) {
+    var p = posAt(s / steps);
+    var c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', p.x.toFixed(1)); c.setAttribute('cy', p.y.toFixed(1));
+    c.setAttribute('r', 5);
+    c.setAttribute('fill', '#fdba74'); c.setAttribute('opacity', 0.75);
+    layer.appendChild(c);
+  }
+}
+
+function drawPaths() {
+  document.getElementById('pathLinear').setAttribute('d', linearConnectorPath());
+  document.getElementById('pathActive').setAttribute('d', buildPath(mode));
+}
+
+function redrawStatic() {
+  drawPaths();
+  drawGhosts();
+  drawKeyframes();
+}
+
+// ============================================================
+//  Readout
+// ============================================================
+function updateReadout(g) {
+  var p = posAt(g);
+  var ks = sortedKF();
+  document.getElementById('ro-t').textContent = (p.tau * (DUR/1000)).toFixed(2);
+  document.getElementById('ro-u').textContent = p.u.toFixed(2);
+  document.getElementById('ro-pos').textContent = '(' + Math.round(p.x) + ', ' + Math.round(p.y) + ')';
+
+  // tốc độ: lấy sai phân nhỏ quanh g
+  var dg = 0.004;
+  var a = posAt(Math.max(0, g - dg)), b = posAt(Math.min(1, g + dg));
+  var dist = Math.hypot(b.x - a.x, b.y - a.y);
+  var dtau = (Math.min(1, g + dg) - Math.max(0, g - dg)) * (ks[ks.length-1].t - ks[0].t) * (DUR/1000);
+  var spd = dtau > 1e-6 ? dist / dtau : 0;
+  document.getElementById('ro-spd').textContent = Math.round(spd);
+
+  // note giải thích
+  var seg = p.seg;
+  var modeTxt = (mode === 'linear' || ks.length < 3) ? 'tuyến tính' : 'mượt (Catmull–Rom)';
+  var note;
+  if (mode === 'linear' || ks.length < 3) {
+    note = 'Đoạn K' + (seg+1) + '→K' + (seg+2) + ', ' + modeTxt +
+      ': <code>x = (1−t)·' + Math.round(ks[seg].x) + ' + t·' + Math.round(ks[seg+1].x) +
+      '</code> với t = ' + p.u.toFixed(2) + ' → x = ' + Math.round(p.x) + '.';
+  } else {
+    note = 'Đoạn K' + (seg+1) + '→K' + (seg+2) + ', ' + modeTxt +
+      ': đường bo cong qua keyframe (vận tốc liên tục, không góc gãy). t = ' + p.u.toFixed(2) + '.';
+  }
+  document.getElementById('calcNote').innerHTML = note;
+}
+
+function placeMover(g) {
+  var p = posAt(g);
+  var m = document.getElementById('mover');
+  m.setAttribute('cx', p.x.toFixed(2));
+  m.setAttribute('cy', p.y.toFixed(2));
+}
+
+function syncScrub(g) {
+  document.getElementById('scrub').value = Math.round(g * 1000);
+}
+
+// ============================================================
+//  Vòng lặp animation
+// ============================================================
+function tick(ts) {
+  if (!playing) return;
+  if (lastTs == null) lastTs = ts;
+  var dt = ts - lastTs;
+  lastTs = ts;
+  progress += dt / DUR;
+  if (progress >= 1) {
+    if (loop) { progress = progress % 1; }
+    else { progress = 1; playing = false; document.getElementById('playBtn').textContent = '▶ Play'; }
+  }
+  placeMover(progress);
+  updateReadout(progress);
+  syncScrub(progress);
+  if (playing) rafId = requestAnimationFrame(tick);
+}
+
+function play() {
+  if (playing) return;
+  if (progress >= 1) progress = 0;
+  playing = true;
+  lastTs = null;
+  document.getElementById('playBtn').textContent = '⏸ Pause';
+  rafId = requestAnimationFrame(tick);
+}
+function pause() {
+  playing = false;
+  if (rafId) cancelAnimationFrame(rafId);
+  document.getElementById('playBtn').textContent = '▶ Play';
+}
+function reset() {
+  pause();
+  progress = 0;
+  placeMover(0); updateReadout(0); syncScrub(0);
+}
+
+// ============================================================
+//  Kéo keyframe trên sân khấu
+// ============================================================
+function svgPoint(e) {
+  var pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  var ctm = svg.getScreenCTM().inverse();
+  var p = pt.matrixTransform(ctm);
+  return { x: p.x, y: p.y };
+}
+var dragKFIndex = -1;
+function startDragKF(e, idx) {
+  e.preventDefault();
+  dragKFIndex = idx;
+  window.addEventListener('pointermove', onDragKF);
+  window.addEventListener('pointerup', endDragKF);
+}
+function onDragKF(e) {
+  if (dragKFIndex < 0) return;
+  var p = svgPoint(e);
+  KF[dragKFIndex].x = Math.max(20, Math.min(W - 20, p.x));
+  KF[dragKFIndex].y = Math.max(20, Math.min(H - 20, p.y));
+  redrawStatic();
+  placeMover(progress);
+  updateReadout(progress);
+}
+function endDragKF() {
+  dragKFIndex = -1;
+  window.removeEventListener('pointermove', onDragKF);
+  window.removeEventListener('pointerup', endDragKF);
+}
+
+// ============================================================
+//  Timeline: nhãn thời điểm kéo được
+// ============================================================
+function drawTlMarks() {
+  var wrap = document.getElementById('tlMarks');
+  wrap.innerHTML = '';
+  var ks = sortedKF();
+  ks.forEach(function(k, i) {
+    var origIndex = KF.indexOf(k);
+    var m = document.createElement('div');
+    m.className = 'kfmark';
+    m.style.left = (k.t * 100) + '%';
+    m.textContent = 'K' + (i + 1) + ' · ' + (k.t * (DUR/1000)).toFixed(1) + 's';
+    m.addEventListener('pointerdown', function(e){ startDragTime(e, origIndex, wrap); });
+    wrap.appendChild(m);
+  });
+}
+var dragTimeIndex = -1, tlEl = null;
+function startDragTime(e, idx, wrap) {
+  e.preventDefault(); e.stopPropagation();
+  dragTimeIndex = idx; tlEl = wrap;
+  window.addEventListener('pointermove', onDragTime);
+  window.addEventListener('pointerup', endDragTime);
+}
+function onDragTime(e) {
+  if (dragTimeIndex < 0) return;
+  var rect = tlEl.getBoundingClientRect();
+  var frac = (e.clientX - rect.left) / rect.width;
+  frac = Math.max(0, Math.min(1, frac));
+  KF[dragTimeIndex].t = frac;
+  redrawStatic();
+  drawTlMarks();
+  placeMover(progress);
+  updateReadout(progress);
+}
+function endDragTime() {
+  dragTimeIndex = -1;
+  window.removeEventListener('pointermove', onDragTime);
+  window.removeEventListener('pointerup', endDragTime);
+}
+
+// ============================================================
+//  Điều khiển UI
+// ============================================================
+document.getElementById('playBtn').onclick = function(){ playing ? pause() : play(); };
+document.getElementById('resetBtn').onclick = reset;
+
+document.getElementById('modeToggle').addEventListener('click', function(e){
+  var btn = e.target.closest('button'); if (!btn) return;
+  mode = btn.getAttribute('data-mode');
+  Array.prototype.forEach.call(this.children, function(b){ b.classList.toggle('on', b === btn); });
+  redrawStatic(); placeMover(progress); updateReadout(progress);
+});
+
+document.getElementById('ghostChk').onchange = function(){ showGhost = this.checked; drawGhosts(); };
+document.getElementById('loopChk').onchange = function(){ loop = this.checked; };
+
+document.getElementById('scrub').addEventListener('input', function(){
+  pause();
+  progress = (+this.value) / 1000;
+  placeMover(progress); updateReadout(progress);
+});
+
+function setKFCount(n) {
+  n = Math.max(2, Math.min(3, n));
+  KF = PRESETS[n].map(function(k){ return {x:k.x, y:k.y, t:k.t}; });
+  document.getElementById('kfN').textContent = n;
+  reset();
+  redrawStatic(); drawTlMarks(); placeMover(0); updateReadout(0);
+}
+document.getElementById('kfPlus').onclick = function(){ setKFCount(KF.length + 1); };
+document.getElementById('kfMinus').onclick = function(){ setKFCount(KF.length - 1); };
+
+// ============================================================
+//  Khởi tạo
+// ============================================================
+drawGrid();
+redrawStatic();
+drawTlMarks();
+placeMover(0);
+updateReadout(0);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12: Từ pose đến shot — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6f0;
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 900px; }
+
+  .lead { color: #7c5a48; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #eaddd0; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #8a6d5a; font-size: 13px; margin-bottom: 14px; }
+
+  .stage { text-align: center; }
+  canvas {
+    width: 680px; height: 340px; background: #fbfcfe;
+    border: 1px solid #e5d8ca; border-radius: 10px; touch-action: none;
+  }
+
+  .status {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center;
+    margin-top: 12px; font-size: 13px;
+  }
+  .status .chip {
+    background: #f8f2ec; border: 1px solid #ecdcce; border-radius: 999px;
+    padding: 4px 12px; font-weight: 600; color: #6b4c39;
+  }
+  .status .chip b { color: var(--accent-hover); }
+  .verdict {
+    margin-top: 12px; font-size: 14px; font-weight: 700; text-align: center;
+    padding: 9px; border-radius: 8px;
+  }
+  .verdict.bad { background: #fee2e2; color: #b91c1c; }
+  .verdict.mid { background: #fef3c7; color: #b45309; }
+  .verdict.ok  { background: #dcfce7; color: #15803d; }
+
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .toolbar button {
+    border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .btn-play  { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #f0e6dc; color: #6b4c39; }
+  .btn-ghost:hover { background: #e6d6c8; }
+
+  /* Toggle nguyên lý */
+  .princ-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;
+  }
+  .princ {
+    display: flex; align-items: center; gap: 9px; cursor: pointer;
+    border: 1px solid #e5d8ca; border-radius: 9px; padding: 9px 11px;
+    font-size: 13px; font-weight: 600; color: #6b4c39; user-select: none;
+    transition: all .12s;
+  }
+  .princ:hover { border-color: var(--accent); }
+  .princ.on { background: var(--accent-soft); border-color: var(--accent); color: #7c2d12; }
+  .princ .dot {
+    width: 16px; height: 16px; border-radius: 5px; border: 2px solid #c4a893;
+    flex-shrink: 0; position: relative; transition: all .12s;
+  }
+  .princ.on .dot { background: var(--accent); border-color: var(--accent); }
+  .princ.on .dot::after {
+    content: "✓"; color: #fff; font-size: 11px; font-weight: 900;
+    position: absolute; top: -3px; left: 2px;
+  }
+  .bulk { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Segmented toggle (method / interp) */
+  .seg-row { display: flex; flex-wrap: wrap; gap: 18px; }
+  .seg-block { flex: 1 1 240px; }
+  .seg-block .cap { font-size: 13px; font-weight: 700; color: #6b4c39; margin-bottom: 6px; }
+  .seg { display: inline-flex; border: 1px solid #e5d8ca; border-radius: 9px; overflow: hidden; }
+  .seg button {
+    border: 0; background: #fff; padding: 9px 14px; font-size: 13px; font-weight: 700;
+    color: #8a6d5a; cursor: pointer; transition: all .12s;
+  }
+  .seg button + button { border-left: 1px solid #e5d8ca; }
+  .seg button.active { background: var(--accent); color: #fff; }
+  .seg-note { font-size: 12px; color: #8a6d5a; margin-top: 6px; line-height: 1.5; }
+  .seg-note b { color: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    .princ-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../lesson-11-exaggeration-appeal/visualization.html">← L11</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Pose đến shot</span>
+</nav>
+<main>
+  <h1>Từ pose đến shot — ghép cả 12 nguyên lý</h1>
+  <div class="lead">Một cú <strong>nhảy qua chướng ngại</strong>. Bật/tắt từng nguyên lý để thấy đóng góp riêng của nó — <strong>tắt hết = máy móc, bật hết = sống động</strong>. Đổi cả phương pháp dựng và chế độ review.</div>
+
+  <div class="module stage">
+    <h2>Sân khấu: cú nhảy qua chướng ngại</h2>
+    <div class="sub">Ghost mờ = các frame theo thời gian đều nhau (spacing). Vòng đứt nét K1–K6 = các pose mấu chốt (chỉ hiện ở pose-to-pose). Vạch xám = đích dự định.</div>
+    <canvas id="cv" width="680" height="340"></canvas>
+
+    <div class="status">
+      <span class="chip">Pha: <b id="s-phase">—</b></span>
+      <span class="chip">Tiến trình: <b id="s-prog">0%</b></span>
+      <span class="chip">Nguyên lý bật: <b id="s-count">6</b>/6</span>
+    </div>
+    <div class="verdict ok" id="verdict">Sống động &amp; có hồn — đủ 6 lớp nguyên lý phủ lên</div>
+
+    <div class="toolbar">
+      <button class="btn-play" id="btn-play">⏸ Tạm dừng</button>
+      <button class="btn-ghost" id="btn-reset">↺ Về đầu</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Bảng điều khiển 6 nguyên lý</h2>
+    <div class="sub">Bấm để bật/tắt. Mỗi lớp thêm một "sự sống": lấy đà → có ý định, ease + arc → có trọng lực, squash + quán tính → có vật liệu, cường điệu → có duyên.</div>
+    <div class="princ-grid" id="princ-grid"></div>
+    <div class="bulk">
+      <button class="btn-ghost" id="btn-all-on">Bật hết</button>
+      <button class="btn-ghost" id="btn-all-off">Tắt hết</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Phương pháp dựng &amp; chế độ review</h2>
+    <div class="sub">Hai lựa chọn quy trình — độc lập với 6 nguyên lý ở trên.</div>
+    <div class="seg-row">
+      <div class="seg-block">
+        <div class="cap">Phương pháp dựng</div>
+        <div class="seg" id="seg-method">
+          <button data-v="pose" class="active">Pose-to-pose</button>
+          <button data-v="straight">Straight-ahead</button>
+        </div>
+        <div class="seg-note" id="note-method"><b>Pose-to-pose:</b> vẽ 6 key trước (vòng đứt nét), nội suy sau → kiểm soát tốt, đáp đúng <b>đích</b>.</div>
+      </div>
+      <div class="seg-block">
+        <div class="cap">Chế độ review nội suy</div>
+        <div class="seg" id="seg-interp">
+          <button data-v="spline" class="active">Spline (mượt)</button>
+          <button data-v="stepped">Stepped (bậc thang)</button>
+        </div>
+        <div class="seg-note" id="note-interp"><b>Spline:</b> nối các key bằng đường cong mượt, có ease → xem chuyển động thật (giai đoạn polish).</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===================== Cấu hình sân khấu =====================
+var cv = document.getElementById('cv');
+var ctx = cv.getContext('2d');
+var W = 680, H = 340;
+var groundY = 262, startX = 90, endX = 560;
+var obX = 325, obW = 44, obH = 96;         // chướng ngại
+var ballR = 24, apexBase = 150;
+
+var ACCENT = '#ea580c', ACCENT_HOVER = '#c2410c';
+
+// Trạng thái nguyên lý (mặc định bật hết)
+var P = { anticipation: true, squash: true, ease: true, arc: true, followthrough: true, exaggeration: true };
+var PRINC = [
+  { k: 'anticipation',  label: 'Anticipation (lấy đà)' },
+  { k: 'squash',        label: 'Squash & Stretch (co giãn)' },
+  { k: 'ease',          label: 'Slow in/out (ease)' },
+  { k: 'arc',           label: 'Arc (cung nhảy)' },
+  { k: 'followthrough', label: 'Follow-through (quán tính)' },
+  { k: 'exaggeration',  label: 'Exaggeration (cường điệu)' }
+];
+
+var method = 'pose';       // 'pose' | 'straight'
+var interp = 'spline';     // 'spline' | 'stepped'
+
+// Các mốc pose mấu chốt (theo T) — dùng cho stepped + vẽ vòng key
+var STEP_KEYS = [0.0, 0.16, 0.24, 0.47, 0.72, 1.0];
+
+// ===================== Mô hình chuyển động =====================
+// Ease dồn về đỉnh (hang time): chậm lại quanh giữa cú nhảy.
+function hangEase(u) {
+  var z = 2 * u - 1;
+  var zp = (z < 0 ? -1 : 1) * Math.pow(Math.abs(z), 1.7);
+  return 0.5 + 0.5 * zp;
+}
+
+// poseAt: T ∈ [0,1] → tư thế ball {cx, cy, sx, sy, phase}
+function poseAt(T, meth) {
+  var ex = P.exaggeration ? 1.5 : 1.0;
+  var apex = apexBase * ex;
+  var cx, cy, sx = 1, sy = 1, phase;
+
+  if (T < 0.22) {
+    // --- Chuẩn bị: lấy đà (anticipation) ---
+    var ap = T / 0.22;
+    var crouch = P.anticipation ? Math.min(1, ap / 0.62) : 0;   // cúi sâu rồi giữ
+    var sq = P.squash ? crouch : 0;
+    sy = 1 - 0.26 * sq;                 // nén xuống
+    sx = 1 + 0.30 * sq;                 // bè ngang
+    cx = startX - 22 * ex * crouch;     // dồn về sau
+    cy = groundY - ballR * sy;          // đáy chạm đất
+    phase = 'Chuẩn bị · lấy đà';
+
+  } else if (T < 0.72) {
+    // --- Bay: cung nhảy (arc + ease + squash) ---
+    var u = (T - 0.22) / 0.50;
+    cx = startX + (endX - startX) * u;             // ngang: tốc độ đều
+    var p = P.ease ? hangEase(u) : u;              // ease → dồn về đỉnh
+    var hf = P.arc ? 4 * p * (1 - p)               // cung parabol
+                   : 1 - Math.abs(2 * p - 1);      // không arc → hình tam giác nhọn
+    cy = groundY - ballR - apex * hf;
+    if (P.squash) {
+      var st = 1 - hf;                             // 0 ở đỉnh, 1 ở hai đầu
+      var s = 0.30 * st * ex;
+      sy = 1 + s; sx = 1 - s * 0.55;               // kéo dài khi bay nhanh
+    }
+    if (meth === 'straight') {                     // vẽ tay liên tục → trôi/rung nhẹ
+      cy += 7 * Math.sin(u * 40 + 1.1);
+      cx += 3.5 * Math.sin(u * 26 + 0.3);
+    }
+    phase = 'Bay · cung nhảy';
+
+  } else {
+    // --- Tiếp đất & ổn định (squash impact + follow-through) ---
+    var lp = (T - 0.72) / 0.28;
+    cx = endX + (meth === 'straight' ? 24 : 0);    // straight-ahead: lố qua đích
+    var sqi = Math.max(0, 1 - lp * 2.0);           // nén mạnh lúc chạm, hồi dần
+    if (P.squash) { var si = 0.42 * sqi * ex * 0.75; sy = 1 - si; sx = 1 + si; }
+    var bob = 0;
+    if (P.followthrough) bob = 24 * ex * Math.exp(-3.4 * lp) * Math.sin(6.5 * lp); // nảy dư
+    cy = groundY - ballR * sy - bob;
+    phase = 'Tiếp đất · ổn định';
+  }
+  return { cx: cx, cy: cy, sx: sx, sy: sy, phase: phase };
+}
+
+// Pose thực tế để vẽ (áp stepped nếu đang review bậc thang)
+function renderPose() {
+  var t = T;
+  if (interp === 'stepped') {
+    var k = STEP_KEYS[0];
+    for (var i = 0; i < STEP_KEYS.length; i++) if (STEP_KEYS[i] <= t) k = STEP_KEYS[i];
+    t = k;
+  }
+  return poseAt(t, method);
+}
+
+// ===================== Vòng lặp & lịch sử (cho follow-through overlap) =====================
+var T = 0, playing = true, raf = null, lastTs = null;
+var DURATION = 3400;             // ms cho một shot
+var histTip = [];                // lịch sử vị trí "chỏm" để tạo độ trễ overlap
+var LAG = 6;
+
+function loop(ts) {
+  if (!playing) return;
+  if (lastTs == null) lastTs = ts;
+  var dt = ts - lastTs; lastTs = ts;
+  T += dt / DURATION;
+  if (T >= 1) T = 0;             // lặp liên tục để dễ quan sát
+  var pose = renderPose();
+  histTip.push({ x: pose.cx, y: pose.cy - ballR * pose.sy - 16 });
+  if (histTip.length > 40) histTip.shift();
+  draw(pose);
+  raf = requestAnimationFrame(loop);
+}
+
+// ===================== Vẽ =====================
+function draw(pose) {
+  pose = pose || renderPose();
+  ctx.clearRect(0, 0, W, H);
+
+  // nền trời + đất
+  var sky = ctx.createLinearGradient(0, 0, 0, groundY);
+  sky.addColorStop(0, '#fffdfa'); sky.addColorStop(1, '#fbf2ea');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, groundY);
+  ctx.fillStyle = '#e7eaee'; ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.strokeStyle = '#9aa4b2'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
+
+  // onion-skin: các frame cách đều thời gian → thấy spacing (ease dồn về đỉnh)
+  var N = 26;
+  ctx.globalAlpha = 0.10; ctx.fillStyle = ACCENT;
+  for (var i = 0; i <= N; i++) {
+    var gp = poseAt(i / N, method);
+    ctx.beginPath();
+    ctx.ellipse(gp.cx, gp.cy, ballR * gp.sx * 0.88, ballR * gp.sy * 0.88, 0, 0, 6.2832);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // chướng ngại
+  var obTop = groundY - obH;
+  ctx.fillStyle = '#475569'; ctx.fillRect(obX - obW / 2, obTop, obW, obH);
+  ctx.fillStyle = '#334155'; ctx.fillRect(obX - obW / 2, obTop, obW, 8);
+
+  // đích dự định
+  ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(endX, 46); ctx.lineTo(endX, groundY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#64748b'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('đích dự định', endX, 40);
+
+  // vòng pose mấu chốt K1..K6 (chỉ pose-to-pose: keys được lên kế hoạch trước)
+  if (method === 'pose') {
+    ctx.setLineDash([4, 3]); ctx.lineWidth = 2; ctx.strokeStyle = ACCENT_HOVER;
+    for (var j = 0; j < STEP_KEYS.length; j++) {
+      var kp = poseAt(STEP_KEYS[j], 'pose');
+      ctx.beginPath(); ctx.arc(kp.cx, kp.cy, ballR + 6, 0, 6.2832); ctx.stroke();
+      ctx.fillStyle = '#9a3412'; ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('K' + (j + 1), kp.cx, kp.cy - ballR - 12);
+    }
+    ctx.setLineDash([]);
+  }
+
+  // ball hiện tại (áp squash/stretch qua transform)
+  ctx.save();
+  ctx.translate(pose.cx, pose.cy);
+  ctx.scale(pose.sx, pose.sy);
+  var grad = ctx.createRadialGradient(-7, -8, 4, 0, 0, ballR);
+  grad.addColorStop(0, '#fb923c'); grad.addColorStop(1, ACCENT);
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(0, 0, ballR, 0, 6.2832); ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = ACCENT_HOVER; ctx.stroke();
+  // mắt (chút "appeal")
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(-8, -6, 4.6, 0, 6.2832); ctx.arc(8, -6, 4.6, 0, 6.2832); ctx.fill();
+  ctx.fillStyle = '#1f2937';
+  ctx.beginPath(); ctx.arc(-6.5, -6, 2.2, 0, 6.2832); ctx.arc(9.5, -6, 2.2, 0, 6.2832); ctx.fill();
+  ctx.restore();
+
+  // chỏm đầu (follow-through / overlapping action): trễ theo thân
+  var topX = pose.cx, topY = pose.cy - ballR * pose.sy;
+  var tip = { x: topX, y: topY - 16 };
+  if (P.followthrough && histTip.length > LAG) {
+    tip = histTip[histTip.length - 1 - LAG];
+  }
+  ctx.strokeStyle = ACCENT_HOVER; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(topX, topY); ctx.lineTo(tip.x, tip.y); ctx.stroke();
+  ctx.fillStyle = ACCENT_HOVER;
+  ctx.beginPath(); ctx.arc(tip.x, tip.y, 7, 0, 6.2832); ctx.fill();
+
+  updateHUD(pose);
+}
+
+// ===================== HUD =====================
+function updateHUD(pose) {
+  document.getElementById('s-phase').textContent = pose.phase;
+  document.getElementById('s-prog').textContent = Math.round(T * 100) + '%';
+  var on = 0; for (var k in P) if (P[k]) on++;
+  document.getElementById('s-count').textContent = on;
+
+  var v = document.getElementById('verdict');
+  var txt, cls;
+  if (on === 0)      { txt = 'Máy móc, cứng đơ — như hình học động'; cls = 'bad'; }
+  else if (on <= 2)  { txt = 'Bắt đầu có dáng chuyển động, còn cứng'; cls = 'mid'; }
+  else if (on <= 4)  { txt = 'Đã ra "một cú nhảy", chưa thật sống'; cls = 'mid'; }
+  else if (on === 5) { txt = 'Rất sống động, gần hoàn chỉnh'; cls = 'ok'; }
+  else               { txt = 'Sống động & có hồn — đủ 6 lớp nguyên lý phủ lên'; cls = 'ok'; }
+  v.textContent = txt; v.className = 'verdict ' + cls;
+}
+
+// ===================== Điều khiển =====================
+// Play / Pause
+var btnPlay = document.getElementById('btn-play');
+btnPlay.onclick = function () {
+  playing = !playing;
+  btnPlay.textContent = playing ? '⏸ Tạm dừng' : '▶ Chạy';
+  if (playing) { lastTs = null; raf = requestAnimationFrame(loop); }
+};
+// Reset
+document.getElementById('btn-reset').onclick = function () {
+  T = 0; histTip = []; draw();
+};
+
+// Toggle nguyên lý
+var grid = document.getElementById('princ-grid');
+PRINC.forEach(function (pr) {
+  var el = document.createElement('div');
+  el.className = 'princ' + (P[pr.k] ? ' on' : '');
+  el.innerHTML = '<span class="dot"></span><span>' + pr.label + '</span>';
+  el.onclick = function () {
+    P[pr.k] = !P[pr.k];
+    el.classList.toggle('on', P[pr.k]);
+    if (!playing) draw();
+  };
+  el.dataset.k = pr.k;
+  grid.appendChild(el);
+});
+function syncPrincUI() {
+  Array.prototype.forEach.call(grid.children, function (el) {
+    el.classList.toggle('on', P[el.dataset.k]);
+  });
+  if (!playing) draw();
+}
+document.getElementById('btn-all-on').onclick = function () {
+  for (var k in P) P[k] = true; syncPrincUI();
+};
+document.getElementById('btn-all-off').onclick = function () {
+  for (var k in P) P[k] = false; syncPrincUI();
+};
+
+// Segmented: phương pháp
+var NOTE_METHOD = {
+  pose: '<b>Pose-to-pose:</b> vẽ 6 key trước (vòng đứt nét), nội suy sau → kiểm soát tốt, đáp đúng <b>đích</b>.',
+  straight: '<b>Straight-ahead:</b> vẽ tay liên tục frame này tới frame kia → tự nhiên nhưng <b>trôi/rung</b> và <b>lố qua đích</b> (khó kiểm soát tỉ lệ).'
+};
+setupSeg('seg-method', function (v) {
+  method = v;
+  document.getElementById('note-method').innerHTML = NOTE_METHOD[v];
+  if (!playing) draw();
+});
+// Segmented: chế độ review
+var NOTE_INTERP = {
+  spline: '<b>Spline:</b> nối các key bằng đường cong mượt, có ease → xem chuyển động thật (giai đoạn polish).',
+  stepped: '<b>Stepped:</b> giữ nguyên mỗi key tới key sau rồi nhảy bậc thang → phơi bày pose & timing (giai đoạn blocking).'
+};
+setupSeg('seg-interp', function (v) {
+  interp = v;
+  document.getElementById('note-interp').innerHTML = NOTE_INTERP[v];
+  if (!playing) draw();
+});
+
+function setupSeg(id, cb) {
+  var box = document.getElementById(id);
+  Array.prototype.forEach.call(box.querySelectorAll('button'), function (b) {
+    b.onclick = function () {
+      Array.prototype.forEach.call(box.querySelectorAll('button'), function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      cb(b.dataset.v);
+    };
+  });
+}
+
+// Khởi động
+draw();
+raf = requestAnimationFrame(loop);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

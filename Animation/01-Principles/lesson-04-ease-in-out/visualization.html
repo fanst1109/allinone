@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L4: Ease In / Out — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fff7ed;
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+    --c-linear: #94a3b8;
+    --c-in: #ea580c;
+    --c-out: #16a34a;
+    --c-inout: #7c3aed;
+  }
+  main { max-width: 860px; }
+
+  .lead { color: #7c5c43; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f0e0d0; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(120,60,0,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #94765f; font-size: 13px; margin-bottom: 14px; }
+
+  /* ==== Bảng điều khiển ==== */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .ease-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ease-pick button {
+    border: 2px solid #e2d3c4; background: #fff; border-radius: 8px;
+    padding: 7px 12px; font-size: 13px; font-weight: 700; cursor: pointer;
+    color: #57534e; transition: all .12s; display: flex; align-items: center; gap: 6px;
+  }
+  .ease-pick button .swatch { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .ease-pick button.active { border-color: currentColor; }
+  .ease-pick button[data-k="linear"].active { color: var(--c-linear); background: #f1f5f9; }
+  .ease-pick button[data-k="in"].active     { color: var(--c-in); background: var(--accent-soft); }
+  .ease-pick button[data-k="out"].active    { color: var(--c-out); background: #dcfce7; }
+  .ease-pick button[data-k="inout"].active  { color: var(--c-inout); background: #ede9fe; }
+
+  .transport { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .transport button {
+    border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px;
+    cursor: pointer; color: #fff;
+  }
+  .btn-play { background: var(--accent); }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-reset { background: #e7e5e4; color: #44403c; }
+  .btn-reset:hover { background: #d6d3d1; }
+
+  .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #57534e; }
+  .toggle-row input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .speed-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #57534e; }
+  .speed-row input[type=range] { accent-color: var(--accent); width: 120px; max-width: 40vw; }
+
+  /* ==== Canvas đường chạy ==== */
+  .race-wrap { margin-top: 4px; }
+  canvas { display: block; background: #fffdfb; border: 1px solid #f0e0d0; border-radius: 10px; width: 100%; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12px; color: #78716c; }
+  .legend .lg { display: flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .caption { font-size: 12px; color: #94765f; margin-top: 8px; line-height: 1.5; }
+
+  /* ==== Đồ thị vị trí–thời gian ==== */
+  .graph-wrap { display: block; }
+  svg.graph { display: block; width: 100%; height: auto; background: #fffdfb; border: 1px solid #f0e0d0; border-radius: 10px; }
+
+  /* ==== Bảng spacing ==== */
+  .tbl-wrap { overflow-x: auto; }
+  table.spc { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; min-width: 340px; }
+  table.spc th, table.spc td { border: 1px solid #f0e0d0; padding: 5px 8px; text-align: right; }
+  table.spc th:first-child, table.spc td:first-child { text-align: left; }
+  table.spc th { background: var(--accent-soft); font-size: 12px; color: #7c2d12; }
+  .bar-cell { position: relative; text-align: left !important; min-width: 120px; }
+  .bar-cell .bar { display: inline-block; height: 12px; border-radius: 3px; background: var(--accent); vertical-align: middle; margin-right: 6px; }
+  .bar-cell .num { font-variant-numeric: tabular-nums; color: #57534e; font-weight: 600; }
+  .hint { font-size: 12px; color: #94765f; margin-top: 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-anticipation-followthrough/visualization.html">← L3</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Ease In/Out</span>
+  <span class="sep">·</span>
+  <a href="../../02-Motion-Curves/lesson-05-keyframe-interpolation/visualization.html">L5: Keyframe & nội suy →</a>
+</nav>
+<main>
+  <h1>Ease In / Ease Out — mô phỏng gia tốc</h1>
+  <div class="lead">Cho 4 vật chạy đua từ <strong>A → B</strong> với 4 kiểu ease. Xem <strong>chấm spacing</strong> dồn về hai đầu và <strong>đồ thị vị trí–thời gian</strong> cong thành chữ S. Bấm <strong>Play</strong> để chạy.</div>
+
+  <div class="module">
+    <h2>Bảng điều khiển</h2>
+    <div class="sub">Chọn kiểu ease để làm nổi bật, hoặc bật "so sánh cả 4" để chạy song song.</div>
+    <div class="controls">
+      <div class="ease-pick" id="ease-pick">
+        <button data-k="linear"><span class="swatch" style="background:var(--c-linear)"></span>Linear</button>
+        <button data-k="in"><span class="swatch" style="background:var(--c-in)"></span>Ease-in</button>
+        <button data-k="out"><span class="swatch" style="background:var(--c-out)"></span>Ease-out</button>
+        <button data-k="inout" class="active"><span class="swatch" style="background:var(--c-inout)"></span>Ease-in-out</button>
+      </div>
+      <label class="toggle-row"><input type="checkbox" id="cmp" checked> So sánh cả 4 kiểu</label>
+    </div>
+    <div class="controls" style="margin-top:12px">
+      <div class="transport">
+        <button class="btn-play" id="play">⏸ Pause</button>
+        <button class="btn-reset" id="reset">↺ Reset</button>
+      </div>
+      <div class="speed-row">
+        <span>Chậm</span>
+        <input type="range" id="speed" min="0.6" max="4.5" step="0.1" value="2.6">
+        <span>Nhanh</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Đường chạy A → B + chấm spacing</h2>
+    <div class="sub">Chấm mờ = vị trí vật ở các mốc thời gian đều nhau. Dồn dày = chậm, thưa = nhanh.</div>
+    <div class="race-wrap">
+      <canvas id="race" width="640" height="300"></canvas>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="caption">Nhìn hàng <strong style="color:var(--c-inout)">Ease-in-out</strong>: chấm dồn ở A và B, thưa ở giữa → khởi động chậm, phóng nhanh, hãm êm. Hàng <strong style="color:var(--c-linear)">Linear</strong>: chấm cách đều → máy móc.</div>
+  </div>
+
+  <div class="module">
+    <h2>Đồ thị vị trí theo thời gian</h2>
+    <div class="sub">Trục ngang = thời gian, trục dọc = vị trí. Linear = đường thẳng; ease-in-out = <strong>chữ S</strong>. Điểm sáng chạy theo tiến độ hiện tại.</div>
+    <div class="graph-wrap">
+      <svg class="graph" id="graph" viewBox="0 0 360 300" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="hint">Đường thẳng chéo = tốc độ đều. Đường cong lồi ở đầu (nằm dưới đường chéo) = chậm lúc đầu (ease-in). Chữ S = chậm cả hai đầu (ease-in-out).</div>
+  </div>
+
+  <div class="module">
+    <h2>Spacing từng frame — số cụ thể</h2>
+    <div class="sub">Chia đường A(0)→B(100) thành 10 frame cho kiểu <strong id="spc-name">Ease-in-out</strong>. Độ dài thanh = spacing frame đó.</div>
+    <div class="tbl-wrap">
+      <table class="spc">
+        <thead><tr><th>Frame</th><th>Tiến độ t</th><th>Vị trí</th><th>Spacing (Δ)</th></tr></thead>
+        <tbody id="spc-body"></tbody>
+      </table>
+    </div>
+    <div class="hint" id="spc-hint"></div>
+  </div>
+</main>
+
+<script>
+// ===== Định nghĩa các hàm easing =====
+var EASE = {
+  linear: { name: 'Linear (đều)',            color: '#94a3b8', fn: function(t){ return t; } },
+  in:     { name: 'Ease-in (chậm → nhanh)',  color: '#ea580c', fn: function(t){ return t*t; } },
+  out:    { name: 'Ease-out (nhanh → chậm)', color: '#16a34a', fn: function(t){ return 1-(1-t)*(1-t); } },
+  inout:  { name: 'Ease-in-out (chậm 2 đầu)',color: '#7c3aed', fn: function(t){ return t*t*(3-2*t); } }
+};
+var ORDER = ['linear','in','out','inout'];
+
+// ===== Trạng thái =====
+var selected = 'inout';
+var compareAll = true;
+var t = 0;               // tiến độ [0,1]
+var playing = true;
+var hold = 0;            // giữ ở B trước khi lặp lại (giây)
+var DURATION = 2.6;      // giây cho A -> B
+var lastTs = null;
+
+function activeKeys(){ return compareAll ? ORDER.slice() : [selected]; }
+
+// ===== Canvas đường chạy =====
+var cv = document.getElementById('race');
+var ctx = cv.getContext('2d');
+var DPR = Math.min(window.devicePixelRatio || 1, 2);
+var CW = 640, LH = 74, PADTOP = 10;
+
+function drawRace(){
+  var keys = activeKeys();
+  var H = keys.length * LH + PADTOP;
+  var needW = CW * DPR, needH = H * DPR;
+  if (cv.width !== needW || cv.height !== needH){ cv.width = needW; cv.height = needH; }
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, CW, H);
+
+  var trackL = 44, trackR = CW - 40, tw = trackR - trackL;
+  var NS = 16; // số mốc spacing
+
+  keys.forEach(function(key, i){
+    var e = EASE[key];
+    var base = PADTOP + i * LH;
+    var labelY = base + 16;
+    var trackY = base + 40;
+    var dotY   = base + 60;
+
+    // nhãn kiểu
+    ctx.textAlign = 'left';
+    ctx.fillStyle = e.color;
+    ctx.font = '700 13px sans-serif';
+    ctx.fillText(e.name, trackL, labelY);
+
+    // đầu mút A, B
+    ctx.fillStyle = '#cbb8a6';
+    ctx.font = '600 11px sans-serif';
+    ctx.textAlign = 'right';  ctx.fillText('A', trackL - 6, trackY + 4);
+    ctx.textAlign = 'left';   ctx.fillText('B', trackR + 6, trackY + 4);
+
+    // đường ray
+    ctx.strokeStyle = '#eaddce'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(trackL, trackY); ctx.lineTo(trackR, trackY); ctx.stroke();
+
+    // chấm spacing (mẫu cố định) trên hàng dưới
+    for (var k = 0; k <= NS; k++){
+      var px = trackL + e.fn(k / NS) * tw;
+      ctx.fillStyle = hexA(e.color, 0.4);
+      ctx.beginPath(); ctx.arc(px, dotY, 3.2, 0, 6.2832); ctx.fill();
+    }
+
+    // vệt mờ (bóng) của vật tại các mốc gần đây trên ray — chấm spacing "sống"
+    for (var k2 = 0; k2 <= NS; k2++){
+      var pxg = trackL + e.fn(k2 / NS) * tw;
+      ctx.fillStyle = hexA(e.color, 0.16);
+      ctx.beginPath(); ctx.arc(pxg, trackY, 5, 0, 6.2832); ctx.fill();
+    }
+
+    // vật đang chạy
+    var bx = trackL + e.fn(t) * tw;
+    ctx.fillStyle = e.color;
+    ctx.beginPath(); ctx.arc(bx, trackY, 9, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.beginPath(); ctx.arc(bx - 2.5, trackY - 2.5, 3, 0, 6.2832); ctx.fill();
+  });
+}
+
+function hexA(hex, a){
+  var n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
+
+// ===== Đồ thị vị trí–thời gian =====
+var svg = document.getElementById('graph');
+var GL = 46, GR = 336, GT = 24, GB = 250; // vùng vẽ
+function gx(tt){ return GL + tt * (GR - GL); }
+function gy(p){ return GB - p * (GB - GT); }
+var SVGNS = 'http://www.w3.org/2000/svg';
+
+function buildGraph(){
+  var keys = activeKeys();
+  var parts = [];
+  // lưới + trục
+  parts.push('<line x1="'+GL+'" y1="'+GT+'" x2="'+GL+'" y2="'+GB+'" stroke="#e2d3c4" stroke-width="1.5"/>');
+  parts.push('<line x1="'+GL+'" y1="'+GB+'" x2="'+GR+'" y2="'+GB+'" stroke="#e2d3c4" stroke-width="1.5"/>');
+  // lưới ngang 0/50/100
+  [0,0.5,1].forEach(function(p){
+    parts.push('<line x1="'+GL+'" y1="'+gy(p)+'" x2="'+GR+'" y2="'+gy(p)+'" stroke="#f2e8dd" stroke-width="1"/>');
+    parts.push('<text x="'+(GL-8)+'" y="'+(gy(p)+4)+'" font-size="11" fill="#94765f" text-anchor="end">'+(p*100)+'</text>');
+  });
+  // đường chéo tham chiếu (linear) mờ
+  parts.push('<line x1="'+gx(0)+'" y1="'+gy(0)+'" x2="'+gx(1)+'" y2="'+gy(1)+'" stroke="#d6ccc2" stroke-width="1" stroke-dasharray="4 4"/>');
+  // nhãn trục
+  parts.push('<text x="'+((GL+GR)/2)+'" y="'+(GB+26)+'" font-size="12" fill="#78716c" text-anchor="middle">thời gian (t) →</text>');
+  parts.push('<text x="14" y="'+((GT+GB)/2)+'" font-size="12" fill="#78716c" text-anchor="middle" transform="rotate(-90 14 '+((GT+GB)/2)+')">vị trí ↑</text>');
+
+  // đường cong từng easing
+  keys.forEach(function(key){
+    var e = EASE[key];
+    var d = '';
+    for (var i = 0; i <= 50; i++){
+      var tt = i / 50;
+      d += (i === 0 ? 'M' : 'L') + gx(tt).toFixed(1) + ' ' + gy(e.fn(tt)).toFixed(1) + ' ';
+    }
+    var emph = (!compareAll || key === selected);
+    parts.push('<path d="'+d+'" fill="none" stroke="'+e.color+'" stroke-width="'+(emph?3:2)+'" opacity="'+(emph?1:0.45)+'" stroke-linecap="round"/>');
+  });
+
+  // marker (điểm sáng) — 1 cho mỗi active, cập nhật sau
+  keys.forEach(function(key){
+    parts.push('<circle class="mk" data-k="'+key+'" r="5" fill="'+EASE[key].color+'" stroke="#fff" stroke-width="1.5" cx="'+gx(0)+'" cy="'+gy(0)+'"/>');
+  });
+
+  svg.innerHTML = parts.join('');
+}
+
+function updateMarkers(){
+  var mks = svg.querySelectorAll('.mk');
+  for (var i = 0; i < mks.length; i++){
+    var key = mks[i].getAttribute('data-k');
+    var e = EASE[key];
+    mks[i].setAttribute('cx', gx(t).toFixed(1));
+    mks[i].setAttribute('cy', gy(e.fn(t)).toFixed(1));
+  }
+}
+
+// ===== Legend =====
+function buildLegend(){
+  var keys = activeKeys();
+  document.getElementById('legend').innerHTML = keys.map(function(k){
+    var e = EASE[k];
+    return '<span class="lg"><span class="dot" style="background:'+e.color+'"></span>'+e.name+'</span>';
+  }).join('');
+}
+
+// ===== Bảng spacing =====
+function buildSpacingTable(){
+  var e = EASE[selected];
+  document.getElementById('spc-name').textContent = e.name;
+  var N = 10, prev = 0, rows = '', maxSp = 0, sps = [];
+  for (var i = 1; i <= N; i++){
+    var tt = i / N, pos = e.fn(tt) * 100, sp = pos - prev; prev = pos;
+    sps.push(sp); if (sp > maxSp) maxSp = sp;
+  }
+  prev = 0;
+  for (var j = 1; j <= N; j++){
+    var tt2 = j / N, pos2 = e.fn(tt2) * 100, sp2 = pos2 - prev; prev = pos2;
+    var w = (sp2 / maxSp) * 96;
+    rows += '<tr><td>'+j+'</td><td>'+tt2.toFixed(1)+'</td><td>'+round1(pos2)+'</td>' +
+            '<td class="bar-cell"><span class="bar" style="width:'+w.toFixed(0)+'px;background:'+e.color+'"></span>' +
+            '<span class="num">'+round1(sp2)+'</span></td></tr>';
+  }
+  document.getElementById('spc-body').innerHTML = rows;
+
+  var hint = '';
+  if (selected === 'linear') hint = 'Spacing cố định 10 mỗi frame → tốc độ đều, cảm giác máy móc.';
+  else if (selected === 'in') hint = 'Spacing tăng dần (1 → 19): chấm dồn ở A, vật khởi động chậm rồi tăng tốc (slow out).';
+  else if (selected === 'out') hint = 'Spacing giảm dần (19 → 1): chấm dồn ở B, vật lao đi rồi hãm lại (slow in).';
+  else hint = 'Spacing phình ở giữa (2.8 → 14.8 → 2.8): dồn 2 đầu, chậm cả lúc rời A lẫn lúc tới B.';
+  document.getElementById('spc-hint').textContent = hint;
+}
+function round1(n){ return (Math.round(n * 10) / 10).toString(); }
+
+// ===== Vòng lặp animation =====
+function frame(ts){
+  if (lastTs == null) lastTs = ts;
+  var dt = (ts - lastTs) / 1000; lastTs = ts;
+  if (dt > 0.1) dt = 0.1; // chống nhảy khi tab ẩn
+
+  if (playing){
+    if (hold > 0){
+      hold -= dt;
+      if (hold <= 0){ hold = 0; t = 0; }
+    } else {
+      t += dt / DURATION;
+      if (t >= 1){ t = 1; hold = 0.55; }
+    }
+  }
+  drawRace();
+  updateMarkers();
+  requestAnimationFrame(frame);
+}
+
+// ===== Điều khiển =====
+document.getElementById('ease-pick').addEventListener('click', function(ev){
+  var b = ev.target.closest('button'); if (!b) return;
+  selected = b.getAttribute('data-k');
+  [].forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('active', x === b); });
+  buildGraph(); buildSpacingTable();
+  if (!compareAll){ buildLegend(); }
+});
+
+document.getElementById('cmp').addEventListener('change', function(){
+  compareAll = this.checked;
+  buildLegend(); buildGraph();
+});
+
+var playBtn = document.getElementById('play');
+playBtn.addEventListener('click', function(){
+  playing = !playing;
+  this.textContent = playing ? '⏸ Pause' : '▶ Play';
+});
+
+document.getElementById('reset').addEventListener('click', function(){
+  t = 0; hold = 0;
+});
+
+document.getElementById('speed').addEventListener('input', function(){
+  // slider cao = nhanh → DURATION nhỏ. Map [0.6..4.5] -> DURATION [4.5..0.6] (đảo)
+  var v = parseFloat(this.value);
+  DURATION = (0.6 + 4.5) - v;
+});
+
+// ===== Khởi tạo =====
+buildLegend();
+buildGraph();
+buildSpacingTable();
+requestAnimationFrame(frame);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

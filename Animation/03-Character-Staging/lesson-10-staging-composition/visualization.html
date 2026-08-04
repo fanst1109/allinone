@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L10: Dựng cảnh & Bố cục — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf6ef;
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 1040px; }
+
+  .lead { color: #6b5544; font-size: 15px; margin-bottom: 22px; }
+  .module {
+    background: #fff; border: 1px solid #f0d9c4; border-radius: 14px;
+    padding: 18px 20px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(120,60,10,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 20px; color: #7c2d12; }
+  .module .sub { color: #92766180; color: #96745a; font-size: 13px; margin-bottom: 14px; }
+
+  /* Layout hai cột: SVG + điều khiển */
+  .split { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .stage { flex: 1 1 300px; min-width: 0; text-align: center; }
+  .stage svg { width: 100%; max-width: 340px; height: auto; background: #fff7ee; border: 1px solid #f3e3d2; border-radius: 12px; }
+  .panel { flex: 1 1 240px; min-width: 0; }
+
+  /* Điều khiển */
+  .ctl-row { margin: 12px 0; }
+  .ctl-row label { display: block; font-size: 12px; font-weight: 700; color: #7c5a3f; margin-bottom: 5px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .btn {
+    border: 1px solid #e2c8ad; background: #fff; color: #7c2d12; border-radius: 8px;
+    padding: 8px 13px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .12s;
+  }
+  .btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.play { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.play:hover { background: var(--accent-hover); }
+
+  /* Readout điểm số */
+  .readout { margin-top: 14px; }
+  .score-num { font-size: 34px; font-weight: 800; line-height: 1; }
+  .score-bar { height: 14px; border-radius: 7px; background: #f1e4d6; overflow: hidden; margin: 8px 0 6px; }
+  .score-fill { height: 100%; border-radius: 7px; transition: width .25s ease, background .25s ease; }
+  .verdict { font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 8px; display: inline-block; }
+  .verdict.bad  { background: #fee2e2; color: #b91c1c; }
+  .verdict.mid  { background: #fef3c7; color: #92651a; }
+  .verdict.good { background: #dcfce7; color: #15803d; }
+  .metric-line { font-size: 12px; color: #7c5a3f; margin-top: 8px; line-height: 1.6; }
+  .metric-line b { color: #7c2d12; }
+
+  .note {
+    font-size: 12px; color: #8a6b4f; background: #fff7ee; border-left: 3px solid var(--accent);
+    padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 12px;
+  }
+
+  /* Module C — hai cảnh cạnh nhau */
+  .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .scene-card { text-align: center; }
+  .scene-card svg { width: 100%; height: auto; background: #eef2f6; border-radius: 10px; border: 1px solid #dfe4ea; }
+  .scene-tag { font-size: 13px; font-weight: 800; margin: 6px 0 2px; }
+  .scene-tag.bad { color: #b91c1c; }
+  .scene-tag.good { color: #15803d; }
+  .scene-desc { font-size: 12px; color: #6b5544; line-height: 1.5; }
+  @media (max-width: 560px) { .scenes { grid-template-columns: 1fr; } }
+
+  /* Đổ bóng: khi svg có class .sil thì mọi phần cơ thể thành đen đặc */
+  .cloth { fill: #fb923c; stroke: #ea580c; stroke-width: 15; stroke-linecap: round; }
+  .cloth-fill { fill: #fb923c; stroke: #ea580c; stroke-width: 2; }
+  .skin { fill: #fcd9b6; stroke: #e8a06a; stroke-width: 2; }
+  .prop { fill: #fcd34d; stroke: #b45309; stroke-width: 2; }
+  .face { stroke: #5b3b23; stroke-width: 2.4; fill: none; stroke-linecap: round; }
+  svg.sil .cloth      { fill: #17120e; stroke: #17120e; }
+  svg.sil .cloth-fill { fill: #17120e; stroke: #17120e; }
+  svg.sil .skin       { fill: #17120e; stroke: #17120e; }
+  svg.sil .prop       { fill: #17120e; stroke: #17120e; }
+  svg.sil .face       { opacity: 0; }
+  svg.sil .bg         { opacity: 0.25; }
+
+  /* Line of action overlay */
+  .loa-line { fill: none; stroke: var(--accent); stroke-width: 3.5; stroke-linecap: round; }
+  .loa-chord { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 5 5; }
+  .loa-sag { stroke: #2563eb; stroke-width: 2; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-walk-cycle/visualization.html">← L9</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Dựng cảnh</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-exaggeration-appeal/visualization.html">L11: Cường điệu & sức hút →</a>
+</nav>
+<main>
+  <h1>Dựng cảnh &amp; Bố cục — phòng thí nghiệm staging</h1>
+  <div class="lead">Staging = trình bày <strong>một ý</strong> sao cho khán giả nhìn đúng chỗ ngay lập tức. Ba công cụ để tự tay thử: <strong>silhouette đọc được</strong>, <strong>line of action</strong>, và <strong>dựng cảnh tốt/xấu</strong> cạnh nhau.</div>
+
+  <!-- ===== MODULE A: SILHOUETTE ===== -->
+  <div class="module">
+    <h2>1. Kiểm tra silhouette — pose có đọc được không?</h2>
+    <div class="sub">Kéo slider để đưa cánh tay từ "trước thân" ra "dang sang bên". Bấm "Đổ bóng đen" để thử đọc bằng bóng.</div>
+    <div class="split">
+      <div class="stage">
+        <svg id="svgA" viewBox="0 0 260 320" aria-label="Nhân vật để kiểm tra silhouette">
+          <!-- chân -->
+          <line class="cloth" x1="122" y1="196" x2="116" y2="300"></line>
+          <line class="cloth" x1="138" y1="196" x2="146" y2="300"></line>
+          <!-- tay nghỉ (bên kia) -->
+          <line class="cloth" x1="108" y1="104" x2="96" y2="182"></line>
+          <!-- thân -->
+          <rect class="cloth-fill" x="104" y="82" width="52" height="118" rx="18"></rect>
+          <!-- đầu -->
+          <circle class="skin" cx="130" cy="54" r="26"></circle>
+          <!-- mặt (ẩn khi đổ bóng) -->
+          <circle class="face" cx="122" cy="50" r="1.5" fill="#5b3b23"></circle>
+          <circle class="face" cx="138" cy="50" r="1.5" fill="#5b3b23"></circle>
+          <path class="face" d="M122 63 Q130 68 138 63"></path>
+          <!-- tay diễn (động) -->
+          <line id="A-ua" class="cloth" x1="152" y1="100" x2="180" y2="130"></line>
+          <line id="A-fa" class="cloth" x1="180" y1="130" x2="210" y2="120"></line>
+          <circle id="A-hand" class="skin" cx="214" cy="118" r="11"></circle>
+          <!-- chìa khoá trên tay (đạo cụ) -->
+          <rect id="A-key" class="prop" x="222" y="108" width="8" height="18" rx="2"></rect>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="ctl-row">
+          <label for="A-slider">Vị trí cánh tay: trước thân → dang ra</label>
+          <input type="range" id="A-slider" min="0" max="100" value="6">
+        </div>
+        <div class="btns">
+          <button class="btn play" id="A-play">▶ Diễn</button>
+          <button class="btn" id="A-reset">↺ Reset</button>
+          <button class="btn" id="A-shadow">⬛ Đổ bóng đen</button>
+        </div>
+        <div class="btns">
+          <button class="btn" id="A-pre-front">Tay trước thân (kém)</button>
+          <button class="btn" id="A-pre-out">Tay dang ra (tốt)</button>
+        </div>
+        <div class="readout">
+          <div class="score-num" id="A-score">10%</div>
+          <div class="score-bar"><div class="score-fill" id="A-fill" style="width:10%"></div></div>
+          <span class="verdict bad" id="A-verdict">Rất kém — tay chìm vào thân</span>
+          <div class="metric-line" id="A-metric"></div>
+        </div>
+        <div class="note">Điểm số là <b>proxy minh hoạ</b> (đo bàn tay+đạo cụ lòi ra ngoài khối thân), không phải công thức sản xuất — nhưng nó bắt đúng trực giác "break the silhouette": đẩy chi tiết ra ngoài đường bao thì bóng mới đọc được.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODULE B: LINE OF ACTION ===== -->
+  <div class="module">
+    <h2>2. Line of action — thẳng đơ vs cong năng lượng</h2>
+    <div class="sub">Kéo slider để bẻ cong trục cơ thể. Bật "Hiện đường trục" để thấy dây cung và sagitta. Thử các preset.</div>
+    <div class="split">
+      <div class="stage">
+        <svg id="svgB" viewBox="0 0 260 360" aria-label="Nhân vật minh hoạ line of action">
+          <!-- thân ribbon (đi theo đường trục) -->
+          <path id="B-ribbon" class="cloth" style="stroke-width:44" d=""></path>
+          <!-- đầu -->
+          <circle id="B-head" class="skin" cx="130" cy="30" r="22"></circle>
+          <!-- tay -->
+          <line id="B-armL" class="cloth" style="stroke-width:13" x1="0" y1="0" x2="0" y2="0"></line>
+          <line id="B-armR" class="cloth" style="stroke-width:13" x1="0" y1="0" x2="0" y2="0"></line>
+          <!-- chân -->
+          <line id="B-legL" class="cloth" x1="0" y1="0" x2="0" y2="0"></line>
+          <line id="B-legR" class="cloth" x1="0" y1="0" x2="0" y2="0"></line>
+          <!-- overlay đường trục -->
+          <line id="B-chord" class="loa-chord hidden" x1="0" y1="0" x2="0" y2="0"></line>
+          <path id="B-loa" class="loa-line hidden" d=""></path>
+          <line id="B-sag" class="loa-sag hidden" x1="0" y1="0" x2="0" y2="0"></line>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="ctl-row">
+          <label for="B-slider">Độ cong trục: trái ← thẳng → phải</label>
+          <input type="range" id="B-slider" min="-90" max="90" value="0">
+        </div>
+        <div class="btns">
+          <button class="btn on" id="B-overlay">📐 Hiện đường trục</button>
+        </div>
+        <div class="btns">
+          <button class="btn" id="B-pre-straight">Thẳng đơ</button>
+          <button class="btn" id="B-pre-c">Cong chữ C</button>
+          <button class="btn" id="B-pre-hard">Cong gắt</button>
+          <button class="btn" id="B-pre-s">Gãy khúc (S)</button>
+        </div>
+        <div class="readout">
+          <div class="score-num" id="B-ratio">0%</div>
+          <div class="metric-line">tỉ lệ sagitta <b>d / L</b> — vùng "pose sống" là 8–22%</div>
+          <div class="score-bar"><div class="score-fill" id="B-fill" style="width:0%"></div></div>
+          <span class="verdict bad" id="B-verdict">Thẳng đơ — thiếu lực</span>
+          <div class="metric-line" id="B-metric"></div>
+        </div>
+        <div class="note">Trục cong là một đường cong đơn từ đầu tới chân. Một <b>C-curve rõ</b> (8–22%) dồn lực theo một hướng; <b>S gãy khúc</b> đổi dấu hai lần → trục tự triệt tiêu, đọc rối.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODULE C: TỐT vs XẤU ===== -->
+  <div class="module">
+    <h2>3. Dựng cảnh tốt vs xấu — cạnh nhau</h2>
+    <div class="sub">Cùng một hành động "khoe cúp", hai cách dựng. Bấm nút để đổ bóng cả hai và tự đọc.</div>
+    <div class="btns">
+      <button class="btn" id="C-shadow">⬛ Đổ bóng cả hai cảnh</button>
+    </div>
+    <div class="scenes">
+      <div class="scene-card">
+        <svg id="svgC-bad" viewBox="0 0 220 150" aria-label="Cảnh dựng xấu">
+          <!-- nền rối + tangent -->
+          <rect class="bg" x="0" y="0" width="220" height="150" fill="#e6ebf0"></rect>
+          <rect class="bg" x="120" y="20" width="34" height="26" fill="#cfd8e0"></rect>
+          <rect class="bg" x="160" y="10" width="30" height="40" fill="#cfd8e0"></rect>
+          <!-- cột dính vai (tangent) -->
+          <rect class="bg" x="150" y="0" width="10" height="150" fill="#b9c3cd"></rect>
+          <!-- nhân vật dồn sát mép phải, quay lưng, ôm cúp trước ngực -->
+          <ellipse class="cloth-fill" cx="150" cy="95" rx="24" ry="34"></ellipse>
+          <circle class="skin" cx="150" cy="52" r="16"></circle>
+          <!-- hai tay ôm trước ngực -->
+          <line class="cloth" style="stroke-width:10" x1="134" y1="82" x2="150" y2="100"></line>
+          <line class="cloth" style="stroke-width:10" x1="166" y1="82" x2="150" y2="100"></line>
+          <!-- cúp chìm trước ngực -->
+          <rect class="prop" x="144" y="92" width="12" height="14" rx="2"></rect>
+        </svg>
+        <div class="scene-tag bad">✗ Dựng xấu</div>
+        <div class="scene-desc">Sát mép phải (nose room <b>~9%</b>), cúp ôm trước ngực → chìm trong bóng, cột dính vai (tangent). Đổ bóng → cục mực khó đọc.</div>
+      </div>
+      <div class="scene-card">
+        <svg id="svgC-good" viewBox="0 0 220 150" aria-label="Cảnh dựng tốt">
+          <!-- nền sạch + leading line sàn -->
+          <rect class="bg" x="0" y="0" width="220" height="150" fill="#eef2f6"></rect>
+          <line class="bg" x1="0" y1="128" x2="220" y2="112" stroke="#c3ccd6" stroke-width="2"></line>
+          <!-- nhân vật ở 1/3 trái, hướng phải, cúp giơ ra ngoài contour -->
+          <ellipse class="cloth-fill" cx="66" cy="95" rx="22" ry="33"></ellipse>
+          <circle class="skin" cx="72" cy="52" r="16"></circle>
+          <!-- tay giơ cúp ra ngoài, sang phải (hướng nhìn) -->
+          <line class="cloth" style="stroke-width:10" x1="82" y1="78" x2="120" y2="60"></line>
+          <circle class="skin" cx="124" cy="58" r="7"></circle>
+          <rect class="prop" x="130" y="44" width="12" height="20" rx="2"></rect>
+          <!-- tay kia chống hông tạo negative space -->
+          <path class="cloth" style="fill:none;stroke-width:10" d="M50 80 Q40 96 52 104"></path>
+        </svg>
+        <div class="scene-tag good">✓ Dựng tốt</div>
+        <div class="scene-desc">Ở 1/3 trái, hướng sang phải (nose room <b>~64%</b>), cúp giơ ra ngoài đường bao (break silhouette), tay kia chống hông tạo negative space. Đổ bóng vẫn đọc "đang khoe cúp".</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ============================================================
+// MODULE A — Silhouette readability
+// ============================================================
+(function(){
+  var slider = document.getElementById('A-slider');
+  var ua = document.getElementById('A-ua'), fa = document.getElementById('A-fa');
+  var hand = document.getElementById('A-hand'), key = document.getElementById('A-key');
+  var svg = document.getElementById('svgA');
+  var scoreEl = document.getElementById('A-score'), fillEl = document.getElementById('A-fill');
+  var verdictEl = document.getElementById('A-verdict'), metricEl = document.getElementById('A-metric');
+
+  var TORSO = { l: 104, r: 156, bottom: 196, cx: 130 };
+  var SH = { x: 152, y: 100 };            // vai của tay diễn
+  var playing = false, raf = null, phase = 0;
+
+  function handPos(a){
+    // a in [0,1]: 0 = ép ngang trước ngực, 1 = dang thẳng sang bên
+    return { x: 108 + 130 * a, y: 158 - 50 * a };
+  }
+  function readability(H){
+    // proxy: phần bàn tay/đạo cụ nằm NGOÀI khối thân
+    var outside;
+    if (H.y > TORSO.bottom + 6) outside = 34;
+    else if (H.x > TORSO.r) outside = H.x - TORSO.r;
+    else if (H.x < TORSO.l) outside = TORSO.l - H.x;
+    else outside = 0;
+    return Math.max(0, Math.min(100, Math.round(10 + outside * 1.05)));
+  }
+  function verdict(s){
+    if (s < 25) return ['bad',  'Rất kém — tay chìm vào thân'];
+    if (s < 50) return ['bad',  'Kém — đọc mơ hồ'];
+    if (s < 75) return ['mid',  'Khá — bắt đầu tách khỏi thân'];
+    return         ['good', 'Rõ — đọc tốt trong bóng'];
+  }
+  function draw(a){
+    var H = handPos(a);
+    var mid = { x: (SH.x + H.x) / 2 + 8, y: (SH.y + H.y) / 2 + 10 }; // khuỷu bow nhẹ
+    ua.setAttribute('x1', SH.x); ua.setAttribute('y1', SH.y);
+    ua.setAttribute('x2', mid.x); ua.setAttribute('y2', mid.y);
+    fa.setAttribute('x1', mid.x); fa.setAttribute('y1', mid.y);
+    fa.setAttribute('x2', H.x); fa.setAttribute('y2', H.y);
+    hand.setAttribute('cx', H.x); hand.setAttribute('cy', H.y);
+    key.setAttribute('x', H.x + 8); key.setAttribute('y', H.y - 10);
+
+    var s = readability(H);
+    var v = verdict(s);
+    scoreEl.textContent = s + '%';
+    fillEl.style.width = s + '%';
+    fillEl.style.background = s < 25 ? '#ef4444' : s < 50 ? '#f59e0b' : s < 75 ? '#eab308' : '#22c55e';
+    verdictEl.className = 'verdict ' + v[0];
+    verdictEl.textContent = v[1];
+    var over = (H.x >= TORSO.l && H.x <= TORSO.r && H.y <= TORSO.bottom);
+    metricEl.innerHTML = 'Bàn tay tại x=<b>' + Math.round(H.x) + '</b> · khối thân x∈[104,156] · ' +
+      (over ? '<b style="color:#b91c1c">tay đè lên thân</b>' : '<b style="color:#15803d">tay lòi ra ngoài contour</b>');
+  }
+  function loop(){
+    if (!playing) return;
+    phase += 0.018;
+    var a = (1 - Math.cos(phase)) / 2;      // dao động 0→1→0
+    slider.value = Math.round(a * 100);
+    draw(a);
+    raf = requestAnimationFrame(loop);
+  }
+  function stop(){ playing = false; if (raf) cancelAnimationFrame(raf); document.getElementById('A-play').textContent = '▶ Diễn'; }
+
+  slider.addEventListener('input', function(){ stop(); draw(slider.value / 100); });
+  document.getElementById('A-play').addEventListener('click', function(){
+    if (playing){ stop(); }
+    else { playing = true; this.textContent = '⏸ Dừng'; phase = Math.acos(1 - 2 * (slider.value/100)) || 0; loop(); }
+  });
+  document.getElementById('A-reset').addEventListener('click', function(){ stop(); slider.value = 6; draw(0.06); });
+  document.getElementById('A-shadow').addEventListener('click', function(){
+    svg.classList.toggle('sil'); this.classList.toggle('on');
+  });
+  document.getElementById('A-pre-front').addEventListener('click', function(){ stop(); slider.value = 4; draw(0.04); });
+  document.getElementById('A-pre-out').addEventListener('click', function(){ stop(); slider.value = 95; draw(0.95); });
+
+  draw(0.06);
+})();
+
+// ============================================================
+// MODULE B — Line of action
+// ============================================================
+(function(){
+  var slider = document.getElementById('B-slider');
+  var ribbon = document.getElementById('B-ribbon'), head = document.getElementById('B-head');
+  var armL = document.getElementById('B-armL'), armR = document.getElementById('B-armR');
+  var legL = document.getElementById('B-legL'), legR = document.getElementById('B-legR');
+  var chord = document.getElementById('B-chord'), loa = document.getElementById('B-loa'), sag = document.getElementById('B-sag');
+  var ratioEl = document.getElementById('B-ratio'), fillEl = document.getElementById('B-fill');
+  var verdictEl = document.getElementById('B-verdict'), metricEl = document.getElementById('B-metric');
+
+  var P0 = { x: 130, y: 60 }, P2 = { x: 130, y: 300 };   // đầu-trục và cuối-trục
+  var mode = 'C';   // 'C' quad Bézier | 'S' cubic Bézier
+  var showOverlay = true;
+
+  // Điểm trên đường cong theo t
+  function pointAt(t, b){
+    var mt = 1 - t;
+    if (mode === 'C'){
+      var C = { x: 130 + 150 * b, y: 180 };
+      return { x: mt*mt*P0.x + 2*mt*t*C.x + t*t*P2.x,
+               y: mt*mt*P0.y + 2*mt*t*C.y + t*t*P2.y };
+    } else {
+      var amp = 78;
+      var C1 = { x: 130 - amp, y: 140 }, C2 = { x: 130 + amp, y: 220 };
+      return { x: mt*mt*mt*P0.x + 3*mt*mt*t*C1.x + 3*mt*t*t*C2.x + t*t*t*P2.x,
+               y: mt*mt*mt*P0.y + 3*mt*mt*t*C1.y + 3*mt*t*t*C2.y + t*t*t*P2.y };
+    }
+  }
+  function pathD(b){
+    if (mode === 'C'){
+      var C = { x: 130 + 150 * b, y: 180 };
+      return 'M' + P0.x + ' ' + P0.y + ' Q ' + C.x + ' ' + C.y + ' ' + P2.x + ' ' + P2.y;
+    } else {
+      var amp = 78;
+      return 'M' + P0.x + ' ' + P0.y + ' C ' + (130 - amp) + ' 140 ' + (130 + amp) + ' 220 ' + P2.x + ' ' + P2.y;
+    }
+  }
+  function analyze(b){
+    // lấy mẫu, tính sagitta lớn nhất tới dây cung (thẳng đứng x=130) + phát hiện đổi dấu
+    var maxDev = 0, maxPt = null, hasPos = false, hasNeg = false;
+    for (var i = 0; i <= 24; i++){
+      var p = pointAt(i / 24, b);
+      var dev = p.x - 130;
+      if (dev > 1) hasPos = true;
+      if (dev < -1) hasNeg = true;
+      if (Math.abs(dev) > Math.abs(maxDev)) { maxDev = dev; maxPt = p; }
+    }
+    var L = P2.y - P0.y;                     // dây cung thẳng đứng = 240
+    return { ratio: Math.abs(maxDev) / L, maxPt: maxPt, maxDev: maxDev, sPattern: (hasPos && hasNeg) };
+  }
+  function draw(){
+    var b = slider.value / 90;               // -1 .. 1
+    ribbon.setAttribute('d', pathD(b));
+    loa.setAttribute('d', pathD(b));
+
+    var sh = pointAt(0.30, b), hp = pointAt(0.86, b), hd = pointAt(0.0, b);
+    head.setAttribute('cx', hd.x); head.setAttribute('cy', hd.y - 28);
+    // tay từ vai
+    armL.setAttribute('x1', sh.x); armL.setAttribute('y1', sh.y); armL.setAttribute('x2', sh.x - 34); armL.setAttribute('y2', sh.y + 26);
+    armR.setAttribute('x1', sh.x); armR.setAttribute('y1', sh.y); armR.setAttribute('x2', sh.x + 34); armR.setAttribute('y2', sh.y + 26);
+    // chân từ hông
+    legL.setAttribute('x1', hp.x); legL.setAttribute('y1', hp.y); legL.setAttribute('x2', hp.x - 16); legL.setAttribute('y2', 340);
+    legR.setAttribute('x1', hp.x); legR.setAttribute('y1', hp.y); legR.setAttribute('x2', hp.x + 16); legR.setAttribute('y2', 340);
+
+    var A = analyze(b);
+    var pct = Math.round(A.ratio * 1000) / 10;
+    ratioEl.textContent = pct + '%';
+    fillEl.style.width = Math.min(100, A.ratio / 0.30 * 100) + '%';
+
+    var cls, txt;
+    if (A.sPattern && mode === 'S'){ cls = 'bad'; txt = 'Gãy khúc (S ngược) — trục tự triệt tiêu, đọc rối'; }
+    else if (A.ratio < 0.03){ cls = 'bad'; txt = 'Thẳng đơ — thiếu lực'; }
+    else if (A.ratio < 0.08){ cls = 'mid'; txt = 'Line nhẹ — pose bắt đầu sống'; }
+    else if (A.ratio <= 0.22){ cls = 'good'; txt = 'Line of action rõ — pose khỏe, dồn lực tốt'; }
+    else { cls = 'mid'; txt = 'Cong gắt — pose kịch, khó đứng vững'; }
+    fillEl.style.background = cls === 'good' ? '#22c55e' : cls === 'mid' ? '#eab308' : '#ef4444';
+    verdictEl.className = 'verdict ' + cls;
+    verdictEl.textContent = txt;
+
+    var d = Math.round(Math.abs(A.maxDev) * 10) / 10;
+    metricEl.innerHTML = 'sagitta d ≈ <b>' + d + '</b> · dây cung L = <b>240</b> · d/L = <b>' + pct + '%</b>';
+
+    // overlay
+    var vis = showOverlay ? '' : 'hidden';
+    chord.className.baseVal = 'loa-chord ' + vis;
+    loa.className.baseVal = 'loa-line ' + vis;
+    sag.className.baseVal = 'loa-sag ' + vis;
+    chord.setAttribute('x1', 130); chord.setAttribute('y1', P0.y); chord.setAttribute('x2', 130); chord.setAttribute('y2', P2.y);
+    if (A.maxPt){
+      sag.setAttribute('x1', 130); sag.setAttribute('y1', A.maxPt.y);
+      sag.setAttribute('x2', A.maxPt.x); sag.setAttribute('y2', A.maxPt.y);
+    }
+  }
+  function setMode(m){ mode = m; }
+
+  slider.addEventListener('input', function(){ if (mode === 'S') setMode('C'); draw(); });
+  document.getElementById('B-overlay').addEventListener('click', function(){
+    showOverlay = !showOverlay; this.classList.toggle('on', showOverlay); draw();
+  });
+  document.getElementById('B-pre-straight').addEventListener('click', function(){ setMode('C'); slider.value = 0; draw(); });
+  document.getElementById('B-pre-c').addEventListener('click', function(){ setMode('C'); slider.value = 50; draw(); });
+  document.getElementById('B-pre-hard').addEventListener('click', function(){ setMode('C'); slider.value = 90; draw(); });
+  document.getElementById('B-pre-s').addEventListener('click', function(){ setMode('S'); draw(); });
+
+  draw();
+})();
+
+// ============================================================
+// MODULE C — đổ bóng cả hai cảnh
+// ============================================================
+(function(){
+  var bad = document.getElementById('svgC-bad'), good = document.getElementById('svgC-good');
+  document.getElementById('C-shadow').addEventListener('click', function(){
+    var on = !bad.classList.contains('sil');
+    bad.classList.toggle('sil', on); good.classList.toggle('sil', on);
+    this.classList.toggle('on', on);
+  });
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

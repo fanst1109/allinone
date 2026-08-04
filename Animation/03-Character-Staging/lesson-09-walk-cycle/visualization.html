@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L9: Chu kỳ đi bộ (Walk cycle) — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fff7ed;
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+    --near: #c2410c;   /* chi bên gần — đậm */
+    --far:  #fb923c;   /* chi bên xa — nhạt */
+    --torso: #7c2d12;
+  }
+  main { max-width: 900px; }
+  .lead { color: #7c5b45; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f0e0d0; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(120,60,20,.06);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #9a7860; font-size: 13px; margin-bottom: 14px; }
+
+  /* Sân khấu SVG */
+  .stage { width: 100%; display: block; background: linear-gradient(#fffdfb,#fff3e6); border-radius: 10px; }
+
+  /* Điều khiển */
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .controls button {
+    border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #f1e4d8; color: #7c4a25; }
+  .btn-ghost:hover { background: #e7d2bf; }
+
+  .sliders { margin-top: 16px; display: grid; gap: 14px; }
+  .slider-row label { display: block; font-size: 13px; font-weight: 700; color: #6b4a30; margin-bottom: 4px; }
+  .slider-row .val { color: var(--accent-hover); font-weight: 800; }
+  .slider-row input[type=range] { width: 100%; max-width: 100%; accent-color: var(--accent); }
+
+  /* Nút nhảy pose */
+  .pose-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .pose-btns button {
+    flex: 1 1 auto; min-width: 0; text-align: center;
+    border: 1.5px solid #e6c9ad; background: #fff; border-radius: 9px;
+    padding: 8px 6px; cursor: pointer; font-size: 13px; font-weight: 700; color: #7c4a25;
+    transition: all .12s;
+  }
+  .pose-btns button .en { display: block; font-size: 11px; font-weight: 600; color: #b08560; margin-top: 1px; }
+  .pose-btns button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .pose-btns button.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .pose-btns button.active .en { color: #ffe6d2; }
+
+  /* Readout */
+  .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 10px; margin-top: 8px; }
+  .stat { background: var(--accent-soft); border-radius: 9px; padding: 10px 12px; }
+  .stat .k { font-size: 11px; font-weight: 700; color: #a5713f; text-transform: uppercase; letter-spacing: .4px; }
+  .stat .v { font-size: 20px; font-weight: 800; color: var(--accent-hover); margin-top: 2px; }
+  .stat .v small { font-size: 12px; font-weight: 600; color: #9a7860; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #6b4a30; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 22px; height: 5px; border-radius: 3px; display: inline-block; }
+
+  /* Bảng 4 pose */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; }
+  th, td { border: 1px solid #f0e0d0; padding: 6px 9px; text-align: center; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #fdf0e3; font-size: 12px; }
+  tr.on td { background: var(--accent-soft); font-weight: 700; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../../02-Motion-Curves/lesson-08-secondary-overlapping/visualization.html">← L8</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Walk cycle</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-staging-composition/visualization.html">L10: Dựng cảnh →</a>
+</nav>
+<main>
+  <h1>Chu kỳ đi bộ — nhân vật que đi bộ sống</h1>
+  <div class="lead">Vòng lặp khép kín đi qua đúng <strong>4 pose mấu chốt</strong>: Contact → Down → Passing → Up. Thân nhấp nhô, <strong>tay vung ngược pha với chân</strong>, mặt đất trôi để cảm nhận bước tới.</div>
+
+  <div class="module">
+    <h2>Sân khấu</h2>
+    <div class="sub">Bấm Play để nhân vật đi tại chỗ; mặt đất trôi ngược tạo cảm giác tiến tới.</div>
+    <svg class="stage" width="440" height="340" viewBox="0 0 440 340" id="stage" aria-label="Nhân vật que đi bộ">
+      <!-- mặt đất trôi -->
+      <line x1="0" y1="290" x2="440" y2="290" stroke="#e6c9ad" stroke-width="2"/>
+      <g id="ticks"></g>
+      <!-- chi bên xa (vẽ trước để nằm sau) -->
+      <line id="far-arm-u" class="limb far" /><line id="far-arm-l" class="limb far" />
+      <line id="far-leg-u" class="limb far" /><line id="far-leg-l" class="limb far" />
+      <!-- thân + đầu -->
+      <line id="torso" class="limb torso" />
+      <circle id="head" class="head" r="15" />
+      <!-- chi bên gần -->
+      <line id="near-arm-u" class="limb near" /><line id="near-arm-l" class="limb near" />
+      <line id="near-leg-u" class="limb near" /><line id="near-leg-l" class="limb near" />
+      <!-- khớp hông + nhãn pose -->
+      <circle id="hip" r="4" fill="#7c2d12" />
+      <text id="pose-label" x="220" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#c2410c">Contact</text>
+    </svg>
+
+    <div class="controls">
+      <button class="btn-play" id="play">▶ Play</button>
+      <button class="btn-ghost" id="reset">↺ Reset</button>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch" style="background:#c2410c"></i> chân/tay bên gần</span>
+      <span><i class="swatch" style="background:#fb923c"></i> chân/tay bên xa</span>
+      <span><i class="swatch" style="background:#7c2d12"></i> thân + đầu</span>
+    </div>
+
+    <div class="readout">
+      <div class="stat"><div class="k">Pose gần nhất</div><div class="v" id="r-pose">Contact</div></div>
+      <div class="stat"><div class="k">Tiến độ chu kỳ</div><div class="v" id="r-phase">0<small>%</small></div></div>
+      <div class="stat"><div class="k">Độ cao hông</div><div class="v" id="r-hip">−2</div></div>
+      <div class="stat"><div class="k">Nhịp</div><div class="v" id="r-tempo">12<small> f/bước</small></div></div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Nhảy tới từng pose mấu chốt</h2>
+    <div class="sub">Tạm dừng và soi từng key pose (bước chân phải dẫn). Chú ý độ cao hông và hình chân trụ.</div>
+    <div class="pose-btns" id="pose-btns">
+      <button data-k="0">Contact<span class="en">chạm đất</span></button>
+      <button data-k="1">Down<span class="en">hạ / recoil</span></button>
+      <button data-k="2">Passing<span class="en">lướt qua</span></button>
+      <button data-k="3">Up<span class="en">đỉnh cao</span></button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Điều khiển nhịp & sải bước</h2>
+    <div class="sub">Đổi nhịp = đổi tính cách. Sải bước lớn hơn → chân dạng rộng hơn ở Contact.</div>
+    <div class="sliders">
+      <div class="slider-row">
+        <label>Tốc độ — <span class="val" id="lab-speed">12</span> frame/bước (24 fps) · full cycle <span class="val" id="lab-cycle">1.00</span> s</label>
+        <input type="range" id="speed" min="6" max="24" step="1" value="12">
+      </div>
+      <div class="slider-row">
+        <label>Sải bước (stride) — <span class="val" id="lab-stride">1.0</span>×</label>
+        <input type="range" id="stride" min="0.5" max="1.5" step="0.05" value="1.0">
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Bốn pose & độ cao hông</h2>
+    <div class="sub">Hàng sáng = pose đang gần nhất trong sân khấu.</div>
+    <table>
+      <thead><tr><th>Pose</th><th>Frame (12f/bước)</th><th>Độ cao hông</th><th>Chân trụ</th></tr></thead>
+      <tbody>
+        <tr id="row-0"><td>Contact (chạm đất)</td><td>1</td><td>−2</td><td>hai chân dạng rộng</td></tr>
+        <tr id="row-1"><td>Down / Recoil (hạ)</td><td>4</td><td>−9 · thấp nhất</td><td>gối gập ~22°</td></tr>
+        <tr id="row-2"><td>Passing (lướt qua)</td><td>7</td><td>+3</td><td>thẳng đứng</td></tr>
+        <tr id="row-3"><td>Up / High-point (đỉnh)</td><td>10</td><td>+8 · cao nhất</td><td>duỗi, đạp mũi</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+"use strict";
+var DEG = Math.PI / 180;
+
+// ---- Hình học nhân vật que ----
+var X0 = 220;          // hông cố định theo phương ngang (đi tại chỗ)
+var HIP_BASE_Y = 194;  // độ cao hông chuẩn (px trên màn)
+var THIGH = 48, SHIN = 46;
+var TORSO = 60, HEAD_R = 15;
+var UARM = 32, FARM = 30;
+
+// ---- 8 keyframe cho FULL CYCLE (2 bước) ----
+// Trường: bob (px, + = cao hơn), rt/rk = đùi/gối phải, lt/lk = đùi/gối trái,
+//         ra/rae = tay phải trên/khuỷu, la/lae = tay trái, lean = độ nghiêng thân.
+// Góc (độ), + = ra trước (+x, sang phải). Keyframe 0..3 = bước chân PHẢI dẫn;
+// 4..7 = ảnh gương (chân TRÁI dẫn).
+var KF = [
+  // 0 CONTACT (phải trước)
+  { bob:-2, rt:+26, rk:4,  lt:-24, lk:12, ra:-26, rae:10, la:+26, lae:10, lean:6 },
+  // 1 DOWN / RECOIL (thấp nhất)
+  { bob:-9, rt:+12, rk:22, lt:-14, lk:30, ra:-13, rae:12, la:+13, lae:12, lean:7 },
+  // 2 PASSING (chân trái lướt qua, trụ = phải thẳng)
+  { bob:+3, rt:0,   rk:3,  lt:+2,  lk:46, ra:0,   rae:8,  la:0,   lae:8,  lean:6 },
+  // 3 UP / HIGH (cao nhất, đạp mũi phải)
+  { bob:+8, rt:-18, rk:8,  lt:+20, lk:20, ra:+13, rae:10, la:-13, lae:10, lean:6 },
+  // 4 CONTACT (trái trước) — gương của 0
+  { bob:-2, rt:-24, rk:12, lt:+26, lk:4,  ra:+26, rae:10, la:-26, lae:10, lean:6 },
+  // 5 DOWN — gương của 1
+  { bob:-9, rt:-14, rk:30, lt:+12, lk:22, ra:+13, rae:12, la:-13, lae:12, lean:7 },
+  // 6 PASSING — gương của 2
+  { bob:+3, rt:+2,  rk:46, lt:0,   lk:3,  ra:0,   rae:8,  la:0,   lae:8,  lean:6 },
+  // 7 UP — gương của 3
+  { bob:+8, rt:+20, rk:20, lt:-18, lk:8,  ra:-13, rae:10, la:+13, lae:10, lean:6 }
+];
+var POSE_NAMES = ["Contact","Down","Passing","Up","Contact","Down","Passing","Up"];
+
+// ---- Trạng thái ----
+var t = 0;              // vị trí trong full cycle, [0,1)
+var playing = false;
+var cycleSec = 1.0;     // thời lượng full cycle (giây) — suy từ slider tốc độ
+var stride = 1.0;
+var groundOff = 0;
+var lastTs = null;
+
+// ---- Nội suy giữa 2 keyframe với ease mượt (giữ pose ĐÚNG tại key) ----
+function smooth(u){ return u*u*(3 - 2*u); }
+function lerp(a,b,u){ return a + (b - a)*u; }
+
+function poseAt(tt){
+  var f = tt * 8;                 // 8 keyframe/chu kỳ
+  var i = Math.floor(f) % 8;
+  var j = (i + 1) % 8;
+  var u = smooth(f - Math.floor(f));
+  var A = KF[i], B = KF[j], P = {};
+  ["bob","rt","rk","lt","lk","ra","rae","la","lae","lean"].forEach(function(key){
+    P[key] = lerp(A[key], B[key], u);
+  });
+  // Sải bước: co giãn biên độ đùi & tay quanh 0 (không đổi độ gập gối để chân luôn nhấc đủ)
+  ["rt","lt","ra","la"].forEach(function(k){ P[k] *= stride; });
+  return P;
+}
+
+// forward kinematics cho 1 chi 2 đoạn: trả điểm khớp giữa + điểm cuối
+function limb(ox, oy, upLen, upAng, loLen, bend){
+  var a1 = upAng * DEG;
+  var jx = ox + upLen*Math.sin(a1);
+  var jy = oy + upLen*Math.cos(a1);
+  var a2 = (upAng - bend) * DEG;   // gập: đoạn dưới xoay lùi so với đoạn trên
+  var ex = jx + loLen*Math.sin(a2);
+  var ey = jy + loLen*Math.cos(a2);
+  return { jx:jx, jy:jy, ex:ex, ey:ey };
+}
+
+function setLine(id, x1,y1,x2,y2){
+  var el = document.getElementById(id);
+  el.setAttribute("x1",x1); el.setAttribute("y1",y1);
+  el.setAttribute("x2",x2); el.setAttribute("y2",y2);
+}
+
+function draw(){
+  var P = poseAt(t);
+  var hipY = HIP_BASE_Y - P.bob;                 // bob dương = hông cao (y nhỏ)
+  var leanR = P.lean * DEG;
+  var shX = X0 + TORSO*Math.sin(leanR);
+  var shY = hipY - TORSO*Math.cos(leanR);        // vai (đỉnh thân)
+  var hdX = shX + (HEAD_R+5)*Math.sin(leanR);
+  var hdY = shY - (HEAD_R+5)*Math.cos(leanR);
+
+  // Chân (từ hông)
+  var rleg = limb(X0, hipY, THIGH, P.rt, SHIN, P.rk);
+  var lleg = limb(X0, hipY, THIGH, P.lt, SHIN, P.lk);
+  // Tay (từ vai). Khuỷu gập nhẹ: đoạn dưới lùi.
+  var rarm = limb(shX, shY, UARM, P.ra, FARM, P.rae);
+  var larm = limb(shX, shY, UARM, P.la, FARM, P.lae);
+
+  // Gán: bên "gần" = phải (đậm), bên "xa" = trái (nhạt)
+  setLine("near-leg-u", X0, hipY, rleg.jx, rleg.jy);
+  setLine("near-leg-l", rleg.jx, rleg.jy, rleg.ex, rleg.ey);
+  setLine("far-leg-u",  X0, hipY, lleg.jx, lleg.jy);
+  setLine("far-leg-l",  lleg.jx, lleg.jy, lleg.ex, lleg.ey);
+
+  setLine("near-arm-u", shX, shY, rarm.jx, rarm.jy);
+  setLine("near-arm-l", rarm.jx, rarm.jy, rarm.ex, rarm.ey);
+  setLine("far-arm-u",  shX, shY, larm.jx, larm.jy);
+  setLine("far-arm-l",  larm.jx, larm.jy, larm.ex, larm.ey);
+
+  setLine("torso", X0, hipY, shX, shY);
+  var head = document.getElementById("head");
+  head.setAttribute("cx", hdX); head.setAttribute("cy", hdY);
+  var hip = document.getElementById("hip");
+  hip.setAttribute("cx", X0); hip.setAttribute("cy", hipY);
+
+  // Nhãn pose gần nhất
+  var nearIdx = Math.round(t*8) % 8;
+  document.getElementById("pose-label").textContent = POSE_NAMES[nearIdx];
+
+  updateReadout(P, nearIdx);
+  drawTicks();
+}
+
+// Mặt đất trôi: các vạch dọc dịch trái theo tốc độ × sải bước
+function drawTicks(){
+  var g = document.getElementById("ticks");
+  if(!g.childNodes.length){
+    for(var x=-24; x<=464; x+=24){
+      var ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("y1","290"); ln.setAttribute("y2","297");
+      ln.setAttribute("stroke","#e6c9ad"); ln.setAttribute("stroke-width","2");
+      ln.setAttribute("data-x", x);
+      g.appendChild(ln);
+    }
+  }
+  var shift = -(groundOff % 24);
+  Array.prototype.forEach.call(g.childNodes, function(ln){
+    var bx = parseFloat(ln.getAttribute("data-x"));
+    ln.setAttribute("x1", bx + shift); ln.setAttribute("x2", bx + shift);
+  });
+}
+
+function updateReadout(P, nearIdx){
+  document.getElementById("r-pose").textContent = POSE_NAMES[nearIdx];
+  document.getElementById("r-phase").innerHTML = Math.round(t*100) + '<small>%</small>';
+  var bob = Math.round(P.bob);
+  document.getElementById("r-hip").textContent = (bob>0?'+':(bob<0?'−':'')) + Math.abs(bob);
+  var fps = 24;
+  var framesPerStep = Math.round(cycleSec/2 * fps);
+  document.getElementById("r-tempo").innerHTML = framesPerStep + '<small> f/bước</small>';
+  // tô sáng hàng bảng (map về 0..3 cho bước phải)
+  for(var k=0;k<4;k++){ document.getElementById("row-"+k).className = ""; }
+  var base = nearIdx % 4;
+  document.getElementById("row-"+base).className = "on";
+  // active nút pose
+  var btns = document.querySelectorAll("#pose-btns button");
+  btns.forEach(function(b){ b.classList.toggle("active", parseInt(b.dataset.k,10) === base && !playing); });
+}
+
+// ---- Vòng lặp requestAnimationFrame ----
+function frame(ts){
+  if(lastTs === null) lastTs = ts;
+  var dt = (ts - lastTs) / 1000; lastTs = ts;
+  if(playing){
+    t = (t + dt / cycleSec) % 1;               // tiến theo thời gian thực → nhịp đúng
+    groundOff += dt * (140 * stride) / cycleSec; // đất trôi ∝ 1/chu-kỳ × sải bước
+    draw();
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---- Điều khiển ----
+var playBtn = document.getElementById("play");
+function setPlaying(on){
+  playing = on;
+  playBtn.textContent = on ? "⏸ Pause" : "▶ Play";
+  if(!playing) draw(); // cập nhật trạng thái active nút pose
+}
+playBtn.onclick = function(){ setPlaying(!playing); };
+
+document.getElementById("reset").onclick = function(){
+  setPlaying(false); t = 0; groundOff = 0; draw();
+};
+
+document.querySelectorAll("#pose-btns button").forEach(function(b){
+  b.onclick = function(){
+    setPlaying(false);
+    t = parseInt(b.dataset.k,10) / 8;   // rơi đúng vào keyframe → pose chuẩn xác
+    draw();
+  };
+});
+
+var speed = document.getElementById("speed");
+function applySpeed(){
+  var framesPerStep = parseInt(speed.value,10);
+  cycleSec = (framesPerStep * 2) / 24;     // 2 bước/chu kỳ, 24 fps
+  document.getElementById("lab-speed").textContent = framesPerStep;
+  document.getElementById("lab-cycle").textContent = cycleSec.toFixed(2);
+  if(!playing) draw();
+}
+speed.oninput = applySpeed;
+
+var strideEl = document.getElementById("stride");
+strideEl.oninput = function(){
+  stride = parseFloat(strideEl.value);
+  document.getElementById("lab-stride").textContent = stride.toFixed(2).replace(/0$/,'').replace(/\.$/,'.0');
+  draw();
+};
+
+// style cho line limb (đặt qua JS để giữ <style> gọn cho các selector chính)
+var css = document.createElement("style");
+css.textContent =
+  ".limb{stroke-linecap:round;fill:none}" +
+  ".limb.near{stroke:var(--near);stroke-width:7}" +
+  ".limb.far{stroke:var(--far);stroke-width:6}" +
+  ".limb.torso{stroke:var(--torso);stroke-width:8}" +
+  ".head{fill:#fff;stroke:var(--torso);stroke-width:5}";
+document.head.appendChild(css);
+
+// khởi tạo
+applySpeed();
+draw();
+requestAnimationFrame(frame);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

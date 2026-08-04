@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L2: Nén & Giãn (Squash & Stretch) — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 820px; }
+
+  .lead { color: #57534e; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e7e5e4; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #78716c; font-size: 13px; margin-bottom: 14px; }
+
+  /* Sân khấu canvas */
+  .stage-wrap { text-align: center; }
+  canvas#stage {
+    width: 520px; max-width: 100%; height: auto;
+    background: linear-gradient(#fffdfb, #fff5ec);
+    border: 1px solid #f2e3d3; border-radius: 12px; display: block; margin: 0 auto;
+  }
+
+  /* Thanh điều khiển */
+  .controls { margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btns button {
+    border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: filter .12s;
+  }
+  .btns button:hover { filter: brightness(0.94); }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-reset { background: #e7e5e4; color: #44403c; }
+
+  .slider-block { flex: 1 1 260px; min-width: 0; }
+  .slider-block label { font-size: 13px; font-weight: 700; color: #44403c; display: block; margin-bottom: 4px; }
+  .slider-block input[type=range] { width: 100%; accent-color: var(--accent); }
+  .mat-name { font-weight: 800; color: var(--accent-hover); }
+
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .presets button {
+    border: 1px solid #d6d3d1; background: #fff; color: #44403c; border-radius: 20px;
+    padding: 5px 13px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s;
+  }
+  .presets button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .presets button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #44403c; cursor: pointer; }
+  .toggle input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .toggle .warn { color: #b91c1c; font-weight: 700; font-size: 12px; }
+
+  /* Đồng hồ biến dạng */
+  .gauge { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+  .cell {
+    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 10px; padding: 10px 12px; text-align: center;
+  }
+  .cell .k { font-size: 11px; font-weight: 700; color: #78716c; text-transform: uppercase; letter-spacing: .4px; }
+  .cell .v { font-size: 22px; font-weight: 800; color: #292524; margin-top: 2px; }
+  .cell .u { font-size: 11px; color: #a8a29e; }
+  .cell.hi { background: var(--accent-soft); border-color: #fbcfa4; }
+  .cell.hi .v { color: var(--accent-hover); }
+
+  .verdict {
+    margin-top: 14px; text-align: center; font-size: 15px; font-weight: 800;
+    padding: 9px; border-radius: 8px;
+  }
+  .verdict.ok { background: #dcfce7; color: #15803d; }
+  .verdict.bad { background: #fee2e2; color: #b91c1c; }
+
+  .note { font-size: 13px; color: #57534e; line-height: 1.7; }
+  .note code { background: #f5f5f4; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-timing-spacing/visualization.html">← L1</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Squash &amp; Stretch</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-anticipation-followthrough/visualization.html">L3: Lấy đà &amp; quán tính →</a>
+</nav>
+<main>
+  <h1>Nén &amp; Giãn — quả bóng nảy sống động</h1>
+  <div class="lead">Bóng <strong>nén (squash)</strong> khi chạm đất, <strong>giãn (stretch)</strong> khi bay nhanh. Chỉnh <strong>độ squash</strong> và bật/tắt <strong>bảo toàn thể tích</strong> để thấy khi nào bóng đúng, khi nào "phình to / teo nhỏ".</div>
+
+  <div class="module">
+    <h2>Mô phỏng bóng nảy</h2>
+    <div class="sub">Vòng tròn nét đứt = kích thước nghỉ (tròn) để so sánh mức biến dạng.</div>
+    <div class="stage-wrap">
+      <canvas id="stage" width="520" height="360" aria-label="Mô phỏng quả bóng nảy có nén và giãn"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="row">
+        <div class="btns">
+          <button class="btn-play" id="playBtn">⏸ Tạm dừng</button>
+          <button class="btn-reset" id="resetBtn">↺ Làm lại</button>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="conserveChk" checked>
+          Bảo toàn thể tích <span class="warn" id="warnLbl"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <div class="slider-block">
+          <label>Độ squash (độ mềm vật liệu): <span class="mat-name" id="matName">Bóng cao su</span></label>
+          <input type="range" id="squashSlider" min="0" max="100" value="80">
+        </div>
+      </div>
+
+      <div class="presets" id="presets">
+        <button data-v="5">Bi sắt</button>
+        <button data-v="18">Nhựa cứng</button>
+        <button data-v="45">Bóng tennis</button>
+        <button data-v="80" class="active">Bóng cao su</button>
+        <button data-v="100">Bóng nước</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Đồng hồ biến dạng</h2>
+    <div class="sub">Số cập nhật realtime theo từng frame. Luật: rộng × cao phải bằng kích thước nghỉ (60 × 60 = 3600).</div>
+    <div class="gauge">
+      <div class="cell"><div class="k">Trạng thái</div><div class="v" id="g-state" style="font-size:16px">—</div></div>
+      <div class="cell"><div class="k">Hệ số k</div><div class="v" id="g-k">1.00</div><div class="u">cao = D·k</div></div>
+      <div class="cell"><div class="k">Rộng W</div><div class="v" id="g-w">60</div></div>
+      <div class="cell"><div class="k">Cao H</div><div class="v" id="g-h">60</div></div>
+      <div class="cell hi"><div class="k">Rộng × Cao</div><div class="v" id="g-area">3600</div><div class="u">nghỉ = 3600</div></div>
+    </div>
+    <div class="verdict ok" id="verdict">✓ Bảo toàn: rộng × cao ≈ 3600 (không đổi)</div>
+  </div>
+
+  <div class="module">
+    <h2>Cách đọc minh họa</h2>
+    <div class="note">
+      <p>💡 <strong>Nén thì phình, giãn thì thóp.</strong> Với bảo toàn thể tích bật: khi bóng bẹp xuống (<code>k &lt; 1</code>) chiều <strong>rộng nở ra</strong> để bù, còn khi bóng dài ra lúc bay nhanh (<code>k &gt; 1</code>) chiều <strong>rộng thóp lại</strong> — tích <code>rộng × cao</code> luôn ≈ 3600.</p>
+      <p>⚠ <strong>Tắt "Bảo toàn thể tích"</strong> để thấy lỗi kinh điển: chiều rộng bị giữ nguyên, nên lúc giãn bóng <strong>phình to</strong> (diện tích tăng) và lúc nén bóng <strong>teo nhỏ</strong> (diện tích giảm) — trông như mất/thêm khối lượng, sai vật lý. Ô "Rộng × Cao" sẽ nhảy số và chuyển đỏ.</p>
+      <p>🎚 <strong>Kéo slider độ squash</strong>: sang trái = <em>bi sắt</em> (gần như không biến dạng, cứng), sang phải = <em>bóng nước</em> (bẹp dí, rất mềm). Cùng một cú nảy nhưng "chất liệu" đổi hẳn — đó là cách squash truyền độ cứng vật liệu.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===================== Cấu hình vật lý =====================
+var cv = document.getElementById('stage');
+var ctx = cv.getContext('2d');
+var CW = cv.width, CH = cv.height;         // 520 x 360
+var groundY = 312;                          // đường mặt đất
+var centerX = 260;                          // bóng nảy tại chỗ theo phương ngang
+var baseR = 30, baseD = baseR * 2;          // bán kính / đường kính nghỉ (D = 60)
+var BASE_AREA = baseD * baseD;              // 3600
+var g = 1500;                               // gia tốc trọng trường (px/s^2)
+var launch = 820;                           // tốc độ bật lên sau mỗi cú nảy (cố định -> nảy đều, loop mãi)
+var vmax = launch;                          // chuẩn hóa tốc độ để tính stretch
+var STRETCH_MAX = 0.6;                      // biên độ giãn tối đa
+var SQUASH_MAX = 0.55;                      // biên độ nén tối đa
+var SQUASH_DUR = 0.12;                      // thời gian nén khi chạm đất (giây)
+var apexY = groundY - baseR - (launch * launch) / (2 * g); // đỉnh nảy để thả từ đó
+
+// ===================== Trạng thái =====================
+var squashAmount = 0.80;   // 0..1 (độ mềm vật liệu) — từ slider
+var conserve = true;       // bảo toàn thể tích?
+var running = true;
+
+var mode = 'air';          // 'air' | 'squash'
+var cy = apexY;            // tọa độ tâm bóng (y hướng xuống)
+var vy = 0;                // vận tốc dọc
+var squashT = 0;           // đồng hồ đếm ngược khi đang nén
+
+// ===================== Biến dạng =====================
+// Trả về {w, h, k}. k = hệ số giãn dọc: >1 giãn, <1 nén.
+function deform() {
+  var k;
+  if (mode === 'squash') {
+    var p = squashT / SQUASH_DUR;                 // 1 lúc chạm -> 0 lúc nhả
+    k = 1 - SQUASH_MAX * squashAmount * p;         // nén: k < 1
+  } else {
+    var sp = Math.min(Math.abs(vy) / vmax, 1);     // tốc độ chuẩn hóa
+    k = 1 + STRETCH_MAX * squashAmount * sp;        // bay nhanh: k > 1
+  }
+  var h = baseD * k;
+  var w = conserve ? baseD / k : baseD;            // bảo toàn -> rộng bù; tắt -> rộng cố định (sai)
+  return { w: w, h: h, k: k };
+}
+
+// ===================== Cập nhật vật lý =====================
+function update(dt) {
+  if (mode === 'air') {
+    vy += g * dt;
+    cy += vy * dt;
+    var d = deform();
+    var bottom = cy + d.h / 2;
+    if (vy > 0 && bottom >= groundY) {   // chạm đất khi đang đi xuống
+      mode = 'squash';
+      squashT = SQUASH_DUR;
+    }
+  } else { // squash: nén tại chỗ vài frame rồi bật lên
+    squashT -= dt;
+    if (squashT <= 0) {
+      squashT = 0;
+      mode = 'air';
+      vy = -launch;                       // bật lên với tốc độ cố định
+    }
+  }
+  // Ghim đáy bóng lên mặt đất trong lúc nén (chiều cao nhỏ -> tâm hạ xuống)
+  if (mode === 'squash') {
+    var ds = deform();
+    cy = groundY - ds.h / 2;
+  } else {
+    // Lúc vừa bật lên, bóng đang giãn (cao) mà tâm còn sát đất -> đáy sẽ lún
+    // dưới mặt đất. Ghim đáy lên đất: vệt giãn "mọc lên" từ điểm chạm (đúng cách animator).
+    var da = deform();
+    if (cy + da.h / 2 > groundY) cy = groundY - da.h / 2;
+  }
+}
+
+// ===================== Vẽ =====================
+function draw() {
+  ctx.clearRect(0, 0, CW, CH);
+
+  var d = deform();
+
+  // Bóng đổ trên đất — to/đậm hơn khi bóng gần đất
+  var ballBottom = cy + d.h / 2;
+  var airGap = groundY - ballBottom;
+  var prox = Math.max(0, Math.min(1, 1 - airGap / 230));
+  var shR = d.w / 2 * (0.55 + 0.45 * prox);
+  ctx.save();
+  ctx.globalAlpha = 0.10 + 0.16 * prox;
+  ctx.fillStyle = '#7c2d12';
+  ctx.beginPath();
+  ctx.ellipse(centerX, groundY + 6, shR, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Mặt đất
+  ctx.strokeStyle = '#e7d3bf';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(20, groundY);
+  ctx.lineTo(CW - 20, groundY);
+  ctx.stroke();
+  ctx.fillStyle = '#b8a894';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('mặt đất', CW - 24, groundY + 16);
+
+  // Vòng tròn nghỉ (nét đứt) — mốc so sánh
+  ctx.save();
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#f0b892';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(centerX, cy, baseR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Quả bóng (ellipse) với gradient cam
+  var grad = ctx.createRadialGradient(
+    centerX - d.w * 0.18, cy - d.h * 0.22, d.w * 0.1,
+    centerX, cy, Math.max(d.w, d.h) * 0.6
+  );
+  grad.addColorStop(0, '#fdba74');
+  grad.addColorStop(0.55, '#f97316');
+  grad.addColorStop(1, '#c2410c');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, cy, d.w / 2, d.h / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#9a3412';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Đốm sáng nhỏ
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.ellipse(centerX - d.w * 0.16, cy - d.h * 0.2, d.w * 0.12, d.h * 0.1, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Nhãn trạng thái nổi cạnh bóng
+  var label = mode === 'squash' ? 'NÉN' : (vy < 0 ? 'GIÃN' : (Math.abs(vy) / vmax > 0.25 ? 'GIÃN' : ''));
+  if (label) {
+    ctx.fillStyle = label === 'NÉN' ? '#b91c1c' : '#c2410c';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, centerX + d.w / 2 + 12, cy + 4);
+  }
+}
+
+// ===================== Đồng hồ biến dạng (HTML) =====================
+function fmt(n) { return (Math.round(n * 10) / 10).toString(); }
+
+function updateGauge() {
+  var d = deform();
+  var area = d.w * d.h;
+
+  var stateTxt;
+  if (mode === 'squash') stateTxt = 'Nén (chạm đất)';
+  else if (vy < 0) stateTxt = 'Bay lên';
+  else stateTxt = 'Rơi xuống';
+
+  document.getElementById('g-state').textContent = stateTxt;
+  document.getElementById('g-k').textContent = d.k.toFixed(2);
+  document.getElementById('g-w').textContent = fmt(d.w);
+  document.getElementById('g-h').textContent = fmt(d.h);
+  document.getElementById('g-area').textContent = Math.round(area);
+
+  var diff = Math.abs(area - BASE_AREA) / BASE_AREA;
+  var vEl = document.getElementById('verdict');
+  var areaCell = document.getElementById('g-area').parentElement;
+  if (diff < 0.06) {
+    vEl.className = 'verdict ok';
+    vEl.textContent = '✓ Bảo toàn: rộng × cao ≈ 3600 (không đổi)';
+    areaCell.classList.add('hi');
+  } else {
+    vEl.className = 'verdict bad';
+    var pct = Math.round((area - BASE_AREA) / BASE_AREA * 100);
+    vEl.textContent = '✗ SAI: rộng × cao = ' + Math.round(area) + ' (' + (pct > 0 ? '+' : '') + pct + '% so với 3600) → bóng ' + (pct > 0 ? 'phình to' : 'teo nhỏ');
+    areaCell.classList.remove('hi');
+  }
+}
+
+// ===================== Vòng lặp rAF =====================
+var last = null;
+function frame(ts) {
+  if (last === null) last = ts;
+  var dt = (ts - last) / 1000;
+  last = ts;
+  if (dt > 0.05) dt = 0.05;      // chống nhảy lớn khi tab mất focus
+  if (running) update(dt);
+  draw();
+  updateGauge();
+  requestAnimationFrame(frame);
+}
+
+// ===================== Điều khiển =====================
+var playBtn = document.getElementById('playBtn');
+playBtn.onclick = function () {
+  running = !running;
+  playBtn.textContent = running ? '⏸ Tạm dừng' : '▶ Chạy tiếp';
+  if (running) last = null;      // reset mốc thời gian để không nhảy
+};
+
+document.getElementById('resetBtn').onclick = function () {
+  mode = 'air'; cy = apexY; vy = 0; squashT = 0;
+  running = true; last = null;
+  playBtn.textContent = '⏸ Tạm dừng';
+};
+
+document.getElementById('conserveChk').onchange = function (e) {
+  conserve = e.target.checked;
+  document.getElementById('warnLbl').textContent = conserve ? '' : '(đang TẮT — xem bóng sai)';
+};
+
+var matNames = [
+  { max: 0.10, name: 'Bi sắt (gần như cứng)' },
+  { max: 0.35, name: 'Nhựa cứng' },
+  { max: 0.60, name: 'Bóng tennis' },
+  { max: 0.88, name: 'Bóng cao su' },
+  { max: 1.01, name: 'Bóng nước (rất mềm)' }
+];
+function matNameFor(v) {
+  for (var i = 0; i < matNames.length; i++) if (v <= matNames[i].max) return matNames[i].name;
+  return matNames[matNames.length - 1].name;
+}
+
+var slider = document.getElementById('squashSlider');
+var presetBtns = document.querySelectorAll('#presets button');
+function applySquash(v) {
+  squashAmount = v / 100;
+  document.getElementById('matName').textContent = matNameFor(squashAmount);
+  // đánh dấu preset khớp (nếu có)
+  presetBtns.forEach(function (b) {
+    b.classList.toggle('active', parseInt(b.getAttribute('data-v'), 10) === v);
+  });
+}
+slider.oninput = function () { applySquash(parseInt(slider.value, 10)); };
+presetBtns.forEach(function (b) {
+  b.onclick = function () {
+    var v = parseInt(b.getAttribute('data-v'), 10);
+    slider.value = v;
+    applySquash(v);
+  };
+});
+
+// khởi tạo
+applySquash(parseInt(slider.value, 10));
+requestAnimationFrame(frame);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

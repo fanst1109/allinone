@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L3: Lấy đà & Quán tính — Animation</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #ea580c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #c2410c;
+  }
+  main { max-width: 860px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Điều khiển */
+  .ctl-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .ctl-row button {
+    border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+  .speed { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569; font-weight: 600; }
+  .speed input { width: 130px; max-width: 40vw; accent-color: var(--accent); }
+  .toggles { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .tg {
+    display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+    border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 14px; font-size: 14px; font-weight: 600; color: #1e293b;
+    transition: all .12s;
+  }
+  .tg input { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
+  .tg.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); }
+  .tg .hint { font-size: 11px; font-weight: 500; color: #64748b; display: block; }
+
+  .progress { margin-top: 14px; height: 8px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+  .progress > div { height: 100%; width: 0; background: var(--accent); transition: width .05s linear; }
+
+  /* Sân khấu 2 nhân vật */
+  .stage-grid { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .fig { flex: 1 1 300px; min-width: 0; max-width: 360px; }
+  .fig canvas {
+    width: 100%; height: auto; display: block;
+    background: linear-gradient(#f8fafc, #eef2f7); border: 1px solid #e3e1dc; border-radius: 12px;
+  }
+  .cap {
+    text-align: center; font-weight: 800; font-size: 14px; margin-bottom: 6px; padding: 6px 8px;
+    border-radius: 8px;
+  }
+  .cap.raw { background: #f1f5f9; color: #475569; }
+  .cap.pro { background: var(--accent-soft); color: var(--accent-hover); }
+  .cap .tags { display: block; font-size: 11px; font-weight: 600; margin-top: 2px; }
+  .phase {
+    text-align: center; font-size: 13px; font-weight: 700; color: #334155; margin-top: 6px;
+    min-height: 18px;
+  }
+  .note { font-size: 13px; color: #475569; margin: 14px 0 0; line-height: 1.6; }
+  .note strong { color: var(--accent-hover); }
+
+  /* Ba pha */
+  .phases { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .phase-card { flex: 1 1 200px; border: 1px solid #e3e1dc; border-radius: 10px; padding: 12px 14px; }
+  .phase-card h3 { margin: 0 0 4px; font-size: 15px; }
+  .phase-card.antic { border-left: 4px solid var(--accent); }
+  .phase-card.action { border-left: 4px solid #0ea5e9; }
+  .phase-card.follow { border-left: 4px solid #16a34a; }
+  .phase-card p { margin: 0; font-size: 13px; color: #475569; line-height: 1.55; }
+  .phase-card .n { font-size: 12px; color: #94a3b8; font-weight: 700; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Animation</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-squash-stretch/visualization.html">← L2</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Lấy đà & quán tính</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-ease-in-out/visualization.html">L4: Ease In/Out →</a>
+</nav>
+<main>
+  <h1>Lấy đà & Quán tính — mô phỏng sống</h1>
+  <div class="lead">
+    Hai nhân vật nhảy <strong>cạnh nhau</strong>. Bên trái luôn <em>thô</em> (không nguyên tắc) để tham chiếu;
+    bên phải nghe theo hai công tắc bên dưới. Bật <strong>Lấy đà</strong> để thêm pha khuỵu ngược <em>trước</em> khi bật;
+    bật <strong>Nối tiếp</strong> để thêm <em>overshoot rồi lắng lại</em> khi tiếp đất, kèm chỏm tóc bay theo quán tính.
+  </div>
+
+  <div class="module">
+    <h2>Điều khiển</h2>
+    <div class="sub">Nhấn Chạy rồi bật/tắt từng nguyên tắc để so sánh trực tiếp.</div>
+    <div class="ctl-row">
+      <button class="btn-play" id="btnPlay">▶ Chạy</button>
+      <button class="btn-reset" id="btnReset">↺ Reset</button>
+      <label class="speed">Tốc độ
+        <input type="range" id="speed" min="0.3" max="1.6" step="0.1" value="1">
+        <span id="speedVal">1.0×</span>
+      </label>
+    </div>
+    <div class="toggles">
+      <label class="tg on" id="tgAntic">
+        <input type="checkbox" id="cbAntic" checked>
+        <span>Lấy đà (Anticipation)<span class="hint">khuỵu ngược trước khi bật</span></span>
+      </label>
+      <label class="tg on" id="tgFollow">
+        <input type="checkbox" id="cbFollow" checked>
+        <span>Nối tiếp (Follow-through)<span class="hint">overshoot → lắng + tóc bay theo</span></span>
+      </label>
+    </div>
+    <div class="progress"><div id="prog"></div></div>
+  </div>
+
+  <div class="module">
+    <h2>So sánh cạnh nhau</h2>
+    <div class="sub">Cùng một cú nhảy, cùng độ cao đỉnh — chỉ khác việc có áp dụng nguyên tắc hay không.</div>
+    <div class="stage-grid">
+      <div class="fig">
+        <div class="cap raw">Thô — không nguyên tắc<span class="tags">bật thẳng · dừng phựt</span></div>
+        <canvas id="cvL" width="320" height="300"></canvas>
+        <div class="phase" id="phL">—</div>
+      </div>
+      <div class="fig">
+        <div class="cap pro">Có nguyên tắc<span class="tags" id="capTags">Lấy đà ✓ · Nối tiếp ✓</span></div>
+        <canvas id="cvR" width="320" height="300"></canvas>
+        <div class="phase" id="phR">—</div>
+      </div>
+    </div>
+    <p class="note">
+      Quan sát bên phải: <strong>bật Lấy đà</strong> → có nhịp khuỵu người <em>xuống</em> trước khi lao lên (mắt kịp đoán "sắp nhảy").
+      <strong>Bật Nối tiếp</strong> → khi chạm đất thân <em>ép squash</em> rồi <em>vọt quá</em> lên chút, dao động tắt dần về tư thế đứng,
+      và chỏm tóc luôn <em>đến sau</em> thân (overlapping). Bên trái thiếu cả hai nên chuyển động "nổ ra từ hư không" và "tắt như công tắc".
+    </p>
+  </div>
+
+  <div class="module">
+    <h2>Ba pha của một hành động</h2>
+    <div class="sub">Lấy đà mở đầu, hành động chính ở giữa, nối tiếp khép lại — như "vào" và "ra" của một câu.</div>
+    <div class="phases">
+      <div class="phase-card antic">
+        <div class="n">Pha 1 — trước</div>
+        <h3>Lấy đà</h3>
+        <p>Chuyển động <strong>ngược chiều, nhỏ</strong>. Ví dụ 24fps: khuỵu gối ~5 frame. Báo trước cho người xem + tích lực.</p>
+      </div>
+      <div class="phase-card action">
+        <div class="n">Pha 2 — giữa</div>
+        <h3>Hành động chính</h3>
+        <p>Cú bật/ném/đấm. Spacing lớn nhất, nhanh nhất; treo lơ lửng ở đỉnh (ease — Lesson 04).</p>
+      </div>
+      <div class="phase-card follow">
+        <div class="n">Pha 3 — sau</div>
+        <h3>Nối tiếp</h3>
+        <p>Không dừng phựt: <strong>overshoot rồi settle</strong> (mỗi lần vọt ~35% lần trước), phần phụ bay tiếp theo quán tính.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ================== Hằng số hình học ==================
+var W = 320, H = 300;
+var GROUND = 250;
+var BODY_RX = 24, BODY_RY = 30;
+var REST_CY = GROUND - BODY_RY;   // tâm thân khi đứng, chân chạm đất
+var JUMP_H  = 130;
+var APEX_CY = REST_CY - JUMP_H;   // tâm thân ở đỉnh
+var HEAD_R  = 14;
+var HAIR_LEN = 30;
+var OVERSHOOT = 22;               // biên vọt quá khi tiếp đất
+
+var cxCanvas = W / 2;
+
+// ================== Trạng thái ==================
+var t = 0;                        // 0..1 một chu kỳ nhảy
+var playing = false;
+var speed = 1;
+var PERIOD = 2.8;                 // giây / chu kỳ ở tốc độ 1
+var lastTs = 0;
+var antic = true, follow = true;
+
+// Chỏm tóc (phần phụ) — spring cho hiệu ứng nối tiếp / chồng lấn
+function newHair() { return { x: cxCanvas, y: 0, vx: 0, vy: 0, init: false }; }
+var hairL = newHair();   // nhân vật thô
+var hairR = newHair();   // nhân vật có nguyên tắc
+
+var ctxL = document.getElementById('cvL').getContext('2d');
+var ctxR = document.getElementById('cvR').getContext('2d');
+
+function smooth(u) { return u * u * (3 - 2 * u); }   // smoothstep
+
+// ---- Trạng thái thân: THÔ (không nguyên tắc) ----
+function stateRaw(tt) {
+  var cy = REST_CY, phase = 'đứng yên';
+  if (tt < 0.20) { cy = REST_CY; phase = 'đứng chờ'; }
+  else if (tt < 0.50) { var u = (tt - 0.20) / 0.30; cy = REST_CY - JUMP_H * u; phase = 'bật thẳng lên'; }
+  else if (tt < 0.80) { var u = (tt - 0.50) / 0.30; cy = REST_CY - JUMP_H * (1 - u); phase = 'rơi'; }
+  else { cy = REST_CY; phase = 'dừng phựt'; }
+  return { cy: cy, sx: 1, sy: 1, phase: phase };
+}
+
+// ---- Trạng thái thân: CÓ NGUYÊN TẮC ----
+function statePro(tt, hasAntic, hasFollow) {
+  var cy = REST_CY, sx = 1, sy = 1, phase = '';
+
+  if (tt < 0.20) {                              // pha lấy đà
+    if (hasAntic) {
+      var e = smooth(tt / 0.20);
+      sy = 1 - 0.26 * e;                        // squash: khuỵu xuống (đầu hạ thấp), chân bám đất
+      sx = 1 + 0.22 * e;
+      phase = 'lấy đà (khuỵu ↓)';
+    } else { phase = 'đứng chờ'; }
+  }
+  else if (tt < 0.50) {                         // bật lên (ease-out về đỉnh)
+    var u = (tt - 0.20) / 0.30;
+    var e = 1 - Math.pow(1 - u, 2);
+    cy = REST_CY + (APEX_CY - REST_CY) * e;
+    sy = 1 + 0.14 * (1 - u);                    // stretch khi rời đất, hết dần ở đỉnh
+    sx = 1 - 0.10 * (1 - u);
+    phase = u < 0.18 ? 'bật lên (duỗi ↑)' : 'bay lên';
+  }
+  else if (tt < 0.75) {                         // rơi (nhanh dần)
+    var u = (tt - 0.50) / 0.25;
+    var e = u * u;
+    cy = APEX_CY + (REST_CY - APEX_CY) * e;
+    sy = 1 + 0.06 * u; sx = 1 - 0.04 * u;
+    phase = 'rơi';
+  }
+  else {                                        // tiếp đất + nối tiếp
+    var u = (tt - 0.75) / 0.25;
+    if (hasFollow) {
+      var q = Math.exp(-3.6 * u) * Math.cos(6.8 * u);   // 1 → dao động tắt dần
+      var comp = Math.max(q, 0);                        // ép (squash) lúc chạm
+      var over = Math.max(-q, 0);                       // vọt quá (lên)
+      sy = 1 - 0.24 * comp + 0.12 * over;
+      sx = 1 + 0.20 * comp - 0.10 * over;
+      cy = REST_CY - OVERSHOOT * over;
+      phase = comp > 0.06 ? 'tiếp đất (squash)' : (over > 0.03 ? 'vọt quá (overshoot)' : 'lắng lại');
+    } else { phase = 'dừng phựt'; }
+  }
+  return { cy: cy, sx: sx, sy: sy, phase: phase };
+}
+
+// ---- Hình học suy ra từ state (chân bám đất khi squash) ----
+function geom(state) {
+  var footY = state.cy + BODY_RY;      // đáy thân danh nghĩa
+  var ry = BODY_RY * state.sy;
+  var rx = BODY_RX * state.sx;
+  var bcy = footY - ry;                // tâm ellipse: giữ đáy cố định
+  var headCY = bcy - ry - HEAD_R + 4;
+  return { footY: footY, ry: ry, rx: rx, bcy: bcy, headCY: headCY,
+           anchorX: cxCanvas, anchorY: headCY - HEAD_R + 2 };
+}
+
+// ---- Cập nhật spring chỏm tóc ----
+function stepHair(h, g, springy, dt) {
+  var tgX = g.anchorX, tgY = g.anchorY - HAIR_LEN;
+  if (!h.init) { h.x = tgX; h.y = tgY; h.vx = 0; h.vy = 0; h.init = true; return; }
+  if (springy) {
+    var K = 320, C = 12;
+    var ax = (tgX - h.x) * K - h.vx * C;
+    var ay = (tgY - h.y) * K - h.vy * C;
+    h.vx += ax * dt; h.vy += ay * dt;
+    h.x += h.vx * dt; h.y += h.vy * dt;
+  } else {                              // ghim cứng (không nối tiếp)
+    h.x = tgX; h.y = tgY; h.vx = 0; h.vy = 0;
+  }
+}
+
+// ---- Vẽ một nhân vật ----
+function drawScene(ctx, state, g, h, col) {
+  ctx.clearRect(0, 0, W, H);
+
+  // mặt đất
+  ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(22, GROUND); ctx.lineTo(W - 22, GROUND); ctx.stroke();
+  // vạch tư thế đứng (tham chiếu)
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+  ctx.beginPath(); ctx.moveTo(22, REST_CY - BODY_RY); ctx.lineTo(W - 22, REST_CY - BODY_RY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // bóng đổ (mờ + nhỏ khi lên cao)
+  var hNorm = Math.max(0, (REST_CY - state.cy)) / JUMP_H;
+  var shW = g.rx * (1.35 - 0.7 * Math.min(1, hNorm));
+  ctx.fillStyle = 'rgba(15,23,42,' + (0.20 * (1 - 0.6 * Math.min(1, hNorm))).toFixed(3) + ')';
+  ctx.beginPath(); ctx.ellipse(cxCanvas, GROUND + 3, Math.max(6, shW), 6, 0, 0, Math.PI * 2); ctx.fill();
+
+  // chỏm tóc (vẽ trước để đầu đè lên chân tóc)
+  ctx.strokeStyle = col.hair; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(g.anchorX, g.anchorY); ctx.lineTo(h.x, h.y); ctx.stroke();
+  ctx.fillStyle = col.hair;
+  ctx.beginPath(); ctx.arc(h.x, h.y, 4.5, 0, Math.PI * 2); ctx.fill();
+
+  // thân
+  ctx.fillStyle = col.body;
+  ctx.beginPath(); ctx.ellipse(cxCanvas, g.bcy, g.rx, g.ry, 0, 0, Math.PI * 2); ctx.fill();
+
+  // đầu
+  ctx.fillStyle = col.head;
+  ctx.beginPath(); ctx.arc(cxCanvas, g.headCY, HEAD_R, 0, Math.PI * 2); ctx.fill();
+
+  // mắt (hướng lên chút cho có "chủ đích")
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cxCanvas - 5, g.headCY - 2, 3.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cxCanvas + 5, g.headCY - 2, 3.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); ctx.arc(cxCanvas - 5, g.headCY - 3, 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cxCanvas + 5, g.headCY - 3, 1.5, 0, Math.PI * 2); ctx.fill();
+}
+
+var COL_RAW = { body: '#94a3b8', head: '#64748b', hair: '#475569' };
+var COL_PRO = { body: '#ea580c', head: '#c2410c', hair: '#9a3412' };
+
+function frame(ts) {
+  if (!lastTs) lastTs = ts;
+  var dt = (ts - lastTs) / 1000; lastTs = ts;
+  if (dt > 0.033) dt = 0.033;
+
+  if (playing) { t += dt / (PERIOD / speed); if (t >= 1) t -= 1; }
+
+  var sL = stateRaw(t);
+  var sR = statePro(t, antic, follow);
+  var gL = geom(sL), gR = geom(sR);
+
+  stepHair(hairL, gL, false, dt);              // thô: tóc ghim cứng
+  stepHair(hairR, gR, follow, dt);             // có nguyên tắc: tóc spring khi bật Nối tiếp
+
+  drawScene(ctxL, sL, gL, hairL, COL_RAW);
+  drawScene(ctxR, sR, gR, hairR, COL_PRO);
+
+  document.getElementById('phL').textContent = sL.phase;
+  document.getElementById('phR').textContent = sR.phase;
+  document.getElementById('prog').style.width = (t * 100).toFixed(1) + '%';
+
+  requestAnimationFrame(frame);
+}
+
+// ================== Điều khiển UI ==================
+var btnPlay = document.getElementById('btnPlay');
+btnPlay.onclick = function () {
+  playing = !playing;
+  btnPlay.textContent = playing ? '⏸ Tạm dừng' : '▶ Chạy';
+};
+document.getElementById('btnReset').onclick = function () {
+  t = 0; playing = false; btnPlay.textContent = '▶ Chạy';
+  hairL.init = false; hairR.init = false;
+};
+document.getElementById('speed').oninput = function () {
+  speed = parseFloat(this.value);
+  document.getElementById('speedVal').textContent = speed.toFixed(1) + '×';
+};
+
+function syncTags() {
+  document.getElementById('capTags').textContent =
+    'Lấy đà ' + (antic ? '✓' : '✗') + ' · Nối tiếp ' + (follow ? '✓' : '✗');
+  document.getElementById('tgAntic').classList.toggle('on', antic);
+  document.getElementById('tgFollow').classList.toggle('on', follow);
+}
+document.getElementById('cbAntic').onchange = function () { antic = this.checked; syncTags(); };
+document.getElementById('cbFollow').onchange = function () { follow = this.checked; syncTags(); };
+
+syncTags();
+requestAnimationFrame(frame);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

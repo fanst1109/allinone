@@ -186,8 +186,9 @@
     //   duyệt). env(safe-area-inset-bottom) thêm padding cho iPhone notch.
     const hasIPA = window.location.pathname.includes('/English/');
     const hasZH  = window.location.pathname.includes('/Chinese/');
+    const hasJA  = window.location.pathname.includes('/Japanese/');
     const isMobile = window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
-    const readerShift = (hasIPA || hasZH) ? 56 : 0;
+    const readerShift = (hasIPA || hasZH || hasJA) ? 56 : 0;
     const mobileShift = isMobile ? 56 : 0;
     const btnBottom = 24 + readerShift + mobileShift;
     const panelBottom = btnBottom + 56;

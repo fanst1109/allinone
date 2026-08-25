@@ -210,6 +210,26 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 - Code Go khi có phải biên dịch được; tổ chức theo style chuẩn (`gofmt`-friendly), tên file `solutions.go` hoặc `<chủ-đề>.go`.
 - **Code mẫu trong README**: dùng Go cho lĩnh vực kỹ thuật/toán; có thể đưa code inline ngay cả khi không có `solutions.go` đứng riêng.
 
+## Sơ đồ trong README — SVG inline thay ASCII-art
+
+readme-modal render markdown bằng marked (raw HTML được giữ nguyên) → **sơ đồ trong `README.md` phải là inline `<svg>`, KHÔNG vẽ bằng ký tự ASCII** trong code block. ASCII vẽ trục/hình bằng `╱ │ ─ ● ↑` đọc rất khó, lệch hàng theo font — đã bị user chê trực tiếp.
+
+**Bắt buộc dùng SVG cho 2 loại:**
+1. **Đồ thị tọa độ / hình học / vector / dạng sóng** — mặt phẳng tọa độ, đồ thị hàm, vector, hình học, waveform, phasor... (ASCII loại này tệ nhất).
+2. **Sơ đồ khối / luồng / cây** — block diagram, flow, state machine, cây (BST, parse tree...), pipeline.
+
+**Được giữ ASCII (bản chất là text):** cây thư mục file, output console/terminal, bảng xếp ký tự thuần, memory layout dạng bảng chữ.
+
+**Convention SVG trong README:**
+- Có `viewBox` + style `max-width:<N>px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px` + `role="img"` + `aria-label` mô tả.
+- Đồ thị tọa độ: vẽ đúng hệ tọa độ — grid nhạt `#e2e8f0`, trục `#1a202c` có mũi tên + nhãn Re/Im (hoặc x/y) + **nhãn số trên trục**; điểm/vector đặt đúng vị trí toán học.
+- Palette thống nhất: đối tượng chính `#1d4ed8`, phụ `#15803d`, kết quả/nhấn `#dc2626`, gióng nét đứt `#94a3b8`, chú thích `#475569`.
+- `id` trong `<defs>` (marker mũi tên, gradient...) phải **unique trong toàn file** — nhiều SVG cùng README sẽ đụng id (đặt tiền tố per-diagram: `ar1`, `ar2`...).
+- Không dùng `$...$` LaTeX bên trong SVG (KaTeX không vào SVG) — dùng unicode (θ, ², √).
+- Nhãn ở điểm gần mép khung: dịch vào trong / `text-anchor="end"` để không tràn.
+
+**Quy trình:** sửa/tạo README có sơ đồ → chạy `go run tools/build-readme-data.go <đường-dẫn>` → verify render trong readme-modal (Playwright nếu có: mở viz, click `.rm-btn`, đếm `svg`/`circle` trong `.rm-panel .rm-content`, screenshot). Áp dụng cho lesson mới lẫn khi enrich lesson cũ; gặp ASCII-diagram loại 1-2 trong README cũ thì chuyển thành SVG.
+
 ## Điều hướng giữa các bài học (Navigation)
 
 Khi một lĩnh vực có **≥ 2 lesson với visualization.html**, phải có hệ thống điều hướng để mở local cũng dùng được:
@@ -372,6 +392,7 @@ Trước khi commit, kiểm tra:
 - [ ] (Kỹ thuật / toán) Các callout 💡, ❓, ⚠, 🔁, 📝 xuất hiện ở những chỗ phù hợp.
 - [ ] (Kỹ thuật / toán) Mỗi định nghĩa có ≥ 4 ví dụ số (xem mục Quy tắc lượng hóa).
 - [ ] Mọi bài tập có lời giải chi tiết step-by-step.
+- [ ] Sơ đồ trong README là **SVG inline** (đồ thị tọa độ/hình học/vector/dạng sóng, sơ đồ khối/luồng/cây) — KHÔNG ASCII-art; xem mục "Sơ đồ trong README".
 - [ ] (Có solutions.go) Code biên dịch / chạy được (vd `go run solutions.go`).
 - [ ] Nav strip + readme-modal + đường dẫn `tools/` đúng độ sâu:
   - 2 cấp `<Lĩnh vực>/lesson-XX/`: `../../tools/`
@@ -407,4 +428,5 @@ Khi sửa/bổ sung lesson đã tồn tại:
 - **Không dùng công thức trừu tượng mà không kèm ví dụ số cụ thể** — `h(s) = Σ s[i]·31^(n-1-i)` phải đi kèm "tính cho 'alice' = ...".
 - **Không dùng toy example mà không cảnh báo hạn chế** — người đọc sẽ tưởng đó là cách dùng thật.
 - Không dùng emoji trong tài liệu trừ khi user yêu cầu.
+- **Không vẽ sơ đồ bằng ASCII-art trong README** (đồ thị tọa độ, vector, sơ đồ khối/cây...) — dùng inline SVG theo mục "Sơ đồ trong README". ASCII chỉ cho nội dung bản chất text (cây thư mục, output console).
 - Không tạo file thừa (ví dụ file ghi chú quá trình làm việc) — chỉ tạo những gì thuộc về nội dung bài học.

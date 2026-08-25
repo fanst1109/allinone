@@ -6,17 +6,29 @@
 <title>Lesson 05 — Số phức</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
 <style>
+  main { max-width: 1000px; }
   h1 { color: #166534; }
   h2 { color: #15803d; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
   .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .sub { color: #64748b; font-size: 13.5px; margin: 0 0 12px; }
   .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
   input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 70px; }
   button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
   button.active { background: #15803d; }
+  button.play { background: #15803d; }
+  button.play:hover { background: #166534; }
   .stat { display: inline-block; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
   .stat strong { color: #15803d; }
-  .result { padding: 14px; background: #f1f5f9; border-radius: 8px; margin-top: 12px; }
-  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
+  .result { padding: 14px; background: #f1f5f9; border-radius: 8px; margin-top: 12px; font-size: 14px; }
+  .result .fx { font-family: monospace; font-size: 14px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto; background: #f8fafc; border-radius: 8px; touch-action: none; }
+  .hint { font-size: 12.5px; color: #64748b; font-style: italic; }
+  .drag-dot { cursor: grab; }
+  .drag-dot:active { cursor: grabbing; }
+  table.cmp { border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+  table.cmp th, table.cmp td { border: 1px solid #e2e8f0; padding: 5px 10px; text-align: center; font-family: monospace; }
+  table.cmp th { background: #f1f5f9; font-family: inherit; }
+  td.hl { color: #dc2626; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -37,199 +49,60 @@
 
 <h1>Lesson 05 (T3) — Số phức trên mặt phẳng Argand</h1>
 
-<h2>Phép toán số phức</h2>
+<!-- ═══════════ Module 1: Số phức là một điểm ═══════════ -->
+<h2>1. Số phức là một điểm — kéo thử</h2>
 <div class="card">
+  <p class="sub">Số phức z = a + bi <strong>vừa là điểm (a, b)</strong> trên mặt phẳng, <strong>vừa là mũi tên</strong> từ gốc O tới điểm đó. <span class="hint">Kéo chấm xanh để di chuyển z.</span></p>
+  <svg class="scene" id="svg1" viewBox="-230 -230 460 460"></svg>
   <div class="row">
-    <strong>z₁:</strong>
-    <label>a:</label><input type="number" id="a1" step="1" value="3" oninput="calc()">
-    <label>+ b·i, b:</label><input type="number" id="b1" step="1" value="2" oninput="calc()">
+    <span>Bấm để thấy <strong>nhân i = quay 90°</strong>:</span>
+    <button class="play" id="mulI">z × i ↺90°</button>
+    <button id="resetZ1">↺ Về 3+2i</button>
   </div>
-  <div class="row">
-    <strong>z₂:</strong>
-    <label>c:</label><input type="number" id="a2" step="1" value="1" oninput="calc()">
-    <label>+ d·i, d:</label><input type="number" id="b2" step="1" value="-4" oninput="calc()">
-  </div>
-  <div class="row">
-    <button id="bA" onclick="setOp('add')" class="active">z₁ + z₂</button>
-    <button id="bS" onclick="setOp('sub')">z₁ - z₂</button>
-    <button id="bM" onclick="setOp('mul')">z₁ × z₂</button>
-    <button id="bD" onclick="setOp('div')">z₁ / z₂</button>
-  </div>
-  <svg class="scene" id="svg" viewBox="-250 -250 500 500"></svg>
-  <div class="result" id="res"></div>
+  <div class="result" id="res1"></div>
 </div>
 
-<script>
-let op = "add";
+<!-- ═══════════ Module 2: Cộng / trừ ═══════════ -->
+<h2>2. Cộng / trừ = ghép mũi tên (hình bình hành)</h2>
+<div class="card">
+  <p class="sub">Cộng số phức = cộng vector: đi hết mũi tên z₁ rồi đi tiếp mũi tên z₂. <span class="hint">Kéo 2 chấm hoặc nhập số.</span></p>
+  <div class="row">
+    <strong style="color:#1d4ed8">z₁:</strong>
+    <label>a</label><input type="number" id="m2a" step="1" value="3">
+    <label>b</label><input type="number" id="m2b" step="1" value="1">
+    <strong style="color:#15803d">z₂:</strong>
+    <label>c</label><input type="number" id="m2c" step="1" value="1">
+    <label>d</label><input type="number" id="m2d" step="1" value="2">
+    <button id="bAdd" class="active">z₁ + z₂</button>
+    <button id="bSub">z₁ − z₂</button>
+  </div>
+  <svg class="scene" id="svg2" viewBox="-230 -230 460 460"></svg>
+  <div class="result" id="res2"></div>
+</div>
 
-function setOp(o) {
-  op = o;
-  ["A","S","M","D"].forEach(c => document.getElementById("b"+c).classList.remove("active"));
-  document.getElementById("b" + {add:"A",sub:"S",mul:"M",div:"D"}[o]).classList.add("active");
-  calc();
-}
+<!-- ═══════════ Module 3: Nhân / chia = xoay + giãn ═══════════ -->
+<h2>3. Nhân / chia = XOAY + GIÃN — bí mật đẹp nhất của số phức</h2>
+<div class="card">
+  <p class="sub">Nhân hai số phức: <strong>độ dài NHÂN nhau, góc CỘNG nhau</strong>. Công thức đại số (ac−bd)+(ad+bc)i chỉ là cách tính — bản chất là phép xoay.</p>
+  <div class="row">
+    <strong style="color:#1d4ed8">z₁:</strong>
+    <label>a</label><input type="number" id="m3a" step="1" value="2">
+    <label>b</label><input type="number" id="m3b" step="1" value="1">
+    <strong style="color:#15803d">z₂:</strong>
+    <label>c</label><input type="number" id="m3c" step="1" value="1">
+    <label>d</label><input type="number" id="m3d" step="1" value="1">
+    <button id="bMul" class="active">z₁ × z₂</button>
+    <button id="bDiv">z₁ / z₂</button>
+  </div>
+  <svg class="scene" id="svg3" viewBox="-230 -230 460 460"></svg>
+  <div class="row">
+    <button class="play" id="spin">▶ Xem z₁ xoay + giãn thành kết quả</button>
+  </div>
+  <div class="result" id="res3"></div>
+</div>
 
-function calc() {
-  const a = parseFloat(document.getElementById("a1").value);
-  const b = parseFloat(document.getElementById("b1").value);
-  const c = parseFloat(document.getElementById("a2").value);
-  const d = parseFloat(document.getElementById("b2").value);
-
-  let re, im, formula;
-  if (op === "add") {
-    re = a + c; im = b + d;
-    formula = `(${a}${b>=0?"+":""}${b}i) + (${c}${d>=0?"+":""}${d}i) = ${re}${im>=0?"+":""}${im}i`;
-  } else if (op === "sub") {
-    re = a - c; im = b - d;
-    formula = `(${a}${b>=0?"+":""}${b}i) − (${c}${d>=0?"+":""}${d}i) = ${re}${im>=0?"+":""}${im}i`;
-  } else if (op === "mul") {
-    re = a*c - b*d; im = a*d + b*c;
-    formula = `(${a}${b>=0?"+":""}${b}i)·(${c}${d>=0?"+":""}${d}i) = (${a*c} − ${b*d}) + (${a*d} + ${b*c})i = ${re}${im>=0?"+":""}${im}i`;
-  } else {
-    const m = c*c + d*d;
-    if (m === 0) { document.getElementById("res").innerHTML = "<strong>Lỗi: chia cho 0</strong>"; return; }
-    re = (a*c + b*d) / m; im = (b*c - a*d) / m;
-    formula = `(${a}${b>=0?"+":""}${b}i)/(${c}${d>=0?"+":""}${d}i) = [(${a}${b>=0?"+":""}${b}i)(${c}${-d>=0?"+":""}${-d}i)]/(${c}²+${d}²) = (${a*c+b*d} + ${b*c-a*d}i)/${m} = ${re.toFixed(4)}${im>=0?"+":""}${im.toFixed(4)}i`;
-  }
-
-  // SVG
-  const svg = document.getElementById("svg");
-  svg.innerHTML = "";
-  const SC = 20;
-
-  // Grid
-  for (let i = -12; i <= 12; i++) {
-    const v = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
-    v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
-    svg.appendChild(v);
-    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
-    h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
-    svg.appendChild(h);
-  }
-
-  // Axis labels
-  const lr = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  lr.setAttribute("x", 235); lr.setAttribute("y", 15); lr.setAttribute("font-weight", "700"); lr.setAttribute("fill", "#1a202c");
-  lr.textContent = "Re"; svg.appendChild(lr);
-  const li = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  li.setAttribute("x", 8); li.setAttribute("y", -230); li.setAttribute("font-weight", "700"); li.setAttribute("fill", "#1a202c");
-  li.textContent = "Im"; svg.appendChild(li);
-
-  function plotZ(re, im, color, label) {
-    const x = re*SC, y = -im*SC;
-    // Vector from O
-    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    l.setAttribute("x1", 0); l.setAttribute("y1", 0); l.setAttribute("x2", x); l.setAttribute("y2", y);
-    l.setAttribute("stroke", color); l.setAttribute("stroke-width", 2.5);
-    svg.appendChild(l);
-    // Point
-    const p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    p.setAttribute("cx", x); p.setAttribute("cy", y); p.setAttribute("r", 6);
-    p.setAttribute("fill", color);
-    svg.appendChild(p);
-    // Label
-    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    t.setAttribute("x", x+10); t.setAttribute("y", y-10); t.setAttribute("fill", color); t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "14");
-    t.textContent = label;
-    svg.appendChild(t);
-  }
-
-  plotZ(a, b, "#1d4ed8", `z₁=${a}${b>=0?"+":""}${b}i`);
-  plotZ(c, d, "#15803d", `z₂=${c}${d>=0?"+":""}${d}i`);
-  plotZ(re, im, "#dc2626", `kq=${re.toFixed(2)}${im>=0?"+":""}${im.toFixed(2)}i`);
-
-  // For add, show parallelogram
-  if (op === "add") {
-    const dashes = [[[a, b], [a+c, b+d]], [[c, d], [a+c, b+d]]];
-    dashes.forEach(([[x1,y1],[x2,y2]], i) => {
-      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      l.setAttribute("x1", x1*SC); l.setAttribute("y1", -y1*SC); l.setAttribute("x2", x2*SC); l.setAttribute("y2", -y2*SC);
-      l.setAttribute("stroke", i === 0 ? "#15803d" : "#1d4ed8"); l.setAttribute("stroke-width", 1.5); l.setAttribute("stroke-dasharray", "4,4");
-      svg.appendChild(l);
-    });
-  }
-
-  const m1 = Math.sqrt(a*a + b*b);
-  const m2 = Math.sqrt(c*c + d*d);
-  const mr = Math.sqrt(re*re + im*im);
-  document.getElementById("res").innerHTML = `
-    <div style="font-family:monospace; font-size:14px">${formula}</div>
-    <div class="row" style="margin-top:8px">
-      <span class="stat">|z₁| = <strong>${m1.toFixed(4)}</strong></span>
-      <span class="stat">|z₂| = <strong>${m2.toFixed(4)}</strong></span>
-      <span class="stat">|kq| = <strong>${mr.toFixed(4)}</strong></span>
-    </div>
-    ${op === "mul" ? `<div style="margin-top:8px; font-size:13px">Quan sát: |z₁·z₂| = |z₁|·|z₂| = ${m1.toFixed(3)}·${m2.toFixed(3)} = ${(m1*m2).toFixed(4)} ✓</div>` : ""}
-    ${op === "div" ? `<div style="margin-top:8px; font-size:13px">Quan sát: |z₁/z₂| = |z₁|/|z₂| = ${(m1/m2).toFixed(4)} ✓</div>` : ""}
-  `;
-}
-
-calc();
-
-// ===== Đời sống thực tế: trở kháng mạch điện xoay chiều =====
-function rlc() {
-  const R = parseFloat(document.getElementById("zR").value);
-  const L = parseFloat(document.getElementById("zL").value)/1000;     // mH → H
-  const C = parseFloat(document.getElementById("zC").value)*1e-6;     // µF → F
-  const f = parseFloat(document.getElementById("zF").value);
-  document.getElementById("zRv").textContent = R;
-  document.getElementById("zLv").textContent = (L*1000).toFixed(0);
-  document.getElementById("zCv").textContent = (C*1e6).toFixed(0);
-  document.getElementById("zFv").textContent = f;
-
-  const w = 2*Math.PI*f;
-  const XL = w*L;            // cảm kháng
-  const XC = 1/(w*C);        // dung kháng
-  const X = XL - XC;         // phần ảo của Z
-  const Zmag = Math.sqrt(R*R + X*X);
-  const phi = Math.atan2(X, R);   // độ lệch pha u so với i
-  const I = 220 / Zmag;           // dòng hiệu dụng trên lưới 220V
-  const f0 = 1/(2*Math.PI*Math.sqrt(L*C));  // tần số cộng hưởng
-
-  // Argand: vẽ Z = R + jX
-  const svg = document.getElementById("zSvg");
-  svg.innerHTML = "";
-  const SC = Math.min(180/Math.max(R,Math.abs(X),1), 0.6);
-  const O = {x:0,y:0};
-  // trục
-  [["#1a202c",-200,0,200,0],["#1a202c",0,-180,0,180]].forEach(([col,x1,y1,x2,y2])=>{
-    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
-    l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
-    l.setAttribute("stroke",col);l.setAttribute("stroke-width",1.2);svg.appendChild(l);
-  });
-  const reLbl=document.createElementNS("http://www.w3.org/2000/svg","text");reLbl.setAttribute("x",185);reLbl.setAttribute("y",16);reLbl.setAttribute("font-size","12");reLbl.setAttribute("fill","#64748b");reLbl.textContent="R (Ω)";svg.appendChild(reLbl);
-  const imLbl=document.createElementNS("http://www.w3.org/2000/svg","text");imLbl.setAttribute("x",6);imLbl.setAttribute("y",-165);imLbl.setAttribute("font-size","12");imLbl.setAttribute("fill","#64748b");imLbl.textContent="X (Ω)";svg.appendChild(imLbl);
-  // tam giác trở kháng
-  const zx=R*SC, zy=-X*SC;
-  [["#1d4ed8",0,0,zx,0],["#15803d",zx,0,zx,zy],["#dc2626",0,0,zx,zy]].forEach(([col,x1,y1,x2,y2])=>{
-    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
-    l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
-    l.setAttribute("stroke",col);l.setAttribute("stroke-width",2.5);svg.appendChild(l);
-  });
-  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",zx);dot.setAttribute("cy",zy);dot.setAttribute("r",6);dot.setAttribute("fill","#dc2626");svg.appendChild(dot);
-  const zl=document.createElementNS("http://www.w3.org/2000/svg","text");zl.setAttribute("x",zx+8);zl.setAttribute("y",zy-8);zl.setAttribute("fill","#dc2626");zl.setAttribute("font-weight","700");zl.setAttribute("font-size","13");zl.textContent="Z";svg.appendChild(zl);
-
-  const kind = Math.abs(X) < 0.5 ? "cộng hưởng (thuần trở)" : X > 0 ? "tính cảm (u sớm pha hơn i)" : "tính dung (u trễ pha hơn i)";
-  document.getElementById("zRes").innerHTML = `
-    <div style="font-family:monospace; font-size:14px">Z = R + j(ωL − 1/ωC) = ${R} + j(${XL.toFixed(1)} − ${XC.toFixed(1)}) = <strong>${R} ${X>=0?"+":"−"} ${Math.abs(X).toFixed(1)}j Ω</strong></div>
-    <div class="row" style="margin-top:8px">
-      <span class="stat">Cảm kháng X_L = ωL = <strong>${XL.toFixed(1)} Ω</strong></span>
-      <span class="stat">Dung kháng X_C = 1/ωC = <strong>${XC.toFixed(1)} Ω</strong></span>
-    </div>
-    <div class="row">
-      <span class="stat">|Z| = √(R²+X²) = <strong>${Zmag.toFixed(1)} Ω</strong></span>
-      <span class="stat">Dòng I = 220/|Z| = <strong>${I.toFixed(3)} A</strong></span>
-      <span class="stat">Lệch pha φ = <strong>${(phi*180/Math.PI).toFixed(1)}°</strong></span>
-    </div>
-    <div style="margin-top:8px; font-size:13px; color:#475569">Mạch đang <strong>${kind}</strong>. Tần số cộng hưởng f₀ = 1/(2π√(LC)) = <strong>${f0.toFixed(1)} Hz</strong> — chỉnh f về đúng f₀ thì X_L = X_C triệt tiêu, |Z| nhỏ nhất (= R) nên dòng lớn nhất. Đây chính là cách <strong>radio dò đài</strong>: xoay tụ C để f₀ trùng tần số đài muốn nghe.</div>
-  `;
-}
-addEventListener("DOMContentLoaded", rlc);
-</script>
-
-<h2>🌍 Đời sống thực tế — Số phức trong mạch điện xoay chiều</h2>
+<!-- ═══════════ Module 4: RLC ═══════════ -->
+<h2>4. 🌍 Đời sống thực tế — Số phức trong mạch điện xoay chiều</h2>
 <div class="card">
   <p style="margin-top:0; color:#475569">Đây là <strong>ứng dụng số 1</strong> của số phức ngoài đời. Với dòng xoay chiều, điện trở thuần (R), cuộn cảm (L) và tụ điện (C) cản dòng <em>khác nhau và lệch pha nhau</em>. Gộp lại thành một số phức gọi là <strong>trở kháng</strong> <code>Z = R + j(ωL − 1/ωC)</code>: phần thực = điện trở, phần ảo = "kháng". Độ lớn |Z| quyết định dòng, còn argument cho biết điện áp và dòng lệch pha bao nhiêu.</p>
   <div class="row">
@@ -240,9 +113,327 @@ addEventListener("DOMContentLoaded", rlc);
     <label>C (µF):</label><input type="range" id="zC" min="1" max="100" step="1" value="10" oninput="rlc()"><span class="stat">C=<strong id="zCv">10</strong></span>
     <label>f (Hz):</label><input type="range" id="zF" min="20" max="400" step="1" value="50" oninput="rlc()"><span class="stat">f=<strong id="zFv">50</strong></span>
   </div>
-  <svg class="scene" id="zSvg" viewBox="-210 -200 420 400" style="max-width:420px; height:400px"></svg>
+  <svg class="scene" id="zSvg" viewBox="-210 -200 420 400" style="max-width:420px"></svg>
   <div class="result" id="zRes"></div>
 </div>
+
+<script>
+"use strict";
+var NS = "http://www.w3.org/2000/svg";
+function E(tag, attrs, parent) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function fmt(x, d) { var v = x.toFixed(d == null ? 2 : d); return v.replace(/\.?0+$/, "") || "0"; }
+function zStr(a, b, d) {
+  var re = fmt(a, d), im = fmt(Math.abs(b), d);
+  if (Math.abs(b) < 1e-12) return re;
+  if (Math.abs(a) < 1e-12) return (b < 0 ? "−" : "") + im + "i";
+  return re + (b < 0 ? " − " : " + ") + im + "i";
+}
+function deg(rad) { return rad * 180 / Math.PI; }
+
+// ── Mặt phẳng auto-scale: vẽ grid + trục + nhãn, trả về hàm đổi tọa độ ──
+// pts = mảng [x,y] cần nằm gọn trong khung.
+function plane(svg, pts) {
+  svg.innerHTML = "";
+  var maxA = 1;
+  pts.forEach(function (p) { maxA = Math.max(maxA, Math.abs(p[0]), Math.abs(p[1])); });
+  var half = 205;                        // nửa khung usable (viewBox ±230, chừa nhãn)
+  var SC = half / (maxA * 1.15);         // px / đơn vị (chừa lề 15%)
+  var steps = [1, 2, 5, 10, 20, 50], step = 1;
+  for (var i = 0; i < steps.length; i++) { if (steps[i] * SC >= 30) { step = steps[i]; break; } step = steps[i]; }
+  var nMax = Math.floor(220 / (SC * step)) * step;
+
+  // grid
+  for (var v = -nMax; v <= nMax; v += step) {
+    if (v === 0) continue;
+    E("line", { x1: v * SC, y1: -222, x2: v * SC, y2: 222, stroke: "#e2e8f0", "stroke-width": 1 }, svg);
+    E("line", { x1: -222, y1: -v * SC, x2: 222, y2: -v * SC, stroke: "#e2e8f0", "stroke-width": 1 }, svg);
+  }
+  // trục
+  E("line", { x1: -226, y1: 0, x2: 220, y2: 0, stroke: "#1a202c", "stroke-width": 1.6 }, svg);
+  E("polygon", { points: "228,0 218,-4.5 218,4.5", fill: "#1a202c" }, svg);
+  E("line", { x1: 0, y1: 226, x2: 0, y2: -220, stroke: "#1a202c", "stroke-width": 1.6 }, svg);
+  E("polygon", { points: "0,-228 -4.5,-218 4.5,-218", fill: "#1a202c" }, svg);
+  var t = E("text", { x: 214, y: -8, "font-size": 13, "font-weight": 700, fill: "#1a202c" }, svg); t.textContent = "Re";
+  t = E("text", { x: 8, y: -212, "font-size": 13, "font-weight": 700, fill: "#1a202c" }, svg); t.textContent = "Im";
+  // nhãn số
+  for (v = -nMax; v <= nMax; v += step) {
+    if (v === 0) continue;
+    var lx = E("text", { x: v * SC, y: 16, "font-size": 11, fill: "#64748b", "text-anchor": "middle" }, svg); lx.textContent = v;
+    var ly = E("text", { x: -7, y: -v * SC + 4, "font-size": 11, fill: "#64748b", "text-anchor": "end" }, svg); ly.textContent = v;
+  }
+  t = E("text", { x: -7, y: 16, "font-size": 11, fill: "#64748b", "text-anchor": "end" }, svg); t.textContent = "0";
+  return { SC: SC, X: function (a) { return a * SC; }, Y: function (b) { return -b * SC; } };
+}
+
+function vec(svg, P, a, b, color, w, label, dy) {
+  var x = P.X(a), y = P.Y(b);
+  var len = Math.hypot(x, y);
+  if (len > 1) {
+    var ux = x / len, uy = y / len, hx = x - ux * 9, hy = y - uy * 9;
+    E("line", { x1: 0, y1: 0, x2: hx, y2: hy, stroke: color, "stroke-width": w || 2.5 }, svg);
+    E("polygon", {
+      points: x + "," + y + " " + (hx - uy * 4.5) + "," + (hy + ux * 4.5) + " " + (hx + uy * 4.5) + "," + (hy - ux * 4.5),
+      fill: color
+    }, svg);
+  }
+  E("circle", { cx: x, cy: y, r: 5, fill: color }, svg);
+  if (label) {
+    // Nhãn tự lật sang trái khi điểm gần mép phải (tránh tràn khung).
+    var flip = x > 90;
+    var t = E("text", { x: flip ? x - 9 : x + 9, y: y + (dy || -9), "font-size": 13, "font-weight": 700, fill: color, "text-anchor": flip ? "end" : "start" }, svg);
+    t.textContent = label;
+  }
+}
+
+// Cung góc từ 0 → theta (rad), bán kính r px.
+function arc(svg, P, theta, r, color, label) {
+  if (Math.abs(theta) < 0.02) return;
+  var large = Math.abs(theta) > Math.PI ? 1 : 0;
+  var sweep = theta > 0 ? 0 : 1;   // SVG y đảo: góc dương (ccw toán) = sweep 0
+  var x2 = r * Math.cos(theta), y2 = -r * Math.sin(theta);
+  E("path", { d: "M " + r + " 0 A " + r + " " + r + " 0 " + large + " " + sweep + " " + x2 + " " + y2, fill: "none", stroke: color, "stroke-width": 2 }, svg);
+  if (label) {
+    var mid = theta / 2, lr = r + 14;
+    var t = E("text", { x: lr * Math.cos(mid), y: -lr * Math.sin(mid) + 4, "font-size": 12, "font-weight": 700, fill: color, "text-anchor": "middle" }, svg);
+    t.textContent = label;
+  }
+}
+
+// Kéo điểm: gắn hit-circle trong suốt, gọi cb(a, b) theo đơn vị toán (snap 0.5).
+function draggable(svg, P, a, b, color, cb) {
+  var hit = E("circle", { cx: P.X(a), cy: P.Y(b), r: 16, fill: color, opacity: 0.15, "class": "drag-dot" }, svg);
+  E("circle", { cx: P.X(a), cy: P.Y(b), r: 5, fill: color, "pointer-events": "none" }, svg);
+  hit.addEventListener("pointerdown", function (ev) {
+    ev.preventDefault();
+    hit.setPointerCapture(ev.pointerId);
+    function move(e2) {
+      var r = svg.getBoundingClientRect();
+      var vb = svg.viewBox.baseVal;
+      var mx = (e2.clientX - r.left) / r.width * vb.width + vb.x;
+      var my = (e2.clientY - r.top) / r.height * vb.height + vb.y;
+      var na = Math.round(mx / P.SC * 2) / 2, nb = Math.round(-my / P.SC * 2) / 2;
+      cb(na, nb);
+    }
+    function up() {
+      hit.removeEventListener("pointermove", move);
+      hit.removeEventListener("pointerup", up);
+    }
+    hit.addEventListener("pointermove", move);
+    hit.addEventListener("pointerup", up);
+  });
+}
+
+// ═══════════ Module 1 ═══════════
+var z1m = { a: 3, b: 2 };
+var anim1 = null;
+function draw1(tempTheta) {
+  var svg = document.getElementById("svg1");
+  var a = z1m.a, b = z1m.b;
+  var r0 = Math.hypot(a, b), th0 = Math.atan2(b, a);
+  var th = (tempTheta == null) ? th0 : tempTheta;
+  var ca = r0 * Math.cos(th), cb2 = r0 * Math.sin(th);
+  var P = plane(svg, [[Math.max(Math.abs(a), r0), Math.max(Math.abs(b), r0)]]);
+  // gióng nét đứt
+  E("line", { x1: P.X(ca), y1: P.Y(cb2), x2: P.X(ca), y2: 0, stroke: "#94a3b8", "stroke-width": 1, "stroke-dasharray": "4,4" }, svg);
+  E("line", { x1: P.X(ca), y1: P.Y(cb2), x2: 0, y2: P.Y(cb2), stroke: "#94a3b8", "stroke-width": 1, "stroke-dasharray": "4,4" }, svg);
+  // cung góc
+  arc(svg, P, th, 30, "#d97706", "θ");
+  // vector
+  vec(svg, P, ca, cb2, "#1d4ed8", 3, "z = " + zStr(ca, cb2, 1));
+  // điểm kéo (chỉ khi không animate)
+  if (tempTheta == null) {
+    draggable(svg, P, a, b, "#1d4ed8", function (na, nb) {
+      if (na === 0 && nb === 0) return;
+      z1m.a = na; z1m.b = nb; draw1();
+    });
+  }
+  var rr = Math.hypot(ca, cb2), tt = Math.atan2(cb2, ca);
+  document.getElementById("res1").innerHTML =
+    '<div class="fx">z = ' + zStr(ca, cb2, 1) + ' &nbsp;↔&nbsp; điểm (' + fmt(ca, 1) + ', ' + fmt(cb2, 1) + ')</div>' +
+    '<div class="row" style="margin-top:8px">' +
+    '<span class="stat">|z| = √(a²+b²) = <strong>' + fmt(rr, 3) + '</strong></span>' +
+    '<span class="stat">θ = <strong>' + fmt(deg(tt), 1) + '°</strong> = ' + fmt(tt, 3) + ' rad</span>' +
+    '</div>' +
+    '<div style="margin-top:6px">Dạng lượng giác (L06 dùng nhiều): <code>z = ' + fmt(rr, 3) + '·(cos ' + fmt(deg(tt), 1) + '° + i·sin ' + fmt(deg(tt), 1) + '°)</code></div>';
+}
+document.getElementById("mulI").addEventListener("click", function () {
+  if (anim1) return;
+  var th0 = Math.atan2(z1m.b, z1m.a), th1 = th0 + Math.PI / 2;
+  var t0 = performance.now();
+  function step(now) {
+    var t = Math.min((now - t0) / 500, 1);
+    var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    draw1(th0 + (th1 - th0) * e);
+    if (t < 1) anim1 = requestAnimationFrame(step);
+    else {
+      anim1 = null;
+      var r = Math.hypot(z1m.a, z1m.b);
+      z1m.a = Math.round(r * Math.cos(th1) * 2) / 2;
+      z1m.b = Math.round(r * Math.sin(th1) * 2) / 2;
+      draw1();
+    }
+  }
+  anim1 = requestAnimationFrame(step);
+});
+document.getElementById("resetZ1").addEventListener("click", function () { z1m = { a: 3, b: 2 }; draw1(); });
+
+// ═══════════ Module 2 ═══════════
+var op2 = "add";
+function num(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function draw2() {
+  var a = num("m2a"), b = num("m2b"), c = num("m2c"), d = num("m2d");
+  var c2 = op2 === "add" ? c : -c, d2 = op2 === "add" ? d : -d;
+  var re = a + c2, im = b + d2;
+  var svg = document.getElementById("svg2");
+  var P = plane(svg, [[a, b], [c, d], [re, im]]);
+  // hình bình hành nét đứt: z₁→kq và z₂'→kq
+  E("line", { x1: P.X(a), y1: P.Y(b), x2: P.X(re), y2: P.Y(im), stroke: "#15803d", "stroke-width": 1.5, "stroke-dasharray": "5,4" }, svg);
+  E("line", { x1: P.X(c2), y1: P.Y(d2), x2: P.X(re), y2: P.Y(im), stroke: "#1d4ed8", "stroke-width": 1.5, "stroke-dasharray": "5,4" }, svg);
+  if (op2 === "sub") vec(svg, P, c2, d2, "#86efac", 2, "−z₂ = " + zStr(c2, d2, 1), 14);
+  vec(svg, P, a, b, "#1d4ed8", 2.5, "z₁");
+  vec(svg, P, c, d, "#15803d", 2.5, "z₂");
+  vec(svg, P, re, im, "#dc2626", 3.2, "kq = " + zStr(re, im, 1));
+  draggable(svg, P, a, b, "#1d4ed8", function (na, nb) { document.getElementById("m2a").value = na; document.getElementById("m2b").value = nb; draw2(); });
+  draggable(svg, P, c, d, "#15803d", function (na, nb) { document.getElementById("m2c").value = na; document.getElementById("m2d").value = nb; draw2(); });
+  var sign = op2 === "add" ? "+" : "−";
+  document.getElementById("res2").innerHTML =
+    '<div class="fx">(' + zStr(a, b) + ') ' + sign + ' (' + zStr(c, d) + ') = (' + fmt(a) + ' ' + sign + ' ' + fmt(c) + ') + (' + fmt(b) + ' ' + sign + ' ' + fmt(d) + ')i = <strong style="color:#dc2626">' + zStr(re, im) + '</strong></div>' +
+    '<div style="margin-top:6px" class="hint">Phần thực cộng với phần thực, phần ảo cộng với phần ảo — như cộng tọa độ vector.' + (op2 === "sub" ? " Trừ = cộng với vector đối (mũi tên nhạt)." : "") + '</div>';
+}
+["m2a", "m2b", "m2c", "m2d"].forEach(function (id) { document.getElementById(id).addEventListener("input", draw2); });
+document.getElementById("bAdd").addEventListener("click", function () { op2 = "add"; this.classList.add("active"); document.getElementById("bSub").classList.remove("active"); draw2(); });
+document.getElementById("bSub").addEventListener("click", function () { op2 = "sub"; this.classList.add("active"); document.getElementById("bAdd").classList.remove("active"); draw2(); });
+
+// ═══════════ Module 3 ═══════════
+var op3 = "mul";
+var anim3 = null;
+function calc3() {
+  var a = num("m3a"), b = num("m3b"), c = num("m3c"), d = num("m3d");
+  var re, im;
+  if (op3 === "mul") { re = a * c - b * d; im = a * d + b * c; }
+  else {
+    var m = c * c + d * d;
+    if (m === 0) return null;
+    re = (a * c + b * d) / m; im = (b * c - a * d) / m;
+  }
+  return { a: a, b: b, c: c, d: d, re: re, im: im,
+    r1: Math.hypot(a, b), t1: Math.atan2(b, a),
+    r2: Math.hypot(c, d), t2: Math.atan2(d, c),
+    rr: Math.hypot(re, im), tr: Math.atan2(im, re) };
+}
+function draw3(anim) {
+  var q = calc3();
+  var svg = document.getElementById("svg3");
+  if (!q) { svg.innerHTML = ""; document.getElementById("res3").innerHTML = "<strong>Lỗi: chia cho 0</strong>"; return; }
+  var P = plane(svg, [[q.a, q.b], [q.c, q.d], [q.re, q.im]]);
+  // cung góc: θ₁ (lam, r=26), θ₂ (lục, r=40), kết quả (đỏ, r=54)
+  arc(svg, P, q.t1, 26, "#1d4ed8", "θ₁");
+  arc(svg, P, q.t2, 40, "#15803d", "θ₂");
+  var thR = op3 === "mul" ? q.t1 + q.t2 : q.t1 - q.t2;
+  arc(svg, P, thR, 54, "#dc2626", op3 === "mul" ? "θ₁+θ₂" : "θ₁−θ₂");
+  vec(svg, P, q.a, q.b, "#1d4ed8", 2.5, "z₁");
+  vec(svg, P, q.c, q.d, "#15803d", 2.5, "z₂");
+  if (anim) {
+    // vector trung gian đang xoay + giãn
+    vec(svg, P, anim.x, anim.y, "#f59e0b", 3, "");
+  }
+  vec(svg, P, q.re, q.im, "#dc2626", 3.2, "kq = " + zStr(q.re, q.im, 2), 16);
+  if (!anim) {
+    draggable(svg, P, q.a, q.b, "#1d4ed8", function (na, nb) { document.getElementById("m3a").value = na; document.getElementById("m3b").value = nb; draw3(); });
+    draggable(svg, P, q.c, q.d, "#15803d", function (na, nb) { document.getElementById("m3c").value = na; document.getElementById("m3d").value = nb; draw3(); });
+  }
+  var isMul = op3 === "mul";
+  var opSym = isMul ? "×" : "/";
+  var rExp = isMul ? q.r1 * q.r2 : q.r1 / q.r2;
+  var fx = isMul
+    ? '(' + zStr(q.a, q.b) + ')·(' + zStr(q.c, q.d) + ') = (' + fmt(q.a * q.c) + ' − ' + fmt(q.b * q.d) + ') + (' + fmt(q.a * q.d) + ' + ' + fmt(q.b * q.c) + ')i = <strong style="color:#dc2626">' + zStr(q.re, q.im, 3) + '</strong>'
+    : '(' + zStr(q.a, q.b) + ')/(' + zStr(q.c, q.d) + ') = nhân liên hợp mẫu → <strong style="color:#dc2626">' + zStr(q.re, q.im, 3) + '</strong>';
+  document.getElementById("res3").innerHTML =
+    '<div class="fx">' + fx + '</div>' +
+    '<table class="cmp"><tr><th></th><th>Độ dài |z|</th><th>Góc θ</th></tr>' +
+    '<tr><td style="color:#1d4ed8;font-weight:700">z₁</td><td>' + fmt(q.r1, 3) + '</td><td>' + fmt(deg(q.t1), 1) + '°</td></tr>' +
+    '<tr><td style="color:#15803d;font-weight:700">z₂</td><td>' + fmt(q.r2, 3) + '</td><td>' + fmt(deg(q.t2), 1) + '°</td></tr>' +
+    '<tr><td class="hl">kq</td><td class="hl">' + fmt(q.rr, 3) + ' = ' + fmt(q.r1, 3) + (isMul ? ' × ' : ' / ') + fmt(q.r2, 3) + ' ✓</td>' +
+    '<td class="hl">' + fmt(deg(q.tr), 1) + '° = ' + fmt(deg(q.t1), 1) + '° ' + (isMul ? '+' : '−') + ' ' + fmt(deg(q.t2), 1) + '°' + (Math.abs(((deg(q.t1) + (isMul ? 1 : -1) * deg(q.t2)) - deg(q.tr) + 540) % 360 - 180) < 0.5 ? ' ✓' : ' (±360°)') + '</td></tr></table>' +
+    '<div style="margin-top:8px" class="hint">' + (isMul
+      ? 'Nhân với z₂ = lấy z₁ <strong>xoay thêm θ₂</strong> và <strong>giãn |z₂| lần</strong>. Bấm "▶ Xem xoay" để nhìn.'
+      : 'Chia cho z₂ = xoay NGƯỢC θ₂ và co |z₂| lần — phép đảo của nhân.') + '</div>';
+}
+["m3a", "m3b", "m3c", "m3d"].forEach(function (id) { document.getElementById(id).addEventListener("input", function () { draw3(); }); });
+document.getElementById("bMul").addEventListener("click", function () { op3 = "mul"; this.classList.add("active"); document.getElementById("bDiv").classList.remove("active"); draw3(); });
+document.getElementById("bDiv").addEventListener("click", function () { op3 = "div"; this.classList.add("active"); document.getElementById("bMul").classList.remove("active"); draw3(); });
+document.getElementById("spin").addEventListener("click", function () {
+  if (anim3) return;
+  var q = calc3(); if (!q) return;
+  var sgn = op3 === "mul" ? 1 : -1;
+  var dTh = sgn * q.t2;
+  var kR = op3 === "mul" ? q.r2 : 1 / q.r2;
+  var t0 = performance.now();
+  function step(now) {
+    var t = Math.min((now - t0) / 1400, 1);
+    var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    var th = q.t1 + dTh * e;
+    var r = q.r1 * Math.pow(kR, e);
+    draw3({ x: r * Math.cos(th), y: r * Math.sin(th) });
+    if (t < 1) anim3 = requestAnimationFrame(step);
+    else { anim3 = null; draw3(); }
+  }
+  anim3 = requestAnimationFrame(step);
+});
+
+// ═══════════ Module 4: RLC (giữ nguyên) ═══════════
+function rlc() {
+  var R = parseFloat(document.getElementById("zR").value);
+  var L = parseFloat(document.getElementById("zL").value) / 1000;
+  var C = parseFloat(document.getElementById("zC").value) * 1e-6;
+  var f = parseFloat(document.getElementById("zF").value);
+  document.getElementById("zRv").textContent = R;
+  document.getElementById("zLv").textContent = (L * 1000).toFixed(0);
+  document.getElementById("zCv").textContent = (C * 1e6).toFixed(0);
+  document.getElementById("zFv").textContent = f;
+
+  var w = 2 * Math.PI * f;
+  var XL = w * L, XC = 1 / (w * C), X = XL - XC;
+  var Zmag = Math.sqrt(R * R + X * X);
+  var phi = Math.atan2(X, R);
+  var I = 220 / Zmag;
+  var f0 = 1 / (2 * Math.PI * Math.sqrt(L * C));
+
+  var svg = document.getElementById("zSvg");
+  svg.innerHTML = "";
+  var SC = Math.min(180 / Math.max(R, Math.abs(X), 1), 0.6);
+  [["#1a202c", -200, 0, 200, 0], ["#1a202c", 0, -180, 0, 180]].forEach(function (ax) {
+    E("line", { x1: ax[1], y1: ax[2], x2: ax[3], y2: ax[4], stroke: ax[0], "stroke-width": 1.2 }, svg);
+  });
+  var t = E("text", { x: 185, y: 16, "font-size": 12, fill: "#64748b" }, svg); t.textContent = "R (Ω)";
+  t = E("text", { x: 6, y: -165, "font-size": 12, fill: "#64748b" }, svg); t.textContent = "X (Ω)";
+  var zx = R * SC, zy = -X * SC;
+  [["#1d4ed8", 0, 0, zx, 0], ["#15803d", zx, 0, zx, zy], ["#dc2626", 0, 0, zx, zy]].forEach(function (l) {
+    E("line", { x1: l[1], y1: l[2], x2: l[3], y2: l[4], stroke: l[0], "stroke-width": 2.5 }, svg);
+  });
+  E("circle", { cx: zx, cy: zy, r: 6, fill: "#dc2626" }, svg);
+  t = E("text", { x: zx + 8, y: zy - 8, fill: "#dc2626", "font-weight": 700, "font-size": 13 }, svg); t.textContent = "Z";
+
+  var kind = Math.abs(X) < 0.5 ? "cộng hưởng (thuần trở)" : X > 0 ? "tính cảm (u sớm pha hơn i)" : "tính dung (u trễ pha hơn i)";
+  document.getElementById("zRes").innerHTML =
+    '<div style="font-family:monospace; font-size:14px">Z = R + j(ωL − 1/ωC) = ' + R + ' + j(' + XL.toFixed(1) + ' − ' + XC.toFixed(1) + ') = <strong>' + R + ' ' + (X >= 0 ? "+" : "−") + ' ' + Math.abs(X).toFixed(1) + 'j Ω</strong></div>' +
+    '<div class="row" style="margin-top:8px">' +
+    '<span class="stat">Cảm kháng X_L = ωL = <strong>' + XL.toFixed(1) + ' Ω</strong></span>' +
+    '<span class="stat">Dung kháng X_C = 1/ωC = <strong>' + XC.toFixed(1) + ' Ω</strong></span></div>' +
+    '<div class="row">' +
+    '<span class="stat">|Z| = √(R²+X²) = <strong>' + Zmag.toFixed(1) + ' Ω</strong></span>' +
+    '<span class="stat">Dòng I = 220/|Z| = <strong>' + I.toFixed(3) + ' A</strong></span>' +
+    '<span class="stat">Lệch pha φ = <strong>' + (phi * 180 / Math.PI).toFixed(1) + '°</strong></span></div>' +
+    '<div style="margin-top:8px; font-size:13px; color:#475569">Mạch đang <strong>' + kind + '</strong>. Tần số cộng hưởng f₀ = 1/(2π√(LC)) = <strong>' + f0.toFixed(1) + ' Hz</strong> — chỉnh f về đúng f₀ thì X_L = X_C triệt tiêu, |Z| nhỏ nhất (= R) nên dòng lớn nhất. Đây chính là cách <strong>radio dò đài</strong>: xoay tụ C để f₀ trùng tần số đài muốn nghe.</div>';
+}
+
+draw1(); draw2(); draw3(); rlc();
+</script>
 
 </main>
 

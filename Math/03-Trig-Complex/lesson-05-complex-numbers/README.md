@@ -118,27 +118,52 @@ $$z = a + bi$$
 
 Trục hoành (Re) chứa các số thực thuần ($b=0$); trục tung (Im) chứa số thuần ảo ($a=0$). Bốn số phức $3+4i$, $-2+i$, $-3i$, $4$ đặt lên mặt phẳng Argand:
 
-```
-                    Im (trục ảo)
-                     ↑
-                   4 +        ● 3+4i
-                     |       ╱:
-                   3 +      ╱ :
-                     |     ╱  :
-        ● -2+i     2 +    ╱   :
-          ╲          |   ╱    :
-         1 +●··········  ╱     :         |z|=5 (độ dài mũi tên OM)
-            ╲        | ╱      :
-  ──────┼────┼────┼──O────┼────┼────┼──→ Re (trục thực)
-       -3   -2   -1   |  1   2   3  4 ●(số thực 4)
-                      |              :
-                   -1 +              :
-                      |              :
-                   -2 +              :
-                      |              :
-                   -3 +              ● -3i (thuần ảo)
-                      |
-```
+<svg viewBox="0 0 330 320" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn số phức trên mặt phẳng Argand">
+  <defs>
+    <marker id="ar1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/>
+    </marker>
+    <marker id="ax1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="37" y1="14" x2="37" y2="306"/><line x1="71" y1="14" x2="71" y2="306"/><line x1="105" y1="14" x2="105" y2="306"/>
+    <line x1="173" y1="14" x2="173" y2="306"/><line x1="207" y1="14" x2="207" y2="306"/><line x1="241" y1="14" x2="241" y2="306"/><line x1="275" y1="14" x2="275" y2="306"/>
+    <line x1="12" y1="36" x2="318" y2="36"/><line x1="12" y1="70" x2="318" y2="70"/><line x1="12" y1="104" x2="318" y2="104"/><line x1="12" y1="138" x2="318" y2="138"/>
+    <line x1="12" y1="206" x2="318" y2="206"/><line x1="12" y1="240" x2="318" y2="240"/><line x1="12" y1="274" x2="318" y2="274"/>
+  </g>
+  <!-- trục -->
+  <line x1="10" y1="172" x2="314" y2="172" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ax1)"/>
+  <line x1="139" y1="308" x2="139" y2="18" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ax1)"/>
+  <text x="304" y="164" font-size="12" font-weight="700" fill="#1a202c">Re</text>
+  <text x="146" y="24" font-size="12" font-weight="700" fill="#1a202c">Im</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="37" y="184">−3</text><text x="71" y="184">−2</text><text x="105" y="184">−1</text>
+    <text x="173" y="184">1</text><text x="207" y="184">2</text><text x="241" y="184">3</text><text x="275" y="184">4</text>
+    <text x="129" y="140" text-anchor="end">1</text><text x="129" y="106" text-anchor="end">2</text><text x="129" y="72" text-anchor="end">3</text><text x="129" y="40" text-anchor="end">4</text>
+    <text x="129" y="210" text-anchor="end">−1</text><text x="129" y="244" text-anchor="end">−2</text><text x="129" y="278" text-anchor="end">−3</text>
+  </g>
+  <!-- gióng nét đứt của 3+4i -->
+  <line x1="241" y1="36" x2="241" y2="172" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="241" y1="36" x2="139" y2="36" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <!-- vector O → 3+4i -->
+  <line x1="139" y1="172" x2="236" y2="41" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar1)"/>
+  <text x="168" y="96" font-size="11" fill="#1d4ed8" font-weight="600" transform="rotate(-53 168 96)">|z| = 5</text>
+  <!-- các điểm -->
+  <circle cx="241" cy="36" r="5" fill="#1d4ed8"/>
+  <text x="249" y="32" font-size="12" font-weight="700" fill="#1d4ed8">3+4i</text>
+  <circle cx="71" cy="138" r="5" fill="#334155"/>
+  <text x="60" y="124" font-size="12" font-weight="700" fill="#334155">−2+i</text>
+  <circle cx="139" cy="274" r="5" fill="#334155"/>
+  <text x="150" y="279" font-size="12" font-weight="700" fill="#334155">−3i (thuần ảo)</text>
+  <circle cx="275" cy="172" r="5" fill="#334155"/>
+  <text x="298" y="194" font-size="12" font-weight="700" fill="#334155" text-anchor="end">4 (số thực)</text>
+  <circle cx="139" cy="172" r="3" fill="#1a202c"/>
+  <text x="126" y="188" font-size="11" fill="#1a202c" font-weight="700">O</text>
+</svg>
 
 - $3+4i$ → điểm $(3,4)$, góc phần tư I (cả Re lẫn Im dương).
 - $-2+i$ → điểm $(-2,1)$, góc phần tư II.
@@ -256,18 +281,46 @@ $$\begin{aligned}
 
 💡 **Hình học**: Cộng số phức = **cộng vector** (quy tắc hình bình hành — nối hai mũi tên đầu-đuôi). Ví dụ $(3+i)+(1+2i)=4+3i$: đi từ $O$ tới $(3,1)$, rồi tiếp tục đi thêm $(1,2)$ → tới $(4,3)$.
 
-```
-        Im
-         ↑
-       3 +              ● 4+3i (tổng)
-         |            ╱ ↑
-       2 +      ● 1+2i  | (dịch thêm 1+2i từ điểm 3+i)
-         |    ╱        |
-       1 +  ╱      ●───┘ 3+i
-         |╱       ╱
-  ───────O───────────────→ Re
-         |   1   3   4
-```
+<svg viewBox="0 0 330 240" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cộng số phức theo quy tắc hình bình hành">
+  <defs>
+    <marker id="ab2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
+    <marker id="ag2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+    <marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+    <marker id="ax2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="80" y1="14" x2="80" y2="222"/><line x1="136" y1="14" x2="136" y2="222"/><line x1="192" y1="14" x2="192" y2="222"/><line x1="248" y1="14" x2="248" y2="222"/>
+    <line x1="12" y1="154" x2="318" y2="154"/><line x1="12" y1="98" x2="318" y2="98"/><line x1="12" y1="42" x2="318" y2="42"/>
+  </g>
+  <!-- trục -->
+  <line x1="12" y1="210" x2="312" y2="210" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ax2)"/>
+  <line x1="24" y1="222" x2="24" y2="18" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ax2)"/>
+  <text x="304" y="226" font-size="12" font-weight="700" fill="#1a202c">Re</text>
+  <text x="31" y="24" font-size="12" font-weight="700" fill="#1a202c">Im</text>
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="80" y="222">1</text><text x="136" y="222">2</text><text x="192" y="222">3</text><text x="248" y="222">4</text>
+    <text x="14" y="158" text-anchor="end">1</text><text x="14" y="102" text-anchor="end">2</text><text x="14" y="46" text-anchor="end">3</text>
+  </g>
+  <!-- hình bình hành (nét đứt): từ 3+i thêm 1+2i, và từ 1+2i thêm 3+i -->
+  <line x1="192" y1="154" x2="248" y2="42" stroke="#15803d" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="80" y1="98" x2="248" y2="42" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <!-- vectors -->
+  <line x1="24" y1="210" x2="187" y2="157" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ab2)"/>
+  <line x1="24" y1="210" x2="76" y2="102" stroke="#15803d" stroke-width="2.5" marker-end="url(#ag2)"/>
+  <line x1="24" y1="210" x2="243" y2="46" stroke="#dc2626" stroke-width="3" marker-end="url(#ar2)"/>
+  <!-- điểm + nhãn -->
+  <circle cx="192" cy="154" r="5" fill="#1d4ed8"/>
+  <text x="200" y="168" font-size="12" font-weight="700" fill="#1d4ed8">3+i</text>
+  <circle cx="80" cy="98" r="5" fill="#15803d"/>
+  <text x="44" y="90" font-size="12" font-weight="700" fill="#15803d">1+2i</text>
+  <circle cx="248" cy="42" r="5.5" fill="#dc2626"/>
+  <text x="256" y="38" font-size="12.5" font-weight="700" fill="#dc2626">4+3i (tổng)</text>
+  <circle cx="24" cy="210" r="3" fill="#1a202c"/>
+  <text x="12" y="226" font-size="11" font-weight="700" fill="#1a202c">O</text>
+  <!-- chú thích nét đứt -->
+  <text x="235" y="112" font-size="10.5" fill="#15803d" transform="rotate(-63 235 112)">+ (1+2i)</text>
+</svg>
 
 **4 ví dụ số đa dạng (cộng/trừ)**:
 
@@ -348,19 +401,41 @@ $$\frac{a+bi}{c+di} = \frac{(a+bi)(c-di)}{(c+di)(c-di)} = \frac{(a+bi)(c-di)}{c^
 
 💡 **Trực giác / Hình dung**: nhân với $i$ = **quay 90° ngược kim đồng hồ** trên mặt phẳng. Bắt đầu từ 1 (hướng phải): quay 90° → $i$ (lên), quay tiếp → $-1$ (trái), quay tiếp → $-i$ (xuống), quay tiếp → $1$ (về chỗ cũ). Cứ 4 lần quay = 1 vòng đầy → lũy thừa của i lặp lại chu kỳ 4.
 
-```
-              Im
-               ↑
-            i² = -1 ?  ● i  (= i¹)
-                    ↖  ↑  ↗
-                      \ | /  mỗi mũi tên = nhân thêm i (quay 90°)
-   -1 ●───────────────O───────────────● 1  (= i⁰)
-                      / | \
-                    ↙  ↓  ↘
-                       ● -i (= i³)
-
-   i⁰=1 → i¹=i → i²=-1 → i³=-i → i⁴=1 (quay đủ 360°, về 1)
-```
+<svg viewBox="0 0 320 320" style="max-width:340px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lũy thừa của i quay 90 độ mỗi lần nhân">
+  <defs>
+    <marker id="ai3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+  </defs>
+  <!-- trục -->
+  <line x1="20" y1="160" x2="300" y2="160" stroke="#cbd5e0" stroke-width="1.2"/>
+  <line x1="160" y1="300" x2="160" y2="20" stroke="#cbd5e0" stroke-width="1.2"/>
+  <text x="290" y="176" font-size="11" fill="#94a3b8">Re</text>
+  <text x="166" y="28" font-size="11" fill="#94a3b8">Im</text>
+  <!-- vòng tròn đơn vị -->
+  <circle cx="160" cy="160" r="90" fill="none" stroke="#cbd5e0" stroke-width="1.4" stroke-dasharray="5,5"/>
+  <!-- 4 cung quay ×i (ccw), bán kính 115 -->
+  <g fill="none" stroke="#dc2626" stroke-width="2">
+    <path d="M 274 144 A 115 115 0 0 0 176 46" marker-end="url(#ai3)"/>
+    <path d="M 144 46 A 115 115 0 0 0 46 144" marker-end="url(#ai3)"/>
+    <path d="M 46 176 A 115 115 0 0 0 144 274" marker-end="url(#ai3)"/>
+    <path d="M 176 274 A 115 115 0 0 0 274 176" marker-end="url(#ai3)"/>
+  </g>
+  <g font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">
+    <text x="250" y="70">×i</text><text x="70" y="70">×i</text><text x="70" y="258">×i</text><text x="250" y="258">×i</text>
+  </g>
+  <!-- 4 điểm -->
+  <circle cx="250" cy="160" r="6" fill="#1d4ed8"/>
+  <text x="258" y="150" font-size="13" font-weight="700" fill="#1d4ed8">1 = i⁰</text>
+  <circle cx="160" cy="70" r="6" fill="#1d4ed8"/>
+  <text x="172" y="66" font-size="13" font-weight="700" fill="#1d4ed8">i = i¹</text>
+  <circle cx="70" cy="160" r="6" fill="#1d4ed8"/>
+  <text x="62" y="148" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="end">i² = −1</text>
+  <circle cx="160" cy="250" r="6" fill="#1d4ed8"/>
+  <text x="172" y="266" font-size="13" font-weight="700" fill="#1d4ed8">i³ = −i</text>
+  <circle cx="160" cy="160" r="3" fill="#1a202c"/>
+  <text x="146" y="176" font-size="11" font-weight="700" fill="#1a202c">O</text>
+  <!-- chú thích -->
+  <text x="160" y="308" font-size="11" fill="#475569" text-anchor="middle">mỗi lần nhân i = quay 90° ngược kim đồng hồ → chu kỳ 4</text>
+</svg>
 
 | n | $i^n$ |
 |---|-----|

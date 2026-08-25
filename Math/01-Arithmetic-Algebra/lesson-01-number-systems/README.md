@@ -22,12 +22,45 @@ Không. Cần biết cộng/trừ/nhân/chia tiểu học. Nếu đã quen một
 
 Đừng coi $\mathbb{N} \to \mathbb{Z} \to \mathbb{Q} \to \mathbb{R}$ là "danh sách phải học thuộc". Đó là **4 lần loài người buộc phải phát minh số mới** vì số cũ không đủ dùng. Câu chuyện đời sống:
 
-```
-   ĐẾM        →  "3 con bò"                    → cần ℕ = {0,1,2,...}
-   NỢ         →  "thiếu 5 đồng" = −5           → cần ℤ (thêm số âm)
-   CHIA       →  "1 cái bánh / 3 người" = 1/3  → cần ℚ (thêm phân số)
-   ĐO         →  "đường chéo hình vuông" = √2  → cần ℝ (thêm vô tỉ)
-```
+<svg viewBox="0 0 728 124" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi mở rộng tập số: đếm cần ℕ, phép trừ buộc mở rộng sang ℤ, phép chia sang ℚ, lấy căn sang ℝ">
+  <defs>
+    <marker id="d1-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+  <!-- 4 hộp: nhu cầu đời sống → tập số -->
+  <rect x="10" y="14" width="140" height="96" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="80" y="34" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">ĐẾM</text>
+  <text x="80" y="64" font-size="24" font-weight="700" fill="#1d4ed8" text-anchor="middle">ℕ</text>
+  <text x="80" y="82" font-size="9.5" fill="#1a202c" text-anchor="middle">"3 con bò"</text>
+  <text x="80" y="97" font-size="9.5" fill="#475569" text-anchor="middle">{0, 1, 2, ...}</text>
+  <rect x="196" y="14" width="140" height="96" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="266" y="34" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">NỢ</text>
+  <text x="266" y="64" font-size="24" font-weight="700" fill="#1d4ed8" text-anchor="middle">ℤ</text>
+  <text x="266" y="82" font-size="9.5" fill="#1a202c" text-anchor="middle">"thiếu 5 đồng" = −5</text>
+  <text x="266" y="97" font-size="9.5" fill="#475569" text-anchor="middle">thêm số âm</text>
+  <rect x="382" y="14" width="140" height="96" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="452" y="34" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">CHIA</text>
+  <text x="452" y="64" font-size="24" font-weight="700" fill="#1d4ed8" text-anchor="middle">ℚ</text>
+  <text x="452" y="82" font-size="9.5" fill="#1a202c" text-anchor="middle">"1 cái bánh / 3 người"</text>
+  <text x="452" y="97" font-size="9.5" fill="#475569" text-anchor="middle">= 1/3 · thêm phân số</text>
+  <rect x="568" y="14" width="140" height="96" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="638" y="34" font-size="10" font-weight="700" fill="#475569" text-anchor="middle">ĐO</text>
+  <text x="638" y="64" font-size="24" font-weight="700" fill="#1d4ed8" text-anchor="middle">ℝ</text>
+  <text x="638" y="82" font-size="9.5" fill="#1a202c" text-anchor="middle">"đường chéo hình vuông"</text>
+  <text x="638" y="97" font-size="9.5" fill="#475569" text-anchor="middle">= √2 · thêm vô tỉ</text>
+  <!-- mũi tên: phép toán làm "thoát" khỏi tập hiện tại -->
+  <g stroke="#dc2626" stroke-width="2">
+    <line x1="154" y1="62" x2="188" y2="62" marker-end="url(#d1-ar)"/>
+    <line x1="340" y1="62" x2="374" y2="62" marker-end="url(#d1-ar)"/>
+    <line x1="526" y1="62" x2="560" y2="62" marker-end="url(#d1-ar)"/>
+  </g>
+  <g font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">
+    <text x="171" y="50">trừ</text>
+    <text x="357" y="50">chia</text>
+    <text x="543" y="50">căn</text>
+  </g>
+</svg>
 
 Mỗi mũi tên là một **phép toán làm "thoát" khỏi tập hiện tại**: trừ thoát khỏi $\mathbb{N}$, chia thoát khỏi $\mathbb{Z}$, lấy căn thoát khỏi $\mathbb{Q}$. Toán học vá lỗ bằng cách "thêm vừa đủ số mới để phép đó luôn có kết quả". Đây là sợi chỉ đỏ của cả bài.
 
@@ -302,25 +335,31 @@ $$\mathbb{N} \subset \mathbb{Z} \subset \mathbb{Q} \subset \mathbb{R}$$
 
 Mỗi tập sau bao gồm tập trước. $\mathbb{R} \setminus \mathbb{Q}$ = tập các số vô tỉ.
 
-**Sơ đồ Venn (ASCII)** — các tập lồng nhau như búp bê Nga, vô tỉ nằm trong $\mathbb{R}$ nhưng ngoài $\mathbb{Q}$:
+**Sơ đồ Venn** — các tập lồng nhau như búp bê Nga, vô tỉ nằm trong $\mathbb{R}$ nhưng ngoài $\mathbb{Q}$:
 
-```
-   +-----------------------------------------------+
-   |  ℝ  (số thực)                                 |
-   |   +-----------------------+   +------------+   |
-   |   |  ℚ  (hữu tỉ)          |   |  ℝ\ℚ       |   |
-   |   |   +---------------+   |   |  (vô tỉ)   |   |
-   |   |   |  ℤ (nguyên)   |   |   |            |   |
-   |   |   |   +-------+   |   |   |  √2  π     |   |
-   |   |   |   |  ℕ    |   |   |   |  e   √3    |   |
-   |   |   |   | 0,1,2 |   |   |   |            |   |
-   |   |   |   +-------+   |   |   |            |   |
-   |   |   |   -1, -2      |   |   +------------+   |
-   |   |   +---------------+   |                    |
-   |   |   1/2, -3/4, 0.333…   |                    |
-   |   +-----------------------+                    |
-   +-----------------------------------------------+
-```
+<svg viewBox="0 0 540 270" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ Venn các tập số lồng nhau: ℕ nằm trong ℤ, ℤ nằm trong ℚ, ℚ nằm trong ℝ; số vô tỉ ℝ∖ℚ nằm trong ℝ nhưng ngoài ℚ">
+  <!-- ℝ bao ngoài cùng -->
+  <rect x="10" y="10" width="520" height="250" rx="10" fill="#fff" stroke="#1a202c" stroke-width="1.6"/>
+  <text x="24" y="32" font-size="13" font-weight="700" fill="#1a202c">ℝ  (số thực)</text>
+  <!-- ℚ -->
+  <rect x="24" y="44" width="315" height="202" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="38" y="66" font-size="12" font-weight="700" fill="#1d4ed8">ℚ  (hữu tỉ)</text>
+  <!-- ℤ -->
+  <rect x="38" y="78" width="240" height="130" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+  <text x="52" y="100" font-size="12" font-weight="700" fill="#15803d">ℤ  (nguyên)</text>
+  <!-- ℕ trong cùng -->
+  <rect x="52" y="112" width="130" height="62" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="117" y="136" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">ℕ</text>
+  <text x="117" y="158" font-size="11" fill="#1a202c" text-anchor="middle">0, 1, 2</text>
+  <!-- ví dụ riêng của ℤ (ngoài ℕ) và ℚ (ngoài ℤ) -->
+  <text x="230" y="148" font-size="11" fill="#15803d" text-anchor="middle">−1, −2</text>
+  <text x="181" y="231" font-size="11" fill="#1d4ed8" text-anchor="middle">1/2, −3/4, 0.333…</text>
+  <!-- vô tỉ: trong ℝ nhưng ngoài ℚ -->
+  <rect x="355" y="44" width="160" height="202" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="435" y="66" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">ℝ∖ℚ  (vô tỉ)</text>
+  <text x="435" y="140" font-size="12" fill="#1a202c" text-anchor="middle">√2   π</text>
+  <text x="435" y="164" font-size="12" fill="#1a202c" text-anchor="middle">e   √3</text>
+</svg>
 
 **Bảng so sánh nhanh** (ví dụ thuộc / không thuộc):
 
@@ -373,12 +412,34 @@ $\sqrt{4} = 2$ → **hữu tỉ** (số nguyên). $\sqrt{5} \approx 2.236\ldots$
 
 💡 **Trực giác**: trục số là **bản đồ 1 chiều của $\mathbb{R}$** — mỗi số là một địa chỉ, mỗi địa chỉ ứng với đúng một số (tương ứng 1-1). Số nhỏ bên trái, số lớn bên phải.
 
-```
-       -3   -2   -1    0    1    2    3
-   ────┼────┼────┼────┼────┼────┼────┼────►
-        ↑              ↑         ↑
-      -3             gốc 0     x = 2
-```
+<svg viewBox="0 0 520 96" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục số từ −3 đến 3, đánh dấu ba vị trí: điểm −3, gốc 0 và x = 2">
+  <defs>
+    <marker id="d2-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- trục -->
+  <line x1="18" y1="52" x2="502" y2="52" stroke="#1a202c" stroke-width="1.6" marker-start="url(#d2-ax)" marker-end="url(#d2-ax)"/>
+  <!-- vạch chia -->
+  <g stroke="#1a202c" stroke-width="1.4">
+    <line x1="50" y1="46" x2="50" y2="58"/><line x1="120" y1="46" x2="120" y2="58"/><line x1="190" y1="46" x2="190" y2="58"/>
+    <line x1="260" y1="46" x2="260" y2="58"/><line x1="330" y1="46" x2="330" y2="58"/><line x1="400" y1="46" x2="400" y2="58"/><line x1="470" y1="46" x2="470" y2="58"/>
+  </g>
+  <!-- nhãn số -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="50" y="74">−3</text><text x="120" y="74">−2</text><text x="190" y="74">−1</text>
+    <text x="260" y="74">0</text><text x="330" y="74">1</text><text x="400" y="74">2</text><text x="470" y="74">3</text>
+  </g>
+  <!-- 3 điểm đánh dấu -->
+  <circle cx="50" cy="52" r="4.5" fill="#15803d"/>
+  <circle cx="260" cy="52" r="4" fill="#1a202c"/>
+  <circle cx="400" cy="52" r="4.5" fill="#1d4ed8"/>
+  <g font-size="11" font-weight="700" text-anchor="middle">
+    <text x="50" y="30" fill="#15803d">−3</text>
+    <text x="260" y="30" fill="#1a202c">gốc 0</text>
+    <text x="400" y="30" fill="#1d4ed8">x = 2</text>
+  </g>
+</svg>
 
 **Định vị 4 số**: $-2.5$ nằm giữa $-3$ và $-2$; $\frac{1}{3} \approx 0.333$ giữa $0$ và $1$ (gần $0$); $\sqrt{2} \approx 1.414$ giữa $1$ và $2$; $\pi \approx 3.14$ giữa $3$ và $4$.
 
@@ -405,11 +466,40 @@ Mẹo: ký hiệu $<$ luôn "há miệng về phía số lớn". $3 < 5$: miện
 
 💡 **Trực giác — khoảng cách tới 0**: đứng tại vị trí $x$ trên trục số, hỏi "cách gốc 0 bao xa?" Câu trả lời là $\lvert x \rvert$. Khoảng cách không bao giờ âm → $\lvert x \rvert \geq 0$ luôn.
 
-```
-        |−3| = 3            |2| = 2
-       ←──────────┤    ├──────────►
-       -3   -2   -1   0   1    2
-```
+<svg viewBox="0 0 460 104" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giá trị tuyệt đối là khoảng cách tới gốc 0: điểm −3 cách gốc 3 đơn vị nên |−3| = 3, điểm 2 cách gốc 2 đơn vị nên |2| = 2">
+  <defs>
+    <marker id="d3-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+    <marker id="d3-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/>
+    </marker>
+    <marker id="d3-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#15803d"/>
+    </marker>
+  </defs>
+  <!-- trục -->
+  <line x1="18" y1="64" x2="442" y2="64" stroke="#1a202c" stroke-width="1.6" marker-start="url(#d3-ax)" marker-end="url(#d3-ax)"/>
+  <g stroke="#1a202c" stroke-width="1.4">
+    <line x1="50" y1="58" x2="50" y2="70"/><line x1="120" y1="58" x2="120" y2="70"/><line x1="190" y1="58" x2="190" y2="70"/>
+    <line x1="260" y1="58" x2="260" y2="70"/><line x1="330" y1="58" x2="330" y2="70"/><line x1="400" y1="58" x2="400" y2="70"/>
+  </g>
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="50" y="88">−3</text><text x="120" y="88">−2</text><text x="190" y="88">−1</text>
+    <text x="260" y="88">0</text><text x="330" y="88">1</text><text x="400" y="88">2</text>
+  </g>
+  <!-- gióng gốc 0 -->
+  <line x1="260" y1="30" x2="260" y2="64" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <!-- khoảng cách 0 → −3 và 0 → 2 -->
+  <line x1="257" y1="40" x2="57" y2="40" stroke="#1d4ed8" stroke-width="2" marker-end="url(#d3-b)"/>
+  <line x1="263" y1="40" x2="393" y2="40" stroke="#15803d" stroke-width="2" marker-end="url(#d3-g)"/>
+  <text x="155" y="29" font-size="11.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">|−3| = 3</text>
+  <text x="330" y="29" font-size="11.5" font-weight="700" fill="#15803d" text-anchor="middle">|2| = 2</text>
+  <!-- điểm -->
+  <circle cx="50" cy="64" r="4.5" fill="#1d4ed8"/>
+  <circle cx="400" cy="64" r="4.5" fill="#15803d"/>
+  <circle cx="260" cy="64" r="3.5" fill="#1a202c"/>
+</svg>
 
 Cả $-3$ và $3$ cách 0 đúng 3 đơn vị → $\lvert -3 \rvert = \lvert 3 \rvert = 3$.
 

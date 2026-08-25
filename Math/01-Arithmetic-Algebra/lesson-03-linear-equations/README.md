@@ -74,27 +74,108 @@ Vậy $x = 2$ là nghiệm. Thử lần lượt thì **đúng nhưng chậm** �
 
 Hình dung phương trình là một **cái cân hai đĩa**: vế trái = đĩa trái, vế phải = đĩa phải. Phương trình $2x + 3 = 7$ nghĩa là **đĩa trái nặng đúng bằng đĩa phải**. Cụ thể: đĩa trái có 2 hộp bí ẩn (mỗi hộp $x$ kg) cộng 3 kg táo; đĩa phải có 7 kg táo.
 
-```
-   ┌──────────────┐         ┌──────────────┐
-   │  [x][x] 🍎🍎🍎 │         │  🍎🍎🍎🍎🍎🍎🍎 │
-   │  2 hộp + 3kg │         │     7 kg      │
-   └──────┬───────┘         └──────┬───────┘
-          └────────────┬───────────┘
-                       △
-                  ━━━━━━━━━━━  (thăng bằng)
-```
+<svg viewBox="0 0 520 236" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cái cân hai đĩa đang thăng bằng: đĩa trái chứa 2 hộp x và 3 kg táo, đĩa phải chứa 7 kg táo — minh họa phương trình 2x + 3 = 7">
+  <!-- đòn cân + trụ đỡ -->
+  <line x1="75" y1="55" x2="445" y2="55" stroke="#1a202c" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="260" cy="55" r="5" fill="#1a202c"/>
+  <polygon points="260,60 230,200 290,200" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="160" y1="203" x2="360" y2="203" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+  <text x="260" y="224" font-size="11" font-style="italic" fill="#475569" text-anchor="middle">(thăng bằng)</text>
+  <!-- dây treo 2 đĩa -->
+  <g stroke="#64748b" stroke-width="1.5">
+    <line x1="110" y1="57" x2="30" y2="95"/><line x1="110" y1="57" x2="190" y2="95"/>
+    <line x1="410" y1="57" x2="330" y2="95"/><line x1="410" y1="57" x2="490" y2="95"/>
+  </g>
+  <!-- đĩa trái: 2 hộp x + 3 kg táo -->
+  <rect x="20" y="95" width="180" height="78" rx="10" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <rect x="36" y="106" width="34" height="30" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="53" y="126" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <rect x="76" y="106" width="34" height="30" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="93" y="126" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <circle cx="132" cy="121" r="8" fill="#dc2626"/><circle cx="152" cy="121" r="8" fill="#dc2626"/><circle cx="172" cy="121" r="8" fill="#dc2626"/>
+  <text x="110" y="160" font-size="11" font-weight="600" fill="#475569" text-anchor="middle">2 hộp + 3 kg</text>
+  <!-- đĩa phải: 7 kg táo -->
+  <rect x="320" y="95" width="180" height="78" rx="10" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+  <circle cx="377" cy="115" r="8" fill="#dc2626"/><circle cx="399" cy="115" r="8" fill="#dc2626"/><circle cx="421" cy="115" r="8" fill="#dc2626"/><circle cx="443" cy="115" r="8" fill="#dc2626"/>
+  <circle cx="388" cy="136" r="8" fill="#dc2626"/><circle cx="410" cy="136" r="8" fill="#dc2626"/><circle cx="432" cy="136" r="8" fill="#dc2626"/>
+  <text x="410" y="160" font-size="11" font-weight="600" fill="#475569" text-anchor="middle">7 kg</text>
+</svg>
 
 **Để cân vẫn thăng bằng**, mọi thao tác phải **làm đồng thời cho cả hai đĩa**. Đây chính là lý do toán học của 2 quy tắc:
 
 - **Bỏ 3 kg táo khỏi cả 2 đĩa** = "trừ 3 cả 2 vế" → còn $2x = 4$.
 - **Chia đôi cả 2 đĩa** = "chia 2 cả 2 vế" → còn $x = 2$.
 
-```
-Trước:                       Tháo 3 táo mỗi đĩa:        Chia đôi mỗi đĩa:
-[x][x]🍎🍎🍎 | 🍎🍎🍎🍎🍎🍎🍎    [x][x]  |  🍎🍎🍎🍎        [x] | 🍎🍎
-━━━━━━━△━━━━━━━━━━━━     →   ━━━━━△━━━━━━━     →    ━━△━━━━
-   2x + 3 = 7                   2x = 4                x = 2  ← nghiệm
-```
+<svg viewBox="0 0 660 176" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba giai đoạn biến đổi cái cân: ban đầu 2 hộp x và 3 táo cân với 7 táo (2x + 3 = 7); tháo 3 táo mỗi đĩa còn 2x = 4; chia đôi mỗi đĩa còn x = 2 — nghiệm">
+  <defs>
+    <marker id="d4-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <!-- khung 3 panel -->
+  <rect x="8" y="8" width="188" height="160" rx="8" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="236" y="8" width="188" height="160" rx="8" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="464" y="8" width="188" height="160" rx="8" fill="#fff" stroke="#e2e8f0"/>
+  <g font-size="11.5" font-weight="700" fill="#1a202c" text-anchor="middle">
+    <text x="102" y="30">Trước</text>
+    <text x="330" y="30">Tháo 3 táo mỗi đĩa</text>
+    <text x="558" y="30">Chia đôi mỗi đĩa</text>
+  </g>
+  <!-- mũi tên giữa các panel -->
+  <line x1="202" y1="88" x2="230" y2="88" stroke="#475569" stroke-width="2" marker-end="url(#d4-ar)"/>
+  <line x1="430" y1="88" x2="458" y2="88" stroke="#475569" stroke-width="2" marker-end="url(#d4-ar)"/>
+  <!-- panel 1: 2x + 3 = 7 -->
+  <line x1="44" y1="62" x2="160" y2="62" stroke="#1a202c" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="102" cy="62" r="3.5" fill="#1a202c"/>
+  <polygon points="102,66 89,128 115,128" fill="#cbd5e1" stroke="#64748b" stroke-width="1"/>
+  <line x1="72" y1="130" x2="132" y2="130" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <g stroke="#64748b" stroke-width="1.2">
+    <line x1="44" y1="62" x2="22" y2="84"/><line x1="44" y1="62" x2="66" y2="84"/>
+    <line x1="160" y1="62" x2="138" y2="84"/><line x1="160" y1="62" x2="182" y2="84"/>
+  </g>
+  <rect x="18" y="84" width="52" height="42" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="22" y="90" width="16" height="14" rx="3" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="30" y="101" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <rect x="42" y="90" width="16" height="14" rx="3" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="50" y="101" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <circle cx="30" cy="114" r="4" fill="#dc2626"/><circle cx="44" cy="114" r="4" fill="#dc2626"/><circle cx="58" cy="114" r="4" fill="#dc2626"/>
+  <rect x="134" y="84" width="52" height="42" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.2"/>
+  <circle cx="142" cy="97" r="4" fill="#dc2626"/><circle cx="154" cy="97" r="4" fill="#dc2626"/><circle cx="166" cy="97" r="4" fill="#dc2626"/><circle cx="178" cy="97" r="4" fill="#dc2626"/>
+  <circle cx="148" cy="112" r="4" fill="#dc2626"/><circle cx="160" cy="112" r="4" fill="#dc2626"/><circle cx="172" cy="112" r="4" fill="#dc2626"/>
+  <text x="102" y="152" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">2x + 3 = 7</text>
+  <!-- panel 2: 2x = 4 -->
+  <line x1="272" y1="62" x2="388" y2="62" stroke="#1a202c" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="330" cy="62" r="3.5" fill="#1a202c"/>
+  <polygon points="330,66 317,128 343,128" fill="#cbd5e1" stroke="#64748b" stroke-width="1"/>
+  <line x1="300" y1="130" x2="360" y2="130" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <g stroke="#64748b" stroke-width="1.2">
+    <line x1="272" y1="62" x2="250" y2="84"/><line x1="272" y1="62" x2="294" y2="84"/>
+    <line x1="388" y1="62" x2="366" y2="84"/><line x1="388" y1="62" x2="410" y2="84"/>
+  </g>
+  <rect x="246" y="84" width="52" height="42" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="252" y="97" width="16" height="14" rx="3" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="260" y="108" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <rect x="276" y="97" width="16" height="14" rx="3" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="284" y="108" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <rect x="362" y="84" width="52" height="42" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.2"/>
+  <circle cx="370" cy="105" r="4" fill="#dc2626"/><circle cx="382" cy="105" r="4" fill="#dc2626"/><circle cx="394" cy="105" r="4" fill="#dc2626"/><circle cx="406" cy="105" r="4" fill="#dc2626"/>
+  <text x="330" y="152" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">2x = 4</text>
+  <!-- panel 3: x = 2 -->
+  <line x1="500" y1="62" x2="616" y2="62" stroke="#1a202c" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="558" cy="62" r="3.5" fill="#1a202c"/>
+  <polygon points="558,66 545,128 571,128" fill="#cbd5e1" stroke="#64748b" stroke-width="1"/>
+  <line x1="528" y1="130" x2="588" y2="130" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <g stroke="#64748b" stroke-width="1.2">
+    <line x1="500" y1="62" x2="478" y2="84"/><line x1="500" y1="62" x2="522" y2="84"/>
+    <line x1="616" y1="62" x2="594" y2="84"/><line x1="616" y1="62" x2="638" y2="84"/>
+  </g>
+  <rect x="474" y="84" width="52" height="42" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="492" y="97" width="16" height="14" rx="3" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="500" y="108" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">x</text>
+  <rect x="590" y="84" width="52" height="42" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.2"/>
+  <circle cx="609" cy="105" r="4" fill="#dc2626"/><circle cx="623" cy="105" r="4" fill="#dc2626"/>
+  <text x="558" y="152" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">x = 2 ← nghiệm</text>
+</svg>
 
 Nếu chỉ thao tác **một đĩa**, cân lệch → phương trình mới **không còn tương đương** với phương trình gốc. Đây là nguồn gốc của mọi quy tắc bên dưới.
 
@@ -336,25 +417,60 @@ b &= 3 - 2 = 1 &&\text{(giải phương trình bậc 1 ẩn } b)
 - Giao $Oy$: $x = 0 \to y = 1$ → $(0, 1)$.
 - Giao $Ox$: $y = 0 \to 0 = 2x + 1 \to x = -\tfrac{1}{2}$ → $\left(-\tfrac{1}{2}, 0\right)$.
 
-**ASCII đồ thị đường thẳng $y = 2x + 1$** (chấm vài điểm rồi nối):
+**Đồ thị đường thẳng $y = 2x + 1$** (chấm vài điểm rồi nối):
 
 | $x$ | $-1$ | $0$ | $1$ | $2$ |
 |---|---|---|---|---|
 | $y = 2x+1$ | $-1$ | $1$ | $3$ | $5$ |
 
-```
-   y
- 5 |              *  (2,5)
- 4 |
- 3 |        *  (1,3)
- 2 |
- 1 |   *  (0,1)  ← giao Oy
- 0 |__*________________  x
--1 *  (-1,-1)
-   -1   0   1   2
-   ↑
-  (-½,0) giao Ox nằm giữa x=-1 và x=0
-```
+<svg viewBox="0 0 300 384" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị đường thẳng y = 2x + 1 trên hệ trục tọa độ: đi qua các điểm (−1,−1), (0,1), (1,3), (2,5); cắt trục Oy tại (0,1) và cắt trục Ox tại (−1/2, 0) nằm giữa x = −1 và x = 0">
+  <defs>
+    <marker id="d5-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="40" y1="20" x2="40" y2="356"/><line x1="82" y1="20" x2="82" y2="356"/><line x1="166" y1="20" x2="166" y2="356"/><line x1="208" y1="20" x2="208" y2="356"/><line x1="250" y1="20" x2="250" y2="356"/>
+    <line x1="40" y1="356" x2="250" y2="356"/><line x1="40" y1="314" x2="250" y2="314"/><line x1="40" y1="230" x2="250" y2="230"/><line x1="40" y1="188" x2="250" y2="188"/><line x1="40" y1="146" x2="250" y2="146"/><line x1="40" y1="104" x2="250" y2="104"/><line x1="40" y1="62" x2="250" y2="62"/><line x1="40" y1="20" x2="250" y2="20"/>
+  </g>
+  <!-- trục -->
+  <line x1="30" y1="272" x2="260" y2="272" stroke="#1a202c" stroke-width="1.6" marker-start="url(#d5-ax)" marker-end="url(#d5-ax)"/>
+  <line x1="124" y1="366" x2="124" y2="10" stroke="#1a202c" stroke-width="1.6" marker-start="url(#d5-ax)" marker-end="url(#d5-ax)"/>
+  <text x="262" y="262" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">x</text>
+  <text x="135" y="18" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trên trục -->
+  <g font-size="10" fill="#1a202c">
+    <text x="40" y="288" text-anchor="middle">−2</text>
+    <text x="82" y="288" text-anchor="middle">−1</text>
+    <text x="118" y="288" text-anchor="end">0</text>
+    <text x="166" y="288" text-anchor="middle">1</text>
+    <text x="208" y="288" text-anchor="middle">2</text>
+    <text x="250" y="288" text-anchor="middle">3</text>
+    <text x="118" y="318" text-anchor="end">−1</text>
+    <text x="118" y="234" text-anchor="end">1</text>
+    <text x="118" y="150" text-anchor="end">3</text>
+    <text x="118" y="66" text-anchor="end">5</text>
+  </g>
+  <!-- gióng nét đứt cho điểm (2,5) -->
+  <line x1="208" y1="62" x2="208" y2="272" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,4"/>
+  <line x1="208" y1="62" x2="124" y2="62" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,4"/>
+  <!-- đường thẳng y = 2x + 1 (hệ số góc 2, tung độ gốc 1) -->
+  <line x1="61" y1="356" x2="229" y2="20" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="206" y="52" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="end">y = 2x + 1</text>
+  <!-- giao Ox tại (−½, 0) -->
+  <circle cx="103" cy="272" r="4" fill="#fff" stroke="#15803d" stroke-width="2"/>
+  <text x="97" y="260" font-size="10" font-weight="600" fill="#15803d" text-anchor="end">(−½, 0) giao Ox</text>
+  <!-- các điểm chấm -->
+  <circle cx="82" cy="314" r="4.5" fill="#dc2626"/>
+  <text x="90" y="310" font-size="10" font-weight="600" fill="#475569">(−1, −1)</text>
+  <circle cx="124" cy="230" r="4.5" fill="#dc2626"/>
+  <text x="132" y="226" font-size="10" font-weight="600" fill="#475569">(0, 1) — giao Oy</text>
+  <circle cx="166" cy="146" r="4.5" fill="#dc2626"/>
+  <text x="174" y="142" font-size="10" font-weight="600" fill="#475569">(1, 3)</text>
+  <circle cx="208" cy="62" r="4.5" fill="#dc2626"/>
+  <text x="200" y="82" font-size="10" font-weight="600" fill="#475569" text-anchor="end">(2, 5)</text>
+</svg>
 
 ### 2.4. Đường nằm ngang, đường thẳng đứng
 
@@ -477,16 +593,37 @@ Hai slope **khác nhau** ($-1 \neq 2$) → hai đường **cắt nhau** → đú
 - *"Thế hay cộng đại số tốt hơn?"* Khi một ẩn đã có hệ số 1 (dễ rút) → **thế** nhanh. Khi hệ số "lệch" khó rút → **cộng đại số** gọn hơn. Kết quả như nhau.
 - *"Làm sao biết hệ vô nghiệm mà không vẽ?"* So tỉ lệ hệ số: nếu $a_1/a_2 = b_1/b_2$ nhưng $\neq c_1/c_2$ → song song → vô nghiệm.
 
-**ASCII 3 trường hợp** (giao của 2 đường thẳng):
+**Minh họa 3 trường hợp** (giao của 2 đường thẳng):
 
-```
- CẮT NHAU (1 nghiệm)    SONG SONG (vô nghiệm)   TRÙNG NHAU (vô số nghiệm)
-      \   /                 ───────                ═══════════
-       \ /                  ───────                ═══════════
-        X  ← 1 giao điểm    (không gặp)            (gặp ở mọi điểm)
-       / \
-      /   \
-```
+<svg viewBox="0 0 660 192" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba trường hợp nghiệm của hệ hai phương trình bậc nhất: hai đường cắt nhau cho 1 nghiệm, song song thì vô nghiệm, trùng nhau thì vô số nghiệm">
+  <!-- khung 3 panel -->
+  <rect x="10" y="8" width="200" height="176" rx="8" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="230" y="8" width="200" height="176" rx="8" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="450" y="8" width="200" height="176" rx="8" fill="#fff" stroke="#e2e8f0"/>
+  <g font-size="11.5" font-weight="700" fill="#1a202c" text-anchor="middle">
+    <text x="110" y="32">CẮT NHAU</text>
+    <text x="330" y="32">SONG SONG</text>
+    <text x="550" y="32">TRÙNG NHAU</text>
+  </g>
+  <g font-size="10" fill="#475569" text-anchor="middle">
+    <text x="110" y="48">(1 nghiệm)</text>
+    <text x="330" y="48">(vô nghiệm)</text>
+    <text x="550" y="48">(vô số nghiệm)</text>
+  </g>
+  <!-- panel 1: cắt nhau -->
+  <line x1="30" y1="152" x2="190" y2="72" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="30" y1="72" x2="190" y2="152" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="110" cy="112" r="5" fill="#dc2626"/>
+  <text x="110" y="174" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="middle">1 giao điểm</text>
+  <!-- panel 2: song song -->
+  <line x1="250" y1="80" x2="410" y2="110" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="250" y1="124" x2="410" y2="154" stroke="#15803d" stroke-width="2.5"/>
+  <text x="330" y="174" font-size="10.5" fill="#475569" text-anchor="middle">(không gặp)</text>
+  <!-- panel 3: trùng nhau (2 đường chồng khít) -->
+  <line x1="470" y1="88" x2="630" y2="138" stroke="#1d4ed8" stroke-width="6"/>
+  <line x1="470" y1="88" x2="630" y2="138" stroke="#15803d" stroke-width="2" stroke-dasharray="6,5"/>
+  <text x="550" y="174" font-size="10.5" fill="#475569" text-anchor="middle">(gặp ở mọi điểm)</text>
+</svg>
 
 **Ví dụ vô nghiệm** (song song): $\begin{cases} x + y = 2 \\ x + y = 5 \end{cases}$ — cùng vế trái $x + y$ nhưng bằng 2 số khác nhau → mâu thuẫn. Trừ 2 PT: $0 = -3$ (sai) → **vô nghiệm**. Hình học: $y = -x + 2$ và $y = -x + 5$ cùng slope $-1$, khác $b$ → song song.
 

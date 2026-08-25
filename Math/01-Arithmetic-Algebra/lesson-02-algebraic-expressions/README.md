@@ -237,14 +237,19 @@ Bốn ví dụ:
 
 Hình chữ nhật cạnh $a$ và cạnh $b + c$, chia theo chiều rộng thành hai phần:
 
-```
-       b           c
-    ┌─────┬───────────┐
-  a │  ab │    ac     │
-    └─────┴───────────┘
-
-    Diện tích tổng = a·(b+c) = ab + ac
-```
+<svg viewBox="0 0 360 190" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình chữ nhật cạnh a và b cộng c chia thành hai phần diện tích a nhân b và a nhân c">
+  <!-- hai ô diện tích -->
+  <rect x="50" y="45" width="105" height="85" fill="#dbeafe" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="155" y="45" width="165" height="85" fill="#dcfce7" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="102" y="94" font-size="17" font-weight="700" fill="#1d4ed8" text-anchor="middle">a·b</text>
+  <text x="237" y="94" font-size="17" font-weight="700" fill="#15803d" text-anchor="middle">a·c</text>
+  <!-- nhãn cạnh -->
+  <text x="102" y="33" font-size="13" font-weight="700" fill="#475569" text-anchor="middle">b</text>
+  <text x="237" y="33" font-size="13" font-weight="700" fill="#475569" text-anchor="middle">c</text>
+  <text x="36" y="93" font-size="13" font-weight="700" fill="#475569" text-anchor="middle">a</text>
+  <!-- kết luận -->
+  <text x="185" y="165" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">Diện tích tổng = a·(b+c) = a·b + a·c</text>
+</svg>
 
 Hai cách đếm cùng một diện tích → $a(b+c) = ab + ac$. Đây không phải "quy tắc trời ơi" mà là đếm diện tích bằng hai góc nhìn.
 
@@ -260,11 +265,32 @@ Hai cách đếm cùng một diện tích → $a(b+c) = ab + ac$. Đây không p
 
 $(a+b)(c+d)$ = phân phối hai lần. FOIL = **F**irst, **O**uter, **I**nner, **L**ast:
 
-```
-(a + b)(c + d) = a·c + a·d + b·c + b·d
-                  ↑     ↑     ↑     ↑
-                First Outer Inner Last
-```
+<svg viewBox="0 0 380 235" style="max-width:430px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ FOIL: bốn cung nối a với c, a với d, b với c, b với d cho tích hai nhị thức">
+  <defs>
+    <marker id="e2-f" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
+    <marker id="e2-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+    <marker id="e2-i" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+    <marker id="e2-l" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <!-- biểu thức -->
+  <g font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">
+    <text x="78" y="100">(</text><text x="96" y="100">a</text><text x="119" y="100">+</text><text x="142" y="100">b</text><text x="160" y="100">)</text>
+    <text x="178" y="100">(</text><text x="196" y="100">c</text><text x="219" y="100">+</text><text x="242" y="100">d</text><text x="260" y="100">)</text>
+  </g>
+  <!-- cung trên: F (a→c), O (a→d) -->
+  <path d="M96,82 Q146,48 196,82" fill="none" stroke="#1d4ed8" stroke-width="2" marker-end="url(#e2-f)"/>
+  <text x="146" y="78" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">F</text>
+  <path d="M96,82 Q169,6 242,82" fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#e2-o)"/>
+  <text x="169" y="38" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">O</text>
+  <!-- cung dưới: I (b→c), L (b→d) -->
+  <path d="M142,108 Q169,146 196,108" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#e2-i)"/>
+  <text x="169" y="123" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">I</text>
+  <path d="M142,108 Q192,182 242,108" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#e2-l)"/>
+  <text x="192" y="162" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">L</text>
+  <!-- kết quả -->
+  <text x="190" y="197" font-size="17" font-weight="700" fill="#1a202c" text-anchor="middle">= <tspan fill="#1d4ed8">a·c</tspan> + <tspan fill="#15803d">a·d</tspan> + <tspan fill="#dc2626">b·c</tspan> + <tspan fill="#475569">b·d</tspan></text>
+  <text x="190" y="222" font-size="11.5" fill="#475569" text-anchor="middle"><tspan fill="#1d4ed8" font-weight="700">F</tspan> = First · <tspan fill="#15803d" font-weight="700">O</tspan> = Outer · <tspan fill="#dc2626" font-weight="700">I</tspan> = Inner · <tspan font-weight="700">L</tspan> = Last</text>
+</svg>
 
 Walk-through $(2x+3)(x-4)$:
 
@@ -389,18 +415,24 @@ $$\begin{aligned}
 
 Vẽ hình vuông cạnh $a + b$, chia mỗi cạnh thành đoạn $a$ và đoạn $b$ → hình vuông chia thành 4 ô:
 
-```
-        a              b
-   ┌──────────┬────────────────┐
-   │          │                │
- a │    a²    │       ab       │
-   │          │                │
-   ├──────────┼────────────────┤
-   │          │                │
- b │    ab    │       b²       │
-   │          │                │
-   └──────────┴────────────────┘
-```
+<svg viewBox="0 0 340 265" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình vuông cạnh a cộng b chia thành 4 ô: a bình phương, hai ô a nhân b và b bình phương">
+  <!-- 4 ô diện tích -->
+  <rect x="70" y="40" width="110" height="110" fill="#dbeafe" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="180" y="40" width="70" height="110" fill="#dcfce7" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="70" y="150" width="110" height="70" fill="#dcfce7" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="180" y="150" width="70" height="70" fill="#fee2e2" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="125" y="102" font-size="18" font-weight="700" fill="#1d4ed8" text-anchor="middle">a²</text>
+  <text x="215" y="102" font-size="15" font-weight="700" fill="#15803d" text-anchor="middle">a·b</text>
+  <text x="125" y="192" font-size="15" font-weight="700" fill="#15803d" text-anchor="middle">a·b</text>
+  <text x="215" y="192" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">b²</text>
+  <!-- nhãn cạnh -->
+  <g font-size="13" font-weight="700" fill="#475569" text-anchor="middle">
+    <text x="125" y="30">a</text><text x="215" y="30">b</text>
+    <text x="56" y="100">a</text><text x="56" y="190">b</text>
+  </g>
+  <!-- kết luận -->
+  <text x="160" y="248" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">(a+b)² = a² + a·b + a·b + b² = a² + 2ab + b²</text>
+</svg>
 
 - Hình vuông lớn cạnh $a+b$ → diện tích $(a+b)^2$.
 - Tổng 4 ô: $a^2 + ab + ab + b^2 = a^2 + 2ab + b^2$.
@@ -412,16 +444,30 @@ Vẽ hình vuông cạnh $a + b$, chia mỗi cạnh thành đoạn $a$ và đo�
 
 Xét hình vuông cạnh $a$. Ở một góc lấy ra hình vuông cạnh $a-b$:
 
-```
-       (a−b)         b
-   ┌──────────┬──────────────┐
-(a−b)│ (a−b)²  │   (a−b)·b     │
-   ├──────────┼──────────────┤
-  b │  b·(a−b) │      b²       │
-   └──────────┴──────────────┘
-
-   Tổng cả hình vuông lớn = a²
-```
+<svg viewBox="0 0 340 290" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình vuông cạnh a chia thành 4 ô: a trừ b bình phương, hai chữ nhật b nhân a trừ b, và b bình phương">
+  <defs>
+    <marker id="e4-dim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  </defs>
+  <!-- 4 ô diện tích -->
+  <rect x="70" y="40" width="110" height="110" fill="#dbeafe" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="180" y="40" width="70" height="110" fill="#dcfce7" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="70" y="150" width="110" height="70" fill="#dcfce7" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="180" y="150" width="70" height="70" fill="#fee2e2" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="125" y="102" font-size="15" font-weight="700" fill="#1d4ed8" text-anchor="middle">(a−b)²</text>
+  <text x="215" y="102" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">(a−b)·b</text>
+  <text x="125" y="192" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">b·(a−b)</text>
+  <text x="215" y="192" font-size="15" font-weight="700" fill="#dc2626" text-anchor="middle">b²</text>
+  <!-- nhãn cạnh -->
+  <g font-size="12.5" font-weight="700" fill="#475569">
+    <text x="125" y="30" text-anchor="middle">a−b</text><text x="215" y="30" text-anchor="middle">b</text>
+    <text x="64" y="100" text-anchor="end">a−b</text><text x="64" y="190" text-anchor="end">b</text>
+  </g>
+  <!-- kích thước cạnh cả hình vuông -->
+  <line x1="70" y1="242" x2="250" y2="242" stroke="#475569" stroke-width="1.5" marker-start="url(#e4-dim)" marker-end="url(#e4-dim)"/>
+  <text x="160" y="262" font-size="12.5" fill="#475569" text-anchor="middle">cạnh cả hình vuông = a</text>
+  <!-- kết luận -->
+  <text x="160" y="283" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Tổng cả hình vuông lớn = a²</text>
+</svg>
 
 Hình vuông lớn cạnh $a$ có diện tích $a^2$. Ô $(a-b)^2$ = toàn bộ $a^2$ trừ đi hai chữ nhật $(a-b)b$ và ô $b^2$... gọn hơn, từ hình ta đọc trực tiếp:
 
@@ -433,15 +479,31 @@ Kiểm số $a=10, b=3$: $(10-3)^2 = 49$; $100 - 60 + 9 = 49$ ✓.
 
 Vẽ hình vuông cạnh $a$, cắt ra hình vuông nhỏ cạnh $b$ ở góc → còn lại hình chữ L diện tích $a^2 - b^2$. Cắt chữ L thành 2 chữ nhật rồi ghép thành 1 chữ nhật cạnh $(a+b)\times(a-b)$:
 
-```
-Chữ L (a² − b²):          Ghép lại:
-   a                       (a+b)
-┌────────┐             ┌─────────────┐
-│        │ a−b         │             │ (a−b)
-│   ┌────┤             │  a² − b²    │
-│   │ b² │ b           │             │
-└───┴────┘             └─────────────┘
-```
+<svg viewBox="0 0 420 235" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chữ L diện tích a bình trừ b bình được cắt và ghép lại thành hình chữ nhật cạnh a cộng b nhân a trừ b">
+  <defs>
+    <marker id="e5-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+  </defs>
+  <!-- tiêu đề hai bảng -->
+  <text x="77" y="30" font-size="13" font-weight="700" fill="#475569" text-anchor="middle">Chữ L: a² − b²</text>
+  <text x="293" y="30" font-size="13" font-weight="700" fill="#475569" text-anchor="middle">Ghép lại: (a+b)(a−b)</text>
+  <!-- chữ L: hình vuông cạnh a khoét ô b² ở góc dưới-phải -->
+  <path d="M20,50 H135 V123 H93 V165 H20 Z" fill="#dbeafe" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="93" y="123" width="42" height="42" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,4"/>
+  <text x="114" y="148" font-size="11" fill="#64748b" text-anchor="middle">b²</text>
+  <text x="72" y="92" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">a² − b²</text>
+  <text x="77" y="43" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">a</text>
+  <text x="141" y="90" font-size="11" font-weight="700" fill="#475569">a−b</text>
+  <text x="141" y="147" font-size="11" font-weight="700" fill="#475569">b</text>
+  <!-- mũi tên cắt & ghép -->
+  <line x1="172" y1="112" x2="205" y2="112" stroke="#dc2626" stroke-width="2" marker-end="url(#e5-ar)"/>
+  <!-- hình chữ nhật ghép lại: (a+b) × (a−b) -->
+  <rect x="215" y="78" width="157" height="73" fill="#dcfce7" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="293" y="120" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">a² − b²</text>
+  <text x="293" y="70" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">a+b</text>
+  <text x="378" y="118" font-size="11" font-weight="700" fill="#475569">a−b</text>
+  <!-- kết luận -->
+  <text x="210" y="222" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Diện tích bảo toàn → a² − b² = (a+b)(a−b)</text>
+</svg>
 
 Diện tích bảo toàn → $a^2 - b^2 = (a+b)(a-b)$.
 

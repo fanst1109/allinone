@@ -296,7 +296,7 @@ $$\\log_b(x) = y \\iff b^y = x$$
 
 ⚠ **Lưu ý lập trình**: trong Go, \`math.Log(x)\` là **$\\ln$** (cơ số $e$), KHÔNG phải $\\log_{10}$. Muốn log thập phân/nhị phân dùng \`math.Log10\`, \`math.Log2\`.
 
-### 3.2b. Bảng $\\log_2$ phải thuộc + ASCII đồ thị
+### 3.2b. Bảng $\\log_2$ phải thuộc + đồ thị
 
 $\\log_2$ dùng nhiều nhất trong CS. Nhìn bảng tới khi thuộc:
 
@@ -306,21 +306,56 @@ $\\log_2$ dùng nhiều nhất trong CS. Nhìn bảng tới khi thuộc:
 
 **Nhận xét cốt lõi**: $x$ **gấp đôi** thì $\\log_2(x)$ chỉ tăng **+1**. Log tăng theo *bậc nhân* của input, không theo lượng cộng. Đồ thị: hàm mũ phóng lên trời, log "bò" gần như nằm ngang:
 
-\`\`\`
-y
-↑
-30│                                                  · y = x (tuyến tính, phóng lên)
-  │                                       ·
-20│                            ·
-  │                  ·
-  │           ·                              ━━━━━━━ log₂(x)
-10│      ·                       ━━━━━━━━━━━━
-  │   ·             ━━━━━━━━━━━━
- 5│ ·     ━━━━━━━━━━
-  │·━━━━━━
- 0└──────┬────────┬────────┬────────┬────────┬──────→ x
-  1     64      256     1024     16K     1 triệu
-\`\`\`
+<svg viewBox="0 0 460 268" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh tăng trưởng trên trục x thang log từ 1 đến 1 tỷ: đường y = x vọt khỏi khung ngay tại x xấp xỉ 32, còn y = log₂(x) đi chậm, tới 1 tỷ mới chạm 30">
+  <defs>
+    <marker id="p1ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="108" y1="26" x2="108" y2="212"/><line x1="172" y1="26" x2="172" y2="212"/><line x1="236" y1="26" x2="236" y2="212"/>
+    <line x1="300" y1="26" x2="300" y2="212"/><line x1="364" y1="26" x2="364" y2="212"/><line x1="428" y1="26" x2="428" y2="212"/>
+    <line x1="44" y1="152" x2="436" y2="152"/><line x1="44" y1="92" x2="436" y2="92"/><line x1="44" y1="32" x2="436" y2="32"/>
+  </g>
+  <!-- trục -->
+  <line x1="36" y1="212" x2="444" y2="212" stroke="#1a202c" stroke-width="1.6" marker-end="url(#p1ax)"/>
+  <line x1="44" y1="220" x2="44" y2="20" stroke="#1a202c" stroke-width="1.6" marker-end="url(#p1ax)"/>
+  <text x="452" y="206" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="52" y="24" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="44" y="226">1</text><text x="108" y="226">32</text><text x="172" y="226">1024</text>
+    <text x="236" y="226">32K</text><text x="300" y="226">1 triệu</text><text x="428" y="226">1 tỷ</text>
+    <text x="38" y="216" text-anchor="end">0</text>
+    <text x="38" y="156" text-anchor="end">10</text><text x="38" y="96" text-anchor="end">20</text><text x="38" y="36" text-anchor="end">30</text>
+  </g>
+  <!-- gióng nét đứt: (1024, 10) và (1 triệu, 20) -->
+  <line x1="172" y1="152" x2="172" y2="212" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="44" y1="152" x2="172" y2="152" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="300" y1="92" x2="300" y2="212" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="44" y1="92" x2="300" y2="92" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <!-- y = x: trên trục x thang log, đường thẳng trông cong vọt lên; thoát khung tại x ≈ 32 -->
+  <path d="M44,206 C52,203 61,197.5 69.6,188 C78,178 84,161 90,138 C96,112 100,88 103,64 C105.5,44 106.8,32 107.7,22" fill="none" stroke="#dc2626" stroke-width="2.4"/>
+  <text x="116" y="38" font-size="11" font-weight="700" fill="#dc2626">y = x — vọt khỏi khung ngay: x = 32 đã vượt 30</text>
+  <!-- y = log₂(x): đường thẳng trên thang log -->
+  <line x1="44" y1="212" x2="428" y2="32" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="200" y="128" font-size="11" font-weight="700" fill="#1d4ed8" transform="rotate(-25 200 128)">y = log₂(x) — bò gần như nằm ngang</text>
+  <!-- các mốc phải thuộc -->
+  <circle cx="172" cy="152" r="4" fill="#1d4ed8"/>
+  <circle cx="300" cy="92" r="4" fill="#1d4ed8"/>
+  <circle cx="428" cy="32" r="4" fill="#1d4ed8"/>
+  <g font-size="10" fill="#475569">
+    <text x="180" y="168">(1024, 10)</text>
+    <text x="308" y="108">(1 triệu, 20)</text>
+    <text x="436" y="24" text-anchor="end">(1 tỷ, 30)</text>
+  </g>
+  <!-- chú thích thang đo -->
+  <g font-size="10" fill="#475569" text-anchor="middle">
+    <text x="240" y="246">Trục x thang log: mỗi vạch gấp 32 lần vạch trước —</text>
+    <text x="240" y="260">vì vậy đường thẳng y = x trông cong vọt lên, còn log₂(x) thành đường thẳng.</text>
+  </g>
+</svg>
 
 - $x = 1 \\to \\log_2 = 0$; $x = 1024 \\to \\log_2 = 10$; $x = 1$ triệu $\\to \\log_2 = 20$; $x = 1$ tỷ $\\to \\log_2 = 30$.
 - Để log nhích từ $10$ lên $20$, $x$ phải đi từ $1024$ lên $1$ triệu (gấp ~1000 lần).

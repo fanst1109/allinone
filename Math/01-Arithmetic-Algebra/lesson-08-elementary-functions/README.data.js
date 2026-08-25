@@ -32,24 +32,106 @@ window.README_MD = `# Lesson 08 — Hàm sơ cấp
 
 💡 Trước khi đi vào từng họ, đây là **bức tranh tổng thể**: mỗi hàm sơ cấp có một "dáng" đặc trưng và một "công việc" mà nó làm tốt nhất. Học nhận diện dáng trước, công thức sau.
 
-\`\`\`
-   HẰNG y=c        BẬC 1 y=x       BẬC 2 y=x²       MŨ y=2ˣ
-   |               |        /       |    \\   /        |      |
- c ─────────       |      /         |     \\ /         |     /
-   |               |    /           |      V          |   _/
-   |____________   |__/_________    |________         |__/______
-
-   "đứng yên"      "dốc đều"        "ném vật"        "bùng nổ"
-
-
-   LOG y=log x     |x| trị tuyệt    SÀN ⌊x⌋          PHÂN THỨC 1/x
-   |        _____  |   \\   /         |    __          |  |
-   |    ___/       |    \\ /          |  _|            |  |
-   |  _/           |     V           |_|              |__|________
-   |_/__________   |________         |  __            |  |
-                                        |             |  |
-   "nén / chậm"    "khoảng cách"    "bậc thang"       "tiệm cận 2 phía"
-\`\`\`
+<svg viewBox="0 0 640 304" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tám dáng đồ thị đặc trưng: hằng, bậc nhất, bậc hai, mũ, log, trị tuyệt đối, hàm sàn và phân thức 1/x">
+  <defs>
+    <marker id="f1ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- vách ngăn giữa các ô -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="160" y1="8" x2="160" y2="296"/><line x1="320" y1="8" x2="320" y2="296"/><line x1="480" y1="8" x2="480" y2="296"/>
+    <line x1="8" y1="152" x2="632" y2="152"/>
+  </g>
+  <!-- Ô 1: HẰNG y = c -->
+  <g>
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">HẰNG y = c</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <line x1="77" y1="50" x2="83" y2="50" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="74" y="54" font-size="9.5" fill="#475569" text-anchor="end">c</text>
+    <line x1="25" y1="50" x2="138" y2="50" stroke="#1d4ed8" stroke-width="2.2"/>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"đứng yên"</text>
+  </g>
+  <!-- Ô 2: BẬC 1 y = x -->
+  <g transform="translate(160,0)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">BẬC 1 y = x</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <line x1="27" y1="114" x2="133" y2="38" stroke="#1d4ed8" stroke-width="2.2"/>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"dốc đều"</text>
+  </g>
+  <!-- Ô 3: BẬC 2 y = x² (parabol qua (−2,4),(0,0),(2,4)) -->
+  <g transform="translate(320,0)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">BẬC 2 y = x²</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <path d="M36,36 Q80,116 124,36" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"ném vật"</text>
+  </g>
+  <!-- Ô 4: MŨ y = 2ˣ (qua (0,1), tiệm cận trục x bên trái) -->
+  <g transform="translate(480,0)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">MŨ y = 2ˣ</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <path d="M27,74 C55,71.5 68,68.5 80,64 C93,59 110,44 124,28" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+    <circle cx="80" cy="64" r="2.6" fill="#dc2626"/>
+    <text x="74" y="61" font-size="8.5" fill="#475569" text-anchor="end">(0,1)</text>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"bùng nổ"</text>
+  </g>
+  <!-- Ô 5: LOG y = log x (qua (1,0), tiệm cận đứng trục y) -->
+  <g transform="translate(0,152)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">LOG y = log x</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="44" y1="126" x2="44" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="50" y="33" font-size="8.5" fill="#64748b">y</text>
+    <path d="M48,124 C50,114 52,107 55,103 C60,95 68,84 80,76 C95,66.5 118,58 141,53" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+    <circle cx="80" cy="76" r="2.6" fill="#dc2626"/>
+    <text x="80" y="88" font-size="8.5" fill="#475569" text-anchor="middle">1</text>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"nén / chậm"</text>
+  </g>
+  <!-- Ô 6: TRỊ TUYỆT ĐỐI |x| (chữ V đỉnh tại gốc) -->
+  <g transform="translate(160,152)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">TRỊ TUYỆT ĐỐI |x|</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <path d="M27,38 L80,76 L133,38" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"khoảng cách"</text>
+  </g>
+  <!-- Ô 7: SÀN ⌊x⌋ (bậc thang, chấm đặc = đầu đóng, chấm rỗng = đầu mở) -->
+  <g transform="translate(320,152)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">SÀN ⌊x⌋</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <g stroke="#1d4ed8" stroke-width="2.2">
+      <line x1="36" y1="108" x2="58" y2="108"/><line x1="58" y1="92" x2="80" y2="92"/>
+      <line x1="80" y1="76" x2="102" y2="76"/><line x1="102" y1="60" x2="124" y2="60"/><line x1="124" y1="44" x2="140" y2="44"/>
+    </g>
+    <g fill="#1d4ed8">
+      <circle cx="36" cy="108" r="2.4"/><circle cx="58" cy="92" r="2.4"/><circle cx="80" cy="76" r="2.4"/><circle cx="102" cy="60" r="2.4"/><circle cx="124" cy="44" r="2.4"/>
+    </g>
+    <g fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.4">
+      <circle cx="58" cy="108" r="2.4"/><circle cx="80" cy="92" r="2.4"/><circle cx="102" cy="76" r="2.4"/><circle cx="124" cy="60" r="2.4"/>
+    </g>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"bậc thang"</text>
+  </g>
+  <!-- Ô 8: PHÂN THỨC 1/x (2 nhánh, tiệm cận là 2 trục) -->
+  <g transform="translate(480,152)">
+    <text x="80" y="16" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">PHÂN THỨC 1/x</text>
+    <line x1="16" y1="76" x2="146" y2="76" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <line x1="80" y1="126" x2="80" y2="28" stroke="#1a202c" stroke-width="1.2" marker-end="url(#f1ax)"/>
+    <text x="141" y="87" font-size="8.5" fill="#64748b">x</text><text x="86" y="33" font-size="8.5" fill="#64748b">y</text>
+    <path d="M87,28 C89,37 90,41 91,44 C94,52 97,57 102,60 C110,65 122,68.5 137,70" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+    <path d="M73,124 C71,115 70,111 69,108 C66,100 63,95 58,92 C50,87 38,83.5 23,82" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+    <text x="80" y="144" font-size="10.5" fill="#475569" text-anchor="middle">"tiệm cận 2 phía"</text>
+  </g>
+</svg>
 
 | Họ hàm | Dáng đồ thị | Công việc đặc trưng (dùng ở đâu) |
 |--------|-------------|----------------------------------|
@@ -103,18 +185,52 @@ $$y = ax + b$$
 |---|----|----|----|----|----|
 | $y$ | $-5$ | $-3$ | $-1$ | $1$ | $3$ |
 
-\`\`\`
-   y
- 3 |              *
-   |           /
- 1 |        *
-   |      /
- 0 +----*----------- x
-   |  /  1   2   3
--3 |*  (0,-3) tung độ gốc
-   /
-   slope = +2: x tăng 1 → y tăng 2
-\`\`\`
+<svg viewBox="0 0 380 348" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm bậc nhất y bằng 2x trừ 3: đường thẳng dốc lên qua các điểm trong bảng, cắt trục y tại (0, −3), tam giác nét đứt minh họa hệ số góc x tăng 1 thì y tăng 2">
+  <defs>
+    <marker id="f3ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="32" y1="20" x2="32" y2="330"/><line x1="66" y1="20" x2="66" y2="330"/>
+    <line x1="134" y1="20" x2="134" y2="330"/><line x1="168" y1="20" x2="168" y2="330"/><line x1="202" y1="20" x2="202" y2="330"/>
+    <line x1="20" y1="46" x2="230" y2="46"/><line x1="20" y1="80" x2="230" y2="80"/><line x1="20" y1="114" x2="230" y2="114"/>
+    <line x1="20" y1="182" x2="230" y2="182"/><line x1="20" y1="216" x2="230" y2="216"/><line x1="20" y1="250" x2="230" y2="250"/>
+    <line x1="20" y1="284" x2="230" y2="284"/><line x1="20" y1="318" x2="230" y2="318"/>
+  </g>
+  <!-- trục -->
+  <line x1="16" y1="148" x2="246" y2="148" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f3ax)"/>
+  <line x1="100" y1="340" x2="100" y2="16" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f3ax)"/>
+  <text x="256" y="142" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="108" y="24" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="32" y="162">−2</text><text x="66" y="162">−1</text><text x="134" y="162">1</text><text x="168" y="162">2</text><text x="202" y="162">3</text>
+    <text x="92" y="50" text-anchor="end">3</text><text x="92" y="118" text-anchor="end">1</text>
+    <text x="92" y="186" text-anchor="end">−1</text><text x="92" y="254" text-anchor="end">−3</text><text x="92" y="322" text-anchor="end">−5</text>
+  </g>
+  <text x="94" y="162" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- đường thẳng y = 2x − 3 -->
+  <line x1="62.6" y1="324.8" x2="212.2" y2="25.6" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="220" y="32" font-size="11" font-weight="700" fill="#1d4ed8">y = 2x − 3</text>
+  <!-- tam giác slope: từ (1, −1) sang phải 1, lên 2 tới (2, 1) -->
+  <line x1="134" y1="182" x2="168" y2="182" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <line x1="168" y1="182" x2="168" y2="114" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="151" y="196" font-size="9.5" fill="#475569" text-anchor="middle">+1</text>
+  <text x="174" y="152" font-size="9.5" fill="#475569">+2</text>
+  <text x="232" y="108" font-size="9.5" fill="#475569">slope a = +2:</text>
+  <text x="232" y="122" font-size="9.5" fill="#475569">x tăng 1 → y tăng 2</text>
+  <!-- các điểm trong bảng walk-through -->
+  <g fill="#dc2626">
+    <circle cx="66" cy="318" r="3.5"/><circle cx="100" cy="250" r="3.5"/><circle cx="134" cy="182" r="3.5"/>
+    <circle cx="168" cy="114" r="3.5"/><circle cx="202" cy="46" r="3.5"/>
+  </g>
+  <g font-size="10" font-weight="600" fill="#dc2626">
+    <text x="196" y="40" text-anchor="end">(3, 3)</text>
+    <text x="108" y="256">(0, −3) — tung độ gốc</text>
+  </g>
+</svg>
 
 **4 ví dụ số đa dạng** (tính giá trị, slope, giao trục):
 
@@ -164,16 +280,50 @@ $$y = ax^2 + bx + c$$
 |---|----|----|----|----|----|
 | $y$ | $3$ | $0$ | $-1$ | $0$ | $3$ |
 
-\`\`\`
-   y
- 3 *               *
-   |             /
-   | \\         /
- 0 +--*-----*-------- x
-   |   \\   / 3   4
--1 |    \\_/  ← đỉnh (2,-1) = MIN
-       trục đối xứng x = 2
-\`\`\`
+<svg viewBox="0 0 320 300" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị parabol y bằng x bình phương trừ 4x cộng 3: mở lên, đỉnh (2, −1) là điểm thấp nhất, cắt trục x tại x bằng 1 và x bằng 3, trục đối xứng đứng x bằng 2">
+  <defs>
+    <marker id="f4ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="100" y1="20" x2="100" y2="268"/><line x1="144" y1="20" x2="144" y2="268"/>
+    <line x1="188" y1="20" x2="188" y2="268"/><line x1="232" y1="20" x2="232" y2="268"/>
+    <line x1="26" y1="58" x2="250" y2="58"/><line x1="26" y1="102" x2="250" y2="102"/>
+    <line x1="26" y1="146" x2="250" y2="146"/><line x1="26" y1="234" x2="250" y2="234"/>
+  </g>
+  <!-- trục -->
+  <line x1="20" y1="190" x2="264" y2="190" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f4ax)"/>
+  <line x1="56" y1="282" x2="56" y2="16" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f4ax)"/>
+  <text x="272" y="183" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="64" y="24" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="100" y="204">1</text><text x="144" y="204">2</text><text x="188" y="204">3</text><text x="232" y="204">4</text>
+    <text x="48" y="62" text-anchor="end">3</text><text x="48" y="106" text-anchor="end">2</text>
+    <text x="48" y="150" text-anchor="end">1</text><text x="48" y="238" text-anchor="end">−1</text>
+  </g>
+  <text x="50" y="204" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- trục đối xứng x = 2 -->
+  <line x1="144" y1="60" x2="144" y2="266" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="144" y="292" font-size="9.5" fill="#475569" text-anchor="middle">trục đối xứng x = 2</text>
+  <!-- parabol (Bézier bậc 2 biểu diễn chính xác): đỉnh (2, −1), qua (0,3),(1,0),(3,0),(4,3) -->
+  <path d="M47.2,21 Q144,447 240.8,21" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="144" y="48" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">y = x² − 4x + 3</text>
+  <!-- các điểm trong bảng walk-through -->
+  <g fill="#dc2626">
+    <circle cx="56" cy="58" r="3.5"/><circle cx="100" cy="190" r="3.5"/><circle cx="144" cy="234" r="3.5"/>
+    <circle cx="188" cy="190" r="3.5"/><circle cx="232" cy="58" r="3.5"/>
+  </g>
+  <g font-size="10" font-weight="600" fill="#dc2626">
+    <text x="64" y="54">(0, 3)</text>
+    <text x="90" y="178" text-anchor="end">(1, 0)</text>
+    <text x="198" y="178">(3, 0)</text>
+    <text x="238" y="54">(4, 3)</text>
+    <text x="152" y="254">đỉnh (2, −1) = MIN</text>
+  </g>
+</svg>
 
 **4 ví dụ số đa dạng** (tìm đỉnh, hướng mở, range):
 
@@ -222,15 +372,50 @@ $$y = a_n x^n + a_{n-1} x^{n-1} + \\dots + a_1 x + a_0 \\quad (a_n \\neq 0)$$
 |---|----|----|---|---|---|
 | $y$ | $-2$ | $2$ | $0$ | $-2$ | $2$ |
 
-\`\`\`
-   y
- 2 |   *           *
-   | /   \\       /
- 0 +-------*---*------- x
-   |    \\   /  1   2
--2 *      *
-   end behavior: x→−∞ ⇒ y→−∞ ; x→+∞ ⇒ y→+∞ (đuôi ngược, bậc lẻ)
-\`\`\`
+<svg viewBox="0 0 340 328" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm bậc ba y bằng x mũ 3 trừ 3x: lượn hai khúc, max cục bộ tại (−1, 2), min cục bộ tại (1, −2), qua gốc O, hai đuôi ngược hướng vì bậc lẻ">
+  <defs>
+    <marker id="f5ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="86" y1="20" x2="86" y2="300"/><line x1="128" y1="20" x2="128" y2="300"/>
+    <line x1="212" y1="20" x2="212" y2="300"/><line x1="254" y1="20" x2="254" y2="300"/>
+    <line x1="24" y1="76" x2="310" y2="76"/><line x1="24" y1="118" x2="310" y2="118"/>
+    <line x1="24" y1="202" x2="310" y2="202"/><line x1="24" y1="244" x2="310" y2="244"/>
+  </g>
+  <!-- trục -->
+  <line x1="24" y1="160" x2="316" y2="160" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f5ax)"/>
+  <line x1="170" y1="300" x2="170" y2="20" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f5ax)"/>
+  <text x="324" y="153" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="178" y="28" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="86" y="174">−2</text><text x="128" y="174">−1</text><text x="212" y="174">1</text><text x="254" y="174">2</text>
+    <text x="162" y="80" text-anchor="end">2</text><text x="162" y="248" text-anchor="end">−2</text>
+  </g>
+  <text x="163" y="174" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- gióng nét đứt tới max/min cục bộ -->
+  <line x1="170" y1="76" x2="128" y2="76" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <line x1="170" y1="244" x2="212" y2="244" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <!-- đường cong y = x^3 − 3x (Bézier bậc 3 biểu diễn chính xác đa thức bậc 3) -->
+  <path d="M81.8,284.4 C140.6,-317.2 199.4,637.2 258.2,35.6" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="30" y="40" font-size="11" font-weight="700" fill="#1d4ed8">y = x³ − 3x</text>
+  <!-- các điểm trong bảng walk-through -->
+  <g fill="#dc2626">
+    <circle cx="86" cy="244" r="3.5"/><circle cx="128" cy="76" r="3.5"/><circle cx="170" cy="160" r="3.5"/>
+    <circle cx="212" cy="244" r="3.5"/><circle cx="254" cy="76" r="3.5"/>
+  </g>
+  <g font-size="10" font-weight="600" fill="#dc2626">
+    <text x="122" y="62" text-anchor="end">max cục bộ (−1, 2)</text>
+    <text x="218" y="262">min cục bộ (1, −2)</text>
+    <text x="78" y="262" text-anchor="end">(−2, −2)</text>
+    <text x="260" y="70">(2, 2)</text>
+  </g>
+  <!-- hành vi đuôi -->
+  <text x="170" y="318" font-size="9.5" fill="#475569" text-anchor="middle">x → −∞ thì y → −∞ · x → +∞ thì y → +∞ (hai đuôi ngược hướng — bậc lẻ)</text>
+</svg>
 
 Đồ thị lên (tới max cục bộ tại $x=-1$), xuống (tới min cục bộ tại $x=1$), rồi lên — **2 khúc lượn** $= n-1 = 3-1$.
 
@@ -274,16 +459,55 @@ $$y = \\frac{P(x)}{Q(x)} \\quad (P, Q \\text{ là đa thức}, \\ Q \\neq 0)$$
 |---|----|----|----|---|---|
 | $y$ | $-0.5$ | $-2$ | $2$ | $1$ | $0.5$ |
 
-\`\`\`
-        y |   |
-          |   |  * (0.5, 2)
-        1 +   *  (1,1)
-          |   | *_ (2, 0.5)
-   ───────+───+────────── x  (tiệm cận ngang y=0)
-        * |   |
-   (−1,−1)|   |
-          |   |  tiệm cận đứng x=0
-\`\`\`
+<svg viewBox="0 0 340 308" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm y bằng 1 trên x: hai nhánh ở góc phần tư I và III, tiệm cận đứng x bằng 0 và tiệm cận ngang y bằng 0, đánh dấu các điểm trong bảng walk-through">
+  <defs>
+    <marker id="f2ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="32" y1="22" x2="32" y2="278"/><line x1="78" y1="22" x2="78" y2="278"/><line x1="124" y1="22" x2="124" y2="278"/>
+    <line x1="216" y1="22" x2="216" y2="278"/><line x1="262" y1="22" x2="262" y2="278"/><line x1="308" y1="22" x2="308" y2="278"/>
+    <line x1="26" y1="58" x2="314" y2="58"/><line x1="26" y1="104" x2="314" y2="104"/>
+    <line x1="26" y1="196" x2="314" y2="196"/><line x1="26" y1="242" x2="314" y2="242"/>
+  </g>
+  <!-- trục (đồng thời là 2 tiệm cận) -->
+  <line x1="18" y1="150" x2="320" y2="150" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f2ax)"/>
+  <line x1="170" y1="288" x2="170" y2="14" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f2ax)"/>
+  <text x="326" y="143" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="178" y="22" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="32" y="164">−3</text><text x="78" y="164">−2</text><text x="124" y="164">−1</text>
+    <text x="216" y="164">1</text><text x="262" y="164">2</text><text x="308" y="164">3</text>
+    <text x="162" y="108" text-anchor="end">1</text><text x="162" y="62" text-anchor="end">2</text>
+    <text x="162" y="200" text-anchor="end">−1</text><text x="162" y="246" text-anchor="end">−2</text>
+  </g>
+  <text x="161" y="164" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- nhánh x > 0 (góc phần tư I) -->
+  <path d="M186.5,22 C188,32 190,46 193,58 C198,78 206,94 216,104 C228,116 244,122 262,127 C278,131 296,134 313,135" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <!-- nhánh x < 0 (góc phần tư III) -->
+  <path d="M153.5,278 C152,268 150,254 147,242 C142,222 134,206 124,196 C112,184 96,178 78,173 C62,169 44,166 27,165" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <!-- các điểm trong bảng walk-through -->
+  <g fill="#dc2626">
+    <circle cx="193" cy="58" r="3.5"/><circle cx="216" cy="104" r="3.5"/><circle cx="262" cy="127" r="3.5"/>
+    <circle cx="124" cy="196" r="3.5"/><circle cx="147" cy="242" r="3.5"/><circle cx="78" cy="173" r="3.5"/>
+  </g>
+  <g font-size="10" font-weight="600" fill="#dc2626">
+    <text x="200" y="54">(0.5, 2)</text>
+    <text x="223" y="100">(1, 1)</text>
+    <text x="266" y="119">(2, 0.5)</text>
+    <text x="117" y="192" text-anchor="end">(−1, −1)</text>
+    <text x="140" y="248" text-anchor="end">(−0.5, −2)</text>
+    <text x="72" y="168" text-anchor="end">(−2, −0.5)</text>
+  </g>
+  <!-- chú thích tiệm cận -->
+  <g font-size="9.5" fill="#475569">
+    <text x="28" y="142">tiệm cận ngang y = 0</text>
+    <text x="176" y="274">tiệm cận đứng x = 0</text>
+  </g>
+</svg>
 
 Hai nhánh: x>0 ở góc phần tư I, x<0 ở góc III. Đây là **hàm lẻ** ($1/(-x) = -1/x$).
 
@@ -335,17 +559,48 @@ $$y = a^x \\quad (a > 0, a \\neq 1)$$
 |---|----|----|---|---|---|---|
 | $y$ | $0.25$ | $0.5$ | $1$ | $2$ | $4$ | $8$ |
 
-\`\`\`
-   y
- 8 |              *
-   |             /
- 4 |          *
-   |        /
- 2 |     *
- 1 |  *
- 0 +__*___________ x   (tiệm cận y=0, không bao giờ chạm)
-   -2 -1  0  1  2  3
-\`\`\`
+<svg viewBox="0 0 340 316" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm mũ y bằng 2 mũ x: tăng theo cấp số nhân, đi qua các điểm (0, 1), (1, 2), (2, 4), (3, 8), tiệm cận ngang y bằng 0 về phía x âm, không bao giờ chạm trục x">
+  <defs>
+    <marker id="f6ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="46" y1="20" x2="46" y2="280"/><line x1="86" y1="20" x2="86" y2="280"/>
+    <line x1="166" y1="20" x2="166" y2="280"/><line x1="206" y1="20" x2="206" y2="280"/><line x1="246" y1="20" x2="246" y2="280"/>
+    <line x1="20" y1="250" x2="300" y2="250"/><line x1="20" y1="220" x2="300" y2="220"/>
+    <line x1="20" y1="160" x2="300" y2="160"/><line x1="20" y1="40" x2="300" y2="40"/>
+  </g>
+  <!-- trục (trục x đồng thời là tiệm cận ngang y = 0) -->
+  <line x1="18" y1="280" x2="320" y2="280" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f6ax)"/>
+  <line x1="126" y1="308" x2="126" y2="18" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f6ax)"/>
+  <text x="328" y="273" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="134" y="26" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="46" y="294">−2</text><text x="86" y="294">−1</text><text x="166" y="294">1</text><text x="206" y="294">2</text><text x="246" y="294">3</text>
+    <text x="118" y="254" text-anchor="end">1</text><text x="118" y="224" text-anchor="end">2</text>
+    <text x="118" y="164" text-anchor="end">4</text><text x="118" y="44" text-anchor="end">8</text>
+  </g>
+  <text x="120" y="294" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- đường cong y = 2^x, vẽ từ các điểm thật -->
+  <path d="M26,274.7 C46,272.9 66,270.2 86,265 C99.3,261.5 112.7,256.9 126,250 C139.3,243.1 152.7,233.9 166,220 C179.3,206.1 192.7,187.7 206,160 C220.5,129.8 235.1,88.9 249.6,24.6" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="232" y="66" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">y = 2ˣ</text>
+  <!-- các điểm trong bảng walk-through -->
+  <g fill="#dc2626">
+    <circle cx="46" cy="272.5" r="3.5"/><circle cx="86" cy="265" r="3.5"/><circle cx="126" cy="250" r="3.5"/>
+    <circle cx="166" cy="220" r="3.5"/><circle cx="206" cy="160" r="3.5"/><circle cx="246" cy="40" r="3.5"/>
+  </g>
+  <g font-size="10" font-weight="600" fill="#dc2626">
+    <text x="133" y="262">(0, 1)</text>
+    <text x="173" y="224">(1, 2)</text>
+    <text x="213" y="162">(2, 4)</text>
+    <text x="240" y="34" text-anchor="end">(3, 8)</text>
+  </g>
+  <!-- chú thích tiệm cận -->
+  <text x="310" y="268" font-size="9.5" fill="#475569" text-anchor="end">tiệm cận ngang y = 0 — không bao giờ chạm</text>
+</svg>
 
 **4 ví dụ số đa dạng** (tính giá trị, tăng/giảm):
 
@@ -400,16 +655,50 @@ $$y = \\log_a(x)$$
 |---|----|----|---|---|---|---|
 | $y$ | $-2$ | $-1$ | $0$ | $1$ | $2$ | $3$ |
 
-\`\`\`
-   y |        tiệm cận đứng x=0
- 3 |   |              ____*
- 2 |   |        __*---
- 1 |   |   _*--
- 0 +---|-*---------------- x   cắt trục x tại (1,0)
-   |   *  1  2   4      8
--1 | *|
--2 *  |
-\`\`\`
+<svg viewBox="0 0 340 264" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm log cơ số 2 của x: tăng chậm dần, tiệm cận đứng x bằng 0, cắt trục x tại (1, 0), đi qua các điểm trong bảng từ (0.25, −2) tới (8, 3)">
+  <defs>
+    <marker id="f7ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="70" y1="20" x2="70" y2="240"/><line x1="100" y1="20" x2="100" y2="240"/>
+    <line x1="160" y1="20" x2="160" y2="240"/><line x1="280" y1="20" x2="280" y2="240"/>
+    <line x1="16" y1="38" x2="320" y2="38"/><line x1="16" y1="74" x2="320" y2="74"/><line x1="16" y1="110" x2="320" y2="110"/>
+    <line x1="16" y1="182" x2="320" y2="182"/><line x1="16" y1="218" x2="320" y2="218"/>
+  </g>
+  <!-- trục (trục y đồng thời là tiệm cận đứng x = 0) -->
+  <line x1="16" y1="146" x2="322" y2="146" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f7ax)"/>
+  <line x1="40" y1="254" x2="40" y2="18" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f7ax)"/>
+  <text x="330" y="139" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="48" y="26" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="70" y="160">1</text><text x="100" y="160">2</text><text x="160" y="160">4</text><text x="280" y="160">8</text>
+    <text x="32" y="42" text-anchor="end">3</text><text x="32" y="78" text-anchor="end">2</text><text x="32" y="114" text-anchor="end">1</text>
+    <text x="32" y="186" text-anchor="end">−1</text><text x="32" y="222" text-anchor="end">−2</text>
+  </g>
+  <text x="34" y="160" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- đường cong y = log2(x), vẽ từ các điểm thật -->
+  <path d="M45.4,235.1 C48.6,204.3 51.8,193.1 55,182 C60,164.7 65,154.7 70,146 C80,128.7 90,118.7 100,110 C120,92.7 140,82.7 160,74 C205,54.5 250,44 295,34.9" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="240" y="80" font-size="11" font-weight="700" fill="#1d4ed8">y = log₂ x</text>
+  <!-- các điểm trong bảng walk-through -->
+  <g fill="#dc2626">
+    <circle cx="47.5" cy="218" r="3.5"/><circle cx="55" cy="182" r="3.5"/><circle cx="70" cy="146" r="3.5"/>
+    <circle cx="100" cy="110" r="3.5"/><circle cx="160" cy="74" r="3.5"/><circle cx="280" cy="38" r="3.5"/>
+  </g>
+  <g font-size="10" font-weight="600" fill="#dc2626">
+    <text x="54" y="224">(0.25, −2)</text>
+    <text x="62" y="188">(0.5, −1)</text>
+    <text x="78" y="140">(1, 0) — cắt trục x</text>
+    <text x="107" y="106">(2, 1)</text>
+    <text x="167" y="70">(4, 2)</text>
+    <text x="274" y="32" text-anchor="end">(8, 3)</text>
+  </g>
+  <!-- chú thích tiệm cận -->
+  <text x="46" y="248" font-size="9.5" fill="#475569">tiệm cận đứng x = 0</text>
+</svg>
 
 So với $2^x$ ở mục 4: bảng này chính là bảng của $2^x$ **đổi chỗ cột x↔y** — minh chứng quan hệ hàm ngược.
 
@@ -452,15 +741,38 @@ $$|x| = \\begin{cases} x & \\text{nếu } x \\ge 0 \\\\ -x & \\text{nếu } x < 
 - **Hàm chẵn**: $|-x|=|x|$ → đối xứng trục y.
 - Nghịch biến trên $(-\\infty,0]$, đồng biến trên $[0,\\infty)$ — "gãy" tại O (không trơn).
 
-\`\`\`
-   y
- 2 \\           /
-   | \\       /
- 1 |   \\   /
-   |     \\ /
- 0 +------V------- x   đỉnh (0,0)
-  -2 -1   0  1  2
-\`\`\`
+<svg viewBox="0 0 300 224" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm trị tuyệt đối của x: hình chữ V, đỉnh tại gốc O, cạnh trái dốc trừ 1, cạnh phải dốc cộng 1, đối xứng qua trục y">
+  <defs>
+    <marker id="f8ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="54" y1="20" x2="54" y2="196"/><line x1="102" y1="20" x2="102" y2="196"/>
+    <line x1="198" y1="20" x2="198" y2="196"/><line x1="246" y1="20" x2="246" y2="196"/>
+    <line x1="16" y1="80" x2="284" y2="80"/><line x1="16" y1="128" x2="284" y2="128"/>
+  </g>
+  <!-- trục -->
+  <line x1="16" y1="176" x2="284" y2="176" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f8ax)"/>
+  <line x1="150" y1="202" x2="150" y2="16" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f8ax)"/>
+  <text x="292" y="169" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="158" y="24" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="54" y="190">−2</text><text x="102" y="190">−1</text><text x="198" y="190">1</text><text x="246" y="190">2</text>
+    <text x="142" y="132" text-anchor="end">1</text><text x="142" y="84" text-anchor="end">2</text>
+  </g>
+  <text x="144" y="190" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- chữ V: y = |x|, hai cạnh dốc ±1 -->
+  <path d="M39.6,65.6 L150,176 L260.4,65.6" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="26" y="42" font-size="11" font-weight="700" fill="#1d4ed8">y = |x|</text>
+  <text x="76" y="110" font-size="9.5" fill="#475569" text-anchor="end">dốc −1</text>
+  <text x="222" y="110" font-size="9.5" fill="#475569">dốc +1</text>
+  <!-- đỉnh -->
+  <circle cx="150" cy="176" r="3.5" fill="#dc2626"/>
+  <text x="150" y="218" font-size="10" font-weight="600" fill="#dc2626" text-anchor="middle">đỉnh (0, 0)</text>
+</svg>
 
 **4 ví dụ số**: $|{-5}|=5$, $|3|=3$, $|0|=0$, $|{-0.7}|=0.7$. Với $y=|x-2|$ (V dịch sang phải 2): $y(2)=0$, $y(5)=3$, $y(0)=2$.
 
@@ -473,16 +785,55 @@ $$|x| = \\begin{cases} x & \\text{nếu } x \\ge 0 \\\\ -x & \\text{nếu } x < 
 - $D=\\mathbb{R}$, $E=\\mathbb{Z}$ (chỉ ra số nguyên).
 - Không liên tục: "nhảy" 1 đơn vị tại mỗi số nguyên.
 
-\`\`\`
-   ⌊x⌋ (sàn)
- 2 |        ___o
-   |    ___o
- 1 |___o
-   o
- 0 +---+---+---+--- x
-   0   1   2   3
-   (o = không lấy điểm đó, ─ = đoạn ngang lấy)
-\`\`\`
+<svg viewBox="0 0 320 280" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm sàn của x: bậc thang tăng từng nấc 1 đơn vị, mỗi đoạn ngang có chấm đặc ở đầu trái (điểm lấy) và chấm rỗng ở đầu phải (điểm không lấy), minh họa sàn của −1.2 bằng −2">
+  <defs>
+    <marker id="f9ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="18" y1="20" x2="18" y2="248"/><line x1="64" y1="20" x2="64" y2="248"/>
+    <line x1="156" y1="20" x2="156" y2="248"/><line x1="202" y1="20" x2="202" y2="248"/><line x1="248" y1="20" x2="248" y2="248"/>
+    <line x1="10" y1="40" x2="290" y2="40"/><line x1="10" y1="80" x2="290" y2="80"/><line x1="10" y1="120" x2="290" y2="120"/>
+    <line x1="10" y1="200" x2="290" y2="200"/><line x1="10" y1="240" x2="290" y2="240"/>
+  </g>
+  <!-- trục -->
+  <line x1="10" y1="160" x2="300" y2="160" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f9ax)"/>
+  <line x1="110" y1="252" x2="110" y2="16" stroke="#1a202c" stroke-width="1.6" marker-end="url(#f9ax)"/>
+  <text x="308" y="153" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="118" y="24" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="18" y="174">−2</text><text x="64" y="174">−1</text><text x="156" y="174">1</text><text x="202" y="174">2</text><text x="248" y="174">3</text>
+    <text x="102" y="44" text-anchor="end">3</text><text x="102" y="84" text-anchor="end">2</text><text x="102" y="124" text-anchor="end">1</text>
+    <text x="102" y="204" text-anchor="end">−1</text><text x="102" y="244" text-anchor="end">−2</text>
+  </g>
+  <text x="104" y="174" font-size="10" fill="#1a202c" text-anchor="end">O</text>
+  <!-- bậc thang: mỗi đoạn ngang là floor trên [n, n+1) -->
+  <g stroke="#1d4ed8" stroke-width="2.4">
+    <line x1="18" y1="240" x2="64" y2="240"/><line x1="64" y1="200" x2="110" y2="200"/>
+    <line x1="110" y1="160" x2="156" y2="160"/><line x1="156" y1="120" x2="202" y2="120"/>
+    <line x1="202" y1="80" x2="248" y2="80"/><line x1="248" y1="40" x2="276" y2="40"/>
+  </g>
+  <!-- đầu đóng: điểm lấy -->
+  <g fill="#1d4ed8">
+    <circle cx="18" cy="240" r="3.2"/><circle cx="64" cy="200" r="3.2"/><circle cx="110" cy="160" r="3.2"/>
+    <circle cx="156" cy="120" r="3.2"/><circle cx="202" cy="80" r="3.2"/><circle cx="248" cy="40" r="3.2"/>
+  </g>
+  <!-- đầu mở: điểm không lấy -->
+  <g fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.6">
+    <circle cx="64" cy="240" r="3.2"/><circle cx="110" cy="200" r="3.2"/><circle cx="156" cy="160" r="3.2"/>
+    <circle cx="202" cy="120" r="3.2"/><circle cx="248" cy="80" r="3.2"/>
+  </g>
+  <text x="312" y="30" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">y = ⌊x⌋</text>
+  <!-- ví dụ số âm: ⌊−1.2⌋ = −2 -->
+  <line x1="54.8" y1="164" x2="54.8" y2="236" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="54.8" y="152" font-size="9" fill="#dc2626" text-anchor="middle">−1.2</text>
+  <circle cx="54.8" cy="240" r="3.5" fill="#dc2626"/>
+  <text x="20" y="258" font-size="10" font-weight="600" fill="#dc2626">⌊−1.2⌋ = −2</text>
+  <text x="160" y="272" font-size="9.5" fill="#475569" text-anchor="middle">● đầu đóng — điểm lấy · ○ đầu mở — điểm không lấy</text>
+</svg>
 
 **4 ví dụ số** (chú ý số âm — bẫy lớn):
 

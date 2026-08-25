@@ -27,11 +27,35 @@ Viết: $f: A \\to B$, $y = f(x)$.
 
 💡 **Trực giác — chiếc máy bán nước tự động**: hàm số như một **chiếc máy** có một đầu vào (input x) và một đầu ra (output $f(x)$). Hình dung **máy bán nước** ở siêu thị:
 
-\`\`\`
-   10.000đ ──► [ Máy bán nước ] ──► 1 chai nước suối
-   15.000đ ──► [ Máy bán nước ] ──► 1 chai trà xanh
-   20.000đ ──► [ Máy bán nước ] ──► 1 chai sữa
-\`\`\`
+<svg viewBox="0 0 540 160" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy bán nước tự động: mỗi mệnh giá tiền đưa vào cho ra đúng một sản phẩm">
+  <defs>
+    <marker id="g1arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <g font-size="12.5" font-weight="600" fill="#15803d" text-anchor="end">
+    <text x="100" y="49">10.000đ</text>
+    <text x="100" y="89">15.000đ</text>
+    <text x="100" y="129">20.000đ</text>
+  </g>
+  <g stroke="#475569" stroke-width="1.8" marker-end="url(#g1arr)">
+    <line x1="108" y1="45" x2="188" y2="45"/>
+    <line x1="108" y1="85" x2="188" y2="85"/>
+    <line x1="108" y1="125" x2="188" y2="125"/>
+  </g>
+  <rect x="196" y="22" width="136" height="126" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="264" y="90" font-size="13.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">Máy bán nước</text>
+  <g stroke="#475569" stroke-width="1.8" marker-end="url(#g1arr)">
+    <line x1="340" y1="45" x2="414" y2="45"/>
+    <line x1="340" y1="85" x2="414" y2="85"/>
+    <line x1="340" y1="125" x2="414" y2="125"/>
+  </g>
+  <g font-size="12.5" font-weight="600" fill="#dc2626">
+    <text x="422" y="49">1 chai nước suối</text>
+    <text x="422" y="89">1 chai trà xanh</text>
+    <text x="422" y="129">1 chai sữa</text>
+  </g>
+</svg>
 
 Bạn nhét tờ tiền vào (input), máy trả ra đúng MỘT sản phẩm (output). **Đặc tính sống còn**: nhét cùng một mệnh giá hai lần khác nhau, máy luôn trả ra **cùng một sản phẩm**. Nếu lần này 10.000đ ra chai nước, lần khác 10.000đ ra chai trà — đó là máy **hỏng**, không phải hàm. Hàm số cũng vậy: cùng input → cùng output, **luôn luôn**.
 
@@ -39,10 +63,21 @@ Chiều ngược lại thì không bắt buộc: hai mệnh giá khác nhau có 
 
 Sơ đồ tổng quát:
 
-\`\`\`
-   x  ──►  [ f ]  ──►  f(x)
- input              output
-\`\`\`
+<svg viewBox="0 0 400 104" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ tổng quát của hàm số: input x đi qua máy f cho ra output f(x)">
+  <defs>
+    <marker id="g2arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <text x="70" y="52" font-size="16" font-weight="700" font-style="italic" fill="#15803d" text-anchor="middle">x</text>
+  <text x="70" y="76" font-size="11" fill="#475569" text-anchor="middle">input</text>
+  <line x1="90" y1="47" x2="158" y2="47" stroke="#475569" stroke-width="1.8" marker-end="url(#g2arr)"/>
+  <rect x="166" y="22" width="68" height="50" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200" y="53" font-size="18" font-weight="700" font-style="italic" fill="#1d4ed8" text-anchor="middle">f</text>
+  <line x1="242" y1="47" x2="310" y2="47" stroke="#475569" stroke-width="1.8" marker-end="url(#g2arr)"/>
+  <text x="348" y="52" font-size="15" font-weight="700" font-style="italic" fill="#dc2626" text-anchor="middle">f(x)</text>
+  <text x="348" y="76" font-size="11" fill="#475569" text-anchor="middle">output</text>
+</svg>
 
 **Vì sao quan trọng?** Vì:
 - Hàm số mô hình hóa **mọi quan hệ** trong khoa học: lực phụ thuộc khối lượng, tốc độ phụ thuộc thời gian...
@@ -173,9 +208,24 @@ Nếu công thức không có mẫu / căn chẵn / log → Domain $= \\mathbb{R
 
 💡 **Trực giác — xếp 2 máy nối tiếp**: composition (hàm hợp) = nối output của máy này vào input của máy kia:
 
-\`\`\`
-   x ──► [ Máy g ] ──► g(x) ──► [ Máy f ] ──► f(g(x))
-\`\`\`
+<svg viewBox="0 0 560 96" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hàm hợp: x qua máy g thành g(x), rồi qua máy f thành f(g(x))">
+  <defs>
+    <marker id="g3arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <text x="32" y="53" font-size="15" font-weight="700" font-style="italic" fill="#15803d" text-anchor="middle">x</text>
+  <line x1="46" y1="48" x2="84" y2="48" stroke="#475569" stroke-width="1.8" marker-end="url(#g3arr)"/>
+  <rect x="90" y="24" width="80" height="48" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="130" y="53" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">Máy g</text>
+  <line x1="174" y1="48" x2="212" y2="48" stroke="#475569" stroke-width="1.8" marker-end="url(#g3arr)"/>
+  <text x="243" y="53" font-size="14" font-weight="700" font-style="italic" fill="#475569" text-anchor="middle">g(x)</text>
+  <line x1="274" y1="48" x2="312" y2="48" stroke="#475569" stroke-width="1.8" marker-end="url(#g3arr)"/>
+  <rect x="318" y="24" width="80" height="48" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="358" y="53" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">Máy f</text>
+  <line x1="402" y1="48" x2="440" y2="48" stroke="#475569" stroke-width="1.8" marker-end="url(#g3arr)"/>
+  <text x="492" y="53" font-size="15" font-weight="700" font-style="italic" fill="#dc2626" text-anchor="middle">f(g(x))</text>
+</svg>
 
 **$(f\\circ g)(x) = f(g(x))$**: áp dụng g trước, rồi f. Lưu ý **thứ tự đọc ngược chiều viết** — $f\\circ g$ đọc *"f sau khi g"*, tức $g$ chạy **trước**.
 
@@ -191,18 +241,24 @@ Cho $f(x) = 2x + 1$ và $g(x) = x^2$. Tính $(g\\circ f)(3)$:
 
 **Cách 1 — chạy từng máy** (nhanh cho một giá trị cụ thể):
 
-\`\`\`
-Input: 3
-  │
-  ▼
-[ Máy f ] : 2·3 + 1 = 7     (Bước 1)
-  │
-  ▼
-[ Máy g ] : 7² = 49         (Bước 2)
-  │
-  ▼
-Output: 49   ⟹  (g∘f)(3) = 49
-\`\`\`
+<svg viewBox="0 0 440 262" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chạy từng máy: input 3 qua máy f được 7 ở bước 1, qua máy g được 49 ở bước 2">
+  <defs>
+    <marker id="g4arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <text x="190" y="32" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">Input: 3</text>
+  <line x1="190" y1="42" x2="190" y2="62" stroke="#475569" stroke-width="1.8" marker-end="url(#g4arr)"/>
+  <rect x="80" y="68" width="220" height="46" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190" y="96" font-size="13" font-weight="600" fill="#1d4ed8" text-anchor="middle">Máy f : 2·3 + 1 = 7</text>
+  <text x="312" y="95" font-size="12" font-style="italic" fill="#475569">(Bước 1)</text>
+  <line x1="190" y1="118" x2="190" y2="138" stroke="#475569" stroke-width="1.8" marker-end="url(#g4arr)"/>
+  <rect x="80" y="144" width="220" height="46" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190" y="172" font-size="13" font-weight="600" fill="#1d4ed8" text-anchor="middle">Máy g : 7² = 49</text>
+  <text x="312" y="171" font-size="12" font-style="italic" fill="#475569">(Bước 2)</text>
+  <line x1="190" y1="194" x2="190" y2="214" stroke="#475569" stroke-width="1.8" marker-end="url(#g4arr)"/>
+  <text x="190" y="242" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">Output: 49&#160;&#160;&#160;⟹&#160;&#160;&#160;(g∘f)(3) = 49</text>
+</svg>
 
 **Cách 2 — lập công thức tổng quát rồi thay** (cần khi khảo sát đồ thị / đạo hàm):
 
@@ -296,16 +352,42 @@ Tính một bảng giá trị rồi chấm điểm và nối:
 
 Chấm 5 điểm $(-2,4), (-1,1), (0,0), (1,1), (2,4)$ rồi nối bằng đường cong mượt → **parabol** mở lên:
 
-\`\`\`
-   y
-   |
- 4 *           *
-   |
- 1   *       *
-   |
-   *___________  x
-  -2 -1  0  1  2
-\`\`\`
+<svg viewBox="0 0 320 280" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Parabol y bằng x bình phương mở lên, đi qua 5 điểm đã chấm từ bảng giá trị">
+  <defs>
+    <marker id="g5ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="56" y1="28" x2="56" y2="252"/><line x1="108" y1="28" x2="108" y2="252"/>
+    <line x1="212" y1="28" x2="212" y2="252"/><line x1="264" y1="28" x2="264" y2="252"/>
+    <line x1="26" y1="56" x2="296" y2="56"/><line x1="26" y1="102" x2="296" y2="102"/>
+    <line x1="26" y1="148" x2="296" y2="148"/><line x1="26" y1="194" x2="296" y2="194"/>
+  </g>
+  <!-- trục -->
+  <line x1="20" y1="240" x2="302" y2="240" stroke="#1a202c" stroke-width="1.6" marker-end="url(#g5ax)"/>
+  <line x1="160" y1="262" x2="160" y2="24" stroke="#1a202c" stroke-width="1.6" marker-end="url(#g5ax)"/>
+  <text x="306" y="234" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="168" y="32" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="56" y="256">−2</text><text x="108" y="256">−1</text>
+    <text x="212" y="256">1</text><text x="264" y="256">2</text>
+    <text x="154" y="198" text-anchor="end">1</text><text x="154" y="152" text-anchor="end">2</text>
+    <text x="154" y="106" text-anchor="end">3</text><text x="154" y="60" text-anchor="end">4</text>
+    <text x="166" y="256" text-anchor="start">0</text>
+  </g>
+  <!-- đường cong y = x² (Bezier bậc 2 khớp chính xác parabol) -->
+  <path d="M 50.8 37.1 Q 160 442.9 269.2 37.1" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="200" y="70" font-size="12.5" font-weight="700" fill="#1d4ed8">f(x) = x²</text>
+  <!-- 5 điểm chấm từ bảng giá trị -->
+  <g fill="#dc2626">
+    <circle cx="56" cy="56" r="4.5"/><circle cx="108" cy="194" r="4.5"/>
+    <circle cx="160" cy="240" r="4.5"/><circle cx="212" cy="194" r="4.5"/>
+    <circle cx="264" cy="56" r="4.5"/>
+  </g>
+</svg>
 
 ### 2.2. Test đường thẳng đứng
 
@@ -367,11 +449,29 @@ Ví dụ:
 
 💡 **Trực giác — máy chạy ngược chiều**: nếu $f$ là máy "biến x thành y", thì **hàm ngược** $f^{-1}$ là máy bấm nút "rewind" — biến y trở lại x:
 
-\`\`\`
-   x ──► [ f ] ──► y        (chiều thuận)
-
-   y ──► [ f⁻¹ ] ──► x      (chiều ngược)
-\`\`\`
+<svg viewBox="0 0 500 132" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy f chạy chiều thuận biến x thành y; máy f ngược chạy chiều ngược biến y trở lại x">
+  <defs>
+    <marker id="g6arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <!-- chiều thuận -->
+  <text x="50" y="50" font-size="15" font-weight="700" font-style="italic" fill="#1a202c" text-anchor="middle">x</text>
+  <line x1="66" y1="45" x2="126" y2="45" stroke="#475569" stroke-width="1.8" marker-end="url(#g6arr)"/>
+  <rect x="130" y="22" width="80" height="46" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170" y="51" font-size="16" font-weight="700" font-style="italic" fill="#1d4ed8" text-anchor="middle">f</text>
+  <line x1="214" y1="45" x2="274" y2="45" stroke="#475569" stroke-width="1.8" marker-end="url(#g6arr)"/>
+  <text x="290" y="50" font-size="15" font-weight="700" font-style="italic" fill="#1a202c" text-anchor="middle">y</text>
+  <text x="320" y="49" font-size="12" font-style="italic" fill="#475569">(chiều thuận)</text>
+  <!-- chiều ngược -->
+  <text x="50" y="110" font-size="15" font-weight="700" font-style="italic" fill="#1a202c" text-anchor="middle">y</text>
+  <line x1="66" y1="105" x2="126" y2="105" stroke="#475569" stroke-width="1.8" marker-end="url(#g6arr)"/>
+  <rect x="130" y="82" width="80" height="46" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="2"/>
+  <text x="170" y="111" font-size="16" font-weight="700" font-style="italic" fill="#15803d" text-anchor="middle">f⁻¹</text>
+  <line x1="214" y1="105" x2="274" y2="105" stroke="#475569" stroke-width="1.8" marker-end="url(#g6arr)"/>
+  <text x="290" y="110" font-size="15" font-weight="700" font-style="italic" fill="#1a202c" text-anchor="middle">x</text>
+  <text x="320" y="109" font-size="12" font-style="italic" fill="#475569">(chiều ngược)</text>
+</svg>
 
 Nếu $f$ "đưa 3 thành 7" thì $f^{-1}$ "đưa 7 trở lại thành 3". Ký hiệu $f^{-1}$ đọc *"f ngược"* — **không phải** $1/f$.
 
@@ -420,30 +520,72 @@ Hoán đổi: $f^{-1}(x) = \\dfrac{3x + 1}{x - 2}$, domain $x \\neq 2$. **Kiểm
 
 Lý do: $(a, b)$ thuộc đồ thị $f \\iff b = f(a) \\iff a = f^{-1}(b) \\iff (b, a)$ thuộc đồ thị $f^{-1}$. Mà $(a, b)$ và $(b, a)$ đối xứng nhau qua $y = x$. Minh họa với $f(x) = 2x + 1$ và $f^{-1}(x) = (x-1)/2$:
 
-\`\`\`
-              y
-              |        y = 2x + 1
-              |       /  (đồ thị f)
-            5 +      /
-              |     /
-            3 +    /        y = x
-              |   /      /  (trục đối xứng)
-            1 +  /    /
-              | /  /
-   ───────────+ /─────────────── x
-             /| 1   3    5
-            / |    /
-           /  |  /   y = (x − 1)/2
-          /   |/      (đồ thị f⁻¹)
-         /  / +
-        / /   |
-      −1     |
+<svg viewBox="0 0 360 360" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị y bằng 2x cộng 1 và hàm ngược của nó đối xứng nhau qua đường thẳng y bằng x, với ba cặp điểm tương ứng nối bằng nét đứt">
+  <defs>
+    <marker id="g7ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="60" y1="26" x2="60" y2="344"/><line x1="140" y1="26" x2="140" y2="344"/>
+    <line x1="180" y1="26" x2="180" y2="344"/><line x1="220" y1="26" x2="220" y2="344"/>
+    <line x1="260" y1="26" x2="260" y2="344"/><line x1="300" y1="26" x2="300" y2="344"/>
+    <line x1="24" y1="60" x2="344" y2="60"/><line x1="24" y1="100" x2="344" y2="100"/>
+    <line x1="24" y1="140" x2="344" y2="140"/><line x1="24" y1="180" x2="344" y2="180"/>
+    <line x1="24" y1="220" x2="344" y2="220"/><line x1="24" y1="300" x2="344" y2="300"/>
+  </g>
+  <!-- trục -->
+  <line x1="24" y1="260" x2="346" y2="260" stroke="#1a202c" stroke-width="1.6" marker-end="url(#g7ax)"/>
+  <line x1="100" y1="346" x2="100" y2="22" stroke="#1a202c" stroke-width="1.6" marker-end="url(#g7ax)"/>
+  <text x="348" y="254" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="108" y="30" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="140" y="274">1</text><text x="220" y="274">3</text><text x="300" y="274">5</text>
+    <text x="94" y="224" text-anchor="end">1</text><text x="94" y="144" text-anchor="end">3</text>
+    <text x="94" y="64" text-anchor="end">5</text>
+    <text x="92" y="274" text-anchor="end">O</text>
+  </g>
+  <!-- trục đối xứng y = x -->
+  <line x1="24" y1="336" x2="332" y2="28" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,5"/>
+  <text x="316" y="70" font-size="11.5" font-style="italic" fill="#64748b" text-anchor="middle">y = x</text>
+  <!-- nét đứt nối các cặp điểm đối xứng -->
+  <g stroke="#dc2626" stroke-width="1.3" stroke-dasharray="4,4">
+    <line x1="100" y1="220" x2="140" y2="260"/>
+    <line x1="140" y1="140" x2="220" y2="220"/>
+    <line x1="180" y1="60" x2="300" y2="180"/>
+  </g>
+  <!-- đồ thị f: y = 2x + 1 -->
+  <line x1="42" y1="336" x2="196" y2="28" stroke="#1d4ed8" stroke-width="2.4"/>
+  <text x="204" y="42" font-size="12" font-weight="700" fill="#1d4ed8">y = 2x + 1</text>
+  <!-- đồ thị f⁻¹: y = (x − 1)/2 -->
+  <line x1="24" y1="318" x2="336" y2="162" stroke="#15803d" stroke-width="2.4"/>
+  <text x="238" y="150" font-size="12" font-weight="700" fill="#15803d">y = (x − 1)/2</text>
+  <!-- điểm trên f -->
+  <g fill="#1d4ed8">
+    <circle cx="100" cy="220" r="4.5"/><circle cx="140" cy="140" r="4.5"/><circle cx="180" cy="60" r="4.5"/>
+  </g>
+  <g font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">
+    <text x="92" y="208">(0, 1)</text><text x="132" y="134">(1, 3)</text><text x="172" y="54">(2, 5)</text>
+  </g>
+  <!-- điểm trên f⁻¹ -->
+  <g fill="#15803d">
+    <circle cx="140" cy="260" r="4.5"/><circle cx="220" cy="220" r="4.5"/><circle cx="300" cy="180" r="4.5"/>
+  </g>
+  <g font-size="10.5" font-weight="700" fill="#15803d">
+    <text x="134" y="246" text-anchor="end">(1, 0)</text><text x="226" y="240">(3, 1)</text>
+    <text x="294" y="170" text-anchor="end">(5, 2)</text>
+  </g>
+</svg>
 
-  Cặp điểm tương ứng (đối xứng qua y = x):
-    f:  (0, 1)   ↔   f⁻¹: (1, 0)
-    f:  (1, 3)   ↔   f⁻¹: (3, 1)
-    f:  (2, 5)   ↔   f⁻¹: (5, 2)
-\`\`\`
+Cặp điểm tương ứng (đối xứng qua $y = x$, nối bằng nét đứt đỏ trên hình):
+
+| Trên đồ thị $f$ | Trên đồ thị $f^{-1}$ |
+|-----------------|----------------------|
+| $(0, 1)$ | $(1, 0)$ |
+| $(1, 3)$ | $(3, 1)$ |
+| $(2, 5)$ | $(5, 2)$ |
 
 Lật tờ giấy theo đường chéo $y = x$, đồ thị $f$ trùng đồ thị $f^{-1}$. Tương tự: $e^x$ và $\\ln x$ đối xứng qua $y = x$; $x^3$ và $\\sqrt[3]{x}$ cũng vậy.
 

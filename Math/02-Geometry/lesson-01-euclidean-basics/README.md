@@ -32,22 +32,39 @@ Hình học Euclid xây dựng từ **3 khái niệm nguyên thủy** không đ�
 
 #### Hình minh họa — phân biệt đường / tia / đoạn
 
-Ba đối tượng khác nhau ở **số đầu mút** (số đầu bị "chặn lại"). Mũi tên `◄`/`►` nghĩa là "kéo dài vô hạn về phía đó", còn chấm `●` là đầu mút (điểm dừng):
+Ba đối tượng khác nhau ở **số đầu mút** (số đầu bị "chặn lại"). Mũi tên nghĩa là "kéo dài vô hạn về phía đó", còn chấm tròn là đầu mút (điểm dừng):
 
-```
-ĐƯỜNG THẲNG AB   (0 đầu mút — vô hạn cả 2 phía)
-   ◄──────●───────────●──────►
-          A           B
-
-TIA OA           (1 đầu mút tại O — vô hạn 1 phía qua A)
-          ●───────────────────►
-          O           A
-
-ĐOẠN THẲNG AB    (2 đầu mút — hữu hạn, đo được độ dài)
-          ●───────────●
-          A           B
-        ├──── 5 cm ───┤
-```
+<svg viewBox="0 0 560 262" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân biệt ba đối tượng: đường thẳng AB vô hạn hai phía có mũi tên hai đầu, tia OA có một đầu mút tại O và mũi tên một phía, đoạn thẳng AB có hai đầu mút và độ dài 5 cm">
+  <defs>
+    <marker id="g1-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/>
+    </marker>
+  </defs>
+  <text x="30" y="30" font-size="12.5" font-weight="700" fill="#1a202c">ĐƯỜNG THẲNG AB — 0 đầu mút, vô hạn cả 2 phía</text>
+  <line x1="42" y1="58" x2="518" y2="58" stroke="#1d4ed8" stroke-width="2" marker-start="url(#g1-ar)" marker-end="url(#g1-ar)"/>
+  <circle cx="200" cy="58" r="4.5" fill="#1a202c"/>
+  <circle cx="360" cy="58" r="4.5" fill="#1a202c"/>
+  <text x="200" y="80" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="360" y="80" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="30" y="112" font-size="12.5" font-weight="700" fill="#1a202c">TIA OA — 1 đầu mút tại O, vô hạn 1 phía qua A</text>
+  <line x1="200" y1="140" x2="518" y2="140" stroke="#1d4ed8" stroke-width="2" marker-end="url(#g1-ar)"/>
+  <circle cx="200" cy="140" r="5" fill="#dc2626"/>
+  <circle cx="360" cy="140" r="4.5" fill="#1a202c"/>
+  <text x="200" y="162" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">O (đầu mút)</text>
+  <text x="360" y="162" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="30" y="194" font-size="12.5" font-weight="700" fill="#1a202c">ĐOẠN THẲNG AB — 2 đầu mút, hữu hạn nên đo được độ dài</text>
+  <line x1="200" y1="222" x2="360" y2="222" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="200" cy="222" r="5" fill="#dc2626"/>
+  <circle cx="360" cy="222" r="5" fill="#dc2626"/>
+  <text x="188" y="226" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="372" y="226" font-size="12" font-weight="700" fill="#1a202c">B</text>
+  <g stroke="#15803d" stroke-width="1.4">
+    <line x1="200" y1="238" x2="360" y2="238"/>
+    <line x1="200" y1="232" x2="200" y2="244"/>
+    <line x1="360" y1="232" x2="360" y2="244"/>
+  </g>
+  <text x="280" y="256" font-size="11.5" font-weight="700" fill="#15803d" text-anchor="middle">5 cm</text>
+</svg>
 
 Cùng 2 điểm A, B nhưng cho **3 đối tượng khác nhau**: viết "đường thẳng AB", "tia AB", "đoạn AB" là nói 3 thứ khác nhau. Chỉ **đoạn** mới có "độ dài" (vd 5 cm); đường thẳng vô hạn nên không có độ dài.
 
@@ -55,17 +72,21 @@ Cùng 2 điểm A, B nhưng cho **3 đối tượng khác nhau**: viết "đư�
 
 Góc là phần mặt phẳng "kẹp" giữa 2 tia chung một gốc (gọi là **đỉnh**, vertex). Hai tia là 2 **cạnh** (side) của góc:
 
-```
-        A
-         ╲
-          ╲          ← cạnh OA (tia OA)
-           ╲
-            ╲  ∠AOB
-             ╲___________  → cạnh OB (tia OB)
-            O            B
-        ↑
-      đỉnh O (gốc chung của 2 tia)
-```
+<svg viewBox="0 0 480 232" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc AOB tạo bởi hai tia OA và OB chung gốc O: tia OB nằm ngang, tia OA chếch lên, cung góc đánh dấu độ mở giữa hai cạnh tại đỉnh O">
+  <line x1="150" y1="180" x2="400" y2="180" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="150" y1="180" x2="75" y2="50" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M190,180 A40,40 0 0 0 130,145.4" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="185" y="130" font-size="12.5" font-weight="700" fill="#dc2626">∠AOB</text>
+  <circle cx="150" cy="180" r="4.5" fill="#1a202c"/>
+  <circle cx="75" cy="50" r="4.5" fill="#1a202c"/>
+  <circle cx="400" cy="180" r="4.5" fill="#1a202c"/>
+  <text x="62" y="42" font-size="13" font-weight="700" fill="#1a202c">A</text>
+  <text x="412" y="185" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="138" y="202" font-size="13" font-weight="700" fill="#1a202c">O</text>
+  <text x="128" y="108" font-size="11.5" fill="#475569">← cạnh OA (tia OA)</text>
+  <text x="275" y="168" font-size="11.5" fill="#475569" text-anchor="middle">cạnh OB (tia OB)</text>
+  <text x="240" y="222" font-size="11.5" fill="#475569" text-anchor="middle">đỉnh O — gốc chung của 2 tia (đỉnh viết ở giữa: ∠AOB)</text>
+</svg>
 
 Ký hiệu: $\angle AOB$ (hoặc $\widehat{AOB}$), **đỉnh viết ở giữa**. Đo "độ mở" giữa 2 cạnh bằng độ ($^\circ$) — chi tiết ở mục 3.
 
@@ -118,38 +139,57 @@ Euclid đã viết "Elements" (~300 TCN) — sách giáo khoa quan trọng nhấ
 
 Cho đường thẳng $d$ và một điểm $P$ **nằm ngoài** $d$. Tiên đề 5 nói: kẻ qua $P$ có **đúng MỘT** đường $d'$ song song với $d$ — không nhiều hơn, không ít hơn:
 
-```
-        ● P
-   ─────────────────  d'   ← ĐÚNG 1 đường qua P, song song d
-   ─────────────────  d
-```
+<svg viewBox="0 0 520 168" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tiên đề 5: điểm P nằm ngoài đường thẳng d, qua P kẻ được đúng một đường d phẩy song song với d, hai đường có ký hiệu mũi tên song song">
+  <text x="255" y="26" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">đúng MỘT đường qua P song song với d</text>
+  <line x1="30" y1="70" x2="470" y2="70" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="30" y1="130" x2="470" y2="130" stroke="#1a202c" stroke-width="2"/>
+  <text x="482" y="74" font-size="13" font-weight="700" fill="#1d4ed8">d′</text>
+  <text x="482" y="134" font-size="13" font-weight="700" fill="#1a202c">d</text>
+  <circle cx="250" cy="70" r="5.5" fill="#dc2626"/>
+  <text x="250" y="52" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">P</text>
+  <path d="M386,63 L396,70 L386,77" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M386,123 L396,130 L386,137" fill="none" stroke="#1a202c" stroke-width="2"/>
+</svg>
 
 Mọi đường khác qua $P$ (kẻ nghiêng đi) **đều sẽ cắt** $d$ ở đâu đó nếu kéo dài đủ xa:
 
-```
-        ● P
-        ╱ ╲
-   ────╱───╲──────────  d
-      ╱     ╲
-     × cắt   × cắt    ← các đường nghiêng đều cắt d
-```
+<svg viewBox="0 0 520 200" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mọi đường khác qua P đều cắt d: hai đường nghiêng đi qua điểm P phía trên đều giao đường thẳng d, giao điểm đánh dấu chữ thập đỏ kèm chữ cắt">
+  <line x1="30" y1="140" x2="490" y2="140" stroke="#1a202c" stroke-width="2"/>
+  <text x="500" y="144" font-size="13" font-weight="700" fill="#1a202c">d</text>
+  <line x1="297.5" y1="5" x2="162.5" y2="167" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="222.5" y1="5" x2="357.5" y2="167" stroke="#15803d" stroke-width="1.8"/>
+  <circle cx="260" cy="50" r="5.5" fill="#dc2626"/>
+  <text x="260" y="32" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">P</text>
+  <g stroke="#dc2626" stroke-width="2.2">
+    <line x1="179" y1="134" x2="191" y2="146"/><line x1="179" y1="146" x2="191" y2="134"/>
+    <line x1="329" y1="134" x2="341" y2="146"/><line x1="329" y1="146" x2="341" y2="134"/>
+  </g>
+  <text x="160" y="164" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="end">cắt</text>
+  <text x="360" y="164" font-size="11.5" font-weight="700" fill="#dc2626">cắt</text>
+  <text x="260" y="188" font-size="11.5" fill="#475569" text-anchor="middle">các đường nghiêng qua P đều cắt d nếu kéo dài đủ xa</text>
+</svg>
 
 #### Hình minh họa — vì sao bỏ tiên đề 5 sinh ra hình học khác
 
 Đổi tiên đề 5 cho "số đường song song qua $P$" thành 0 hoặc vô số → ra 2 thế giới hình học khác hẳn. So sánh tổng 3 góc một tam giác:
 
-```
- EUCLID (phẳng)       CẦU (Riemann)        HYPERBOLIC (Lobachevsky)
-   qua P: 1 ss          qua P: 0 ss           qua P: vô số ss
-
-      /\                  ___                    /\
-     /  \               ╱     ╲                 /  \
-    /    \             ╱  phình ╲              /(lõm)\
-   /______\           ╲___________╱           /________\
-
-  tổng = 180°          tổng > 180°            tổng < 180°
-  (tam giác phẳng)     (phình ra ngoài)       (lõm vào trong)
-```
+<svg viewBox="0 0 720 236" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh ba hình học: Euclid phẳng tam giác cạnh thẳng tổng góc bằng 180 độ, cầu Riemann cạnh phình ra tổng lớn hơn 180 độ, hyperbolic Lobachevsky cạnh lõm vào tổng nhỏ hơn 180 độ">
+  <text x="120" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">EUCLID (phẳng)</text>
+  <text x="120" y="46" font-size="11.5" fill="#475569" text-anchor="middle">qua P: 1 song song</text>
+  <path d="M120,72 L60,168 L180,168 Z" fill="none" stroke="#1d4ed8" stroke-width="2.2"/>
+  <text x="120" y="200" font-size="12.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">tổng = 180°</text>
+  <text x="120" y="222" font-size="11" fill="#475569" text-anchor="middle">tam giác phẳng, cạnh thẳng</text>
+  <text x="360" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CẦU (Riemann)</text>
+  <text x="360" y="46" font-size="11.5" fill="#475569" text-anchor="middle">qua P: 0 song song</text>
+  <path d="M360,72 Q308,108 300,168 Q360,196 420,168 Q412,108 360,72 Z" fill="none" stroke="#15803d" stroke-width="2.2"/>
+  <text x="360" y="200" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">tổng &gt; 180°</text>
+  <text x="360" y="222" font-size="11" fill="#475569" text-anchor="middle">cạnh phình ra ngoài</text>
+  <text x="600" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">HYPERBOLIC (Lobachevsky)</text>
+  <text x="600" y="46" font-size="11.5" fill="#475569" text-anchor="middle">qua P: vô số song song</text>
+  <path d="M600,72 Q586,130 540,168 Q600,146 660,168 Q614,130 600,72 Z" fill="none" stroke="#dc2626" stroke-width="2.2"/>
+  <text x="600" y="200" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">tổng &lt; 180°</text>
+  <text x="600" y="222" font-size="11" fill="#475569" text-anchor="middle">cạnh lõm vào trong</text>
+</svg>
 
 Ví dụ số trên mặt cầu: tam giác có 3 đỉnh là Bắc Cực + 2 điểm trên xích đạo cách nhau $90^\circ$ kinh độ → cả 3 góc đều $90^\circ$, tổng $= 270^\circ > 180^\circ$. Không "sai" — chỉ là thế giới hình học khác (xem callout ❓ bên dưới).
 
@@ -208,17 +248,26 @@ Ví dụ số cụ thể (đối chiếu phân số vòng tròn):
 💡 **Trực giác**: số đo góc **cộng được** như độ dài. Nếu tia OB nằm **trong** góc $\angle AOC$ (giữa 2 cạnh), nó chia $\angle AOC$ thành 2 phần kề nhau và:
 $$\angle AOC = \angle AOB + \angle BOC \quad(\text{tính cộng góc}).$$
 
-```
-        A
-         ╲
-          ╲ ∠AOB
-           ╲      B
-            ╲    ╱
-             ╲  ╱  ∠BOC
-              ╲╱_________ C
-              O
-   ∠AOC = ∠AOB + ∠BOC   (B nằm trong góc AOC)
-```
+<svg viewBox="0 0 480 250" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tính cộng góc: tia OB nằm trong góc AOC chia nó thành hai góc kề nhau, góc AOC bằng góc AOB cộng góc BOC">
+  <line x1="120" y1="190" x2="420" y2="190" stroke="#1a202c" stroke-width="2"/>
+  <line x1="120" y1="190" x2="276" y2="81" stroke="#1a202c" stroke-width="2"/>
+  <line x1="120" y1="190" x2="163" y2="31" stroke="#1a202c" stroke-width="2"/>
+  <path d="M168,190 A48,48 0 0 0 159.3,162.5" fill="none" stroke="#15803d" stroke-width="2"/>
+  <path d="M165.9,157.9 A56,56 0 0 0 134.5,135.9" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M204,190 A84,84 0 0 0 141.7,108.9" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5,4"/>
+  <text x="187" y="176" font-size="12" font-weight="700" fill="#15803d">∠BOC</text>
+  <text x="160" y="131" font-size="12" font-weight="700" fill="#1d4ed8">∠AOB</text>
+  <text x="128" y="98" font-size="12" font-weight="700" fill="#dc2626" text-anchor="end">∠AOC</text>
+  <circle cx="120" cy="190" r="4.5" fill="#1a202c"/>
+  <circle cx="163" cy="31" r="4.5" fill="#1a202c"/>
+  <circle cx="276" cy="81" r="4.5" fill="#1a202c"/>
+  <circle cx="420" cy="190" r="4.5" fill="#1a202c"/>
+  <text x="163" y="20" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="288" y="78" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="432" y="194" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="106" y="207" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="250" y="236" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">∠AOC = ∠AOB + ∠BOC — vì tia OB nằm trong góc AOC</text>
+</svg>
 
 Ví dụ số: $\angle AOB = 30^\circ$, $\angle BOC = 25^\circ$ → $\angle AOC = 55^\circ$. Ngược lại, biết $\angle AOC = 90^\circ$ và $\angle AOB = 35^\circ$ thì $\angle BOC = 90 - 35 = 55^\circ$ (dùng ở Bài 8). **Tia phân giác** là tia chia góc thành 2 nửa bằng nhau: nếu OB là phân giác của $\angle AOC = 80^\circ$ thì $\angle AOB = \angle BOC = 40^\circ$.
 
@@ -237,15 +286,35 @@ Ví dụ số: $\angle AOB = 30^\circ$, $\angle BOC = 25^\circ$ → $\angle AOC 
 
 Hình dung cạnh thứ nhất nằm ngang, cạnh thứ hai mở dần lên:
 
-```
- NHỌN (<90°)        VUÔNG (=90°)       TÙ (90°–180°)       BẸT (=180°)
-      ╱                  │                ╲                 
-     ╱                   │                 ╲                
-    ╱                    │                  ╲               
-   ●──────              ●──┘──────         ●────────       ●──────────────●
-   (hẹp, < góc            (góc "vuông       (mở rộng hơn     (2 tia thẳng hàng,
-    vuông)                vức", ô vuông)     góc vuông)       thành đường thẳng)
-```
+<svg viewBox="0 0 740 190" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn loại góc chính: nhọn nhỏ hơn 90 độ, vuông bằng 90 độ có ô vuông đánh dấu, tù giữa 90 và 180 độ, bẹt bằng 180 độ hai tia thẳng hàng">
+  <text x="95" y="26" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">NHỌN</text>
+  <line x1="40" y1="120" x2="155" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="40" y1="120" x2="114" y2="32" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M70,120 A30,30 0 0 0 59.3,97" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="80" y="106" font-size="11.5" font-weight="700" fill="#dc2626">&lt; 90°</text>
+  <circle cx="40" cy="120" r="4" fill="#1a202c"/>
+  <text x="95" y="170" font-size="10.5" fill="#475569" text-anchor="middle">hẹp hơn góc vuông</text>
+  <text x="275" y="26" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">VUÔNG</text>
+  <line x1="225" y1="120" x2="340" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="225" y1="120" x2="225" y2="30" stroke="#1d4ed8" stroke-width="2"/>
+  <polyline points="225,104 241,104 241,120" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="250" y="100" font-size="11.5" font-weight="700" fill="#dc2626">= 90°</text>
+  <circle cx="225" cy="120" r="4" fill="#1a202c"/>
+  <text x="275" y="170" font-size="10.5" fill="#475569" text-anchor="middle">ô vuông đánh dấu 90°</text>
+  <text x="470" y="26" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">TÙ</text>
+  <line x1="475" y1="120" x2="560" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="475" y1="120" x2="397" y2="42" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M501,120 A26,26 0 0 0 456.6,101.6" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="492" y="82" font-size="11.5" font-weight="700" fill="#dc2626">&gt; 90°</text>
+  <circle cx="475" cy="120" r="4" fill="#1a202c"/>
+  <text x="470" y="170" font-size="10.5" fill="#475569" text-anchor="middle">rộng hơn góc vuông</text>
+  <text x="650" y="26" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">BẸT</text>
+  <line x1="570" y1="120" x2="730" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M676,120 A26,26 0 0 0 624,120" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="650" y="84" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="middle">= 180°</text>
+  <circle cx="650" cy="120" r="4" fill="#1a202c"/>
+  <text x="650" y="170" font-size="10.5" fill="#475569" text-anchor="middle">2 tia đối nhau, thẳng hàng</text>
+</svg>
 
 Mốc nhận biết nhanh: so với **góc vuông** $90^\circ$ (góc của tờ giấy, góc tường) — hẹp hơn là nhọn, rộng hơn (mà chưa thẳng) là tù, thẳng băng là bẹt.
 
@@ -257,34 +326,50 @@ Mốc nhận biết nhanh: so với **góc vuông** $90^\circ$ (góc của tờ 
 
 #### Hình minh họa — góc bù, góc phụ
 
-```
-GÓC PHỤ (tổng 90°)              GÓC BÙ (tổng 180°)
-   ╲                              
-    ╲   β                          ╲   β
-     ╲ ╱                            ╲ ╱
-  ────●──── (góc vuông)        ─────●───── (đường thẳng / góc bẹt)
-   α  │                         α
-      │                        
-  α + β = 90°                   α + β = 180°
-  (ghép lại = góc vuông)        (ghép lại = nửa vòng tròn)
-```
+<svg viewBox="0 0 660 224" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc phụ và góc bù: bên trái hai góc alpha beta ghép thành góc vuông nên tổng 90 độ, bên phải hai góc ghép thành góc bẹt trên đường thẳng nên tổng 180 độ">
+  <text x="170" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">GÓC PHỤ — tổng 90°</text>
+  <line x1="150" y1="150" x2="290" y2="150" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150" y1="150" x2="150" y2="30" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150" y1="150" x2="257" y2="75" stroke="#1a202c" stroke-width="1.8"/>
+  <path d="M190,150 A40,40 0 0 0 182.8,127" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M192.6,120.2 A52,52 0 0 0 150,98" fill="none" stroke="#15803d" stroke-width="2"/>
+  <path d="M214,150 A64,64 0 0 0 150,86" fill="none" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="5,4"/>
+  <text x="204" y="139" font-size="12.5" font-weight="700" fill="#1d4ed8">α</text>
+  <text x="176" y="97" font-size="12.5" font-weight="700" fill="#15803d">β</text>
+  <text x="212" y="96" font-size="11" font-weight="700" fill="#475569">90°</text>
+  <circle cx="150" cy="150" r="4" fill="#1a202c"/>
+  <text x="170" y="205" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">α + β = 90° — ghép lại = góc vuông</text>
+  <text x="510" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">GÓC BÙ — tổng 180°</text>
+  <line x1="380" y1="150" x2="640" y2="150" stroke="#1a202c" stroke-width="2"/>
+  <line x1="510" y1="150" x2="570" y2="46" stroke="#1a202c" stroke-width="1.8"/>
+  <path d="M476,150 A34,34 0 0 1 527,120.6" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M533,110.2 A46,46 0 0 1 556,150" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="480" y="114" font-size="12.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">α</text>
+  <text x="563" y="124" font-size="12.5" font-weight="700" fill="#15803d">β</text>
+  <circle cx="510" cy="150" r="4" fill="#1a202c"/>
+  <text x="510" y="205" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">α + β = 180° — ghép lại = nửa vòng tròn (góc bẹt)</text>
+</svg>
 
 #### Hình minh họa — góc đối đỉnh & kề bù
 
 2 đường thẳng cắt nhau tại O tạo **4 góc**. Đánh số 1, 2, 3, 4 đi vòng:
 
-```
-            ╲   1   ╱
-             ╲     ╱
-          4   ╲   ╱   2
-        ───────●───────
-              ╱ O ╲
-             ╱     ╲
-            ╱   3   ╲
-
-  • Đối đỉnh (bằng nhau):  ∠1 = ∠3,  ∠2 = ∠4
-  • Kề bù (tổng 180°):     ∠1 + ∠2 = 180°,  ∠2 + ∠3 = 180° ...
-```
+<svg viewBox="0 0 480 252" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai đường thẳng cắt nhau tại O tạo bốn góc đánh số: 1 trên, 2 phải, 3 dưới, 4 trái; cặp đối đỉnh 1-3 và 2-4 bằng nhau, hai góc kề nhau bù nhau tổng 180 độ">
+  <line x1="189" y1="30" x2="291" y2="190" stroke="#1a202c" stroke-width="2"/>
+  <line x1="291" y1="30" x2="189" y2="190" stroke="#1a202c" stroke-width="2"/>
+  <path d="M223.9,84.7 A30,30 0 0 1 256.1,84.7" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M256.1,135.3 A30,30 0 0 1 223.9,135.3" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M258.3,81.3 A34,34 0 0 1 258.3,138.7" fill="none" stroke="#15803d" stroke-width="2"/>
+  <path d="M221.7,138.7 A34,34 0 0 1 221.7,81.3" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="240" y="64" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">1</text>
+  <text x="240" y="166" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">3</text>
+  <text x="296" y="115" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">2</text>
+  <text x="184" y="115" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">4</text>
+  <circle cx="240" cy="110" r="3.5" fill="#1a202c"/>
+  <text x="228" y="105" font-size="11.5" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="240" y="222" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">Đối đỉnh (bằng nhau): ∠1 = ∠3, ∠2 = ∠4</text>
+  <text x="240" y="243" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">Kề bù (tổng 180°): ∠1 + ∠2 = 180°, ∠2 + ∠3 = 180°, ...</text>
+</svg>
 
 **Vì sao đối đỉnh bằng nhau?** Chứng minh từng bước (không dùng "dễ thấy"):
 $$\begin{aligned}
@@ -299,22 +384,31 @@ Verify số: nếu $\angle 1 = 65^\circ$ thì $\angle 2 = 180 - 65 = 115^\circ$,
 
 Một đường **cát tuyến** (transversal) cắt 2 đường song song $a \parallel b$ tạo ra **8 góc**, đặt tên 1–8:
 
-```
-                    ╱  cát tuyến c
-                   ╱
-            1 ╱ 2 ╱
-        ──────●──────────  a   ∥
-          4 ╱ 3 ╱            
-           ╱   ╱
-      5 ╱ 6  ╱
-   ──────●──────────────  b   ∥
-     8 ╱ 7 ╱
-       ╱  ╱
-
-  • Đồng vị (cùng vị trí góc): ∠1=∠5, ∠2=∠6, ∠4=∠8, ∠3=∠7  → BẰNG NHAU
-  • So le trong (2 phía cát tuyến, giữa a&b): ∠3=∠5, ∠4=∠6   → BẰNG NHAU
-  • Trong cùng phía (1 phía, giữa a&b):       ∠3+∠6=180°, ∠4+∠5=180° → BÙ NHAU
-```
+<svg viewBox="0 0 560 330" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cát tuyến c cắt hai đường song song a và b tạo 8 góc đánh số 1 đến 8: các cặp đồng vị bằng nhau, so le trong bằng nhau, trong cùng phía bù nhau">
+  <rect x="40" y="90" width="440" height="100" fill="#eef2f7"/>
+  <text x="60" y="145" font-size="10.5" fill="#94a3b8">miền trong (giữa a và b)</text>
+  <line x1="40" y1="90" x2="480" y2="90" stroke="#1a202c" stroke-width="2"/>
+  <line x1="40" y1="190" x2="480" y2="190" stroke="#1a202c" stroke-width="2"/>
+  <line x1="305" y1="40" x2="205" y2="240" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="492" y="94" font-size="13" font-weight="700" fill="#1a202c">a</text>
+  <text x="492" y="194" font-size="13" font-weight="700" fill="#1a202c">b</text>
+  <text x="312" y="36" font-size="13" font-weight="700" fill="#1d4ed8">c</text>
+  <path d="M414,83 L424,90 L414,97" fill="none" stroke="#1a202c" stroke-width="2"/>
+  <path d="M414,183 L424,190 L414,197" fill="none" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="280" cy="90" r="3.5" fill="#1a202c"/>
+  <circle cx="230" cy="190" r="3.5" fill="#1a202c"/>
+  <text x="252" y="84" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">1</text>
+  <text x="312" y="84" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">2</text>
+  <text x="300" y="112" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">3</text>
+  <text x="246" y="112" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">4</text>
+  <text x="202" y="184" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">5</text>
+  <text x="262" y="184" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">6</text>
+  <text x="250" y="212" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">7</text>
+  <text x="196" y="212" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">8</text>
+  <text x="280" y="272" font-size="11.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">Đồng vị (cùng vị trí): ∠1=∠5, ∠2=∠6, ∠3=∠7, ∠4=∠8 → bằng nhau</text>
+  <text x="280" y="294" font-size="11.5" font-weight="700" fill="#15803d" text-anchor="middle">So le trong (2 phía cát tuyến, giữa a và b): ∠3=∠5, ∠4=∠6 → bằng nhau</text>
+  <text x="280" y="316" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="middle">Trong cùng phía (1 phía, giữa a và b): ∠3+∠6=180°, ∠4+∠5=180° → bù nhau</text>
+</svg>
 
 - **Cặp góc đồng vị** (corresponding): bằng nhau.
 - **Cặp góc so le trong** (alternate interior): bằng nhau.
@@ -410,38 +504,67 @@ Kiểm tra góc phụ: $2(40)-30 = 50^\circ$, và $40 + 50 = 90^\circ$ ✓. Góc
 
 #### Hình minh họa — vuông góc và song song
 
-```
-VUÔNG GÓC (a ⊥ b)              SONG SONG (a ∥ b)
-            │ a
-            │                   ────────────────  a
-            │                   
-   ─────────┼─────── b          ────────────────  b
-          90°│ (ô vuông          (luôn cách đều,
-            │  đánh dấu)          không bao giờ cắt)
-            │
-```
+<svg viewBox="0 0 660 216" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bên trái hai đường vuông góc a và b cắt nhau tạo góc 90 độ có ô vuông đánh dấu, bên phải hai đường song song a và b luôn cách đều không bao giờ cắt">
+  <text x="170" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">VUÔNG GÓC — a ⊥ b</text>
+  <line x1="160" y1="40" x2="160" y2="185" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="50" y1="112" x2="290" y2="112" stroke="#15803d" stroke-width="2"/>
+  <polyline points="160,98 174,98 174,112" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="182" y="94" font-size="11.5" font-weight="700" fill="#dc2626">90°</text>
+  <text x="170" y="52" font-size="13" font-weight="700" fill="#1d4ed8">a</text>
+  <text x="296" y="116" font-size="13" font-weight="700" fill="#15803d">b</text>
+  <text x="170" y="206" font-size="11.5" fill="#475569" text-anchor="middle">cắt nhau tạo góc 90° — ô vuông đánh dấu</text>
+  <text x="500" y="26" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">SONG SONG — a ∥ b</text>
+  <line x1="380" y1="82" x2="620" y2="82" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="380" y1="152" x2="620" y2="152" stroke="#15803d" stroke-width="2"/>
+  <text x="628" y="86" font-size="13" font-weight="700" fill="#1d4ed8">a</text>
+  <text x="628" y="156" font-size="13" font-weight="700" fill="#15803d">b</text>
+  <path d="M532,75 L542,82 L532,89" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M532,145 L542,152 L532,159" fill="none" stroke="#15803d" stroke-width="2"/>
+  <g stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4,4">
+    <line x1="420" y1="82" x2="420" y2="152"/>
+    <line x1="480" y1="82" x2="480" y2="152"/>
+  </g>
+  <text x="450" y="122" font-size="10.5" fill="#94a3b8" text-anchor="middle">cách đều</text>
+  <text x="500" y="206" font-size="11.5" fill="#475569" text-anchor="middle">luôn cách đều, không bao giờ cắt</text>
+</svg>
 
 #### Hình minh họa — 2 đường cùng vuông góc với đường thứ 3 thì song song
 
-```
-   │ a            │ b
-   │ ⊥            │ ⊥
-   ●──────────────●──────────  c
-  90°            90°
-
-  a ⊥ c  và  b ⊥ c  ⟹  a ∥ b
-  (hai cây cột cùng dựng thẳng đứng trên mặt đất → song song nhau)
-```
+<svg viewBox="0 0 480 200" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai đường a và b cùng vuông góc với đường c nằm ngang, mỗi chân có ô vuông 90 độ, suy ra a song song b như hai cây cột dựng thẳng trên mặt đất">
+  <line x1="30" y1="140" x2="450" y2="140" stroke="#1a202c" stroke-width="2"/>
+  <text x="458" y="144" font-size="13" font-weight="700" fill="#1a202c">c</text>
+  <line x1="140" y1="30" x2="140" y2="140" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="310" y1="30" x2="310" y2="140" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="148" y="42" font-size="13" font-weight="700" fill="#1d4ed8">a</text>
+  <text x="318" y="42" font-size="13" font-weight="700" fill="#1d4ed8">b</text>
+  <polyline points="140,126 154,126 154,140" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <polyline points="310,126 324,126 324,140" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="160" y="122" font-size="11" font-weight="700" fill="#dc2626">90°</text>
+  <text x="330" y="122" font-size="11" font-weight="700" fill="#dc2626">90°</text>
+  <circle cx="140" cy="140" r="4" fill="#1a202c"/>
+  <circle cx="310" cy="140" r="4" fill="#1a202c"/>
+  <path d="M133,76 L140,66 L147,76" fill="none" stroke="#15803d" stroke-width="2"/>
+  <path d="M303,76 L310,66 L317,76" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="240" y="172" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">a ⊥ c và b ⊥ c ⟹ a ∥ b</text>
+  <text x="240" y="192" font-size="11" fill="#475569" text-anchor="middle">hai cây cột cùng dựng thẳng đứng trên mặt đất → song song nhau</text>
+</svg>
 
 #### Hình minh họa — tính bắc cầu của song song
 
-```
-   ─────────────────  a
-                          a ∥ b
-   ─────────────────  b
-                          b ∥ c   ⟹   a ∥ c
-   ─────────────────  c
-```
+<svg viewBox="0 0 500 178" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tính bắc cầu của song song: a song song b và b song song c suy ra a song song c, ba đường ngang xếp chồng có ký hiệu mũi tên song song">
+  <line x1="30" y1="40" x2="340" y2="40" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="30" y1="88" x2="340" y2="88" stroke="#15803d" stroke-width="2"/>
+  <line x1="30" y1="136" x2="340" y2="136" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="352" y="44" font-size="13" font-weight="700" fill="#1d4ed8">a</text>
+  <text x="352" y="92" font-size="13" font-weight="700" fill="#15803d">b</text>
+  <text x="352" y="140" font-size="13" font-weight="700" fill="#1d4ed8">c</text>
+  <path d="M282,33 L292,40 L282,47" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M282,81 L292,88 L282,95" fill="none" stroke="#15803d" stroke-width="2"/>
+  <path d="M282,129 L292,136 L282,143" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="400" y="68" font-size="12" font-weight="700" fill="#475569">a ∥ b</text>
+  <text x="400" y="116" font-size="12" font-weight="700" fill="#475569">b ∥ c</text>
+  <text x="250" y="168" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">a ∥ b và b ∥ c ⟹ a ∥ c (tính bắc cầu)</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

@@ -72,19 +72,36 @@ $$x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$$
 
 #### Hình dung 3 trường hợp bằng parabol (a > 0, mở lên)
 
-\`\`\`
-   Δ > 0                  Δ = 0                  Δ < 0
-   2 nghiệm               1 nghiệm kép           vô nghiệm thực
-
-  y                      y                      y
-  |   \\      /           |   \\      /           |  \\        /
-  |    \\    /            |    \\    /            |   \\      /
-  |     \\  /             |     \\  /             |    \\    /   ← đỉnh
-  +--•----•--→ x         +------•------→ x      +-----\\__/------→ x
-     \\__/  (cắt 2 chỗ)          (chạm đáy)      |   (lơ lửng TRÊN Ox)
-   đỉnh DƯỚI Ox          đỉnh CHẠM Ox           đỉnh TRÊN Ox
-   y_đỉnh < 0            y_đỉnh = 0             y_đỉnh > 0
-\`\`\`
+<svg viewBox="0 0 660 210" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba trường hợp delta: dương cắt Ox hai điểm, bằng không tiếp xúc một điểm, âm không chạm Ox">
+  <text x="120" y="22" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Δ &gt; 0 — 2 nghiệm</text>
+  <line x1="15" y1="130" x2="218" y2="130" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="224,130 215,126 215,134" fill="#1a202c"/>
+  <line x1="35" y1="192" x2="35" y2="34" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="35,28 31,37 39,37" fill="#1a202c"/>
+  <path d="M 50 40 Q 120 300 190 40" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="81" cy="130" r="5" fill="#dc2626"/>
+  <circle cx="159" cy="130" r="5" fill="#dc2626"/>
+  <text x="120" y="120" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">cắt 2 chỗ</text>
+  <text x="120" y="185" font-size="11.5" fill="#475569" text-anchor="middle">đỉnh DƯỚI Ox · y_đỉnh &lt; 0</text>
+  <text x="340" y="22" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Δ = 0 — nghiệm kép</text>
+  <line x1="235" y1="130" x2="438" y2="130" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="444,130 435,126 435,134" fill="#1a202c"/>
+  <line x1="255" y1="192" x2="255" y2="34" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="255,28 251,37 259,37" fill="#1a202c"/>
+  <path d="M 270 40 Q 340 220 410 40" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="340" cy="130" r="5" fill="#dc2626"/>
+  <text x="340" y="150" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">chạm đáy</text>
+  <text x="340" y="185" font-size="11.5" fill="#475569" text-anchor="middle">đỉnh CHẠM Ox · y_đỉnh = 0</text>
+  <text x="560" y="22" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Δ &lt; 0 — vô nghiệm thực</text>
+  <line x1="455" y1="130" x2="648" y2="130" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="654,130 645,126 645,134" fill="#1a202c"/>
+  <line x1="475" y1="192" x2="475" y2="34" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="475,28 471,37 479,37" fill="#1a202c"/>
+  <path d="M 490 38 Q 560 152 630 38" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="560" cy="95" r="4" fill="#15803d"/>
+  <text x="560" y="112" font-size="11" fill="#15803d" font-weight="700" text-anchor="middle">lơ lửng TRÊN Ox</text>
+  <text x="560" y="185" font-size="11.5" fill="#475569" text-anchor="middle">đỉnh TRÊN Ox · y_đỉnh &gt; 0</text>
+</svg>
 
 Mấu chốt: tung độ đỉnh là $y_v = -\\dfrac{\\Delta}{4a}$. Với $a > 0$: $\\Delta > 0 \\Rightarrow y_v < 0$ (đỉnh dưới Ox, parabol đi lên hai bên buộc phải cắt Ox 2 chỗ); $\\Delta = 0 \\Rightarrow y_v = 0$ (đỉnh nằm trên Ox → chạm 1 điểm); $\\Delta < 0 \\Rightarrow y_v > 0$ (đỉnh trên Ox, cả parabol lơ lửng → không chạm). Khi $a < 0$ parabol mở xuống, logic lật ngược nhưng **kết luận về số giao điểm giống hệt** — chỉ dấu của $\\Delta$ quyết định.
 
@@ -333,15 +350,28 @@ Không bước nào "dễ thấy" — mọi phép biến đổi đều hiện r�
 - $a > 0$: parabol **mở lên** (hình chữ U, "thung lũng") → có điểm **thấp nhất** (min) tại đỉnh.
 - $a < 0$: parabol **mở xuống** (chữ U lộn ngược, "ngọn đồi") → có điểm **cao nhất** (max) tại đỉnh.
 
-\`\`\`
-   a > 0 (mở lên)              a < 0 (mở xuống)
-   y                           y      đỉnh = MAX
-   |   \\         /             |        _•_
-   |    \\       /              |       /   \\
-   |     \\_   _/               |      /     \\
-   +-------•-------→ x          +-----/-------\\----→ x
-        đỉnh = MIN
-\`\`\`
+<svg viewBox="0 0 500 190" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Parabol a dương mở lên có đỉnh là điểm thấp nhất, a âm mở xuống có đỉnh là điểm cao nhất">
+  <text x="120" y="24" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">a &gt; 0 (mở lên)</text>
+  <line x1="20" y1="130" x2="230" y2="130" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="236,130 227,126 227,134" fill="#1a202c"/>
+  <line x1="45" y1="175" x2="45" y2="38" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="45,32 41,41 49,41" fill="#1a202c"/>
+  <text x="228" y="146" font-size="11" fill="#64748b">x</text>
+  <text x="52" y="44" font-size="11" fill="#64748b">y</text>
+  <path d="M 60 48 Q 125 250 190 48" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="125" cy="149" r="5" fill="#dc2626"/>
+  <text x="125" y="170" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">đỉnh = MIN</text>
+  <text x="375" y="24" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">a &lt; 0 (mở xuống)</text>
+  <line x1="270" y1="130" x2="480" y2="130" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="486,130 477,126 477,134" fill="#1a202c"/>
+  <line x1="295" y1="175" x2="295" y2="38" stroke="#1a202c" stroke-width="1.4"/>
+  <polygon points="295,32 291,41 299,41" fill="#1a202c"/>
+  <text x="478" y="146" font-size="11" fill="#64748b">x</text>
+  <text x="302" y="44" font-size="11" fill="#64748b">y</text>
+  <path d="M 310 158 Q 375 -40 440 158" fill="none" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="375" cy="59" r="5" fill="#dc2626"/>
+  <text x="375" y="48" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">đỉnh = MAX</text>
+</svg>
 
 **Công thức đỉnh** $(x_v, y_v)$:
 

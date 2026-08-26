@@ -26,68 +26,129 @@
 
 #### Hình dung 3 yếu tố trên một hình hộp chữ nhật (rectangular box)
 
-Vẽ hộp chữ nhật bằng "phối cảnh nghiêng" — nét đứt (`╌`, `┊`) là cạnh **khuất** phía sau:
+Vẽ hộp chữ nhật bằng "phối cảnh nghiêng" — nét đứt xám là cạnh **khuất** phía sau:
 
-```
-            H┌───────────────┐G
-           ╱┊               ╱│
-          ╱ ┊              ╱ │
-        E┌───────────────┐F │
-         │  ┊            │   │
-         │ D└╌╌╌╌╌╌╌╌╌╌╌╌│╌╌┘C
-         │ ╱             │  ╱
-         │╱              │ ╱
-        A└───────────────┘B
+<svg viewBox="0 0 500 330" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình hộp chữ nhật ABCD-EFGH vẽ phối cảnh nghiêng: đáy dưới ABCD, đáy trên EFGH, mặt trước ABFE tô nhạt; đỉnh D ở góc sau bị che nên 3 cạnh DA DC DH vẽ nét đứt; đếm được 8 đỉnh, 12 cạnh, 6 mặt">
+  <polygon points="80,280 320,280 320,140 80,140" fill="#dbeafe" fill-opacity="0.5"/>
+  <polygon points="80,140 320,140 405,85 165,85" fill="#dcfce7" fill-opacity="0.35"/>
+  <line x1="165" y1="225" x2="80" y2="280" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="165" y1="225" x2="405" y2="225" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="165" y1="225" x2="165" y2="85" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="80" y1="280" x2="320" y2="280" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="80" y1="280" x2="80" y2="140" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="320" y1="280" x2="320" y2="140" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="80" y1="140" x2="320" y2="140" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="320" y1="140" x2="405" y2="85" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="80" y1="140" x2="165" y2="85" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="165" y1="85" x2="405" y2="85" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="320" y1="280" x2="405" y2="225" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="405" y1="225" x2="405" y2="85" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="80" cy="280" r="3.5" fill="#1d4ed8"/>
+  <circle cx="320" cy="280" r="3.5" fill="#1d4ed8"/>
+  <circle cx="405" cy="225" r="3.5" fill="#1d4ed8"/>
+  <circle cx="165" cy="225" r="3.5" fill="#94a3b8"/>
+  <circle cx="80" cy="140" r="3.5" fill="#1d4ed8"/>
+  <circle cx="320" cy="140" r="3.5" fill="#1d4ed8"/>
+  <circle cx="405" cy="85" r="3.5" fill="#1d4ed8"/>
+  <circle cx="165" cy="85" r="3.5" fill="#1d4ed8"/>
+  <text x="66" y="295" font-size="13" font-weight="700" fill="#1a202c">A</text>
+  <text x="332" y="295" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="417" y="232" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="153" y="220" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">D</text>
+  <text x="66" y="135" font-size="13" font-weight="700" fill="#1a202c">E</text>
+  <text x="330" y="135" font-size="13" font-weight="700" fill="#1a202c">F</text>
+  <text x="417" y="80" font-size="13" font-weight="700" fill="#1a202c">G</text>
+  <text x="153" y="80" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">H</text>
+  <text x="250" y="318" font-size="11.5" fill="#475569" text-anchor="middle">nét đứt = 3 cạnh khuất tại đỉnh D phía sau: DA, DC, DH</text>
+</svg>
 
-  Đỉnh (V): A B C D E F G H  → 8 đỉnh
-  Cạnh (E): AB BC CD DA (đáy dưới) · EF FG GH HE (đáy trên)
-            · AE BF CG DH (4 cạnh đứng)            → 12 cạnh
-  Mặt  (F): đáy dưới ABCD · đáy trên EFGH
-            · 4 mặt bên (ABFE, BCGF, CDHG, DAEH)   → 6 mặt
-```
+- **Đỉnh (V)**: A, B, C, D, E, F, G, H → **8 đỉnh**.
+- **Cạnh (E)**: AB, BC, CD, DA (đáy dưới) · EF, FG, GH, HE (đáy trên) · AE, BF, CG, DH (4 cạnh đứng) → **12 cạnh**.
+- **Mặt (F)**: đáy dưới ABCD · đáy trên EFGH · 4 mặt bên (ABFE, BCGF, CDHG, DAEH) → **6 mặt**.
 
 Đếm tay: $V=8,\ E=12,\ F=6$ — giống hệt lập phương (lập phương chỉ là hộp với $a=b=c$). Cùng dạng "topology hộp" nên cùng bộ số. Kiểm Euler: $8-12+6=2$ ✓.
 
 #### Hình dung chóp tứ giác (square pyramid) và tứ diện (tetrahedron)
 
-```
-   Chóp đáy vuông (square pyramid)          Tứ diện đều (tetrahedron)
-              S                                       D
-             ╱│╲                                     ╱│╲
-            ╱ │ ╲                                   ╱ │ ╲
-           ╱  │  ╲                                 ╱  │  ╲
-        D ╱╌╌╌┼╌╌╌╲ C                           A ╱╌╌╌┼╌╌╌╲ C
-         ╱  ╌╌┼╌╌  ╲                              ╲  ╌┼╌  ╱
-        ╱╌╌   │   ╌╌╲                              ╲  │  ╱
-      A └─────┴─────┘ B                             ╲ │ ╱
-                                                     ╲│╱
-   V=5 (4 đáy + 1 đỉnh S)                              B
-   E=8 (4 cạnh đáy + 4 cạnh bên)              V=4  E=6  F=4
-   F=5 (1 đáy vuông + 4 mặt tam giác)         (mọi mặt là tam giác đều)
-```
+<svg viewBox="0 0 700 330" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai khối cạnh nhau: chóp đáy vuông S.ABCD có đỉnh S phía trên đáy vuông ABCD, các cạnh khuất DA DC SD vẽ nét đứt, đếm được 5 đỉnh 8 cạnh 5 mặt; tứ diện đều ABCD có đỉnh D trên đáy tam giác ABC, cạnh khuất AC BC vẽ nét đứt, đếm được 4 đỉnh 6 cạnh 4 mặt đều là tam giác đều">
+  <text x="180" y="30" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CHÓP ĐÁY VUÔNG (square pyramid)</text>
+  <polygon points="180,65 75,270 275,270" fill="#dbeafe" fill-opacity="0.5"/>
+  <line x1="122" y1="215" x2="322" y2="215" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="122" y1="215" x2="75" y2="270" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="180" y1="65" x2="122" y2="215" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="75" y1="270" x2="275" y2="270" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="275" y1="270" x2="322" y2="215" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="180" y1="65" x2="75" y2="270" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="180" y1="65" x2="275" y2="270" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="180" y1="65" x2="322" y2="215" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="180" cy="65" r="3.5" fill="#1d4ed8"/>
+  <circle cx="75" cy="270" r="3.5" fill="#1d4ed8"/>
+  <circle cx="275" cy="270" r="3.5" fill="#1d4ed8"/>
+  <circle cx="322" cy="215" r="3.5" fill="#1d4ed8"/>
+  <circle cx="122" cy="215" r="3.5" fill="#94a3b8"/>
+  <text x="180" y="52" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">S</text>
+  <text x="61" y="285" font-size="13" font-weight="700" fill="#1a202c">A</text>
+  <text x="287" y="285" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="334" y="212" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="110" y="208" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">D</text>
+  <text x="520" y="30" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">TỨ DIỆN ĐỀU (tetrahedron)</text>
+  <polygon points="520,75 430,270 615,270" fill="#dcfce7" fill-opacity="0.5"/>
+  <line x1="430" y1="270" x2="560" y2="200" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="615" y1="270" x2="560" y2="200" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="430" y1="270" x2="615" y2="270" stroke="#15803d" stroke-width="2"/>
+  <line x1="520" y1="75" x2="430" y2="270" stroke="#15803d" stroke-width="2"/>
+  <line x1="520" y1="75" x2="615" y2="270" stroke="#15803d" stroke-width="2"/>
+  <line x1="520" y1="75" x2="560" y2="200" stroke="#15803d" stroke-width="2"/>
+  <circle cx="520" cy="75" r="3.5" fill="#15803d"/>
+  <circle cx="430" cy="270" r="3.5" fill="#15803d"/>
+  <circle cx="615" cy="270" r="3.5" fill="#15803d"/>
+  <circle cx="560" cy="200" r="3.5" fill="#94a3b8"/>
+  <text x="520" y="62" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">D</text>
+  <text x="416" y="285" font-size="13" font-weight="700" fill="#1a202c">A</text>
+  <text x="627" y="285" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="574" y="198" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="350" y="315" font-size="11.5" fill="#475569" text-anchor="middle">nét đứt = cạnh khuất phía sau</text>
+</svg>
+
+- **Chóp đáy vuông S.ABCD**: V = 5 (4 đỉnh đáy + 1 đỉnh S) · E = 8 (4 cạnh đáy + 4 cạnh bên) · F = 5 (1 đáy vuông + 4 mặt tam giác).
+- **Tứ diện đều ABCD**: V = 4 · E = 6 · F = 4 (mọi mặt là tam giác đều).
 
 Chóp tứ giác: $V-E+F = 5-8+5 = 2$ ✓. Tứ diện: $4-6+4 = 2$ ✓. Lưu ý chóp **không** phải khối đều (đáy vuông, mặt bên tam giác — khác loại), nhưng Euler vẫn đúng vì nó vẫn là đa diện lồi.
 
 #### Hình dung lăng trụ tam giác (triangular prism)
 
-```
-          D┌───────────┐E
-          ╱ ╲         ╱ ╲
-         ╱   ╲       ╱   ╲
-        ╱     ╲     ╱     ╲
-       └───────╲───┘       ╲ F
-       A╌╌╌╌╌╌╌╌╲╌╌╌╌╌╌╌╌╌╌╱
-        ╲        ╲        ╱
-         ╲        ╲      ╱
-          ╲        ╲    ╱
-        B  └────────╲──┘ C
+<svg viewBox="0 0 420 320" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lăng trụ tam giác đứng: đáy dưới là tam giác ABC với C ở phía sau, đáy trên là tam giác DEF, ba cạnh đứng AD BE CF; ba cạnh khuất AC BC CF vẽ nét đứt; đếm được 6 đỉnh, 9 cạnh, 5 mặt">
+  <text x="210" y="28" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">LĂNG TRỤ TAM GIÁC</text>
+  <polygon points="110,265 280,265 280,120 110,120" fill="#dbeafe" fill-opacity="0.5"/>
+  <line x1="110" y1="265" x2="232" y2="205" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="280" y1="265" x2="232" y2="205" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="232" y1="205" x2="232" y2="60" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="110" y1="265" x2="280" y2="265" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="110" y1="265" x2="110" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="280" y1="265" x2="280" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="110" y1="120" x2="280" y2="120" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="110" y1="120" x2="232" y2="60" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="280" y1="120" x2="232" y2="60" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="110" cy="265" r="3.5" fill="#1d4ed8"/>
+  <circle cx="280" cy="265" r="3.5" fill="#1d4ed8"/>
+  <circle cx="232" cy="205" r="3.5" fill="#94a3b8"/>
+  <circle cx="110" cy="120" r="3.5" fill="#1d4ed8"/>
+  <circle cx="280" cy="120" r="3.5" fill="#1d4ed8"/>
+  <circle cx="232" cy="60" r="3.5" fill="#1d4ed8"/>
+  <text x="96" y="280" font-size="13" font-weight="700" fill="#1a202c">A</text>
+  <text x="290" y="280" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="244" y="212" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="96" y="115" font-size="13" font-weight="700" fill="#1a202c">D</text>
+  <text x="290" y="115" font-size="13" font-weight="700" fill="#1a202c">E</text>
+  <text x="232" y="50" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">F</text>
+  <text x="210" y="305" font-size="11.5" fill="#475569" text-anchor="middle">nét đứt = 3 cạnh khuất phía sau: AC, BC, CF</text>
+</svg>
 
-  V=6 (2 tam giác đáy × 3 đỉnh)
-  E=9 (3 cạnh đáy dưới + 3 cạnh đáy trên + 3 cạnh đứng)
-  F=5 (2 mặt tam giác đáy + 3 mặt chữ nhật bên)
-```
+- **V = 6**: 2 tam giác đáy (ABC dưới, DEF trên) × 3 đỉnh.
+- **E = 9**: 3 cạnh đáy dưới (AB, BC, CA) + 3 cạnh đáy trên (DE, EF, FD) + 3 cạnh đứng (AD, BE, CF).
+- **F = 5**: 2 mặt tam giác đáy + 3 mặt chữ nhật bên.
 
-Lăng trụ tam giác: $V-E+F = 6-9+5 = 2$ ✓. (Hình ASCII là minh họa thô — quan trọng là **đếm đúng** 6/9/5.)
+Lăng trụ tam giác: $V-E+F = 6-9+5 = 2$ ✓. (Hình vẽ chỉ là phối cảnh minh họa — quan trọng là **đếm đúng** 6/9/5.)
 
 ### 1.1. Công thức Euler
 
@@ -184,21 +245,51 @@ $$\begin{aligned}
 
 Khối tròn xoay = quay 1 hình phẳng quanh 1 trục. Trụ = quay hình chữ nhật; nón = quay tam giác vuông; cầu = quay nửa hình tròn.
 
-```
-   Hình trụ (cylinder)       Hình nón (cone)          Hình cầu (sphere)
-      ╭─────────╮               ╱╲                       ╭───────╮
-     (    R    )               ╱  ╲  ← l (đường sinh)    ╱    R    ╲
-      │╌╌╌╌╌╌╌╌╌│             ╱    ╲  h                 │    •────→│
-      │         │ h          ╱  h   ╲                    │   tâm    │
-      │         │           ╱   │    ╲                   ╲         ╱
-     (    R    )          ╱─────┼─────╲                   ╰───────╯
-      ╰─────────╯              R│ R
-                          (đáy bán kính R)
-  V = πR²·h               V = ⅓πR²·h               V = 4⁄3·πR³
-  (đáy tròn πR² × cao)    (⅓ của trụ cùng đáy/cao)  (R đo từ tâm ra vỏ)
-```
+<svg viewBox="0 0 720 350" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba khối tròn xoay: hình trụ bán kính đáy R cao h thể tích πR²h; hình nón bán kính đáy R cao h đường sinh l là cạnh xiên, thể tích một phần ba πR²h; hình cầu bán kính R đo từ tâm ra vỏ, thể tích bốn phần ba πR³; phần đáy khuất phía sau vẽ nét đứt">
+  <text x="130" y="34" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">HÌNH TRỤ (cylinder)</text>
+  <path d="M 58,250 A 62 16 0 0 1 182,250" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="58" y1="95" x2="58" y2="250" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="182" y1="95" x2="182" y2="250" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 58,250 A 62 16 0 0 0 182,250" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="120" cy="95" rx="62" ry="16" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="120" y1="95" x2="182" y2="95" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="120" cy="95" r="2.5" fill="#1a202c"/>
+  <text x="151" y="88" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">R</text>
+  <line x1="202" y1="95" x2="202" y2="250" stroke="#475569" stroke-width="1.5"/>
+  <line x1="196" y1="95" x2="208" y2="95" stroke="#475569" stroke-width="1.5"/>
+  <line x1="196" y1="250" x2="208" y2="250" stroke="#475569" stroke-width="1.5"/>
+  <text x="214" y="178" font-size="12" font-weight="700" fill="#475569">h</text>
+  <text x="130" y="312" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">V = πR²·h</text>
+  <text x="130" y="333" font-size="11" fill="#475569" text-anchor="middle">(đáy tròn πR² × cao h)</text>
+  <text x="360" y="34" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">HÌNH NÓN (cone)</text>
+  <path d="M 290,250 A 70 17 0 0 1 430,250" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <path d="M 290,250 A 70 17 0 0 0 430,250" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="360" y1="70" x2="290" y2="250" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="360" y1="70" x2="430" y2="250" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="360" y1="70" x2="360" y2="250" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <path d="M 360,238 L 371,238 L 371,250" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <line x1="360" y1="250" x2="430" y2="250" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="360" cy="250" r="2.5" fill="#1a202c"/>
+  <circle cx="360" cy="70" r="3" fill="#1a202c"/>
+  <text x="405" y="150" font-size="11.5" font-weight="700" fill="#1d4ed8">l (đường sinh)</text>
+  <text x="352" y="170" font-size="12" font-weight="700" fill="#475569" text-anchor="end">h</text>
+  <text x="397" y="242" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">R</text>
+  <text x="360" y="312" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">V = ⅓·πR²·h</text>
+  <text x="360" y="333" font-size="11" fill="#475569" text-anchor="middle">(= ⅓ trụ cùng đáy, cùng cao)</text>
+  <text x="600" y="34" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">HÌNH CẦU (sphere)</text>
+  <circle cx="600" cy="172" r="80" fill="#dbeafe" fill-opacity="0.3" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 520,172 A 80 20 0 0 1 680,172" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <path d="M 520,172 A 80 20 0 0 0 680,172" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="600" y1="172" x2="668" y2="151" stroke="#15803d" stroke-width="2.5"/>
+  <polygon points="676.5,148.6 668.1,155.3 665.7,147.7" fill="#15803d"/>
+  <circle cx="600" cy="172" r="3" fill="#1a202c"/>
+  <text x="594" y="192" font-size="11" fill="#475569" text-anchor="end">tâm</text>
+  <text x="636" y="150" font-size="12" font-weight="700" fill="#15803d">R</text>
+  <text x="600" y="312" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">V = 4⁄3·πR³</text>
+  <text x="600" y="333" font-size="11" fill="#475569" text-anchor="middle">(R đo từ tâm ra vỏ)</text>
+</svg>
 
-⚠ Lưu ý ASCII chỉ là phác hoạ — **bán kính R đo từ tâm/trục ra mép**, không phải đường kính. Đường sinh $l$ của nón là cạnh **xiên** (khác chiều cao $h$ là cạnh đứng).
+⚠ Lưu ý — **bán kính R đo từ tâm/trục ra mép**, không phải đường kính. Đường sinh $l$ của nón là cạnh **xiên** (khác chiều cao $h$ là cạnh đứng).
 
 #### Bảng tổng hợp — thể tích & diện tích mọi khối
 
@@ -319,19 +410,37 @@ $$\begin{aligned}
 
 Diện tích toàn phần = diện tích tấm giấy phẳng cắt ra rồi gấp lại thành khối. Lưới của lập phương và của trụ:
 
-```
-   Lưới lập phương (6 mặt vuông a×a)        Lưới hình trụ
-        ┌───┐                               ╭─────╮  ← nắp trên (πR²)
-        │top│                               ╰─────╯
-    ┌───┼───┼───┬───┐                    ┌───────────────┐
-    │ L │fr.│ R │bk.│                    │               │  thân = chữ nhật
-    └───┼───┼───┴───┘                    │  2πR  ×  h    │  rộng = chu vi 2πR
-        │bot│                            │               │  cao  = h
-        └───┘                            └───────────────┘
-                                            ╭─────╮  ← nắp dưới (πR²)
-    S = 6 × (a×a) = 6a²                     ╰─────╯
-                                       S = 2·(πR²) + (2πR)·h
-```
+<svg viewBox="0 0 700 350" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lưới khai triển hai khối: lập phương mở thành 6 hình vuông cạnh a xếp hình chữ thập gồm trên, trái, trước, phải, sau, dưới nên diện tích 6a²; hình trụ mở thành 2 nắp tròn πR² và thân là hình chữ nhật rộng bằng chu vi đáy 2πR cao h, tổng diện tích 2πR² cộng 2πRh">
+  <text x="140" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">LƯỚI LẬP PHƯƠNG (6 mặt a×a)</text>
+  <rect x="86" y="70" width="54" height="54" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="32" y="124" width="54" height="54" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="86" y="124" width="54" height="54" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="140" y="124" width="54" height="54" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="194" y="124" width="54" height="54" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="86" y="178" width="54" height="54" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="113" y="101" font-size="10.5" fill="#475569" text-anchor="middle">trên</text>
+  <text x="59" y="155" font-size="10.5" fill="#475569" text-anchor="middle">trái</text>
+  <text x="113" y="155" font-size="10.5" fill="#475569" text-anchor="middle">trước</text>
+  <text x="167" y="155" font-size="10.5" fill="#475569" text-anchor="middle">phải</text>
+  <text x="221" y="155" font-size="10.5" fill="#475569" text-anchor="middle">sau</text>
+  <text x="113" y="209" font-size="10.5" fill="#475569" text-anchor="middle">dưới</text>
+  <line x1="86" y1="63" x2="140" y2="63" stroke="#15803d" stroke-width="1.5"/>
+  <text x="113" y="56" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">a</text>
+  <line x1="79" y1="70" x2="79" y2="124" stroke="#15803d" stroke-width="1.5"/>
+  <text x="70" y="101" font-size="11" font-weight="700" fill="#15803d" text-anchor="end">a</text>
+  <text x="140" y="338" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">S = 6 × (a×a) = 6a²</text>
+  <text x="490" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">LƯỚI HÌNH TRỤ</text>
+  <circle cx="470" cy="85" r="28" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="2"/>
+  <text x="506" y="89" font-size="11" fill="#475569">nắp trên = πR²</text>
+  <rect x="370" y="130" width="210" height="112" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="475" y="162" font-size="11.5" fill="#475569" text-anchor="middle">thân mở cuộn ra = chữ nhật</text>
+  <text x="475" y="182" font-size="11.5" fill="#475569" text-anchor="middle">rộng = chu vi đáy 2πR</text>
+  <text x="475" y="202" font-size="11.5" fill="#475569" text-anchor="middle">cao = h</text>
+  <text x="475" y="226" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">2πR × h</text>
+  <circle cx="470" cy="285" r="28" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="2"/>
+  <text x="506" y="289" font-size="11" fill="#475569">nắp dưới = πR²</text>
+  <text x="490" y="338" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">S = 2·(πR²) + (2πR)·h</text>
+</svg>
 
 Trụ "mở thân ra" thành 1 hình chữ nhật: chiều rộng = chu vi đáy $2\pi R$, chiều cao = $h$ → diện tích thân $= 2\pi R\cdot h$. Cộng 2 nắp tròn $2\cdot\pi R^2$.
 
@@ -386,15 +495,24 @@ Cầu không có "xung quanh/toàn phần" riêng — chỉ 1 mặt cong duy nh�
 
 **Lỗi 1 — dùng chiều cao $h$ thay đường sinh $l$ cho nón.** Công thức $S_{xq} = \pi R l$ dùng **đường sinh** (cạnh xiên), KHÔNG dùng $h$ (cạnh đứng). Vì $l = \sqrt{R^2+h^2} > h$ luôn, dùng $h$ cho kết quả **thiếu**. Phản ví dụ $R=3,h=4$: $l=5$, đúng $S_{xq}=\pi\cdot 3\cdot 5=15\pi$; lấy $\pi R h = 12\pi$ là sai.
 
-```
-        đỉnh
-         ╱│╲
-   l →  ╱ │ ╲ ← l (đường sinh = cạnh XIÊN, dùng cái này)
-       ╱  │h ╲     h = chiều cao (cạnh ĐỨNG, KHÔNG dùng cho S)
-      ╱   │   ╲    l = √(R² + h²)  > h
-     ╱────┼────╲
-          R
-```
+<svg viewBox="0 0 480 310" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình nón phân biệt đường sinh l và chiều cao h: l là cạnh xiên màu xanh từ đỉnh tới mép đáy, dùng trong công thức diện tích xung quanh πRl; h là cạnh đứng màu đỏ từ đỉnh xuống tâm đáy, không dùng cho diện tích xung quanh; l bằng căn của R bình cộng h bình nên luôn lớn hơn h">
+  <path d="M 95,245 A 115 24 0 0 1 325,245" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <path d="M 95,245 A 115 24 0 0 0 325,245" fill="none" stroke="#1a202c" stroke-width="2"/>
+  <line x1="210" y1="45" x2="95" y2="245" stroke="#1a202c" stroke-width="2"/>
+  <line x1="210" y1="45" x2="325" y2="245" stroke="#1d4ed8" stroke-width="3.5"/>
+  <line x1="210" y1="45" x2="210" y2="245" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 5"/>
+  <path d="M 210,233 L 222,233 L 222,245" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <line x1="210" y1="245" x2="325" y2="245" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="210" cy="245" r="3" fill="#1a202c"/>
+  <circle cx="210" cy="45" r="3.5" fill="#1a202c"/>
+  <text x="210" y="32" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">đỉnh</text>
+  <text x="292" y="128" font-size="12" font-weight="700" fill="#1d4ed8">l (đường sinh — cạnh XIÊN)</text>
+  <text x="292" y="146" font-size="11.5" font-weight="700" fill="#1d4ed8">→ DÙNG cho Sxq = πRl</text>
+  <text x="200" y="140" font-size="12" font-weight="700" fill="#dc2626" text-anchor="end">h (chiều cao — cạnh ĐỨNG)</text>
+  <text x="200" y="158" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="end">KHÔNG dùng cho Sxq</text>
+  <text x="268" y="238" font-size="12" font-weight="700" fill="#15803d">R</text>
+  <text x="240" y="295" font-size="11.5" fill="#475569" text-anchor="middle">l = √(R² + h²) > h (Pythagoras với 2 cạnh góc vuông R và h)</text>
+</svg>
 
 **Lỗi 2 — quên nắp/đáy của trụ.** "Toàn phần" gồm 2 nắp tròn; "xung quanh" chỉ phần thân. Đọc kỹ đề. Trụ $R=3,h=10$: $S_{xq}=2\pi R h=60\pi$ (chỉ thân); $S_{tp}=60\pi+18\pi=78\pi$ (thêm 2 nắp).
 
@@ -429,13 +547,37 @@ Cầu không có "xung quanh/toàn phần" riêng — chỉ 1 mặt cong duy nh�
 
 #### Mặt cắt của hình trụ — tùy hướng dao
 
-```
-   Cắt NGANG (⊥ trục)        Cắt DỌC (chứa trục)
-        ╭─────╮                  ┌─────────┐
-       (   •   )  → HÌNH TRÒN    │         │  → HÌNH CHỮ NHẬT
-        ╰─────╯     bán kính R   │  2R × h │     rộng 2R, cao h
-                                 └─────────┘
-```
+<svg viewBox="0 0 700 320" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mặt cắt hình trụ theo hai hướng: mặt phẳng cắt ngang vuông góc trục cho lát cắt hình tròn bán kính R diện tích πR²; mặt phẳng cắt dọc chứa trục cho lát cắt hình chữ nhật rộng 2R cao h">
+  <text x="185" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CẮT NGANG (⊥ trục)</text>
+  <path d="M 60,245 A 65 16 0 0 1 190,245" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="60" y1="75" x2="60" y2="245" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="190" y1="75" x2="190" y2="245" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 60,245 A 65 16 0 0 0 190,245" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="125" cy="75" rx="65" ry="16" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="125" cy="160" rx="65" ry="16" fill="#dc2626" fill-opacity="0.12" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="200" y1="160" x2="238" y2="160" stroke="#475569" stroke-width="1.8"/>
+  <polygon points="246,160 236,155 236,165" fill="#475569"/>
+  <circle cx="296" cy="160" r="42" fill="#dc2626" fill-opacity="0.08" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="296" cy="160" r="2.5" fill="#dc2626"/>
+  <line x1="296" y1="160" x2="338" y2="160" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="315" y="152" font-size="12" font-weight="700" fill="#dc2626">R</text>
+  <text x="185" y="282" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">→ HÌNH TRÒN bán kính R</text>
+  <text x="185" y="302" font-size="11.5" fill="#475569" text-anchor="middle">diện tích lát = πR²</text>
+  <text x="520" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CẮT DỌC (chứa trục)</text>
+  <path d="M 390,245 A 65 16 0 0 1 520,245" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <line x1="390" y1="75" x2="390" y2="245" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="520" y1="75" x2="520" y2="245" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 390,245 A 65 16 0 0 0 520,245" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="455" cy="75" rx="65" ry="16" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <polygon points="390,75 520,75 520,245 390,245" fill="#dc2626" fill-opacity="0.12" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="528" y1="160" x2="548" y2="160" stroke="#475569" stroke-width="1.8"/>
+  <polygon points="556,160 546,155 546,165" fill="#475569"/>
+  <rect x="565" y="90" width="110" height="145" fill="#dc2626" fill-opacity="0.08" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="620" y="82" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">2R</text>
+  <text x="655" y="167" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">h</text>
+  <text x="545" y="282" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">→ HÌNH CHỮ NHẬT</text>
+  <text x="545" y="302" font-size="11.5" fill="#475569" text-anchor="middle">rộng 2R, cao h</text>
+</svg>
 
 - Cắt **ngang** (vuông góc trục) hình trụ $R$: được **hình tròn** bán kính $R$, diện tích $\pi R^2$ — giống nhau ở mọi độ cao (vì thân trụ đều). Đây là lý do $V_{\text{trụ}} = \pi R^2\cdot h$ = (diện tích lát) × cao.
 - Cắt **dọc** (chứa trục): được **hình chữ nhật** $2R\times h$.

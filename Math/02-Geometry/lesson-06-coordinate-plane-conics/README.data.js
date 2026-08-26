@@ -28,22 +28,47 @@ Mỗi điểm M trên mặt phẳng có **tọa độ (x, y)** = hoành độ (a
 
 Hai trục chia mặt phẳng thành **4 góc phần tư** đánh số ngược chiều kim đồng hồ. Dấu của $(x, y)$ trong từng góc:
 
-\`\`\`
-                 y  (trục tung, Oy)
-                 ^
-        QII      |      QI
-     (-x, +y)    |   (+x, +y)
-                 |
-                 |  • M(3, 2)
-        ---------O---------------> x  (trục hoành, Ox)
-                 |
-     (-x, -y)    |   (+x, -y)
-        QIII     |      QIV
-
-   QI:  x>0, y>0   |  QII:  x<0, y>0
-   QIII: x<0, y<0  |  QIV:  x>0, y<0
-   Trên Ox: y=0     |  Trên Oy: x=0
-\`\`\`
+<svg viewBox="0 0 360 308" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hệ trục tọa độ Oxy chia mặt phẳng thành 4 góc phần tư QI, QII, QIII, QIV đánh số ngược chiều kim đồng hồ, kèm dấu của x và y trong từng góc; điểm M(3, 2) nằm trong QI: từ gốc O đi sang phải 3 rồi lên 2; trên trục hoành thì y bằng 0, trên trục tung thì x bằng 0">
+  <defs>
+    <marker id="k1-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="52" y1="22" x2="52" y2="278"/><line x1="84" y1="22" x2="84" y2="278"/><line x1="116" y1="22" x2="116" y2="278"/><line x1="148" y1="22" x2="148" y2="278"/>
+    <line x1="212" y1="22" x2="212" y2="278"/><line x1="244" y1="22" x2="244" y2="278"/><line x1="276" y1="22" x2="276" y2="278"/><line x1="308" y1="22" x2="308" y2="278"/>
+    <line x1="20" y1="54" x2="340" y2="54"/><line x1="20" y1="86" x2="340" y2="86"/><line x1="20" y1="118" x2="340" y2="118"/>
+    <line x1="20" y1="182" x2="340" y2="182"/><line x1="20" y1="214" x2="340" y2="214"/><line x1="20" y1="246" x2="340" y2="246"/>
+  </g>
+  <!-- trục -->
+  <line x1="14" y1="150" x2="346" y2="150" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k1-ax)"/>
+  <line x1="180" y1="286" x2="180" y2="14" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k1-ax)"/>
+  <text x="346" y="140" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">x (Ox)</text>
+  <text x="187" y="22" font-size="11" font-weight="700" fill="#1a202c">y (Oy)</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="52" y="164">−4</text><text x="84" y="164">−3</text><text x="116" y="164">−2</text><text x="148" y="164">−1</text>
+    <text x="212" y="164">1</text><text x="244" y="164">2</text><text x="276" y="164">3</text><text x="308" y="164">4</text>
+    <text x="172" y="62" text-anchor="end">3</text><text x="172" y="94" text-anchor="end">2</text><text x="172" y="126" text-anchor="end">1</text>
+    <text x="172" y="190" text-anchor="end">−1</text><text x="172" y="222" text-anchor="end">−2</text><text x="172" y="254" text-anchor="end">−3</text>
+  </g>
+  <text x="170" y="166" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- 4 góc phần tư + dấu (x, y) -->
+  <text x="270" y="46" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">QI</text>
+  <text x="270" y="62" font-size="11" fill="#475569" text-anchor="middle">x &gt; 0, y &gt; 0</text>
+  <text x="90" y="46" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">QII</text>
+  <text x="90" y="62" font-size="11" fill="#475569" text-anchor="middle">x &lt; 0, y &gt; 0</text>
+  <text x="90" y="240" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">QIII</text>
+  <text x="90" y="256" font-size="11" fill="#475569" text-anchor="middle">x &lt; 0, y &lt; 0</text>
+  <text x="270" y="240" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">QIV</text>
+  <text x="270" y="256" font-size="11" fill="#475569" text-anchor="middle">x &gt; 0, y &lt; 0</text>
+  <!-- điểm M(3, 2) trong QI, gióng nét đứt về 2 trục -->
+  <line x1="276" y1="150" x2="276" y2="86" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="180" y1="86" x2="276" y2="86" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <circle cx="276" cy="86" r="5" fill="#1d4ed8"/>
+  <text x="284" y="80" font-size="12" font-weight="700" fill="#1d4ed8">M(3, 2)</text>
+  <!-- chú thích -->
+  <text x="180" y="298" font-size="11" fill="#475569" text-anchor="middle">trên Ox: y = 0 · trên Oy: x = 0</text>
+</svg>
 
 Đọc điểm $M(3, 2)$: đi từ gốc O **sang phải 3** (theo Ox) rồi **lên 2** (theo Oy). Vài điểm mẫu để định vị góc phần tư:
 
@@ -64,20 +89,47 @@ $$d = \\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
 
 **Vì sao đúng — minh họa Pythagoras**: dựng tam giác vuông có cạnh huyền là AB, hai cạnh góc vuông song song trục:
 
-\`\`\`
-   B(4,5) •
-          |\\
-          | \\  d = AB (cạnh huyền)
-   Δy = 4 |  \\
-          |   \\
-          |____\\
-   A(1,1) •     • C(4,1)
-          Δx = 3
-
-   Δx = x₂−x₁ = 4−1 = 3   (cạnh ngang AC)
-   Δy = y₂−y₁ = 5−1 = 4   (cạnh dọc CB)
-   d² = Δx² + Δy² = 9 + 16 = 25  →  d = 5
-\`\`\`
+<svg viewBox="0 0 320 312" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông minh họa công thức khoảng cách trên hệ trục Oxy: A(1, 1), B(4, 5), C(4, 1); cạnh ngang AC là delta x bằng 3, cạnh dọc CB là delta y bằng 4, cạnh huyền AB là khoảng cách d bằng 5 theo Pythagoras">
+  <defs>
+    <marker id="k2-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="90" y1="26" x2="90" y2="292"/><line x1="130" y1="26" x2="130" y2="292"/><line x1="170" y1="26" x2="170" y2="292"/><line x1="210" y1="26" x2="210" y2="292"/><line x1="250" y1="26" x2="250" y2="292"/>
+    <line x1="26" y1="230" x2="292" y2="230"/><line x1="26" y1="190" x2="292" y2="190"/><line x1="26" y1="150" x2="292" y2="150"/><line x1="26" y1="110" x2="292" y2="110"/><line x1="26" y1="70" x2="292" y2="70"/><line x1="26" y1="30" x2="292" y2="30"/>
+  </g>
+  <!-- trục -->
+  <line x1="22" y1="270" x2="302" y2="270" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k2-ax)"/>
+  <line x1="50" y1="296" x2="50" y2="20" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k2-ax)"/>
+  <text x="306" y="262" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="57" y="26" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="90" y="284">1</text><text x="130" y="284">2</text><text x="170" y="284">3</text><text x="210" y="284">4</text><text x="250" y="284">5</text>
+    <text x="42" y="234" text-anchor="end">1</text><text x="42" y="194" text-anchor="end">2</text><text x="42" y="154" text-anchor="end">3</text><text x="42" y="114" text-anchor="end">4</text><text x="42" y="74" text-anchor="end">5</text><text x="42" y="34" text-anchor="end">6</text>
+  </g>
+  <text x="44" y="284" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- ô vuông góc vuông tại C -->
+  <path d="M 198 230 L 198 218 L 210 218" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <!-- 2 cạnh góc vuông song song trục -->
+  <line x1="90" y1="230" x2="210" y2="230" stroke="#1d4ed8" stroke-width="2.2"/>
+  <line x1="210" y1="230" x2="210" y2="70" stroke="#1d4ed8" stroke-width="2.2"/>
+  <text x="150" y="224" font-size="11" font-weight="600" fill="#1d4ed8" text-anchor="middle">Δx = 3</text>
+  <text x="218" y="154" font-size="11" font-weight="600" fill="#1d4ed8">Δy = 4</text>
+  <!-- cạnh huyền AB = d -->
+  <line x1="90" y1="230" x2="210" y2="70" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="141" y="140" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle" transform="rotate(-53 141 140)">d = 5 (cạnh huyền)</text>
+  <!-- 3 đỉnh -->
+  <circle cx="90" cy="230" r="4.5" fill="#1d4ed8"/>
+  <text x="84" y="248" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">A(1, 1)</text>
+  <circle cx="210" cy="70" r="4.5" fill="#1d4ed8"/>
+  <text x="218" y="64" font-size="10.5" font-weight="700" fill="#1d4ed8">B(4, 5)</text>
+  <circle cx="210" cy="230" r="4" fill="#334155"/>
+  <text x="220" y="246" font-size="10.5" font-weight="600" fill="#334155">C(4, 1)</text>
+  <!-- chú thích -->
+  <text x="58" y="44" font-size="11" fill="#475569">Δx = 4 − 1 = 3 ; Δy = 5 − 1 = 4</text>
+  <text x="58" y="62" font-size="11" fill="#475569">d² = 3² + 4² = 25 → d = 5</text>
+</svg>
 
 #### Walk-through khoảng cách — 4 bước trên A(1,1), B(4,5)
 
@@ -173,18 +225,43 @@ ax + by + c &= 0 &&(\\text{dạng tổng quát, general form})
 
 **Minh họa 3 độ dốc** trên cùng 1 hình:
 
-\`\`\`
-   y                  y = 2x  (a=2, dốc lên gắt)
-   ^                 /
-   |                /        y = x  (a=1)
- 4 +              /        /
-   |             /       /
- 2 +           /      /  _____  y = 3  (a=0, ngang)
-   |          /    /  __/
-   +---------/--/---------------> x
-   |       //
-   |     //   y = −x  (a=−1, dốc xuống)
-\`\`\`
+<svg viewBox="0 0 385 316" style="max-width:470px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn đường thẳng minh họa hệ số góc trên cùng hệ trục Oxy: y bằng 2x dốc lên gắt, y bằng x dốc lên vừa, y bằng 3 nằm ngang với hệ số góc 0, y bằng trừ x dốc xuống">
+  <defs>
+    <marker id="k3-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="58" y1="40" x2="58" y2="302"/><line x1="86" y1="40" x2="86" y2="302"/><line x1="114" y1="40" x2="114" y2="302"/><line x1="142" y1="40" x2="142" y2="302"/>
+    <line x1="198" y1="40" x2="198" y2="302"/><line x1="226" y1="40" x2="226" y2="302"/><line x1="254" y1="40" x2="254" y2="302"/><line x1="282" y1="40" x2="282" y2="302"/>
+    <line x1="44" y1="46" x2="296" y2="46"/><line x1="44" y1="74" x2="296" y2="74"/><line x1="44" y1="102" x2="296" y2="102"/><line x1="44" y1="130" x2="296" y2="130"/><line x1="44" y1="158" x2="296" y2="158"/>
+    <line x1="44" y1="214" x2="296" y2="214"/><line x1="44" y1="242" x2="296" y2="242"/><line x1="44" y1="270" x2="296" y2="270"/>
+  </g>
+  <!-- trục -->
+  <line x1="38" y1="186" x2="308" y2="186" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k3-ax)"/>
+  <line x1="170" y1="306" x2="170" y2="32" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k3-ax)"/>
+  <text x="312" y="178" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="177" y="38" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="58" y="199">−4</text><text x="86" y="199">−3</text><text x="114" y="199">−2</text><text x="142" y="199">−1</text>
+    <text x="198" y="199">1</text><text x="226" y="199">2</text><text x="254" y="199">3</text><text x="282" y="199">4</text>
+    <text x="162" y="50" text-anchor="end">5</text><text x="162" y="78" text-anchor="end">4</text><text x="162" y="106" text-anchor="end">3</text><text x="162" y="134" text-anchor="end">2</text><text x="162" y="162" text-anchor="end">1</text>
+    <text x="162" y="218" text-anchor="end">−1</text><text x="162" y="246" text-anchor="end">−2</text><text x="162" y="274" text-anchor="end">−3</text>
+  </g>
+  <text x="162" y="200" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- y = 2x (a = 2) -->
+  <line x1="114" y1="298" x2="240" y2="46" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="240" y="34" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">y = 2x (a = 2, dốc lên)</text>
+  <!-- y = x (a = 1) -->
+  <line x1="58" y1="298" x2="290" y2="66" stroke="#15803d" stroke-width="2.5"/>
+  <text x="296" y="70" font-size="11" font-weight="700" fill="#15803d">y = x (a = 1)</text>
+  <!-- y = 3 (a = 0, nằm ngang) -->
+  <line x1="50" y1="102" x2="290" y2="102" stroke="#475569" stroke-width="2.5"/>
+  <text x="296" y="106" font-size="11" font-weight="700" fill="#475569">y = 3 (a = 0)</text>
+  <!-- y = −x (a = −1) -->
+  <line x1="50" y1="66" x2="282" y2="298" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="272" y="310" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">y = −x (a = −1, dốc xuống)</text>
+</svg>
 
 **2 dạng đặc biệt — không viết được $y = ax+b$**:
 - **Đường ngang (horizontal)**: $y = k$ (hằng), hệ số góc $a = 0$. Vd $y = 3$ đi qua mọi điểm có tung độ 3.
@@ -250,15 +327,44 @@ $$(x - x_0)^2 + (y - y_0)^2 = R^2$$
 
 (Tâm tại gốc O: $x^2 + y^2 = R^2$.)
 
-\`\`\`
-            y
-            ^
-            |    ___
-            |  /     \\
-            | |   •I  | R   • mọi điểm trên vành
-            |  \\_____/      cách I đúng R
-       -----O---------------> x
-\`\`\`
+<svg viewBox="0 0 330 306" style="max-width:410px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn tâm I(2, 1) bán kính R bằng 2 trên hệ trục Oxy: một bán kính R nối tâm I tới điểm trên vành, điểm M(4, 1) trên vành cũng cách I đúng R, minh họa phương trình (x trừ 2) bình phương cộng (y trừ 1) bình phương bằng 4">
+  <defs>
+    <marker id="k4-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="34" y1="44" x2="34" y2="262"/><line x1="106" y1="44" x2="106" y2="262"/><line x1="142" y1="44" x2="142" y2="262"/><line x1="178" y1="44" x2="178" y2="262"/><line x1="214" y1="44" x2="214" y2="262"/><line x1="250" y1="44" x2="250" y2="262"/><line x1="286" y1="44" x2="286" y2="262"/>
+    <line x1="20" y1="82" x2="306" y2="82"/><line x1="20" y1="118" x2="306" y2="118"/><line x1="20" y1="154" x2="306" y2="154"/><line x1="20" y1="226" x2="306" y2="226"/>
+  </g>
+  <!-- trục -->
+  <line x1="14" y1="190" x2="312" y2="190" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k4-ax)"/>
+  <line x1="70" y1="266" x2="70" y2="40" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k4-ax)"/>
+  <text x="316" y="182" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="77" y="46" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="34" y="204">−1</text><text x="106" y="204">1</text><text x="142" y="204">2</text><text x="178" y="204">3</text><text x="214" y="204">4</text><text x="250" y="204">5</text><text x="286" y="204">6</text>
+    <text x="62" y="158" text-anchor="end">1</text><text x="62" y="122" text-anchor="end">2</text><text x="62" y="86" text-anchor="end">3</text><text x="62" y="234" text-anchor="end">−1</text>
+  </g>
+  <text x="64" y="182" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- đường tròn tâm I(2,1), R = 2 -->
+  <circle cx="142" cy="154" r="72" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <!-- bán kính R tới 1 điểm trên vành (hướng 45°) -->
+  <line x1="142" y1="154" x2="192.9" y2="103.1" stroke="#15803d" stroke-width="2.2"/>
+  <circle cx="192.9" cy="103.1" r="3.5" fill="#15803d"/>
+  <text x="159" y="122" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle" transform="rotate(-45 159 122)">R = 2</text>
+  <!-- điểm M(4,1) trên vành — cũng cách I đúng R -->
+  <line x1="142" y1="154" x2="214" y2="154" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <text x="178" y="148" font-size="10" fill="#475569" text-anchor="middle">= R</text>
+  <circle cx="214" cy="154" r="4.5" fill="#dc2626"/>
+  <text x="220" y="172" font-size="10.5" font-weight="700" fill="#dc2626">M(4, 1)</text>
+  <!-- tâm I -->
+  <circle cx="142" cy="154" r="4" fill="#1a202c"/>
+  <text x="136" y="170" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">I(2, 1)</text>
+  <!-- chú thích -->
+  <text x="165" y="284" font-size="10.5" fill="#475569" text-anchor="middle">mọi điểm (x, y) trên vành cách tâm I đúng R = 2</text>
+  <text x="165" y="300" font-size="10.5" fill="#475569" text-anchor="middle">(x − 2)² + (y − 1)² = 4 — dạng (x − x₀)² + (y − y₀)² = R²</text>
+</svg>
 
 **Vì sao đường tròn KHÔNG phải hàm số** $y = f(x)$: 1 hoành độ ứng 2 tung độ — vd $x^2 + y^2 = 25$ tại $x=0$ cho $y = \\pm 5$ (xem lại vertical line test ở [Lesson 07 (T1) — Hàm số](../../01-Arithmetic-Algebra/lesson-07-functions-intro/)).
 
@@ -311,17 +417,43 @@ Tất cả 3 đường này sinh ra khi **cắt mặt nón** với mặt phẳng
 - **Ellipse**: mặt phẳng cắt cả nón, không song song đáy.
 - **Hyperbola**: mặt phẳng cắt cả 2 nón.
 
-\`\`\`
-   Lát cắt hình nón đôi (double cone) — đổi góc dao → đổi conic
-
-        /\\              /\\              /\\         |  /\\
-       /  \\            /  \\            /  \\        | /  \\
-      /----\\  ← ngang /    \\         ━/━━━━\\━ //   |/----\\  dốc đứng
-     /      \\  TRÒN  /-----,\\ nghiêng/      \\ sinh /|     \\  xuyên 2 nón
-    /        \\      /       '\\  ELIP /        \\    / |      \\ HYPEBOL
-   ----------       ---------          (mở 1 đầu)     (2 nhánh)
-     (e=0)            (e<1)            PARABOL (e=1)    (e>1)
-\`\`\`
+<svg viewBox="0 0 720 256" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn lát cắt hình nón đôi bằng mặt phẳng: cắt ngang ra đường tròn với e bằng 0, cắt hơi nghiêng ra elip với e nhỏ hơn 1, cắt song song đường sinh ra parabol với e bằng 1, cắt dốc đứng xuyên cả hai nón ra hypebol hai nhánh với e lớn hơn 1">
+  <text x="360" y="16" font-size="12" font-weight="600" fill="#475569" text-anchor="middle">Cắt hình nón đôi (double cone) bằng mặt phẳng — đổi góc dao → đổi conic</text>
+  <!-- 4 hình nón đôi giống nhau -->
+  <g fill="#e2e8f0">
+    <polygon points="38,44 90,121 142,44"/><polygon points="90,121 38,198 142,198"/>
+    <polygon points="218,44 270,121 322,44"/><polygon points="270,121 218,198 322,198"/>
+    <polygon points="398,44 450,121 502,44"/><polygon points="450,121 398,198 502,198"/>
+    <polygon points="578,44 630,121 682,44"/><polygon points="630,121 578,198 682,198"/>
+  </g>
+  <g fill="#f8fafc" stroke="#475569" stroke-width="1.5">
+    <ellipse cx="90" cy="44" rx="52" ry="10"/><ellipse cx="90" cy="198" rx="52" ry="10"/>
+    <ellipse cx="270" cy="44" rx="52" ry="10"/><ellipse cx="270" cy="198" rx="52" ry="10"/>
+    <ellipse cx="450" cy="44" rx="52" ry="10"/><ellipse cx="450" cy="198" rx="52" ry="10"/>
+    <ellipse cx="630" cy="44" rx="52" ry="10"/><ellipse cx="630" cy="198" rx="52" ry="10"/>
+  </g>
+  <g stroke="#475569" stroke-width="1.5">
+    <line x1="38" y1="44" x2="90" y2="121"/><line x1="142" y1="44" x2="90" y2="121"/><line x1="90" y1="121" x2="38" y2="198"/><line x1="90" y1="121" x2="142" y2="198"/>
+    <line x1="218" y1="44" x2="270" y2="121"/><line x1="322" y1="44" x2="270" y2="121"/><line x1="270" y1="121" x2="218" y2="198"/><line x1="270" y1="121" x2="322" y2="198"/>
+    <line x1="398" y1="44" x2="450" y2="121"/><line x1="502" y1="44" x2="450" y2="121"/><line x1="450" y1="121" x2="398" y2="198"/><line x1="450" y1="121" x2="502" y2="198"/>
+    <line x1="578" y1="44" x2="630" y2="121"/><line x1="682" y1="44" x2="630" y2="121"/><line x1="630" y1="121" x2="578" y2="198"/><line x1="630" y1="121" x2="682" y2="198"/>
+  </g>
+  <!-- lát cắt 1: ngang → đường tròn -->
+  <ellipse cx="90" cy="161" rx="27" ry="6" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+  <!-- lát cắt 2: hơi nghiêng → elip (2 đầu chạm 2 sườn nón) -->
+  <ellipse cx="280.2" cy="159" rx="29.7" ry="7" fill="none" stroke="#dc2626" stroke-width="2.5" transform="rotate(30.3 280.2 159)"/>
+  <!-- lát cắt 3: song song đường sinh → parabol -->
+  <line x1="470.3" y1="131" x2="421.6" y2="203" stroke="#dc2626" stroke-width="2.5"/>
+  <!-- lát cắt 4: dốc đứng, xuyên cả 2 nón → hypebol -->
+  <line x1="645" y1="36" x2="645" y2="206" stroke="#dc2626" stroke-width="2.5"/>
+  <!-- nhãn -->
+  <g font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">
+    <text x="90" y="228">Tròn</text><text x="270" y="228">Elip</text><text x="450" y="228">Parabol</text><text x="630" y="228">Hypebol</text>
+  </g>
+  <g font-size="10.5" fill="#475569" text-anchor="middle">
+    <text x="90" y="244">cắt ngang · e = 0</text><text x="270" y="244">cắt hơi nghiêng · e &lt; 1</text><text x="450" y="244">song song đường sinh · e = 1</text><text x="630" y="244">xuyên 2 nón → 2 nhánh · e &gt; 1</text>
+  </g>
+</svg>
 
 > 📐 **Định nghĩa đầy đủ — Conic**
 >
@@ -339,20 +471,53 @@ $$y = ax^2 + bx + c \\quad \\text{hoặc dạng tiêu điểm: } y^2 = 2px \\ (\
 
 💡 **Định nghĩa theo tiêu điểm – đường chuẩn**: parabol = tập điểm M **cách đều** 1 điểm cố định (tiêu điểm $F$) và 1 đường thẳng cố định (đường chuẩn, directrix $d$). Tức $MF = d(M, d)$ — eccentricity $e = 1$.
 
-\`\`\`
-   y                      Parabol y² = 2px (mở sang phải)
-   ^         _____•M
-   |    ___/      :  MF = khoảng cách M→F
-   |  _/   F      :  d(M,d) = khoảng cách M→đường chuẩn
-   | /   • (p/2,0):  → parabol: MF = d(M,d)
- --O----+---------|----> x       đỉnh (vertex) tại O(0,0)
-   | \\   :        :
-   |  \\_ :        :
-   |    \\____     :
-   |        \\___•M'
-   :
-   đường chuẩn x = −p/2  (đường đứng nét đứt)
-\`\`\`
+<svg viewBox="0 0 340 322" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Parabol y bình phương bằng 4x với p bằng 2, mở sang phải trên hệ trục Oxy: đỉnh tại gốc O, tiêu điểm F(1, 0), đường chuẩn nét đứt x bằng âm 1; điểm M(2.25, 3) trên parabol cách tiêu điểm F đúng bằng khoảng cách tới đường chuẩn, cùng bằng 3.25; điểm M phẩy đối xứng qua trục hoành">
+  <defs>
+    <marker id="k6-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="64" y1="22" x2="64" y2="278"/><line x1="128" y1="22" x2="128" y2="278"/><line x1="160" y1="22" x2="160" y2="278"/><line x1="192" y1="22" x2="192" y2="278"/><line x1="224" y1="22" x2="224" y2="278"/><line x1="256" y1="22" x2="256" y2="278"/>
+    <line x1="32" y1="54" x2="260" y2="54"/><line x1="32" y1="86" x2="260" y2="86"/><line x1="32" y1="118" x2="260" y2="118"/>
+    <line x1="32" y1="182" x2="260" y2="182"/><line x1="32" y1="214" x2="260" y2="214"/><line x1="32" y1="246" x2="260" y2="246"/>
+  </g>
+  <!-- trục -->
+  <line x1="26" y1="150" x2="280" y2="150" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k6-ax)"/>
+  <line x1="96" y1="284" x2="96" y2="14" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k6-ax)"/>
+  <text x="284" y="142" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="103" y="20" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục (bỏ −1 vì trùng đường chuẩn) -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="128" y="163">1</text><text x="160" y="163">2</text><text x="192" y="163">3</text><text x="224" y="163">4</text><text x="256" y="163">5</text>
+    <text x="88" y="58" text-anchor="end">3</text><text x="88" y="90" text-anchor="end">2</text><text x="88" y="122" text-anchor="end">1</text>
+    <text x="88" y="186" text-anchor="end">−1</text><text x="88" y="218" text-anchor="end">−2</text><text x="88" y="250" text-anchor="end">−3</text>
+  </g>
+  <!-- đường chuẩn x = −1 (nét đứt) -->
+  <line x1="64" y1="22" x2="64" y2="278" stroke="#15803d" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="54" y="150" font-size="10" font-weight="600" fill="#15803d" text-anchor="middle" transform="rotate(-90 54 150)">đường chuẩn d: x = −1</text>
+  <!-- parabol y² = 4x (Bezier bậc 2 vẽ chính xác parabol) -->
+  <path d="M 224 278 Q -32 150 224 22" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="230" y="34" font-size="11" font-weight="700" fill="#1d4ed8">y² = 4x (p = 2)</text>
+  <!-- MF và khoảng cách tới đường chuẩn -->
+  <line x1="168" y1="54" x2="128" y2="150" stroke="#dc2626" stroke-width="2"/>
+  <text x="154" y="104" font-size="10.5" font-weight="600" fill="#dc2626">MF = 3.25</text>
+  <line x1="168" y1="54" x2="64" y2="54" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <circle cx="64" cy="54" r="3" fill="#94a3b8"/>
+  <text x="106" y="68" font-size="10.5" font-weight="600" fill="#475569" text-anchor="middle">d(M, d) = 3.25</text>
+  <!-- các điểm -->
+  <circle cx="168" cy="54" r="4.5" fill="#1d4ed8"/>
+  <text x="162" y="42" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">M(2.25, 3)</text>
+  <circle cx="168" cy="246" r="3.5" fill="#334155"/>
+  <text x="174" y="252" font-size="10.5" font-weight="600" fill="#334155">M′(2.25, −3)</text>
+  <circle cx="128" cy="150" r="4.5" fill="#dc2626"/>
+  <text x="134" y="142" font-size="10.5" font-weight="700" fill="#dc2626">F(1, 0)</text>
+  <circle cx="96" cy="150" r="3" fill="#1a202c"/>
+  <text x="90" y="164" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="92" y="176" font-size="9" fill="#475569" text-anchor="end">(đỉnh)</text>
+  <!-- chú thích -->
+  <text x="170" y="300" font-size="10.5" fill="#475569" text-anchor="middle">MF = √(1.25² + 3²) = 3.25 = d(M, d) = 2.25 + 1</text>
+  <text x="170" y="316" font-size="10.5" fill="#475569" text-anchor="middle">parabol = tập điểm cách đều tiêu điểm F và đường chuẩn d (e = 1)</text>
+</svg>
 
 Dạng quen thuộc $y = ax^2$ là parabol mở **lên** ($a>0$) hoặc **xuống** ($a<0$), đỉnh tại gốc; còn $y = a(x-h)^2 + k$ có đỉnh $(h, k)$. Liên hệ [Lesson 04 (T1) — PT bậc 2](../../01-Arithmetic-Algebra/lesson-04-quadratic-equations/).
 
@@ -373,19 +538,57 @@ $$\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1$$
 
 💡 **Định nghĩa theo 2 tiêu điểm**: elip = tập điểm M có **tổng khoảng cách đến 2 tiêu điểm $F_1, F_2$ là hằng số** $= 2a$. (Mẹo dây + 2 đinh: căng sợi dây dài $2a$ quanh 2 đinh tại $F_1, F_2$, kéo bút đi → vẽ ra elip.)
 
-\`\`\`
-   y
-   ^          trục nhỏ 2b
-   |      ___•(0,b)___
-   |   /        |        \\
-   | /          |          \\      M
- --+--•---------O--------•---+--> x
-   |  F₁(-c,0)  |   F₂(c,0)  (a,0)   MF₁ + MF₂ = 2a (hằng)
-   | \\          |          /
-   |   \\____ (0,-b) _____/
-   |        trục lớn 2a (theo Ox)
-   |  c² = a² − b²   (TRỪ)
-\`\`\`
+<svg viewBox="0 0 345 280" style="max-width:430px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Elip x bình phương trên 25 cộng y bình phương trên 9 bằng 1 trên hệ trục Oxy: đỉnh tại cộng trừ 5 trên trục hoành và cộng trừ 3 trên trục tung, hai tiêu điểm F1 tại âm 4 và F2 tại 4 nằm trên trục lớn; điểm M(3, 2.4) trên elip có tổng khoảng cách tới hai tiêu điểm bằng 2a bằng 10">
+  <defs>
+    <marker id="k7-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="42" y1="20" x2="42" y2="228"/><line x1="68" y1="20" x2="68" y2="228"/><line x1="94" y1="20" x2="94" y2="228"/><line x1="120" y1="20" x2="120" y2="228"/><line x1="146" y1="20" x2="146" y2="228"/>
+    <line x1="198" y1="20" x2="198" y2="228"/><line x1="224" y1="20" x2="224" y2="228"/><line x1="250" y1="20" x2="250" y2="228"/><line x1="276" y1="20" x2="276" y2="228"/><line x1="302" y1="20" x2="302" y2="228"/>
+    <line x1="14" y1="44" x2="330" y2="44"/><line x1="14" y1="70" x2="330" y2="70"/><line x1="14" y1="96" x2="330" y2="96"/>
+    <line x1="14" y1="148" x2="330" y2="148"/><line x1="14" y1="174" x2="330" y2="174"/><line x1="14" y1="200" x2="330" y2="200"/>
+  </g>
+  <!-- trục -->
+  <line x1="8" y1="122" x2="336" y2="122" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k7-ax)"/>
+  <line x1="172" y1="236" x2="172" y2="10" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k7-ax)"/>
+  <text x="330" y="110" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="179" y="18" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục (bỏ ±4 vì đã có nhãn tiêu điểm) -->
+  <g font-size="8.5" fill="#64748b" text-anchor="middle">
+    <text x="42" y="135">−5</text><text x="94" y="135">−3</text><text x="120" y="135">−2</text><text x="146" y="135">−1</text>
+    <text x="198" y="135">1</text><text x="224" y="135">2</text><text x="250" y="135">3</text><text x="302" y="135">5</text>
+    <text x="165" y="47" text-anchor="end">3</text><text x="165" y="73" text-anchor="end">2</text><text x="165" y="99" text-anchor="end">1</text>
+    <text x="165" y="151" text-anchor="end">−1</text><text x="165" y="177" text-anchor="end">−2</text><text x="165" y="203" text-anchor="end">−3</text>
+  </g>
+  <text x="166" y="134" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- elip x²/25 + y²/9 = 1 (a=5, b=3) -->
+  <ellipse cx="172" cy="122" rx="130" ry="78" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <!-- điểm M(3, 2.4) và 2 đoạn tới tiêu điểm -->
+  <line x1="250" y1="60" x2="68" y2="122" stroke="#15803d" stroke-width="2"/>
+  <line x1="250" y1="60" x2="276" y2="122" stroke="#15803d" stroke-width="2"/>
+  <text x="150" y="82" font-size="10" font-weight="600" fill="#15803d" text-anchor="middle">MF₁ = 7.4</text>
+  <text x="286" y="80" font-size="10" font-weight="600" fill="#15803d">MF₂ = 2.6</text>
+  <circle cx="250" cy="60" r="4.5" fill="#15803d"/>
+  <text x="256" y="54" font-size="10.5" font-weight="700" fill="#15803d">M(3, 2.4)</text>
+  <!-- 4 đỉnh -->
+  <circle cx="302" cy="122" r="3.5" fill="#1d4ed8"/>
+  <circle cx="42" cy="122" r="3.5" fill="#1d4ed8"/>
+  <circle cx="172" cy="44" r="3.5" fill="#1d4ed8"/>
+  <circle cx="172" cy="200" r="3.5" fill="#1d4ed8"/>
+  <text x="306" y="114" font-size="9.5" font-weight="600" fill="#1d4ed8">(5, 0)</text>
+  <text x="38" y="114" font-size="9.5" font-weight="600" fill="#1d4ed8" text-anchor="end">(−5, 0)</text>
+  <text x="178" y="40" font-size="9.5" font-weight="600" fill="#1d4ed8">(0, 3)</text>
+  <text x="178" y="212" font-size="9.5" font-weight="600" fill="#1d4ed8">(0, −3)</text>
+  <!-- 2 tiêu điểm trên trục lớn -->
+  <circle cx="68" cy="122" r="4.5" fill="#dc2626"/>
+  <circle cx="276" cy="122" r="4.5" fill="#dc2626"/>
+  <text x="68" y="146" font-size="9.5" font-weight="700" fill="#dc2626" text-anchor="middle">F₁(−4, 0)</text>
+  <text x="276" y="146" font-size="9.5" font-weight="700" fill="#dc2626" text-anchor="middle">F₂(4, 0)</text>
+  <!-- chú thích -->
+  <text x="172" y="252" font-size="10.5" fill="#475569" text-anchor="middle">MF₁ + MF₂ = 7.4 + 2.6 = 10 = 2a (hằng số với mọi M trên elip)</text>
+  <text x="172" y="268" font-size="10.5" fill="#475569" text-anchor="middle">trục lớn 2a = 10, trục nhỏ 2b = 6; c² = a² − b² → c = 4 (TRỪ)</text>
+</svg>
 
 - **Tâm sai (eccentricity) $e = c/a$** với $c = \\sqrt{a^2 - b^2}$ (TRỪ). $e$ càng gần 0 → càng "tròn".
 - $e = 0$: đường tròn ($a = b$, hai tiêu điểm trùng tâm).
@@ -408,19 +611,57 @@ $$\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1$$
 
 💡 **Định nghĩa theo 2 tiêu điểm**: hypebol = tập điểm M có **hiệu (trị tuyệt đối) khoảng cách đến 2 tiêu điểm là hằng số** $= 2a$, tức $|MF_1 - MF_2| = 2a$. Khác elip ở chữ **hiệu** thay vì **tổng**.
 
-\`\`\`
-   y           tiệm cận y = +(b/a)x
-   ^          /
-   |  \\      /         2 nhánh mở sang trái & phải
-   |   \\    /          đỉnh tại (±a, 0)
-   |    \\  /
- --+--•--\\/--•------•--•--> x
-   |  F₁ /\\  (-a,0) (a,0) F₂(c,0)
-   |    /  \\
-   |   /    \\         |MF₁ − MF₂| = 2a (hằng)
-   |  /      \\        c² = a² + b²   (CỘNG!)
-   tiệm cận y = −(b/a)x
-\`\`\`
+<svg viewBox="0 0 360 290" style="max-width:450px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hypebol x bình phương trên 16 trừ y bình phương trên 9 bằng 1 trên hệ trục Oxy: hai nhánh mở sang trái và phải, đỉnh tại cộng trừ 4 trên trục hoành, hai tiêu điểm F1 tại âm 5 và F2 tại 5, hai tiệm cận nét đứt y bằng cộng trừ ba phần tư x; điểm M(5, 2.25) có hiệu khoảng cách tới hai tiêu điểm bằng 2a bằng 8">
+  <defs>
+    <marker id="k8-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="40" y1="26" x2="40" y2="234"/><line x1="60" y1="26" x2="60" y2="234"/><line x1="80" y1="26" x2="80" y2="234"/><line x1="100" y1="26" x2="100" y2="234"/><line x1="120" y1="26" x2="120" y2="234"/><line x1="140" y1="26" x2="140" y2="234"/><line x1="160" y1="26" x2="160" y2="234"/>
+    <line x1="200" y1="26" x2="200" y2="234"/><line x1="220" y1="26" x2="220" y2="234"/><line x1="240" y1="26" x2="240" y2="234"/><line x1="260" y1="26" x2="260" y2="234"/><line x1="280" y1="26" x2="280" y2="234"/><line x1="300" y1="26" x2="300" y2="234"/><line x1="320" y1="26" x2="320" y2="234"/>
+    <line x1="16" y1="50" x2="344" y2="50"/><line x1="16" y1="70" x2="344" y2="70"/><line x1="16" y1="90" x2="344" y2="90"/><line x1="16" y1="110" x2="344" y2="110"/>
+    <line x1="16" y1="150" x2="344" y2="150"/><line x1="16" y1="170" x2="344" y2="170"/><line x1="16" y1="190" x2="344" y2="190"/><line x1="16" y1="210" x2="344" y2="210"/>
+  </g>
+  <!-- trục -->
+  <line x1="10" y1="130" x2="348" y2="130" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k8-ax)"/>
+  <line x1="180" y1="240" x2="180" y2="20" stroke="#1a202c" stroke-width="1.6" marker-end="url(#k8-ax)"/>
+  <text x="342" y="118" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="187" y="28" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="60" y="143">−6</text><text x="140" y="143">−2</text><text x="220" y="143">2</text><text x="300" y="143">6</text>
+    <text x="173" y="53" text-anchor="end">4</text><text x="173" y="93" text-anchor="end">2</text><text x="173" y="173" text-anchor="end">−2</text><text x="173" y="213" text-anchor="end">−4</text>
+  </g>
+  <text x="171" y="142" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- 2 tiệm cận nét đứt y = ±(3/4)x -->
+  <line x1="46.7" y1="230" x2="313.3" y2="30" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6,5"/>
+  <line x1="46.7" y1="30" x2="313.3" y2="230" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="6,5"/>
+  <text x="311" y="22" font-size="9.5" fill="#475569" text-anchor="end">tiệm cận y = (3/4)x</text>
+  <text x="311" y="246" font-size="9.5" fill="#475569" text-anchor="end">tiệm cận y = −(3/4)x</text>
+  <!-- 2 nhánh hypebol x²/16 − y²/9 = 1 -->
+  <path d="M 335.5 230 L 329.8 225 324.2 220 318.7 215 313.3 210 308.1 205 302.9 200 297.9 195 293.1 190 288.5 185 284.1 180 280 175 276.1 170 272.6 165 269.4 160 266.7 155 264.3 150 262.5 145 261.1 140 260.3 135 260 130 260.3 125 261.1 120 262.5 115 264.3 110 266.7 105 269.4 100 272.6 95 276.1 90 280 85 284.1 80 288.5 75 293.1 70 297.9 65 302.9 60 308.1 55 313.3 50 318.7 45 324.2 40 329.8 35 335.5 30" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 24.5 230 L 30.2 225 35.8 220 41.3 215 46.7 210 51.9 205 57.1 200 62.1 195 66.9 190 71.5 185 75.9 180 80 175 83.9 170 87.4 165 90.6 160 93.3 155 95.7 150 97.5 145 98.9 140 99.7 135 100 130 99.7 125 98.9 120 97.5 115 95.7 110 93.3 105 90.6 100 87.4 95 83.9 90 80 85 75.9 80 71.5 75 66.9 70 62.1 65 57.1 60 51.9 55 46.7 50 41.3 45 35.8 40 30.2 35 24.5 30" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="166" y="28" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">x²/16 − y²/9 = 1</text>
+  <!-- điểm M và 2 đoạn tới tiêu điểm -->
+  <line x1="280" y1="85" x2="80" y2="130" stroke="#15803d" stroke-width="2"/>
+  <line x1="280" y1="85" x2="280" y2="130" stroke="#15803d" stroke-width="2"/>
+  <text x="166" y="100" font-size="10" font-weight="600" fill="#15803d" text-anchor="middle">MF₁ = 10.25</text>
+  <text x="286" y="112" font-size="10" font-weight="600" fill="#15803d">MF₂ = 2.25</text>
+  <circle cx="280" cy="85" r="4.5" fill="#15803d"/>
+  <text x="274" y="78" font-size="10" font-weight="700" fill="#15803d" text-anchor="end">M(5, 2.25)</text>
+  <!-- đỉnh và tiêu điểm -->
+  <circle cx="100" cy="130" r="4" fill="#1d4ed8"/>
+  <circle cx="260" cy="130" r="4" fill="#1d4ed8"/>
+  <text x="108" y="150" font-size="9.5" font-weight="600" fill="#1d4ed8" text-anchor="middle">đỉnh (−4, 0)</text>
+  <text x="252" y="150" font-size="9.5" font-weight="600" fill="#1d4ed8" text-anchor="middle">đỉnh (4, 0)</text>
+  <circle cx="80" cy="130" r="4.5" fill="#dc2626"/>
+  <circle cx="280" cy="130" r="4.5" fill="#dc2626"/>
+  <text x="78" y="116" font-size="9.5" font-weight="700" fill="#dc2626" text-anchor="middle">F₁(−5, 0)</text>
+  <text x="284" y="148" font-size="9.5" font-weight="700" fill="#dc2626">F₂(5, 0)</text>
+  <!-- chú thích -->
+  <text x="180" y="262" font-size="10.5" fill="#475569" text-anchor="middle">|MF₁ − MF₂| = 10.25 − 2.25 = 8 = 2a (hằng số với mọi M)</text>
+  <text x="180" y="278" font-size="10.5" fill="#475569" text-anchor="middle">c² = a² + b² = 16 + 9 = 25 → c = 5 (CỘNG, khác elip)</text>
+</svg>
 
 Đặc trưng: 2 nhánh, 2 **tiệm cận (asymptote)** $y = \\pm\\frac{b}{a}\\cdot x$. $c = \\sqrt{a^2 + b^2}$ (**CỘNG**, khác elip), tiêu điểm $(\\pm c, 0)$, $e = c/a > 1$.
 

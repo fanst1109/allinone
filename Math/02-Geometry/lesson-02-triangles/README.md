@@ -19,20 +19,26 @@
 
 💡 **Là gì**: hình đa giác đơn giản nhất, với 3 đỉnh, 3 cạnh, 3 góc trong.
 
-```
-                A
-               /\
-              /  \
-          c  /    \  b
-            /      \
-           /        \
-          /__________\
-         B     a      C
-
- 3 đỉnh (vertex): A, B, C
- 3 cạnh (side):   a = BC (đối A), b = CA (đối B), c = AB (đối C)
- 3 góc trong (interior angle): Â + B̂ + Ĉ = 180°
-```
+<svg viewBox="0 0 560 330" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác ABC với 3 đỉnh A B C, 3 cạnh a b c đặt tên theo đỉnh đối diện và 3 góc trong có tổng bằng 180 độ, mỗi góc đánh dấu cung nhỏ đỏ">
+  <polygon points="120,230 440,230 280,50" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M261.4,70.9 A28,28 0 0 0 298.6,70.9" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M138.6,209.1 A28,28 0 0 1 148,230" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M421.4,209.1 A28,28 0 0 0 412,230" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="280" y="94" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">Â</text>
+  <text x="154" y="214" font-size="12.5" font-weight="700" fill="#dc2626">B̂</text>
+  <text x="406" y="214" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">Ĉ</text>
+  <circle cx="280" cy="50" r="4.5" fill="#1a202c"/>
+  <circle cx="120" cy="230" r="4.5" fill="#1a202c"/>
+  <circle cx="440" cy="230" r="4.5" fill="#1a202c"/>
+  <text x="280" y="38" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="106" y="244" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">B</text>
+  <text x="454" y="244" font-size="14" font-weight="700" fill="#1a202c">C</text>
+  <text x="186" y="134" font-size="13.5" font-weight="700" fill="#1d4ed8" text-anchor="end">c</text>
+  <text x="374" y="134" font-size="13.5" font-weight="700" fill="#1d4ed8">b</text>
+  <text x="280" y="252" font-size="13.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">a</text>
+  <text x="280" y="284" font-size="11.5" fill="#475569" text-anchor="middle">3 đỉnh: A, B, C · 3 cạnh: a = BC (đối A), b = CA (đối B), c = AB (đối C)</text>
+  <text x="280" y="308" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">3 góc trong: Â + B̂ + Ĉ = 180°</text>
+</svg>
 
 > **Quy ước ký hiệu (rất hay dùng)**: cạnh viết **chữ thường**, được đặt tên theo **đỉnh đối diện** nó. Cạnh $a$ đối diện đỉnh $A$, cạnh $b$ đối diện $B$, cạnh $c$ đối diện $C$. Nhờ vậy khi viết $\frac{a}{\sin A}$ ta hiểu ngay $a$ và $A$ là cặp "cạnh — góc đối diện".
 
@@ -50,21 +56,42 @@
 
 💡 **Trực giác / Hình dung — bất đẳng thức tam giác**: muốn nối A tới C, đi thẳng (cạnh AC) luôn ngắn hơn đi vòng qua B ($AB + BC$). "Đường thẳng là đường ngắn nhất" — đó chính là bất đẳng thức tam giác. Nếu cạnh dài nhất $\ge$ tổng 2 cạnh kia thì 2 cạnh ngắn "với không tới nhau", không khép kín được thành tam giác.
 
-```
-          B
-         /\
-    AB  /  \  BC          Đi vòng A→B→C: dài AB + BC
-       /    \             Đi thẳng A→C:   dài AC
-      /      \            ⇒ AC < AB + BC  (luôn đúng)
-     A--------C
-          AC
-
- Trường hợp BIÊN — 3 điểm thẳng hàng (suy biến):
-     A--------B--------C   ⇒ AC = AB + BC  (không còn là tam giác)
-
- Trường hợp HỎNG — cạnh dài nhất vượt tổng 2 cạnh kia:
-     A------B    C        ⇒ B "với" không tới C, không khép kín
-```
+<svg viewBox="0 0 660 380" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bất đẳng thức tam giác: đi thẳng A đến C luôn ngắn hơn đi vòng qua B; trường hợp biên 3 điểm thẳng hàng thì AC bằng AB cộng BC là tam giác suy biến; trường hợp hỏng cạnh dài nhất vượt tổng 2 cạnh kia thì B với không tới C">
+  <line x1="120" y1="160" x2="230" y2="44" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="230" y1="44" x2="380" y2="160" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="120" y1="160" x2="380" y2="160" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="160" y="96" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="end">AB</text>
+  <text x="322" y="96" font-size="12.5" font-weight="700" fill="#15803d">BC</text>
+  <text x="250" y="182" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">AC</text>
+  <circle cx="120" cy="160" r="4.5" fill="#1a202c"/>
+  <circle cx="230" cy="44" r="4.5" fill="#1a202c"/>
+  <circle cx="380" cy="160" r="4.5" fill="#1a202c"/>
+  <text x="106" y="166" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="230" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="394" y="166" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="420" y="84" font-size="11.5" fill="#15803d">đi vòng A→B→C: dài AB + BC</text>
+  <text x="420" y="108" font-size="11.5" fill="#dc2626">đi thẳng A→C: dài AC</text>
+  <text x="420" y="132" font-size="12" font-weight="700" fill="#1a202c">⇒ AC &lt; AB + BC (luôn đúng)</text>
+  <text x="60" y="216" font-size="11.5" font-weight="700" fill="#475569">BIÊN — 3 điểm thẳng hàng (suy biến):</text>
+  <line x1="90" y1="244" x2="330" y2="244" stroke="#94a3b8" stroke-width="2.5"/>
+  <circle cx="90" cy="244" r="4.5" fill="#1a202c"/>
+  <circle cx="210" cy="244" r="4.5" fill="#1a202c"/>
+  <circle cx="330" cy="244" r="4.5" fill="#1a202c"/>
+  <text x="90" y="266" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="210" y="266" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="330" y="266" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="360" y="249" font-size="11.5" fill="#475569">⇒ AC = AB + BC — không còn là tam giác</text>
+  <text x="60" y="302" font-size="11.5" font-weight="700" fill="#475569">HỎNG — cạnh dài nhất ≥ tổng 2 cạnh kia:</text>
+  <line x1="90" y1="334" x2="190" y2="334" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M250,334 A60,60 0 0 0 190,274" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <circle cx="90" cy="334" r="4.5" fill="#1a202c"/>
+  <circle cx="190" cy="334" r="4.5" fill="#1a202c"/>
+  <circle cx="330" cy="334" r="4.5" fill="#dc2626"/>
+  <text x="90" y="356" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="190" y="356" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="330" y="356" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">C</text>
+  <text x="360" y="339" font-size="11.5" fill="#dc2626">⇒ B "với" không tới C, không khép kín được</text>
+</svg>
 
 Phát biểu chính thức bằng công thức cho 3 cạnh $a, b, c$:
 
@@ -87,19 +114,35 @@ Thực tế chỉ cần kiểm **cạnh lớn nhất $<$ tổng 2 cạnh còn l�
 
 💡 **Chứng minh tổng 3 góc $= 180^\circ$ (từng bước, không "dễ thấy")**
 
-```
-       x   A   y         Kẻ đường d qua A, SONG SONG với BC.
-        \  |  /          d cắt ra 3 góc tại A: x̂, Â, ŷ — cùng nằm
-     d --\--+--/-- d      trên 1 nửa mặt phẳng ⇒ x̂ + Â + ŷ = 180°
-          \ | /                                  (góc bẹt).
-           \|/
-            *  A
-           /|\
-          / | \
-         /  |  \
-        /   |   \
-       B---------C
-```
+<svg viewBox="0 0 640 340" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chứng minh tổng 3 góc tam giác bằng 180 độ: kẻ đường d qua đỉnh A song song với BC, ba góc x mũ, A mũ, y mũ tại A ghép thành góc bẹt 180 độ, trong đó x mũ bằng B mũ và y mũ bằng C mũ do so le trong">
+  <defs>
+    <marker id="t3-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#15803d"/>
+    </marker>
+  </defs>
+  <polygon points="150,280 490,280 320,100" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="120" y1="100" x2="520" y2="100" stroke="#15803d" stroke-width="2" marker-start="url(#t3-ar)" marker-end="url(#t3-ar)"/>
+  <text x="450" y="86" font-size="12" font-weight="700" fill="#15803d">d ∥ BC</text>
+  <path d="M286,100 A34,34 0 0 0 296.6,124.7" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <path d="M296.6,124.7 A34,34 0 0 0 343.4,124.7" fill="none" stroke="#1d4ed8" stroke-width="1.8"/>
+  <path d="M343.4,124.7 A34,34 0 0 0 354,100" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="280" y="132" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="end">x̂</text>
+  <text x="320" y="150" font-size="12.5" font-weight="700" fill="#1d4ed8" text-anchor="middle">Â</text>
+  <text x="362" y="132" font-size="12.5" font-weight="700" fill="#dc2626">ŷ</text>
+  <path d="M170.6,258.2 A30,30 0 0 1 180,280" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <text x="186" y="258" font-size="12.5" font-weight="700" fill="#15803d">B̂</text>
+  <path d="M469.4,258.2 A30,30 0 0 0 460,280" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="452" y="258" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">Ĉ</text>
+  <circle cx="320" cy="100" r="4.5" fill="#1a202c"/>
+  <circle cx="150" cy="280" r="4.5" fill="#1a202c"/>
+  <circle cx="490" cy="280" r="4.5" fill="#1a202c"/>
+  <text x="306" y="88" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="150" y="302" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="490" y="302" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="60" y="48" font-size="11.5" font-weight="700" fill="#15803d">x̂ = B̂ (so le trong, cát tuyến AB)</text>
+  <text x="580" y="48" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="end">ŷ = Ĉ (so le trong, cát tuyến AC)</text>
+  <text x="320" y="326" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">x̂ + Â + ŷ = 180° (góc bẹt tại A) ⇒ B̂ + Â + Ĉ = 180°</text>
+</svg>
 
 Bước 1. Kẻ đường thẳng $d$ qua $A$ song song với $BC$. Ba góc tại $A$ là $\hat{x}$ (bên trái), $\hat{A}$ (giữa, chính là góc của tam giác), $\hat{y}$ (bên phải). Chúng tạo thành 1 góc bẹt nên:
 $$\hat{x} + \hat{A} + \hat{y} = 180^\circ$$
@@ -148,16 +191,36 @@ $$\hat{B} + \hat{A} + \hat{C} = 180^\circ \quad ✓$$
 | **Cân** (isosceles) | 2 cạnh bằng → 2 góc đáy bằng |
 | **Thường** (scalene) | 3 cạnh khác nhau |
 
-```
-   ĐỀU (equilateral)      CÂN (isosceles)       THƯỜNG (scalene)
-        /\                     /\                      /\
-       /  \                   /  \                    /  \
-      / 60°\                 /    \                  /    \____
-     /      \               /      \                /         \___
-    /________\             /________\              /______________\
-   60°      60°          đáy: 2 góc =             3 cạnh, 3 góc khác
-  3 cạnh =, 3 góc =     2 cạnh bên = nhau         nhau hoàn toàn
-```
+<svg viewBox="0 0 720 250" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân loại tam giác theo cạnh: đều có 3 cạnh bằng nhau đánh vạch tick đơn và 3 góc 60 độ, cân có 2 cạnh bên bằng nhau đánh tick đôi và 2 góc đáy bằng nhau, thường có 3 cạnh khác nhau đánh số vạch khác nhau">
+  <text x="120" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">ĐỀU (equilateral)</text>
+  <polygon points="50,181 190,181 120,60" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="79.8" y1="123.5" x2="90.2" y2="117.5" stroke="#15803d" stroke-width="2"/>
+  <line x1="149.8" y1="117.5" x2="160.2" y2="123.5" stroke="#15803d" stroke-width="2"/>
+  <line x1="120" y1="175" x2="120" y2="187" stroke="#15803d" stroke-width="2"/>
+  <text x="120" y="92" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">60°</text>
+  <text x="76" y="174" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">60°</text>
+  <text x="164" y="174" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">60°</text>
+  <text x="120" y="215" font-size="11.5" fill="#475569" text-anchor="middle">3 cạnh =, 3 góc = 60°</text>
+  <text x="360" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CÂN (isosceles)</text>
+  <polygon points="300,181 420,181 360,55" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="327" y1="110.4" x2="337.8" y2="115.6" stroke="#15803d" stroke-width="2"/>
+  <line x1="322.2" y1="120.4" x2="333" y2="125.6" stroke="#15803d" stroke-width="2"/>
+  <line x1="382.2" y1="115.6" x2="393" y2="110.4" stroke="#15803d" stroke-width="2"/>
+  <line x1="387" y1="125.6" x2="397.8" y2="120.4" stroke="#15803d" stroke-width="2"/>
+  <path d="M307.7,164.8 A18,18 0 0 1 318,181" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M412.3,164.8 A18,18 0 0 0 402,181" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="360" y="215" font-size="11.5" fill="#475569" text-anchor="middle">2 cạnh bên = → 2 góc đáy =</text>
+  <text x="605" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">THƯỜNG (scalene)</text>
+  <polygon points="520,181 700,181 575,95" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="542.5" y1="134.8" x2="552.6" y2="141.2" stroke="#15803d" stroke-width="2"/>
+  <line x1="629.1" y1="139.5" x2="635.9" y2="129.7" stroke="#15803d" stroke-width="2"/>
+  <line x1="639.1" y1="146.3" x2="645.9" y2="136.5" stroke="#15803d" stroke-width="2"/>
+  <line x1="598" y1="175" x2="598" y2="187" stroke="#15803d" stroke-width="2"/>
+  <line x1="610" y1="175" x2="610" y2="187" stroke="#15803d" stroke-width="2"/>
+  <line x1="622" y1="175" x2="622" y2="187" stroke="#15803d" stroke-width="2"/>
+  <text x="605" y="215" font-size="11.5" fill="#475569" text-anchor="middle">3 cạnh, 3 góc khác nhau hoàn toàn</text>
+  <text x="605" y="234" font-size="10.5" fill="#475569" text-anchor="middle">(số vạch tick khác nhau = cạnh khác nhau)</text>
+</svg>
 
 ### Theo góc
 
@@ -167,15 +230,24 @@ $$\hat{B} + \hat{A} + \hat{C} = 180^\circ \quad ✓$$
 | **Vuông** (right) | 1 góc $= 90^\circ$ |
 | **Tù** (obtuse) | 1 góc $> 90^\circ$ |
 
-```
-   NHỌN (acute)          VUÔNG (right)          TÙ (obtuse)
-        /\                  |\                    ______
-       /  \                 | \                   \     ‾‾---___
-      /    \                |  \                    \  >90°     ‾‾--__
-     /      \               |___\                    \________________
-    /________\           góc vuông 90°            1 góc > 90°
-  cả 3 góc < 90°        ở đỉnh dưới-trái         (góc "mở rộng")
-```
+<svg viewBox="0 0 720 250" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân loại tam giác theo góc: nhọn có cả 3 góc nhỏ hơn 90 độ, vuông có đúng 1 góc 90 độ đánh dấu ô vuông, tù có đúng 1 góc lớn hơn 90 độ đánh dấu cung đỏ">
+  <text x="125" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">NHỌN (acute)</text>
+  <polygon points="50,181 200,181 125,70" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M61.2,164.4 A20,20 0 0 1 70,181" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M188.8,164.4 A20,20 0 0 0 180,181" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M113.8,86.6 A20,20 0 0 0 136.2,86.6" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="125" y="215" font-size="11.5" fill="#475569" text-anchor="middle">cả 3 góc &lt; 90°</text>
+  <text x="365" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">VUÔNG (right)</text>
+  <polygon points="300,181 430,181 300,70" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <polyline points="300,167 314,167 314,181" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="322" y="163" font-size="11.5" font-weight="700" fill="#dc2626">90°</text>
+  <text x="365" y="215" font-size="11.5" fill="#475569" text-anchor="middle">đúng 1 góc = 90°</text>
+  <text x="605" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">TÙ (obtuse)</text>
+  <polygon points="530,181 700,181 495,110" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M520.3,161.3 A22,22 0 0 1 552,181" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="560" y="158" font-size="11.5" font-weight="700" fill="#dc2626">&gt; 90°</text>
+  <text x="605" y="215" font-size="11.5" fill="#475569" text-anchor="middle">đúng 1 góc &gt; 90° (góc "mở rộng")</text>
+</svg>
 
 💡 **Trực giác / Hình dung**: phân loại theo cạnh đo "mức đối xứng" (đều = đối xứng nhất, cân = đối xứng 1 trục, thường = không đối xứng). Phân loại theo góc đo "độ nhọn/tù" của góc lớn nhất. Hai cách phân loại độc lập — 1 tam giác vừa có loại cạnh vừa có loại góc (vd "cân vuông": 2 cạnh bằng + 1 góc vuông).
 
@@ -241,16 +313,41 @@ Hai tam giác **bằng nhau** = cùng kích thước và hình dạng (đặt ch
 2. **SAS (Side-Angle-Side)**: 2 cạnh + góc kẹp giữa bằng nhau.
 3. **ASA (Angle-Side-Angle)**: 2 góc + cạnh kẹp giữa bằng nhau.
 
-```
-   SSS                    SAS                    ASA
-   3 cạnh =               2 cạnh + góc KẸP =     2 góc + cạnh KẸP =
-       /\                     /\                     /\
-    c /  \ a              c /∠α\ a              ∠β /  \ ∠γ
-     /____\                 /____\                 /____\
-       b                      b                      b
-   biết a,b,c            biết c, ∠α, a          biết ∠β, b, ∠γ
-   (∠ ở giữa 2 cạnh)     (cạnh KẸP giữa 2 góc)
-```
+<svg viewBox="0 0 720 280" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba trường hợp bằng nhau của tam giác: SSS biết 3 cạnh, SAS biết 2 cạnh và góc alpha kẹp giữa, ASA biết 2 góc beta gamma và cạnh b kẹp giữa; yếu tố đã biết tô đỏ, yếu tố chưa biết nét đứt xám">
+  <text x="115" y="36" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">SSS</text>
+  <text x="115" y="56" font-size="11" fill="#475569" text-anchor="middle">3 cạnh bằng nhau</text>
+  <line x1="40" y1="205" x2="190" y2="205" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="40" y1="205" x2="115" y2="95" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="190" y1="205" x2="115" y2="95" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="65" y="146" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">c</text>
+  <text x="165" y="146" font-size="12.5" font-weight="700" fill="#dc2626">a</text>
+  <text x="115" y="225" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">b</text>
+  <text x="115" y="244" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">biết a, b, c</text>
+  <text x="115" y="262" font-size="10.5" fill="#475569" text-anchor="middle">3 cạnh khóa cứng tam giác</text>
+  <text x="360" y="36" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">SAS</text>
+  <text x="360" y="56" font-size="11" fill="#475569" text-anchor="middle">2 cạnh + góc KẸP giữa</text>
+  <line x1="285" y1="205" x2="360" y2="95" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="360" y1="95" x2="435" y2="205" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="285" y1="205" x2="435" y2="205" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <path d="M345.4,116.5 A26,26 0 0 0 374.6,116.5" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="360" y="140" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">α</text>
+  <text x="310" y="146" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">c</text>
+  <text x="410" y="146" font-size="12.5" font-weight="700" fill="#dc2626">a</text>
+  <text x="360" y="244" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">biết c, ∠α, a</text>
+  <text x="360" y="262" font-size="10.5" fill="#475569" text-anchor="middle">góc α KẸP giữa 2 cạnh</text>
+  <text x="605" y="36" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">ASA</text>
+  <text x="605" y="56" font-size="11" fill="#475569" text-anchor="middle">2 góc + cạnh KẸP giữa</text>
+  <line x1="530" y1="205" x2="680" y2="205" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="530" y1="205" x2="605" y2="95" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <line x1="680" y1="205" x2="605" y2="95" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <path d="M544.7,183.5 A26,26 0 0 1 556,205" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M665.3,183.5 A26,26 0 0 0 654,205" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="560" y="184" font-size="12.5" font-weight="700" fill="#dc2626">β</text>
+  <text x="650" y="184" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">γ</text>
+  <text x="605" y="225" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">b</text>
+  <text x="605" y="244" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">biết ∠β, b, ∠γ</text>
+  <text x="605" y="262" font-size="10.5" fill="#475569" text-anchor="middle">cạnh b KẸP giữa 2 góc</text>
+</svg>
 
 Trong SAS, góc **phải nằm giữa** 2 cạnh đã biết. Trong ASA, cạnh **phải nằm giữa** 2 góc đã biết. "Kẹp giữa" là từ khóa quyết định.
 
@@ -258,16 +355,29 @@ Có thêm: **AAS** (2 góc + 1 cạnh không kẹp giữa — vẫn xác định
 
 **Lưu ý**: SSA (2 cạnh + 1 góc không kẹp) KHÔNG đảm bảo bằng nhau (vì có thể có 2 tam giác khác nhau thỏa mãn — "trường hợp mơ hồ").
 
-```
- Vì sao SSA mơ hồ — cạnh "với" tới 2 vị trí:
-                C₁      C₂
-                 \      /\
-              a   \    /  \  a   (cùng độ dài a)
-                   \  /    \
-            ∠------- \/------\-------
-            A    cạnh b biết   (cùng góc A, cùng cạnh b)
-   ⇒ Hai tam giác AC₁ và AC₂ KHÁC nhau nhưng cùng (b, a, ∠A).
-```
+<svg viewBox="0 0 600 300" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vì sao SSA mơ hồ: biết góc A, cạnh b bằng AB và cạnh a, nhưng cạnh a từ B với xuống tia đáy được ở 2 vị trí C1 và C2 khác nhau, tạo 2 tam giác khác nhau cùng bộ dữ kiện">
+  <line x1="70" y1="230" x2="560" y2="230" stroke="#1a202c" stroke-width="1.8"/>
+  <path d="M160,230 A150,150 0 0 0 340,230" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <line x1="70" y1="230" x2="250" y2="110" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="250" y1="110" x2="160" y2="230" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="250" y1="110" x2="340" y2="230" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="200.2" y1="166.4" x2="209.8" y2="173.6" stroke="#dc2626" stroke-width="2"/>
+  <line x1="299.8" y1="166.4" x2="290.2" y2="173.6" stroke="#dc2626" stroke-width="2"/>
+  <path d="M100,230 A30,30 0 0 0 95,213.3" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110" y="206" font-size="11.5" font-weight="700" fill="#15803d">∠A (biết)</text>
+  <text x="146" y="162" font-size="12.5" font-weight="700" fill="#1d4ed8" text-anchor="end">b (biết)</text>
+  <text x="191" y="164" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">a</text>
+  <text x="309" y="164" font-size="12.5" font-weight="700" fill="#dc2626">a</text>
+  <circle cx="70" cy="230" r="4.5" fill="#1a202c"/>
+  <circle cx="250" cy="110" r="4.5" fill="#1a202c"/>
+  <circle cx="160" cy="230" r="4.5" fill="#dc2626"/>
+  <circle cx="340" cy="230" r="4.5" fill="#dc2626"/>
+  <text x="70" y="252" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="250" y="96" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="160" y="252" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">C₁</text>
+  <text x="340" y="252" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">C₂</text>
+  <text x="300" y="284" font-size="11.5" fill="#475569" text-anchor="middle">cạnh a "với" tới 2 vị trí ⇒ △ABC₁ ≠ △ABC₂ dù cùng bộ (b, a, ∠A)</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -319,30 +429,54 @@ Nếu tam giác ABC đồng dạng A'B'C' với tỉ số k, thì:
 
 **Verify bằng số**: tam giác cạnh 3-4-5 (chu vi 12, diện tích $\frac{1}{2}\cdot 3\cdot 4 = 6$) đồng dạng tỉ số $k=2$ → cạnh 6-8-10, chu vi $24 = 12\cdot 2$ ✓, diện tích $\frac{1}{2}\cdot 6\cdot 8 = 24 = 6\cdot 2^2 = 6\cdot 4$ ✓. Tỉ số diện tích $=$ **$k^2$**, không phải $k$.
 
-```
-   ABC (nhỏ)            A'B'C' (lớn, k = 2)
-       /\                    /\
-    5 /  \ 4             10 /  \ 8       mọi cạnh × 2
-     /____\                /______\
-       3                       6
-  S = 6, P = 12          S = 24, P = 24
-                         P' = k·P = 2·12  ✓
-                         S' = k²·S = 4·6  ✓
-```
+<svg viewBox="0 0 660 300" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai tam giác vuông đồng dạng tỉ số k bằng 2: tam giác nhỏ cạnh 3 4 5 diện tích 6 chu vi 12, tam giác lớn cạnh 6 8 10 chu vi 24 gấp k lần và diện tích 24 gấp k bình phương lần">
+  <defs>
+    <marker id="t8-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#15803d"/>
+    </marker>
+  </defs>
+  <text x="132" y="34" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">△ABC (nhỏ)</text>
+  <polygon points="105,210 159,210 159,138" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <polyline points="147,210 147,198 159,198" fill="none" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="132" y="230" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">3</text>
+  <text x="169" y="177" font-size="12.5" font-weight="700" fill="#1a202c">4</text>
+  <text x="122" y="168" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="end">5</text>
+  <line x1="210" y1="170" x2="360" y2="170" stroke="#15803d" stroke-width="2" marker-end="url(#t8-ar)"/>
+  <text x="285" y="152" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">mọi cạnh × 2</text>
+  <text x="444" y="34" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">△A′B′C′ (lớn, k = 2)</text>
+  <polygon points="390,230 498,230 498,86" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <polyline points="486,230 486,218 498,218" fill="none" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="444" y="250" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">6</text>
+  <text x="508" y="162" font-size="12.5" font-weight="700" fill="#1a202c">8</text>
+  <text x="432" y="152" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="end">10</text>
+  <text x="132" y="272" font-size="11.5" fill="#475569" text-anchor="middle">S = 6, P = 12</text>
+  <text x="444" y="272" font-size="11.5" fill="#475569" text-anchor="middle">S′ = 24, P′ = 24</text>
+  <text x="444" y="292" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">P′ = k·P = 2·12 ✓ · S′ = k²·S = 4·6 ✓</text>
+</svg>
 
 ### Walk-through đồng dạng — tìm cạnh thiếu bằng tỉ số
 
 **Ví dụ 1 (bóng cây — kiểu Thales)**: cọc cao 2 m đổ bóng 3 m; cùng lúc cây đổ bóng 12 m. Cây cao bao nhiêu? Hai tam giác (cọc–bóng) và (cây–bóng) **đồng dạng** vì cùng góc nắng (AA).
 
-```
-   |\                          |\
- 2m| \  cọc                    | \
-   |  \                      h |  \   cây
-   |___\                       |    \
-    3m                         |      \
-                               |________\
-                                  12m
-```
+<svg viewBox="0 0 680 280" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đo chiều cao cây kiểu Thales: cọc cao 2 mét đổ bóng 3 mét, cây cao h đổ bóng 12 mét cùng lúc, hai tia nắng song song tạo hai tam giác vuông đồng dạng với góc nắng bằng nhau">
+  <line x1="40" y1="232" x2="640" y2="232" stroke="#1a202c" stroke-width="2"/>
+  <line x1="100" y1="232" x2="100" y2="152" stroke="#1d4ed8" stroke-width="4"/>
+  <line x1="100" y1="232" x2="220" y2="232" stroke="#475569" stroke-width="5"/>
+  <line x1="100" y1="152" x2="220" y2="232" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <path d="M194,232 A26,26 0 0 1 198.4,217.6" fill="none" stroke="#15803d" stroke-width="2"/>
+  <line x1="340" y1="232" x2="340" y2="72" stroke="#dc2626" stroke-width="4"/>
+  <line x1="340" y1="232" x2="580" y2="232" stroke="#475569" stroke-width="5"/>
+  <line x1="340" y1="72" x2="580" y2="232" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <path d="M554,232 A26,26 0 0 1 558.4,217.6" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="100" y="140" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">cọc</text>
+  <text x="88" y="196" font-size="12.5" font-weight="700" fill="#1d4ed8" text-anchor="end">2 m</text>
+  <text x="160" y="254" font-size="11.5" fill="#475569" text-anchor="middle">bóng 3 m</text>
+  <text x="340" y="60" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">cây</text>
+  <text x="326" y="156" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">h = ?</text>
+  <text x="460" y="254" font-size="11.5" fill="#475569" text-anchor="middle">bóng 12 m</text>
+  <text x="474" y="138" font-size="11" fill="#94a3b8">tia nắng</text>
+  <text x="340" y="274" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">góc nắng bằng nhau (cung xanh) ⇒ 2 tam giác đồng dạng (AA) ⇒ h/2 = 12/3</text>
+</svg>
 
 Bước 1. Lập tỉ số cạnh tương ứng (chiều cao / bóng giữ nguyên):
 $$\frac{h_{\text{cây}}}{h_{\text{cọc}}} = \frac{\text{bóng cây}}{\text{bóng cọc}} = \frac{12}{3} = 4 = k$$
@@ -404,17 +538,20 @@ Tam giác **vuông** với 2 cạnh góc vuông a, b và cạnh huyền c:
 
 $$a^2 + b^2 = c^2$$
 
-```
-        |\
-        | \
-      b |  \  c  (cạnh huyền — đối diện góc vuông, DÀI NHẤT)
-        |   \
-        |____\
-          a    └ góc vuông 90°
-
-  a, b = cạnh góc vuông (leg)
-  c    = cạnh huyền (hypotenuse) = √(a² + b²)
-```
+<svg viewBox="0 0 560 300" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông với 2 cạnh góc vuông a và b, cạnh huyền c đối diện góc vuông và dài nhất, ô vuông nhỏ đánh dấu góc 90 độ">
+  <line x1="150" y1="60" x2="150" y2="230" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="150" y1="230" x2="390" y2="230" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="150" y1="60" x2="390" y2="230" stroke="#dc2626" stroke-width="2.5"/>
+  <polyline points="150,216 164,216 164,230" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="170" y="212" font-size="11.5" fill="#1a202c">90°</text>
+  <text x="136" y="150" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="end">b</text>
+  <text x="270" y="252" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">a</text>
+  <text x="256" y="130" font-size="14" font-weight="700" fill="#dc2626" text-anchor="end">c</text>
+  <text x="310" y="96" font-size="13" font-weight="700" fill="#dc2626">c = √(a² + b²)</text>
+  <text x="310" y="116" font-size="11.5" fill="#475569">cạnh huyền — DÀI NHẤT,</text>
+  <text x="310" y="134" font-size="11.5" fill="#475569">đối diện góc vuông</text>
+  <text x="270" y="282" font-size="11.5" fill="#475569" text-anchor="middle">a, b = cạnh góc vuông (leg) · c = cạnh huyền (hypotenuse)</text>
+</svg>
 
 💡 **Là gì**: trong tam giác vuông, bình phương cạnh huyền = tổng bình phương 2 cạnh góc vuông.
 
@@ -435,19 +572,30 @@ $$a^2 + b^2 = c^2$$
 
 Vẽ hình vuông cạnh $(a+b) \times (a+b)$, chia thành 4 tam giác vuông + 1 hình vuông cạnh c ở giữa:
 
-```
-   +--a--+----b----+      Hình vuông lớn cạnh (a+b).
-   |    /          |      4 tam giác vuông (cạnh a, b, huyền c)
-   b   /           a      xếp ở 4 góc, để lại 1 hình vuông
-   |  / c       c  |      NGHIÊNG cạnh c ở chính giữa.
-   | /             |
-   +     (c×c)     +      Diện tích lớn = 4 tam giác + ô vuông giữa:
-   |             \ |        (a+b)² = 4·(½ab) + c²
-   a  c       c    b
-   |  \            |
-   |   \           |
-   +----b----+--a--+
-```
+<svg viewBox="0 0 560 330" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chứng minh Pythagoras bằng diện tích: hình vuông lớn cạnh a cộng b chứa 4 tam giác vuông cạnh a b huyền c xếp ở 4 góc, để lại hình vuông nghiêng cạnh c ở giữa, suy ra a bình phương cộng b bình phương bằng c bình phương">
+  <rect x="170" y="50" width="220" height="220" fill="none" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="170,270 250,270 170,130" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <polygon points="250,270 390,270 390,190" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <polygon points="390,190 390,50 310,50" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <polygon points="310,50 170,50 170,130" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <polygon points="250,270 390,190 310,50 170,130" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="280" y="166" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle">c²</text>
+  <text x="198" y="206" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">c</text>
+  <text x="362" y="126" font-size="12.5" font-weight="700" fill="#dc2626">c</text>
+  <text x="210" y="290" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">a</text>
+  <text x="320" y="290" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">b</text>
+  <text x="404" y="235" font-size="13" font-weight="700" fill="#1d4ed8">a</text>
+  <text x="404" y="128" font-size="13" font-weight="700" fill="#15803d">b</text>
+  <text x="350" y="40" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">a</text>
+  <text x="240" y="40" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">b</text>
+  <text x="158" y="95" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="end">a</text>
+  <text x="158" y="205" font-size="13" font-weight="700" fill="#15803d" text-anchor="end">b</text>
+  <polyline points="170,258 182,258 182,270" fill="none" stroke="#1d4ed8" stroke-width="1.2"/>
+  <polyline points="390,258 378,258 378,270" fill="none" stroke="#1d4ed8" stroke-width="1.2"/>
+  <polyline points="390,62 378,62 378,50" fill="none" stroke="#1d4ed8" stroke-width="1.2"/>
+  <polyline points="170,62 182,62 182,50" fill="none" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="280" y="312" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">(a+b)² = 4·(½·a·b) + c² ⇒ a² + b² = c²</text>
+</svg>
 
 $$\begin{aligned}
 (a+b)^2 &= 4 \cdot \left(\tfrac{1}{2}ab\right) + c^2 \\
@@ -531,28 +679,54 @@ Nếu $c^2 = a^2 + b^2$ (với $c$ là cạnh dài nhất) thì tam giác **vuô
 
 💡 **Trực giác / Hình dung**: tam giác là "nửa hình bình hành". Ghép 2 bản sao tam giác (1 cái lật ngược) → được hình bình hành diện tích đáy·cao → tam giác $= \frac{1}{2}\cdot$đáy$\cdot$cao. Đó là lý do mọi công thức diện tích tam giác đều có hệ số $\frac{1}{2}$.
 
-```
-   1 tam giác              ghép 2 bản (1 lật) → hình bình hành
-        /\                       /\------/
-       /  \           +         /  \    /
-      /    \                   /    \  /
-     /______\                 /______\/
-       đáy                       đáy
-   S = ½·đáy·cao            S_bình hành = đáy·cao
-                           ⇒ tam giác = nửa = ½·đáy·cao
-```
+<svg viewBox="0 0 680 280" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác là nửa hình bình hành: ghép 2 bản sao tam giác trong đó 1 bản lật ngược tạo thành hình bình hành diện tích đáy nhân cao, nên tam giác bằng một nửa đáy nhân cao">
+  <text x="150" y="34" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">1 tam giác</text>
+  <polygon points="70,200 230,200 130,90" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="130" y1="90" x2="130" y2="200" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <polyline points="140,200 140,190 130,190" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="122" y="150" font-size="11.5" fill="#475569" text-anchor="end">cao</text>
+  <text x="150" y="222" font-size="11.5" fill="#475569" text-anchor="middle">đáy</text>
+  <text x="150" y="248" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">S△ = ½·đáy·cao</text>
+  <text x="272" y="152" font-size="24" fill="#475569" text-anchor="middle">+</text>
+  <text x="460" y="34" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="middle">ghép 2 bản (1 bản lật) → hình bình hành</text>
+  <polygon points="330,200 490,200 390,90" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <polygon points="490,200 550,90 390,90" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <line x1="490" y1="200" x2="390" y2="90" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="410" y="222" font-size="11.5" fill="#475569" text-anchor="middle">đáy</text>
+  <text x="460" y="248" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">S bình hành = đáy·cao ⇒ S△ = ½·đáy·cao</text>
+</svg>
 
 ⚠ **Chiều cao là đường VUÔNG GÓC với đáy**, không phải cạnh bên:
 
-```
-        A                    "cao" h là đoạn AH ⊥ BC,
-       /|\                   KHÔNG phải cạnh AB hay AC.
-      / | \                  Với tam giác tù, chân đường cao H
-     /  |h \                 có thể nằm NGOÀI đoạn đáy.
-    /   |   \
-   B----H----C
-        đáy
-```
+<svg viewBox="0 0 680 260" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chiều cao h là đoạn AH vuông góc với đáy BC, không phải cạnh bên; với tam giác tù chân đường cao H nằm ngoài đoạn đáy trên phần kéo dài">
+  <polygon points="70,205 320,205 170,50" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="170" y1="50" x2="170" y2="205" stroke="#dc2626" stroke-width="2.5"/>
+  <polyline points="182,205 182,193 170,193" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="158" y="130" font-size="13" font-weight="700" fill="#dc2626" text-anchor="end">h</text>
+  <circle cx="170" cy="50" r="4.5" fill="#1a202c"/>
+  <circle cx="70" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="320" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="170" cy="205" r="4.5" fill="#dc2626"/>
+  <text x="170" y="38" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="70" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="320" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="170" y="227" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">H</text>
+  <text x="245" y="227" font-size="11.5" fill="#475569">đáy</text>
+  <text x="195" y="248" font-size="11.5" fill="#475569" text-anchor="middle">h = AH ⊥ BC — KHÔNG phải cạnh AB hay AC</text>
+  <polygon points="420,205 510,205 560,60" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="510" y1="205" x2="585" y2="205" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="560" y1="60" x2="560" y2="205" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 4"/>
+  <polyline points="548,205 548,193 560,193" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="560" cy="60" r="4.5" fill="#1a202c"/>
+  <circle cx="420" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="510" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="560" cy="205" r="4.5" fill="#dc2626"/>
+  <text x="560" y="48" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="420" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="510" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="560" y="227" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">H</text>
+  <text x="520" y="248" font-size="11.5" fill="#475569" text-anchor="middle">tam giác TÙ: chân H nằm NGOÀI đoạn đáy BC</text>
+</svg>
 
 3 công thức phổ biến:
 
@@ -661,16 +835,22 @@ Mỗi tam giác có 4 họ "đường đặc biệt", mỗi họ gồm 3 đườ
 >
 > **(c) Ví dụ số**: tam giác đỉnh $B(0,0)$, $C(6,0)$, $A(2,4)$. Trung điểm $M$ của $BC$ là $(3,0)$. Trung tuyến từ $A$ là đoạn $A(2,4)\to M(3,0)$.
 
-```
-          A
-         /|\
-        / | \
-       /  |  \         AM = trung tuyến từ A
-      /   |   \        M = trung điểm BC  (BM = MC)
-     /    |    \
-    B-----M-----C
-       (BM = MC)
-```
+<svg viewBox="0 0 520 260" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường trung tuyến AM nối đỉnh A với trung điểm M của cạnh BC, hai nửa BM và MC bằng nhau được đánh dấu vạch tick">
+  <polygon points="80,205 390,205 210,45" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="210" y1="45" x2="235" y2="205" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="157.5" y1="198" x2="157.5" y2="212" stroke="#15803d" stroke-width="2"/>
+  <line x1="312.5" y1="198" x2="312.5" y2="212" stroke="#15803d" stroke-width="2"/>
+  <circle cx="210" cy="45" r="4.5" fill="#1a202c"/>
+  <circle cx="80" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="390" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="235" cy="205" r="4.5" fill="#dc2626"/>
+  <text x="210" y="33" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="80" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="390" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="235" y="227" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">M</text>
+  <text x="310" y="78" font-size="11.5" fill="#475569">AM = trung tuyến từ A</text>
+  <text x="310" y="98" font-size="11.5" fill="#475569">M = trung điểm BC (BM = MC)</text>
+</svg>
 
 ### 7.2. Đường cao (altitude)
 
@@ -682,16 +862,22 @@ Mỗi tam giác có 4 họ "đường đặc biệt", mỗi họ gồm 3 đườ
 >
 > **(c) Ví dụ số**: tam giác vuông tại $B$, $B(0,0)$, $C(4,0)$, $A(0,3)$. Đường cao từ $A$ xuống $BC$ chính là cạnh $AB$ (vì $AB \perp BC$) — độ dài 3.
 
-```
-          A
-         /|\
-        / | \          AH = đường cao từ A
-       /  |  \         AH ⊥ BC  (góc tại H = 90°)
-      /   |h  \
-     /    |    \
-    B-----H-----C
-            └ 90°
-```
+<svg viewBox="0 0 520 260" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường cao AH từ đỉnh A hạ vuông góc xuống cạnh BC tại chân H, có ô vuông đánh dấu góc 90 độ tại H">
+  <polygon points="80,205 390,205 210,45" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="210" y1="45" x2="210" y2="205" stroke="#dc2626" stroke-width="2.5"/>
+  <polyline points="222,205 222,193 210,193" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="198" y="130" font-size="13" font-weight="700" fill="#dc2626" text-anchor="end">h</text>
+  <circle cx="210" cy="45" r="4.5" fill="#1a202c"/>
+  <circle cx="80" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="390" cy="205" r="4.5" fill="#1a202c"/>
+  <circle cx="210" cy="205" r="4.5" fill="#dc2626"/>
+  <text x="210" y="33" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="80" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="390" y="227" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="210" y="227" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">H</text>
+  <text x="310" y="78" font-size="11.5" fill="#475569">AH = đường cao từ A</text>
+  <text x="310" y="98" font-size="11.5" fill="#475569">AH ⊥ BC (góc tại H = 90°)</text>
+</svg>
 
 ### 7.3. Đường phân giác (angle bisector)
 
@@ -703,14 +889,24 @@ Mỗi tam giác có 4 họ "đường đặc biệt", mỗi họ gồm 3 đườ
 >
 > **(c) Ví dụ số (định lý phân giác)**: phân giác từ $A$ cắt $BC$ tại $D$ thì $\frac{BD}{DC} = \frac{AB}{AC}$. Nếu $AB=6$, $AC=4$, $BC=5$ thì $BD:DC = 6:4 = 3:2$ ⇒ $BD = 3$, $DC = 2$.
 
-```
-          A
-         /α\            AD chia góc Â thành 2 nửa bằng nhau
-        /α  \           (góc trái = góc phải = α)
-       /     \          BD/DC = AB/AC  (định lý phân giác)
-      /       \
-     B----D----C
-```
+<svg viewBox="0 0 520 280" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường phân giác AD từ đỉnh A chia góc A thành hai nửa bằng nhau alpha, cắt cạnh BC tại D với tỉ lệ BD trên DC bằng AB trên AC">
+  <polygon points="80,200 360,200 200,40" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="200" y1="40" x2="211" y2="200" stroke="#dc2626" stroke-width="2.5"/>
+  <path d="M182,64 A30,30 0 0 0 202.1,79.9" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M202.1,79.9 A30,30 0 0 0 221.2,61.2" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="184" y="86" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">α</text>
+  <text x="222" y="84" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">α</text>
+  <circle cx="200" cy="40" r="4.5" fill="#1a202c"/>
+  <circle cx="80" cy="200" r="4.5" fill="#1a202c"/>
+  <circle cx="360" cy="200" r="4.5" fill="#1a202c"/>
+  <circle cx="211" cy="200" r="4.5" fill="#dc2626"/>
+  <text x="200" y="28" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="80" y="222" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="360" y="222" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="211" y="222" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">D</text>
+  <text x="260" y="246" font-size="11.5" fill="#475569" text-anchor="middle">AD chia góc tại A thành 2 nửa bằng nhau (α = α)</text>
+  <text x="260" y="264" font-size="11.5" font-weight="700" fill="#1a202c" text-anchor="middle">BD/DC = AB/AC (định lý phân giác)</text>
+</svg>
 
 ### 7.4. Đường trung trực (perpendicular bisector)
 
@@ -722,13 +918,33 @@ Mỗi tam giác có 4 họ "đường đặc biệt", mỗi họ gồm 3 đườ
 >
 > **(c) Ví dụ số**: cạnh $BC$ với $B(0,0)$, $C(6,0)$. Trung điểm $(3,0)$, trung trực là đường thẳng đứng $x = 3$. Điểm $(3, 5)$ trên đó cách đều $B$ và $C$: $\sqrt{3^2+5^2} = \sqrt{34}$ cho cả hai ✓.
 
-```
-          ↑ trung trực (⊥ BC tại trung điểm)
-          |
-    B-----+-----C       Vuông góc với BC
-       (trung điểm)      VÀ đi qua trung điểm BC
-          |              ⇒ mọi điểm trên nó cách đều B, C
-```
+<svg viewBox="0 0 520 250" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường trung trực của cạnh BC: đường thẳng vuông góc với BC tại trung điểm M, điểm P bất kỳ trên trung trực cách đều hai đầu mút B và C">
+  <defs>
+    <marker id="t17-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+  <line x1="90" y1="170" x2="370" y2="170" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="230" y1="26" x2="230" y2="214" stroke="#dc2626" stroke-width="2" marker-start="url(#t17-ar)" marker-end="url(#t17-ar)"/>
+  <polyline points="242,170 242,158 230,158" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="160" y1="163" x2="160" y2="177" stroke="#15803d" stroke-width="2"/>
+  <line x1="300" y1="163" x2="300" y2="177" stroke="#15803d" stroke-width="2"/>
+  <line x1="230" y1="78" x2="90" y2="170" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="230" y1="78" x2="370" y2="170" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="156.7" y1="119" x2="163.3" y2="129" stroke="#15803d" stroke-width="2"/>
+  <line x1="296.7" y1="129" x2="303.3" y2="119" stroke="#15803d" stroke-width="2"/>
+  <circle cx="90" cy="170" r="4.5" fill="#1a202c"/>
+  <circle cx="370" cy="170" r="4.5" fill="#1a202c"/>
+  <circle cx="230" cy="170" r="4.5" fill="#1a202c"/>
+  <circle cx="230" cy="78" r="5" fill="#15803d"/>
+  <text x="218" y="74" font-size="13" font-weight="700" fill="#15803d" text-anchor="end">P</text>
+  <text x="312" y="104" font-size="12" font-weight="700" fill="#15803d">PB = PC</text>
+  <text x="244" y="44" font-size="12" font-weight="700" fill="#dc2626">trung trực</text>
+  <text x="90" y="192" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="370" y="192" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="230" y="192" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">M (trung điểm)</text>
+  <text x="260" y="234" font-size="11.5" fill="#475569" text-anchor="middle">⊥ BC tại trung điểm M ⇒ mọi điểm P trên trung trực cách đều B và C</text>
+</svg>
 
 **Bảng so sánh 4 đường** (rất dễ lẫn):
 
@@ -782,13 +998,34 @@ Kiểm tỉ lệ 2:1 trên trung tuyến từ $C(3,9)$ tới trung điểm $AB =
 
 ### 8.2. Trực tâm (orthocenter, H) — giao 3 đường cao
 
-```
-   Nhọn: H bên TRONG     Vuông: H ≡ đỉnh góc vuông     Tù: H bên NGOÀI
-        /\                    |\                          H
-       / H\                   |H\                          \ ___
-      /    \                  |  \                      ____\/   (ngoài tam giác)
-     /______\                 |___\                    /
-```
+<svg viewBox="0 0 760 330" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vị trí trực tâm H theo loại tam giác: tam giác nhọn H nằm bên trong, tam giác vuông H trùng đỉnh góc vuông, tam giác tù H nằm bên ngoài tam giác">
+  <text x="140" y="40" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">NHỌN — H bên TRONG</text>
+  <polygon points="60,210 220,210 130,90" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="130" y1="90" x2="130" y2="210" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <line x1="60" y1="210" x2="162.4" y2="133.2" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <circle cx="130" cy="157.5" r="5" fill="#dc2626"/>
+  <text x="142" y="162" font-size="13" font-weight="700" fill="#dc2626">H</text>
+  <text x="140" y="262" font-size="11" fill="#475569" text-anchor="middle">các đường cao cắt nhau bên trong</text>
+  <text x="385" y="40" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">VUÔNG — H ≡ đỉnh góc vuông</text>
+  <polygon points="310,210 460,210 310,90" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <polyline points="310,196 324,196 324,210" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="310" cy="210" r="5.5" fill="#dc2626"/>
+  <text x="310" y="78" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="472" y="216" font-size="13" font-weight="700" fill="#1a202c">C</text>
+  <text x="310" y="238" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="middle">H ≡ B</text>
+  <text x="385" y="262" font-size="11" fill="#475569" text-anchor="middle">2 cạnh góc vuông chính là 2 đường cao</text>
+  <text x="610" y="40" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">TÙ — H bên NGOÀI</text>
+  <polygon points="560,210 700,210 520,120" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="560" y1="210" x2="505" y2="210" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 4"/>
+  <line x1="520" y1="120" x2="520" y2="290" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <line x1="560" y1="210" x2="520" y2="290" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <circle cx="520" cy="290" r="5" fill="#dc2626"/>
+  <text x="534" y="296" font-size="12.5" font-weight="700" fill="#dc2626">H (bên ngoài)</text>
+  <text x="508" y="114" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="568" y="204" font-size="13" font-weight="700" fill="#1a202c">B</text>
+  <text x="712" y="216" font-size="13" font-weight="700" fill="#1a202c">C</text>
+</svg>
+
 Vị trí $H$ phụ thuộc loại tam giác: trong (nhọn), tại đỉnh vuông (vuông), ngoài (tù).
 
 ### 8.3. Tâm đường tròn nội tiếp (incenter, I) — giao 3 phân giác

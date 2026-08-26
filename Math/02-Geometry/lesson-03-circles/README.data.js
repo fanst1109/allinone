@@ -31,22 +31,30 @@ window.README_MD = `# Lesson 03 — Đường tròn
 
 **Sơ đồ tổng quát các thành phần** (bán kính – đường kính – dây cung):
 
-\`\`\`
-                  cung lớn (major arc)
-              ╭───────────────────────╮
-          P •                           • Q
-           ╱ ╲                         ╱
-          ╱   ╲ R (bán kính)         ╱
-         │     ╲                   ╱
-         │      ╲                ╱  ← dây cung PQ (chord)
-   A •───┼───────• O────────────• B
-         │     R   (tâm/center) R
-         │      đường kính AB = 2R (diameter)
-          ╲                    ╱
-           ╲                  ╱
-            ╰────────────────╯
-              cung nhỏ (minor arc) chắn bởi dây PQ
-\`\`\`
+<svg viewBox="0 0 600 380" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Các thành phần của đường tròn: tâm O, bán kính OP bằng R, đường kính AB bằng 2R đi qua tâm, dây cung PQ không qua tâm chia đường tròn thành cung nhỏ phía trên và cung lớn phía dưới">
+  <circle cx="300" cy="190" r="130" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M225.4,83.5 A130,130 0 0 1 374.6,83.5" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <line x1="225.4" y1="83.5" x2="374.6" y2="83.5" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="170" y1="190" x2="430" y2="190" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="300" y1="190" x2="225.4" y2="83.5" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="225.4" cy="83.5" r="4.5" fill="#1a202c"/>
+  <circle cx="374.6" cy="83.5" r="4.5" fill="#1a202c"/>
+  <circle cx="170" cy="190" r="4.5" fill="#1a202c"/>
+  <circle cx="430" cy="190" r="4.5" fill="#1a202c"/>
+  <circle cx="300" cy="190" r="4.5" fill="#1a202c"/>
+  <text x="212" y="80" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">P</text>
+  <text x="388" y="80" font-size="14" font-weight="700" fill="#1a202c">Q</text>
+  <text x="154" y="196" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="446" y="196" font-size="14" font-weight="700" fill="#1a202c">B</text>
+  <text x="308" y="180" font-size="13" font-weight="700" fill="#1a202c">O (tâm)</text>
+  <text x="252" y="132" font-size="12.5" font-weight="700" fill="#1d4ed8" text-anchor="end">R (bán kính)</text>
+  <text x="365" y="182" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">R</text>
+  <text x="300" y="214" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">đường kính AB = 2R</text>
+  <text x="300" y="106" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">dây cung PQ (chord)</text>
+  <text x="300" y="48" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">cung nhỏ (minor arc)</text>
+  <text x="300" y="342" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">cung lớn (major arc)</text>
+  <text x="300" y="368" font-size="11.5" fill="#475569" text-anchor="middle">Dây PQ chia đường tròn thành cung nhỏ (đỏ, phía trên) và cung lớn (phần còn lại)</text>
+</svg>
 
 Đọc sơ đồ: **O** là tâm (center). Đoạn **OA**, **OB** là **bán kính (radius)** R. Đoạn **AB** đi qua O là **đường kính (diameter)** $D = 2R$. Đoạn **PQ** nối 2 điểm trên viền (không qua O) là **dây cung (chord)** — nó chia viền thành **cung nhỏ (minor arc)** và **cung lớn (major arc)**.
 
@@ -152,18 +160,23 @@ trong đó **$\\pi \\approx 3.14159$**.
 
 💡 **Trực giác / Hình dung**: cắt một miếng **bánh pizza** từ chiếc bánh tròn. Phần **vỏ cong** của miếng bánh là **cung (arc)**; cả miếng bánh tam giác-quạt là **hình quạt (sector)**. Nếu miếng bánh chiếm góc $\\theta$ trong tổng $360^\\circ$ thì nó chiếm đúng **tỉ lệ $\\theta/360^\\circ$** của cả viền (chu vi) và của cả mặt bánh (diện tích).
 
-\`\`\`
-        cung ℓ (arc) — phần viền cong
-            ╭────────────╮
-          ╱                ╲
-        ╱  ╲              ╱  ╲
-      ╱     ╲   hình     ╱     ╲
-    ╱        ╲  quạt    ╱        ╲
-   │      θ   ╲(sector)╱   R     │
-   │  ╭────────• O ────────╮     │
-              tâm
-   2 cạnh O→viền là bán kính R, góc giữa chúng = θ
-\`\`\`
+<svg viewBox="0 0 560 344" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình quạt như miếng bánh pizza: 2 cạnh là 2 bán kính R hợp góc ở tâm theta, phần viền cong giữa 2 đầu là cung; cung và quạt chiếm tỉ lệ theta trên 360 độ của chu vi và diện tích">
+  <circle cx="280" cy="175" r="115" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M280,175 L379.6,117.5 A115,115 0 0 0 260,61.7 Z" fill="#1d4ed8" fill-opacity="0.10" stroke="none"/>
+  <path d="M379.6,117.5 A115,115 0 0 0 260,61.7" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <line x1="280" y1="175" x2="379.6" y2="117.5" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="175" x2="260" y2="61.7" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M306,160 A30,30 0 0 0 274.8,145.5" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="301" y="138" font-size="13" font-weight="700" fill="#dc2626">θ</text>
+  <text x="334" y="158" font-size="13" font-weight="700" fill="#1d4ed8">R</text>
+  <text x="340" y="54" font-size="12" font-weight="700" fill="#dc2626">cung ℓ (arc)</text>
+  <text x="312" y="104" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">hình quạt</text>
+  <text x="312" y="120" font-size="11" fill="#1d4ed8" text-anchor="middle">(sector)</text>
+  <circle cx="280" cy="175" r="4.5" fill="#1a202c"/>
+  <text x="270" y="192" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">O (tâm)</text>
+  <text x="280" y="314" font-size="11.5" fill="#475569" text-anchor="middle">Miếng pizza: 2 cạnh O→viền là bán kính R, góc giữa chúng là θ, phần viền cong là cung ℓ</text>
+  <text x="280" y="334" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">θ/360° = tỉ lệ của cung trong chu vi = tỉ lệ của quạt trong diện tích</text>
+</svg>
 
 **Công thức theo độ ($\\theta$ tính bằng độ)**:
 
@@ -237,42 +250,85 @@ $$S_\\text{quạt} = \\tfrac12 R^2\\theta = \\tfrac12\\cdot 16\\cdot \\frac{\\pi
 
 **Sơ đồ 3 vị trí của đường thẳng** (d = khoảng cách từ tâm O tới đường thẳng):
 
-\`\`\`
-   d > R: KHÔNG CẮT          d = R: TIẾP TUYẾN         d < R: CÁT TUYẾN
-  ─────────────────         ─────────●──────────       ────●───────●─────
-                                     │ (1 điểm T)          │       │
-        ╭───╮                   ╭────┴╮                 ╭──┴───────┴──╮
-       ╱     ╲                 ╱   R  ╲               ╱  dây cung    ╲
-      │   O   │               │   O    │             │      O         │
-       ╲     ╱                 ╲      ╱               ╲              ╱
-        ╰───╯                   ╰────╯                 ╰────────────╯
-   (đường ở ngoài)        OT ⊥ tiếp tuyến tại T    cắt 2 điểm → dây cung
-\`\`\`
+<svg viewBox="0 0 720 264" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba vị trí tương đối của đường thẳng và đường tròn theo khoảng cách d từ tâm O tới đường thẳng: d lớn hơn R không cắt, d bằng R tiếp tuyến chạm 1 điểm T, d nhỏ hơn R cát tuyến cắt 2 điểm A B tạo dây cung">
+  <text x="120" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">d &gt; R — không cắt</text>
+  <line x1="30" y1="58" x2="210" y2="58" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="120" cy="150" r="52" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="120" y1="150" x2="120" y2="58" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <text x="128" y="108" font-size="12" font-weight="700" fill="#475569">d</text>
+  <circle cx="120" cy="150" r="4" fill="#1a202c"/>
+  <text x="110" y="156" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="120" y="236" font-size="11.5" fill="#475569" text-anchor="middle">0 điểm chung</text>
+  <text x="360" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">d = R — tiếp tuyến</text>
+  <line x1="270" y1="98" x2="450" y2="98" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="360" cy="150" r="52" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="360" y1="150" x2="360" y2="98" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <polyline points="371,98 371,109 360,109" fill="none" stroke="#1a202c" stroke-width="1.3"/>
+  <text x="376" y="128" font-size="12" font-weight="700" fill="#475569">d = R</text>
+  <circle cx="360" cy="98" r="4.5" fill="#dc2626"/>
+  <text x="352" y="90" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">T</text>
+  <circle cx="360" cy="150" r="4" fill="#1a202c"/>
+  <text x="350" y="156" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="360" y="236" font-size="11.5" fill="#475569" text-anchor="middle">1 điểm chung (T) · OT ⊥ đường thẳng</text>
+  <text x="600" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">d &lt; R — cát tuyến</text>
+  <line x1="500" y1="122" x2="700" y2="122" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="556.2" y1="122" x2="643.8" y2="122" stroke="#dc2626" stroke-width="3.5"/>
+  <circle cx="600" cy="150" r="52" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="600" y1="150" x2="600" y2="122" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <text x="606" y="140" font-size="12" font-weight="700" fill="#475569">d</text>
+  <circle cx="556.2" cy="122" r="4.5" fill="#dc2626"/>
+  <circle cx="643.8" cy="122" r="4.5" fill="#dc2626"/>
+  <text x="550" y="112" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">A</text>
+  <text x="650" y="112" font-size="12.5" font-weight="700" fill="#dc2626">B</text>
+  <circle cx="600" cy="150" r="4" fill="#1a202c"/>
+  <text x="590" y="162" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="600" y="236" font-size="11.5" fill="#475569" text-anchor="middle">2 điểm chung → dây cung AB (đỏ)</text>
+  <text x="360" y="258" font-size="11.5" fill="#475569" text-anchor="middle">d = khoảng cách từ tâm O tới đường thẳng (đoạn nét đứt)</text>
+</svg>
 
 **Tiếp tuyến vuông góc bán kính** — sơ đồ riêng:
 
-\`\`\`
-                tiếp tuyến t
-       ────────────●────────────
-                   │T
-                   │  ← bán kính OT ⊥ t  (góc OTt = 90°)
-                   │
-                   • O (tâm)
-\`\`\`
+<svg viewBox="0 0 560 332" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tiếp tuyến t chạm đường tròn tại đúng một điểm T và vuông góc với bán kính OT tại đó, đánh dấu ô vuông 90 độ">
+  <circle cx="280" cy="190" r="95" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="120" y1="95" x2="440" y2="95" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="280" y1="95" x2="280" y2="190" stroke="#1d4ed8" stroke-width="2.5"/>
+  <polyline points="293,95 293,108 280,108" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="299" y="118" font-size="11.5" fill="#1a202c">90°</text>
+  <circle cx="280" cy="95" r="4.5" fill="#dc2626"/>
+  <circle cx="280" cy="190" r="4.5" fill="#1a202c"/>
+  <text x="268" y="86" font-size="14" font-weight="700" fill="#dc2626" text-anchor="end">T</text>
+  <text x="128" y="84" font-size="11.5" font-weight="700" fill="#15803d">tiếp tuyến t</text>
+  <text x="292" y="150" font-size="11.5" font-weight="700" fill="#1d4ed8">bán kính OT</text>
+  <text x="280" y="212" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">O (tâm)</text>
+  <text x="280" y="320" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">OT ⊥ t tại tiếp điểm T (góc 90°) — t chạm đường tròn tại đúng 1 điểm</text>
+</svg>
 
 **Hai tiếp tuyến từ một điểm ngoài** P (độ dài bằng nhau):
 
-\`\`\`
-            • A  (tiếp điểm)
-           ╱│
-     PA   ╱ │
-        ╱   │  ╭────╮
-   P •──    │ │  O  │      PA = PB (2 đoạn tiếp tuyến bằng nhau)
-        ╲   │ ╰────╯
-     PB   ╲ │
-           ╲│
-            • B  (tiếp điểm)
-\`\`\`
+<svg viewBox="0 0 560 330" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Từ điểm P ngoài đường tròn kẻ được 2 tiếp tuyến chạm tại A và B; hai đoạn PA và PB bằng nhau đánh dấu tick, bán kính OA vuông góc PA và OB vuông góc PB">
+  <circle cx="390" cy="160" r="85" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="80" y1="160" x2="390" y2="160" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="390" y1="160" x2="366.7" y2="78.3" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <line x1="390" y1="160" x2="366.7" y2="241.7" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <line x1="80" y1="160" x2="366.7" y2="78.3" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="80" y1="160" x2="366.7" y2="241.7" stroke="#1d4ed8" stroke-width="2.5"/>
+  <polyline points="369.7,88.9 359.1,91.9 356.1,81.3" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <polyline points="369.7,231.1 359.1,228.1 356.1,238.7" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="221.4" y1="112.5" x2="225.2" y2="125.9" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="221.4" y1="207.5" x2="225.2" y2="194.1" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="206" y="106" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">PA</text>
+  <text x="206" y="222" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">PB</text>
+  <circle cx="80" cy="160" r="4.5" fill="#1a202c"/>
+  <circle cx="366.7" cy="78.3" r="4.5" fill="#dc2626"/>
+  <circle cx="366.7" cy="241.7" r="4.5" fill="#dc2626"/>
+  <circle cx="390" cy="160" r="4" fill="#1a202c"/>
+  <text x="66" y="164" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">P</text>
+  <text x="362" y="62" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A (tiếp điểm)</text>
+  <text x="362" y="266" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B (tiếp điểm)</text>
+  <text x="400" y="152" font-size="13" font-weight="700" fill="#1a202c">O</text>
+  <text x="280" y="298" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">PA = PB — 2 đoạn tiếp tuyến từ P bằng nhau (tick đỏ)</text>
+  <text x="280" y="316" font-size="11.5" fill="#475569" text-anchor="middle">OA ⊥ PA, OB ⊥ PB tại tiếp điểm (ô vuông) · hình đối xứng qua trục PO</text>
+</svg>
 
 **Công thức dây cung**: nếu đường thẳng cách tâm khoảng $d < R$, độ dài dây cung là $2\\sqrt{R^2 - d^2}$ (suy từ Pythagore: nửa dây, $d$, và R tạo tam giác vuông).
 
@@ -326,43 +382,73 @@ Góc có đỉnh ở **tâm O**, 2 cạnh là 2 bán kính.
 
 Góc ở tâm = **số đo cung** mà nó chắn.
 
-\`\`\`
-   Góc ở TÂM (central angle)
-            A
-            ●
-           ╱
-          ╱
-         ╱  ∠AOB = θ  (đỉnh tại O)
-   O ●──────────● B
-   θ = số đo cung AB nó chắn
-\`\`\`
+<svg viewBox="0 0 560 330" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc ở tâm AOB có đỉnh tại tâm O, hai cạnh là hai bán kính OA và OB, số đo bằng số đo cung AB nó chắn">
+  <circle cx="280" cy="165" r="110" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M343.1,74.9 A110,110 0 0 1 390,165" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <line x1="280" y1="165" x2="343.1" y2="74.9" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="165" x2="390" y2="165" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M310,165 A30,30 0 0 0 297.2,140.4" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="322" y="150" font-size="13" font-weight="700" fill="#dc2626">θ</text>
+  <text x="398" y="104" font-size="12" font-weight="700" fill="#dc2626">cung AB</text>
+  <circle cx="280" cy="165" r="4.5" fill="#1a202c"/>
+  <circle cx="343.1" cy="74.9" r="4.5" fill="#1a202c"/>
+  <circle cx="390" cy="165" r="4.5" fill="#1a202c"/>
+  <text x="266" y="170" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="350" y="66" font-size="14" font-weight="700" fill="#1a202c">A</text>
+  <text x="404" y="170" font-size="14" font-weight="700" fill="#1a202c">B</text>
+  <text x="280" y="300" font-size="11.5" fill="#475569" text-anchor="middle">Đỉnh tại tâm O · 2 cạnh là 2 bán kính OA, OB</text>
+  <text x="280" y="320" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">∠AOB = θ = số đo cung AB nó chắn</text>
+</svg>
 
 ### 4.2. Góc nội tiếp (Inscribed angle)
 
 Góc có đỉnh **trên đường tròn**, 2 cạnh là 2 dây.
 
-\`\`\`
-   Góc NỘI TIẾP (inscribed angle)
-              B  (đỉnh TRÊN viền)
-             ●
-            ╱ ╲
-           ╱   ╲   ∠ABC = α
-          ╱     ╲
-       A ●       ● C
-       cùng chắn cung AC như góc tâm ∠AOC
-       → α = ½ · ∠AOC
-\`\`\`
+<svg viewBox="0 0 560 340" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc nội tiếp ABC có đỉnh B nằm trên đường tròn, hai cạnh là hai dây BA và BC, chắn cung AC và bằng một nửa góc ở tâm AOC">
+  <circle cx="280" cy="160" r="110" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M184.7,215 A110,110 0 0 0 375.3,215" fill="none" stroke="#15803d" stroke-width="3.5"/>
+  <line x1="251.5" y1="53.8" x2="184.7" y2="215" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="251.5" y1="53.8" x2="375.3" y2="215" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M240,81.5 A30,30 0 0 0 269.8,77.6" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="257" y="102" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">α</text>
+  <circle cx="251.5" cy="53.8" r="4.5" fill="#1a202c"/>
+  <circle cx="184.7" cy="215" r="4.5" fill="#1a202c"/>
+  <circle cx="375.3" cy="215" r="4.5" fill="#1a202c"/>
+  <circle cx="280" cy="160" r="3.5" fill="#1a202c"/>
+  <text x="244" y="42" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">B</text>
+  <text x="254" y="42" font-size="11.5" fill="#475569">(đỉnh nằm TRÊN viền)</text>
+  <text x="170" y="224" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="390" y="224" font-size="14" font-weight="700" fill="#1a202c">C</text>
+  <text x="292" y="164" font-size="13" font-weight="700" fill="#1a202c">O</text>
+  <text x="280" y="292" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">cung AC bị chắn</text>
+  <text x="280" y="312" font-size="11.5" fill="#475569" text-anchor="middle">Đỉnh B trên đường tròn · 2 cạnh là 2 dây BA, BC · cùng chắn cung AC như góc ở tâm AÔC</text>
+  <text x="280" y="331" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">∠ABC = α = ½ · ∠AOC</text>
+</svg>
 
 **So sánh trực tiếp cùng chắn 1 cung AC**:
 
-\`\`\`
-            B ●  (góc nội tiếp ∠ABC = α)
-             ╱ ╲
-            ╱   ╲
-           ╱  O  ╲   ∠AOC = 2α  (góc ở tâm, gấp đôi)
-       A ●───●───● C
-           cung AC
-\`\`\`
+<svg viewBox="0 0 560 326" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh trên cùng cung AC: góc nội tiếp alpha tại đỉnh B trên đường tròn bằng một nửa góc ở tâm 2 alpha tại O">
+  <circle cx="280" cy="160" r="110" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M184.7,215 A110,110 0 0 0 375.3,215" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <line x1="251.5" y1="53.8" x2="184.7" y2="215" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="251.5" y1="53.8" x2="375.3" y2="215" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="160" x2="184.7" y2="215" stroke="#15803d" stroke-width="2"/>
+  <line x1="280" y1="160" x2="375.3" y2="215" stroke="#15803d" stroke-width="2"/>
+  <path d="M240,81.5 A30,30 0 0 0 269.8,77.6" fill="none" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="257" y="102" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">α</text>
+  <path d="M255.8,174 A28,28 0 0 0 304.2,174" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="280" y="206" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">2α</text>
+  <circle cx="251.5" cy="53.8" r="4.5" fill="#1a202c"/>
+  <circle cx="184.7" cy="215" r="4.5" fill="#1a202c"/>
+  <circle cx="375.3" cy="215" r="4.5" fill="#1a202c"/>
+  <circle cx="280" cy="160" r="4.5" fill="#1a202c"/>
+  <text x="251" y="42" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="170" y="224" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="390" y="224" font-size="14" font-weight="700" fill="#1a202c">C</text>
+  <text x="290" y="154" font-size="13" font-weight="700" fill="#1a202c">O</text>
+  <text x="280" y="292" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">cung AC</text>
+  <text x="280" y="314" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Cùng chắn cung AC: góc nội tiếp α (đỉnh B trên viền) = ½ · góc ở tâm 2α (đỉnh O)</text>
+</svg>
 
 💡 **Định lý nội tiếp**: góc nội tiếp = **$\\frac{1}{2}$ góc ở tâm** cùng chắn cung đó.
 
@@ -382,17 +468,40 @@ Góc có đỉnh **trên đường tròn**, 2 cạnh là 2 dây.
 
 Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 
-\`\`\`
-        B ●
-         ╱│╲
-        ╱ │ ╲
-     A ●  │  ● C
-        ╲ │ ╱
-         ╲│╱
-        O ●  ← tâm, BD là đường kính
-          │
-          ● D
-\`\`\`
+<svg viewBox="0 0 560 352" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chứng minh định lý góc nội tiếp: vẽ đường kính BD qua tâm O, hai tam giác cân OAB và OCB cho góc ngoài AÔD bằng 2 x mũ và CÔD bằng 2 y mũ, suy ra góc ở tâm AÔC bằng 2 lần góc nội tiếp ABC">
+  <circle cx="280" cy="165" r="115" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="50" x2="280" y2="280" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6,5"/>
+  <line x1="280" y1="50" x2="171.9" y2="125.7" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="50" x2="391.1" y2="135.2" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="165" x2="171.9" y2="125.7" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="280" y1="165" x2="391.1" y2="135.2" stroke="#15803d" stroke-width="1.8"/>
+  <text x="222" y="140" font-size="12" font-weight="700" fill="#15803d" text-anchor="end">R</text>
+  <text x="340" y="146" font-size="12" font-weight="700" fill="#15803d">R</text>
+  <path d="M252.2,69.5 A34,34 0 0 0 280,84" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <path d="M280,84 A34,34 0 0 0 307,70.7" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="252" y="100" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="end">x̂</text>
+  <text x="308" y="100" font-size="12.5" font-weight="700" fill="#dc2626">ŷ</text>
+  <path d="M192.6,133.2 A22,22 0 0 0 189.9,113.1" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <text x="206" y="125" font-size="12.5" font-weight="700" fill="#15803d">x̂</text>
+  <path d="M369.8,140.9 A22,22 0 0 1 373.6,121.8" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="356" y="133" font-size="12.5" font-weight="700" fill="#dc2626" text-anchor="end">ŷ</text>
+  <path d="M255.6,156.1 A26,26 0 0 0 280,191" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <path d="M280,191 A26,26 0 0 0 305.1,158.3" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="244" y="192" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="end">2x̂</text>
+  <text x="316" y="194" font-size="12.5" font-weight="700" fill="#dc2626">2ŷ</text>
+  <circle cx="280" cy="50" r="4.5" fill="#1a202c"/>
+  <circle cx="171.9" cy="125.7" r="4.5" fill="#1a202c"/>
+  <circle cx="391.1" cy="135.2" r="4.5" fill="#1a202c"/>
+  <circle cx="280" cy="165" r="4.5" fill="#1a202c"/>
+  <circle cx="280" cy="280" r="4.5" fill="#1a202c"/>
+  <text x="280" y="38" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="158" y="128" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">A</text>
+  <text x="405" y="138" font-size="14" font-weight="700" fill="#1a202c">C</text>
+  <text x="266" y="160" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="280" y="300" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">D</text>
+  <text x="280" y="322" font-size="11.5" fill="#475569" text-anchor="middle">OA = OB = OC = R → △OAB, △OCB cân · góc ngoài: AÔD = 2x̂, CÔD = 2ŷ</text>
+  <text x="280" y="342" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">AÔC = 2x̂ + 2ŷ = 2 · (x̂ + ŷ) = 2 · góc ABC</text>
+</svg>
 
 **Chứng minh từng bước** (cấm bỏ bước):
 
@@ -532,17 +641,26 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 
 💡 **Trực giác / Hình dung**: tưởng tượng góc nội tiếp ABC, rồi cho điểm B **trượt dần** về phía A cho tới khi cạnh BA "dẹt" thành **tiếp tuyến** tại A. Lúc đó góc nội tiếp biến thành góc giữa **tiếp tuyến** và **dây** AC. Vì là "trường hợp giới hạn" của góc nội tiếp, nó cũng bằng **một nửa** cung bị chắn.
 
-\`\`\`
-        tiếp tuyến t
-   ───────●───────────
-          │A╲
-          │  ╲  dây AC
-        R │   ╲
-          │ θ  ● C
-          • O
-   Góc θ giữa tiếp tuyến t và dây AC
-   = ½ · (số đo cung AC nằm "bên trong" góc)
-\`\`\`
+<svg viewBox="0 0 560 318" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc theta giữa tiếp tuyến t tại tiếp điểm A và dây AC bằng một nửa số đo cung AC nằm bên trong góc">
+  <circle cx="280" cy="160" r="100" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M280,260 A100,100 0 0 0 374,125.8" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <line x1="100" y1="260" x2="460" y2="260" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="280" y1="260" x2="374" y2="125.8" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="280" y1="160" x2="280" y2="260" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <text x="272" y="212" font-size="12" fill="#475569" text-anchor="end">R</text>
+  <path d="M310,260 A30,30 0 0 0 297.2,235.4" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320" y="246" font-size="13" font-weight="700" fill="#dc2626">θ</text>
+  <circle cx="280" cy="260" r="4.5" fill="#1a202c"/>
+  <circle cx="374" cy="125.8" r="4.5" fill="#1a202c"/>
+  <circle cx="280" cy="160" r="4" fill="#1a202c"/>
+  <text x="266" y="280" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">A (tiếp điểm)</text>
+  <text x="386" y="122" font-size="14" font-weight="700" fill="#1a202c">C</text>
+  <text x="268" y="156" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <text x="112" y="248" font-size="11.5" font-weight="700" fill="#15803d">tiếp tuyến t</text>
+  <text x="338" y="198" font-size="11.5" font-weight="700" fill="#1d4ed8">dây AC</text>
+  <text x="392" y="238" font-size="11.5" font-weight="700" fill="#dc2626">cung AC bị chắn</text>
+  <text x="280" y="306" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">θ = ½ · số đo cung AC (cung nằm bên trong góc)</text>
+</svg>
 
 **Định lý**: góc tạo bởi tiếp tuyến và dây cung tại tiếp điểm = **$\\frac12$ số đo cung bị chắn** (cung nằm bên trong góc) = bằng **góc nội tiếp** chắn cung đó ở phía đối diện.
 
@@ -565,14 +683,27 @@ Dòng $180^\\circ$ tái khẳng định mục 3: tiếp tuyến vuông góc vớ
 
 **Trường hợp P ngoài đường tròn — hai cát tuyến**:
 
-\`\`\`
-        ╭──────────╮
-   P •──┼──● A      │      Cát tuyến 1 cắt tại A, B
-       ╲ │   ╲      │      Cát tuyến 2 cắt tại C, D
-        ╲│    ● B   │
-   C ●───┼──● D ────╯
-   PA·PB = PC·PD  (phương tích)
-\`\`\`
+<svg viewBox="0 0 560 326" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Từ điểm P ngoài đường tròn kẻ 2 cát tuyến: cát tuyến 1 cắt đường tròn tại A và B, cát tuyến 2 cắt tại C và D; tích PA nhân PB bằng PC nhân PD gọi là phương tích của P">
+  <circle cx="400" cy="160" r="95" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="70" y1="160" x2="484.2" y2="71.9" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="70" y1="160" x2="464.6" y2="258.5" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="166" y="128" font-size="11.5" font-weight="700" fill="#15803d">cát tuyến 1</text>
+  <text x="166" y="204" font-size="11.5" font-weight="700" fill="#dc2626">cát tuyến 2</text>
+  <circle cx="70" cy="160" r="4.5" fill="#1a202c"/>
+  <circle cx="321.3" cy="106.5" r="4.5" fill="#15803d"/>
+  <circle cx="450" cy="79.2" r="4.5" fill="#15803d"/>
+  <circle cx="330.5" cy="225" r="4.5" fill="#dc2626"/>
+  <circle cx="430.6" cy="250" r="4.5" fill="#dc2626"/>
+  <circle cx="400" cy="160" r="4" fill="#1a202c"/>
+  <text x="56" y="164" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">P</text>
+  <text x="314" y="98" font-size="14" font-weight="700" fill="#15803d" text-anchor="end">A</text>
+  <text x="456" y="72" font-size="14" font-weight="700" fill="#15803d">B</text>
+  <text x="324" y="244" font-size="14" font-weight="700" fill="#dc2626" text-anchor="end">C</text>
+  <text x="438" y="268" font-size="14" font-weight="700" fill="#dc2626">D</text>
+  <text x="408" y="156" font-size="13" font-weight="700" fill="#1a202c">O</text>
+  <text x="280" y="298" font-size="13.5" font-weight="700" fill="#1a202c" text-anchor="middle">PA · PB = PC · PD — phương tích của điểm P</text>
+  <text x="280" y="316" font-size="11.5" fill="#475569" text-anchor="middle">Mọi cát tuyến kẻ từ P cho cùng một tích 2 đoạn (P→giao gần) · (P→giao xa)</text>
+</svg>
 
 **Định lý (hai cát tuyến)**: $PA\\cdot PB = PC\\cdot PD$.
 
@@ -580,14 +711,29 @@ Dòng $180^\\circ$ tái khẳng định mục 3: tiếp tuyến vuông góc vớ
 
 $$PT^2 = PA\\cdot PB.$$
 
-\`\`\`
-        T ● (tiếp điểm)
-         ╱ ╲
-   P •──    ● A   ╭───╮
-         ╲   ╲    │ O │
-          ╲   ● B ╰───╯
-   PT² = PA·PB
-\`\`\`
+<svg viewBox="0 0 560 326" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Từ điểm P ngoài đường tròn: tiếp tuyến PT chạm tại T và cát tuyến cắt đường tròn tại A gần rồi B xa; hệ thức PT bình phương bằng PA nhân PB">
+  <circle cx="400" cy="170" r="90" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="400" y1="170" x2="374.7" y2="83.6" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <text x="380" y="124" font-size="12" fill="#475569" text-anchor="end">R</text>
+  <polyline points="364.1,86.7 367.2,97.3 377.8,94.2" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="80" y1="170" x2="413.1" y2="72.3" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="80" y1="170" x2="494.8" y2="243.3" stroke="#15803d" stroke-width="2.5"/>
+  <text x="150" y="128" font-size="11.5" font-weight="700" fill="#dc2626">tiếp tuyến</text>
+  <text x="185" y="212" font-size="11.5" font-weight="700" fill="#15803d">cát tuyến</text>
+  <text x="252" y="112" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">PT</text>
+  <circle cx="80" cy="170" r="4.5" fill="#1a202c"/>
+  <circle cx="374.7" cy="83.6" r="4.5" fill="#dc2626"/>
+  <circle cx="320.7" cy="212.5" r="4.5" fill="#15803d"/>
+  <circle cx="460.3" cy="237.2" r="4.5" fill="#15803d"/>
+  <circle cx="400" cy="170" r="4" fill="#1a202c"/>
+  <text x="66" y="174" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">P</text>
+  <text x="370" y="70" font-size="14" font-weight="700" fill="#dc2626" text-anchor="end">T</text>
+  <text x="314" y="230" font-size="14" font-weight="700" fill="#15803d" text-anchor="end">A</text>
+  <text x="470" y="252" font-size="14" font-weight="700" fill="#15803d">B</text>
+  <text x="410" y="176" font-size="13" font-weight="700" fill="#1a202c">O</text>
+  <text x="280" y="296" font-size="13.5" font-weight="700" fill="#1a202c" text-anchor="middle">PT² = PA · PB</text>
+  <text x="280" y="314" font-size="11.5" fill="#475569" text-anchor="middle">PT tiếp tuyến (chạm 1 điểm T, OT ⊥ PT) · PAB cát tuyến (P→A gần, P→B xa)</text>
+</svg>
 
 **4 ví dụ số**:
 
@@ -630,17 +776,50 @@ $$PT^2 = PA\\cdot PB = 2\\cdot 8 = 16 \\Rightarrow PT = \\mathbf{4}.$$
 
 💡 **Trực giác / Hình dung**: đường tròn là "tập điểm cách tâm đúng R" (mục 1). Viết điều kiện đó bằng tọa độ: điểm $(x, y)$ cách tâm $(a, b)$ đúng R nghĩa là **khoảng cách** $\\sqrt{(x-a)^2 + (y-b)^2} = R$. Bình phương 2 vế cho phương trình gọn — đây chỉ là **định lý Pythagore** áp cho đoạn nối tâm tới điểm.
 
-\`\`\`
-         y
-         │        ● (x, y) trên đường tròn
-         │       ╱│
-         │   R ╱  │ (y − b)
-         │   ╱    │
-   (a,b) ●──────── (x − a)
-         │  tâm
-   ──────┼──────────────── x
-   (x−a)² + (y−b)² = R²   ← Pythagore cho tam giác vuông
-\`\`\`
+<svg viewBox="0 0 620 360" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn tâm I(a, b) bán kính R trên hệ trục tọa độ; điểm (x, y) trên đường tròn tạo tam giác vuông với 2 cạnh x trừ a và y trừ b, cạnh huyền R, suy ra phương trình (x trừ a) bình phương cộng (y trừ b) bình phương bằng R bình phương">
+  <defs>
+    <marker id="c13-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+  <line x1="120" y1="40" x2="120" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="170" y1="40" x2="170" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="220" y1="40" x2="220" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="270" y1="40" x2="270" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="320" y1="40" x2="320" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="370" y1="40" x2="370" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="420" y1="40" x2="420" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="470" y1="40" x2="470" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="520" y1="40" x2="520" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="70" y1="60" x2="580" y2="60" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="70" y1="110" x2="580" y2="110" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="70" y1="160" x2="580" y2="160" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="70" y1="210" x2="580" y2="210" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="70" y1="260" x2="580" y2="260" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="40" y1="300" x2="585" y2="300" stroke="#1a202c" stroke-width="1.8" marker-end="url(#c13-ar)"/>
+  <line x1="70" y1="315" x2="70" y2="38" stroke="#1a202c" stroke-width="1.8" marker-end="url(#c13-ar)"/>
+  <text x="596" y="305" font-size="13" font-weight="700" fill="#1a202c">x</text>
+  <text x="58" y="45" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">y</text>
+  <text x="60" y="316" font-size="12" fill="#1a202c" text-anchor="end">O</text>
+  <circle cx="270" cy="190" r="110" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="270" y1="190" x2="270" y2="300" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="270" y1="190" x2="70" y2="190" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="270" y="318" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">a</text>
+  <text x="58" y="194" font-size="12.5" font-weight="700" fill="#475569" text-anchor="end">b</text>
+  <line x1="270" y1="190" x2="358" y2="190" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="358" y1="190" x2="358" y2="124" stroke="#15803d" stroke-width="2.5"/>
+  <polyline points="346,190 346,178 358,178" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="270" y1="190" x2="358" y2="124" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="314" y="208" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">x − a</text>
+  <text x="368" y="162" font-size="12.5" font-weight="700" fill="#15803d">y − b</text>
+  <text x="306" y="148" font-size="13" font-weight="700" fill="#dc2626" text-anchor="end">R</text>
+  <circle cx="270" cy="190" r="4.5" fill="#1a202c"/>
+  <circle cx="358" cy="124" r="4.5" fill="#dc2626"/>
+  <text x="262" y="212" font-size="12.5" font-weight="700" fill="#1a202c" text-anchor="end">I(a, b)</text>
+  <text x="262" y="228" font-size="11" fill="#475569" text-anchor="end">tâm</text>
+  <text x="366" y="112" font-size="12.5" font-weight="700" fill="#1a202c">(x, y) trên đường tròn</text>
+  <text x="310" y="345" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">(x − a)² + (y − b)² = R² — chính là Pythagore cho tam giác vuông</text>
+</svg>
 
 **Phương trình chính tắc**:
 

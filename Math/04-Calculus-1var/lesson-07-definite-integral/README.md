@@ -21,21 +21,43 @@
 
 💡 **Trực giác — "cộng vô số lát mỏng"**. Hình dung bạn cắt vùng cần tính thành **rất nhiều dải đứng mỏng** (như cắt một ổ bánh mì thành lát). Mỗi lát rộng $\Delta x$ rất nhỏ, cao gần bằng $f(x)$ tại vị trí đó, nên diện tích mỗi lát $\approx f(x) \cdot \Delta x$ (gần như một hình chữ nhật mảnh). Diện tích cả vùng = **cộng tất cả các lát**. Cắt càng mỏng → tổng các lát càng khít với hình cong thật. Tích phân chính là **giới hạn của phép cộng đó khi lát mỏng dần về 0** — ký hiệu $\int$ là chữ "S" (Sum) kéo dài, $dx$ là "bề rộng vô cùng nhỏ" của một lát.
 
-Hình dung bằng ASCII — vùng dưới $y = x^2$ trên $[0, 1]$, xấp xỉ bằng các dải đứng:
+Hình dung — vùng dưới $y = x^2$ trên $[0, 1]$, xấp xỉ bằng các dải đứng:
 
-```
- y
-1┤                                   ┌─┐ ← cao f(1)=1
- │                              ┌────┤ │
- │                         ┌────┤    │ │
- │                    ┌────┤    │    │ │
- │               ┌────┤    │    │    │ │
- │          ┌────┤    │    │    │    │ │
- │     ┌────┤    │    │    │    │    │ │
-0└─────┴────┴────┴────┴────┴────┴────┴─┴── x
- 0                                       1
-   ←Δx→  mỗi dải rộng Δx, cao f(xᵢ); cộng hết = xấp xỉ diện tích
-```
+<svg viewBox="0 0 440 280" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vùng dưới y = x² trên [0, 1] xấp xỉ bằng 8 dải đứng rộng Δx = 1/8, cao f(xᵢ) tại mép phải">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="210.0" y1="230.0" x2="210.0" y2="23.0"/>
+<line x1="360.0" y1="230.0" x2="360.0" y2="23.0"/>
+<line x1="60.0" y1="140.0" x2="420.0" y2="140.0"/>
+<line x1="60.0" y1="50.0" x2="420.0" y2="50.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="442.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="1.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="434.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="11.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="210.0" y1="226.0" x2="210.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">0.5</text>
+  <line x1="360.0" y1="226.0" x2="360.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="360.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="56.0" y1="140.0" x2="64.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="144.0" fill="#475569" font-size="11" text-anchor="end">0.5</text>
+  <line x1="56.0" y1="50.0" x2="64.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <rect x="60.0" y="227.2" width="37.5" height="2.8" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="97.5" y="218.8" width="37.5" height="11.2" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="135.0" y="204.7" width="37.5" height="25.3" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="172.5" y="185.0" width="37.5" height="45.0" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="210.0" y="159.7" width="37.5" height="70.3" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="247.5" y="128.8" width="37.5" height="101.2" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="285.0" y="92.2" width="37.5" height="137.8" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="322.5" y="50.0" width="37.5" height="180.0" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <path d="M 60.0,230.0 L 62.8,230.0 L 65.5,229.9 L 68.2,229.9 L 71.0,229.8 L 73.8,229.6 L 76.5,229.5 L 79.2,229.3 L 82.0,229.0 L 84.8,228.8 L 87.5,228.5 L 90.2,228.2 L 93.0,227.8 L 95.8,227.4 L 98.5,227.0 L 101.2,226.6 L 104.0,226.1 L 106.8,225.6 L 109.5,225.1 L 112.2,224.5 L 115.0,223.9 L 117.8,223.3 L 120.5,222.7 L 123.2,222.0 L 126.0,221.3 L 128.8,220.5 L 131.5,219.8 L 134.2,219.0 L 137.0,218.1 L 139.8,217.3 L 142.5,216.4 L 145.2,215.5 L 148.0,214.5 L 150.8,213.5 L 153.5,212.5 L 156.2,211.5 L 159.0,210.4 L 161.8,209.3 L 164.5,208.2 L 167.2,207.0 L 170.0,205.8 L 172.8,204.6 L 175.5,203.3 L 178.2,202.0 L 181.0,200.7 L 183.8,199.4 L 186.5,198.0 L 189.2,196.6 L 192.0,195.2 L 194.8,193.7 L 197.5,192.2 L 200.2,190.7 L 203.0,189.1 L 205.8,187.5 L 208.5,185.9 L 211.3,184.2 L 214.0,182.6 L 216.8,180.9 L 219.5,179.1 L 222.3,177.3 L 225.0,175.5 L 227.8,173.7 L 230.5,171.9 L 233.3,170.0 L 236.0,168.0 L 238.8,166.1 L 241.5,164.1 L 244.2,162.1 L 247.0,160.1 L 249.8,158.0 L 252.5,155.9 L 255.2,153.8 L 258.0,151.6 L 260.8,149.4 L 263.5,147.2 L 266.2,144.9 L 269.0,142.6 L 271.8,140.3 L 274.5,138.0 L 277.2,135.6 L 280.0,133.2 L 282.8,130.8 L 285.5,128.3 L 288.2,125.8 L 291.0,123.3 L 293.8,120.7 L 296.5,118.1 L 299.2,115.5 L 302.0,112.9 L 304.8,110.2 L 307.5,107.5 L 310.2,104.7 L 313.0,102.0 L 315.8,99.2 L 318.5,96.4 L 321.3,93.5 L 324.0,90.6 L 326.8,87.7 L 329.5,84.7 L 332.2,81.8 L 335.0,78.7 L 337.8,75.7 L 340.5,72.6 L 343.2,69.5 L 346.0,66.4 L 348.8,63.2 L 351.5,60.1 L 354.2,56.8 L 357.0,53.6 L 359.8,50.3 L 362.5,47.0 L 365.2,43.6 L 368.0,40.3 L 370.8,36.9 L 373.5,33.4 L 376.2,30.0 L 379.0,26.5 L 381.8,23.0 L 384.5,19.4 L 387.2,15.8 L 390.0,12.2" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="368.0" y="46.0" fill="#475569" font-size="11" text-anchor="start">cao f(1) = 1</text>
+  <text x="180.0" y="68.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">y = x²</text>
+  <line x1="210.0" y1="253.4" x2="247.5" y2="253.4" stroke="#15803d" stroke-width="1.5"/>
+  <text x="228.8" y="267.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Δx = 1/8</text>
+  <text x="200.0" y="268.0" fill="#475569" font-size="11" text-anchor="middle">mỗi dải rộng Δx, cao f(xᵢ); cộng hết = xấp xỉ diện tích dưới đường cong</text>
+</svg>
 
 Cắt mịn hơn (nhiều dải hơn) → đường răng cưa phía trên càng bám sát parabol → tổng diện tích các dải càng gần $\frac{1}{3}$ thật.
 
@@ -93,18 +115,47 @@ Mỗi dải nằm trên một đoạn nhỏ $[x_{i-1}, x_i]$. Chiều cao hình 
 | **Phải (Right)** | mép phải $x_i$ | cao hơn thật (overestimate) |
 | **Giữa (Mid)** | trung điểm $\frac{x_{i-1}+x_i}{2}$ | thường chính xác nhất |
 
-ASCII — cùng đường cong tăng, 3 cách đặt chiều cao dải (mỗi `█` là một dải):
+Cùng đường cong tăng, 3 cách đặt chiều cao dải (mỗi cột xanh là một dải):
 
-```
- LEFT (chiều cao = mép trái)   RIGHT (mép phải)        MID (trung điểm)
- cong ở trên, dải tụt xuống    cong ở dưới, dải nhô     dải khớp giữa, lệch ít
-   ╭─                            ─╮  ┌┐                    ╭─┐
-  ╭┘ ┌┐                        ┌┐ │  ││                  ┌─┤ │
- ╭┘┌┐│ │                      ┌┐│ └──┘│ ╱cong            │ │ │ ╱cong
-╭┘┌┘│└─┘                    ┌─┘│└─────┘                  │ └─┤
-█████████  → dải THẤP        █████████  → dải CAO        █████████ → khớp tốt
-underestimate               overestimate                gần nhất
-```
+<svg viewBox="0 0 600 205" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cùng đường cong tăng, ba cách chọn chiều cao dải Riemann: mép trái (thiếu), mép phải (dư), trung điểm (khớp tốt nhất)">
+  <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="95.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">LEFT (mép trái)</text>
+  <line x1="14.0" y1="150.0" x2="222.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <line x1="20.0" y1="156.0" x2="20.0" y2="16.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <text x="214.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="28.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <rect x="20.0" y="129.0" width="37.5" height="21.0" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="57.5" y="125.5" width="37.5" height="24.5" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="95.0" y="115.0" width="37.5" height="35.0" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="132.5" y="97.5" width="37.5" height="52.5" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <path d="M 20.0,129.0 L 22.8,129.0 L 25.5,128.9 L 28.2,128.8 L 31.0,128.7 L 33.8,128.5 L 36.5,128.3 L 39.2,128.1 L 42.0,127.8 L 44.8,127.5 L 47.5,127.1 L 50.2,126.7 L 53.0,126.3 L 55.8,125.8 L 58.5,125.3 L 61.2,124.8 L 64.0,124.2 L 66.8,123.6 L 69.5,122.9 L 72.2,122.2 L 75.0,121.5 L 77.8,120.7 L 80.5,119.9 L 83.2,119.0 L 86.0,118.2 L 88.8,117.2 L 91.5,116.3 L 94.3,115.3 L 97.0,114.2 L 99.8,113.2 L 102.5,112.1 L 105.2,110.9 L 108.0,109.7 L 110.8,108.5 L 113.5,107.2 L 116.3,105.9 L 119.0,104.6 L 121.8,103.2 L 124.5,101.8 L 127.3,100.4 L 130.0,98.9 L 132.8,97.4 L 135.5,95.8 L 138.2,94.2 L 141.0,92.6 L 143.8,90.9 L 146.5,89.2 L 149.2,87.4 L 152.0,85.6 L 154.8,83.8 L 157.5,81.9 L 160.2,80.0 L 163.0,78.1 L 165.8,76.1 L 168.5,74.1 L 171.3,72.1 L 174.0,70.0 L 176.8,67.8 L 179.5,65.7 L 182.3,63.5 L 185.0,61.2" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round"/>
+  <text x="95.0" y="175.0" fill="#475569" font-size="11" text-anchor="middle">cong ở trên, dải tụt xuống</text>
+  <text x="95.0" y="191.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">→ dải THẤP: underestimate</text>
+  <text x="295.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">RIGHT (mép phải)</text>
+  <line x1="214.0" y1="150.0" x2="422.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <line x1="220.0" y1="156.0" x2="220.0" y2="16.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <text x="414.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="228.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <rect x="220.0" y="125.5" width="37.5" height="24.5" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="257.5" y="115.0" width="37.5" height="35.0" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="295.0" y="97.5" width="37.5" height="52.5" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="332.5" y="73.0" width="37.5" height="77.0" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <path d="M 220.0,129.0 L 222.8,129.0 L 225.5,128.9 L 228.2,128.8 L 231.0,128.7 L 233.8,128.5 L 236.5,128.3 L 239.2,128.1 L 242.0,127.8 L 244.8,127.5 L 247.5,127.1 L 250.2,126.7 L 253.0,126.3 L 255.8,125.8 L 258.5,125.3 L 261.2,124.8 L 264.0,124.2 L 266.8,123.6 L 269.5,122.9 L 272.2,122.2 L 275.0,121.5 L 277.8,120.7 L 280.5,119.9 L 283.2,119.0 L 286.0,118.2 L 288.8,117.2 L 291.5,116.3 L 294.2,115.3 L 297.0,114.2 L 299.8,113.2 L 302.5,112.1 L 305.2,110.9 L 308.0,109.7 L 310.8,108.5 L 313.5,107.2 L 316.2,105.9 L 319.0,104.6 L 321.8,103.2 L 324.5,101.8 L 327.2,100.4 L 330.0,98.9 L 332.8,97.4 L 335.5,95.8 L 338.2,94.2 L 341.0,92.6 L 343.8,90.9 L 346.5,89.2 L 349.2,87.4 L 352.0,85.6 L 354.8,83.8 L 357.5,81.9 L 360.2,80.0 L 363.0,78.1 L 365.8,76.1 L 368.5,74.1 L 371.2,72.1 L 374.0,70.0 L 376.8,67.8 L 379.5,65.7 L 382.2,63.5 L 385.0,61.2" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round"/>
+  <text x="295.0" y="175.0" fill="#475569" font-size="11" text-anchor="middle">cong ở dưới, dải nhô lên</text>
+  <text x="295.0" y="191.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">→ dải CAO: overestimate</text>
+  <text x="495.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">MID (trung điểm)</text>
+  <line x1="414.0" y1="150.0" x2="622.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <line x1="420.0" y1="156.0" x2="420.0" y2="16.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <text x="614.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="428.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <rect x="420.0" y="128.1" width="37.5" height="21.9" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="457.5" y="121.1" width="37.5" height="28.9" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="495.0" y="107.1" width="37.5" height="42.9" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="532.5" y="86.1" width="37.5" height="63.9" rx="0" fill="#93c5fd" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="1"/>
+  <path d="M 420.0,129.0 L 422.8,129.0 L 425.5,128.9 L 428.2,128.8 L 431.0,128.7 L 433.8,128.5 L 436.5,128.3 L 439.2,128.1 L 442.0,127.8 L 444.8,127.5 L 447.5,127.1 L 450.2,126.7 L 453.0,126.3 L 455.8,125.8 L 458.5,125.3 L 461.2,124.8 L 464.0,124.2 L 466.8,123.6 L 469.5,122.9 L 472.2,122.2 L 475.0,121.5 L 477.8,120.7 L 480.5,119.9 L 483.2,119.0 L 486.0,118.2 L 488.8,117.2 L 491.5,116.3 L 494.2,115.3 L 497.0,114.2 L 499.8,113.2 L 502.5,112.1 L 505.2,110.9 L 508.0,109.7 L 510.8,108.5 L 513.5,107.2 L 516.2,105.9 L 519.0,104.6 L 521.8,103.2 L 524.5,101.8 L 527.2,100.4 L 530.0,98.9 L 532.8,97.4 L 535.5,95.8 L 538.2,94.2 L 541.0,92.6 L 543.8,90.9 L 546.5,89.2 L 549.2,87.4 L 552.0,85.6 L 554.8,83.8 L 557.5,81.9 L 560.2,80.0 L 563.0,78.1 L 565.8,76.1 L 568.5,74.1 L 571.2,72.1 L 574.0,70.0 L 576.8,67.8 L 579.5,65.7 L 582.2,63.5 L 585.0,61.2" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round"/>
+  <text x="495.0" y="175.0" fill="#475569" font-size="11" text-anchor="middle">dải khớp giữa, lệch ít</text>
+  <text x="495.0" y="191.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">→ gần nhất</text>
+</svg>
 
 Bất kể chọn cách nào, khi $n \to \infty$ cả ba **cùng tiến về một số** — đó là tích phân xác định. Chọn cách nào chỉ ảnh hưởng **tốc độ hội tụ**: Trái/Phải sai số $\sim O(1/n)$, Giữa sai số $\sim O(1/n^2)$ (nhanh hơn hẳn).
 
@@ -312,17 +363,37 @@ Mỗi tính chất kèm một ví dụ tính cả hai vế để thấy bằng n
 
 ⚠ **Tích phân có thể âm**: $\int_a^b f\,dx$ **không phải lúc nào cũng = diện tích**. Là **diện tích đại số** — phần trên Ox cộng, phần dưới trừ.
 
-ASCII — diện tích có dấu của $\sin x$ trên $[0, 2\pi]$:
+Diện tích có dấu của $\sin x$ trên $[0, 2\pi]$:
 
-```
- +1┤        ╭───╮                              dương: gom (+)
-   │      ╱       ╲       (+A)
-  0┼────╱───────────╲────────────────╱──── x
-   │   0      π       ╲     (−A)    ╱   2π
- −1┤                    ╲─────────╱          âm: gom (−)
-        └── trên Ox: + ──┘└── dưới Ox: − ──┘
-   tổng đại số = (+A) + (−A) = 0   ;   diện tích thật = A + A = 4
-```
+<svg viewBox="0 0 480 240" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Diện tích có dấu của sin x trên [0, 2π]: nửa trên Ox dương (+2), nửa dưới Ox âm (−2); tích phân bằng 0 nhưng diện tích thật bằng 4">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="238.5" y1="221.0" x2="238.5" y2="32.0"/>
+<line x1="427.0" y1="221.0" x2="427.0" y2="32.0"/>
+<line x1="50.0" y1="60.0" x2="464.0" y2="60.0"/>
+<line x1="50.0" y1="200.0" x2="464.0" y2="200.0"/>
+</g>
+  <line x1="44.0" y1="130.0" x2="486.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <line x1="50.0" y1="227.0" x2="50.0" y2="10.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <text x="478.0" y="146.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="58.0" y="20.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="238.5" y1="126.0" x2="238.5" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="238.5" y="146.0" fill="#475569" font-size="11" text-anchor="middle">π</text>
+  <line x1="427.0" y1="126.0" x2="427.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="427.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">2π</text>
+  <line x1="46.0" y1="60.0" x2="54.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="43.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">+1</text>
+  <line x1="46.0" y1="200.0" x2="54.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="43.0" y="204.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <path d="M 50.0,130.0 L 53.1,126.3 L 56.3,122.7 L 59.4,119.0 L 62.6,115.4 L 65.7,111.9 L 68.8,108.4 L 72.0,104.9 L 75.1,101.5 L 78.3,98.2 L 81.4,95.0 L 84.6,91.9 L 87.7,88.9 L 90.8,85.9 L 94.0,83.2 L 97.1,80.5 L 100.3,78.0 L 103.4,75.6 L 106.5,73.4 L 109.7,71.3 L 112.8,69.4 L 116.0,67.6 L 119.1,66.1 L 122.3,64.6 L 125.4,63.4 L 128.5,62.4 L 131.7,61.5 L 134.8,60.9 L 138.0,60.4 L 141.1,60.1 L 144.2,60.0 L 147.4,60.1 L 150.5,60.4 L 153.7,60.9 L 156.8,61.5 L 160.0,62.4 L 163.1,63.4 L 166.2,64.6 L 169.4,66.1 L 172.5,67.6 L 175.7,69.4 L 178.8,71.3 L 181.9,73.4 L 185.1,75.6 L 188.2,78.0 L 191.4,80.5 L 194.5,83.2 L 197.7,85.9 L 200.8,88.9 L 203.9,91.9 L 207.1,95.0 L 210.2,98.2 L 213.4,101.5 L 216.5,104.9 L 219.6,108.4 L 222.8,111.9 L 225.9,115.4 L 229.1,119.0 L 232.2,122.7 L 235.4,126.3 L 238.5,130.0 L 238.5,130.0 L 50.0,130.0 Z" fill="#93c5fd" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.5" stroke-linejoin="round"/>
+  <path d="M 238.5,130.0 L 241.6,133.7 L 244.8,137.3 L 247.9,141.0 L 251.1,144.6 L 254.2,148.1 L 257.3,151.6 L 260.5,155.1 L 263.6,158.5 L 266.8,161.8 L 269.9,165.0 L 273.1,168.1 L 276.2,171.1 L 279.3,174.1 L 282.5,176.8 L 285.6,179.5 L 288.8,182.0 L 291.9,184.4 L 295.0,186.6 L 298.2,188.7 L 301.3,190.6 L 304.5,192.4 L 307.6,193.9 L 310.8,195.4 L 313.9,196.6 L 317.0,197.6 L 320.2,198.5 L 323.3,199.1 L 326.5,199.6 L 329.6,199.9 L 332.7,200.0 L 335.9,199.9 L 339.0,199.6 L 342.2,199.1 L 345.3,198.5 L 348.5,197.6 L 351.6,196.6 L 354.7,195.4 L 357.9,193.9 L 361.0,192.4 L 364.2,190.6 L 367.3,188.7 L 370.4,186.6 L 373.6,184.4 L 376.7,182.0 L 379.9,179.5 L 383.0,176.8 L 386.2,174.1 L 389.3,171.1 L 392.4,168.1 L 395.6,165.0 L 398.7,161.8 L 401.9,158.5 L 405.0,155.1 L 408.1,151.6 L 411.3,148.1 L 414.4,144.6 L 417.6,141.0 L 420.7,137.3 L 423.8,133.7 L 427.0,130.0 L 427.0,130.0 L 238.5,130.0 Z" fill="#fca5a5" stroke="#dc2626" stroke-width="0" fill-opacity="0.5" stroke-linejoin="round"/>
+  <path d="M 50.0,130.0 L 53.1,126.3 L 56.3,122.7 L 59.4,119.0 L 62.6,115.4 L 65.7,111.9 L 68.8,108.4 L 72.0,104.9 L 75.1,101.5 L 78.3,98.2 L 81.4,95.0 L 84.6,91.9 L 87.7,88.9 L 90.8,85.9 L 94.0,83.2 L 97.1,80.5 L 100.3,78.0 L 103.4,75.6 L 106.5,73.4 L 109.7,71.3 L 112.8,69.4 L 116.0,67.6 L 119.1,66.1 L 122.3,64.6 L 125.4,63.4 L 128.5,62.4 L 131.7,61.5 L 134.8,60.9 L 138.0,60.4 L 141.1,60.1 L 144.2,60.0 L 147.4,60.1 L 150.5,60.4 L 153.7,60.9 L 156.8,61.5 L 160.0,62.4 L 163.1,63.4 L 166.2,64.6 L 169.4,66.1 L 172.5,67.6 L 175.7,69.4 L 178.8,71.3 L 181.9,73.4 L 185.1,75.6 L 188.2,78.0 L 191.4,80.5 L 194.5,83.2 L 197.7,85.9 L 200.8,88.9 L 203.9,91.9 L 207.1,95.0 L 210.2,98.2 L 213.4,101.5 L 216.5,104.9 L 219.6,108.4 L 222.8,111.9 L 225.9,115.4 L 229.1,119.0 L 232.2,122.7 L 235.4,126.3 L 238.5,130.0 L 241.6,133.7 L 244.8,137.3 L 247.9,141.0 L 251.1,144.6 L 254.2,148.1 L 257.3,151.6 L 260.5,155.1 L 263.6,158.5 L 266.8,161.8 L 269.9,165.0 L 273.1,168.1 L 276.2,171.1 L 279.3,174.1 L 282.5,176.8 L 285.6,179.5 L 288.8,182.0 L 291.9,184.4 L 295.0,186.6 L 298.2,188.7 L 301.3,190.6 L 304.5,192.4 L 307.6,193.9 L 310.8,195.4 L 313.9,196.6 L 317.0,197.6 L 320.2,198.5 L 323.3,199.1 L 326.5,199.6 L 329.6,199.9 L 332.7,200.0 L 335.9,199.9 L 339.0,199.6 L 342.2,199.1 L 345.3,198.5 L 348.5,197.6 L 351.6,196.6 L 354.7,195.4 L 357.9,193.9 L 361.0,192.4 L 364.2,190.6 L 367.3,188.7 L 370.4,186.6 L 373.6,184.4 L 376.7,182.0 L 379.9,179.5 L 383.0,176.8 L 386.2,174.1 L 389.3,171.1 L 392.4,168.1 L 395.6,165.0 L 398.7,161.8 L 401.9,158.5 L 405.0,155.1 L 408.1,151.6 L 411.3,148.1 L 414.4,144.6 L 417.6,141.0 L 420.7,137.3 L 423.8,133.7 L 427.0,130.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="144.2" y="98.5" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">+A = 2</text>
+  <text x="332.7" y="165.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">−A = −2</text>
+  <text x="144.2" y="42.5" fill="#1d4ed8" font-size="11" text-anchor="middle">trên Ox: gom (+)</text>
+  <text x="332.7" y="220.0" fill="#dc2626" font-size="11" text-anchor="middle">dưới Ox: gom (−)</text>
+  <text x="240.0" y="225.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">tổng đại số ∫₀²π sin x dx = (+2) + (−2) = 0  ;  diện tích thật = 2 + 2 = 4</text>
+</svg>
 
 **Ví dụ**: $\int_0^{2\pi} \sin x\,dx = \left.-\cos x\right|_0^{2\pi} = -\cos(2\pi) + \cos(0) = -1 + 1 =$ **0**. (Phần dương từ $0$-$\pi$ và phần âm từ $\pi$-$2\pi$ triệt tiêu nhau.)
 

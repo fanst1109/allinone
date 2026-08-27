@@ -22,19 +22,32 @@ $$S = \int_a^b [f(x) - g(x)]\,dx$$
 
 💡 **Trực giác — cộng từng dải dọc mỏng**: Mọi ứng dụng tích phân trong bài này đều cùng một ý tưởng: **cắt thành lát mỏng, tính từng lát, cộng dồn**. Mỗi ứng dụng chỉ khác nhau ở chỗ "lát mỏng" trông như thế nào. Với diện tích giữa 2 đường, hãy hình dung cắt vùng cần tính thành **vô số dải dọc mỏng** rộng $dx$. Mỗi dải là một hình chữ nhật cao $f(x) - g(x)$ (từ "sàn" $g$ lên tới "trần" $f$), rộng $dx$ → diện tích dải $= [f(x) - g(x)]\,dx$. Cộng dồn mọi dải từ $x=a$ tới $x=b$ chính là tích phân.
 
-```
-   y
-   |        ┌─┐ ← trần f(x)
-   |     ┌─┐│ │┌─┐
-   |   ┌─┤ ││ ││ │┐
-   |   │ │ ││ ││ ││  ← một dải dọc, cao f(x)-g(x), rộng dx
-   |   └─┤ ││ ││ │┘
-   |     └─┘│ │└─┘ ← sàn g(x)
-   |        └─┘
-   +─────────────────── x
-       a    dx     b
-   S = Σ (f - g)·dx → ∫ₐᵇ [f(x) - g(x)] dx
-```
+<svg viewBox="0 0 480 285" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Diện tích giữa hai đường: trần f(x) và sàn g(x) trên [a, b], chia thành các dải dọc cao f − g rộng dx">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="116.0" y1="230.0" x2="116.0" y2="32.0"/>
+<line x1="380.0" y1="230.0" x2="380.0" y2="32.0"/>
+</g>
+  <line x1="44.0" y1="230.0" x2="468.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <line x1="50.0" y1="236.0" x2="50.0" y2="10.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <text x="460.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="58.0" y="20.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="116.0" y1="226.0" x2="116.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="116.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">a</text>
+  <line x1="380.0" y1="226.0" x2="380.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="380.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">b</text>
+  <path d="M 116.0,84.4 L 120.4,83.2 L 124.8,82.1 L 129.2,81.1 L 133.6,80.1 L 138.0,79.3 L 142.4,78.5 L 146.8,77.9 L 151.2,77.3 L 155.6,76.8 L 160.0,76.5 L 164.4,76.2 L 168.8,76.1 L 173.2,76.0 L 177.6,76.0 L 182.0,76.2 L 186.4,76.4 L 190.8,76.8 L 195.2,77.3 L 199.6,77.8 L 204.0,78.5 L 208.4,79.2 L 212.8,80.1 L 217.2,81.0 L 221.6,82.0 L 226.0,83.1 L 230.4,84.3 L 234.8,85.6 L 239.2,86.9 L 243.6,88.3 L 248.0,89.8 L 252.4,91.3 L 256.8,92.9 L 261.2,94.5 L 265.6,96.2 L 270.0,97.9 L 274.4,99.7 L 278.8,101.5 L 283.2,103.3 L 287.6,105.1 L 292.0,107.0 L 296.4,108.8 L 300.8,110.7 L 305.2,112.5 L 309.6,114.3 L 314.0,116.2 L 318.4,117.9 L 322.8,119.7 L 327.2,121.4 L 331.6,123.1 L 336.0,124.8 L 340.4,126.4 L 344.8,127.9 L 349.2,129.4 L 353.6,130.8 L 358.0,132.2 L 362.4,133.4 L 366.8,134.7 L 371.2,135.8 L 375.6,136.8 L 380.0,137.8 L 380.0,200.8 L 375.6,201.1 L 371.2,201.4 L 366.8,201.7 L 362.4,201.9 L 358.0,202.1 L 353.6,202.3 L 349.2,202.4 L 344.8,202.5 L 340.4,202.5 L 336.0,202.5 L 331.6,202.5 L 327.2,202.4 L 322.8,202.3 L 318.4,202.1 L 314.0,201.9 L 309.6,201.7 L 305.2,201.5 L 300.8,201.2 L 296.4,200.8 L 292.0,200.5 L 287.6,200.1 L 283.2,199.6 L 278.8,199.2 L 274.4,198.7 L 270.0,198.2 L 265.6,197.6 L 261.2,197.0 L 256.8,196.4 L 252.4,195.8 L 248.0,195.2 L 243.6,194.5 L 239.2,193.8 L 234.8,193.1 L 230.4,192.4 L 226.0,191.6 L 221.6,190.9 L 217.2,190.1 L 212.8,189.4 L 208.4,188.6 L 204.0,187.8 L 199.6,187.0 L 195.2,186.2 L 190.8,185.4 L 186.4,184.6 L 182.0,183.8 L 177.6,183.1 L 173.2,182.3 L 168.8,181.5 L 164.4,180.8 L 160.0,180.0 L 155.6,179.3 L 151.2,178.6 L 146.8,177.9 L 142.4,177.2 L 138.0,176.5 L 133.6,175.9 L 129.2,175.3 L 124.8,174.7 L 120.4,174.1 L 116.0,173.6 Z" fill="#93c5fd" stroke="#93c5fd" stroke-width="0" fill-opacity="0.45" stroke-linejoin="round"/>
+  <rect x="237.0" y="86.2" width="27.5" height="107.2" rx="0" fill="#1d4ed8" fill-opacity="0.75" stroke="#1e3a8a" stroke-width="1.5"/>
+  <path d="M 72.0,99.9 L 76.4,98.1 L 80.8,96.4 L 85.2,94.7 L 89.6,93.1 L 94.0,91.5 L 98.4,89.9 L 102.8,88.5 L 107.2,87.0 L 111.6,85.7 L 116.0,84.4 L 120.4,83.2 L 124.8,82.1 L 129.2,81.1 L 133.6,80.1 L 138.0,79.3 L 142.4,78.5 L 146.8,77.9 L 151.2,77.3 L 155.6,76.8 L 160.0,76.5 L 164.4,76.2 L 168.8,76.1 L 173.2,76.0 L 177.6,76.0 L 182.0,76.2 L 186.4,76.4 L 190.8,76.8 L 195.2,77.3 L 199.6,77.8 L 204.0,78.5 L 208.4,79.2 L 212.8,80.1 L 217.2,81.0 L 221.6,82.0 L 226.0,83.1 L 230.4,84.3 L 234.8,85.6 L 239.2,86.9 L 243.6,88.3 L 248.0,89.8 L 252.4,91.3 L 256.8,92.9 L 261.2,94.5 L 265.6,96.2 L 270.0,97.9 L 274.4,99.7 L 278.8,101.5 L 283.2,103.3 L 287.6,105.1 L 292.0,107.0 L 296.4,108.8 L 300.8,110.7 L 305.2,112.5 L 309.6,114.3 L 314.0,116.2 L 318.4,117.9 L 322.8,119.7 L 327.2,121.4 L 331.6,123.1 L 336.0,124.8 L 340.4,126.4 L 344.8,127.9 L 349.2,129.4 L 353.6,130.8 L 358.0,132.2 L 362.4,133.4 L 366.8,134.7 L 371.2,135.8 L 375.6,136.8 L 380.0,137.8 L 384.4,138.6 L 388.8,139.4 L 393.2,140.1 L 397.6,140.6 L 402.0,141.1 L 406.4,141.5 L 410.8,141.8 L 415.2,141.9 L 419.6,142.0 L 424.0,142.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 72.0,170.0 L 76.4,170.2 L 80.8,170.4 L 85.2,170.7 L 89.6,171.0 L 94.0,171.4 L 98.4,171.7 L 102.8,172.2 L 107.2,172.6 L 111.6,173.1 L 116.0,173.6 L 120.4,174.1 L 124.8,174.7 L 129.2,175.3 L 133.6,175.9 L 138.0,176.5 L 142.4,177.2 L 146.8,177.9 L 151.2,178.6 L 155.6,179.3 L 160.0,180.0 L 164.4,180.8 L 168.8,181.5 L 173.2,182.3 L 177.6,183.1 L 182.0,183.8 L 186.4,184.6 L 190.8,185.4 L 195.2,186.2 L 199.6,187.0 L 204.0,187.8 L 208.4,188.6 L 212.8,189.4 L 217.2,190.1 L 221.6,190.9 L 226.0,191.6 L 230.4,192.4 L 234.8,193.1 L 239.2,193.8 L 243.6,194.5 L 248.0,195.2 L 252.4,195.8 L 256.8,196.4 L 261.2,197.0 L 265.6,197.6 L 270.0,198.2 L 274.4,198.7 L 278.8,199.2 L 283.2,199.6 L 287.6,200.1 L 292.0,200.5 L 296.4,200.8 L 300.8,201.2 L 305.2,201.5 L 309.6,201.7 L 314.0,201.9 L 318.4,202.1 L 322.8,202.3 L 327.2,202.4 L 331.6,202.5 L 336.0,202.5 L 340.4,202.5 L 344.8,202.5 L 349.2,202.4 L 353.6,202.3 L 358.0,202.1 L 362.4,201.9 L 366.8,201.7 L 371.2,201.4 L 375.6,201.1 L 380.0,200.8 L 384.4,200.4 L 388.8,200.0 L 393.2,199.6 L 397.6,199.1 L 402.0,198.6 L 406.4,198.1 L 410.8,197.6 L 415.2,197.0 L 419.6,196.4 L 424.0,195.8" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="430.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">trần f(x)</text>
+  <text x="430.0" y="199.8" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">sàn g(x)</text>
+  <line x1="116.0" y1="230.0" x2="116.0" y2="84.4" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="380.0" y1="230.0" x2="380.0" y2="137.8" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="272.5" y="72.2" fill="#1e3a8a" font-size="11" text-anchor="start" font-weight="700">một dải dọc: cao f(x) − g(x), rộng dx</text>
+  <text x="250.8" y="260.0" fill="#1e3a8a" font-size="11" text-anchor="middle" font-weight="700">dx</text>
+  <text x="240.0" y="272.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">S = Σ (f − g)·dx  →  ∫ₐᵇ [f(x) − g(x)] dx</text>
+</svg>
 
 Diện tích = hiệu giữa diện tích "trần" ($f$) và "sàn" ($g$). **Quy trình 3 bước** áp dụng cho mọi bài:
 
@@ -129,16 +142,42 @@ Nếu cố cắt dải dọc ($dx$) thì phải tách $x = y^2$ thành hai nhán
 - $dV = \pi\cdot f(x)^2 \cdot dx$.
 - $V = \int_a^b \pi\cdot f(x)^2\,dx$.
 
-```
-   y                          quay quanh Ox
-   |    y=f(x)                ──────────────►       ┌──┐
-   |   ╱                                          ╱      ╲   ← khối tròn xoay
-   |  ╱  │← f(x)              mỗi lát:           │  ●  │  │  ← đĩa b.kính f(x)
-   | ╱   │                   đĩa mỏng           │      │  │     dày dx
-   |╱____│____               b.kính f(x)          ╲      ╱
-   +─────┼────── x            dày dx                └──┘
-   a     x  dx  b            dV = π·f(x)²·dx       V = ∫ₐᵇ π f(x)² dx
-```
+<svg viewBox="0 0 500 265" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phương pháp đĩa: quay vùng dưới y = f(x) quanh Ox tạo khối tròn xoay; mỗi lát là đĩa bán kính f(x) dày dx, thể tích dV = π f(x)² dx">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="76.0" y1="170.0" x2="76.0" y2="38.0"/>
+<line x1="148.0" y1="170.0" x2="148.0" y2="38.0"/>
+<line x1="220.0" y1="170.0" x2="220.0" y2="38.0"/>
+</g>
+  <line x1="34.0" y1="170.0" x2="266.0" y2="170.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <line x1="40.0" y1="176.0" x2="40.0" y2="16.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="258.0" y="186.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="48.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="76.0" y1="166.0" x2="76.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">a</text>
+  <line x1="148.0" y1="166.0" x2="148.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">x</text>
+  <line x1="220.0" y1="166.0" x2="220.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="220.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">b</text>
+  <path d="M 52.0,129.8 L 61.0,126.7 L 70.0,123.5 L 79.0,120.4 L 88.0,117.2 L 97.0,114.1 L 106.0,110.9 L 115.0,107.8 L 124.0,104.6 L 133.0,101.4 L 142.0,98.3 L 151.0,95.1 L 160.0,92.0 L 169.0,88.8 L 178.0,85.7 L 187.0,82.5 L 196.0,79.4 L 205.0,76.2 L 214.0,73.1 L 223.0,70.0 L 232.0,66.8" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="238.0" y="66.8" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">y = f(x)</text>
+  <rect x="148.0" y="96.2" width="14.0" height="73.8" rx="0" fill="#93c5fd" fill-opacity="0.7" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="168.0" y="126.2" fill="#1d4ed8" font-size="11" text-anchor="start">f(x)</text>
+  <text x="155.0" y="200.0" fill="#475569" font-size="11" text-anchor="middle">dx</text>
+  <line x1="255.0" y1="90.0" x2="320.0" y2="90.0" stroke="#475569" stroke-width="2" marker-end="url(#ar2)"/>
+  <text x="288.0" y="80.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">quay quanh Ox</text>
+  <path d="M 340,80 L 460,68 A 12,42 0 0 1 460,152 L 340,140 A 12,30 0 0 1 340,80 Z" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="340" cy="110" rx="12" ry="30" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <ellipse cx="405" cy="110" rx="12" ry="36" fill="#1d4ed8" fill-opacity="0.75" stroke="#1e3a8a" stroke-width="1.5"/>
+  <line x1="325.0" y1="110.0" x2="485.0" y2="110.0" stroke="#1a202c" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ar2)"/>
+  <text x="490.0" y="114.0" fill="#1a202c" font-size="12" text-anchor="start">x</text>
+  <text x="405.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">khối tròn xoay</text>
+  <text x="424.0" y="105.0" fill="#1e3a8a" font-size="11" text-anchor="start" font-weight="700">đĩa b.kính f(x), dày dx</text>
+  <text x="150.0" y="232.0" fill="#475569" font-size="12" text-anchor="middle">mỗi lát: đĩa mỏng bán kính f(x), dày dx</text>
+  <text x="150.0" y="252.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">dV = π·f(x)²·dx</text>
+  <text x="400.0" y="232.0" fill="#475569" font-size="12" text-anchor="middle">cộng mọi đĩa từ a đến b:</text>
+  <text x="400.0" y="252.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">V = ∫ₐᵇ π f(x)² dx</text>
+</svg>
 
 **Ví dụ 1**: Quay $y = \sqrt{x}$ trên $[0, 4]$ quanh Ox.
 - $r = f(x) = \sqrt{x}$, nên $r^2 = x$.
@@ -169,14 +208,21 @@ Khi quay quanh Ox **vùng giữa hai đường** $f(x) \ge g(x) \ge 0$ (chứ kh
 
 $$V = \pi\int_a^b \big[f(x)^2 - g(x)^2\big]\,dx$$
 
-```
-   lát cắt = vành khuyên (washer):
-        ┌─────────┐
-        │  ┌───┐  │   R = f(x)  (b.kính ngoài)
-        │  │ ○ │  │   r = g(x)  (b.kính trong, lỗ rỗng)
-        │  └───┘  │   diện tích = πR² − πr²
-        └─────────┘
-```
+<svg viewBox="0 0 480 200" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vành khuyên: hình tròn bán kính ngoài R = f(x) khoét lỗ tròn bán kính trong r = g(x); diện tích πR² − πr²">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <circle cx="120" cy="105" r="80" fill="#93c5fd" fill-opacity="0.6" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="120" cy="105" r="34" fill="#f8fafc" stroke="#15803d" stroke-width="2"/>
+  <line x1="120.0" y1="105.0" x2="200.0" y2="105.0" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="165.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">R = f(x)</text>
+  <line x1="120.0" y1="105.0" x2="96.0" y2="81.0" stroke="#15803d" stroke-width="2"/>
+  <text x="96.0" y="74.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r = g(x)</text>
+  <circle cx="120.0" cy="105.0" r="3" fill="#1a202c"/>
+  <text x="250.0" y="70.0" fill="#1a202c" font-size="14" text-anchor="start" font-weight="700">lát cắt = vành khuyên (washer)</text>
+  <text x="250.0" y="96.0" fill="#1d4ed8" font-size="12" text-anchor="start">R = f(x): bán kính ngoài</text>
+  <text x="250.0" y="116.0" fill="#15803d" font-size="12" text-anchor="start">r = g(x): bán kính trong (lỗ rỗng)</text>
+  <text x="250.0" y="146.0" fill="#1a202c" font-size="14" text-anchor="start" font-weight="700">diện tích = πR² − πr²</text>
+  <text x="250.0" y="168.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">dV = π(f² − g²)·dx</text>
+</svg>
 
 **Ví dụ 3 — vành khuyên**: Quay vùng giữa $y = \sqrt{x}$ và $y = x^2$ quanh Ox.
 - Giao điểm: $\sqrt{x} = x^2 \Rightarrow x = x^4 \Rightarrow x(x^3 - 1) = 0 \Rightarrow x = 0, 1$.
@@ -226,14 +272,29 @@ $$V = 2\pi\cdot\int_a^b x\cdot f(x)\,dx$$
 
 💡 **Mỗi vỏ trụ** bán kính $x$, chiều cao $f(x)$, độ dày $dx$ → thể tích $= 2\pi x\cdot f(x)\cdot dx$ (chu vi × cao × dày). "Lát mỏng" lần này là một **ống trụ rỗng** (như lõi giấy vệ sinh), không phải đĩa. Tưởng tượng "lột" vật thành các ống lồng nhau, rồi **trải phẳng** mỗi ống thành một tấm chữ nhật:
 
-```
-   vỏ trụ b.kính x:           trải phẳng:
-       ╭───╮                  ┌─────────────────┐
-      │  ▓  │  cao f(x)        │                 │ cao f(x)
-      │  ▓  │  dày dx          └─────────────────┘ dày dx
-       ╰───╯                  rộng = chu vi = 2πx
-   dV = (2πx)·f(x)·dx          → tấm: 2πx × f(x) × dx
-```
+<svg viewBox="0 0 540 250" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phương pháp vỏ trụ: vỏ mỏng bán kính x, cao f(x), dày dx; trải phẳng thành tấm rộng 2πx, cao f(x), dày dx">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <path d="M 60,60 A 60,14 0 0 0 180,60 L 180,180 A 60,14 0 0 1 60,180 Z" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="120" cy="60" rx="60" ry="14" fill="#93c5fd" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="120" cy="60" rx="52" ry="11" fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="120.0" y1="60.0" x2="172.0" y2="60.0" stroke="#dc2626" stroke-width="2"/>
+  <text x="146.0" y="52.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="120.0" cy="60.0" r="3" fill="#1a202c"/>
+  <line x1="195.0" y1="60.0" x2="195.0" y2="180.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="202.0" y="124.0" fill="#15803d" font-size="12" text-anchor="start">cao f(x)</text>
+  <text x="120.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">dày dx (vỏ mỏng)</text>
+  <text x="120.0" y="30.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">vỏ trụ bán kính x</text>
+  <line x1="230.0" y1="120.0" x2="275.0" y2="120.0" stroke="#475569" stroke-width="2" marker-end="url(#ar4)"/>
+  <text x="252.0" y="110.0" fill="#475569" font-size="11" text-anchor="middle">trải phẳng</text>
+  <rect x="290.0" y="90.0" width="190.0" height="60.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="290.0" y1="165.0" x2="480.0" y2="165.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="385.0" y="182.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">rộng = chu vi = 2πx</text>
+  <line x1="495.0" y1="90.0" x2="495.0" y2="150.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="500.0" y="124.0" fill="#15803d" font-size="12" text-anchor="start">f(x)</text>
+  <text x="385.0" y="125.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">tấm: 2πx × f(x) × dx</text>
+  <text x="385.0" y="60.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">tấm phẳng mỏng</text>
+  <text x="270.0" y="230.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">dV = (2πx)·f(x)·dx  →  V = ∫ₐᵇ 2πx f(x) dx</text>
+</svg>
 
 **Ví dụ 1**: Quay $y = x^2$ trên $[0, 2]$ quanh Oy.
 - $V = 2\pi\int_0^2 x\cdot x^2\,dx = 2\pi\int_0^2 x^3\,dx = 2\pi\left[\frac{x^4}{4}\right]_0^2 = 2\pi\cdot 4 = \mathbf{8\pi}$.
@@ -286,16 +347,31 @@ $$L = \int_a^b \sqrt{1 + (f'(x))^2}\,dx$$
 $$\sqrt{dx^2 + dy^2} = \sqrt{dx^2\big(1 + (f')^2\big)} = \sqrt{1 + (f'(x))^2}\,dx.$$
 Cộng dồn mọi đoạn → tổng độ dài cung.
 
-```
-   y                          phóng to một đoạn cung:
-   |    ╱ y=f(x)                       •
-   |   ╱                              ╱│
-   |  ╱                              ╱ │ dy = f'(x)·dx
-   | ╱                              ╱  │
-   |╱                              •───┘
-   +────────── x                    dx
-                       ds = √(dx² + dy²) = √(1 + (f')²)·dx
-```
+<svg viewBox="0 0 520 232" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Độ dài cung: phóng to một đoạn cung nhỏ thành tam giác vuông cạnh dx, dy = f′(x)dx, cạnh huyền ds = √(dx² + dy²)">
+  <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+</g>
+  <line x1="34.0" y1="170.0" x2="254.0" y2="170.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <line x1="40.0" y1="176.0" x2="40.0" y2="18.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <text x="246.0" y="186.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="48.0" y="28.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <path d="M 52.0,149.6 L 56.2,149.3 L 60.4,149.0 L 64.6,148.5 L 68.8,147.9 L 73.0,147.3 L 77.2,146.5 L 81.4,145.7 L 85.6,144.8 L 89.8,143.8 L 94.0,142.7 L 98.2,141.5 L 102.4,140.3 L 106.6,138.9 L 110.8,137.5 L 115.0,135.9 L 119.2,134.3 L 123.4,132.6 L 127.6,130.8 L 131.8,128.9 L 136.0,127.0 L 140.2,124.9 L 144.4,122.8 L 148.6,120.5 L 152.8,118.2 L 157.0,115.8 L 161.2,113.3 L 165.4,110.7 L 169.6,108.0 L 173.8,105.2 L 178.0,102.4 L 182.2,99.4 L 186.4,96.4 L 190.6,93.3 L 194.8,90.1 L 199.0,86.8 L 203.2,83.4 L 207.4,79.9 L 211.6,76.4 L 215.8,72.7 L 220.0,69.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="226.0" y="69.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">y = f(x)</text>
+  <circle cx="136.0" cy="127.0" r="3" fill="#dc2626"/>
+  <circle cx="154.0" cy="117.5" r="3" fill="#dc2626"/>
+  <rect x="136.0" y="117.5" width="18.0" height="9.5" fill="none" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="3 2"/>
+  <line x1="162.0" y1="122.2" x2="300.0" y2="110.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="380.0" y="40.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">phóng to một đoạn cung</text>
+  <line x1="300.0" y1="150.0" x2="450.0" y2="150.0" stroke="#15803d" stroke-width="2"/>
+  <line x1="450.0" y1="150.0" x2="450.0" y2="60.0" stroke="#15803d" stroke-width="2"/>
+  <line x1="300.0" y1="150.0" x2="450.0" y2="60.0" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="300.0" cy="150.0" r="4" fill="#dc2626"/>
+  <circle cx="450.0" cy="60.0" r="4" fill="#dc2626"/>
+  <text x="375.0" y="168.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">dx</text>
+  <text x="458.0" y="109.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">dy = f′(x)·dx</text>
+  <text x="361.0" y="99.0" fill="#dc2626" font-size="14" text-anchor="end" font-weight="700" font-style="italic">ds</text>
+  <text x="255.0" y="215.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">ds = √(dx² + dy²) = √(1 + (f′)²)·dx  →  L = ∫ₐᵇ √(1 + f′(x)²) dx</text>
+</svg>
 
 **Ví dụ 1 — đường thẳng** (kiểm bằng khoảng cách 2 điểm): độ dài $y = 2x$ trên $[0, 3]$.
 - $f'(x) = 2$, hằng.
@@ -343,15 +419,43 @@ $$f_{tb} = \frac{1}{b-a}\cdot\int_a^b f(x)\,dx$$
 
 💡 **Trực giác — san phẳng đồ thị thành hình chữ nhật**: $\int_a^b f\,dx$ là **diện tích** dưới đồ thị. Hỏi: nếu "san phẳng" diện tích đó thành một hình chữ nhật cùng bề rộng $(b-a)$, thì cao bao nhiêu? Chiều cao đó chính là **giá trị trung bình** — mức mà nếu $f$ giữ nguyên (hằng) suốt $[a,b]$ thì cho cùng diện tích. Giống trung bình rời rạc $\frac{\text{tổng}}{\text{số phần tử}}$, đây là $\frac{\text{tổng tích lũy}}{\text{bề rộng}}$.
 
-```
-   y                          san phẳng:
-   |   ╱‾‾╲                    ┌────────────┐
-   |  ╱    ╲    ← f(x)         │            │ ← f_tb (cao trung bình)
-   | ╱      ╲                  │ cùng d.tích│
-   |╱        ╲                 └────────────┘
-   +──────────── x              a          b
-   a            b          d.tích ∫f dx = f_tb·(b−a)
-```
+<svg viewBox="0 0 530 232" style="max-width:530px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giá trị trung bình: vùng dưới f(x) trên [a, b] san phẳng thành hình chữ nhật cùng diện tích, cao f_tb">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="70.0" y1="170.0" x2="70.0" y2="38.0"/>
+<line x1="214.0" y1="170.0" x2="214.0" y2="38.0"/>
+</g>
+  <line x1="34.0" y1="170.0" x2="266.0" y2="170.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <line x1="40.0" y1="176.0" x2="40.0" y2="16.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <text x="258.0" y="186.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="48.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="70.0" y1="166.0" x2="70.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="70.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">a</text>
+  <line x1="214.0" y1="166.0" x2="214.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="214.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">b</text>
+  <path d="M 70.0,120.3 L 72.4,118.4 L 74.8,116.5 L 77.2,114.4 L 79.6,112.2 L 82.0,109.9 L 84.4,107.6 L 86.8,105.1 L 89.2,102.5 L 91.6,99.9 L 94.0,97.3 L 96.4,94.6 L 98.8,91.9 L 101.2,89.2 L 103.6,86.6 L 106.0,84.0 L 108.4,81.5 L 110.8,79.1 L 113.2,76.9 L 115.6,74.8 L 118.0,72.8 L 120.4,71.1 L 122.8,69.5 L 125.2,68.2 L 127.6,67.2 L 130.0,66.4 L 132.4,65.8 L 134.8,65.5 L 137.2,65.5 L 139.6,65.8 L 142.0,66.4 L 144.4,67.2 L 146.8,68.2 L 149.2,69.5 L 151.6,71.1 L 154.0,72.8 L 156.4,74.8 L 158.8,76.9 L 161.2,79.1 L 163.6,81.5 L 166.0,84.0 L 168.4,86.6 L 170.8,89.2 L 173.2,91.9 L 175.6,94.6 L 178.0,97.3 L 180.4,99.9 L 182.8,102.5 L 185.2,105.1 L 187.6,107.6 L 190.0,109.9 L 192.4,112.2 L 194.8,114.4 L 197.2,116.5 L 199.6,118.4 L 202.0,120.3 L 204.4,122.0 L 206.8,123.6 L 209.2,125.0 L 211.6,126.4 L 214.0,127.6 L 214.0,170.0 L 70.0,170.0 Z" fill="#93c5fd" stroke="#93c5fd" stroke-width="0" fill-opacity="0.5" stroke-linejoin="round"/>
+  <path d="M 52.0,130.2 L 54.2,129.3 L 56.5,128.3 L 58.8,127.2 L 61.0,126.0 L 63.2,124.8 L 65.5,123.4 L 67.8,121.9 L 70.0,120.3 L 72.2,118.6 L 74.5,116.7 L 76.8,114.8 L 79.0,112.8 L 81.2,110.7 L 83.5,108.5 L 85.8,106.2 L 88.0,103.8 L 90.2,101.4 L 92.5,98.9 L 94.8,96.5 L 97.0,93.9 L 99.2,91.4 L 101.5,88.9 L 103.8,86.4 L 106.0,84.0 L 108.2,81.7 L 110.5,79.4 L 112.8,77.3 L 115.0,75.3 L 117.2,73.4 L 119.5,71.7 L 121.8,70.2 L 124.0,68.9 L 126.2,67.7 L 128.5,66.8 L 130.8,66.2 L 133.0,65.7 L 135.2,65.5 L 137.5,65.6 L 139.8,65.8 L 142.0,66.4 L 144.2,67.1 L 146.5,68.1 L 148.8,69.3 L 151.0,70.7 L 153.2,72.3 L 155.5,74.0 L 157.8,75.9 L 160.0,78.0 L 162.2,80.2 L 164.5,82.5 L 166.8,84.8 L 169.0,87.3 L 171.2,89.7 L 173.5,92.3 L 175.8,94.8 L 178.0,97.3 L 180.3,99.8 L 182.5,102.2 L 184.8,104.6 L 187.0,107.0 L 189.3,109.2 L 191.5,111.4 L 193.8,113.5 L 196.0,115.5 L 198.2,117.4 L 200.5,119.1 L 202.8,120.8 L 205.0,122.4 L 207.2,123.8 L 209.5,125.2 L 211.8,126.4 L 214.0,127.6 L 216.2,128.6 L 218.5,129.6 L 220.8,130.5 L 223.0,131.3 L 225.3,132.0 L 227.5,132.6 L 229.8,133.2 L 232.0,133.7" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="136.0" y="55.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">f(x)</text>
+  <line x1="230.0" y1="110.0" x2="275.0" y2="110.0" stroke="#475569" stroke-width="2" marker-end="url(#ar6)"/>
+  <text x="252.0" y="100.0" fill="#475569" font-size="11" text-anchor="middle">san phẳng</text>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="330.0" y1="170.0" x2="330.0" y2="38.0"/>
+<line x1="474.0" y1="170.0" x2="474.0" y2="38.0"/>
+</g>
+  <line x1="294.0" y1="170.0" x2="526.0" y2="170.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <line x1="300.0" y1="176.0" x2="300.0" y2="16.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <text x="518.0" y="186.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="308.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <line x1="330.0" y1="166.0" x2="330.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">a</text>
+  <line x1="474.0" y1="166.0" x2="474.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="474.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">b</text>
+  <rect x="330.0" y="92.1" width="144.0" height="77.9" rx="0" fill="#86efac" fill-opacity="0.6" stroke="#15803d" stroke-width="2"/>
+  <line x1="300.0" y1="92.1" x2="498.0" y2="92.1" stroke="#15803d" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="502.0" y="96.1" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">f_tb</text>
+  <text x="402.0" y="135.1" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">cùng diện tích</text>
+  <text x="265.0" y="215.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">∫ₐᵇ f(x) dx = f_tb·(b − a)  ⟹  f_tb = (1/(b−a)) ∫ₐᵇ f(x) dx</text>
+</svg>
 
 **Ví dụ 1**: Giá trị trung bình của $\sin x$ trên $[0, \pi]$.
 - $f_{tb} = \frac{1}{\pi}\cdot\int_0^\pi \sin x\,dx = \frac{1}{\pi}\cdot[-\cos x]_0^\pi = \frac{1}{\pi}\cdot\big((-\cos\pi) - (-\cos 0)\big) = \frac{1}{\pi}\cdot(1 + 1) =$ **$\frac{2}{\pi} \approx 0.637$**.

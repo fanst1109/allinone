@@ -20,13 +20,18 @@ window.README_MD = `# Lesson 06 — Nguyên hàm (Antiderivatives)
 
 💡 **Trực giác — nguyên hàm là "đi ngược đạo hàm"**. Đạo hàm là một cái máy: bỏ hàm $F$ vào, nó nhả ra slope $f = F'$. Nguyên hàm là **chạy cái máy đó ngược lại**: cho slope $f$, đi tìm hàm $F$ mà nếu đem đạo hàm sẽ trả về đúng $f$.
 
-\`\`\`
-        ĐẠO HÀM (biết F, tìm slope)
-   F(x)  ───────────────────────────►  f(x) = F'(x)
-   x²    ───────────────────────────►  2x
-         ◄───────────────────────────
-        NGUYÊN HÀM (biết slope, tìm F)
-\`\`\`
+<svg viewBox="0 0 490 140" style="max-width:490px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ hai chiều: đạo hàm đưa F(x) = x² tới f(x) = 2x; nguyên hàm đi ngược từ 2x về x² (+ C)">
+  <defs><marker id="ar2a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="ar2b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <rect x="30.0" y="50.0" width="110.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="85.0" y="78.0" fill="#1d4ed8" font-size="15" text-anchor="middle" font-weight="700">F(x) = x²</text>
+  <rect x="330.0" y="50.0" width="130.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="395.0" y="78.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">f(x) = F′(x) = 2x</text>
+  <line x1="140.0" y1="62.0" x2="328.0" y2="62.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar2a)"/>
+  <text x="234.0" y="52.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">ĐẠO HÀM (biết F, tìm slope)</text>
+  <line x1="330.0" y1="84.0" x2="142.0" y2="84.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#ar2b)"/>
+  <text x="236.0" y="108.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">NGUYÊN HÀM (biết slope, tìm F)</text>
+  <text x="236.0" y="126.0" fill="#475569" font-size="11" text-anchor="middle">hai phép toán ngược nhau</text>
+</svg>
 
 Cũng như phép trừ "tháo" phép cộng, khai căn "tháo" bình phương — nguyên hàm "tháo" đạo hàm. Khác biệt: đạo hàm có **thuật toán cơ học** (cứ áp quy tắc tích/thương/chuỗi là ra); nguyên hàm thì **không có thuật toán tổng quát**, phải nhận dạng "hàm này là đạo hàm của cái gì?" — đó là lý do tích phân khó hơn đạo hàm.
 
@@ -38,15 +43,56 @@ Cũng như phép trừ "tháo" phép cộng, khai căn "tháo" bình phương �
 
 💡 **Trực giác \`+C\` = "họ đường song song"**. Cộng hằng số $C$ vào $F$ chỉ **dịch toàn bộ đồ thị lên/xuống** theo trục $Oy$ — không làm thay đổi slope ở bất kỳ điểm nào. Mà slope chính là $f$. Nên cả một **họ vô hạn** đường cong song song dọc đều có cùng đạo hàm $f$:
 
-\`\`\`
-  y
-  │      ╱ x² + 2      ← C = 2
-  │     ╱╱ x² + 1      ← C = 1   mỗi đường lệch nhau đúng
-  │    ╱╱╱ x²          ← C = 0   một khoảng hằng số,
-  │   ╱╱╱╱ x² − 1      ← C = −1  nhưng tại mỗi x chúng
-  │  ╱╱╱╱╱              CÙNG slope = 2x
-  └──────────────► x
-\`\`\`
+<svg viewBox="0 0 400 215" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Họ đường cong x² + C với C = 2, 1, 0, −1: lệch nhau một khoảng hằng số theo chiều dọc, tại mỗi x có cùng tiếp tuyến slope 2x">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="80.0" y1="208.8" x2="80.0" y2="45.0"/>
+<line x1="120.0" y1="208.8" x2="120.0" y2="45.0"/>
+<line x1="200.0" y1="208.8" x2="200.0" y2="45.0"/>
+<line x1="240.0" y1="208.8" x2="240.0" y2="45.0"/>
+<line x1="56.0" y1="198.0" x2="264.0" y2="198.0"/>
+<line x1="56.0" y1="162.0" x2="264.0" y2="162.0"/>
+<line x1="56.0" y1="144.0" x2="264.0" y2="144.0"/>
+<line x1="56.0" y1="108.0" x2="264.0" y2="108.0"/>
+<line x1="56.0" y1="72.0" x2="264.0" y2="72.0"/>
+</g>
+  <line x1="50.0" y1="180.0" x2="286.0" y2="180.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="160.0" y1="214.8" x2="160.0" y2="23.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="278.0" y="196.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="168.0" y="33.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="80.0" y1="176.0" x2="80.0" y2="184.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="120.0" y1="176.0" x2="120.0" y2="184.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="120.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="200.0" y1="176.0" x2="200.0" y2="184.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="200.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="240.0" y1="176.0" x2="240.0" y2="184.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="156.0" y1="198.0" x2="164.0" y2="198.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="153.0" y="202.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="156.0" y1="162.0" x2="164.0" y2="162.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="153.0" y="166.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="156.0" y1="144.0" x2="164.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="153.0" y="148.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="156.0" y1="108.0" x2="164.0" y2="108.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="153.0" y="112.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="156.0" y1="72.0" x2="164.0" y2="72.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="153.0" y="76.0" fill="#475569" font-size="11" text-anchor="end">6</text>
+  <path d="M 64.0,40.3 L 66.4,45.4 L 68.8,50.4 L 71.2,55.3 L 73.6,60.0 L 76.0,64.6 L 78.4,69.1 L 80.8,73.4 L 83.2,77.6 L 85.6,81.7 L 88.0,85.7 L 90.4,89.5 L 92.8,93.2 L 95.2,96.8 L 97.6,100.2 L 100.0,103.5 L 102.4,106.7 L 104.8,109.7 L 107.2,112.6 L 109.6,115.4 L 112.0,118.1 L 114.4,120.6 L 116.8,123.0 L 119.2,125.3 L 121.6,127.4 L 124.0,129.4 L 126.4,131.3 L 128.8,133.0 L 131.2,134.7 L 133.6,136.2 L 136.0,137.5 L 138.4,138.8 L 140.8,139.9 L 143.2,140.8 L 145.6,141.7 L 148.0,142.4 L 150.4,143.0 L 152.8,143.4 L 155.2,143.7 L 157.6,143.9 L 160.0,144.0 L 162.4,143.9 L 164.8,143.7 L 167.2,143.4 L 169.6,143.0 L 172.0,142.4 L 174.4,141.7 L 176.8,140.8 L 179.2,139.9 L 181.6,138.8 L 184.0,137.5 L 186.4,136.2 L 188.8,134.7 L 191.2,133.0 L 193.6,131.3 L 196.0,129.4 L 198.4,127.4 L 200.8,125.3 L 203.2,123.0 L 205.6,120.6 L 208.0,118.1 L 210.4,115.4 L 212.8,112.6 L 215.2,109.7 L 217.6,106.7 L 220.0,103.5 L 222.4,100.2 L 224.8,96.8 L 227.2,93.2 L 229.6,89.5 L 232.0,85.7 L 234.4,81.7 L 236.8,77.6 L 239.2,73.4 L 241.6,69.1 L 244.0,64.6 L 246.4,60.0 L 248.8,55.3 L 251.2,50.4 L 253.6,45.4 L 256.0,40.3" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/>
+  <text x="262.0" y="44.3" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">x² + 2</text>
+  <path d="M 64.0,58.3 L 66.4,63.4 L 68.8,68.4 L 71.2,73.3 L 73.6,78.0 L 76.0,82.6 L 78.4,87.1 L 80.8,91.4 L 83.2,95.6 L 85.6,99.7 L 88.0,103.7 L 90.4,107.5 L 92.8,111.2 L 95.2,114.8 L 97.6,118.2 L 100.0,121.5 L 102.4,124.7 L 104.8,127.7 L 107.2,130.6 L 109.6,133.4 L 112.0,136.1 L 114.4,138.6 L 116.8,141.0 L 119.2,143.3 L 121.6,145.4 L 124.0,147.4 L 126.4,149.3 L 128.8,151.0 L 131.2,152.7 L 133.6,154.2 L 136.0,155.5 L 138.4,156.8 L 140.8,157.9 L 143.2,158.8 L 145.6,159.7 L 148.0,160.4 L 150.4,161.0 L 152.8,161.4 L 155.2,161.7 L 157.6,161.9 L 160.0,162.0 L 162.4,161.9 L 164.8,161.7 L 167.2,161.4 L 169.6,161.0 L 172.0,160.4 L 174.4,159.7 L 176.8,158.8 L 179.2,157.9 L 181.6,156.8 L 184.0,155.5 L 186.4,154.2 L 188.8,152.7 L 191.2,151.0 L 193.6,149.3 L 196.0,147.4 L 198.4,145.4 L 200.8,143.3 L 203.2,141.0 L 205.6,138.6 L 208.0,136.1 L 210.4,133.4 L 212.8,130.6 L 215.2,127.7 L 217.6,124.7 L 220.0,121.5 L 222.4,118.2 L 224.8,114.8 L 227.2,111.2 L 229.6,107.5 L 232.0,103.7 L 234.4,99.7 L 236.8,95.6 L 239.2,91.4 L 241.6,87.1 L 244.0,82.6 L 246.4,78.0 L 248.8,73.3 L 251.2,68.4 L 253.6,63.4 L 256.0,58.3" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+  <text x="262.0" y="62.3" fill="#2563eb" font-size="12" text-anchor="start" font-weight="700">x² + 1</text>
+  <path d="M 64.0,76.3 L 66.4,81.4 L 68.8,86.4 L 71.2,91.3 L 73.6,96.0 L 76.0,100.6 L 78.4,105.1 L 80.8,109.4 L 83.2,113.6 L 85.6,117.7 L 88.0,121.7 L 90.4,125.5 L 92.8,129.2 L 95.2,132.8 L 97.6,136.2 L 100.0,139.5 L 102.4,142.7 L 104.8,145.7 L 107.2,148.6 L 109.6,151.4 L 112.0,154.1 L 114.4,156.6 L 116.8,159.0 L 119.2,161.3 L 121.6,163.4 L 124.0,165.4 L 126.4,167.3 L 128.8,169.0 L 131.2,170.7 L 133.6,172.2 L 136.0,173.5 L 138.4,174.8 L 140.8,175.9 L 143.2,176.8 L 145.6,177.7 L 148.0,178.4 L 150.4,179.0 L 152.8,179.4 L 155.2,179.7 L 157.6,179.9 L 160.0,180.0 L 162.4,179.9 L 164.8,179.7 L 167.2,179.4 L 169.6,179.0 L 172.0,178.4 L 174.4,177.7 L 176.8,176.8 L 179.2,175.9 L 181.6,174.8 L 184.0,173.5 L 186.4,172.2 L 188.8,170.7 L 191.2,169.0 L 193.6,167.3 L 196.0,165.4 L 198.4,163.4 L 200.8,161.3 L 203.2,159.0 L 205.6,156.6 L 208.0,154.1 L 210.4,151.4 L 212.8,148.6 L 215.2,145.7 L 217.6,142.7 L 220.0,139.5 L 222.4,136.2 L 224.8,132.8 L 227.2,129.2 L 229.6,125.5 L 232.0,121.7 L 234.4,117.7 L 236.8,113.6 L 239.2,109.4 L 241.6,105.1 L 244.0,100.6 L 246.4,96.0 L 248.8,91.3 L 251.2,86.4 L 253.6,81.4 L 256.0,76.3" fill="none" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/>
+  <text x="262.0" y="80.3" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">x² </text>
+  <path d="M 64.0,94.3 L 66.4,99.4 L 68.8,104.4 L 71.2,109.3 L 73.6,114.0 L 76.0,118.6 L 78.4,123.1 L 80.8,127.4 L 83.2,131.6 L 85.6,135.7 L 88.0,139.7 L 90.4,143.5 L 92.8,147.2 L 95.2,150.8 L 97.6,154.2 L 100.0,157.5 L 102.4,160.7 L 104.8,163.7 L 107.2,166.6 L 109.6,169.4 L 112.0,172.1 L 114.4,174.6 L 116.8,177.0 L 119.2,179.3 L 121.6,181.4 L 124.0,183.4 L 126.4,185.3 L 128.8,187.0 L 131.2,188.7 L 133.6,190.2 L 136.0,191.5 L 138.4,192.8 L 140.8,193.9 L 143.2,194.8 L 145.6,195.7 L 148.0,196.4 L 150.4,197.0 L 152.8,197.4 L 155.2,197.7 L 157.6,197.9 L 160.0,198.0 L 162.4,197.9 L 164.8,197.7 L 167.2,197.4 L 169.6,197.0 L 172.0,196.4 L 174.4,195.7 L 176.8,194.8 L 179.2,193.9 L 181.6,192.8 L 184.0,191.5 L 186.4,190.2 L 188.8,188.7 L 191.2,187.0 L 193.6,185.3 L 196.0,183.4 L 198.4,181.4 L 200.8,179.3 L 203.2,177.0 L 205.6,174.6 L 208.0,172.1 L 210.4,169.4 L 212.8,166.6 L 215.2,163.7 L 217.6,160.7 L 220.0,157.5 L 222.4,154.2 L 224.8,150.8 L 227.2,147.2 L 229.6,143.5 L 232.0,139.7 L 234.4,135.7 L 236.8,131.6 L 239.2,127.4 L 241.6,123.1 L 244.0,118.6 L 246.4,114.0 L 248.8,109.3 L 251.2,104.4 L 253.6,99.4 L 256.0,94.3" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round"/>
+  <text x="262.0" y="98.3" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">x² − 1</text>
+  <line x1="186.0" y1="138.6" x2="214.0" y2="113.4" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="186.0" y1="156.6" x2="214.0" y2="131.4" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="186.0" y1="174.6" x2="214.0" y2="149.4" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="186.0" y1="192.6" x2="214.0" y2="167.4" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="196.0" y="50.4" fill="#475569" font-size="11" text-anchor="start">tại x = 1 mọi đường cùng slope = 2</text>
+  <text x="30.0" y="20.0" fill="#475569" font-size="12" text-anchor="start">họ nguyên hàm F(x) = x² + C: dịch dọc nhau một hằng số</text>
+</svg>
 
 Khi vẽ trường slope (slope field), tại mỗi $x$ mọi đường trong họ có **cùng một độ dốc** $f(x)$ — đó là hình ảnh hình học của "$\\int f\\,dx$ là một họ, không phải một hàm duy nhất".
 

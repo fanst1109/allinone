@@ -24,18 +24,23 @@ $$\int f(g(x))\,g'(x)\,dx = \int f(u)\,du \quad (u = g(x))$$
 
 Sơ đồ thao tác (3 bước máy móc, làm đúng thứ tự là không sai):
 
-```
-   ∫ f(g(x))·g'(x) dx
-        │  (1) đặt u = g(x)
-        ▼
-   du = g'(x) dx   ──►  thay g'(x) dx bằng du
-        │  (2) tích phân khúc còn lại đã biến mất x
-        ▼
-   ∫ f(u) du = F(u) + C
-        │  (3) thế u = g(x) trở lại  (tích phân BẤT định)
-        ▼          hoặc đổi cận theo u (tích phân XÁC định)
-   F(g(x)) + C
-```
+<svg viewBox="0 0 560 345" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng đổi biến: từ ∫ f(g(x))·g′(x) dx đặt u = g(x), du = g′(x)dx, tích phân ∫ f(u) du = F(u) + C, rồi thế u = g(x) trở lại thành F(g(x)) + C">
+  <defs><marker id="ar7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <rect x="60.0" y="30.0" width="320.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="220.0" y="58.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">∫ f(g(x))·g′(x) dx</text>
+  <rect x="60.0" y="115.0" width="320.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="220.0" y="143.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">du = g′(x) dx  →  thay g′(x) dx bằng du</text>
+  <rect x="60.0" y="200.0" width="320.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="220.0" y="228.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">∫ f(u) du = F(u) + C</text>
+  <rect x="60.0" y="285.0" width="320.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="220.0" y="313.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">F(g(x)) + C</text>
+  <line x1="220.0" y1="74.0" x2="220.0" y2="112.0" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar7)"/>
+  <text x="236.0" y="98.0" fill="#475569" font-size="12" text-anchor="start">(1) đặt u = g(x)</text>
+  <line x1="220.0" y1="159.0" x2="220.0" y2="197.0" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar7)"/>
+  <text x="236.0" y="183.0" fill="#475569" font-size="12" text-anchor="start">(2) tích phân phần còn lại — x đã biến mất</text>
+  <line x1="220.0" y1="244.0" x2="220.0" y2="282.0" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar7)"/>
+  <text x="236.0" y="268.0" fill="#475569" font-size="12" text-anchor="start">(3) thế u = g(x) trở lại (BẤT định) · hoặc đổi cận theo u (XÁC định)</text>
+</svg>
 
 ❓ **"Làm sao biết chọn cụm nào làm $u$?"** Tìm cụm mà **đạo hàm của nó cũng có mặt trong tích phân** (chỉ sai khác một hằng số là chấp nhận được — hằng số kéo ra ngoài được). Mẹo: thường $u$ là cái nằm **trong** một hàm khác (trong căn, trong mũ, dưới mẫu, trong $\sin/\cos$), còn $du$ là phần "thừa ra" bên ngoài.
 
@@ -141,14 +146,12 @@ Mẹo nhớ ngắn: **mảnh "khó tích phân nhưng dễ đạo hàm" → làm
 
 Khi $u$ là đa thức (đạo hàm sẽ về $0$ sau hữu hạn bước) và $dv$ dễ tích phân liên tục ($e^x$, $\sin x$, $\cos x$), thay vì viết "từng phần $n$ lần", lập bảng: cột trái đạo hàm $u$ tới $0$, cột phải tích phân $dv$, rồi **nhân chéo với dấu $+,-,+,-,\dots$**. Tính lại ví dụ 4 $\int x^2 e^x\,dx$:
 
-```
- dấu | đạo hàm (u)  | tích phân (dv)
- ----+--------------+----------------
-  +  |    x²        |     eˣ
-  −  |    2x        |     eˣ
-  +  |    2         |     eˣ
-     |    0  (dừng) |     eˣ
-```
+| Dấu | Đạo hàm ($u$) | Tích phân ($dv$) |
+|:---:|:---:|:---:|
+| $+$ | $x^2$ | $e^x$ |
+| $-$ | $2x$ | $e^x$ |
+| $+$ | $2$ | $e^x$ |
+| | $0$ (dừng) | $e^x$ |
 
 Nhân chéo (đường chéo xuống) kèm dấu: $(+)\,x^2 e^x + (-)\,2x\,e^x + (+)\,2\,e^x = e^x(x^2 - 2x + 2) + C$ — **cùng đáp án, nhanh hơn**. Bảng đặc biệt lợi với $\int x^3\sin x\,dx$, $\int x^4 e^x\,dx$ (4 lần từng phần bằng tay rất dễ sai dấu).
 
@@ -359,14 +362,12 @@ Tại $u=5$: $\frac25\cdot5^{5/2} - \frac23\cdot5^{3/2} = \frac25\cdot25\sqrt5 -
 
 **Bài 7.** $\int x^2\sin x\,dx$. Bảng (tabular), $u=x^2$ đạo hàm tới 0, $dv=\sin x\,dx$ tích phân liên tục ($\sin\to-\cos\to-\sin\to\cos$):
 
-```
- dấu | đạo hàm | tích phân
- ----+---------+-----------
-  +  |   x²    |  −cos x
-  −  |   2x    |  −sin x
-  +  |   2     |   cos x
-     |   0     |
-```
+| Dấu | Đạo hàm | Tích phân |
+|:---:|:---:|:---:|
+| $+$ | $x^2$ | $-\cos x$ |
+| $-$ | $2x$ | $-\sin x$ |
+| $+$ | $2$ | $\cos x$ |
+| | $0$ | |
 
 Nhân chéo: $(+)x^2(-\cos x) + (-)2x(-\sin x) + (+)2(\cos x) = -x^2\cos x + 2x\sin x + 2\cos x + C$.
 *Verify:* $\frac{d}{dx} = (-2x\cos x + x^2\sin x) + (2\sin x + 2x\cos x) + (-2\sin x) = x^2\sin x$ ✓.

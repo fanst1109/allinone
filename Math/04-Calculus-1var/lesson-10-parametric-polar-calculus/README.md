@@ -34,12 +34,24 @@
 
 💡 **Trực giác.** Coi $t$ là *thời gian*; $(x(t), y(t))$ là vị trí một điểm đang vẽ nên đường cong. Hình dung một con kiến bò trên mặt bàn, mỗi giây bạn chụp một bức ảnh ghi lại nó đang ở đâu:
 
-```
-   t = 0      t = 1      t = 2      t = 3
-  (x₀,y₀)    (x₁,y₁)    (x₂,y₂)    (x₃,y₃)
-     •─────────•─────────•─────────•
-              đường cong = vết con kiến để lại
-```
+<svg viewBox="0 0 420 175" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường cong tham số: khi t = 0, 1, 2, 3 con kiến ở các điểm (x₀,y₀)…(x₃,y₃); vết đi qua các điểm đó là đường cong">
+  <defs><marker id="ar8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <path d="M 40.0,120.0 L 42.7,118.2 L 45.9,116.0 L 49.5,113.4 L 53.4,110.4 L 57.7,107.1 L 62.3,103.6 L 67.2,99.9 L 72.3,96.0 L 77.6,92.1 L 83.1,88.1 L 88.8,84.2 L 94.5,80.4 L 100.3,76.7 L 106.1,73.3 L 112.0,70.1 L 117.8,67.2 L 123.5,64.7 L 129.1,62.6 L 134.7,61.0 L 140.0,60.0 L 140.0,60.0 L 145.3,59.6 L 150.6,59.7 L 155.9,60.4 L 161.2,61.5 L 166.6,63.0 L 171.9,64.9 L 177.4,67.0 L 182.8,69.4 L 188.3,71.8 L 193.8,74.4 L 199.3,76.9 L 204.8,79.4 L 210.4,81.8 L 215.9,84.0 L 221.6,86.0 L 227.2,87.7 L 232.9,89.0 L 238.6,89.8 L 244.3,90.2 L 250.0,90.0 L 250.0,90.0 L 255.9,89.2 L 262.1,88.0 L 268.6,86.4 L 275.3,84.3 L 282.1,82.0 L 289.0,79.3 L 296.0,76.4 L 303.0,73.4 L 310.0,70.2 L 316.9,66.9 L 323.6,63.6 L 330.2,60.2 L 336.5,57.0 L 342.5,53.8 L 348.2,50.9 L 353.5,48.1 L 358.4,45.6 L 362.8,43.3 L 366.7,41.5 L 370.0,40.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="40.0" cy="120.0" r="5" fill="#dc2626"/>
+  <text x="40.0" y="106.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">t = 0</text>
+  <text x="40.0" y="142.0" fill="#475569" font-size="11" text-anchor="middle">(x₀, y₀)</text>
+  <circle cx="140.0" cy="60.0" r="5" fill="#dc2626"/>
+  <text x="140.0" y="46.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">t = 1</text>
+  <text x="140.0" y="82.0" fill="#475569" font-size="11" text-anchor="middle">(x₁, y₁)</text>
+  <circle cx="250.0" cy="90.0" r="5" fill="#dc2626"/>
+  <text x="250.0" y="76.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">t = 2</text>
+  <text x="250.0" y="112.0" fill="#475569" font-size="11" text-anchor="middle">(x₂, y₂)</text>
+  <circle cx="370.0" cy="40.0" r="5" fill="#dc2626"/>
+  <text x="370.0" y="26.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">t = 3</text>
+  <text x="370.0" y="62.0" fill="#475569" font-size="11" text-anchor="middle">(x₃, y₃)</text>
+  <line x1="300.0" y1="70.0" x2="330.0" y2="58.0" stroke="#15803d" stroke-width="2" marker-end="url(#ar8)"/>
+  <text x="210.0" y="160.0" fill="#475569" font-size="12" text-anchor="middle">đường cong = vết con kiến để lại khi t chạy 0 → 3</text>
+</svg>
 
 Một hàm thường $y = f(x)$ chỉ cho biết "ở vị trí $x$ thì độ cao $y$ là bao nhiêu" — nó **không** biết kiến đi nhanh hay chậm, đi tới hay đi lui. Tham số cho biết **nhiều hơn**: cả *hình dạng* đường đi lẫn *cách di chuyển* dọc nó (tốc độ, chiều, thời điểm qua từng điểm).
 
@@ -88,15 +100,38 @@ Tại $t = \frac{\pi}{2}$ (đỉnh trên $(0,1)$): tử $\cos\frac{\pi}{2}=0$ �
 
 **Ví dụ 4 — cycloid $x = t - \sin t,\ y = 1 - \cos t$.** Đây là vết một điểm trên vành bánh xe bán kính 1 khi bánh lăn không trượt trên mặt đất:
 
-```
-   y
-   │      ___          ___          ___
-   │    ╱     ╲      ╱     ╲      ╱     ╲     ← các vòm cycloid
-   │  ╱  đỉnh  ╲   ╱         ╲  ╱         ╲
-   │ ╱  (t=π)   ╲ ╱   cusp    ╲╱           ╲
-   └•────────────•─────────────•────────────• ── x
-   t=0         t=2π          t=4π   (điểm chạm đất = điểm nhọn)
-```
+<svg viewBox="0 0 560 250" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường cycloid x = t − sin t, y = 1 − cos t: các vòm cao 2, đỉnh tại t = π, chạm đất tạo điểm nhọn (cusp) tại t = 0, 2π, 4π">
+  <defs><marker id="ar9" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="193.4" y1="200.0" x2="193.4" y2="132.4"/>
+<line x1="356.7" y1="200.0" x2="356.7" y2="132.4"/>
+<line x1="520.1" y1="200.0" x2="520.1" y2="132.4"/>
+<line x1="30.0" y1="148.0" x2="537.0" y2="148.0"/>
+</g>
+  <line x1="24.0" y1="200.0" x2="559.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar9)"/>
+  <line x1="30.0" y1="206.0" x2="30.0" y2="110.4" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar9)"/>
+  <text x="551.0" y="216.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="38.0" y="120.4" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="193.4" y1="196.0" x2="193.4" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.4" y="216.0" fill="#475569" font-size="11" text-anchor="middle">2π</text>
+  <line x1="356.7" y1="196.0" x2="356.7" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="356.7" y="216.0" fill="#475569" font-size="11" text-anchor="middle">4π</text>
+  <line x1="520.1" y1="196.0" x2="520.1" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="520.1" y="216.0" fill="#475569" font-size="11" text-anchor="middle">6π</text>
+  <line x1="26.0" y1="148.0" x2="34.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="23.0" y="152.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <path d="M 30.0,200.0 L 30.0,199.9 L 30.0,199.8 L 30.0,199.5 L 30.1,199.2 L 30.1,198.7 L 30.2,198.2 L 30.4,197.5 L 30.5,196.8 L 30.8,196.0 L 31.1,195.0 L 31.4,194.0 L 31.8,193.0 L 32.3,191.8 L 32.8,190.6 L 33.5,189.3 L 34.2,187.9 L 35.0,186.5 L 35.9,185.1 L 36.9,183.6 L 37.9,182.0 L 39.1,180.5 L 40.4,178.9 L 41.8,177.3 L 43.3,175.6 L 44.8,174.0 L 46.5,172.4 L 48.3,170.7 L 50.2,169.1 L 52.2,167.5 L 54.3,166.0 L 56.5,164.4 L 58.8,162.9 L 61.1,161.5 L 63.6,160.1 L 66.1,158.7 L 68.8,157.4 L 71.5,156.2 L 74.3,155.0 L 77.1,154.0 L 80.1,153.0 L 83.0,152.0 L 86.1,151.2 L 89.2,150.5 L 92.3,149.8 L 95.5,149.3 L 98.7,148.8 L 101.9,148.5 L 105.2,148.2 L 108.4,148.1 L 111.7,148.0 L 114.9,148.1 L 118.2,148.2 L 121.5,148.5 L 124.7,148.8 L 127.9,149.3 L 131.1,149.8 L 134.2,150.5 L 137.3,151.2 L 140.3,152.0 L 143.3,153.0 L 146.2,154.0 L 149.1,155.0 L 151.9,156.2 L 154.6,157.4 L 157.2,158.7 L 159.8,160.1 L 162.2,161.5 L 164.6,162.9 L 166.9,164.4 L 169.1,166.0 L 171.2,167.5 L 173.2,169.1 L 175.0,170.7 L 176.8,172.4 L 178.5,174.0 L 180.1,175.6 L 181.6,177.3 L 183.0,178.9 L 184.2,180.5 L 185.4,182.0 L 186.5,183.6 L 187.5,185.1 L 188.4,186.5 L 189.2,187.9 L 189.9,189.3 L 190.5,190.6 L 191.1,191.8 L 191.6,193.0 L 192.0,194.0 L 192.3,195.0 L 192.6,196.0 L 192.8,196.8 L 193.0,197.5 L 193.1,198.2 L 193.2,198.7 L 193.3,199.2 L 193.3,199.5 L 193.4,199.8 L 193.4,199.9 L 193.4,200.0 L 193.4,199.9 L 193.4,199.8 L 193.4,199.5 L 193.4,199.2 L 193.5,198.7 L 193.6,198.2 L 193.7,197.5 L 193.9,196.8 L 194.1,196.0 L 194.4,195.0 L 194.8,194.0 L 195.2,193.0 L 195.6,191.8 L 196.2,190.6 L 196.8,189.3 L 197.5,187.9 L 198.4,186.5 L 199.2,185.1 L 200.2,183.6 L 201.3,182.0 L 202.5,180.5 L 203.8,178.9 L 205.1,177.3 L 206.6,175.6 L 208.2,174.0 L 209.9,172.4 L 211.7,170.7 L 213.6,169.1 L 215.6,167.5 L 217.6,166.0 L 219.8,164.4 L 222.1,162.9 L 224.5,161.5 L 227.0,160.1 L 229.5,158.7 L 232.1,157.4 L 234.9,156.2 L 237.6,155.0 L 240.5,154.0 L 243.4,153.0 L 246.4,152.0 L 249.4,151.2 L 252.5,150.5 L 255.7,149.8 L 258.8,149.3 L 262.0,148.8 L 265.3,148.5 L 268.5,148.2 L 271.8,148.1 L 275.0,148.0 L 278.3,148.1 L 281.6,148.2 L 284.8,148.5 L 288.0,148.8 L 291.2,149.3 L 294.4,149.8 L 297.5,150.5 L 300.6,151.2 L 303.7,152.0 L 306.7,153.0 L 309.6,154.0 L 312.4,155.0 L 315.2,156.2 L 317.9,157.4 L 320.6,158.7 L 323.1,160.1 L 325.6,161.5 L 328.0,162.9 L 330.3,164.4 L 332.4,166.0 L 334.5,167.5 L 336.5,169.1 L 338.4,170.7 L 340.2,172.4 L 341.9,174.0 L 343.5,175.6 L 344.9,177.3 L 346.3,178.9 L 347.6,180.5 L 348.8,182.0 L 349.9,183.6 L 350.8,185.1 L 351.7,186.5 L 352.5,187.9 L 353.3,189.3 L 353.9,190.6 L 354.4,191.8 L 354.9,193.0 L 355.3,194.0 L 355.7,195.0 L 356.0,196.0 L 356.2,196.8 L 356.4,197.5 L 356.5,198.2 L 356.6,198.7 L 356.7,199.2 L 356.7,199.5 L 356.7,199.8 L 356.7,199.9 L 356.7,200.0 L 356.7,199.9 L 356.7,199.8 L 356.8,199.5 L 356.8,199.2 L 356.9,198.7 L 357.0,198.2 L 357.1,197.5 L 357.3,196.8 L 357.5,196.0 L 357.8,195.0 L 358.1,194.0 L 358.5,193.0 L 359.0,191.8 L 359.6,190.6 L 360.2,189.3 L 360.9,187.9 L 361.7,186.5 L 362.6,185.1 L 363.6,183.6 L 364.7,182.0 L 365.8,180.5 L 367.1,178.9 L 368.5,177.3 L 370.0,175.6 L 371.6,174.0 L 373.3,172.4 L 375.0,170.7 L 376.9,169.1 L 378.9,167.5 L 381.0,166.0 L 383.2,164.4 L 385.5,162.9 L 387.9,161.5 L 390.3,160.1 L 392.9,158.7 L 395.5,157.4 L 398.2,156.2 L 401.0,155.0 L 403.9,154.0 L 406.8,153.0 L 409.8,152.0 L 412.8,151.2 L 415.9,150.5 L 419.0,149.8 L 422.2,149.3 L 425.4,148.8 L 428.6,148.5 L 431.9,148.2 L 435.1,148.1 L 438.4,148.0 L 441.7,148.1 L 444.9,148.2 L 448.2,148.5 L 451.4,148.8 L 454.6,149.3 L 457.8,149.8 L 460.9,150.5 L 464.0,151.2 L 467.0,152.0 L 470.0,153.0 L 472.9,154.0 L 475.8,155.0 L 478.6,156.2 L 481.3,157.4 L 483.9,158.7 L 486.5,160.1 L 489.0,161.5 L 491.3,162.9 L 493.6,164.4 L 495.8,166.0 L 497.9,167.5 L 499.9,169.1 L 501.8,170.7 L 503.6,172.4 L 505.2,174.0 L 506.8,175.6 L 508.3,177.3 L 509.7,178.9 L 511.0,180.5 L 512.1,182.0 L 513.2,183.6 L 514.2,185.1 L 515.1,186.5 L 515.9,187.9 L 516.6,189.3 L 517.3,190.6 L 517.8,191.8 L 518.3,193.0 L 518.7,194.0 L 519.0,195.0 L 519.3,196.0 L 519.5,196.8 L 519.7,197.5 L 519.9,198.2 L 520.0,198.7 L 520.0,199.2 L 520.1,199.5 L 520.1,199.8 L 520.1,199.9 L 520.1,200.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="30.0" cy="200.0" r="4" fill="#dc2626"/>
+  <circle cx="193.4" cy="200.0" r="4" fill="#dc2626"/>
+  <circle cx="356.7" cy="200.0" r="4" fill="#dc2626"/>
+  <circle cx="520.1" cy="200.0" r="4" fill="#dc2626"/>
+  <text x="30.0" y="230.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">t = 0</text>
+  <text x="193.4" y="230.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">t = 2π (cusp)</text>
+  <text x="356.7" y="230.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">t = 4π (cusp)</text>
+  <circle cx="111.7" cy="148.0" r="4" fill="#15803d"/>
+  <text x="111.7" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">đỉnh (t = π)</text>
+  <text x="368.0" y="137.6" fill="#475569" font-size="11" text-anchor="middle">các vòm cycloid — điểm chạm đất = điểm nhọn</text>
+</svg>
 
 $$\frac{dx}{dt} = 1 - \cos t, \qquad \frac{dy}{dt} = \sin t \quad\Rightarrow\quad \frac{dy}{dx} = \frac{\sin t}{1 - \cos t}.$$
 
@@ -131,15 +166,19 @@ $$\frac{d^2y}{dx^2} = \frac{\dfrac{d}{dt}\!\left(\dfrac{dy}{dx}\right)}{\dfrac{d
 
 💡 **Trực giác.** Quãng đường = tốc độ $\times$ thời gian, cộng dồn. Trong một khoảnh khắc $dt$, điểm dịch ngang $dx = \frac{dx}{dt}\,dt$ và dịch dọc $dy = \frac{dy}{dt}\,dt$. Hai dịch chuyển này **vuông góc** nên đoạn đường đi được $ds$ là cạnh huyền của tam giác vuông nhỏ:
 
-```
-                    ╱│
-              ds  ╱  │  dy = (dy/dt) dt
-                ╱    │
-              ╱──────┘
-          dx = (dx/dt) dt
-
-   ds = √(dx² + dy²) = √((dx/dt)² + (dy/dt)²) · dt
-```
+<svg viewBox="0 0 500 210" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông vi phân: cạnh ngang dx = (dx/dt)dt, cạnh đứng dy = (dy/dt)dt, cạnh huyền ds">
+  <defs><marker id="ar10" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="110.0" y1="150.0" x2="290.0" y2="150.0" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="290.0" y1="150.0" x2="290.0" y2="40.0" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="110.0" y1="150.0" x2="290.0" y2="40.0" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="110.0" cy="150.0" r="4" fill="#dc2626"/>
+  <circle cx="290.0" cy="40.0" r="4" fill="#dc2626"/>
+  <rect x="278.0" y="138.0" width="12.0" height="12.0" rx="0" fill="none" fill-opacity="1" stroke="#475569" stroke-width="1"/>
+  <text x="200.0" y="170.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">dx = (dx/dt) dt</text>
+  <text x="298.0" y="99.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">dy = (dy/dt) dt</text>
+  <text x="188.0" y="87.0" fill="#dc2626" font-size="15" text-anchor="end" font-weight="700" font-style="italic">ds</text>
+  <text x="250.0" y="195.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">ds = √(dx² + dy²) = √((dx/dt)² + (dy/dt)²) · dt</text>
+</svg>
 
 Tốc độ tức thời (độ dài $ds$ chia $dt$) chính là $\sqrt{\left(\frac{dx}{dt}\right)^2 + \left(\frac{dy}{dt}\right)^2}$. Cộng dồn (tích phân) từ $t=\alpha$ tới $t=\beta$:
 
@@ -200,16 +239,26 @@ So với đáp số đúng $1.5708$: sai số chỉ $\approx 0.6\%$ với **ch�
 
 💡 **Trực giác.** Thay vì "sang phải $x$, lên $y$" (Descartes), toạ độ cực nói "**quay một góc $\theta$, rồi đi xa gốc một đoạn $r$**". Giống cách bạn chỉ đường: "*xoay người về hướng $30^\circ$, đi tới $5$ mét*". $\theta$ đo từ **trục dương Ox**, ngược chiều kim đồng hồ là dương.
 
-```
-              y
-              │            P = (r, θ)
-              │          ╱•
-              │      r ╱  │
-              │      ╱    │ y = r sinθ
-              │    ╱  θ   │
-       ───────┼──╱───────┴──── x
-            O │     x = r cosθ
-```
+<svg viewBox="0 0 400 225" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tọa độ cực: điểm P cách gốc O khoảng r, góc θ so với trục x; x = r cos θ, y = r sin θ">
+  <defs><marker id="ar11" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+</g>
+  <line x1="54.0" y1="190.0" x2="298.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar11)"/>
+  <line x1="60.0" y1="196.0" x2="60.0" y2="12.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar11)"/>
+  <text x="290.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="60.0" y1="190.0" x2="201.8" y2="79.2" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="201.8" cy="79.2" r="5" fill="#dc2626"/>
+  <text x="211.8" y="75.2" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">P = (r, θ)</text>
+  <line x1="201.8" y1="79.2" x2="201.8" y2="190.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="201.8" y1="79.2" x2="60.0" y2="79.2" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="120.9" y="126.6" fill="#1d4ed8" font-size="14" text-anchor="end" font-weight="700" font-style="italic">r</text>
+  <path d="M 100.0,190.0 A 40,40 0 0 0 91.5,165.4" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="108.0" y="180.0" fill="#dc2626" font-size="13" text-anchor="start" font-style="italic">θ</text>
+  <text x="201.8" y="220.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">x = r·cos θ</text>
+  <text x="52.0" y="83.2" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">y = r·sin θ</text>
+  <text x="52.0" y="206.0" fill="#475569" font-size="12" text-anchor="end">O</text>
+</svg>
 
 Liên hệ hai hệ — học thuộc *bốn* công thức này (chúng dùng đi dùng lại cả bài):
 
@@ -251,17 +300,29 @@ $$\underbrace{x = r\cos\theta, \quad y = r\sin\theta}_{\text{cực} \to \text{De
 3. $r = 1 + \cos\theta$: **cardioid** (hình trái tim) — $\theta=0 \to r=2$, $\theta=\frac{\pi}{2}\to r=1$, $\theta=\pi \to r=0$, $\theta = \frac{3\pi}{2}\to r=1$.
 4. $r = \cos(2\theta)$: **hoa hồng 4 cánh** — $r$ dao động dương/âm tạo các cánh.
 
-ASCII ba đồ thị tiêu biểu (nhìn để có hình dung trước khi tính diện tích ở mục 4):
+Ba đồ thị tiêu biểu (nhìn để có hình dung trước khi tính diện tích ở mục 4):
 
-```
-   r = 2 (tròn)        r = 1+cosθ (cardioid)      r = cos2θ (hoa 4 cánh)
-       ___                    _                          \  |  /
-     ╱     ╲               ╱╲╱ ╲                          \ | /
-    │   •   │             │  •  │ ◄ lõm về gốc       ─────  •  ─────
-     ╲ ___ ╱               ╲   ╱   bên trái               / | \
-                            ╲_╱  ► nhọn ra phải          /  |  \
-   tâm tại gốc           "trái tim" nằm ngang       4 cánh dọc 2 trục
-```
+<svg viewBox="0 0 570 215" style="max-width:570px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba đường cong cực tiêu biểu: đường tròn r = 2, cardioid r = 1 + cos θ (hình trái tim nằm ngang), hoa hồng 4 cánh r = cos 2θ">
+  <defs><marker id="ar12" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="95.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">r = 2 (đường tròn)</text>
+  <line x1="15.0" y1="105.0" x2="175.0" y2="105.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="95.0" y1="35.0" x2="95.0" y2="175.0" stroke="#94a3b8" stroke-width="1"/>
+  <circle cx="95.0" cy="105.0" r="3" fill="#1a202c"/>
+  <path d="M 155.0,105.0 L 155.0,103.4 L 154.9,101.9 L 154.8,100.3 L 154.7,98.7 L 154.5,97.2 L 154.3,95.6 L 154.0,94.1 L 153.7,92.5 L 153.3,91.0 L 153.0,89.5 L 152.5,88.0 L 152.1,86.5 L 151.6,85.0 L 151.0,83.5 L 150.4,82.0 L 149.8,80.6 L 149.2,79.2 L 148.5,77.8 L 147.7,76.4 L 147.0,75.0 L 146.2,73.7 L 145.3,72.3 L 144.4,71.0 L 143.5,69.7 L 142.6,68.5 L 141.6,67.2 L 140.6,66.0 L 139.6,64.9 L 138.5,63.7 L 137.4,62.6 L 136.3,61.5 L 135.1,60.4 L 134.0,59.4 L 132.8,58.4 L 131.5,57.4 L 130.3,56.5 L 129.0,55.6 L 127.7,54.7 L 126.3,53.8 L 125.0,53.0 L 123.6,52.3 L 122.2,51.5 L 120.8,50.8 L 119.4,50.2 L 118.0,49.6 L 116.5,49.0 L 115.0,48.4 L 113.5,47.9 L 112.0,47.5 L 110.5,47.0 L 109.0,46.7 L 107.5,46.3 L 105.9,46.0 L 104.4,45.7 L 102.8,45.5 L 101.3,45.3 L 99.7,45.2 L 98.1,45.1 L 96.6,45.0 L 95.0,45.0 L 93.4,45.0 L 91.9,45.1 L 90.3,45.2 L 88.7,45.3 L 87.2,45.5 L 85.6,45.7 L 84.1,46.0 L 82.5,46.3 L 81.0,46.7 L 79.5,47.0 L 78.0,47.5 L 76.5,47.9 L 75.0,48.4 L 73.5,49.0 L 72.0,49.6 L 70.6,50.2 L 69.2,50.8 L 67.8,51.5 L 66.4,52.3 L 65.0,53.0 L 63.7,53.8 L 62.3,54.7 L 61.0,55.6 L 59.7,56.5 L 58.5,57.4 L 57.2,58.4 L 56.0,59.4 L 54.9,60.4 L 53.7,61.5 L 52.6,62.6 L 51.5,63.7 L 50.4,64.9 L 49.4,66.0 L 48.4,67.2 L 47.4,68.5 L 46.5,69.7 L 45.6,71.0 L 44.7,72.3 L 43.8,73.7 L 43.0,75.0 L 42.3,76.4 L 41.5,77.8 L 40.8,79.2 L 40.2,80.6 L 39.6,82.0 L 39.0,83.5 L 38.4,85.0 L 37.9,86.5 L 37.5,88.0 L 37.0,89.5 L 36.7,91.0 L 36.3,92.5 L 36.0,94.1 L 35.7,95.6 L 35.5,97.2 L 35.3,98.7 L 35.2,100.3 L 35.1,101.9 L 35.0,103.4 L 35.0,105.0 L 35.0,106.6 L 35.1,108.1 L 35.2,109.7 L 35.3,111.3 L 35.5,112.8 L 35.7,114.4 L 36.0,115.9 L 36.3,117.5 L 36.7,119.0 L 37.0,120.5 L 37.5,122.0 L 37.9,123.5 L 38.4,125.0 L 39.0,126.5 L 39.6,128.0 L 40.2,129.4 L 40.8,130.8 L 41.5,132.2 L 42.3,133.6 L 43.0,135.0 L 43.8,136.3 L 44.7,137.7 L 45.6,139.0 L 46.5,140.3 L 47.4,141.5 L 48.4,142.8 L 49.4,144.0 L 50.4,145.1 L 51.5,146.3 L 52.6,147.4 L 53.7,148.5 L 54.9,149.6 L 56.0,150.6 L 57.2,151.6 L 58.5,152.6 L 59.7,153.5 L 61.0,154.4 L 62.3,155.3 L 63.7,156.2 L 65.0,157.0 L 66.4,157.7 L 67.8,158.5 L 69.2,159.2 L 70.6,159.8 L 72.0,160.4 L 73.5,161.0 L 75.0,161.6 L 76.5,162.1 L 78.0,162.5 L 79.5,163.0 L 81.0,163.3 L 82.5,163.7 L 84.1,164.0 L 85.6,164.3 L 87.2,164.5 L 88.7,164.7 L 90.3,164.8 L 91.9,164.9 L 93.4,165.0 L 95.0,165.0 L 96.6,165.0 L 98.1,164.9 L 99.7,164.8 L 101.3,164.7 L 102.8,164.5 L 104.4,164.3 L 105.9,164.0 L 107.5,163.7 L 109.0,163.3 L 110.5,163.0 L 112.0,162.5 L 113.5,162.1 L 115.0,161.6 L 116.5,161.0 L 118.0,160.4 L 119.4,159.8 L 120.8,159.2 L 122.2,158.5 L 123.6,157.7 L 125.0,157.0 L 126.3,156.2 L 127.7,155.3 L 129.0,154.4 L 130.3,153.5 L 131.5,152.6 L 132.8,151.6 L 134.0,150.6 L 135.1,149.6 L 136.3,148.5 L 137.4,147.4 L 138.5,146.3 L 139.6,145.1 L 140.6,144.0 L 141.6,142.8 L 142.6,141.5 L 143.5,140.3 L 144.4,139.0 L 145.3,137.7 L 146.2,136.3 L 147.0,135.0 L 147.7,133.6 L 148.5,132.2 L 149.2,130.8 L 149.8,129.4 L 150.4,128.0 L 151.0,126.5 L 151.6,125.0 L 152.1,123.5 L 152.5,122.0 L 153.0,120.5 L 153.3,119.0 L 153.7,117.5 L 154.0,115.9 L 154.3,114.4 L 154.5,112.8 L 154.7,111.3 L 154.8,109.7 L 154.9,108.1 L 155.0,106.6 L 155.0,105.0 Z" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="95.0" y="197.0" fill="#475569" font-size="11" text-anchor="middle">tâm tại gốc, bán kính 2</text>
+  <text x="285.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">r = 1 + cos θ (cardioid)</text>
+  <line x1="205.0" y1="105.0" x2="365.0" y2="105.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="285.0" y1="35.0" x2="285.0" y2="175.0" stroke="#94a3b8" stroke-width="1"/>
+  <circle cx="285.0" cy="105.0" r="3" fill="#1a202c"/>
+  <path d="M 349.0,105.0 L 349.0,103.3 L 348.9,101.7 L 348.7,100.0 L 348.5,98.3 L 348.2,96.7 L 347.8,95.0 L 347.4,93.4 L 346.9,91.8 L 346.4,90.3 L 345.8,88.7 L 345.1,87.2 L 344.4,85.7 L 343.6,84.2 L 342.8,82.8 L 341.9,81.4 L 340.9,80.1 L 340.0,78.8 L 338.9,77.5 L 337.8,76.3 L 336.7,75.1 L 335.5,74.0 L 334.3,73.0 L 333.1,71.9 L 331.8,71.0 L 330.5,70.1 L 329.2,69.2 L 327.8,68.4 L 326.5,67.7 L 325.0,67.0 L 323.6,66.4 L 322.2,65.8 L 320.7,65.3 L 319.3,64.9 L 317.8,64.5 L 316.3,64.2 L 314.9,63.9 L 313.4,63.7 L 311.9,63.5 L 310.5,63.5 L 309.0,63.4 L 307.6,63.5 L 306.1,63.5 L 304.7,63.7 L 303.3,63.9 L 301.9,64.1 L 300.6,64.4 L 299.2,64.8 L 297.9,65.2 L 296.7,65.6 L 295.4,66.1 L 294.2,66.6 L 293.0,67.2 L 291.9,67.8 L 290.8,68.4 L 289.7,69.1 L 288.7,69.8 L 287.7,70.6 L 286.8,71.4 L 285.9,72.2 L 285.0,73.0 L 284.2,73.8 L 283.4,74.7 L 282.7,75.6 L 282.0,76.5 L 281.4,77.4 L 280.8,78.3 L 280.2,79.3 L 279.7,80.2 L 279.3,81.1 L 278.9,82.1 L 278.5,83.0 L 278.2,84.0 L 277.9,84.9 L 277.6,85.8 L 277.4,86.7 L 277.3,87.7 L 277.2,88.6 L 277.1,89.4 L 277.0,90.3 L 277.0,91.1 L 277.0,92.0 L 277.1,92.8 L 277.1,93.6 L 277.2,94.3 L 277.4,95.1 L 277.5,95.8 L 277.7,96.5 L 277.9,97.1 L 278.1,97.8 L 278.4,98.4 L 278.6,99.0 L 278.9,99.5 L 279.2,100.0 L 279.5,100.5 L 279.8,101.0 L 280.1,101.4 L 280.4,101.8 L 280.7,102.2 L 281.0,102.5 L 281.3,102.9 L 281.6,103.1 L 281.9,103.4 L 282.2,103.7 L 282.5,103.9 L 282.7,104.1 L 283.0,104.2 L 283.3,104.4 L 283.5,104.5 L 283.7,104.6 L 283.9,104.7 L 284.1,104.8 L 284.3,104.9 L 284.5,104.9 L 284.6,104.9 L 284.7,105.0 L 284.8,105.0 L 284.9,105.0 L 285.0,105.0 L 285.0,105.0 L 285.0,105.0 L 285.0,105.0 L 285.0,105.0 L 284.9,105.0 L 284.8,105.0 L 284.7,105.0 L 284.6,105.1 L 284.5,105.1 L 284.3,105.1 L 284.1,105.2 L 283.9,105.3 L 283.7,105.4 L 283.5,105.5 L 283.3,105.6 L 283.0,105.8 L 282.7,105.9 L 282.5,106.1 L 282.2,106.3 L 281.9,106.6 L 281.6,106.9 L 281.3,107.1 L 281.0,107.5 L 280.7,107.8 L 280.4,108.2 L 280.1,108.6 L 279.8,109.0 L 279.5,109.5 L 279.2,110.0 L 278.9,110.5 L 278.6,111.0 L 278.4,111.6 L 278.1,112.2 L 277.9,112.9 L 277.7,113.5 L 277.5,114.2 L 277.4,114.9 L 277.2,115.7 L 277.1,116.4 L 277.1,117.2 L 277.0,118.0 L 277.0,118.9 L 277.0,119.7 L 277.1,120.6 L 277.2,121.4 L 277.3,122.3 L 277.4,123.3 L 277.6,124.2 L 277.9,125.1 L 278.2,126.0 L 278.5,127.0 L 278.9,127.9 L 279.3,128.9 L 279.7,129.8 L 280.2,130.7 L 280.8,131.7 L 281.4,132.6 L 282.0,133.5 L 282.7,134.4 L 283.4,135.3 L 284.2,136.2 L 285.0,137.0 L 285.9,137.8 L 286.8,138.6 L 287.7,139.4 L 288.7,140.2 L 289.7,140.9 L 290.8,141.6 L 291.9,142.2 L 293.0,142.8 L 294.2,143.4 L 295.4,143.9 L 296.7,144.4 L 297.9,144.8 L 299.2,145.2 L 300.6,145.6 L 301.9,145.9 L 303.3,146.1 L 304.7,146.3 L 306.1,146.5 L 307.6,146.5 L 309.0,146.6 L 310.5,146.5 L 311.9,146.5 L 313.4,146.3 L 314.9,146.1 L 316.3,145.8 L 317.8,145.5 L 319.3,145.1 L 320.7,144.7 L 322.2,144.2 L 323.6,143.6 L 325.0,143.0 L 326.5,142.3 L 327.8,141.6 L 329.2,140.8 L 330.5,139.9 L 331.8,139.0 L 333.1,138.1 L 334.3,137.0 L 335.5,136.0 L 336.7,134.9 L 337.8,133.7 L 338.9,132.5 L 340.0,131.2 L 340.9,129.9 L 341.9,128.6 L 342.8,127.2 L 343.6,125.8 L 344.4,124.3 L 345.1,122.8 L 345.8,121.3 L 346.4,119.7 L 346.9,118.2 L 347.4,116.6 L 347.8,115.0 L 348.2,113.3 L 348.5,111.7 L 348.7,110.0 L 348.9,108.3 L 349.0,106.7 L 349.0,105.0 Z" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="285.0" y="197.0" fill="#475569" font-size="11" text-anchor="middle">lõm về gốc bên trái, nhọn ra phải</text>
+  <text x="475.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">r = cos 2θ (hoa 4 cánh)</text>
+  <line x1="395.0" y1="105.0" x2="555.0" y2="105.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="475.0" y1="35.0" x2="475.0" y2="175.0" stroke="#94a3b8" stroke-width="1"/>
+  <circle cx="475.0" cy="105.0" r="3" fill="#1a202c"/>
+  <path d="M 540.0,105.0 L 539.9,103.3 L 539.6,101.6 L 539.0,100.0 L 538.2,98.4 L 537.2,96.8 L 536.1,95.3 L 534.7,93.9 L 533.1,92.7 L 531.3,91.5 L 529.4,90.4 L 527.3,89.5 L 525.0,88.8 L 522.6,88.1 L 520.1,87.7 L 517.5,87.4 L 514.7,87.3 L 511.9,87.4 L 509.0,87.7 L 506.1,88.1 L 503.1,88.8 L 500.2,89.6 L 497.2,90.6 L 494.2,91.8 L 491.2,93.2 L 488.3,94.8 L 485.5,96.5 L 482.7,98.4 L 480.0,100.5 L 477.5,102.7 L 475.0,105.0 L 472.7,107.5 L 470.5,110.0 L 468.4,112.7 L 466.5,115.5 L 464.8,118.3 L 463.2,121.2 L 461.8,124.2 L 460.6,127.2 L 459.6,130.2 L 458.8,133.1 L 458.1,136.1 L 457.7,139.0 L 457.4,141.9 L 457.3,144.7 L 457.4,147.5 L 457.7,150.1 L 458.1,152.6 L 458.8,155.0 L 459.5,157.3 L 460.4,159.4 L 461.5,161.3 L 462.7,163.1 L 463.9,164.7 L 465.3,166.1 L 466.8,167.2 L 468.4,168.2 L 470.0,169.0 L 471.6,169.6 L 473.3,169.9 L 475.0,170.0 L 476.7,169.9 L 478.4,169.6 L 480.0,169.0 L 481.6,168.2 L 483.2,167.2 L 484.7,166.1 L 486.1,164.7 L 487.3,163.1 L 488.5,161.3 L 489.6,159.4 L 490.5,157.3 L 491.2,155.0 L 491.9,152.6 L 492.3,150.1 L 492.6,147.5 L 492.7,144.7 L 492.6,141.9 L 492.3,139.0 L 491.9,136.1 L 491.2,133.1 L 490.4,130.2 L 489.4,127.2 L 488.2,124.2 L 486.8,121.2 L 485.2,118.3 L 483.5,115.5 L 481.6,112.7 L 479.5,110.0 L 477.3,107.5 L 475.0,105.0 L 472.5,102.7 L 470.0,100.5 L 467.3,98.4 L 464.5,96.5 L 461.7,94.8 L 458.8,93.2 L 455.8,91.8 L 452.8,90.6 L 449.8,89.6 L 446.9,88.8 L 443.9,88.1 L 441.0,87.7 L 438.1,87.4 L 435.3,87.3 L 432.5,87.4 L 429.9,87.7 L 427.4,88.1 L 425.0,88.8 L 422.7,89.5 L 420.6,90.4 L 418.7,91.5 L 416.9,92.7 L 415.3,93.9 L 413.9,95.3 L 412.8,96.8 L 411.8,98.4 L 411.0,100.0 L 410.4,101.6 L 410.1,103.3 L 410.0,105.0 L 410.1,106.7 L 410.4,108.4 L 411.0,110.0 L 411.8,111.6 L 412.8,113.2 L 413.9,114.7 L 415.3,116.1 L 416.9,117.3 L 418.7,118.5 L 420.6,119.6 L 422.7,120.5 L 425.0,121.2 L 427.4,121.9 L 429.9,122.3 L 432.5,122.6 L 435.3,122.7 L 438.1,122.6 L 441.0,122.3 L 443.9,121.9 L 446.9,121.3 L 449.8,120.4 L 452.8,119.4 L 455.8,118.2 L 458.8,116.8 L 461.7,115.2 L 464.5,113.5 L 467.3,111.6 L 470.0,109.5 L 472.5,107.3 L 475.0,105.0 L 477.3,102.5 L 479.5,100.0 L 481.6,97.3 L 483.5,94.5 L 485.2,91.7 L 486.8,88.8 L 488.2,85.8 L 489.4,82.8 L 490.4,79.8 L 491.2,76.9 L 491.9,73.9 L 492.3,71.0 L 492.6,68.1 L 492.7,65.3 L 492.6,62.5 L 492.3,59.9 L 491.9,57.4 L 491.2,55.0 L 490.5,52.7 L 489.6,50.6 L 488.5,48.7 L 487.3,46.9 L 486.1,45.3 L 484.7,43.9 L 483.2,42.8 L 481.6,41.8 L 480.0,41.0 L 478.4,40.4 L 476.7,40.1 L 475.0,40.0 L 473.3,40.1 L 471.6,40.4 L 470.0,41.0 L 468.4,41.8 L 466.8,42.8 L 465.3,43.9 L 463.9,45.3 L 462.7,46.9 L 461.5,48.7 L 460.4,50.6 L 459.5,52.7 L 458.8,55.0 L 458.1,57.4 L 457.7,59.9 L 457.4,62.5 L 457.3,65.3 L 457.4,68.1 L 457.7,71.0 L 458.1,73.9 L 458.8,76.9 L 459.6,79.8 L 460.6,82.8 L 461.8,85.8 L 463.2,88.7 L 464.8,91.7 L 466.5,94.5 L 468.4,97.3 L 470.5,100.0 L 472.7,102.5 L 475.0,105.0 L 477.5,107.3 L 480.0,109.5 L 482.7,111.6 L 485.5,113.5 L 488.3,115.2 L 491.2,116.8 L 494.2,118.2 L 497.2,119.4 L 500.2,120.4 L 503.1,121.3 L 506.1,121.9 L 509.0,122.3 L 511.9,122.6 L 514.7,122.7 L 517.5,122.6 L 520.1,122.3 L 522.6,121.9 L 525.0,121.2 L 527.3,120.5 L 529.4,119.6 L 531.3,118.5 L 533.1,117.3 L 534.7,116.1 L 536.1,114.7 L 537.2,113.2 L 538.2,111.6 L 539.0,110.0 L 539.6,108.4 L 539.9,106.7 L 540.0,105.0 Z" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="475.0" y="197.0" fill="#475569" font-size="11" text-anchor="middle">4 cánh dọc 2 trục</text>
+</svg>
 
 > ⚠ **Lỗi thường gặp.** Cùng một điểm có **nhiều** cặp $(r, \theta)$. Ba nguồn trùng lặp: (1) cộng $\theta$ thêm bội $2\pi$; (2) dùng $r$ **âm** rồi $\theta$ thêm $\pi$ — ví dụ $(2, \frac{\pi}{6})$ và $(-2, \frac{7\pi}{6})$ là **cùng một điểm**; (3) gốc $O$ ứng với mọi $\theta$ (vì $r = 0$). Khi vẽ đường cong cực, cho $\theta$ chạy đủ một chu kỳ của $r(\theta)$ để không vẽ thiếu/thừa cánh.
 
@@ -283,16 +344,25 @@ ASCII ba đồ thị tiêu biểu (nhìn để có hình dung trước khi tính
 
 💡 **Trực giác.** Trong hệ Descartes ta cộng các *chữ nhật mảnh* $f(x)\,dx$; trong hệ cực hình dạng đó không tự nhiên (đường biên cong quanh gốc). Thay vào đó ta cắt vùng thành các **hình quạt mảnh** như cắt bánh pizza, mỗi miếng góc $d\theta$ nhỏ:
 
-```
-              r(θ)
-            ╱─────╲
-          ╱ │░░░░░ ╲       Mỗi miếng quạt:
-         │  │░░░░░░ │       - góc mở dθ (rất nhỏ)
-         │ θ│░dθ░░  │       - bán kính ≈ r(θ)
-          ╲ │░░░░░ ╱        - gần như tam giác hẹp
-       ────•──────         diện tích ≈ ½ · r · (r dθ) = ½ r² dθ
-          gốc O
-```
+<svg viewBox="0 0 520 215" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Diện tích trong tọa độ cực: chia vùng thành các miếng quạt hẹp góc dθ, bán kính r(θ); mỗi miếng ≈ tam giác diện tích ½ r² dθ">
+  <defs><marker id="ar13" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="80.0" y1="190.0" x2="290.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar13)"/>
+  <line x1="90.0" y1="200.0" x2="90.0" y2="20.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar13)"/>
+  <circle cx="90.0" cy="190.0" r="3" fill="#1a202c"/>
+  <text x="82.0" y="206.0" fill="#475569" font-size="12" text-anchor="end">O</text>
+  <path d="M 225.0,190.0 L 225.7,187.9 L 226.3,185.7 L 227.0,183.5 L 227.5,181.3 L 228.1,179.1 L 228.6,176.9 L 229.1,174.6 L 229.5,172.4 L 229.9,170.1 L 230.2,167.8 L 230.5,165.5 L 230.7,163.2 L 230.9,160.8 L 231.1,158.5 L 231.2,156.1 L 231.3,153.7 L 231.3,151.4 L 231.2,149.0 L 231.1,146.6 L 231.0,144.2 L 230.8,141.8 L 230.5,139.4 L 230.2,137.0 L 229.8,134.6 L 229.4,132.2 L 228.9,129.9 L 228.4,127.5 L 227.8,125.1 L 227.2,122.8 L 226.5,120.4 L 225.8,118.1 L 224.9,115.8 L 224.1,113.5 L 223.2,111.2 L 222.2,109.0 L 221.2,106.8 L 220.1,104.5 L 219.0,102.4 L 217.8,100.2 L 216.5,98.1 L 215.2,96.0 L 213.9,93.9 L 212.5,91.9 L 211.0,89.9 L 209.6,87.9 L 208.0,86.0 L 206.4,84.1 L 204.8,82.2 L 203.1,80.4 L 201.4,78.6 L 199.6,76.9 L 197.8,75.2 L 195.9,73.6 L 194.0,72.0 L 192.1,70.4 L 190.1,69.0 L 188.1,67.5 L 186.1,66.1 L 184.0,64.8 L 181.9,63.5 L 179.8,62.2 L 177.6,61.0 L 175.5,59.9 L 173.2,58.8 L 171.0,57.8 L 168.8,56.8 L 166.5,55.9 L 164.2,55.1 L 161.9,54.2 L 159.6,53.5 L 157.2,52.8 L 154.9,52.2 L 152.5,51.6 L 150.1,51.1 L 147.8,50.6 L 145.4,50.2 L 143.0,49.8 L 140.6,49.5 L 138.2,49.2 L 135.8,49.0 L 133.4,48.9 L 131.0,48.8 L 128.6,48.7 L 126.3,48.7 L 123.9,48.8 L 121.5,48.9 L 119.2,49.1 L 116.8,49.3 L 114.5,49.5 L 112.2,49.8 L 109.9,50.1 L 107.6,50.5 L 105.4,50.9 L 103.1,51.4 L 100.9,51.9 L 98.7,52.5 L 96.5,53.0 L 94.3,53.7 L 92.1,54.3 L 90.0,55.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path fill-opacity="0.6" d="M 90.0,190.0 L 217.9,100.4 L 216.9,98.7 L 215.8,96.9 L 214.7,95.2 L 213.6,93.4 L 212.4,91.8 L 211.2,90.1 L 210.0,88.4 L 208.7,86.8 L 207.4,85.2 L 206.1,83.7 L 204.7,82.1 L 203.3,80.6 L 201.9,79.1 L 200.4,77.7 L 198.9,76.2 L 197.4,74.9 L 195.8,73.5 L 194.3,72.2 L 192.6,70.9 L 191.0,69.6 Z" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5" stroke-linejoin="round"/>
+  <text x="215.4" y="70.6" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">r(θ)</text>
+  <path d="M 140.0,190.0 A 50,50 0 0 0 131.0,161.3" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <text x="146.0" y="178.0" fill="#475569" font-size="12" text-anchor="start" font-style="italic">θ</text>
+  <text x="146.6" y="109.8" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">dθ</text>
+  <text x="300.0" y="60.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">Mỗi miếng quạt:</text>
+  <text x="300.0" y="84.0" fill="#475569" font-size="12" text-anchor="start">• góc mở dθ (rất nhỏ)</text>
+  <text x="300.0" y="104.0" fill="#475569" font-size="12" text-anchor="start">• bán kính ≈ r(θ)</text>
+  <text x="300.0" y="124.0" fill="#475569" font-size="12" text-anchor="start">• gần như tam giác hẹp: đáy r·dθ, cao r</text>
+  <text x="300.0" y="154.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">diện tích ≈ ½ · r · (r dθ) = ½ r² dθ</text>
+  <text x="300.0" y="178.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">A = ∫ ½ r(θ)² dθ</text>
+</svg>
 
 Một miếng quạt bán kính $r$, góc $d\theta$ gần như tam giác hẹp đáy $r\,d\theta$ (cung) và "chiều cao" $r$ → diện tích $\frac{1}{2}\cdot r\cdot(r\,d\theta) = \frac{1}{2}r^2\,d\theta$. (Chính xác hơn: diện tích quạt tròn bán kính $r$ góc $d\theta$ là $\frac{1}{2}r^2\,d\theta$ — chiếm tỉ lệ $\frac{d\theta}{2\pi}$ của cả hình tròn $\pi r^2$.) Cộng dồn mọi miếng:
 
@@ -340,19 +410,23 @@ $$A = \frac{1}{2}\int_{\alpha}^{\beta}\big(r_{\text{ngoài}}^2 - r_{\text{trong}
 
 ## 5. Độ dài cung trong toạ độ cực
 
-### 5.1. Công thức và ASCII tam giác vuông
+### 5.1. Công thức và tam giác vuông vi phân
 
 💡 **Trực giác.** Vẫn là Pythagoras như mục 2, nhưng diễn theo $\theta$: khi $\theta$ nhích một chút $d\theta$, điểm vừa dịch **theo phương bán kính** một đoạn $dr$ (ra/vào gốc), vừa dịch **theo phương tiếp tuyến** (vuông góc bán kính) một đoạn $r\,d\theta$ (cung của đường tròn bán kính $r$ ứng góc $d\theta$):
 
-```
-                       ╱│
-                 ds  ╱  │  r dθ   (dịch theo phương tiếp tuyến)
-                   ╱    │
-                 ╱──────┘
-              dr   (dịch theo phương bán kính)
-
-   ds = √( (dr)² + (r dθ)² ) = √( r² + (dr/dθ)² ) · dθ
-```
+<svg viewBox="0 0 500 210" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông vi phân tọa độ cực: cạnh dr theo phương bán kính, cạnh r·dθ theo phương tiếp tuyến, cạnh huyền ds">
+  <defs><marker id="ar14" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="110.0" y1="150.0" x2="290.0" y2="150.0" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="290.0" y1="150.0" x2="290.0" y2="40.0" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="110.0" y1="150.0" x2="290.0" y2="40.0" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="110.0" cy="150.0" r="4" fill="#dc2626"/>
+  <circle cx="290.0" cy="40.0" r="4" fill="#dc2626"/>
+  <rect x="278.0" y="138.0" width="12.0" height="12.0" rx="0" fill="none" fill-opacity="1" stroke="#475569" stroke-width="1"/>
+  <text x="200.0" y="170.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">dr (dịch theo phương bán kính)</text>
+  <text x="298.0" y="99.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">r dθ (dịch theo phương tiếp tuyến)</text>
+  <text x="188.0" y="87.0" fill="#dc2626" font-size="15" text-anchor="end" font-weight="700" font-style="italic">ds</text>
+  <text x="250.0" y="195.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">ds = √((dr)² + (r dθ)²) = √(r² + (dr/dθ)²) · dθ</text>
+</svg>
 
 Hai dịch chuyển này **vuông góc** → quãng đường nhỏ $ds = \sqrt{(dr)^2 + (r\,d\theta)^2}$. Đặt $r' = \frac{dr}{d\theta}$, rút $d\theta$ ra ngoài căn rồi cộng dồn:
 

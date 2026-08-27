@@ -62,50 +62,48 @@ Trên đồ thị $y = f(x)$:
 
 Đồ thị $f(x) = x^2$. Cố định $A = (1, 1)$, cho $B = (1+h, (1+h)^2)$ trượt dần về $A$ khi $h$ nhỏ lại. Mỗi cát tuyến $AB$ dốc hơn/thoải hơn tới khi "khít" vào đường cong tại $A$:
 
-<svg viewBox="0 0 420 285" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cát tuyến qua A(1,1) và B(1+h, (1+h)²) trên parabol y = x² trượt dần thành tiếp tuyến khi h giảm 1 → 0.5 → 0.2 → 0; slope 3 → 2.5 → 2.2 → 2">
+<svg viewBox="0 0 560 340" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cát tuyến qua A(1,1) và B(1+h, (1+h)²) trên parabol y = x² trượt dần thành tiếp tuyến khi h giảm 1 → 0.5 → 0.2 → 0; slope 3 → 2.5 → 2.2 → 2">
   <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
-  <g stroke="#e2e8f0" stroke-width="1">
-<line x1="170.0" y1="250.0" x2="170.0" y2="25.0"/>
-<line x1="230.0" y1="250.0" x2="230.0" y2="25.0"/>
-<line x1="290.0" y1="250.0" x2="290.0" y2="25.0"/>
-<line x1="50.0" y1="205.0" x2="350.0" y2="205.0"/>
-<line x1="50.0" y1="160.0" x2="350.0" y2="160.0"/>
-<line x1="50.0" y1="115.0" x2="350.0" y2="115.0"/>
-<line x1="50.0" y1="70.0" x2="350.0" y2="70.0"/>
-</g>
-  <line x1="44.0" y1="250.0" x2="372.0" y2="250.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
-  <line x1="50.0" y1="256.0" x2="50.0" y2="3.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
-  <text x="364.0" y="266.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
-  <text x="58.0" y="13.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
-  <line x1="170.0" y1="246.0" x2="170.0" y2="254.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="170.0" y="266.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
-  <line x1="230.0" y1="246.0" x2="230.0" y2="254.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="230.0" y="266.0" fill="#475569" font-size="11" text-anchor="middle">1.5</text>
-  <line x1="290.0" y1="246.0" x2="290.0" y2="254.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="290.0" y="266.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
-  <line x1="46.0" y1="205.0" x2="54.0" y2="205.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="43.0" y="209.0" fill="#475569" font-size="11" text-anchor="end">1</text>
-  <line x1="46.0" y1="160.0" x2="54.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="43.0" y="164.0" fill="#475569" font-size="11" text-anchor="end">2</text>
-  <line x1="46.0" y1="115.0" x2="54.0" y2="115.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="43.0" y="119.0" fill="#475569" font-size="11" text-anchor="end">3</text>
-  <line x1="46.0" y1="70.0" x2="54.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
-  <text x="43.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">4</text>
-  <path d="M 62.0,249.6 L 64.1,249.4 L 66.2,249.2 L 68.3,249.0 L 70.4,248.7 L 72.5,248.4 L 74.6,248.1 L 76.7,247.8 L 78.8,247.4 L 80.9,247.0 L 83.0,246.6 L 85.1,246.1 L 87.2,245.7 L 89.3,245.2 L 91.4,244.6 L 93.5,244.1 L 95.6,243.5 L 97.7,242.9 L 99.8,242.2 L 101.9,241.6 L 104.0,240.9 L 106.1,240.2 L 108.2,239.4 L 110.3,238.6 L 112.4,237.8 L 114.5,237.0 L 116.6,236.1 L 118.7,235.3 L 120.8,234.3 L 122.9,233.4 L 125.0,232.4 L 127.1,231.4 L 129.2,230.4 L 131.3,229.3 L 133.4,228.3 L 135.5,227.2 L 137.6,226.0 L 139.7,224.9 L 141.8,223.7 L 143.9,222.4 L 146.0,221.2 L 148.1,219.9 L 150.2,218.6 L 152.3,217.3 L 154.4,215.9 L 156.5,214.6 L 158.6,213.1 L 160.7,211.7 L 162.8,210.2 L 164.9,208.7 L 167.0,207.2 L 169.1,205.7 L 171.2,204.1 L 173.3,202.5 L 175.4,200.9 L 177.5,199.2 L 179.6,197.5 L 181.7,195.8 L 183.8,194.1 L 185.9,192.3 L 188.0,190.5 L 190.1,188.7 L 192.2,186.8 L 194.3,184.9 L 196.4,183.0 L 198.5,181.1 L 200.6,179.1 L 202.7,177.1 L 204.8,175.1 L 206.9,173.1 L 209.0,171.0 L 211.1,168.9 L 213.2,166.8 L 215.3,164.6 L 217.4,162.4 L 219.5,160.2 L 221.6,158.0 L 223.7,155.7 L 225.8,153.4 L 227.9,151.1 L 230.0,148.8 L 232.1,146.4 L 234.2,144.0 L 236.3,141.5 L 238.4,139.1 L 240.5,136.6 L 242.6,134.1 L 244.7,131.5 L 246.8,129.0 L 248.9,126.4 L 251.0,123.7 L 253.1,121.1 L 255.2,118.4 L 257.3,115.7 L 259.4,113.0 L 261.5,110.2 L 263.6,107.4 L 265.7,104.6 L 267.8,101.8 L 269.9,98.9 L 272.0,96.0 L 274.1,93.1 L 276.2,90.1 L 278.3,87.1 L 280.4,84.1 L 282.5,81.1 L 284.6,78.0 L 286.7,74.9 L 288.8,71.8 L 290.9,68.6 L 293.0,65.5 L 295.1,62.3 L 297.2,59.0 L 299.3,55.8 L 301.4,52.5 L 303.5,49.2 L 305.6,45.8 L 307.7,42.5 L 309.8,39.1 L 311.9,35.7 L 314.0,32.2" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
-  <line x1="116.0" y1="265.8" x2="326.0" y2="29.5" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <circle cx="290.0" cy="70.0" r="4" fill="#94a3b8"/>
-  <text x="298.0" y="74.0" fill="#94a3b8" font-size="11" text-anchor="start">B (h = 1): cát tuyến cắt rõ 2 điểm, slope 3</text>
-  <line x1="116.0" y1="255.6" x2="326.0" y2="58.8" stroke="#15803d" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <circle cx="230.0" cy="148.8" r="4" fill="#15803d"/>
-  <text x="238.0" y="152.8" fill="#15803d" font-size="11" text-anchor="start">B' (h = 0.5): gần đường cong hơn, slope 2.5</text>
-  <line x1="116.0" y1="249.5" x2="326.0" y2="76.3" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <circle cx="194.0" cy="185.2" r="4" fill="#dc2626"/>
-  <text x="202.0" y="189.2" fill="#dc2626" font-size="11" text-anchor="start">B'' (h = 0.2): gần như chạm, slope 2.2</text>
-  <line x1="86.0" y1="268.0" x2="326.0" y2="88.0" stroke="#1d4ed8" stroke-width="2.5"/>
-  <circle cx="170.0" cy="205.0" r="5" fill="#1d4ed8"/>
-  <text x="162.0" y="221.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">A (1, 1)</text>
-  <text x="322.0" y="102.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">tiếp tuyến (h → 0): slope = f'(1) = 2</text>
-  <text x="68.0" y="43.0" fill="#1d4ed8" font-size="12" text-anchor="start">f(x) = x²</text>
+  <g stroke="#e2e8f0" stroke-width="1"><line x1="145.0" y1="300.0" x2="145.0" y2="25.0"/><line x1="230.0" y1="300.0" x2="230.0" y2="25.0"/><line x1="315.0" y1="300.0" x2="315.0" y2="25.0"/><line x1="400.0" y1="300.0" x2="400.0" y2="25.0"/><line x1="485.0" y1="300.0" x2="485.0" y2="25.0"/><line x1="60.0" y1="245.0" x2="519.0" y2="245.0"/><line x1="60.0" y1="190.0" x2="519.0" y2="190.0"/><line x1="60.0" y1="135.0" x2="519.0" y2="135.0"/><line x1="60.0" y1="80.0" x2="519.0" y2="80.0"/><line x1="60.0" y1="25.0" x2="519.0" y2="25.0"/></g>
+  <line x1="54.0" y1="300.0" x2="539.0" y2="300.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <line x1="60.0" y1="306.0" x2="60.0" y2="5.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <text x="533.0" y="316.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="13.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <text x="145.0" y="316.0" fill="#475569" font-size="11" text-anchor="middle">0.5</text>
+  <text x="230.0" y="316.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="315.0" y="316.0" fill="#475569" font-size="11" text-anchor="middle">1.5</text>
+  <text x="400.0" y="316.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <text x="485.0" y="316.0" fill="#475569" font-size="11" text-anchor="middle">2.5</text>
+  <text x="53.0" y="249.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="53.0" y="194.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <text x="53.0" y="139.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <text x="53.0" y="84.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <text x="53.0" y="29.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <path d="M 77.0,299.4 L 78.7,299.3 L 80.4,299.2 L 82.1,299.1 L 83.8,298.9 L 85.5,298.8 L 87.2,298.6 L 88.9,298.4 L 90.6,298.2 L 92.3,298.0 L 94.0,297.8 L 95.7,297.6 L 97.4,297.3 L 99.1,297.1 L 100.8,296.8 L 102.5,296.6 L 104.2,296.3 L 105.9,296.0 L 107.6,295.7 L 109.3,295.4 L 111.0,295.1 L 112.7,294.7 L 114.4,294.4 L 116.1,294.0 L 117.8,293.6 L 119.5,293.3 L 121.2,292.9 L 122.9,292.5 L 124.6,292.1 L 126.3,291.6 L 128.0,291.2 L 129.7,290.8 L 131.4,290.3 L 133.1,289.8 L 134.8,289.4 L 136.5,288.9 L 138.2,288.4 L 139.9,287.9 L 141.6,287.3 L 143.3,286.8 L 145.0,286.2 L 146.7,285.7 L 148.4,285.1 L 150.1,284.6 L 151.8,284.0 L 153.5,283.4 L 155.2,282.8 L 156.9,282.1 L 158.6,281.5 L 160.3,280.9 L 162.0,280.2 L 163.7,279.5 L 165.4,278.9 L 167.1,278.2 L 168.8,277.5 L 170.5,276.8 L 172.2,276.0 L 173.9,275.3 L 175.6,274.6 L 177.3,273.8 L 179.0,273.1 L 180.7,272.3 L 182.4,271.5 L 184.1,270.7 L 185.8,269.9 L 187.5,269.1 L 189.2,268.2 L 190.9,267.4 L 192.6,266.5 L 194.3,265.7 L 196.0,264.8 L 197.7,263.9 L 199.4,263.0 L 201.1,262.1 L 202.8,261.2 L 204.5,260.3 L 206.2,259.3 L 207.9,258.4 L 209.6,257.4 L 211.3,256.4 L 213.0,255.4 L 214.7,254.5 L 216.4,253.4 L 218.1,252.4 L 219.8,251.4 L 221.5,250.4 L 223.2,249.3 L 224.9,248.3 L 226.6,247.2 L 228.3,246.1 L 230.0,245.0 L 231.7,243.9 L 233.4,242.8 L 235.1,241.7 L 236.8,240.5 L 238.5,239.4 L 240.2,238.2 L 241.9,237.0 L 243.6,235.8 L 245.3,234.7 L 247.0,233.4 L 248.7,232.2 L 250.4,231.0 L 252.1,229.8 L 253.8,228.5 L 255.5,227.3 L 257.2,226.0 L 258.9,224.7 L 260.6,223.4 L 262.3,222.1 L 264.0,220.8 L 265.7,219.5 L 267.4,218.1 L 269.1,216.8 L 270.8,215.4 L 272.5,214.1 L 274.2,212.7 L 275.9,211.3 L 277.6,209.9 L 279.3,208.5 L 281.0,207.1 L 282.7,205.6 L 284.4,204.2 L 286.1,202.7 L 287.8,201.2 L 289.5,199.8 L 291.2,198.3 L 292.9,196.8 L 294.6,195.3 L 296.3,193.7 L 298.0,192.2 L 299.7,190.7 L 301.4,189.1 L 303.1,187.5 L 304.8,186.0 L 306.5,184.4 L 308.2,182.8 L 309.9,181.2 L 311.6,179.5 L 313.3,177.9 L 315.0,176.2 L 316.7,174.6 L 318.4,172.9 L 320.1,171.3 L 321.8,169.6 L 323.5,167.9 L 325.2,166.2 L 326.9,164.4 L 328.6,162.7 L 330.3,161.0 L 332.0,159.2 L 333.7,157.4 L 335.4,155.7 L 337.1,153.9 L 338.8,152.1 L 340.5,150.3 L 342.2,148.4 L 343.9,146.6 L 345.6,144.8 L 347.3,142.9 L 349.0,141.1 L 350.7,139.2 L 352.4,137.3 L 354.1,135.4 L 355.8,133.5 L 357.5,131.6 L 359.2,129.6 L 360.9,127.7 L 362.6,125.7 L 364.3,123.8 L 366.0,121.8 L 367.7,119.8 L 369.4,117.8 L 371.1,115.8 L 372.8,113.8 L 374.5,111.8 L 376.2,109.7 L 377.9,107.7 L 379.6,105.6 L 381.3,103.5 L 383.0,101.5 L 384.7,99.4 L 386.4,97.2 L 388.1,95.1 L 389.8,93.0 L 391.5,90.9 L 393.2,88.7 L 394.9,86.6 L 396.6,84.4 L 398.3,82.2 L 400.0,80.0 L 401.7,77.8 L 403.4,75.6 L 405.1,73.4 L 406.8,71.1 L 408.5,68.9 L 410.2,66.6 L 411.9,64.3 L 413.6,62.0 L 415.3,59.8 L 417.0,57.4 L 418.7,55.1 L 420.4,52.8 L 422.1,50.5 L 423.8,48.1 L 425.5,45.8 L 427.2,43.4 L 428.9,41.0 L 430.6,38.6 L 432.3,36.2 L 434.0,33.8 L 435.7,31.4 L 437.4,28.9 L 439.1,26.5 L 440.8,24.0 L 442.5,21.6 L 444.2,19.1 L 445.9,16.6 L 447.6,14.1 L 449.3,11.6 L 451.0,9.1" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="425.5" y="30.5" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">y = x²</text>
+  <line x1="187.5" y1="286.2" x2="442.5" y2="38.8" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="7 4"/>
+  <circle cx="400.0" cy="80.0" r="4.5" fill="#94a3b8"/>
+  <text x="409.0" y="84.0" fill="#94a3b8" font-size="13" text-anchor="start" font-weight="700">B</text>
+  <line x1="187.5" y1="279.4" x2="357.5" y2="141.9" stroke="#15803d" stroke-width="1.8" stroke-dasharray="7 4"/>
+  <circle cx="315.0" cy="176.2" r="4.5" fill="#15803d"/>
+  <text x="324.0" y="180.2" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">B′</text>
+  <line x1="187.5" y1="275.2" x2="306.5" y2="190.5" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="7 4"/>
+  <circle cx="264.0" cy="220.8" r="4.5" fill="#dc2626"/>
+  <text x="273.0" y="224.8" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">B″</text>
+  <line x1="119.5" y1="316.5" x2="417.0" y2="124.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="230.0" cy="245.0" r="5.5" fill="#1d4ed8" stroke="#f8fafc" stroke-width="2"/>
+  <text x="240.0" y="263.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">A(1, 1)</text>
+  <text x="423.0" y="128.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">tiếp tuyến</text>
+  <rect x="70" y="18" width="250" height="96" rx="8" fill="white" stroke="#cbd5e1"/>
+  <text x="82.0" y="38.0" fill="#1a202c" font-size="12" text-anchor="start" font-weight="700">Cát tuyến qua A và B (h → 0):</text>
+  <line x1="82.0" y1="54.0" x2="106.0" y2="54.0" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 3"/>
+  <text x="112.0" y="58.0" fill="#94a3b8" font-size="12" text-anchor="start">B: h = 1 → slope = 3</text>
+  <line x1="82.0" y1="72.0" x2="106.0" y2="72.0" stroke="#15803d" stroke-width="2" stroke-dasharray="6 3"/>
+  <text x="112.0" y="76.0" fill="#15803d" font-size="12" text-anchor="start">B′: h = 0.5 → slope = 2.5</text>
+  <line x1="82.0" y1="90.0" x2="106.0" y2="90.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 3"/>
+  <text x="112.0" y="94.0" fill="#dc2626" font-size="12" text-anchor="start">B″: h = 0.2 → slope = 2.2</text>
+  <line x1="82.0" y1="108.0" x2="106.0" y2="108.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="112.0" y="112.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">h → 0: tiếp tuyến, slope = f′(1) = 2</text>
 </svg>
 
 Mấu chốt: cát tuyến luôn cắt 2 điểm $A, B$; khi $B \to A$ nó **xoay quanh** $A$ và hội tụ về một đường duy nhất — **tiếp tuyến**. Slope của nó = $f'(1)$.

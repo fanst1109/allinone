@@ -24,28 +24,48 @@ window.README_MD = `# Lesson 07 — Tọa độ Oxyz
 
 Mỗi điểm M có 3 tọa độ **(x, y, z)** = hoành độ, tung độ, **cao độ**.
 
-### Hình dung hệ trục Oxyz (ASCII)
+### Hình dung hệ trục Oxyz
 
 Quy ước **tay phải (right-handed)**: ngón cái Ox, ngón trỏ Oy, ngón giữa Oz. Trục Oz hướng "lên", còn Ox vẽ "đâm ra phía người xem".
 
-\`\`\`
-              z (lên)
-              ↑
-              |
-              |
-              |        • M(2, 3, 4)
-              |       ╱:
-              |      ╱ :  ← cao độ z = 4
-              |     ╱  :
-              |    ╱   :
-              O───┼────┼──────────► y (sang phải)
-             ╱   ╱:    :
-            ╱   ╱ :....:  ← hình chiếu (2, 3, 0) trên đáy Oxy
-           ╱   ╱
-          ╱   ╱  hoành độ x = 2, tung độ y = 3
-         ╱
-        x (đâm ra khỏi trang, về phía người xem)
-\`\`\`
+<svg viewBox="0 0 520 322" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hệ trục tọa độ Oxyz vẽ phối cảnh nghiêng theo quy ước tay phải: trục z hướng thẳng lên, trục y sang phải, trục x chéo xuống-trái đâm về phía người xem; mặt đáy Oxy tô xanh lá nhạt; điểm M(2,3,4) màu xanh định vị bằng cách đi 2 theo x, 3 theo y tới hình chiếu P(2,3,0) trên mặt đáy, rồi leo 4 theo z; các đoạn gióng vẽ nét đứt xám">
+  <defs>
+    <marker id="x1-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- mặt đáy Oxy (tô nhạt) -->
+  <polygon points="150,210 88,249 232,249 294,210" fill="#dcfce7" fill-opacity="0.4"/>
+  <!-- 3 trục: z lên, y sang phải, x chéo xuống-trái (về phía người xem) -->
+  <line x1="150" y1="210" x2="150" y2="28" stroke="#1a202c" stroke-width="1.8" marker-end="url(#x1-ax)"/>
+  <line x1="150" y1="210" x2="478" y2="210" stroke="#1a202c" stroke-width="1.8" marker-end="url(#x1-ax)"/>
+  <line x1="150" y1="210" x2="49" y2="274" stroke="#1a202c" stroke-width="1.8" marker-end="url(#x1-ax)"/>
+  <text x="158" y="38" font-size="12" font-weight="700" fill="#1a202c">z (lên)</text>
+  <text x="474" y="200" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">y (sang phải)</text>
+  <text x="20" y="294" font-size="12" font-weight="700" fill="#1a202c">x (đâm về phía người xem)</text>
+  <text x="140" y="224" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="190" y="226">1</text><text x="230" y="226">2</text><text x="270" y="226">3</text><text x="310" y="226">4</text>
+    <text x="142" y="182" text-anchor="end">1</text><text x="142" y="150" text-anchor="end">2</text><text x="142" y="118" text-anchor="end">3</text><text x="142" y="86" text-anchor="end">4</text>
+    <text x="93" y="240" text-anchor="end">2</text>
+  </g>
+  <!-- gióng nét đứt: (2,0,0) → P theo y, (0,3,0) → P theo x, P → M theo z -->
+  <line x1="106" y1="238" x2="226" y2="238" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="270" y1="210" x2="226" y2="238" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="226" y1="238" x2="226" y2="110" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <circle cx="106" cy="238" r="3" fill="#94a3b8"/>
+  <circle cx="270" cy="210" r="3" fill="#94a3b8"/>
+  <!-- ghi chú từng chặng đường đi -->
+  <text x="116" y="219" font-size="9.5" fill="#475569" text-anchor="end">2 theo x</text>
+  <text x="166" y="233" font-size="9.5" fill="#475569" text-anchor="middle">3 theo y</text>
+  <text x="232" y="176" font-size="9.5" fill="#475569">4 theo z</text>
+  <!-- hình chiếu P và điểm M -->
+  <circle cx="226" cy="238" r="4" fill="#15803d"/>
+  <text x="234" y="252" font-size="10.5" font-weight="600" fill="#15803d">P(2, 3, 0) — hình chiếu trên đáy Oxy</text>
+  <circle cx="226" cy="110" r="5" fill="#1d4ed8"/>
+  <text x="236" y="106" font-size="12.5" font-weight="700" fill="#1d4ed8">M(2, 3, 4)</text>
+  <!-- chú thích -->
+  <text x="264" y="314" font-size="11" fill="#475569" text-anchor="middle">đi 2 theo x → 3 theo y tới hình chiếu P, rồi leo 4 theo z tới M (quy ước tay phải)</text>
+</svg>
 
 💡 **Trực giác — trục Oz "đâm ra khỏi trang giấy"**: mặt phẳng đáy Oxy là tờ giấy nằm trên bàn. Trục Oz dựng vuông góc lên khỏi mặt bàn — đó là chiều "cao". Để định vị điểm M(2, 3, 4): đi 2 đơn vị theo x, 3 theo y (vẫn đang trên mặt bàn, tại bóng đổ (2, 3, 0)), rồi **leo lên 4** theo z. Bóng đổ xuống đáy gọi là **hình chiếu (projection)** của M lên mặt phẳng Oxy — luôn là (x, y, 0).
 
@@ -89,17 +109,43 @@ d &= \\sqrt{d_{\\text{đáy}}^2 + \\Delta z^2} = \\sqrt{(\\sqrt{13})^2 + 6^2} \\
 
 Vì $(\\sqrt{13})^2 = 13 = \\Delta x^2 + \\Delta y^2$ nên gộp lại đúng $\\sqrt{\\Delta x^2+\\Delta y^2+\\Delta z^2}$. Verify ngược: $7^2 = 49 = 4+9+36$ ✓.
 
-ASCII của 2 tam giác vuông lồng nhau:
+Minh họa 2 tam giác vuông lồng nhau:
 
-\`\`\`
-        B(2,3,6)
-        /|
-       / | Δz = 6  (cạnh đứng)
-      /  |
-     /   |
-    A----P  ← P(2,3,0) là bóng đổ của B
-      √13   (cạnh đáy, đã là cạnh huyền của tam giác Δx-Δy)
-\`\`\`
+<svg viewBox="0 0 460 330" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai tam giác vuông lồng nhau minh họa Pythagoras áp 2 lần cho A(0,0,0) và B(2,3,6): trên mặt đáy, tam giác A, X(2,0,0), P(2,3,0) có hai cạnh góc vuông delta x bằng 2 và delta y bằng 3, cạnh huyền AP bằng căn 13; tam giác đứng A, P, B có cạnh đáy AP bằng căn 13, cạnh đứng delta z bằng 6, cạnh huyền AB màu đỏ chính là khoảng cách d bằng 7; P là bóng đổ của B trên mặt đáy">
+  <!-- tam giác đáy (nằm trên mặt Oxy, vẽ phối cảnh nghiêng) -->
+  <polygon points="130,242 78,276 210,276" fill="#dcfce7" fill-opacity="0.5"/>
+  <!-- tam giác đứng -->
+  <polygon points="130,242 210,276 210,120" fill="#dbeafe" fill-opacity="0.45"/>
+  <!-- cạnh góc vuông (xanh lá) -->
+  <line x1="130" y1="242" x2="78" y2="276" stroke="#15803d" stroke-width="2"/>
+  <line x1="78" y1="276" x2="210" y2="276" stroke="#15803d" stroke-width="2"/>
+  <line x1="210" y1="276" x2="210" y2="120" stroke="#15803d" stroke-width="2"/>
+  <!-- AP: cạnh huyền tam giác đáy = cạnh đáy tam giác đứng -->
+  <line x1="130" y1="242" x2="210" y2="276" stroke="#1d4ed8" stroke-width="2.2"/>
+  <!-- AB = d: cạnh huyền tam giác đứng -->
+  <line x1="130" y1="242" x2="210" y2="120" stroke="#dc2626" stroke-width="2.5"/>
+  <!-- ô vuông góc vuông tại X (đáy) và tại P (đứng) -->
+  <path d="M 87.2 270 L 98.2 270 L 89 276" fill="none" stroke="#475569" stroke-width="1.3"/>
+  <path d="M 199 271.3 L 199 259.3 L 210 264" fill="none" stroke="#475569" stroke-width="1.3"/>
+  <!-- đỉnh -->
+  <circle cx="130" cy="242" r="4.5" fill="#1d4ed8"/>
+  <circle cx="210" cy="120" r="4.5" fill="#1d4ed8"/>
+  <circle cx="210" cy="276" r="4" fill="#15803d"/>
+  <circle cx="78" cy="276" r="3.5" fill="#334155"/>
+  <text x="122" y="238" font-size="11.5" font-weight="700" fill="#1a202c" text-anchor="end">A(0,0,0)</text>
+  <text x="220" y="118" font-size="11.5" font-weight="700" fill="#1a202c">B(2,3,6)</text>
+  <text x="220" y="286" font-size="10.5" font-weight="600" fill="#15803d">P(2,3,0) — bóng đổ của B</text>
+  <text x="78" y="292" font-size="9.5" fill="#334155" text-anchor="middle">(2,0,0)</text>
+  <!-- nhãn cạnh -->
+  <text x="96" y="262" font-size="10.5" font-weight="600" fill="#15803d" text-anchor="end">Δx = 2</text>
+  <text x="144" y="292" font-size="10.5" font-weight="600" fill="#15803d" text-anchor="middle">Δy = 3</text>
+  <text x="166" y="250" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">√13</text>
+  <text x="218" y="200" font-size="10.5" font-weight="600" fill="#15803d">Δz = 6</text>
+  <text x="162" y="178" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="end">d = 7</text>
+  <!-- chú thích -->
+  <text x="230" y="310" font-size="10.5" fill="#475569" text-anchor="middle">tam giác đáy: Δx² + Δy² = 2² + 3² = 13 → cạnh huyền AP = √13</text>
+  <text x="230" y="324" font-size="10.5" fill="#475569" text-anchor="middle">tam giác đứng: (√13)² + 6² = 49 → d = AB = 7</text>
+</svg>
 
 ### Walk-through tích vô hướng & góc — 3 ví dụ số
 
@@ -215,18 +261,31 @@ $$Ax + By + Cz + D = 0$$
 
 💡 **Ý nghĩa**: vector pháp tuyến $n \\perp$ với mọi vector nằm trong mặt phẳng.
 
-ASCII — mặt phẳng và pháp tuyến đâm vuông góc:
+Minh họa — mặt phẳng và pháp tuyến đâm vuông góc:
 
-\`\`\`
-            n (pháp tuyến)
-            ↑
-            |
-   ┌────────┼────────────┐
-   │        •M₀          │   ← mặt phẳng (tờ giấy nghiêng)
-   │     ╱        ╲      │     mọi vector trong mặt
-   │   v₁          v₂    │     đều ⊥ n  (n·v₁ = n·v₂ = 0)
-   └────────────────────┘
-\`\`\`
+<svg viewBox="0 0 460 280" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mặt phẳng vẽ như tờ giấy nghiêng chứa điểm M0; vector pháp tuyến n màu đỏ dựng thẳng đứng từ M0, vuông góc với mặt phẳng; hai vector v1 và v2 màu xanh lá nằm trong mặt phẳng, cả hai đều vuông góc với n nên n chấm v1 bằng 0 và n chấm v2 bằng 0; ô vuông nhỏ đánh dấu góc vuông giữa n và v2">
+  <defs>
+    <marker id="x3-n" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+    <marker id="x3-v" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+  </defs>
+  <!-- mặt phẳng (hình bình hành nghiêng) -->
+  <polygon points="60,215 320,215 400,150 140,150" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="150" y="170" font-size="10.5" fill="#475569" text-anchor="middle">mặt phẳng</text>
+  <!-- pháp tuyến n đâm thẳng lên từ M₀ -->
+  <line x1="230" y1="182" x2="230" y2="62" stroke="#dc2626" stroke-width="2.4" marker-end="url(#x3-n)"/>
+  <text x="238" y="72" font-size="12" font-weight="700" fill="#dc2626">n (pháp tuyến)</text>
+  <!-- 2 vector nằm trong mặt -->
+  <line x1="230" y1="182" x2="118" y2="205" stroke="#15803d" stroke-width="2" marker-end="url(#x3-v)"/>
+  <line x1="230" y1="182" x2="334" y2="168" stroke="#15803d" stroke-width="2" marker-end="url(#x3-v)"/>
+  <text x="112" y="218" font-size="12" font-weight="700" fill="#15803d" text-anchor="end">v₁</text>
+  <text x="342" y="164" font-size="12" font-weight="700" fill="#15803d">v₂</text>
+  <!-- ô vuông góc vuông giữa n và v₂ -->
+  <path d="M 242.9 180.3 L 242.9 167.3 L 230 169" fill="none" stroke="#475569" stroke-width="1.4"/>
+  <circle cx="230" cy="182" r="4" fill="#1d4ed8"/>
+  <text x="222" y="203" font-size="11.5" font-weight="700" fill="#1a202c" text-anchor="end">M₀</text>
+  <!-- chú thích -->
+  <text x="230" y="258" font-size="11" fill="#475569" text-anchor="middle">mọi vector nằm trong mặt đều ⊥ n : n·v₁ = 0, n·v₂ = 0</text>
+</svg>
 
 #### Lập phương trình mặt phẳng qua 3 điểm (dùng cross product)
 

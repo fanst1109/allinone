@@ -66,19 +66,58 @@ $$M(x, y) \\xrightarrow{\\ T_v\\ } M'(x+a, y+b)$$
 
 **Ví dụ số**: $v = (3, -2)$. $M(1, 5) \\to M'(4, 3)$.
 
-**ASCII before/after — tịnh tiến tam giác bởi $v = (3, -1)$** (mỗi \`·\` = 1 ô lưới, \`o\` = đỉnh gốc, \`*\` = đỉnh ảnh):
+**Before/after — tịnh tiến tam giác bởi $v = (3, -1)$** (xanh dương = hình gốc, đỏ = ảnh, mũi tên xanh lá = vector $v$):
 
 Tam giác gốc $A(0,0), B(2,0), C(0,2)$ → ảnh $A'(3,-1), B'(5,-1), C'(3,1)$. Cả hình "trượt" sang phải 3, xuống 1, **không xoay, không đổi kích thước**:
 
-\`\`\`
- y
- 3 ·  ·  ·  ·  ·  ·
- 2 o(C) ·  ·  ·  ·             C gốc
- 1 ·  ·  ·  *(C')·  ·          C' = C + (3,-1)
- 0 o──o(B)·  ·  ·  ·   x       AB gốc
--1 ·  ·  *(A')──*(B')          A'B' = ảnh (trượt nguyên khối)
-   0  1  2  3  4  5
-\`\`\`
+<svg viewBox="0 0 390 288" style="max-width:470px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tịnh tiến theo vector v bằng (3, âm 1) trên hệ trục Oxy: tam giác gốc màu xanh A(0,0), B(2,0), C(0,2) trượt nguyên khối sang phải 3 và xuống 1 thành ảnh màu đỏ A phẩy (3, âm 1), B phẩy (5, âm 1), C phẩy (3, 1); ba mũi tên xanh lá song song bằng nhau từ A tới A phẩy, B tới B phẩy, C tới C phẩy đều là vector v — mọi điểm dịch cùng một vector, hình không xoay, không đổi kích thước">
+  <defs>
+    <marker id="v1-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+    <marker id="v1-tr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="110" y1="36" x2="110" y2="244"/><line x1="150" y1="36" x2="150" y2="244"/><line x1="190" y1="36" x2="190" y2="244"/><line x1="230" y1="36" x2="230" y2="244"/><line x1="270" y1="36" x2="270" y2="244"/><line x1="310" y1="36" x2="310" y2="244"/>
+    <line x1="34" y1="40" x2="326" y2="40"/><line x1="34" y1="80" x2="326" y2="80"/><line x1="34" y1="120" x2="326" y2="120"/><line x1="34" y1="200" x2="326" y2="200"/><line x1="34" y1="240" x2="326" y2="240"/>
+  </g>
+  <!-- trục -->
+  <line x1="22" y1="160" x2="344" y2="160" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v1-ax)"/>
+  <line x1="70" y1="258" x2="70" y2="26" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v1-ax)"/>
+  <text x="350" y="152" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="78" y="34" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="110" y="174">1</text><text x="150" y="174">2</text><text x="190" y="174">3</text><text x="230" y="174">4</text><text x="270" y="174">5</text>
+    <text x="62" y="124" text-anchor="end">1</text><text x="62" y="84" text-anchor="end">2</text><text x="62" y="204" text-anchor="end">−1</text><text x="62" y="244" text-anchor="end">−2</text>
+  </g>
+  <text x="62" y="174" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- 3 mũi tên tịnh tiến v = (3, −1) -->
+  <line x1="78" y1="163" x2="180" y2="197" stroke="#15803d" stroke-width="2" marker-end="url(#v1-tr)"/>
+  <line x1="158" y1="163" x2="260" y2="197" stroke="#15803d" stroke-width="2" marker-end="url(#v1-tr)"/>
+  <line x1="78" y1="83" x2="180" y2="117" stroke="#15803d" stroke-width="2" marker-end="url(#v1-tr)"/>
+  <text x="132" y="94" font-size="11" font-weight="700" fill="#15803d">v = (3, −1)</text>
+  <!-- tam giác gốc -->
+  <polygon points="70,160 150,160 70,80" fill="#dbeafe" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="2"/>
+  <!-- tam giác ảnh -->
+  <polygon points="190,200 270,200 190,120" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="2"/>
+  <!-- đỉnh gốc -->
+  <circle cx="70" cy="160" r="4" fill="#1d4ed8"/>
+  <circle cx="150" cy="160" r="4" fill="#1d4ed8"/>
+  <circle cx="70" cy="80" r="4" fill="#1d4ed8"/>
+  <text x="62" y="152" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">A(0,0)</text>
+  <text x="156" y="150" font-size="10.5" font-weight="700" fill="#1d4ed8">B(2,0)</text>
+  <text x="62" y="76" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">C(0,2)</text>
+  <!-- đỉnh ảnh -->
+  <circle cx="190" cy="200" r="4.5" fill="#dc2626"/>
+  <circle cx="270" cy="200" r="4.5" fill="#dc2626"/>
+  <circle cx="190" cy="120" r="4.5" fill="#dc2626"/>
+  <text x="190" y="218" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="middle">A′(3,−1)</text>
+  <text x="270" y="218" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="middle">B′(5,−1)</text>
+  <text x="196" y="114" font-size="10.5" font-weight="700" fill="#dc2626">C′(3,1)</text>
+  <!-- chú thích -->
+  <text x="195" y="266" font-size="10.5" fill="#475569" text-anchor="middle">AA′ = BB′ = CC′ = v = (3, −1) — mọi điểm dịch cùng một vector</text>
+  <text x="195" y="281" font-size="10.5" fill="#475569" text-anchor="middle">hình trượt nguyên khối: không xoay, không đổi kích thước</text>
+</svg>
 
 Quan sát: vector $\\vec{AA'} = \\vec{BB'} = \\vec{CC'} = (3,-1)$ — **mọi điểm dịch cùng 1 vector**. Đó chính là định nghĩa tịnh tiến.
 
@@ -159,21 +198,56 @@ $M(x, y) \\to M'(y, x)$. Đổi chỗ tọa độ.
 
 💡 **Vì sao đặc biệt?** Đây là phép biến hình "đảo ngược" hàm số: nếu $y = f(x)$ thì hàm ngược có đồ thị đối xứng qua $y = x$.
 
-### 3.4. ASCII before/after — đối xứng qua Ox
+### 3.4. Before/after — đối xứng qua Ox
 
 Tam giác $A(1,1), B(4,1), C(1,3)$ "lật trên-dưới" qua trục Ox → ảnh $A'(1,-1), B'(4,-1), C'(1,-3)$. Để ý chữ "tam giác" bị **lật hướng** (đỉnh nhọn C đang chỉ lên → ảnh C' chỉ xuống):
 
-\`\`\`
- y
- 3 o(C)·  ·  ·             C gốc (chỉ lên)
- 2 ·  ·  ·  ·
- 1 o(A)──────o(B)          cạnh đáy AB nằm trên y=1
- 0 ═══════════════ Ox  ← trục gương (mặt phẳng phản chiếu)
--1 *(A')──────*(B')        ảnh: mỗi điểm cách Ox đúng bằng gốc
--2 ·  ·  ·  ·
--3 *(C')·  ·  ·             C' gốc (chỉ xuống — đã lật)
-   1  2  3  4
-\`\`\`
+<svg viewBox="0 0 300 314" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đối xứng qua trục Ox trên hệ trục Oxy: trục hoành Ox vẽ đậm đóng vai trò trục gương; tam giác gốc màu xanh A(1,1), B(4,1), C(1,3) nằm phía trên; ảnh màu đỏ A phẩy (1,âm 1), B phẩy (4,âm 1), C phẩy (1,âm 3) nằm phía dưới; đường gióng nét đứt từ C xuống C phẩy cho thấy mỗi điểm và ảnh cách Ox bằng nhau nhưng ngược phía, đỉnh nhọn C chỉ lên còn C phẩy chỉ xuống — hình bị lật hướng">
+  <defs>
+    <marker id="v2-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="86" y1="52" x2="86" y2="264"/><line x1="120" y1="52" x2="120" y2="264"/><line x1="154" y1="52" x2="154" y2="264"/><line x1="188" y1="52" x2="188" y2="264"/><line x1="222" y1="52" x2="222" y2="264"/>
+    <line x1="52" y1="56" x2="236" y2="56"/><line x1="52" y1="90" x2="236" y2="90"/><line x1="52" y1="124" x2="236" y2="124"/>
+    <line x1="52" y1="192" x2="236" y2="192"/><line x1="52" y1="226" x2="236" y2="226"/><line x1="52" y1="260" x2="236" y2="260"/>
+  </g>
+  <!-- trục Ox = trục gương (vẽ đậm) -->
+  <line x1="38" y1="158" x2="256" y2="158" stroke="#1a202c" stroke-width="2.6" marker-end="url(#v2-ax)"/>
+  <line x1="52" y1="276" x2="52" y2="40" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v2-ax)"/>
+  <text x="256" y="148" font-size="10.5" font-weight="700" fill="#1a202c" text-anchor="end">Ox (trục gương)</text>
+  <text x="60" y="48" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="86" y="172">1</text><text x="120" y="172">2</text><text x="154" y="172">3</text><text x="188" y="172">4</text>
+    <text x="44" y="128" text-anchor="end">1</text><text x="44" y="94" text-anchor="end">2</text><text x="44" y="60" text-anchor="end">3</text>
+    <text x="44" y="196" text-anchor="end">−1</text><text x="44" y="230" text-anchor="end">−2</text><text x="44" y="264" text-anchor="end">−3</text>
+  </g>
+  <text x="44" y="172" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- gióng C → C' qua gương (nét đứt) -->
+  <line x1="86" y1="56" x2="86" y2="260" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <!-- tam giác gốc (phía trên gương) -->
+  <polygon points="86,124 188,124 86,56" fill="#dbeafe" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="2"/>
+  <!-- tam giác ảnh (phía dưới gương, đã lật) -->
+  <polygon points="86,192 188,192 86,260" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="2"/>
+  <!-- đỉnh gốc -->
+  <circle cx="86" cy="124" r="4" fill="#1d4ed8"/>
+  <circle cx="188" cy="124" r="4" fill="#1d4ed8"/>
+  <circle cx="86" cy="56" r="4" fill="#1d4ed8"/>
+  <text x="78" y="120" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">A(1,1)</text>
+  <text x="194" y="118" font-size="10.5" font-weight="700" fill="#1d4ed8">B(4,1)</text>
+  <text x="92" y="52" font-size="10.5" font-weight="700" fill="#1d4ed8">C(1,3)</text>
+  <!-- đỉnh ảnh -->
+  <circle cx="86" cy="192" r="4.5" fill="#dc2626"/>
+  <circle cx="188" cy="192" r="4.5" fill="#dc2626"/>
+  <circle cx="86" cy="260" r="4.5" fill="#dc2626"/>
+  <text x="78" y="198" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="end">A′(1,−1)</text>
+  <text x="194" y="200" font-size="10.5" font-weight="700" fill="#dc2626">B′(4,−1)</text>
+  <text x="92" y="266" font-size="10.5" font-weight="700" fill="#dc2626">C′(1,−3)</text>
+  <!-- chú thích -->
+  <text x="150" y="292" font-size="10.5" fill="#475569" text-anchor="middle">C cách Ox 3 đơn vị phía trên → C′ cách 3 đơn vị phía dưới</text>
+  <text x="150" y="307" font-size="10.5" fill="#475569" text-anchor="middle">ảnh lật hướng: đỉnh nhọn C chỉ lên → C′ chỉ xuống</text>
+</svg>
 
 Mỗi điểm và ảnh **cách trục Ox đúng bằng nhau** nhưng ngược phía: $C(1,3)$ cách Ox 3 ô phía trên, $C'(1,-3)$ cách Ox 3 ô phía dưới.
 
@@ -263,18 +337,59 @@ $$R(\\alpha) = \\begin{pmatrix} \\cos\\alpha & -\\sin\\alpha \\\\ \\sin\\alpha &
 
 **Quay 180°**: $\\cos 180^\\circ = -1$, $\\sin 180^\\circ = 0 \\to R = \\begin{pmatrix} -1 & 0 \\\\ 0 & -1 \\end{pmatrix} \\to$ giống đối xứng tâm O.
 
-### 4.1. ASCII before/after — quay 90° quanh O
+### 4.1. Before/after — quay 90° quanh O
 
 Quay 90° ngược chiều kim đồng hồ biến trục Ox dương → trục Oy dương ("Đông → Bắc"). Tam giác $A(1,0), B(3,0), C(1,2)$ → ảnh $A'(0,1), B'(0,3), C'(-2,1)$:
 
-\`\`\`
-          y
- 3 ·  *(B')·  ·  ·  ·       B(3,0) → B'(0,3): trục Ox→Oy
- 2 ·  ·  ·  ·  o(C)·         C gốc
- 1 *(C')──*(A')·  ·  ·       A(1,0) → A'(0,1)
- 0 ──────o(A)──o(B)──  x     AB gốc nằm trên trục Ox
-   -2 -1  0  1  2  3
-\`\`\`
+<svg viewBox="0 0 400 296" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phép quay 90 độ ngược chiều kim đồng hồ quanh gốc O trên hệ trục Oxy: tam giác gốc màu xanh A(1,0), B(3,0), C(1,2) có cạnh AB nằm trên trục Ox; ảnh màu đỏ A phẩy (0,1), B phẩy (0,3), C phẩy (âm 2, 1) có cạnh A phẩy B phẩy nằm trên trục Oy; hai cung nét đứt màu xanh lá từ B tới B phẩy và từ C tới C phẩy cho thấy mỗi điểm lượn một phần tư vòng quanh O, khoảng cách tới O giữ nguyên">
+  <defs>
+    <marker id="v3-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+    <marker id="v3-rot" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="46" y1="60" x2="46" y2="250"/><line x1="84" y1="60" x2="84" y2="250"/><line x1="122" y1="60" x2="122" y2="250"/>
+    <line x1="198" y1="60" x2="198" y2="250"/><line x1="236" y1="60" x2="236" y2="250"/><line x1="274" y1="60" x2="274" y2="250"/><line x1="312" y1="60" x2="312" y2="250"/>
+    <line x1="32" y1="174" x2="326" y2="174"/><line x1="32" y1="136" x2="326" y2="136"/><line x1="32" y1="98" x2="326" y2="98"/><line x1="32" y1="60" x2="326" y2="60"/><line x1="32" y1="250" x2="326" y2="250"/>
+  </g>
+  <!-- trục -->
+  <line x1="32" y1="212" x2="340" y2="212" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v3-ax)"/>
+  <line x1="160" y1="262" x2="160" y2="44" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v3-ax)"/>
+  <text x="346" y="216" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="168" y="52" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="46" y="226">−3</text><text x="84" y="226">−2</text><text x="122" y="226">−1</text>
+    <text x="198" y="226">1</text><text x="236" y="226">2</text><text x="274" y="226">3</text><text x="312" y="226">4</text>
+    <text x="152" y="178" text-anchor="end">1</text><text x="152" y="140" text-anchor="end">2</text><text x="152" y="102" text-anchor="end">3</text><text x="152" y="254" text-anchor="end">−1</text>
+  </g>
+  <text x="152" y="226" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- cung quay 90° (nét đứt, mũi tên) -->
+  <path d="M 274 212 A 114 114 0 0 0 170 98" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#v3-rot)"/>
+  <path d="M 198 136 A 85 85 0 0 0 87 168" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#v3-rot)"/>
+  <text x="252" y="122" font-size="11" font-weight="700" fill="#15803d">quay 90°</text>
+  <!-- tam giác gốc -->
+  <polygon points="198,212 274,212 198,136" fill="#dbeafe" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="2"/>
+  <!-- tam giác ảnh -->
+  <polygon points="160,174 160,98 84,174" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="2"/>
+  <!-- đỉnh gốc -->
+  <circle cx="198" cy="212" r="4" fill="#1d4ed8"/>
+  <circle cx="274" cy="212" r="4" fill="#1d4ed8"/>
+  <circle cx="198" cy="136" r="4" fill="#1d4ed8"/>
+  <text x="205" y="201" font-size="10.5" font-weight="700" fill="#1d4ed8">A(1,0)</text>
+  <text x="282" y="206" font-size="10.5" font-weight="700" fill="#1d4ed8">B(3,0)</text>
+  <text x="204" y="132" font-size="10.5" font-weight="700" fill="#1d4ed8">C(1,2)</text>
+  <!-- đỉnh ảnh -->
+  <circle cx="160" cy="174" r="4.5" fill="#dc2626"/>
+  <circle cx="160" cy="98" r="4.5" fill="#dc2626"/>
+  <circle cx="84" cy="174" r="4.5" fill="#dc2626"/>
+  <text x="154" y="190" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="end">A′(0,1)</text>
+  <text x="152" y="88" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="end">B′(0,3)</text>
+  <text x="84" y="192" font-size="10.5" font-weight="700" fill="#dc2626" text-anchor="middle">C′(−2,1)</text>
+  <!-- chú thích -->
+  <text x="186" y="274" font-size="10.5" fill="#475569" text-anchor="middle">mỗi điểm lượn 1/4 vòng quanh O, ngược chiều kim đồng hồ</text>
+  <text x="186" y="289" font-size="10.5" fill="#475569" text-anchor="middle">khoảng cách tới O giữ nguyên: |OB| = |OB′| = 3, |OC| = |OC′| = √5</text>
+</svg>
 
 Mỗi điểm "lượn 1/4 vòng quanh O ngược kim đồng hồ", khoảng cách tới O giữ nguyên: $|OB| = 3 = |OB'|$, $|OC| = \\sqrt{1+4} = \\sqrt 5 = |OC'|$.
 
@@ -356,19 +471,56 @@ $$M(x, y) \\to M'(k\\cdot x, k\\cdot y)$$
 
 **Ma trận**: $R = k\\cdot I = \\begin{pmatrix} k & 0 \\\\ 0 & k \\end{pmatrix}$.
 
-### 5.1. ASCII before/after — vị tự $k = 2$ (phóng to) và $k = 0.5$ (thu nhỏ)
+### 5.1. Before/after — vị tự $k = 2$ (phóng to) và $k = 0.5$ (thu nhỏ)
 
 Tam giác $A(1,1), B(2,1), C(1,2)$ vị tự tâm O. Với $k=2$ ảnh $A'(2,2), B'(4,2), C'(2,4)$ — hình **lớn gấp đôi**, các đỉnh "xa O gấp đôi":
 
-\`\`\`
- y
- 4 ·  ·  *(C')·  ·          C(1,2) → C'(2,4): xa O gấp 2
- 3 ·  ·  ·  ·  ·
- 2 o(C)*(A')·  *(B')        A(1,1) → A'(2,2), B(2,1) → B'(4,2)
- 1 o(A)o(B)·  ·  ·          tam giác gốc nhỏ, sát O
- 0 O──────────────  x
-   0  1  2  3  4
-\`\`\`
+<svg viewBox="0 0 330 308" style="max-width:410px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vị tự tâm O tỉ số k bằng 2 trên hệ trục Oxy: tam giác gốc màu xanh A(1,1), B(2,1), C(1,2) nằm sát gốc O; ảnh màu đỏ A phẩy (2,2), B phẩy (4,2), C phẩy (2,4) to gấp đôi; ba tia nét đứt từ O xuyên qua từng đỉnh gốc tới đỉnh ảnh cho thấy mỗi đỉnh bị kéo xa O gấp 2 lần, hình giữ nguyên hình dạng">
+  <defs>
+    <marker id="v4-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+  </defs>
+  <!-- lưới -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="100" y1="54" x2="100" y2="252"/><line x1="144" y1="54" x2="144" y2="252"/><line x1="188" y1="54" x2="188" y2="252"/><line x1="232" y1="54" x2="232" y2="252"/>
+    <line x1="56" y1="208" x2="254" y2="208"/><line x1="56" y1="164" x2="254" y2="164"/><line x1="56" y1="120" x2="254" y2="120"/><line x1="56" y1="76" x2="254" y2="76"/>
+  </g>
+  <!-- trục -->
+  <line x1="42" y1="252" x2="300" y2="252" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v4-ax)"/>
+  <line x1="56" y1="266" x2="56" y2="36" stroke="#1a202c" stroke-width="1.6" marker-end="url(#v4-ax)"/>
+  <text x="296" y="242" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+  <text x="64" y="44" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trục -->
+  <g font-size="9" fill="#64748b" text-anchor="middle">
+    <text x="100" y="266">1</text><text x="144" y="266">2</text><text x="188" y="266">3</text><text x="232" y="266">4</text>
+    <text x="48" y="212" text-anchor="end">1</text><text x="48" y="168" text-anchor="end">2</text><text x="48" y="124" text-anchor="end">3</text><text x="48" y="80" text-anchor="end">4</text>
+  </g>
+  <text x="48" y="266" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+  <!-- tia vị tự từ O qua đỉnh gốc tới đỉnh ảnh (nét đứt) -->
+  <line x1="56" y1="252" x2="154" y2="154" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="56" y1="252" x2="243" y2="159" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="56" y1="252" x2="149" y2="65" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <!-- tam giác gốc -->
+  <polygon points="100,208 144,208 100,164" fill="#dbeafe" fill-opacity="0.55" stroke="#1d4ed8" stroke-width="2"/>
+  <!-- tam giác ảnh (k = 2) -->
+  <polygon points="144,164 232,164 144,76" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="2"/>
+  <!-- đỉnh gốc -->
+  <circle cx="100" cy="208" r="4" fill="#1d4ed8"/>
+  <circle cx="144" cy="208" r="4" fill="#1d4ed8"/>
+  <circle cx="100" cy="164" r="4" fill="#1d4ed8"/>
+  <text x="96" y="222" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">A(1,1)</text>
+  <text x="150" y="222" font-size="10.5" font-weight="700" fill="#1d4ed8">B(2,1)</text>
+  <text x="92" y="160" font-size="10.5" font-weight="700" fill="#1d4ed8" text-anchor="end">C(1,2)</text>
+  <!-- đỉnh ảnh -->
+  <circle cx="144" cy="164" r="4.5" fill="#dc2626"/>
+  <circle cx="232" cy="164" r="4.5" fill="#dc2626"/>
+  <circle cx="144" cy="76" r="4.5" fill="#dc2626"/>
+  <text x="150" y="180" font-size="10.5" font-weight="700" fill="#dc2626">A′(2,2)</text>
+  <text x="240" y="168" font-size="10.5" font-weight="700" fill="#dc2626">B′(4,2)</text>
+  <text x="152" y="72" font-size="10.5" font-weight="700" fill="#dc2626">C′(2,4)</text>
+  <!-- chú thích -->
+  <text x="165" y="286" font-size="10.5" fill="#475569" text-anchor="middle">OA′ = 2·OA, OB′ = 2·OB, OC′ = 2·OC (nét đứt: tia từ O)</text>
+  <text x="165" y="301" font-size="10.5" fill="#475569" text-anchor="middle">hình phóng to gấp đôi nhưng giữ nguyên hình dạng (đồng dạng)</text>
+</svg>
 
 Vector $\\vec{OA'} = 2\\vec{OA}$, $\\vec{OB'} = 2\\vec{OB}$… — **mỗi đỉnh kéo ra xa O theo tỉ số $k$**, nên hình to lên nhưng **giữ nguyên hình dạng** (đồng dạng). Với $k = 0.5$ thì ngược lại: $A(1,1) \\to (0.5, 0.5)$, hình co về phía O còn một nửa.
 

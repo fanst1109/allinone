@@ -453,15 +453,20 @@ a^2 &= b^2 + c^2 - 2bc\cos A \\
 b^2 &= a^2 + c^2 - 2ac\cos B
 \end{aligned}$$
 
-```
-            A
-           /\
-        b /  \ c
-         /    \
-        / C    \
-       B────────  ... C đối diện cạnh c = AB
-              a
-```
+<svg viewBox="0 0 420 240" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác ABC: đỉnh A trên, B trái dưới, C phải dưới; cạnh a = BC đối A, b = AC đối B, c = AB đối C; góc C xen giữa hai cạnh a và b">
+  <polygon points="150,40 50,200 370,200" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 336,200 A 34,34 0 0 1 344,181" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="318" y="190" fill="#dc2626" font-size="15" font-weight="700" font-style="italic" text-anchor="end">C</text>
+  <circle cx="150" cy="40" r="4" fill="#1d4ed8"/><circle cx="50" cy="200" r="4" fill="#1d4ed8"/><circle cx="370" cy="200" r="4" fill="#1d4ed8"/>
+  <text x="150" y="28" fill="#1a202c" font-size="16" font-weight="700" font-style="italic" text-anchor="middle">A</text>
+  <text x="38" y="222" fill="#1a202c" font-size="16" font-weight="700" font-style="italic" text-anchor="middle">B</text>
+  <text x="382" y="222" fill="#1a202c" font-size="16" font-weight="700" font-style="italic" text-anchor="middle">C</text>
+  <text x="210" y="224" fill="#15803d" font-size="15" font-weight="700" font-style="italic" text-anchor="middle">a</text>
+  <text x="272" y="112" fill="#15803d" font-size="15" font-weight="700" font-style="italic">b</text>
+  <text x="84" y="112" fill="#15803d" font-size="15" font-weight="700" font-style="italic" text-anchor="end">c</text>
+  <text x="14" y="18" fill="#475569" font-size="12">a = BC đối A · b = AC đối B · c = AB đối C</text>
+  <text x="406" y="18" fill="#475569" font-size="12" text-anchor="end">c² = a² + b² − 2ab·cos C</text>
+</svg>
 (Quy ước: đỉnh $A,B,C$; cạnh đối diện cùng tên thường $a,b,c$; góc $C$ là góc tại đỉnh $C$, **xen giữa** hai cạnh $a$ và $b$.)
 
 ### 8.1. Vì sao là "tổng quát của Pythagore"?

@@ -218,20 +218,34 @@ $$z_k = e^{i\cdot 2k\pi/n}, \quad k = 0, 1, 2, \ldots, n-1$$
 
 **ASCII — 3 căn bậc 3 của 1 trên đường tròn đơn vị** (cách đều $120^\circ$):
 
-```
-                 Im
-                 │
-       z₁ •......│           z₁ = e^{i120°} = −½ + (√3/2)i
-        (120°)\  │
-               \ │
-   ─────────────●──────•──── Re
-               /│      z₀ = e^{i0°} = 1
-              / │
-       z₂ •.../  │           z₂ = e^{i240°} = −½ − (√3/2)i
-        (240°)  │
-
-   3 đỉnh tam giác đều · cách nhau 360°/3 = 120° · cùng bán kính 1
-```
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba căn bậc 3 của 1 trên đường tròn đơn vị: z₀ = 1 (0°), z₁ = e^{i120°}, z₂ = e^{i240°} — ba đỉnh tam giác đều cách nhau 120°">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="100" y1="50" x2="100" y2="250"/>
+<line x1="200" y1="50" x2="200" y2="250"/>
+<line x1="300" y1="50" x2="300" y2="250"/>
+<line x1="100" y1="250" x2="300" y2="250"/>
+<line x1="100" y1="150" x2="300" y2="150"/>
+<line x1="100" y1="50" x2="300" y2="50"/>
+</g>
+  <line x1="92" y1="150" x2="324" y2="150" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <line x1="200" y1="258" x2="200" y2="26" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <text x="314" y="168" fill="#1a202c" font-size="13">Re</text><text x="208" y="36" fill="#1a202c" font-size="13">Im</text>
+  <text x="100" y="165" fill="#475569" font-size="11" text-anchor="middle">-1</text>
+  <text x="300" y="165" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="195" y="254" fill="#475569" font-size="11" text-anchor="end">-1</text>
+  <text x="195" y="54" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="195" y="165" fill="#475569" font-size="11" text-anchor="end">O</text>
+  <circle cx="200" cy="150" r="100" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <polygon points="300.0,150.0 150.0,63.4 150.0,236.6" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="200" y1="150" x2="300.0" y2="150.0" stroke="#15803d" stroke-width="1.5"/><circle cx="300.0" cy="150.0" r="5" fill="#dc2626"/>
+  <text x="310.0" y="140.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₀ = e^{i0°} = 1</text>
+  <line x1="200" y1="150" x2="150.0" y2="63.4" stroke="#15803d" stroke-width="1.5"/><circle cx="150.0" cy="63.4" r="5" fill="#dc2626"/>
+  <text x="160.0" y="55.4" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₁ = e^{i120°} = −½ + (√3/2)i</text>
+  <line x1="200" y1="150" x2="150.0" y2="236.6" stroke="#15803d" stroke-width="1.5"/><circle cx="150.0" cy="236.6" r="5" fill="#dc2626"/>
+  <text x="160.0" y="254.6" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₂ = e^{i240°} = −½ − (√3/2)i</text>
+  <text x="220" y="292" fill="#475569" font-size="12" text-anchor="middle">3 đỉnh tam giác đều · cách nhau 360°/3 = 120° · cùng bán kính 1</text>
+</svg>
 
 ❓ **Vì sao đa giác đều?** Vì n căn cùng mô-đun $r=1$, argument chia đều quanh đường tròn cứ $\dfrac{2\pi}{n}$.
 
@@ -239,15 +253,36 @@ $$z_k = e^{i\cdot 2k\pi/n}, \quad k = 0, 1, 2, \ldots, n-1$$
 $z = 1, i, -1, -i$ → 4 đỉnh hình vuông. Walk-through: $z^4 = 1 = e^{i\cdot 0}$ → $z_k = e^{i\cdot 2k\pi/4} = e^{i k\pi/2}$, $k=0,1,2,3$:
 - $z_0 = e^{i0} = 1$; $z_1 = e^{i\pi/2} = i$; $z_2 = e^{i\pi} = -1$; $z_3 = e^{i\cdot 3\pi/2} = -i$.
 
-```
-              Im
-              │ • z₁ = i
-              │
-   z₂ = −1 •──●──• z₀ = 1   Re
-              │
-              │ • z₃ = −i
-       4 đỉnh hình vuông · cách nhau 90°
-```
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn căn bậc 4 của 1: z₀ = 1, z₁ = i, z₂ = −1, z₃ = −i — bốn đỉnh hình vuông cách nhau 90° trên đường tròn đơn vị">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="100" y1="50" x2="100" y2="250"/>
+<line x1="200" y1="50" x2="200" y2="250"/>
+<line x1="300" y1="50" x2="300" y2="250"/>
+<line x1="100" y1="250" x2="300" y2="250"/>
+<line x1="100" y1="150" x2="300" y2="150"/>
+<line x1="100" y1="50" x2="300" y2="50"/>
+</g>
+  <line x1="92" y1="150" x2="324" y2="150" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <line x1="200" y1="258" x2="200" y2="26" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="314" y="168" fill="#1a202c" font-size="13">Re</text><text x="208" y="36" fill="#1a202c" font-size="13">Im</text>
+  <text x="100" y="165" fill="#475569" font-size="11" text-anchor="middle">-1</text>
+  <text x="300" y="165" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="195" y="254" fill="#475569" font-size="11" text-anchor="end">-1</text>
+  <text x="195" y="54" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="195" y="165" fill="#475569" font-size="11" text-anchor="end">O</text>
+  <circle cx="200" cy="150" r="100" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <polygon points="300.0,150.0 200.0,50.0 100.0,150.0 200.0,250.0" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="200" y1="150" x2="300.0" y2="150.0" stroke="#15803d" stroke-width="1.5"/><circle cx="300.0" cy="150.0" r="5" fill="#dc2626"/>
+  <text x="310.0" y="140.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₀ = 1</text>
+  <line x1="200" y1="150" x2="200.0" y2="50.0" stroke="#15803d" stroke-width="1.5"/><circle cx="200.0" cy="50.0" r="5" fill="#dc2626"/>
+  <text x="210.0" y="42.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₁ = i</text>
+  <line x1="200" y1="150" x2="100.0" y2="150.0" stroke="#15803d" stroke-width="1.5"/><circle cx="100.0" cy="150.0" r="5" fill="#dc2626"/>
+  <text x="90.0" y="140.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="end">z₂ = −1</text>
+  <line x1="200" y1="150" x2="200.0" y2="250.0" stroke="#15803d" stroke-width="1.5"/><circle cx="200.0" cy="250.0" r="5" fill="#dc2626"/>
+  <text x="210.0" y="268.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₃ = −i</text>
+  <text x="220" y="292" fill="#475569" font-size="12" text-anchor="middle">4 đỉnh hình vuông · cách nhau 360°/4 = 90°</text>
+</svg>
 
 ### Trường hợp n=6:
 $z = e^{i\cdot k\pi/3}$, $k=0..5$ → 6 đỉnh lục giác đều: $1,\ \dfrac12+\dfrac{\sqrt3}{2}i,\ -\dfrac12+\dfrac{\sqrt3}{2}i,\ -1,\ -\dfrac12-\dfrac{\sqrt3}{2}i,\ \dfrac12-\dfrac{\sqrt3}{2}i$, cách nhau $60^\circ$.
@@ -354,18 +389,42 @@ So với căn của 1 (mục 3): chỉ khác ở **bán kính** ($R^{1/n}$ thay 
 
 **ASCII — 3 căn bậc 3 của $-8$** (bán kính $\rho = 2$, cách đều $120^\circ$):
 
-```
-                 Im
-                 │   • z₀ = 1 + √3·i   (góc 60°)
-                 │  /
-                 │ /
-   z₁ = −2 •─────●─────  Re   (bán kính = ∛8 = 2)
-                 │ \
-                 │  \
-                 │   • z₂ = 1 − √3·i   (góc 300°)
-
-   3 đỉnh tam giác đều · bán kính 2 (KHÁC 1) · cách nhau 120°
-```
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba căn bậc 3 của 8 trên đường tròn bán kính 2: z₀ = 1 + √3·i (60°), z₁ = −2 (180°), z₂ = 1 − √3·i (300°) — tam giác đều cách nhau 120°">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="90" y1="40" x2="90" y2="260"/>
+<line x1="145" y1="40" x2="145" y2="260"/>
+<line x1="200" y1="40" x2="200" y2="260"/>
+<line x1="255" y1="40" x2="255" y2="260"/>
+<line x1="310" y1="40" x2="310" y2="260"/>
+<line x1="90" y1="260" x2="310" y2="260"/>
+<line x1="90" y1="205" x2="310" y2="205"/>
+<line x1="90" y1="150" x2="310" y2="150"/>
+<line x1="90" y1="95" x2="310" y2="95"/>
+<line x1="90" y1="40" x2="310" y2="40"/>
+</g>
+  <line x1="82" y1="150" x2="334" y2="150" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="200" y1="268" x2="200" y2="16" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="324" y="168" fill="#1a202c" font-size="13">Re</text><text x="208" y="26" fill="#1a202c" font-size="13">Im</text>
+  <text x="90" y="165" fill="#475569" font-size="11" text-anchor="middle">-2</text>
+  <text x="145" y="165" fill="#475569" font-size="11" text-anchor="middle">-1</text>
+  <text x="255" y="165" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="310" y="165" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <text x="195" y="264" fill="#475569" font-size="11" text-anchor="end">-2</text>
+  <text x="195" y="209" fill="#475569" font-size="11" text-anchor="end">-1</text>
+  <text x="195" y="99" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="195" y="44" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <text x="195" y="165" fill="#475569" font-size="11" text-anchor="end">O</text>
+  <circle cx="200" cy="150" r="110" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <polygon points="255.0,54.7 90.0,150.0 255.0,245.3" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="200" y1="150" x2="255.0" y2="54.7" stroke="#15803d" stroke-width="1.5"/><circle cx="255.0" cy="54.7" r="5" fill="#dc2626"/>
+  <text x="265.0" y="46.7" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₀ = 1 + √3·i (60°)</text>
+  <line x1="200" y1="150" x2="90.0" y2="150.0" stroke="#15803d" stroke-width="1.5"/><circle cx="90.0" cy="150.0" r="5" fill="#dc2626"/>
+  <text x="80.0" y="140.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="end">z₁ = −2 (180°)</text>
+  <line x1="200" y1="150" x2="255.0" y2="245.3" stroke="#15803d" stroke-width="1.5"/><circle cx="255.0" cy="245.3" r="5" fill="#dc2626"/>
+  <text x="265.0" y="263.3" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₂ = 1 − √3·i (300°)</text>
+  <text x="220" y="292" fill="#475569" font-size="12" text-anchor="middle">3 đỉnh tam giác đều · bán kính = ∛8 = 2 (KHÁC 1) · cách nhau 120°</text>
+</svg>
 
 #### 4.1.2. Walk-through ví dụ 2 — căn bậc 4 của $-16$
 

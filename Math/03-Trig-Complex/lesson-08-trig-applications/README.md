@@ -262,18 +262,37 @@ Trước khi dao động và sóng dùng tới lượng giác "động" (theo th
 > **Góc nâng (elevation)**: góc giữa **đường ngang** (tầm mắt) và **đường ngắm lên** một vật ở cao hơn.
 > **Góc hạ (depression)**: góc giữa **đường ngang** và **đường ngắm xuống** một vật ở thấp hơn.
 
-```
-   Góc nâng (nhìn LÊN đỉnh cây)          Góc hạ (từ tháp nhìn XUỐNG thuyền)
-                                                        
-                  *  đỉnh                    mắt ●─────────  (đường ngang)
-                 /|                              |⟍  θ  ← góc hạ đo TỪ đường ngang
-                / |                              |  ⟍       xuống tầm ngắm
-               /  | h (cao)                    H |    ⟍
-              /θ  |  ← góc nâng                   |      ⟍
-    mắt ●────────── (đường ngang)                 |        ⟍
-        |←── d ──→|                          chân tháp     ● thuyền
-                                                    |←── d ──→|
-```
+<svg viewBox="0 0 560 260" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai sơ đồ: góc nâng θ đo từ đường ngang lên đỉnh (cao h, cách d); góc hạ θ đo từ đường ngang tại đỉnh tháp (cao H) xuống thuyền cách chân tháp d">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar4g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <text x="120.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc nâng (nhìn LÊN đỉnh)</text>
+  <text x="400.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc hạ (từ tháp nhìn XUỐNG thuyền)</text>
+  <line x1="40.0" y1="200.0" x2="220.0" y2="200.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="200.0" y1="60.0" x2="200.0" y2="200.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="40.0" y1="200.0" x2="200.0" y2="60.0" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 85.0,200.0 A 45,45 0 0 0 73.9,170.4" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="92.0" y="190.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">θ (góc nâng)</text>
+  <circle cx="40.0" cy="200.0" r="4" fill="#1a202c"/>
+  <text x="40.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle">mắt</text>
+  <circle cx="200.0" cy="60.0" r="4" fill="#1d4ed8"/>
+  <text x="200.0" y="50.0" fill="#1d4ed8" font-size="12" text-anchor="middle">đỉnh</text>
+  <text x="210.0" y="135.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700" font-style="italic">h</text>
+  <text x="230.0" y="205.0" fill="#94a3b8" font-size="11" text-anchor="start">đường ngang</text>
+  <line x1="40.0" y1="235.0" x2="200.0" y2="235.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar4g)" marker-end="url(#ar4g)"/>
+  <text x="120.0" y="229.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
+  <line x1="330.0" y1="60.0" x2="510.0" y2="60.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="330.0" y1="60.0" x2="330.0" y2="200.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="330.0" y1="60.0" x2="490.0" y2="200.0" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 375,60 A 45,45 0 0 1 363.9,89.6" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="382.0" y="90.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">θ (góc hạ, đo TỪ đường ngang xuống)</text>
+  <circle cx="330.0" cy="60.0" r="4" fill="#1a202c"/>
+  <text x="316.0" y="52.0" fill="#475569" font-size="12" text-anchor="end">mắt</text>
+  <text x="318.0" y="135.0" fill="#1d4ed8" font-size="13" text-anchor="end" font-weight="700" font-style="italic">H</text>
+  <circle cx="490.0" cy="200.0" r="4" fill="#15803d"/>
+  <text x="490.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle">thuyền</text>
+  <text x="330.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle">chân tháp</text>
+  <line x1="330.0" y1="235.0" x2="490.0" y2="235.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar4g)" marker-end="url(#ar4g)"/>
+  <text x="410.0" y="229.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
+</svg>
 
 ⚠ **Lỗi thường gặp #1 — nhầm góc nâng với góc hạ**. Cả hai đều đo **từ đường ngang**, KHÔNG phải từ đường thẳng đứng. Phản ví dụ: "tháp cao, nhìn xuống thuyền góc hạ $30^\circ$" nghĩa là đường ngắm chếch $30^\circ$ **dưới phương ngang** — góc giữa đường ngắm và **phương đứng** là $60^\circ$, đừng dùng nhầm $60^\circ$ vào $\tan$.
 
@@ -283,14 +302,27 @@ Trước khi dao động và sóng dùng tới lượng giác "động" (theo th
 
 **Bài toán 1 — chiều cao tòa nhà (tam giác vuông, dùng tan).** Đứng cách chân tòa nhà $d = 50$ m, đo góc nâng tới đỉnh là $\theta = 35^\circ$. Mắt người cao $1.6$ m. Tòa nhà cao bao nhiêu?
 
-```
-              * đỉnh
-             /|
-            / | h₁
-           /  |
-   mắt ●──────  ← cao 1.6 m so với đất
-   35°  |← 50→|
-```
+<svg viewBox="0 0 420 260" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đo chiều cao cây: mắt cao 1.6 m so với đất, cách gốc 50 m, góc nâng 35°; phần cao thêm h₁ = 50·tan 35°">
+  <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar5g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <line x1="0.0" y1="220.0" x2="420.0" y2="220.0" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="40.0" y1="180.0" x2="40.0" y2="220.0" stroke="#475569" stroke-width="1.5"/>
+  <line x1="300.0" y1="220.0" x2="300.0" y2="180.0" stroke="#475569" stroke-width="1.5"/>
+  <line x1="40.0" y1="180.0" x2="300.0" y2="180.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="300.0" y1="180.0" x2="300.0" y2="-2.1" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="40.0" y1="180.0" x2="300.0" y2="-2.1" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 90.0,180.0 A 50,50 0 0 0 81.0,151.3" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="96.0" y="172.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">35°</text>
+  <circle cx="40.0" cy="180.0" r="4" fill="#1a202c"/>
+  <text x="32.0" y="174.0" fill="#475569" font-size="12" text-anchor="end">mắt</text>
+  <circle cx="300.0" cy="-2.1" r="4" fill="#1d4ed8"/>
+  <text x="300.0" y="-12.1" fill="#1d4ed8" font-size="12" text-anchor="middle">đỉnh</text>
+  <text x="310.0" y="89.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700" font-style="italic">h₁</text>
+  <text x="32.0" y="205.0" fill="#475569" font-size="11" text-anchor="end">1.6 m</text>
+  <text x="310.0" y="208.0" fill="#475569" font-size="11" text-anchor="start">1.6 m</text>
+  <line x1="40.0" y1="200.0" x2="300.0" y2="200.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar5g)" marker-end="url(#ar5g)"/>
+  <text x="170.0" y="214.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">50 m</text>
+  <text x="210.0" y="245.0" fill="#475569" font-size="12" text-anchor="middle">h = h₁ + 1.6 = 50·tan 35° + 1.6</text>
+</svg>
 
 - Trong tam giác vuông: $\tan 35^\circ = \dfrac{h_1}{d} \Rightarrow h_1 = d\tan 35^\circ = 50 \times 0.7002 = 35.01$ m.
 - Đây là chiều cao **so với tầm mắt**. Cộng chiều cao mắt: $H = h_1 + 1.6 = 35.01 + 1.6 \approx \mathbf{36.6}$ m.
@@ -298,13 +330,24 @@ Trước khi dao động và sóng dùng tới lượng giác "động" (theo th
 
 **Bài toán 2 — khoảng cách giữa 2 điểm qua sông (định lý sin).** Muốn đo khoảng cách $AB$ qua sông mà không bơi qua. Đứng tại C trên bờ, đo: $AC = 120$ m (đo dọc bờ), $\angle A = 65^\circ$, $\angle C = 78^\circ$. Tìm $AB$.
 
-```
-   A ●─────────────● C   bờ này
-      ⟍ 65°    78°╱
-        ⟍       ╱
-          ⟍   ╱
-            ● B   (bờ kia)
-```
+<svg viewBox="0 0 420 265" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đo bề rộng sông: hai điểm A, C trên bờ này, điểm B bờ kia; góc tại A = 65°, góc tại C = 78°, dùng định lý sin">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar6g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <line x1="20.0" y1="40.0" x2="400.0" y2="40.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="210.0" y="26.0" fill="#475569" font-size="12" text-anchor="middle">bờ này</text>
+  <polygon points="60.0,40.0 360.0,40.0 143.9,220.0" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 100.0,40.0 A 40,40 0 0 1 76.9,76.3" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="106.0" y="66.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">65°</text>
+  <path d="M 351.7,79.1 A 40,40 0 0 1 320.0,40.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="314.0" y="66.0" fill="#dc2626" font-size="13" text-anchor="end" font-weight="700">78°</text>
+  <circle cx="60.0" cy="40.0" r="4" fill="#1a202c"/>
+  <text x="52.0" y="45.0" fill="#1a202c" font-size="15" text-anchor="end" font-weight="700" font-style="italic">A</text>
+  <circle cx="360.0" cy="40.0" r="4" fill="#1a202c"/>
+  <text x="368.0" y="45.0" fill="#1a202c" font-size="15" text-anchor="start" font-weight="700" font-style="italic">C</text>
+  <circle cx="143.9" cy="220.0" r="4" fill="#15803d"/>
+  <text x="143.9" y="240.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">B (bờ kia)</text>
+  <text x="210.0" y="56.0" fill="#1d4ed8" font-size="11" text-anchor="middle">AC = cạnh đo được</text>
+  <text x="210.0" y="250.0" fill="#475569" font-size="12" text-anchor="middle">Góc B = 180° − 65° − 78° = 37° → định lý sin: AB/sin C = AC/sin B</text>
+</svg>
 
 - Tổng 3 góc tam giác $= 180^\circ \Rightarrow \angle B = 180 - 65 - 78 = 37^\circ$.
 - **Định lý sin**: $\dfrac{AB}{\sin C} = \dfrac{AC}{\sin B}$ (cạnh đối góc tương ứng).
@@ -319,15 +362,32 @@ $$\cos C = \dfrac{8^2 + 6^2 - 10^2}{2 \times 8 \times 6} = \dfrac{64 + 36 - 100}
 
 **Bài toán 4 — chiều cao núi đo từ 2 điểm (không tới được chân).** Không tới được chân núi. Đứng tại A đo góc nâng đỉnh $= 30^\circ$. Đi thẳng về phía núi $200$ m tới B, đo lại góc nâng $= 45^\circ$. Tìm chiều cao $h$.
 
-```
-                          * đỉnh
-                        ╱ |
-                      ╱   |
-                    ╱     | h
-                  ╱45°    |
-   A ●─────────● B────────┘
-   30°  200m   ←─ x ─→  (x = khoảng cách B→chân)
-```
+<svg viewBox="0 0 480 305" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đo chiều cao bằng hai góc nâng: từ A góc 30°, tiến 200 m tới B góc 45°, x là khoảng cách từ B đến chân, h là chiều cao">
+  <defs><marker id="ar7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar7g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <line x1="0.0" y1="220.0" x2="480.0" y2="220.0" stroke="#94a3b8" stroke-width="2"/>
+  <polygon points="30.0,220.0 455.9,-25.9 455.9,220.0" fill="#fee2e2" fill-opacity="0.4" stroke="none"/>
+  <line x1="30.0" y1="220.0" x2="455.9" y2="-25.9" stroke="#dc2626" stroke-width="2"/>
+  <line x1="210.0" y1="220.0" x2="455.9" y2="-25.9" stroke="#dc2626" stroke-width="2"/>
+  <line x1="455.9" y1="220.0" x2="455.9" y2="-25.9" stroke="#1d4ed8" stroke-width="2.5"/>
+  <rect x="445.9" y="210.0" width="10" height="10" fill="none" stroke="#475569" stroke-width="1"/>
+  <path d="M 70.0,220.0 A 40,40 0 0 0 64.6,200.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="76.0" y="214.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">30°</text>
+  <path d="M 244.0,220.0 A 34,34 0 0 0 234.0,196.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="250.0" y="210.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">45°</text>
+  <circle cx="30.0" cy="220.0" r="4" fill="#1a202c"/>
+  <text x="30.0" y="242.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700" font-style="italic">A</text>
+  <circle cx="210.0" cy="220.0" r="4" fill="#1a202c"/>
+  <text x="210.0" y="242.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700" font-style="italic">B</text>
+  <circle cx="455.9" cy="-25.9" r="4" fill="#1d4ed8"/>
+  <text x="455.9" y="-35.9" fill="#1d4ed8" font-size="12" text-anchor="middle">đỉnh</text>
+  <text x="465.9" y="97.1" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700" font-style="italic">h</text>
+  <text x="455.9" y="242.0" fill="#475569" font-size="12" text-anchor="middle">chân</text>
+  <line x1="30.0" y1="250.0" x2="210.0" y2="250.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar7g)" marker-end="url(#ar7g)"/>
+  <text x="120.0" y="266.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">200 m</text>
+  <line x1="210.0" y1="250.0" x2="455.9" y2="250.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar7g)" marker-end="url(#ar7g)"/>
+  <text x="332.9" y="266.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">x</text>
+  <text x="240.0" y="290.0" fill="#475569" font-size="12" text-anchor="middle">tan 30° = h/(200 + x) · tan 45° = h/x → x = h → h = 200·tan30°/(1 − tan30°)</text>
+</svg>
 
 - Gọi $x$ = khoảng cách từ B tới chân núi. Hai tam giác vuông:
   - Từ B: $\tan 45^\circ = \dfrac{h}{x} \Rightarrow h = x$ (vì $\tan 45^\circ = 1$).

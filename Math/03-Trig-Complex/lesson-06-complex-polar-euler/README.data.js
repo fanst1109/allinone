@@ -22,18 +22,42 @@ window.README_MD = `# Lesson 06 — Dạng lượng giác & Công thức Euler
 
 Hình dung như chỉ đường: thay vì nói *"đi 3 bước sang phải, 4 bước lên trên"* (Đề-các), ta nói *"đi 5 bước theo hướng 53°"* (cực). Cùng đến một điểm, nhưng cách thứ hai gói gọn thành "đi bao xa + theo hướng nào" — đúng cách con người nghĩ về vị trí.
 
-\`\`\`
-        Im (trục ảo)
-         ↑
-       b +- - - - - •  z = a + bi
-         |        ╱ |
-         |   r  ╱   |
-         |    ╱     |   r = độ dài đoạn Oz  (mô-đun)
-         |  ╱       |   θ = góc Oz hợp với trục thực dương
-         | ╱ θ      |       (đo ngược chiều kim đồng hồ)
-       O •──────────+────→ Re (trục thực)
-                    a
-\`\`\`
+<svg viewBox="0 0 400 260" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dạng cực của z = a + bi trên mặt phẳng phức: r là độ dài đoạn Oz (mô-đun), θ là góc giữa Oz và trục thực dương, đo ngược chiều kim đồng hồ; ví dụ z = 4 + 3i"> 
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar1b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60" y1="40" x2="60" y2="220"/>
+<line x1="105" y1="40" x2="105" y2="220"/>
+<line x1="150" y1="40" x2="150" y2="220"/>
+<line x1="195" y1="40" x2="195" y2="220"/>
+<line x1="240" y1="40" x2="240" y2="220"/>
+<line x1="285" y1="40" x2="285" y2="220"/>
+<line x1="60" y1="220" x2="285" y2="220"/>
+<line x1="60" y1="175" x2="285" y2="175"/>
+<line x1="60" y1="130" x2="285" y2="130"/>
+<line x1="60" y1="85" x2="285" y2="85"/>
+<line x1="60" y1="40" x2="285" y2="40"/>
+</g>
+  <line x1="52" y1="220" x2="309" y2="220" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <line x1="60" y1="228" x2="60" y2="16" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <text x="299" y="238" fill="#1a202c" font-size="13">Re</text><text x="68" y="26" fill="#1a202c" font-size="13">Im</text>
+  <text x="105" y="235" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="150" y="235" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <text x="195" y="235" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <text x="240" y="235" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <text x="285" y="235" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <text x="55" y="179" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="55" y="134" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <text x="55" y="89" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <text x="55" y="44" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <text x="55" y="235" fill="#475569" font-size="11" text-anchor="end">O</text>
+  <line x1="240" y1="85" x2="240" y2="220" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/><line x1="240" y1="85" x2="60" y2="85" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="60" y1="220" x2="234" y2="89" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar1b)"/>
+  <circle cx="240" cy="85" r="4" fill="#1d4ed8"/><text x="250" y="79" fill="#1d4ed8" font-size="14" font-weight="700">z = a + bi</text>
+  <path d="M 110,220 A 50,50 0 0 0 100.0,190.0" fill="none" stroke="#dc2626" stroke-width="2"/><text x="116" y="206" fill="#dc2626" font-size="14" font-style="italic">θ</text>
+  <text x="134" y="144" fill="#15803d" font-size="14" font-weight="700" font-style="italic">r</text>
+  <text x="240" y="250" fill="#475569" font-size="12" text-anchor="middle">a</text><text x="38" y="89" fill="#475569" font-size="12" text-anchor="end">b</text>
+  <text x="12" y="20" fill="#475569" font-size="12">r = |Oz| (mô-đun) · θ = góc với Re⁺, ngược chiều kim đồng hồ</text>
+</svg>
 
 Vì sao gọi là "đẹp"? Vì với cùng một điểm, hai cách mô tả này **trao đổi được** cho nhau, và mỗi cách mạnh ở một việc: Đề-các tiện cho **cộng/trừ**, cực tiện cho **nhân/chia/quay** (xem mục 3, 4).
 
@@ -206,20 +230,33 @@ $$\\frac{d}{d\\theta}e^{i\\theta} = i\\,e^{i\\theta}$$
 
 Nhưng nhân với $i$ nghĩa là **quay 90°** (xem mục 4). Vậy ở mọi thời điểm, **vận tốc luôn vuông góc với vị trí** (hướng từ O đến điểm). Một vật mà vận tốc luôn vuông góc với bán kính thì **không tiến ra xa cũng không lại gần O** — nó **đi vòng tròn**. Tại $\\theta = 0$ điểm bắt đầu ở $e^0 = 1$ (tức $(1,0)$), với tốc độ 1, nên sau "thời gian" $\\theta$ nó đã đi cung dài $\\theta$ trên đường tròn đơn vị → tới đúng điểm $(\\cos\\theta, \\sin\\theta)$. Đó là vì sao $e^{i\\theta} = \\cos\\theta + i\\sin\\theta$ và vì sao $|e^{i\\theta}| = 1$.
 
-\`\`\`
-  Vật chạy trên đường tròn đơn vị:
-  vận tốc (mũi tên) LUÔN vuông góc bán kính
-  → không phình ra, không co vào → quỹ đạo TRÒN
-
-           Im
-            ↑
-         ___•___        • = e^{iθ}, vị trí
-       ╱   ↗   ╲        ↗ = vận tốc i·e^{iθ} (quay 90° so với bán kính)
-      |   ╱θ    |
-   ───+──•──────+──→ Re
-      | (1,0)   |       bắt đầu tại θ=0 ở điểm (1,0)
-       ╲_______╱        đi ngược chiều kim đồng hồ
-\`\`\`
+<svg viewBox="0 0 400 280" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điểm e^{iθ} chạy trên đường tròn đơn vị, xuất phát tại (1,0) khi θ = 0, đi ngược chiều kim đồng hồ; mũi tên vận tốc i·e^{iθ} luôn vuông góc với bán kính nên quỹ đạo là đường tròn">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar2v" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110" y1="50" x2="110" y2="230"/>
+<line x1="200" y1="50" x2="200" y2="230"/>
+<line x1="290" y1="50" x2="290" y2="230"/>
+<line x1="110" y1="230" x2="290" y2="230"/>
+<line x1="110" y1="140" x2="290" y2="140"/>
+<line x1="110" y1="50" x2="290" y2="50"/>
+</g>
+  <line x1="102" y1="140" x2="314" y2="140" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <line x1="200" y1="238" x2="200" y2="26" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="304" y="158" fill="#1a202c" font-size="13">Re</text><text x="208" y="36" fill="#1a202c" font-size="13">Im</text>
+  <text x="110" y="155" fill="#475569" font-size="11" text-anchor="middle">-1</text>
+  <text x="290" y="155" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="195" y="234" fill="#475569" font-size="11" text-anchor="end">-1</text>
+  <text x="195" y="54" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="195" y="155" fill="#475569" font-size="11" text-anchor="end">O</text>
+  <circle cx="200" cy="140" r="90" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="200" y1="140" x2="257.9" y2="71.1" stroke="#15803d" stroke-width="2"/>
+  <path d="M 234,140 A 34,34 0 0 0 221.9,114.0" fill="none" stroke="#475569" stroke-width="1.5"/><text x="238" y="128" fill="#475569" font-size="13" font-style="italic">θ</text>
+  <line x1="257.9" y1="71.1" x2="211.9" y2="32.5" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar2v)"/>
+  <circle cx="257.9" cy="71.1" r="5" fill="#1d4ed8"/><text x="267.9" y="87.1" fill="#1d4ed8" font-size="13" font-weight="700">e^{iθ} (vị trí)</text>
+  <text x="207.9" y="24.5" fill="#dc2626" font-size="12" font-weight="700" text-anchor="end">i·e^{iθ} (vận tốc, ⊥ bán kính)</text>
+  <circle cx="290" cy="140" r="4" fill="#15803d"/><text x="296" y="132" fill="#15803d" font-size="11">(1,0) — θ = 0</text>
+  <text x="200" y="270" fill="#475569" font-size="12" text-anchor="middle">vận tốc luôn ⊥ bán kính → không phình / không co → quỹ đạo TRÒN</text>
+</svg>
 
 **Đặc biệt** ($\\theta = \\pi$):
 
@@ -298,18 +335,41 @@ z_1 \\cdot z_2 &= r_1 r_2 \\, e^{i(\\theta_1 + \\theta_2)} \\\\
 
 ⟶ Quá đẹp! So với cách nhân đại số $(ac-bd) + (ad+bc)i$ (phải khai triển, dễ sai dấu) thì dạng lượng giác trực quan hơn nhiều.
 
-\`\`\`
-  Nhân z₁·z₂ : độ dài NHÂN, góc CỘNG
-       Im
-        ↑           • z₁·z₂   (dài r₁·r₂, góc θ₁+θ₂)
-        |          ╱
-        |    • z₂ ╱            θ₁+θ₂ = θ₁ chồng lên θ₂
-        |   ╱    ╱
-        | •z₁   ╱
-        |╱ ╲  ╱  ╲
-   ─────+───────────→ Re
-        O
-\`\`\`
+<svg viewBox="0 0 420 280" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhân số phức z₁·z₂ trên mặt phẳng phức: độ dài nhân r₁·r₂, góc cộng θ₁+θ₂; ví dụ z₁ = 2∠30°, z₂ = 1.5∠45° cho tích 3∠75°">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar3a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="ar3b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="ar3c" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60" y1="50" x2="60" y2="250"/>
+<line x1="110" y1="50" x2="110" y2="250"/>
+<line x1="160" y1="50" x2="160" y2="250"/>
+<line x1="210" y1="50" x2="210" y2="250"/>
+<line x1="260" y1="50" x2="260" y2="250"/>
+<line x1="60" y1="250" x2="260" y2="250"/>
+<line x1="60" y1="200" x2="260" y2="200"/>
+<line x1="60" y1="150" x2="260" y2="150"/>
+<line x1="60" y1="100" x2="260" y2="100"/>
+<line x1="60" y1="50" x2="260" y2="50"/>
+</g>
+  <line x1="52" y1="250" x2="284" y2="250" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="60" y1="258" x2="60" y2="26" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="274" y="268" fill="#1a202c" font-size="13">Re</text><text x="68" y="36" fill="#1a202c" font-size="13">Im</text>
+  <text x="110" y="265" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="160" y="265" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <text x="210" y="265" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <text x="260" y="265" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <text x="55" y="204" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <text x="55" y="154" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <text x="55" y="104" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <text x="55" y="54" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <text x="55" y="265" fill="#475569" font-size="11" text-anchor="end">O</text>
+  <circle cx="60" cy="250" r="100" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/><circle cx="60" cy="250" r="75" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/><circle cx="60" cy="250" r="150" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="60" y1="250" x2="146.6" y2="200.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar3a)"/><circle cx="146.6" cy="200.0" r="4" fill="#1d4ed8"/><text x="154.6" y="204.0" fill="#1d4ed8" font-size="13" font-weight="700" text-anchor="start">z₁ (r₁=2, θ₁=30°)</text>
+  <line x1="60" y1="250" x2="113.0" y2="197.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#ar3b)"/><circle cx="113.0" cy="197.0" r="4" fill="#15803d"/><text x="121.0" y="191.0" fill="#15803d" font-size="13" font-weight="700" text-anchor="start">z₂ (r₂=1.5, θ₂=45°)</text>
+  <line x1="60" y1="250" x2="98.8" y2="105.1" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar3c)"/><circle cx="98.8" cy="105.1" r="4" fill="#dc2626"/><text x="106.8" y="99.1" fill="#dc2626" font-size="13" font-weight="700" text-anchor="start">z₁·z₂ (r=3, θ=75°)</text>
+  <path d="M 130.0,250.0 A 70,70 0 0 0 120.6,215.0" fill="none" stroke="#1d4ed8" stroke-width="1.5"/><text x="133.3" y="233.3" fill="#1d4ed8" font-size="12" font-style="italic">θ₁</text>
+  <path d="M 142.3,202.5 A 95,95 0 0 0 84.6,158.2" fill="none" stroke="#15803d" stroke-width="1.5"/><text x="119.9" y="170.7" fill="#15803d" font-size="12" font-style="italic">θ₂</text>
+  <path d="M 190.0,250.0 A 130,130 0 0 0 93.6,124.4" fill="none" stroke="#dc2626" stroke-width="1.5"/><text x="167.1" y="168.8" fill="#dc2626" font-size="12" font-style="italic">θ₁+θ₂</text>
+  <text x="12" y="20" fill="#475569" font-size="12">Độ dài NHÂN: 2 × 1.5 = 3 · Góc CỘNG: 30° + 45° = 75° (θ₂ chồng lên θ₁)</text>
+</svg>
 
 ### 3.1. Walk-through nhân/chia dạng cực (4 ví dụ — thấy rõ cộng/trừ góc)
 

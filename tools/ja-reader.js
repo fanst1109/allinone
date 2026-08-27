@@ -191,6 +191,11 @@
       .jr-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); left: 12px; padding: 9px 14px; font-size: 13px; }
       .jr-panel { left: 12px; width: calc(100vw - 24px); bottom: calc(136px + env(safe-area-inset-bottom, 0px)); }
     }
+
+    /* UI nổi không thuộc nội dung — ẩn khi in */
+    @media print {
+      .jr-btn, .jr-panel { display: none !important; }
+    }
   `;
 
   function el(tag, attrs, kids) {

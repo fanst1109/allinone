@@ -203,6 +203,11 @@
       .ipa-word-text { font-size: 14px; }
       .ipa-word-ipa { font-size: 13px; }
     }
+
+    /* UI nổi không thuộc nội dung — ẩn khi in */
+    @media print {
+      .ipa-btn, .ipa-panel { display: none !important; }
+    }
   `;
 
   function $(tag, attrs, children) {

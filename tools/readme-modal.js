@@ -350,6 +350,68 @@
     body.rm-resizing { cursor: col-resize !important; user-select: none !important; }
     body.rm-resizing * { pointer-events: none !important; }
 
+    /* ── Nút in (trong header) ── */
+    .rm-panel .rm-print-btn {
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.15); color: white;
+      border: none; width: 30px; height: 30px; flex-shrink: 0;
+      border-radius: 50%; cursor: pointer; font-size: 14px;
+      font-family: inherit; transition: background 0.15s;
+      padding: 0; line-height: 1;
+    }
+    .rm-panel .rm-print-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* ═══ PRINT — Ctrl+P khi panel đang mở → in CHỈ nội dung README ═══
+     * html.rm-print-readme được JS bật khi panel mở, tắt khi đóng.
+     * Panel đóng thì in viz như thường (chrome floating đã ẩn ở rule đầu). */
+    @media print {
+      /* Luôn ẩn UI nổi của readme-modal khi in */
+      .rm-btn, .rm-backdrop, .rm-toast { display: none !important; }
+      /* Panel đóng vẫn nằm ngoài màn (translateX 105%) — ẩn hẳn cho sạch */
+      .rm-panel:not(.rm-open) { display: none !important; }
+
+      /* Panel mở: ẩn mọi thứ ngoài panel, trả panel về dòng chảy tĩnh */
+      html.rm-print-readme body > :not(.rm-panel) { display: none !important; }
+      html.rm-print-readme body { padding: 0 !important; }
+      html.rm-print-readme .rm-panel {
+        position: static !important; display: block !important;
+        width: auto !important; max-width: none !important; min-width: 0 !important;
+        height: auto !important;
+        transform: none !important; box-shadow: none !important;
+      }
+      html.rm-print-readme .rm-header,
+      html.rm-print-readme .rm-drag-handle,
+      html.rm-print-readme .rm-toc { display: none !important; }
+      html.rm-print-readme .rm-body { display: block !important; overflow: visible !important; }
+      html.rm-print-readme .rm-content {
+        overflow: visible !important; padding: 0 !important;
+        font-size: 13px; line-height: 1.55;
+      }
+      /* content-visibility: auto bỏ layout phần ngoài màn hình → in ra TRẮNG. Tắt khi in. */
+      html.rm-print-readme .rm-content > * {
+        content-visibility: visible !important;
+        contain-intrinsic-size: none !important;
+      }
+      /* pre nền tối: trình duyệt mặc định KHÔNG in background → chữ sáng trên giấy trắng
+         thành vô hình. Đảo về nền sáng + chữ tối + viền. */
+      html.rm-print-readme .rm-content pre {
+        background: #f6f8fa !important; color: #1f2328 !important;
+        border: 1px solid #d0d7de; white-space: pre-wrap; word-break: break-word;
+      }
+      html.rm-print-readme .rm-content pre code { color: inherit !important; }
+      /* Khung cuộn ngang không cuộn được trên giấy — mở ra cho nội dung tự xuống trang */
+      html.rm-print-readme .rm-content .rm-tablewrap { overflow: visible !important; }
+      html.rm-print-readme .rm-content .katex-display { overflow: visible !important; }
+      /* Ngắt trang gọn: heading không mồ côi cuối trang, khối liền không bị xé đôi */
+      html.rm-print-readme .rm-content h1,
+      html.rm-print-readme .rm-content h2,
+      html.rm-print-readme .rm-content h3 { break-after: avoid; }
+      html.rm-print-readme .rm-content pre,
+      html.rm-print-readme .rm-content blockquote,
+      html.rm-print-readme .rm-content svg,
+      html.rm-print-readme .rm-content .rm-tablewrap { break-inside: avoid; }
+    }
+
     @media (max-width: 700px) {
       /* Bump nút lên trên Chrome iOS / Safari tab bar */
       .rm-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
@@ -440,6 +502,7 @@
           '<button type="button" data-mode="sidebar" title="Sidebar chia đôi màn hình, không đè viz">Sidebar</button>' +
           '<button type="button" data-mode="fullscreen" title="Che toàn màn hình">Full</button>' +
         '</div>' +
+        '<button class="rm-print-btn" type="button" title="In README (chỉ in nội dung lý thuyết)" aria-label="In README">🖨</button>' +
         '<button class="rm-close" type="button" aria-label="Đóng">✕</button>' +
       '</div>' +
       '<div class="rm-body">' +
@@ -873,6 +936,8 @@
       panel.classList.add('rm-open');
       panel.setAttribute('aria-hidden', 'false');
       btn.classList.add('rm-hidden');
+      // Bật chế độ "in chỉ README" (chỉ tác động @media print, vô hại trên màn hình)
+      document.documentElement.classList.add('rm-print-readme');
 
       if (currentMode === 'sidebar') {
         enableSidebarSplit();
@@ -890,6 +955,7 @@
       btn.classList.remove('rm-hidden');
       disableSidebarSplit();
       setSidebarOpenFlag(false);
+      document.documentElement.classList.remove('rm-print-readme');
     }
 
     // ── Mode toggle (có thể đổi khi đang mở) ──
@@ -916,6 +982,7 @@
     });
 
     btn.addEventListener('click', open);
+    panel.querySelector('.rm-print-btn').addEventListener('click', function () { window.print(); });
     panel.querySelector('.rm-close').addEventListener('click', close);
     backdrop.addEventListener('click', close);
     document.addEventListener('keydown', function (e) {

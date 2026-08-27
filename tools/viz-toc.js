@@ -89,6 +89,11 @@
       .vt-list .vt-l3 a { font-size: 13.5px; padding-left: 30px; }
       .vt-list .vt-l4 a { font-size: 13px; padding-left: 42px; }
     }
+
+    /* UI nổi không thuộc nội dung — ẩn khi in */
+    @media print {
+      .vt-btn, .vt-panel { display: none !important; }
+    }
   `;
 
   // Chuyển text thành id slug an toàn cho URL fragment. Giữ chữ cái Unicode

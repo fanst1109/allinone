@@ -301,6 +301,11 @@
       .zh-btn { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); left: 12px; padding: 9px 14px; font-size: 13px; }
       .zh-panel { width: calc(100vw - 24px); }
     }
+
+    /* UI nổi không thuộc nội dung — ẩn khi in */
+    @media print {
+      .zh-btn, .zh-panel { display: none !important; }
+    }
   `;
 
   // ============================================================

@@ -37,19 +37,57 @@ $$\\vec{v} = (v_1, v_2, \\ldots, v_n)$$
 - Tích vô hướng (ra **0** → vuông góc): $(1, 0, 0) \\cdot (0, 5, 7) = 0 + 0 + 0 = 0$ → 2 vector $\\perp$.
 - Chuẩn: $\\lVert\\vec{u}\\rVert = \\sqrt{1+4+9} = \\mathbf{\\sqrt{14} \\approx 3.74}$; nhân vô hướng âm: $(-2)\\cdot\\vec{u} = (-2, -4, -6)$.
 
-#### Hình dung cộng vector — luật hình bình hành (ASCII)
+#### Hình dung cộng vector — luật hình bình hành
 
 Cộng $\\vec{a} = (3, 1)$ và $\\vec{b} = (1, 2)$ → $\\vec{a} + \\vec{b} = (4, 3)$. Hình dung "nối đuôi-đầu": đi theo $\\vec{a}$ rồi tiếp tục đi theo $\\vec{b}$, điểm cuối chính là tổng.
 
-\`\`\`
- y
- 3 |              • (4,3) = a + b
- 2 |        ___,-´|
- 1 | (3,1)•´      |   ← từ (3,1) đi thêm b=(1,2)
- 0 +----•--------•----- x
-   0    3        4
-   (đi a=(3,1) trước, rồi đi b=(1,2): 3+1=4, 1+2=3)
-\`\`\`
+<svg viewBox="0 0 480 260" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cộng vector a = (3,1) và b = (1,2): a + b = (4,3) là đường chéo hình bình hành dựng trên a và b">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar1b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="ar1g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="ar1r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="130.0" y1="200.0" x2="130.0" y2="20.0"/>
+<line x1="200.0" y1="200.0" x2="200.0" y2="20.0"/>
+<line x1="270.0" y1="200.0" x2="270.0" y2="20.0"/>
+<line x1="340.0" y1="200.0" x2="340.0" y2="20.0"/>
+<line x1="410.0" y1="200.0" x2="410.0" y2="20.0"/>
+<line x1="60.0" y1="150.0" x2="424.0" y2="150.0"/>
+<line x1="60.0" y1="100.0" x2="424.0" y2="100.0"/>
+<line x1="60.0" y1="50.0" x2="424.0" y2="50.0"/>
+</g>
+  <line x1="54.0" y1="200.0" x2="446.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <line x1="60.0" y1="206.0" x2="60.0" y2="-2.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <text x="438.0" y="216.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="8.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="130.0" y1="196.0" x2="130.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="130.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="200.0" y1="196.0" x2="200.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="200.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="270.0" y1="196.0" x2="270.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="340.0" y1="196.0" x2="340.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="340.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="410.0" y1="196.0" x2="410.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="410.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="56.0" y1="150.0" x2="64.0" y2="150.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="154.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="104.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="50.0" x2="64.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <path d="M 60.0,200.0 L 270.0,150.0 L 340.0,50.0 L 130.0,100.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.12" stroke-linejoin="round"/>
+  <line x1="270.0" y1="150.0" x2="340.0" y2="50.0" stroke="#15803d" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="130.0" y1="100.0" x2="340.0" y2="50.0" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="60.0" y1="200.0" x2="270.0" y2="150.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar1b)"/>
+  <line x1="60.0" y1="200.0" x2="130.0" y2="100.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#ar1g)"/>
+  <line x1="60.0" y1="200.0" x2="340.0" y2="50.0" stroke="#dc2626" stroke-width="3" marker-end="url(#ar1r)"/>
+  <text x="172.0" y="192.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">a = (3, 1)</text>
+  <text x="70.5" y="115.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">b = (1, 2)</text>
+  <text x="350.0" y="46.0" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700">a + b = (4, 3)</text>
+  <text x="327.0" y="105.0" fill="#15803d" font-size="11" text-anchor="start">đi thêm b</text>
+  <circle cx="270.0" cy="150.0" r="4" fill="#1d4ed8"/>
+  <circle cx="130.0" cy="100.0" r="4" fill="#15803d"/>
+  <circle cx="340.0" cy="50.0" r="5" fill="#dc2626"/>
+  <text x="250.0" y="245.0" fill="#475569" font-size="12" text-anchor="middle">đi a = (3,1) trước, rồi đi b = (1,2): (3+1, 1+2) = (4, 3) — đường chéo hình bình hành</text>
+</svg>
 
 #### ≥4 ví dụ — phép CỘNG vector
 
@@ -246,12 +284,24 @@ $$(AB)_{ij} = \\sum_k a_{ik} \\cdot b_{kj}$$
 
 **Quy tắc nhớ kích thước** ($k$ "biến mất"):
 
-\`\`\`
-A : m × k
-B :     k × n     ← hai k phải khớp (chạm nhau)
-─────────────
-AB: m     × n     ← lấy ngoài: hàng của A, cột của B
-\`\`\`
+<svg viewBox="0 0 550 155" style="max-width:550px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kích thước phép nhân ma trận: A (m × k) nhân B (k × n) cho AB (m × n); hai k ở giữa phải khớp, kết quả lấy m ngoài trái và n ngoài phải">
+  <defs></defs>
+  <rect x="40.0" y="40.0" width="130.0" height="60.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="105.0" y="67.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <text x="105.0" y="83.0" fill="#1d4ed8" font-size="13" text-anchor="middle">m × k</text>
+  <text x="185.0" y="76.0" fill="#1a202c" font-size="22" text-anchor="middle" font-weight="700">·</text>
+  <rect x="200.0" y="40.0" width="130.0" height="60.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="265.0" y="67.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <text x="265.0" y="83.0" fill="#15803d" font-size="13" text-anchor="middle">k × n</text>
+  <text x="345.0" y="76.0" fill="#1a202c" font-size="22" text-anchor="middle" font-weight="700">=</text>
+  <rect x="360.0" y="40.0" width="150.0" height="60.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="435.0" y="67.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">AB</text>
+  <text x="435.0" y="83.0" fill="#dc2626" font-size="13" text-anchor="middle">m × n</text>
+  <path d="M 150,104 L 150,118 L 222,118 L 222,104" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="186.0" y="138.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">hai k phải KHỚP (chạm nhau)</text>
+  <path d="M 62,32 L 62,20 L 308,20 L 308,32" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="186.0" y="14.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">lấy NGOÀI: m (hàng của A) × n (cột của B)</text>
+</svg>
 
 #### Walk-through nhân ma trận-ma trận — 3 ví dụ từng bước
 

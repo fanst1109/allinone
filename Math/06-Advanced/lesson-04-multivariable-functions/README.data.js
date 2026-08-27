@@ -52,24 +52,70 @@ $f(x, y) = c$ (hằng số) → đường cong trong mặt phẳng xy.
 
 ⟶ Cùng 1 mặt cong, nhưng "chụp" ở các độ cao $c$ khác nhau cho ta các đường mức khác nhau; gom lại = bản đồ đồng mức (contour map).
 
-**ASCII — bản đồ đường mức + gradient** của $f = x^2 + y^2$ (chén). Các vòng tròn đồng tâm là đường mức; mũi tên \`→ ↗ ↑\` là gradient $\\nabla f$ (luôn **vuông góc** với vòng tròn, **chỉ ra ngoài** vì đi ra xa gốc thì $f$ tăng):
+**Bản đồ đường mức + gradient** của $f = x^2 + y^2$ (chén). Các vòng tròn đồng tâm là đường mức; mũi tên đỏ là gradient $\\nabla f$ (luôn **vuông góc** với vòng tròn, **chỉ ra ngoài** vì đi ra xa gốc thì $f$ tăng):
 
-\`\`\`
-        y
-        │        f=9   f=4   f=1
-        │      .-''''-.
-        │    ,'  .--.  ',
-        │   /  ,'    ',  \\      ↗  ∇f tại (1.5,1.5)
-        │  |  | ( O )|  |        chỉ ra ngoài, ⊥ vòng tròn
-   ─────┼──|──|──+───|──|───────→ x
-        │  |  | gốc | →|  | →  ∇f tại (2,0) = (4,0), chỉ Đông
-        │   \\  ',  ,' /
-        │    ',  '--'  ,'
-        │      '-....-'
-        │
-   gần gốc: vòng khít  →  |∇f| nhỏ (mặt phẳng, dốc thoải)
-   xa gốc:  vòng thưa  →  |∇f| lớn (mặt dốc đứng)
-\`\`\`
+<svg viewBox="0 0 540 345" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bản đồ đường mức f = x² + y² (vòng tròn f = 1, 4, 9) và gradient tại vài điểm: luôn vuông góc vòng tròn, chỉ ra ngoài, dài hơn khi xa gốc">
+  <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar5r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="301.0" x2="110.0" y2="29.0"/>
+<line x1="150.0" y1="301.0" x2="150.0" y2="29.0"/>
+<line x1="190.0" y1="301.0" x2="190.0" y2="29.0"/>
+<line x1="270.0" y1="301.0" x2="270.0" y2="29.0"/>
+<line x1="310.0" y1="301.0" x2="310.0" y2="29.0"/>
+<line x1="350.0" y1="301.0" x2="350.0" y2="29.0"/>
+<line x1="90.0" y1="285.0" x2="370.0" y2="285.0"/>
+<line x1="90.0" y1="245.0" x2="370.0" y2="245.0"/>
+<line x1="90.0" y1="205.0" x2="370.0" y2="205.0"/>
+<line x1="90.0" y1="125.0" x2="370.0" y2="125.0"/>
+<line x1="90.0" y1="85.0" x2="370.0" y2="85.0"/>
+<line x1="90.0" y1="45.0" x2="370.0" y2="45.0"/>
+</g>
+  <line x1="84.0" y1="165.0" x2="392.0" y2="165.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <line x1="230.0" y1="307.0" x2="230.0" y2="7.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <text x="384.0" y="181.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="238.0" y="17.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="161.0" x2="110.0" y2="169.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="181.0" fill="#475569" font-size="11" text-anchor="middle">−3</text>
+  <line x1="150.0" y1="161.0" x2="150.0" y2="169.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="150.0" y="181.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="190.0" y1="161.0" x2="190.0" y2="169.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="190.0" y="181.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="270.0" y1="161.0" x2="270.0" y2="169.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.0" y="181.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="310.0" y1="161.0" x2="310.0" y2="169.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="310.0" y="181.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="350.0" y1="161.0" x2="350.0" y2="169.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="350.0" y="181.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="226.0" y1="285.0" x2="234.0" y2="285.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="223.0" y="289.0" fill="#475569" font-size="11" text-anchor="end">−3</text>
+  <line x1="226.0" y1="245.0" x2="234.0" y2="245.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="223.0" y="249.0" fill="#475569" font-size="11" text-anchor="end">−2</text>
+  <line x1="226.0" y1="205.0" x2="234.0" y2="205.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="223.0" y="209.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="226.0" y1="125.0" x2="234.0" y2="125.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="223.0" y="129.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="226.0" y1="85.0" x2="234.0" y2="85.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="223.0" y="89.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="226.0" y1="45.0" x2="234.0" y2="45.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="223.0" y="49.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <circle cx="230.0" cy="165.0" r="40" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="197.7" y="132.7" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">f = 1</text>
+  <circle cx="230.0" cy="165.0" r="80" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="169.4" y="104.4" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">f = 4</text>
+  <circle cx="230.0" cy="165.0" r="120" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="141.2" y="76.2" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">f = 9</text>
+  <line x1="310.0" y1="165.0" x2="358.0" y2="165.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar5r)"/>
+  <text x="366.0" y="157.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">∇f(2,0) = (4,0)</text>
+  <line x1="290.0" y1="105.0" x2="326.0" y2="69.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar5r)"/>
+  <text x="334.0" y="65.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">∇f(1.5,1.5) = (3,3)</text>
+  <line x1="230.0" y1="205.0" x2="230.0" y2="229.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar5r)"/>
+  <text x="238.0" y="243.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">∇f(0,−1) = (0,−2)</text>
+  <line x1="190.0" y1="165.0" x2="166.0" y2="165.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar5r)"/>
+  <text x="160.0" y="185.0" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">∇f(−1,0) = (−2,0)</text>
+  <text x="250.0" y="20.0" fill="#475569" font-size="12" text-anchor="start">f = x² + y² (chén): đường mức = vòng tròn đồng tâm</text>
+  <text x="270.0" y="318.0" fill="#475569" font-size="11" text-anchor="middle">gần gốc vòng khít → |∇f| nhỏ (thoải) · xa gốc vòng thưa → |∇f| lớn (dốc)</text>
+  <text x="270.0" y="334.0" fill="#475569" font-size="11" text-anchor="middle">∇f luôn ⊥ đường mức và chỉ ra ngoài (hướng f tăng)</text>
+</svg>
 
 💡 **Đọc bản đồ đồng mức như dân leo núi**: đường mức **khít nhau** = sườn dốc đứng ($|\\nabla f|$ lớn); đường mức **thưa** = sườn thoải ($|\\nabla f|$ nhỏ); chỗ chỉ có 1 điểm đơn độc không vòng nào = đỉnh/đáy. Gradient luôn cắt vuông góc các đường mức, chỉ về phía $f$ tăng.
 
@@ -386,19 +432,73 @@ Bước 3 & 4 — phân loại từng điểm:
 - Bước 3: $\\det(H) = (2)(-2) - 0 = -4 < 0$.
 - Bước 4: $\\det < 0$ → **yên ngựa**. Đi dọc trục $x$ ($y=0$): $f = x^2$ → đáy thung lũng (cong lên). Đi dọc trục $y$ ($x=0$): $f = -y^2$ → đỉnh đồi (cong xuống). Đúng hình "yên ngựa": cao theo 1 hướng, thấp theo hướng vuông góc.
 
-**ASCII — yên ngựa $f = x^2 - y^2$** (nhìn từ trên, dấu = giá trị $f$ quanh gốc):
+**Yên ngựa $f = x^2 - y^2$** (nhìn từ trên, số = giá trị $f$ quanh gốc):
 
-\`\`\`
-        y
-   −4   │   −1    −4        ↑ dọc trục y: f = −y², ĐI XUỐNG
-        │                     (đỉnh tại gốc theo hướng này)
-   −1   │    0    −1
-   ─────┼──────────────→ x
-   −1   │    0    −1        → dọc trục x: f = x², ĐI LÊN
-        │                     (đáy tại gốc theo hướng này)
-   −4   │   −1    −4
-        gốc (0,0): f = 0 — không min, không max → SADDLE
-\`\`\`
+<svg viewBox="0 0 480 332" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Yên ngựa f = x² − y² nhìn từ trên: lưới giá trị f quanh gốc, dương (xanh) dọc trục x, âm (đỏ) dọc trục y, gốc bằng 0">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar6g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="ar6r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+</g>
+  <line x1="51.0" y1="150.0" x2="365.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <line x1="200.0" y1="299.0" x2="200.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <text x="357.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="216.5" y1="150.0" x2="334.8" y2="150.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#ar6g)"/>
+  <line x1="200.0" y1="133.5" x2="200.0" y2="12.5" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar6r)"/>
+  <rect x="73.0" y="249.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="90.0" y="265.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="73.0" y="194.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="90.0" y="210.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="73.0" y="139.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="90.0" y="155.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="73.0" y="84.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="90.0" y="100.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="73.0" y="29.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="90.0" y="45.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="128.0" y="249.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="145.0" y="265.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−3</text>
+  <rect x="128.0" y="194.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="145.0" y="210.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="128.0" y="139.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="145.0" y="155.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="128.0" y="84.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="145.0" y="100.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="128.0" y="29.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="145.0" y="45.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−3</text>
+  <rect x="183.0" y="249.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="200.0" y="265.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−4</text>
+  <rect x="183.0" y="194.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="200.0" y="210.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−1</text>
+  <rect x="183.0" y="139.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="200.0" y="155.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="183.0" y="84.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="200.0" y="100.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−1</text>
+  <rect x="183.0" y="29.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="200.0" y="45.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−4</text>
+  <rect x="238.0" y="249.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="255.0" y="265.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−3</text>
+  <rect x="238.0" y="194.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="255.0" y="210.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="238.0" y="139.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="255.0" y="155.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="238.0" y="84.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="255.0" y="100.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="238.0" y="29.0" width="34" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="255.0" y="45.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">−3</text>
+  <rect x="293.0" y="249.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="310.0" y="265.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="293.0" y="194.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="310.0" y="210.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="293.0" y="139.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="310.0" y="155.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="293.0" y="84.0" width="34" height="22" rx="5" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="310.0" y="100.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="293.0" y="29.0" width="34" height="22" rx="5" fill="#e2e8f0" stroke="#1a202c" stroke-width="1"/>
+  <text x="310.0" y="45.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <text x="339.5" y="180.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">dọc Ox: f = x² ĐI LÊN</text>
+  <text x="226.0" y="16.5" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">dọc Oy: f = −y² ĐI XUỐNG</text>
+  <text x="200.0" y="296.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">gốc (0,0): f = 0 — không min, không max → điểm YÊN NGỰA (saddle)</text>
+  <text x="240.0" y="322.0" fill="#475569" font-size="11" text-anchor="middle">số trong ô = giá trị f = x² − y² tại điểm lưới (x, y ∈ {−2..2})</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

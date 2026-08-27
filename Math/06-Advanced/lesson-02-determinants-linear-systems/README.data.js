@@ -39,13 +39,22 @@ $$\\det\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix} = a\\cdot d - b\\cdot c$
 2. **Chéo phụ** (góc trên-phải → góc dưới-trái): $b\\cdot c = 2\\cdot 1 = 2$.
 3. **Trừ**: $\\det = 12 - 2 = \\mathbf{10}$.
 
-ASCII minh họa 2 đường chéo:
+Minh họa 2 đường chéo:
 
-\`\`\`
-   ┌─ a ─── b ─┐      chéo chính:  a · d  (↘)
-   │  ↘     ↗  │      chéo phụ:    b · c  (↙)
-   └─ c ─── d ─┘      det = a·d − b·c
-\`\`\`
+<svg viewBox="0 0 460 150" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Định thức 2×2: chéo chính a·d (mũi tên xanh xuống phải) trừ chéo phụ b·c (mũi tên đỏ xuống trái)">
+  <defs><marker id="ar2b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="ar2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <path d="M 70,30 L 58,30 L 58,120 L 70,120" fill="none" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 190,30 L 202,30 L 202,120 L 190,120" fill="none" stroke="#1a202c" stroke-width="2"/>
+  <text x="95.0" y="62.0" fill="#1a202c" font-size="20" text-anchor="middle" font-weight="700" font-style="italic">a</text>
+  <text x="165.0" y="62.0" fill="#1a202c" font-size="20" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <text x="95.0" y="108.0" fill="#1a202c" font-size="20" text-anchor="middle" font-weight="700" font-style="italic">c</text>
+  <text x="165.0" y="108.0" fill="#1a202c" font-size="20" text-anchor="middle" font-weight="700" font-style="italic">d</text>
+  <line x1="105.0" y1="68.0" x2="155.0" y2="98.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar2b)"/>
+  <line x1="155.0" y1="68.0" x2="105.0" y2="98.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar2r)"/>
+  <text x="240.0" y="62.0" fill="#1d4ed8" font-size="14" text-anchor="start" font-weight="700">chéo chính ↘ :  a · d</text>
+  <text x="240.0" y="90.0" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700">chéo phụ ↙ :  b · c</text>
+  <text x="240.0" y="126.0" fill="#1a202c" font-size="16" text-anchor="start" font-weight="700">det = a·d − b·c</text>
+</svg>
 
 ### Ý nghĩa hình học
 

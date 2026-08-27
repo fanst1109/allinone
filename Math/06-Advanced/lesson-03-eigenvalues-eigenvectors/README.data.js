@@ -25,24 +25,78 @@ $$A\\cdot\\vec{v} = \\lambda\\cdot\\vec{v} \\quad (\\vec{v} \\neq 0)$$
 
 Ý nghĩa: $A$ biến $\\vec{v}$ thành **bội** của $\\vec{v}$ — **không đổi hướng**, chỉ co/giãn theo hệ số $\\lambda$.
 
-### ASCII — vector riêng GIỮ hướng vs vector thường BỊ xoay
+### Hình — vector riêng GIỮ hướng vs vector thường BỊ xoay
 
 Lấy $A = \\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \\end{bmatrix}$ (trị riêng $\\lambda = 1, 3$, vector riêng $(1,1)$ và $(1,-1)$). So sánh tác động của $A$ lên một vector riêng $(1,1)$ và một vector thường $(1,0)$:
 
-\`\`\`
-     VECTOR RIÊNG (1,1)                VECTOR THƯỜNG (1,0)
-     A·(1,1) = (3,3)                   A·(1,0) = (2,1)
-
-        ^ y                               ^ y
-        |        ↗ A·v=(3,3)              |
-        |      ↗   (cùng đường            |     ↗ A·v=(2,1)  ← ĐÃ XOAY
-        |    ↗      thẳng, dài 3×)        |   ↗               lên trên
-        |  ↗ v=(1,1)                      | ↗
-        |↗                          v=(1,0)●━━━━━━▶ x
-        +━━━━━━━━━▶ x                     +━━━━━━━━━▶ x
-     GIỮ HƯỚNG, chỉ kéo dài            BỊ XOAY khỏi trục x
-     → eigenvector, λ=3                → KHÔNG phải eigenvector
-\`\`\`
+<svg viewBox="0 0 600 300" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh: v = (1,1) qua A thành (3,3) cùng đường thẳng (vector riêng, λ = 3); v = (1,0) qua A thành (2,1) bị xoay (không phải vector riêng)">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar3a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="ar3b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar4a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="ar4b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <text x="150.0" y="18.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">VECTOR RIÊNG (1,1)</text>
+  <text x="150.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle">A·v = (3, 3)</text>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="95.0" y1="215.0" x2="95.0" y2="53.0"/>
+<line x1="140.0" y1="215.0" x2="140.0" y2="53.0"/>
+<line x1="185.0" y1="215.0" x2="185.0" y2="53.0"/>
+<line x1="50.0" y1="170.0" x2="212.0" y2="170.0"/>
+<line x1="50.0" y1="125.0" x2="212.0" y2="125.0"/>
+<line x1="50.0" y1="80.0" x2="212.0" y2="80.0"/>
+</g>
+  <line x1="44.0" y1="215.0" x2="234.0" y2="215.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="50.0" y1="221.0" x2="50.0" y2="31.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="226.0" y="231.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="58.0" y="41.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="95.0" y1="211.0" x2="95.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="95.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="140.0" y1="211.0" x2="140.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="185.0" y1="211.0" x2="185.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="185.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="46.0" y1="170.0" x2="54.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="43.0" y="174.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="46.0" y1="125.0" x2="54.0" y2="125.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="43.0" y="129.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="46.0" y1="80.0" x2="54.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="43.0" y="84.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="50.0" y1="215.0" x2="185.0" y2="80.0" stroke="#15803d" stroke-width="3" marker-end="url(#ar3a)"/>
+  <line x1="50.0" y1="215.0" x2="95.0" y2="170.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#ar3b)"/>
+  <text x="193.0" y="76.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">A·v</text>
+  <text x="105.0" y="184.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">v = (1, 1)</text>
+  <text x="150.0" y="268.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">GIỮ HƯỚNG, chỉ kéo dài 3×</text>
+  <text x="150.0" y="286.0" fill="#475569" font-size="11" text-anchor="middle">→ eigenvector, λ = 3</text>
+  <text x="450.0" y="18.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">VECTOR THƯỜNG (1,0)</text>
+  <text x="450.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle">A·v = (2, 1)</text>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="395.0" y1="215.0" x2="395.0" y2="53.0"/>
+<line x1="440.0" y1="215.0" x2="440.0" y2="53.0"/>
+<line x1="485.0" y1="215.0" x2="485.0" y2="53.0"/>
+<line x1="350.0" y1="170.0" x2="512.0" y2="170.0"/>
+<line x1="350.0" y1="125.0" x2="512.0" y2="125.0"/>
+<line x1="350.0" y1="80.0" x2="512.0" y2="80.0"/>
+</g>
+  <line x1="344.0" y1="215.0" x2="534.0" y2="215.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <line x1="350.0" y1="221.0" x2="350.0" y2="31.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="526.0" y="231.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="358.0" y="41.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="395.0" y1="211.0" x2="395.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="395.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="440.0" y1="211.0" x2="440.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="440.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="485.0" y1="211.0" x2="485.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="485.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="346.0" y1="170.0" x2="354.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="343.0" y="174.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="346.0" y1="125.0" x2="354.0" y2="125.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="343.0" y="129.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="346.0" y1="80.0" x2="354.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="343.0" y="84.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="350.0" y1="215.0" x2="440.0" y2="170.0" stroke="#dc2626" stroke-width="3" marker-end="url(#ar4a)"/>
+  <line x1="350.0" y1="215.0" x2="395.0" y2="215.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#ar4b)"/>
+  <text x="448.0" y="166.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">A·v</text>
+  <text x="395.0" y="245.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">v = (1, 0)</text>
+  <path d="M 390.0,215.0 A 40,40 0 0 0 385.8,197.1" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="450.0" y="268.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">BỊ XOAY khỏi trục x</text>
+  <text x="450.0" y="286.0" fill="#475569" font-size="11" text-anchor="middle">→ KHÔNG phải eigenvector</text>
+</svg>
 
 Vector riêng $(1,1)$: sau khi qua $A$ vẫn nằm trên **cùng tia** đi qua gốc — chỉ dài gấp 3. Vector $(1,0)$: $A$ kéo nó lệch lên ($y$ từ 0 thành 1) → đổi hướng → không phải vector riêng.
 

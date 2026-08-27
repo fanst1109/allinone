@@ -323,7 +323,7 @@ Tử số $f^{(n)}(0) = (-1)^{n-1}(n-1)!$ và mẫu $n!$ rút lại còn $\\frac
 $$\\ln(1+x) = x - \\frac{x^2}{2} + \\frac{x^3}{3} - \\frac{x^4}{4} + \\dots = \\sum_{n=1}^\\infty \\frac{(-1)^{n-1}}{n}x^n.$$
 Chuỗi này **chỉ hội tụ khi** $-1 < x \\le 1$ ($R = 1$) — đó là lý do không dùng nó để tính $\\ln 3$ trực tiếp (xem Lỗi 3 bên dưới).
 
-#### 4.2. ASCII — xấp xỉ Taylor bậc tăng dần bám sát đường cong
+#### 4.2. Hình — xấp xỉ Taylor bậc tăng dần bám sát đường cong
 
 Lấy $f(x) = e^x$ khai triển tại $0$. Các đa thức Taylor cắt bớt (truncated):
 $$P_1 = 1 + x, \\quad P_2 = 1 + x + \\tfrac{x^2}{2}, \\quad P_3 = 1 + x + \\tfrac{x^2}{2} + \\tfrac{x^3}{6}.$$
@@ -338,38 +338,92 @@ Bảng số tại vài điểm cho thấy bậc càng cao bám càng sát $e^x$ 
 
 Hình dung: gần $x = 0$ cả ba trùng nhau; càng ra xa, bậc thấp "tách" khỏi đường cong sớm hơn.
 
-\`\`\`
-   y                                      e^x (đường cong thật)
-   |                                  .·'
- 3 +                              .·'  ___ P3 (bám lâu nhất)
-   |                          .·'  __--
-   |                      .·'  _--'      P2 (parabol, tách muộn)
- 2 +                  .·'__--'      ____
-   |              .·'_--'      ____--      P1 (tiếp tuyến, tách sớm)
-   |          .·'-'    ____----
- 1 +======·==========------                  ← tại x=0 cả 4 chạm nhau
-   |    .·'  P1,P2,P3,e^x trùng quanh gốc
-   |
-   +----+----+----+----+----+--- x
-  -1  -0.5   0   0.5   1   1.5
-
-  Càng xa x=0:  P1 lệch trước  <  P2  <  P3  <  (cộng vô hạn → đúng e^x)
-\`\`\`
+<svg viewBox="0 0 640 400" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị eˣ và ba đa thức Taylor P₁, P₂, P₃ quanh x = 0: cùng chạm tại (0,1), bậc càng cao bám đường cong càng lâu">
+  <defs><marker id="ar16" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="70.0" y1="257.5" x2="70.0" y2="-12.0"/>
+<line x1="135.0" y1="257.5" x2="135.0" y2="-12.0"/>
+<line x1="265.0" y1="257.5" x2="265.0" y2="-12.0"/>
+<line x1="330.0" y1="257.5" x2="330.0" y2="-12.0"/>
+<line x1="395.0" y1="257.5" x2="395.0" y2="-12.0"/>
+<line x1="31.0" y1="175.0" x2="421.0" y2="175.0"/>
+<line x1="31.0" y1="120.0" x2="421.0" y2="120.0"/>
+<line x1="31.0" y1="65.0" x2="421.0" y2="65.0"/>
+<line x1="31.0" y1="10.0" x2="421.0" y2="10.0"/>
+</g>
+  <line x1="25.0" y1="230.0" x2="443.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar16)"/>
+  <line x1="200.0" y1="263.5" x2="200.0" y2="-34.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar16)"/>
+  <text x="435.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-24.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="70.0" y1="226.0" x2="70.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="70.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="135.0" y1="226.0" x2="135.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="135.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">−0.5</text>
+  <line x1="265.0" y1="226.0" x2="265.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="265.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">0.5</text>
+  <line x1="330.0" y1="226.0" x2="330.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="395.0" y1="226.0" x2="395.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="395.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">1.5</text>
+  <line x1="196.0" y1="175.0" x2="204.0" y2="175.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="179.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="120.0" x2="204.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="124.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="196.0" y1="65.0" x2="204.0" y2="65.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="69.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="196.0" y1="10.0" x2="204.0" y2="10.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="14.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <path d="M 37.5,214.2 L 41.9,213.7 L 46.3,213.1 L 50.7,212.6 L 55.1,212.0 L 59.4,211.3 L 63.8,210.7 L 68.2,210.0 L 72.6,209.4 L 77.0,208.6 L 81.4,207.9 L 85.8,207.2 L 90.2,206.4 L 94.5,205.6 L 98.9,204.7 L 103.3,203.9 L 107.7,203.0 L 112.1,202.0 L 116.5,201.1 L 120.9,200.1 L 125.2,199.1 L 129.6,198.0 L 134.0,196.9 L 138.4,195.8 L 142.8,194.6 L 147.2,193.4 L 151.6,192.1 L 156.0,190.8 L 160.4,189.5 L 164.7,188.1 L 169.1,186.6 L 173.5,185.1 L 177.9,183.6 L 182.3,182.0 L 186.7,180.4 L 191.1,178.7 L 195.5,176.9 L 199.8,175.1 L 204.2,173.2 L 208.6,171.2 L 213.0,169.2 L 217.4,167.1 L 221.8,165.0 L 226.2,162.7 L 230.6,160.4 L 234.9,158.0 L 239.3,155.6 L 243.7,153.0 L 248.1,150.4 L 252.5,147.6 L 256.9,144.8 L 261.3,141.9 L 265.7,138.9 L 270.0,135.7 L 274.4,132.5 L 278.8,129.2 L 283.2,125.7 L 287.6,122.1 L 292.0,118.4 L 296.4,114.6 L 300.8,110.6 L 305.1,106.5 L 309.5,102.3 L 313.9,97.9 L 318.3,93.4 L 322.7,88.7 L 327.1,83.8 L 331.5,78.8 L 335.9,73.6 L 340.2,68.2 L 344.6,62.7 L 349.0,56.9 L 353.4,51.0 L 357.8,44.9 L 362.2,38.5 L 366.6,31.9 L 371.0,25.1 L 375.3,18.1 L 379.7,10.8 L 384.1,3.3 L 388.5,-4.5" fill="none" stroke="#1a202c" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M 37.5,243.8 L 56.0,235.9 L 74.5,228.1 L 93.1,220.2 L 111.6,212.4 L 130.1,204.6 L 148.7,196.7 L 167.2,188.9 L 185.7,181.0 L 204.2,173.2 L 222.8,165.4 L 241.3,157.5 L 259.8,149.7 L 278.3,141.9 L 296.8,134.0 L 315.4,126.2 L 333.9,118.3 L 352.4,110.5 L 371.0,102.7 L 389.5,94.8 L 408.0,87.0" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <path d="M 37.5,200.8 L 46.8,201.6 L 56.0,202.2 L 65.3,202.5 L 74.5,202.5 L 83.8,202.2 L 93.1,201.6 L 102.3,200.8 L 111.6,199.7 L 120.9,198.3 L 130.1,196.6 L 139.4,194.7 L 148.7,192.4 L 157.9,189.9 L 167.2,187.1 L 176.4,184.1 L 185.7,180.7 L 195.0,177.1 L 204.2,173.2 L 213.5,169.0 L 222.8,164.5 L 232.0,159.8 L 241.3,154.8 L 250.5,149.5 L 259.8,143.9 L 269.1,138.0 L 278.3,131.9 L 287.6,125.5 L 296.8,118.8 L 306.1,111.8 L 315.4,104.5 L 324.6,97.0 L 333.9,89.2 L 343.2,81.1 L 352.4,72.7 L 361.7,64.1 L 371.0,55.1 L 380.2,45.9 L 389.5,36.4 L 398.7,26.6 L 408.0,16.6" fill="none" stroke="#15803d" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 4"/>
+  <path d="M 37.5,218.7 L 46.3,216.7 L 55.1,214.8 L 63.8,213.0 L 72.6,211.1 L 81.4,209.3 L 90.2,207.4 L 98.9,205.4 L 107.7,203.5 L 116.5,201.4 L 125.2,199.3 L 134.0,197.0 L 142.8,194.7 L 151.6,192.1 L 160.4,189.5 L 169.1,186.6 L 177.9,183.6 L 186.7,180.4 L 195.5,176.9 L 204.2,173.2 L 213.0,169.2 L 221.8,165.0 L 230.6,160.4 L 239.3,155.6 L 248.1,150.4 L 256.9,144.9 L 265.7,139.0 L 274.4,132.8 L 283.2,126.1 L 292.0,119.1 L 300.8,111.6 L 309.5,103.7 L 318.3,95.3 L 327.1,86.4 L 335.9,77.0 L 344.6,67.2 L 353.4,56.7 L 362.2,45.8 L 371.0,34.3 L 379.7,22.2 L 388.5,9.5" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round" stroke-dasharray="3 3"/>
+  <circle cx="200.0" cy="175.0" r="5" fill="#1d4ed8"/>
+  <text x="208.0" y="193.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">x = 0: cả 4 chạm nhau</text>
+  <rect x="40.0" y="300.0" width="560.0" height="92.0" rx="8" fill="white" fill-opacity="1" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="52.0" y1="316.0" x2="86.0" y2="316.0" stroke="#1a202c" stroke-width="3.5"/>
+  <text x="94.0" y="320.0" fill="#1a202c" font-size="12" text-anchor="start" font-weight="700">eˣ (đường cong thật)</text>
+  <line x1="52.0" y1="337.0" x2="86.0" y2="337.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="3 3"/>
+  <text x="94.0" y="341.0" fill="#dc2626" font-size="12" text-anchor="start">P₃ = 1 + x + x²/2 + x³/6 (bám lâu nhất)</text>
+  <line x1="52.0" y1="358.0" x2="86.0" y2="358.0" stroke="#15803d" stroke-width="2" stroke-dasharray="10 4"/>
+  <text x="94.0" y="362.0" fill="#15803d" font-size="12" text-anchor="start">P₂ = 1 + x + x²/2 (parabol, tách muộn hơn)</text>
+  <line x1="52.0" y1="379.0" x2="86.0" y2="379.0" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="94.0" y="383.0" fill="#94a3b8" font-size="12" text-anchor="start">P₁ = 1 + x (tiếp tuyến, tách sớm)</text>
+  <text x="270.0" y="282.0" fill="#475569" font-size="12" text-anchor="middle">càng xa x = 0: P₁ lệch trước &lt; P₂ &lt; P₃ &lt; … (cộng vô hạn → đúng eˣ)</text>
+</svg>
 
 Tương tự với $\\sin x$ tại $0$: $P_1 = x$ (tiếp tuyến qua gốc), $P_3 = x - \\frac{x^3}{6}$ (uốn xuống bám theo bướu đầu tiên), $P_5 = x - \\frac{x^3}{6} + \\frac{x^5}{120}$ (bám tới gần đỉnh sóng):
 
-\`\`\`
-   y                  bướu sin x
- 1 +            ___                  P1 = x (cứ đi thẳng lên — tách sớm)
-   |         .-'   '-.              /
-   |       .'         '.          /
-   |     .'    sin x    '.      /
-   +---·------------------·---/------ x
-   | .'                    '.        P3 = x - x³/6 (uốn xuống bám theo)
-   |'                        '·
- -1+
-        x=0: P1, P3, P5, sin x đều chạm và cùng độ dốc
-\`\`\`
+<svg viewBox="0 0 600 285" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị sin x và các đa thức Taylor P₁ = x, P₃ = x − x³/6, P₅: bậc càng cao bám bướu sin càng xa">
+  <defs><marker id="ar17" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="127.2" y1="252.0" x2="127.2" y2="28.0"/>
+<line x1="472.8" y1="252.0" x2="472.8" y2="28.0"/>
+<line x1="47.0" y1="70.0" x2="553.0" y2="70.0"/>
+<line x1="47.0" y1="210.0" x2="553.0" y2="210.0"/>
+</g>
+  <line x1="41.0" y1="140.0" x2="575.0" y2="140.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar17)"/>
+  <line x1="300.0" y1="258.0" x2="300.0" y2="6.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar17)"/>
+  <text x="567.0" y="156.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="308.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="127.2" y1="136.0" x2="127.2" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="127.2" y="156.0" fill="#475569" font-size="11" text-anchor="middle">−π</text>
+  <line x1="472.8" y1="136.0" x2="472.8" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="472.8" y="156.0" fill="#475569" font-size="11" text-anchor="middle">π</text>
+  <line x1="296.0" y1="70.0" x2="304.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="293.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="296.0" y1="210.0" x2="304.0" y2="210.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="293.0" y="214.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <path d="M 52.5,71.6 L 56.6,72.9 L 60.8,74.5 L 64.9,76.6 L 69.0,79.0 L 73.1,81.7 L 77.2,84.8 L 81.4,88.2 L 85.5,91.9 L 89.6,95.8 L 93.8,100.0 L 97.9,104.4 L 102.0,109.0 L 106.1,113.8 L 110.2,118.8 L 114.4,123.8 L 118.5,129.0 L 122.6,134.2 L 126.8,139.4 L 130.9,144.7 L 135.0,149.9 L 139.1,155.0 L 143.2,160.1 L 147.4,165.1 L 151.5,169.9 L 155.6,174.6 L 159.8,179.0 L 163.9,183.3 L 168.0,187.3 L 172.1,191.0 L 176.2,194.5 L 180.4,197.6 L 184.5,200.4 L 188.6,202.9 L 192.8,205.0 L 196.9,206.8 L 201.0,208.2 L 205.1,209.2 L 209.2,209.8 L 213.4,210.0 L 217.5,209.8 L 221.6,209.3 L 225.8,208.3 L 229.9,207.0 L 234.0,205.2 L 238.1,203.2 L 242.2,200.7 L 246.4,197.9 L 250.5,194.8 L 254.6,191.4 L 258.8,187.7 L 262.9,183.7 L 267.0,179.5 L 271.1,175.1 L 275.2,170.4 L 279.4,165.6 L 283.5,160.7 L 287.6,155.6 L 291.8,150.5 L 295.9,145.2 L 300.0,140.0 L 304.1,134.8 L 308.2,129.5 L 312.4,124.4 L 316.5,119.3 L 320.6,114.4 L 324.8,109.6 L 328.9,104.9 L 333.0,100.5 L 337.1,96.3 L 341.2,92.3 L 345.4,88.6 L 349.5,85.2 L 353.6,82.1 L 357.8,79.3 L 361.9,76.8 L 366.0,74.8 L 370.1,73.0 L 374.2,71.7 L 378.4,70.7 L 382.5,70.2 L 386.6,70.0 L 390.8,70.2 L 394.9,70.8 L 399.0,71.8 L 403.1,73.2 L 407.2,75.0 L 411.4,77.1 L 415.5,79.6 L 419.6,82.4 L 423.8,85.5 L 427.9,89.0 L 432.0,92.7 L 436.1,96.7 L 440.2,101.0 L 444.4,105.4 L 448.5,110.1 L 452.6,114.9 L 456.8,119.9 L 460.9,125.0 L 465.0,130.1 L 469.1,135.3 L 473.2,140.6 L 477.4,145.8 L 481.5,151.0 L 485.6,156.2 L 489.8,161.2 L 493.9,166.2 L 498.0,171.0 L 502.1,175.6 L 506.2,180.0 L 510.4,184.2 L 514.5,188.1 L 518.6,191.8 L 522.8,195.2 L 526.9,198.3 L 531.0,201.0 L 535.1,203.4 L 539.2,205.5 L 543.4,207.1 L 547.5,208.4" fill="none" stroke="#1a202c" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M 217.5,245.0 L 234.0,224.0 L 250.5,203.0 L 267.0,182.0 L 283.5,161.0 L 300.0,140.0 L 316.5,119.0 L 333.0,98.0 L 349.5,77.0 L 366.0,56.0 L 382.5,35.0" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <path d="M 151.5,99.4 L 156.4,115.3 L 161.4,129.7 L 166.3,142.7 L 171.3,154.3 L 176.2,164.6 L 181.2,173.6 L 186.1,181.4 L 191.1,188.0 L 196.1,193.5 L 201.0,198.0 L 205.9,201.4 L 210.9,203.8 L 215.8,205.3 L 220.8,206.0 L 225.8,205.8 L 230.7,204.9 L 235.7,203.2 L 240.6,200.9 L 245.6,198.0 L 250.5,194.5 L 255.4,190.5 L 260.4,186.0 L 265.3,181.2 L 270.3,176.0 L 275.2,170.4 L 280.2,164.7 L 285.1,158.7 L 290.1,152.5 L 295.1,146.3 L 300.0,140.0 L 304.9,133.7 L 309.9,127.5 L 314.9,121.3 L 319.8,115.3 L 324.8,109.6 L 329.7,104.0 L 334.6,98.8 L 339.6,94.0 L 344.6,89.5 L 349.5,85.5 L 354.4,82.0 L 359.4,79.1 L 364.4,76.8 L 369.3,75.1 L 374.2,74.2 L 379.2,74.0 L 384.2,74.7 L 389.1,76.2 L 394.1,78.6 L 399.0,82.0 L 404.0,86.5 L 408.9,92.0 L 413.9,98.6 L 418.8,106.4 L 423.8,115.4 L 428.7,125.7 L 433.6,137.3 L 438.6,150.3 L 443.6,164.7 L 448.5,180.6" fill="none" stroke="#15803d" stroke-width="2" stroke-linejoin="round" stroke-dasharray="10 4"/>
+  <path d="M 99.2,206.1 L 104.3,196.3 L 109.3,188.7 L 114.3,183.2 L 119.3,179.5 L 124.3,177.3 L 129.4,176.4 L 134.4,176.7 L 139.4,177.8 L 144.4,179.6 L 149.4,182.0 L 154.5,184.7 L 159.5,187.8 L 164.5,190.9 L 169.5,194.1 L 174.5,197.2 L 179.6,200.1 L 184.6,202.8 L 189.6,205.2 L 194.6,207.1 L 199.6,208.6 L 204.6,209.7 L 209.7,210.3 L 214.7,210.3 L 219.7,209.8 L 224.7,208.7 L 229.7,207.1 L 234.8,204.9 L 239.8,202.3 L 244.8,199.1 L 249.8,195.4 L 254.8,191.2 L 259.9,186.7 L 264.9,181.7 L 269.9,176.4 L 274.9,170.8 L 279.9,165.0 L 284.9,158.9 L 290.0,152.7 L 295.0,146.4 L 300.0,140.0 L 305.0,133.6 L 310.0,127.3 L 315.1,121.1 L 320.1,115.0 L 325.1,109.2 L 330.1,103.6 L 335.1,98.3 L 340.1,93.3 L 345.2,88.8 L 350.2,84.6 L 355.2,80.9 L 360.2,77.7 L 365.2,75.1 L 370.3,72.9 L 375.3,71.3 L 380.3,70.2 L 385.3,69.7 L 390.3,69.7 L 395.4,70.3 L 400.4,71.4 L 405.4,72.9 L 410.4,74.8 L 415.4,77.2 L 420.4,79.9 L 425.5,82.8 L 430.5,85.9 L 435.5,89.1 L 440.5,92.2 L 445.5,95.3 L 450.6,98.0 L 455.6,100.4 L 460.6,102.2 L 465.6,103.3 L 470.6,103.6 L 475.7,102.7 L 480.7,100.5 L 485.7,96.8 L 490.7,91.3 L 495.7,83.7 L 500.8,73.9" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round" stroke-dasharray="3 3"/>
+  <text x="388.5" y="35.0" fill="#94a3b8" font-size="11" text-anchor="start" font-weight="700">P₁ = x (đi thẳng, tách sớm)</text>
+  <text x="452.5" y="194.6" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">P₃ = x − x³/6</text>
+  <text x="504.8" y="67.9" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P₅</text>
+  <text x="58.0" y="234.5" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">sin x (bướu)</text>
+  <circle cx="300.0" cy="140.0" r="5" fill="#1d4ed8"/>
+  <text x="300.0" y="270.0" fill="#475569" font-size="12" text-anchor="middle">x = 0: P₁, P₃, P₅, sin x đều chạm và cùng độ dốc; bậc cao hơn uốn theo bướu lâu hơn</text>
+</svg>
 
 💡 **Ứng dụng**: Máy tính tính $\\sin$, $\\cos$, $e^x$ bằng vài số hạng Taylor.
 

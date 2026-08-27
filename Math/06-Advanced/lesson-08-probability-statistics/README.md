@@ -269,22 +269,44 @@ Hai tham số: $\mu$ (trung bình), $\sigma$ (độ lệch chuẩn).
 - $\sim 95\%$ trong $[\mu-2\sigma, \mu+2\sigma]$.
 - $\sim 99.7\%$ trong $[\mu-3\sigma, \mu+3\sigma]$.
 
-**ASCII đường chuông + quy tắc 68-95-99.7** (mỗi $|$ đánh dấu một bội $\sigma$ cách $\mu$):
+**Đường chuông + quy tắc 68-95-99.7** (mỗi mốc là một bội $\sigma$ cách $\mu$):
 
-```
-                       ╭───╮
-                     ╭─╯   ╰─╮        ← đỉnh tại μ (giá trị dày nhất)
-                   ╭─╯       ╰─╮
-                 ╭─╯           ╰─╮
-              ╭──╯               ╰──╮
-          ╭───╯                     ╰───╮
-     ╭────╯                              ╰────╮
- ────┴────┬────┬────┬────┬────┬────┬────┬─────────
-       μ-3σ  μ-2σ  μ-σ   μ   μ+σ  μ+2σ μ+3σ
-     │←────────── 68% ──────────→│   (trong  μ ± 1σ)
-   │←──────────────── 95% ──────────────→│ (trong μ ± 2σ)
- │←──────────────────── 99.7% ──────────────────→│ (μ ± 3σ)
-```
+<svg viewBox="0 0 600 305" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường chuông chuẩn với các mốc μ ± σ, μ ± 2σ, μ ± 3σ và quy tắc 68-95-99.7">
+  <defs><marker id="ar23" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar23b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <path d="M 90.0,198.5 L 95.2,198.2 L 100.5,197.7 L 105.8,197.2 L 111.0,196.6 L 116.2,195.8 L 121.5,194.9 L 126.8,193.8 L 132.0,192.6 L 137.2,191.2 L 142.5,189.5 L 147.8,187.6 L 153.0,185.5 L 158.2,183.1 L 163.5,180.3 L 168.8,177.3 L 174.0,173.9 L 179.2,170.3 L 184.5,166.3 L 189.8,161.9 L 195.0,157.3 L 200.2,152.3 L 205.5,147.1 L 210.8,141.6 L 216.0,135.9 L 221.2,130.1 L 226.5,124.1 L 231.8,118.2 L 237.0,112.2 L 242.2,106.3 L 247.5,100.6 L 252.8,95.2 L 258.0,90.0 L 263.2,85.3 L 268.5,81.0 L 273.8,77.3 L 279.0,74.1 L 284.2,71.6 L 289.5,69.8 L 294.8,68.7 L 300.0,68.3 L 305.2,68.7 L 310.5,69.8 L 315.8,71.6 L 321.0,74.1 L 326.2,77.3 L 331.5,81.0 L 336.8,85.3 L 342.0,90.0 L 347.2,95.2 L 352.5,100.6 L 357.8,106.3 L 363.0,112.2 L 368.2,118.2 L 373.5,124.1 L 378.8,130.1 L 384.0,135.9 L 389.2,141.6 L 394.5,147.1 L 399.8,152.3 L 405.0,157.3 L 410.2,161.9 L 415.5,166.3 L 420.8,170.3 L 426.0,173.9 L 431.2,177.3 L 436.5,180.3 L 441.8,183.1 L 447.0,185.5 L 452.2,187.6 L 457.5,189.5 L 462.8,191.2 L 468.0,192.6 L 473.2,193.8 L 478.5,194.9 L 483.8,195.8 L 489.0,196.6 L 494.2,197.2 L 499.5,197.7 L 504.8,198.2 L 510.0,198.5 L 510.0,200.0 L 90.0,200.0 Z" fill="#93c5fd" stroke="#93c5fd" stroke-width="0" fill-opacity="0.35" stroke-linejoin="round"/>
+  <path d="M 160.0,182.2 L 163.5,180.3 L 167.0,178.3 L 170.5,176.2 L 174.0,173.9 L 177.5,171.5 L 181.0,169.0 L 184.5,166.3 L 188.0,163.4 L 191.5,160.4 L 195.0,157.3 L 198.5,154.0 L 202.0,150.6 L 205.5,147.1 L 209.0,143.4 L 212.5,139.7 L 216.0,135.9 L 219.5,132.0 L 223.0,128.1 L 226.5,124.1 L 230.0,120.1 L 233.5,116.2 L 237.0,112.2 L 240.5,108.3 L 244.0,104.4 L 247.5,100.6 L 251.0,97.0 L 254.5,93.4 L 258.0,90.0 L 261.5,86.8 L 265.0,83.8 L 268.5,81.0 L 272.0,78.5 L 275.5,76.2 L 279.0,74.1 L 282.5,72.4 L 286.0,71.0 L 289.5,69.8 L 293.0,69.0 L 296.5,68.5 L 300.0,68.3 L 303.5,68.5 L 307.0,69.0 L 310.5,69.8 L 314.0,71.0 L 317.5,72.4 L 321.0,74.1 L 324.5,76.2 L 328.0,78.5 L 331.5,81.0 L 335.0,83.8 L 338.5,86.8 L 342.0,90.0 L 345.5,93.4 L 349.0,97.0 L 352.5,100.6 L 356.0,104.4 L 359.5,108.3 L 363.0,112.2 L 366.5,116.2 L 370.0,120.1 L 373.5,124.1 L 377.0,128.1 L 380.5,132.0 L 384.0,135.9 L 387.5,139.7 L 391.0,143.4 L 394.5,147.1 L 398.0,150.6 L 401.5,154.0 L 405.0,157.3 L 408.5,160.4 L 412.0,163.4 L 415.5,166.3 L 419.0,169.0 L 422.5,171.5 L 426.0,173.9 L 429.5,176.2 L 433.0,178.3 L 436.5,180.3 L 440.0,182.2 L 440.0,200.0 L 160.0,200.0 Z" fill="#60a5fa" stroke="#60a5fa" stroke-width="0" fill-opacity="0.4" stroke-linejoin="round"/>
+  <path d="M 230.0,120.1 L 231.8,118.2 L 233.5,116.2 L 235.2,114.2 L 237.0,112.2 L 238.8,110.2 L 240.5,108.3 L 242.2,106.3 L 244.0,104.4 L 245.8,102.5 L 247.5,100.6 L 249.2,98.8 L 251.0,97.0 L 252.8,95.2 L 254.5,93.4 L 256.2,91.7 L 258.0,90.0 L 259.8,88.4 L 261.5,86.8 L 263.2,85.3 L 265.0,83.8 L 266.8,82.4 L 268.5,81.0 L 270.2,79.7 L 272.0,78.5 L 273.8,77.3 L 275.5,76.2 L 277.2,75.1 L 279.0,74.1 L 280.8,73.2 L 282.5,72.4 L 284.2,71.6 L 286.0,71.0 L 287.8,70.3 L 289.5,69.8 L 291.2,69.4 L 293.0,69.0 L 294.8,68.7 L 296.5,68.5 L 298.2,68.4 L 300.0,68.3 L 301.8,68.4 L 303.5,68.5 L 305.2,68.7 L 307.0,69.0 L 308.8,69.4 L 310.5,69.8 L 312.2,70.3 L 314.0,71.0 L 315.8,71.6 L 317.5,72.4 L 319.2,73.2 L 321.0,74.1 L 322.8,75.1 L 324.5,76.2 L 326.2,77.3 L 328.0,78.5 L 329.8,79.7 L 331.5,81.0 L 333.2,82.4 L 335.0,83.8 L 336.8,85.3 L 338.5,86.8 L 340.2,88.4 L 342.0,90.0 L 343.8,91.7 L 345.5,93.4 L 347.2,95.2 L 349.0,97.0 L 350.8,98.8 L 352.5,100.6 L 354.2,102.5 L 356.0,104.4 L 357.8,106.3 L 359.5,108.3 L 361.2,110.2 L 363.0,112.2 L 364.8,114.2 L 366.5,116.2 L 368.2,118.2 L 370.0,120.1 L 370.0,200.0 L 230.0,200.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.45" stroke-linejoin="round"/>
+  <line x1="6.0" y1="200.0" x2="594.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <path d="M 13.0,200.0 L 16.6,200.0 L 20.2,200.0 L 23.8,199.9 L 27.4,199.9 L 30.9,199.9 L 34.5,199.9 L 38.1,199.9 L 41.7,199.9 L 45.3,199.8 L 48.9,199.8 L 52.5,199.7 L 56.1,199.7 L 59.6,199.6 L 63.2,199.6 L 66.8,199.5 L 70.4,199.4 L 74.0,199.3 L 77.6,199.2 L 81.2,199.0 L 84.8,198.8 L 88.3,198.6 L 91.9,198.4 L 95.5,198.2 L 99.1,197.9 L 102.7,197.5 L 106.3,197.1 L 109.9,196.7 L 113.4,196.2 L 117.0,195.7 L 120.6,195.1 L 124.2,194.4 L 127.8,193.6 L 131.4,192.8 L 135.0,191.8 L 138.6,190.8 L 142.2,189.6 L 145.7,188.4 L 149.3,187.0 L 152.9,185.5 L 156.5,183.9 L 160.1,182.1 L 163.7,180.2 L 167.3,178.2 L 170.9,176.0 L 174.4,173.7 L 178.0,171.2 L 181.6,168.5 L 185.2,165.7 L 188.8,162.7 L 192.4,159.6 L 196.0,156.4 L 199.6,153.0 L 203.1,149.5 L 206.7,145.8 L 210.3,142.1 L 213.9,138.2 L 217.5,134.3 L 221.1,130.3 L 224.7,126.2 L 228.2,122.1 L 231.8,118.1 L 235.4,114.0 L 239.0,109.9 L 242.6,105.9 L 246.2,102.0 L 249.8,98.2 L 253.4,94.6 L 256.9,91.0 L 260.5,87.7 L 264.1,84.6 L 267.7,81.6 L 271.3,79.0 L 274.9,76.6 L 278.5,74.4 L 282.1,72.6 L 285.6,71.1 L 289.2,69.9 L 292.8,69.0 L 296.4,68.5 L 300.0,68.3 L 303.6,68.5 L 307.2,69.0 L 310.8,69.9 L 314.4,71.1 L 317.9,72.6 L 321.5,74.4 L 325.1,76.6 L 328.7,79.0 L 332.3,81.6 L 335.9,84.6 L 339.5,87.7 L 343.1,91.0 L 346.6,94.6 L 350.2,98.2 L 353.8,102.0 L 357.4,105.9 L 361.0,109.9 L 364.6,114.0 L 368.2,118.1 L 371.7,122.1 L 375.3,126.2 L 378.9,130.3 L 382.5,134.3 L 386.1,138.2 L 389.7,142.1 L 393.3,145.8 L 396.9,149.5 L 400.4,153.0 L 404.0,156.4 L 407.6,159.6 L 411.2,162.7 L 414.8,165.7 L 418.4,168.5 L 422.0,171.2 L 425.6,173.7 L 429.1,176.0 L 432.7,178.2 L 436.3,180.2 L 439.9,182.1 L 443.5,183.9 L 447.1,185.5 L 450.7,187.0 L 454.3,188.4 L 457.9,189.6 L 461.4,190.8 L 465.0,191.8 L 468.6,192.8 L 472.2,193.6 L 475.8,194.4 L 479.4,195.1 L 483.0,195.7 L 486.5,196.2 L 490.1,196.7 L 493.7,197.1 L 497.3,197.5 L 500.9,197.9 L 504.5,198.2 L 508.1,198.4 L 511.7,198.6 L 515.2,198.8 L 518.8,199.0 L 522.4,199.2 L 526.0,199.3 L 529.6,199.4 L 533.2,199.5 L 536.8,199.6 L 540.4,199.6 L 543.9,199.7 L 547.5,199.7 L 551.1,199.8 L 554.7,199.8 L 558.3,199.9 L 561.9,199.9 L 565.5,199.9 L 569.1,199.9 L 572.6,199.9 L 576.2,199.9 L 579.8,200.0 L 583.4,200.0 L 587.0,200.0" fill="none" stroke="#1a202c" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="90.0" y1="196.0" x2="90.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="90.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ−3σ</text>
+  <line x1="160.0" y1="196.0" x2="160.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ−2σ</text>
+  <line x1="230.0" y1="196.0" x2="230.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="230.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ−σ</text>
+  <line x1="300.0" y1="196.0" x2="300.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ</text>
+  <line x1="370.0" y1="196.0" x2="370.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="370.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ+σ</text>
+  <line x1="440.0" y1="196.0" x2="440.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="440.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ+2σ</text>
+  <line x1="510.0" y1="196.0" x2="510.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="510.0" y="218.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">μ+3σ</text>
+  <line x1="300.0" y1="200.0" x2="300.0" y2="68.3" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="308.0" y="64.3" fill="#475569" font-size="11" text-anchor="start">đỉnh tại μ (dày nhất)</text>
+  <line x1="230.0" y1="245.0" x2="370.0" y2="245.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar23b)"/>
+  <line x1="370.0" y1="245.0" x2="230.0" y2="245.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar23b)"/>
+  <rect x="235.0" y="236.0" width="130.0" height="16.0" rx="4" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="300.0" y="249.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">68% trong μ ± 1σ</text>
+  <line x1="160.0" y1="268.0" x2="440.0" y2="268.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar23b)"/>
+  <line x1="440.0" y1="268.0" x2="160.0" y2="268.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar23b)"/>
+  <rect x="235.0" y="259.0" width="130.0" height="16.0" rx="4" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="300.0" y="272.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">95% trong μ ± 2σ</text>
+  <line x1="90.0" y1="291.0" x2="510.0" y2="291.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar23b)"/>
+  <line x1="510.0" y1="291.0" x2="90.0" y2="291.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar23b)"/>
+  <rect x="235.0" y="282.0" width="130.0" height="16.0" rx="4" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="300.0" y="295.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">99.7% trong μ ± 3σ</text>
+</svg>
 
 Mỗi đuôi ngoài $3\sigma$ chỉ còn $\sim 0.15\%$ → biến cố "$> 3\sigma$" cực hiếm (cơ sở của khái niệm "six sigma" trong kiểm soát chất lượng).
 
@@ -447,17 +469,35 @@ $$s^2 = \frac{9+1+1+1+16}{5-1} = \frac{28}{4} = \mathbf{7}; \quad s = \sqrt{7} \
 - Mode $= \mathbf{7}$ (xuất hiện 2 lần).
 - $s^2 = \frac{(5-7.67)^2 + 2(7-7.67)^2 + (8-7.67)^2 + (9-7.67)^2 + (10-7.67)^2}{5} = \frac{7.13 + 0.90 + 0.11 + 1.78 + 5.44}{5} = \frac{15.33}{5} \approx \mathbf{3.07}$; $s \approx 1.75$.
 
-**ASCII histogram của Walk-through 2** (mỗi `█` = 1 quan sát):
+**Histogram của Walk-through 2** (mỗi ô = 1 quan sát):
 
-```
-giá trị:  5    6    7    8    9   10
-          █         █         █    █
-                    █    █    
-          ─    ─    ─    ─    ─    ─
-đếm:      1    0    2    1    1    1
-                    ↑ mode = 7    ↑ max = 10
-          trung vị 7.5 ─┘
-```
+<svg viewBox="0 0 440 225" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Histogram 6 quan sát 5, 7, 7, 8, 9, 10: mỗi ô một quan sát; mode = 7, trung vị 7.5, max = 10">
+  <defs><marker id="ar24" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="30.0" y1="170.0" x2="402.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="42.0" y="120.0" width="36.0" height="48.0" rx="3" fill="#93c5fd" fill-opacity="0.8" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="188.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <text x="60.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đếm: 1</text>
+  <text x="120.0" y="188.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">6</text>
+  <text x="120.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đếm: 0</text>
+  <rect x="162.0" y="120.0" width="36.0" height="48.0" rx="3" fill="#fca5a5" fill-opacity="0.8" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="162.0" y="70.0" width="36.0" height="48.0" rx="3" fill="#fca5a5" fill-opacity="0.8" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="180.0" y="188.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">7</text>
+  <text x="180.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đếm: 2</text>
+  <rect x="222.0" y="120.0" width="36.0" height="48.0" rx="3" fill="#93c5fd" fill-opacity="0.8" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="240.0" y="188.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">8</text>
+  <text x="240.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đếm: 1</text>
+  <rect x="282.0" y="120.0" width="36.0" height="48.0" rx="3" fill="#93c5fd" fill-opacity="0.8" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="300.0" y="188.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">9</text>
+  <text x="300.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đếm: 1</text>
+  <rect x="342.0" y="120.0" width="36.0" height="48.0" rx="3" fill="#93c5fd" fill-opacity="0.8" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="360.0" y="188.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <text x="360.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đếm: 1</text>
+  <text x="180.0" y="60.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">mode = 7 (2 lần)</text>
+  <text x="360.0" y="110.0" fill="#475569" font-size="11" text-anchor="middle">max = 10</text>
+  <line x1="210.0" y1="170.0" x2="210.0" y2="50.0" stroke="#15803d" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="210.0" y="44.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">trung vị 7.5 (giữa 7 và 8)</text>
+  <text x="20.0" y="20.0" fill="#475569" font-size="12" text-anchor="start">histogram: mỗi ô = 1 quan sát</text>
+</svg>
 
 **Walk-through 3 — dữ liệu phân tán nhiều** so với Walk-through 1 (cùng trung bình nhưng tản hơn — mẫu: 1, 3, 5, 7, 9, $n = 5$):
 - $\bar{x} = (1+3+5+7+9)/5 = 25/5 = \mathbf{5}$ (trùng trung bình Walk-through 1).

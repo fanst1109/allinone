@@ -36,19 +36,42 @@ Cụ thể hơn, "tiến tới mà không cần chạm" thể hiện ngay trong 
 
 Hai cột cùng ép $f(x)$ về **2** — dù ngay tại $x = 1$ hàm "thủng lỗ". Đó chính là $\lim_{x \to 1} f(x) = 2$.
 
-ASCII đồ thị (lỗ trống tại $x = 1$, ký hiệu `o` = điểm bị khoét):
+Đồ thị (lỗ trống tại $x = 1$, vòng tròn rỗng = điểm bị khoét):
 
-```
- f(x)
-  3 |                          /
-    |                       /
-  2 |- - - - - - - - - - o          <- lim = 2, nhưng f(1) không tồn tại
-    |                 / :
-  1 |              /    :
-    |           /       :
-  0 +--------------------+---------- x
-    0       0.5     1   (a=1)   1.5
-```
+<svg viewBox="0 0 400 280" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị f(x) tiến tới 2 khi x tiến tới 1 nhưng có lỗ trống tại x = 1: giới hạn tồn tại, giá trị hàm không">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="150.0" y1="240.0" x2="150.0" y2="36.0"/>
+<line x1="240.0" y1="240.0" x2="240.0" y2="36.0"/>
+<line x1="330.0" y1="240.0" x2="330.0" y2="36.0"/>
+<line x1="60.0" y1="180.0" x2="366.0" y2="180.0"/>
+<line x1="60.0" y1="120.0" x2="366.0" y2="120.0"/>
+<line x1="60.0" y1="60.0" x2="366.0" y2="60.0"/>
+</g>
+  <line x1="54.0" y1="240.0" x2="388.0" y2="240.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <line x1="60.0" y1="246.0" x2="60.0" y2="14.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <text x="380.0" y="256.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="24.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">f(x)</text>
+  <line x1="150.0" y1="236.0" x2="150.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="150.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">0.5</text>
+  <line x1="240.0" y1="236.0" x2="240.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">1 (a)</text>
+  <line x1="330.0" y1="236.0" x2="330.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">1.5</text>
+  <line x1="56.0" y1="180.0" x2="64.0" y2="180.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="184.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="120.0" x2="64.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="124.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="60.0" x2="64.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <path d="M 60.0,240.0 L 61.5,239.0 L 62.9,238.1 L 64.4,237.1 L 65.8,236.1 L 67.3,235.2 L 68.7,234.2 L 70.2,233.2 L 71.6,232.2 L 73.1,231.3 L 74.5,230.3 L 76.0,229.3 L 77.5,228.4 L 78.9,227.4 L 80.4,226.4 L 81.8,225.4 L 83.3,224.5 L 84.7,223.5 L 86.2,222.5 L 87.6,221.6 L 89.1,220.6 L 90.6,219.6 L 92.0,218.7 L 93.5,217.7 L 94.9,216.7 L 96.4,215.8 L 97.8,214.8 L 99.3,213.8 L 100.7,212.8 L 102.2,211.9 L 103.7,210.9 L 105.1,209.9 L 106.6,209.0 L 108.0,208.0 L 109.5,207.0 L 110.9,206.1 L 112.4,205.1 L 113.8,204.1 L 115.3,203.1 L 116.7,202.2 L 118.2,201.2 L 119.7,200.2 L 121.1,199.3 L 122.6,198.3 L 124.0,197.3 L 125.5,196.3 L 126.9,195.4 L 128.4,194.4 L 129.8,193.4 L 131.3,192.5 L 132.8,191.5 L 134.2,190.5 L 135.7,189.6 L 137.1,188.6 L 138.6,187.6 L 140.0,186.7 L 141.5,185.7 L 142.9,184.7 L 144.4,183.7 L 145.8,182.8 L 147.3,181.8 L 148.8,180.8 L 150.2,179.9 L 151.7,178.9 L 153.1,177.9 L 154.6,176.9 L 156.0,176.0 L 157.5,175.0 L 158.9,174.0 L 160.4,173.1 L 161.8,172.1 L 163.3,171.1 L 164.8,170.2 L 166.2,169.2 L 167.7,168.2 L 169.1,167.2 L 170.6,166.3 L 172.0,165.3 L 173.5,164.3 L 174.9,163.4 L 176.4,162.4 L 177.9,161.4 L 179.3,160.5 L 180.8,159.5 L 182.2,158.5 L 183.7,157.6 L 185.1,156.6 L 186.6,155.6 L 188.0,154.6 L 189.5,153.7 L 190.9,152.7 L 192.4,151.7 L 193.9,150.8 L 195.3,149.8 L 196.8,148.8 L 198.2,147.9 L 199.7,146.9 L 201.1,145.9 L 202.6,144.9 L 204.0,144.0 L 205.5,143.0 L 207.0,142.0 L 208.4,141.1 L 209.9,140.1 L 211.3,139.1 L 212.8,138.2 L 214.2,137.2 L 215.7,136.2 L 217.1,135.2 L 218.6,134.3 L 220.1,133.3 L 221.5,132.3 L 223.0,131.4 L 224.4,130.4 L 225.9,129.4 L 227.3,128.4 L 228.8,127.5 L 230.2,126.5 L 231.7,125.5 L 233.1,124.6 L 234.6,123.6" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 245.4,116.4 L 246.3,115.8 L 247.3,115.2 L 248.2,114.5 L 249.1,113.9 L 250.1,113.3 L 251.0,112.7 L 251.9,112.1 L 252.8,111.4 L 253.8,110.8 L 254.7,110.2 L 255.6,109.6 L 256.6,109.0 L 257.5,108.3 L 258.4,107.7 L 259.4,107.1 L 260.3,106.5 L 261.2,105.9 L 262.1,105.2 L 263.1,104.6 L 264.0,104.0 L 264.9,103.4 L 265.9,102.8 L 266.8,102.1 L 267.7,101.5 L 268.6,100.9 L 269.6,100.3 L 270.5,99.7 L 271.4,99.0 L 272.4,98.4 L 273.3,97.8 L 274.2,97.2 L 275.2,96.6 L 276.1,95.9 L 277.0,95.3 L 278.0,94.7 L 278.9,94.1 L 279.8,93.5 L 280.7,92.8 L 281.7,92.2 L 282.6,91.6 L 283.5,91.0 L 284.5,90.4 L 285.4,89.7 L 286.3,89.1 L 287.2,88.5 L 288.2,87.9 L 289.1,87.3 L 290.0,86.6 L 291.0,86.0 L 291.9,85.4 L 292.8,84.8 L 293.8,84.2 L 294.7,83.5 L 295.6,82.9 L 296.6,82.3 L 297.5,81.7 L 298.4,81.1 L 299.3,80.4 L 300.3,79.8 L 301.2,79.2 L 302.1,78.6 L 303.1,78.0 L 304.0,77.3 L 304.9,76.7 L 305.9,76.1 L 306.8,75.5 L 307.7,74.9 L 308.6,74.2 L 309.6,73.6 L 310.5,73.0 L 311.4,72.4 L 312.4,71.8 L 313.3,71.1 L 314.2,70.5 L 315.1,69.9 L 316.1,69.3 L 317.0,68.7 L 317.9,68.0 L 318.9,67.4 L 319.8,66.8 L 320.7,66.2 L 321.7,65.6 L 322.6,64.9 L 323.5,64.3 L 324.4,63.7 L 325.4,63.1 L 326.3,62.5 L 327.2,61.8 L 328.2,61.2 L 329.1,60.6 L 330.0,60.0 L 331.0,59.4 L 331.9,58.7 L 332.8,58.1 L 333.8,57.5 L 334.7,56.9 L 335.6,56.3 L 336.5,55.6 L 337.5,55.0 L 338.4,54.4 L 339.3,53.8 L 340.3,53.2 L 341.2,52.5 L 342.1,51.9 L 343.1,51.3 L 344.0,50.7 L 344.9,50.1 L 345.8,49.4 L 346.8,48.8 L 347.7,48.2 L 348.6,47.6 L 349.6,47.0 L 350.5,46.3 L 351.4,45.7 L 352.3,45.1 L 353.3,44.5 L 354.2,43.9 L 355.1,43.2 L 356.1,42.6 L 357.0,42.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="240.0" y1="120.0" x2="240.0" y2="240.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="240.0" y1="120.0" x2="60.0" y2="120.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <circle cx="240.0" cy="120.0" r="5" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+  <text x="252.0" y="114.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">lim f = 2, nhưng f(1) không tồn tại (lỗ trống)</text>
+  <text x="122.0" y="204.0" fill="#1d4ed8" font-size="12" text-anchor="start">f(x)</text>
+</svg>
 
 **Ví dụ kinh điển**: $f(x) = \frac{x^2 - 1}{x - 1}$ khi $x \to 1$.
 - Tại $x = 1$: $f(1) = \frac{0}{0} =$ không xác định!
@@ -119,16 +142,44 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 - $x > 0$: $f = 1 \to \lim$ phải $= 1$.
 - Khác nhau → **$\lim$ 2 bên KHÔNG tồn tại**.
 
-ASCII đồ thị hàm dấu $\frac{|x|}{x}$ (nhảy tại 0, hai bên lệch):
+Đồ thị hàm dấu $\frac{|x|}{x}$ (nhảy tại 0, hai bên lệch):
 
-```
- f(x)
-  +1 |          o========   (x > 0: f = +1)
-     |
-   0 +----------+--------- x
-     |          : a=0
-  -1 |======o   :          (x < 0: f = -1)
-```
+<svg viewBox="0 0 400 255" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm dấu |x|/x: bằng −1 khi x &lt; 0, bằng +1 khi x &gt; 0, nhảy tại x = 0, hai bên lệch nhau">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="40.0" y1="200.0" x2="40.0" y2="40.0"/>
+<line x1="120.0" y1="200.0" x2="120.0" y2="40.0"/>
+<line x1="280.0" y1="200.0" x2="280.0" y2="40.0"/>
+<line x1="360.0" y1="200.0" x2="360.0" y2="40.0"/>
+<line x1="24.0" y1="70.0" x2="376.0" y2="70.0"/>
+<line x1="24.0" y1="170.0" x2="376.0" y2="170.0"/>
+</g>
+  <line x1="18.0" y1="120.0" x2="398.0" y2="120.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <line x1="200.0" y1="206.0" x2="200.0" y2="18.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="390.0" y="136.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="28.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">f(x)</text>
+  <line x1="40.0" y1="116.0" x2="40.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="40.0" y="136.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="120.0" y="136.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="280.0" y1="116.0" x2="280.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="280.0" y="136.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="360.0" y1="116.0" x2="360.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="360.0" y="136.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="196.0" y1="70.0" x2="204.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">+1</text>
+  <line x1="196.0" y1="170.0" x2="204.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="174.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="204.0" y1="70.0" x2="368.0" y2="70.0" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="32.0" y1="170.0" x2="196.0" y2="170.0" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="200.0" cy="70.0" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="200.0" cy="170.0" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="200.0" cy="120.0" r="5" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="60.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x &gt; 0: f = +1</text>
+  <text x="120.0" y="190.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x &lt; 0: f = −1</text>
+  <text x="208.0" y="138.0" fill="#dc2626" font-size="11" text-anchor="start">a = 0: không xác định</text>
+  <text x="200.0" y="240.0" fill="#475569" font-size="12" text-anchor="middle">lim trái = −1 ≠ lim phải = +1 → NHẢY, giới hạn không tồn tại</text>
+</svg>
 
 Hai mép `o` ở hai độ cao khác nhau → không có giá trị duy nhất để "tiến tới" → giới hạn hai bên DNE.
 
@@ -422,19 +473,45 @@ Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2)
 
 💡 **Bỏ được**: ta có thể "lấp" lỗ bằng cách định nghĩa lại $f(a) = \lim$.
 
-ASCII đối chiếu 3 loại gián đoạn (ký hiệu `o` = lỗ, `|` = bay vô hạn):
+Đối chiếu 3 loại gián đoạn (vòng tròn rỗng = lỗ, nét đứt đỏ = bay vô hạn):
 
-```
- BỎ ĐƯỢC (removable)     NHẢY (jump)            VÔ HẠN (infinite)
-   |   o                    |  o====               |   :  |
-   |  /                     |                       |   :  |
-   | /                      |==o                    |   :  |
-   |/                       |                       +---:--+--- x
-   +-------                 +--------               |   :
-  lim tồn tại,             lim trái ≠ phải,        lim = ±∞,
-  chỉ lệch 1 điểm          cả hai hữu hạn          tiệm cận đứng
-  -> lấp được             -> KHÔNG lấp được       -> KHÔNG lấp được
-```
+<svg viewBox="0 0 570 290" style="max-width:570px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba loại gián đoạn tại x = 1: bỏ được (lỗ trống, giới hạn tồn tại), nhảy (hai giới hạn một bên khác nhau), vô hạn (tiệm cận đứng)">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="90.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">BỎ ĐƯỢC (removable)</text>
+  <line x1="-8.0" y1="150.0" x2="164.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="50.0" y1="208.0" x2="50.0" y2="36.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="156.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="58.0" y="46.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <path d="M 6.0,132.0 L 6.7,131.7 L 7.3,131.3 L 8.0,131.0 L 8.7,130.7 L 9.4,130.3 L 10.0,130.0 L 10.7,129.6 L 11.4,129.3 L 12.1,129.0 L 12.7,128.6 L 13.4,128.3 L 14.1,128.0 L 14.8,127.6 L 15.4,127.3 L 16.1,127.0 L 16.8,126.6 L 17.4,126.3 L 18.1,125.9 L 18.8,125.6 L 19.5,125.3 L 20.1,124.9 L 20.8,124.6 L 21.5,124.3 L 22.2,123.9 L 22.8,123.6 L 23.5,123.2 L 24.2,122.9 L 24.9,122.6 L 25.5,122.2 L 26.2,121.9 L 26.9,121.6 L 27.5,121.2 L 28.2,120.9 L 28.9,120.6 L 29.6,120.2 L 30.2,119.9 L 30.9,119.5 L 31.6,119.2 L 32.3,118.9 L 32.9,118.5 L 33.6,118.2 L 34.3,117.9 L 35.0,117.5 L 35.6,117.2 L 36.3,116.8 L 37.0,116.5 L 37.6,116.2 L 38.3,115.8 L 39.0,115.5 L 39.7,115.2 L 40.3,114.8 L 41.0,114.5 L 41.7,114.2 L 42.4,113.8 L 43.0,113.5 L 43.7,113.1 L 44.4,112.8 L 45.1,112.5 L 45.7,112.1 L 46.4,111.8 L 47.1,111.5 L 47.7,111.1 L 48.4,110.8 L 49.1,110.5 L 49.8,110.1 L 50.4,109.8 L 51.1,109.4 L 51.8,109.1 L 52.5,108.8 L 53.1,108.4 L 53.8,108.1 L 54.5,107.8 L 55.2,107.4 L 55.8,107.1 L 56.5,106.8 L 57.2,106.4 L 57.8,106.1 L 58.5,105.7 L 59.2,105.4 L 59.9,105.1 L 60.5,104.7 L 61.2,104.4 L 61.9,104.1 L 62.6,103.7 L 63.2,103.4 L 63.9,103.0 L 64.6,102.7 L 65.3,102.4 L 65.9,102.0 L 66.6,101.7 L 67.3,101.4 L 67.9,101.0 L 68.6,100.7 L 69.3,100.4 L 70.0,100.0 L 70.6,99.7 L 71.3,99.3 L 72.0,99.0 L 72.7,98.7 L 73.3,98.3 L 74.0,98.0 L 74.7,97.7 L 75.4,97.3 L 76.0,97.0 L 76.7,96.7 L 77.4,96.3 L 78.0,96.0 L 78.7,95.6 L 79.4,95.3 L 80.1,95.0 L 80.7,94.6 L 81.4,94.3 L 82.1,94.0 L 82.8,93.6 L 83.4,93.3 L 84.1,92.9 L 84.8,92.6 L 85.5,92.3 L 86.1,91.9 L 86.8,91.6" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 93.2,88.4 L 93.5,88.2 L 93.9,88.1 L 94.2,87.9 L 94.6,87.7 L 94.9,87.5 L 95.2,87.4 L 95.6,87.2 L 95.9,87.0 L 96.3,86.9 L 96.6,86.7 L 96.9,86.5 L 97.3,86.4 L 97.6,86.2 L 98.0,86.0 L 98.3,85.8 L 98.6,85.7 L 99.0,85.5 L 99.3,85.3 L 99.7,85.2 L 100.0,85.0 L 100.3,84.8 L 100.7,84.7 L 101.0,84.5 L 101.4,84.3 L 101.7,84.2 L 102.0,84.0 L 102.4,83.8 L 102.7,83.6 L 103.1,83.5 L 103.4,83.3 L 103.7,83.1 L 104.1,83.0 L 104.4,82.8 L 104.8,82.6 L 105.1,82.4 L 105.4,82.3 L 105.8,82.1 L 106.1,81.9 L 106.5,81.8 L 106.8,81.6 L 107.1,81.4 L 107.5,81.3 L 107.8,81.1 L 108.2,80.9 L 108.5,80.8 L 108.8,80.6 L 109.2,80.4 L 109.5,80.2 L 109.9,80.1 L 110.2,79.9 L 110.5,79.7 L 110.9,79.6 L 111.2,79.4 L 111.6,79.2 L 111.9,79.0 L 112.2,78.9 L 112.6,78.7 L 112.9,78.5 L 113.3,78.4 L 113.6,78.2 L 113.9,78.0 L 114.3,77.9 L 114.6,77.7 L 115.0,77.5 L 115.3,77.3 L 115.6,77.2 L 116.0,77.0 L 116.3,76.8 L 116.7,76.7 L 117.0,76.5 L 117.3,76.3 L 117.7,76.2 L 118.0,76.0 L 118.4,75.8 L 118.7,75.6 L 119.0,75.5 L 119.4,75.3 L 119.7,75.1 L 120.1,75.0 L 120.4,74.8 L 120.7,74.6 L 121.1,74.5 L 121.4,74.3 L 121.8,74.1 L 122.1,73.9 L 122.4,73.8 L 122.8,73.6 L 123.1,73.4 L 123.5,73.3 L 123.8,73.1 L 124.1,72.9 L 124.5,72.8 L 124.8,72.6 L 125.2,72.4 L 125.5,72.2 L 125.8,72.1 L 126.2,71.9 L 126.5,71.7 L 126.9,71.6 L 127.2,71.4 L 127.5,71.2 L 127.9,71.1 L 128.2,70.9 L 128.6,70.7 L 128.9,70.5 L 129.2,70.4 L 129.6,70.2 L 129.9,70.0 L 130.3,69.9 L 130.6,69.7 L 130.9,69.5 L 131.3,69.4 L 131.6,69.2 L 132.0,69.0 L 132.3,68.8 L 132.6,68.7 L 133.0,68.5 L 133.3,68.3 L 133.7,68.2 L 134.0,68.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="90.0" cy="90.0" r="5" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+  <line x1="90.0" y1="90.0" x2="90.0" y2="150.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="262.0" fill="#475569" font-size="11" text-anchor="middle">lim tồn tại, chỉ lệch 1 điểm</text>
+  <text x="90.0" y="278.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">→ lấp được</text>
+  <text x="280.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">NHẢY (jump)</text>
+  <line x1="182.0" y1="150.0" x2="354.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="240.0" y1="208.0" x2="240.0" y2="36.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="346.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="248.0" y="46.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="196.0" y1="130.0" x2="278.0" y2="130.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="282.0" y1="78.0" x2="324.0" y2="78.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="280.0" cy="130.0" r="5" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="280.0" cy="78.0" r="4" fill="#1d4ed8"/>
+  <line x1="280.0" y1="130.0" x2="280.0" y2="78.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="280.0" y="262.0" fill="#475569" font-size="11" text-anchor="middle">lim trái ≠ lim phải, cả hai hữu hạn</text>
+  <text x="280.0" y="278.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">→ KHÔNG lấp được</text>
+  <text x="470.0" y="22.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">VÔ HẠN (infinite)</text>
+  <line x1="372.0" y1="150.0" x2="544.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="430.0" y1="208.0" x2="430.0" y2="36.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="536.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="438.0" y="46.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <path d="M 386.0,145.2 L 386.7,145.2 L 387.3,145.2 L 388.0,145.1 L 388.7,145.1 L 389.3,145.0 L 390.0,145.0 L 390.6,145.0 L 391.3,144.9 L 392.0,144.9 L 392.6,144.8 L 393.3,144.8 L 394.0,144.7 L 394.6,144.7 L 395.3,144.6 L 395.9,144.6 L 396.6,144.5 L 397.3,144.5 L 397.9,144.4 L 398.6,144.4 L 399.3,144.3 L 399.9,144.3 L 400.6,144.2 L 401.3,144.2 L 401.9,144.1 L 402.6,144.1 L 403.2,144.0 L 403.9,143.9 L 404.6,143.9 L 405.2,143.8 L 405.9,143.8 L 406.6,143.7 L 407.2,143.6 L 407.9,143.6 L 408.6,143.5 L 409.2,143.4 L 409.9,143.3 L 410.5,143.3 L 411.2,143.2 L 411.9,143.1 L 412.5,143.0 L 413.2,143.0 L 413.9,142.9 L 414.5,142.8 L 415.2,142.7 L 415.9,142.6 L 416.5,142.5 L 417.2,142.4 L 417.8,142.3 L 418.5,142.2 L 419.2,142.1 L 419.8,142.0 L 420.5,141.9 L 421.2,141.8 L 421.8,141.7 L 422.5,141.6 L 423.1,141.5 L 423.8,141.3 L 424.5,141.2 L 425.1,141.1 L 425.8,141.0 L 426.5,140.8 L 427.1,140.7 L 427.8,140.5 L 428.5,140.4 L 429.1,140.2 L 429.8,140.1 L 430.4,139.9 L 431.1,139.7 L 431.8,139.5 L 432.4,139.4 L 433.1,139.2 L 433.8,139.0 L 434.4,138.8 L 435.1,138.5 L 435.8,138.3 L 436.4,138.1 L 437.1,137.9 L 437.7,137.6 L 438.4,137.3 L 439.1,137.1 L 439.7,136.8 L 440.4,136.5 L 441.1,136.2 L 441.7,135.9 L 442.4,135.5 L 443.0,135.2 L 443.7,134.8 L 444.4,134.4 L 445.0,134.0 L 445.7,133.5 L 446.4,133.1 L 447.0,132.6 L 447.7,132.1 L 448.4,131.5 L 449.0,130.9 L 449.7,130.3 L 450.3,129.7 L 451.0,128.9 L 451.7,128.2 L 452.3,127.4 L 453.0,126.5 L 453.7,125.5 L 454.3,124.5 L 455.0,123.4 L 455.6,122.1 L 456.3,120.8 L 457.0,119.3 L 457.6,117.6 L 458.3,115.8 L 459.0,113.7 L 459.6,111.4 L 460.3,108.8 L 461.0,105.8 L 461.6,102.3 L 462.3,98.2 L 462.9,93.3 L 463.6,87.4 L 464.3,80.2 L 464.9,71.0 L 465.6,59.1" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 474.4,240.9 L 474.7,234.6 L 475.1,229.1 L 475.4,224.2 L 475.7,219.9 L 476.1,216.1 L 476.4,212.7 L 476.7,209.6 L 477.0,206.8 L 477.4,204.3 L 477.7,201.9 L 478.0,199.8 L 478.4,197.8 L 478.7,196.0 L 479.0,194.3 L 479.4,192.8 L 479.7,191.3 L 480.0,190.0 L 480.3,188.7 L 480.7,187.5 L 481.0,186.4 L 481.3,185.3 L 481.7,184.3 L 482.0,183.4 L 482.3,182.5 L 482.6,181.6 L 483.0,180.8 L 483.3,180.1 L 483.6,179.3 L 484.0,178.6 L 484.3,178.0 L 484.6,177.3 L 485.0,176.7 L 485.3,176.2 L 485.6,175.6 L 485.9,175.1 L 486.3,174.6 L 486.6,174.1 L 486.9,173.6 L 487.3,173.2 L 487.6,172.7 L 487.9,172.3 L 488.3,171.9 L 488.6,171.5 L 488.9,171.1 L 489.2,170.8 L 489.6,170.4 L 489.9,170.1 L 490.2,169.8 L 490.6,169.4 L 490.9,169.1 L 491.2,168.8 L 491.6,168.6 L 491.9,168.3 L 492.2,168.0 L 492.6,167.7 L 492.9,167.5 L 493.2,167.2 L 493.5,167.0 L 493.9,166.8 L 494.2,166.5 L 494.5,166.3 L 494.9,166.1 L 495.2,165.9 L 495.5,165.7 L 495.9,165.5 L 496.2,165.3 L 496.5,165.1 L 496.8,164.9 L 497.2,164.7 L 497.5,164.5 L 497.8,164.4 L 498.2,164.2 L 498.5,164.0 L 498.8,163.9 L 499.1,163.7 L 499.5,163.6 L 499.8,163.4 L 500.1,163.3 L 500.5,163.1 L 500.8,163.0 L 501.1,162.8 L 501.5,162.7 L 501.8,162.6 L 502.1,162.5 L 502.5,162.3 L 502.8,162.2 L 503.1,162.1 L 503.4,162.0 L 503.8,161.8 L 504.1,161.7 L 504.4,161.6 L 504.8,161.5 L 505.1,161.4 L 505.4,161.3 L 505.8,161.2 L 506.1,161.1 L 506.4,161.0 L 506.7,160.9 L 507.1,160.8 L 507.4,160.7 L 507.7,160.6 L 508.1,160.5 L 508.4,160.4 L 508.7,160.3 L 509.1,160.2 L 509.4,160.2 L 509.7,160.1 L 510.0,160.0 L 510.4,159.9 L 510.7,159.8 L 511.0,159.7 L 511.4,159.7 L 511.7,159.6 L 512.0,159.5 L 512.4,159.4 L 512.7,159.4 L 513.0,159.3 L 513.3,159.2 L 513.7,159.2 L 514.0,159.1" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="470.0" y1="200.0" x2="470.0" y2="60.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="476.0" y="62.0" fill="#dc2626" font-size="10" text-anchor="start">x = 1</text>
+  <text x="470.0" y="262.0" fill="#475569" font-size="11" text-anchor="middle">lim = ±∞, tiệm cận đứng</text>
+  <text x="470.0" y="278.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">→ KHÔNG lấp được</text>
+</svg>
 
 **4 ví dụ phân loại nhanh**:
 - $\frac{x^2-1}{x-1}$ tại 1 → **bỏ được** ($\lim = 2$ tồn tại, chỉ thiếu $f(1)$).
@@ -520,17 +597,43 @@ Nếu $f$ liên tục trên $[a, b]$ và $f(a) \cdot f(b) < 0$ (khác dấu), th
 
 ⟶ Dùng để chứng minh PT có nghiệm mà không cần giải.
 
-ASCII trực giác IVT — đường liền nét đi từ $f(a)$ tới $f(b)$ **buộc** cắt mọi mức $y_0$ ở giữa:
+Trực giác IVT — đường liền nét đi từ $f(a)$ tới $f(b)$ **buộc** cắt mọi mức $y_0$ ở giữa:
 
-```
- f(b) |              .--*
-      |          .-'
- y0   |- - - - *  <- IVT đảm bảo có c với f(c) = y0
-      |     .-'
- f(a) |--*-'
-      +--+-----+----- x
-         a  c  b
-```
+<svg viewBox="0 0 400 270" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Định lý giá trị trung gian: đường cong liên tục từ (a, f(a)) đến (b, f(b)) buộc phải cắt mức y₀ nằm giữa f(a) và f(b) tại một điểm c">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="114.0" y1="230.0" x2="114.0" y2="50.0"/>
+<line x1="233.9" y1="230.0" x2="233.9" y2="50.0"/>
+<line x1="294.0" y1="230.0" x2="294.0" y2="50.0"/>
+<line x1="60.0" y1="195.7" x2="357.0" y2="195.7"/>
+<line x1="60.0" y1="130.0" x2="357.0" y2="130.0"/>
+<line x1="60.0" y1="73.7" x2="357.0" y2="73.7"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="379.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="28.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="371.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="38.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="114.0" y1="226.0" x2="114.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="114.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">a</text>
+  <line x1="233.9" y1="226.0" x2="233.9" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="233.9" y="246.0" fill="#475569" font-size="11" text-anchor="middle">c</text>
+  <line x1="294.0" y1="226.0" x2="294.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="294.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">b</text>
+  <line x1="56.0" y1="195.7" x2="64.0" y2="195.7" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="199.7" fill="#475569" font-size="11" text-anchor="end">f(a)</text>
+  <line x1="56.0" y1="130.0" x2="64.0" y2="130.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="134.0" fill="#475569" font-size="11" text-anchor="end">y₀</text>
+  <line x1="56.0" y1="73.7" x2="64.0" y2="73.7" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="77.7" fill="#475569" font-size="11" text-anchor="end">f(b)</text>
+  <path d="M 87.0,201.9 L 89.0,201.6 L 91.0,201.2 L 93.1,200.8 L 95.1,200.4 L 97.1,200.0 L 99.2,199.5 L 101.2,199.0 L 103.2,198.6 L 105.2,198.1 L 107.2,197.6 L 109.3,197.0 L 111.3,196.5 L 113.3,195.9 L 115.3,195.3 L 117.4,194.7 L 119.4,194.1 L 121.4,193.4 L 123.5,192.8 L 125.5,192.1 L 127.5,191.4 L 129.5,190.7 L 131.6,190.0 L 133.6,189.2 L 135.6,188.5 L 137.6,187.7 L 139.7,186.9 L 141.7,186.1 L 143.7,185.2 L 145.7,184.4 L 147.8,183.5 L 149.8,182.6 L 151.8,181.7 L 153.8,180.8 L 155.9,179.8 L 157.9,178.9 L 159.9,177.9 L 161.9,176.9 L 163.9,175.9 L 166.0,174.8 L 168.0,173.8 L 170.0,172.7 L 172.1,171.6 L 174.1,170.5 L 176.1,169.4 L 178.1,168.3 L 180.1,167.1 L 182.2,166.0 L 184.2,164.8 L 186.2,163.6 L 188.2,162.3 L 190.3,161.1 L 192.3,159.8 L 194.3,158.6 L 196.4,157.3 L 198.4,155.9 L 200.4,154.6 L 202.4,153.3 L 204.5,151.9 L 206.5,150.5 L 208.5,149.1 L 210.5,147.7 L 212.6,146.2 L 214.6,144.8 L 216.6,143.3 L 218.6,141.8 L 220.7,140.3 L 222.7,138.8 L 224.7,137.2 L 226.7,135.7 L 228.8,134.1 L 230.8,132.5 L 232.8,130.9 L 234.8,129.3 L 236.8,127.6 L 238.9,125.9 L 240.9,124.2 L 242.9,122.5 L 245.0,120.8 L 247.0,119.1 L 249.0,117.3 L 251.0,115.5 L 253.1,113.8 L 255.1,111.9 L 257.1,110.1 L 259.1,108.3 L 261.1,106.4 L 263.2,104.5 L 265.2,102.6 L 267.2,100.7 L 269.2,98.8 L 271.3,96.8 L 273.3,94.9 L 275.3,92.9 L 277.4,90.9 L 279.4,88.8 L 281.4,86.8 L 283.4,84.7 L 285.4,82.7 L 287.5,80.6 L 289.5,78.5 L 291.5,76.3 L 293.6,74.2 L 295.6,72.0 L 297.6,69.8 L 299.6,67.6 L 301.6,65.4 L 303.7,63.2 L 305.7,60.9 L 307.7,58.7 L 309.8,56.4 L 311.8,54.1 L 313.8,51.7 L 315.8,49.4 L 317.8,47.0 L 319.9,44.7 L 321.9,42.3 L 323.9,39.8 L 325.9,37.4 L 328.0,35.0 L 330.0,32.5" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="114.0" cy="195.7" r="4" fill="#1d4ed8"/>
+  <circle cx="294.0" cy="73.7" r="4" fill="#1d4ed8"/>
+  <line x1="60.0" y1="130.0" x2="348.0" y2="130.0" stroke="#15803d" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <line x1="233.9" y1="130.0" x2="233.9" y2="230.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <circle cx="233.9" cy="130.0" r="4" fill="#dc2626"/>
+  <text x="243.9" y="122.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">IVT đảm bảo có c với f(c) = y₀</text>
+  <text x="344.0" y="124.0" fill="#15803d" font-size="11" text-anchor="end">mức y₀</text>
+</svg>
 
 **Ví dụ + chứng minh tồn tại nghiệm**: chứng minh $x^3 - x - 1 = 0$ có nghiệm trong $(1, 2)$.
 1. Đặt $f(x) = x^3 - x - 1$. $f$ là **đa thức → liên tục** trên $[1, 2]$ (điều kiện IVT/Bolzano thỏa).

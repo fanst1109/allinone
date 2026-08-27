@@ -131,16 +131,29 @@ $$(f\cdot g)' = f'\cdot g + f\cdot g'$$
 
 💡 **Trực giác — diện tích hình chữ nhật**: coi $f$ là chiều dài, $g$ là chiều rộng → tích $f\cdot g$ là **diện tích** hình chữ nhật. Khi $x$ nhích thêm $\Delta x$: chiều dài tăng $f'\Delta x$, chiều rộng tăng $g'\Delta x$. Diện tích thêm vào gồm: "viền dưới" $f'\Delta x\cdot g$, "viền cạnh" $f\cdot g'\Delta x$, và một **góc vuông tí hon** $f'\Delta x\cdot g'\Delta x = f'g'(\Delta x)^2$. Khi $\Delta x\to 0$, góc tí hon (bậc $(\Delta x)^2$) biến mất nhanh hơn → còn lại đúng $f'g + fg'$.
 
-```
-        f                f'·Δx
-   ┌──────────┬──────────┐
-   │          │  f·g'·Δx │  ← viền cạnh (g nở ra)
- g │   f·g    ├──────────┤  ─┐
-   │          │ f'g'·(Δx)²│   │ góc tí hon → 0
-   ├──────────┼──────────┘  ─┘
-g'·Δx │ f'·Δx·g │              ← viền dưới (f dài ra)
-   └──────────┘
-```
+<svg viewBox="0 0 470 305" style="max-width:470px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình chữ nhật f × g nở ra thành (f + f′Δx) × (g + g′Δx): phần tăng gồm viền cạnh f′·Δx·g, viền dưới f·g′·Δx và góc tí hon f′g′(Δx)² bỏ được — dẫn tới quy tắc tích">
+  <defs><marker id="ar8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar8g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <rect x="70" y="50" width="200" height="150" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="131.0" fill="#1d4ed8" font-size="18" text-anchor="middle" font-weight="700">f · g</text>
+  <rect x="270" y="50" width="60" height="150" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="130.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">f′·Δx·g</text>
+  <rect x="70" y="200" width="200" height="45" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="170.0" y="227.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">f·g′·Δx</text>
+  <rect x="270" y="200" width="60" height="45" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="226.5" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">f′g′(Δx)²</text>
+  <line x1="70.0" y1="36.0" x2="270.0" y2="36.0" stroke="#1a202c" stroke-width="1.5" marker-start="url(#ar8)" marker-end="url(#ar8)"/>
+  <text x="170.0" y="30.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">f</text>
+  <line x1="270.0" y1="36.0" x2="330.0" y2="36.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar8g)" marker-end="url(#ar8g)"/>
+  <text x="300.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">f′·Δx</text>
+  <line x1="56.0" y1="50.0" x2="56.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-start="url(#ar8)" marker-end="url(#ar8)"/>
+  <text x="48.0" y="130.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700" font-style="italic">g</text>
+  <line x1="56.0" y1="200.0" x2="56.0" y2="245.0" stroke="#15803d" stroke-width="1.5" marker-start="url(#ar8g)" marker-end="url(#ar8g)"/>
+  <text x="48.0" y="227.5" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">g′·Δx</text>
+  <text x="342.0" y="125.0" fill="#475569" font-size="11" text-anchor="start">← viền cạnh (g nở ra)</text>
+  <text x="342.0" y="226.5" fill="#dc2626" font-size="11" text-anchor="start">← góc tí hon → 0</text>
+  <text x="170.0" y="267.0" fill="#475569" font-size="11" text-anchor="middle">viền dưới (f dài ra)</text>
+  <text x="230.0" y="290.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Δ(f·g) ≈ f′g·Δx + fg′·Δx  (bỏ góc (Δx)²)  →  (fg)′ = f′g + fg′</text>
+</svg>
 
 #### Chứng minh từ định nghĩa (từng bước, không bỏ bước)
 

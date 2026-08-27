@@ -24,23 +24,26 @@ window.README_MD = `# Lesson 04 — Phương trình lượng giác
 
 💡 **Trực giác — nghiệm là "vô số điểm trên đường tròn"**: giải PT đại số $x^2 = 4$ là tìm vài điểm rời rạc trên trục số ($x = 2, -2$). Giải PT lượng giác thì khác hẳn về chất. Hãy hình dung một góc $x$ như một **kim quay** quanh tâm đường tròn đơn vị: cứ quay đủ một vòng ($2\\pi$) kim trở về đúng chỗ cũ. Vì thế nếu góc $\\alpha$ thỏa $\\sin\\alpha = a$, thì $\\alpha + 2\\pi$, $\\alpha + 4\\pi$, $\\alpha - 2\\pi$, ... **mọi vòng cộng thêm** cũng thỏa — vô hạn nghiệm.
 
-\`\`\`
-        kim quay quanh đường tròn đơn vị
-                    y (= sin x)
-                    |
-              · · · | · · ·        sin x = a là đường NGANG
-           ·        |        ·      y = a cắt đường tròn
-         ·          |          ·
-        ·    α       a━━━━━━━━━·━━━  ← cắt tại 2 điểm:
-        ·  ←kim→   /|        ·  ·       một bên trái (π−α),
-     ───·─────────/─+─────────·──── x   một bên phải (α)
-        ·        /  |        ·
-         ·      /   |       ·
-           ·   /    |     ·
-              · · · | · · ·
-                    |
-   Mỗi điểm cắt lặp lại sau mỗi vòng quay 2π → vô hạn nghiệm.
-\`\`\`
+<svg viewBox="0 0 520 320" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn đơn vị: đường ngang y = a cắt đường tròn tại 2 điểm ứng với góc α (bên phải) và π−α (bên trái); mỗi điểm lặp lại sau mỗi vòng 2π">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1"><line x1="100" y1="20" x2="100" y2="300"/><line x1="155" y1="20" x2="155" y2="300"/><line x1="210" y1="20" x2="210" y2="300"/><line x1="265" y1="20" x2="265" y2="300"/><line x1="320" y1="20" x2="320" y2="300"/><line x1="80" y1="50" x2="340" y2="50"/><line x1="80" y1="105" x2="340" y2="105"/><line x1="80" y1="160" x2="340" y2="160"/><line x1="80" y1="215" x2="340" y2="215"/><line x1="80" y1="270" x2="340" y2="270"/></g>
+  <line x1="75" y1="160" x2="360" y2="160" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <line x1="210" y1="290" x2="210" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <text x="350" y="178" fill="#1a202c" font-size="14" font-style="italic">x</text><text x="218" y="30" fill="#1a202c" font-size="14" font-style="italic">y</text>
+  <text x="320" y="176" fill="#475569" font-size="12" text-anchor="middle">1</text><text x="100" y="176" fill="#475569" font-size="12" text-anchor="middle">−1</text><text x="205" y="54" fill="#475569" font-size="12" text-anchor="end">1</text><text x="205" y="274" fill="#475569" font-size="12" text-anchor="end">−1</text><text x="205" y="175" fill="#475569" font-size="12" text-anchor="end">O</text>
+  <circle cx="210" cy="160" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="80" y1="94.0" x2="340" y2="94.0" stroke="#15803d" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="344" y="88.0" fill="#15803d" font-size="13" font-weight="700">y = a</text>
+  <line x1="210" y1="160" x2="298.0" y2="94.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="298.0" cy="94.0" r="5" fill="#dc2626"/>
+  <text x="306.0" y="86.0" fill="#dc2626" font-size="13" font-weight="700" text-anchor="start">α</text>
+  <line x1="210" y1="160" x2="122.0" y2="94.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="122.0" cy="94.0" r="5" fill="#dc2626"/>
+  <text x="114.0" y="86.0" fill="#dc2626" font-size="13" font-weight="700" text-anchor="end">π − α</text>
+  <path d="M 250,160 A 40,40 0 0 0 242.0,136.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="253.9" y="151.4" fill="#dc2626" font-size="12" font-style="italic">α</text>
+  <text x="12" y="312" fill="#475569" font-size="12">sin x = a ⟺ tung độ = a → 2 điểm cắt, mỗi điểm lặp sau mỗi vòng quay 2π → vô hạn nghiệm</text>
+</svg>
 
 Nói cách khác: **tập nghiệm của một PT lượng giác cơ bản không phải vài con số, mà là vài "ray" điểm cách đều nhau $2\\pi$ (hoặc $\\pi$ với tan) chạy ra vô tận hai phía**. Công thức $x = \\alpha + k\\cdot 2\\pi$ chính là cách viết gọn "lấy điểm $\\alpha$ rồi nhân bản nó mỗi vòng".
 
@@ -52,21 +55,24 @@ $$x = \\alpha + k\\cdot 2\\pi \\quad \\text{hoặc} \\quad x = \\pi - \\alpha + 
 
 💡 **Vì sao 2 họ nghiệm?** sin x = tung độ (hoành... không, **tung độ**) của điểm trên đường tròn. Cố định tung độ $= a$ tức **cắt đường tròn bằng một đường nằm ngang** $y = a$. Đường ngang này cắt đường tròn ở **2 điểm** đối xứng qua **trục tung Oy** (vì đường tròn đối xứng trái-phải): điểm bên phải ứng góc $\\alpha$, điểm bên trái ứng góc $\\pi - \\alpha$. Đó chính là 2 họ nghiệm.
 
-\`\`\`
-   sin x = 1/2  →  đường ngang y = 1/2 cắt đường tròn ở 2 điểm:
-                         y
-            (π−α)        |        (α)
-          5π/6 •·· ···· 1/2 ···· •· π/6     ← 2 nghiệm cùng tung độ 1/2
-              ·          |          ·          đối xứng qua Oy
-            ·            |            ·
-        ────·────────────+────────────·──── x
-            ·            |            ·
-              ·          |          ·
-                ·        |        ·
-                    ·· · | · ··
-                         |
-   x = π/6 + k·2π   HOẶC   x = 5π/6 + k·2π
-\`\`\`
+<svg viewBox="0 0 520 320" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="sin x = 1/2: đường ngang y = 1/2 cắt đường tròn tại π/6 (phải) và 5π/6 (trái), đối xứng qua trục Oy">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1"><line x1="100" y1="20" x2="100" y2="300"/><line x1="155" y1="20" x2="155" y2="300"/><line x1="210" y1="20" x2="210" y2="300"/><line x1="265" y1="20" x2="265" y2="300"/><line x1="320" y1="20" x2="320" y2="300"/><line x1="80" y1="50" x2="340" y2="50"/><line x1="80" y1="105" x2="340" y2="105"/><line x1="80" y1="160" x2="340" y2="160"/><line x1="80" y1="215" x2="340" y2="215"/><line x1="80" y1="270" x2="340" y2="270"/></g>
+  <line x1="75" y1="160" x2="360" y2="160" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <line x1="210" y1="290" x2="210" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="350" y="178" fill="#1a202c" font-size="14" font-style="italic">x</text><text x="218" y="30" fill="#1a202c" font-size="14" font-style="italic">y</text>
+  <text x="320" y="176" fill="#475569" font-size="12" text-anchor="middle">1</text><text x="100" y="176" fill="#475569" font-size="12" text-anchor="middle">−1</text><text x="205" y="54" fill="#475569" font-size="12" text-anchor="end">1</text><text x="205" y="274" fill="#475569" font-size="12" text-anchor="end">−1</text><text x="205" y="175" fill="#475569" font-size="12" text-anchor="end">O</text>
+  <circle cx="210" cy="160" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="80" y1="105.0" x2="340" y2="105.0" stroke="#15803d" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="344" y="99.0" fill="#15803d" font-size="13" font-weight="700">y = 1/2</text>
+  <line x1="210" y1="160" x2="305.3" y2="105.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="305.3" cy="105.0" r="5" fill="#dc2626"/>
+  <text x="313.3" y="97.0" fill="#dc2626" font-size="13" font-weight="700" text-anchor="start">π/6</text>
+  <line x1="210" y1="160" x2="114.7" y2="105.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="114.7" cy="105.0" r="5" fill="#dc2626"/>
+  <text x="106.7" y="97.0" fill="#dc2626" font-size="13" font-weight="700" text-anchor="end">5π/6</text>
+  <text x="12" y="312" fill="#475569" font-size="12">x = π/6 + k·2π  HOẶC  x = 5π/6 + k·2π</text>
+</svg>
 
 Vì sao thêm $k\\cdot 2\\pi$? Vì quay thêm trọn $k$ vòng ($k$ nguyên, dương hay âm) kim về đúng vị trí cũ → cùng tung độ → vẫn là nghiệm. $k=0$ cho nghiệm "gốc", $k=1$ cho nghiệm "cộng một vòng", $k=-1$ cho nghiệm "lùi một vòng"...
 
@@ -119,21 +125,24 @@ Vì sao thêm $k\\cdot 2\\pi$? Vì quay thêm trọn $k$ vòng ($k$ nguyên, dư
 
 💡 **Trực giác / Hình dung**: cắt đường tròn đơn vị bằng một **đường thẳng đứng** $x = a$ (vì cos = hoành độ). Đường này cắt đường tròn ở hai điểm **đối xứng qua trục hoành** — một ở trên, một ở dưới, góc $+\\alpha$ và $-\\alpha$. Vì thế nghiệm gọn lại thành $\\pm\\alpha + k2\\pi$ (một họ với dấu ±), khác sin (hai họ riêng).
 
-\`\`\`
-   cos x = 1/2  →  đường ĐỨNG x = 1/2 cắt đường tròn ở 2 điểm:
-                         y
-                    ·· · | · ··
-                ·        |    •  π/3   (góc +α, nửa trên)
-              ·          |   /·
-            ·            |  / ·
-        ────·────────────+─/──·──── x
-            ·            |/   ·      ← đường đứng x = 1/2
-              ·         /|   ·          (cos = hoành độ = 1/2)
-                ·      / •  ·  −π/3   (góc −α, nửa dưới)
-                    ·· · | · ··
-                     x = 1/2
-   x = +π/3 + k·2π   HOẶC   x = −π/3 + k·2π   ⟺   x = ±π/3 + k·2π
-\`\`\`
+<svg viewBox="0 0 520 320" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="cos x = 1/2: đường đứng x = 1/2 cắt đường tròn tại π/3 (nửa trên) và −π/3 (nửa dưới), đối xứng qua trục Ox">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1"><line x1="100" y1="20" x2="100" y2="300"/><line x1="155" y1="20" x2="155" y2="300"/><line x1="210" y1="20" x2="210" y2="300"/><line x1="265" y1="20" x2="265" y2="300"/><line x1="320" y1="20" x2="320" y2="300"/><line x1="80" y1="50" x2="340" y2="50"/><line x1="80" y1="105" x2="340" y2="105"/><line x1="80" y1="160" x2="340" y2="160"/><line x1="80" y1="215" x2="340" y2="215"/><line x1="80" y1="270" x2="340" y2="270"/></g>
+  <line x1="75" y1="160" x2="360" y2="160" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="210" y1="290" x2="210" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="350" y="178" fill="#1a202c" font-size="14" font-style="italic">x</text><text x="218" y="30" fill="#1a202c" font-size="14" font-style="italic">y</text>
+  <text x="320" y="176" fill="#475569" font-size="12" text-anchor="middle">1</text><text x="100" y="176" fill="#475569" font-size="12" text-anchor="middle">−1</text><text x="205" y="54" fill="#475569" font-size="12" text-anchor="end">1</text><text x="205" y="274" fill="#475569" font-size="12" text-anchor="end">−1</text><text x="205" y="175" fill="#475569" font-size="12" text-anchor="end">O</text>
+  <circle cx="210" cy="160" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="265.0" y1="30" x2="265.0" y2="290" stroke="#15803d" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="265.0" y="304" fill="#15803d" font-size="13" font-weight="700" text-anchor="middle">x = 1/2</text>
+  <line x1="210" y1="160" x2="265.0" y2="64.7" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="265.0" cy="64.7" r="5" fill="#dc2626"/>
+  <text x="273.0" y="58.7" fill="#dc2626" font-size="13" font-weight="700" text-anchor="start">π/3</text>
+  <line x1="210" y1="160" x2="265.0" y2="255.3" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="265.0" cy="255.3" r="5" fill="#dc2626"/>
+  <text x="273.0" y="271.3" fill="#dc2626" font-size="13" font-weight="700" text-anchor="start">−π/3</text>
+  <text x="12" y="312" fill="#475569" font-size="12">x = ±π/3 + k·2π  (cos = hoành độ = 1/2)</text>
+</svg>
 
 Khác biệt then chốt so với sin: sin cắt bằng đường **ngang** → đối xứng qua **Oy** → $\\alpha$ và $\\pi-\\alpha$. cos cắt bằng đường **đứng** → đối xứng qua **Ox** → $+\\alpha$ và $-\\alpha$. Nhớ "cos đứng, sin ngang" để khỏi lẫn công thức.
 
@@ -184,21 +193,23 @@ $$x = \\pm\\alpha + k\\cdot 2\\pi \\quad (k \\in \\mathbb{Z})$$
 
 💡 **Trực giác / Hình dung**: tan tuần hoàn chu kỳ **$\\pi$** (không phải $2\\pi$), nên một giá trị tan lặp lại sau mỗi nửa vòng. Trên đường tròn, hai điểm đối tâm (cách nhau $\\pi$) có cùng tan vì cả sin và cos đều đổi dấu (tỉ số giữ nguyên). Vì thế tan chỉ có **một họ** nghiệm với bước nhảy $\\pi$, và nhận **mọi** giá trị $a \\in \\mathbb{R}$ (không bị chặn $|a|\\le 1$ như sin/cos).
 
-\`\`\`
-   tan x = a  →  hai điểm ĐỐI TÂM (cách nhau π) có cùng tan:
-                         y
-                    ·· · | · ··
-                ·        |     •  α        Tại α:  sin=+s, cos=+c → tan=+s/c
-              ·          |    /·
-            ·            |   / ·
-        ────·────────────+──/──·──── x
-            ·            | /   ·
-              ·       •  /     ·       Tại α+π:  sin=−s, cos=−c → tan=(−s)/(−c)
-                ·    α+π  |    ·                          = +s/c  (CÙNG tan!)
-                    ·· · | · ··
-   Đổi dấu cả tử lẫn mẫu → tỉ số không đổi → chu kỳ chỉ π, một họ.
-   x = α + k·π   (KHÔNG phải +k·2π)
-\`\`\`
+<svg viewBox="0 0 520 320" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="tan x = a: hai điểm đối tâm α và α+π nằm trên cùng một đường thẳng qua gốc O, cùng giá trị tan vì cả sin và cos đều đổi dấu">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1"><line x1="100" y1="20" x2="100" y2="300"/><line x1="155" y1="20" x2="155" y2="300"/><line x1="210" y1="20" x2="210" y2="300"/><line x1="265" y1="20" x2="265" y2="300"/><line x1="320" y1="20" x2="320" y2="300"/><line x1="80" y1="50" x2="340" y2="50"/><line x1="80" y1="105" x2="340" y2="105"/><line x1="80" y1="160" x2="340" y2="160"/><line x1="80" y1="215" x2="340" y2="215"/><line x1="80" y1="270" x2="340" y2="270"/></g>
+  <line x1="75" y1="160" x2="360" y2="160" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <line x1="210" y1="290" x2="210" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="350" y="178" fill="#1a202c" font-size="14" font-style="italic">x</text><text x="218" y="30" fill="#1a202c" font-size="14" font-style="italic">y</text>
+  <text x="320" y="176" fill="#475569" font-size="12" text-anchor="middle">1</text><text x="100" y="176" fill="#475569" font-size="12" text-anchor="middle">−1</text><text x="205" y="54" fill="#475569" font-size="12" text-anchor="end">1</text><text x="205" y="274" fill="#475569" font-size="12" text-anchor="end">−1</text><text x="205" y="175" fill="#475569" font-size="12" text-anchor="end">O</text>
+  <circle cx="210" cy="160" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="98.0" y1="244.0" x2="322.0" y2="76.0" stroke="#15803d" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <line x1="210" y1="160" x2="298.0" y2="94.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="298.0" cy="94.0" r="5" fill="#dc2626"/>
+  <text x="306.0" y="86.0" fill="#dc2626" font-size="13" font-weight="700" text-anchor="start">α: sin=+s, cos=+c → tan = s/c</text>
+  <line x1="210" y1="160" x2="122.0" y2="226.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="122.0" cy="226.0" r="5" fill="#dc2626"/>
+  <text x="114.0" y="244.0" fill="#dc2626" font-size="13" font-weight="700" text-anchor="end">α+π: sin=−s, cos=−c → tan = s/c</text>
+  <text x="12" y="312" fill="#475569" font-size="12">Đổi dấu cả tử lẫn mẫu → tan không đổi → chu kỳ π: x = α + k·π (KHÔNG phải k·2π)</text>
+</svg>
 
 Walk-through tỉ số: lấy $\\alpha = \\frac{\\pi}{4}$, $\\sin\\frac{\\pi}{4} = \\cos\\frac{\\pi}{4} = \\frac{\\sqrt2}{2}$ → $\\tan = 1$. Điểm đối tâm $\\alpha + \\pi = \\frac{5\\pi}{4}$: $\\sin\\frac{5\\pi}{4} = -\\frac{\\sqrt2}{2}$, $\\cos\\frac{5\\pi}{4} = -\\frac{\\sqrt2}{2}$ → $\\tan = \\frac{-\\sqrt2/2}{-\\sqrt2/2} = 1$ — **cùng** giá trị. Vậy bước nhảy thật sự là $\\pi$, không phải $2\\pi$.
 
@@ -445,13 +456,15 @@ $$\\begin{aligned}
 &\\textbf{Kết luận.}\\quad x = \\tfrac{\\pi}{4} + \\tfrac{k\\pi}{2}\\ \\text{HOẶC}\\ x = \\tfrac{\\pi}{2} + k\\pi.
 \\end{aligned}$$
 
-\`\`\`
-   "Đưa về tích = 0" — nguyên lý tách nghiệm:
-        A · B = 0
-        ╱      ╲
-     A = 0    B = 0        (tích bằng 0 ⟺ ít nhất một thừa số bằng 0)
-   mỗi nhánh → một PT lượng giác CƠ BẢN đã biết giải.
-\`\`\`
+<svg viewBox="0 0 520 170" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ tách nghiệm: A·B = 0 rẽ thành hai nhánh A = 0 và B = 0, mỗi nhánh là một phương trình lượng giác cơ bản">
+  <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <rect x="200" y="16" width="120" height="40" rx="8" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/><text x="260" y="42" fill="#1d4ed8" font-size="16" font-weight="700" text-anchor="middle">A · B = 0</text>
+  <line x1="230" y1="56" x2="130" y2="96" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar5)"/><line x1="290" y1="56" x2="390" y2="96" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar5)"/>
+  <rect x="70" y="100" width="120" height="40" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/><text x="130" y="126" fill="#15803d" font-size="16" font-weight="700" text-anchor="middle">A = 0</text>
+  <rect x="330" y="100" width="120" height="40" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/><text x="390" y="126" fill="#15803d" font-size="16" font-weight="700" text-anchor="middle">B = 0</text>
+  <text x="260" y="92" fill="#475569" font-size="12" text-anchor="middle">tích = 0 ⟺ ít nhất một thừa số = 0</text>
+  <text x="260" y="160" fill="#475569" font-size="12" text-anchor="middle">mỗi nhánh → một PT lượng giác CƠ BẢN đã biết giải</text>
+</svg>
 
 ⚠ **Lỗi thường gặp — chuyển vế sai trước khi biến đổi**. Để dùng tổng→tích cần đưa PT về dạng $(\\text{tổng}) = 0$ hoặc $(\\text{hiệu}) = 0$. Phản ví dụ: $\\sin 3x = \\sin x$ phải chuyển thành $\\sin 3x - \\sin x = 0$ rồi mới dùng $\\sin a - \\sin b = 2 \\cos(\\ldots) \\sin(\\ldots)$. Nếu để nguyên $\\sin 3x = \\sin x$ rồi "rút" sin hai vế là **sai** (mất nghiệm, và sin không "rút" được như số).
 
@@ -505,13 +518,22 @@ $$\\begin{aligned}
 &\\textbf{Kết luận.}\\quad x \\in \\left\\{\\tfrac{\\pi}{6},\\ \\tfrac{5\\pi}{6}\\right\\}.
 \\end{aligned}$$
 
-\`\`\`
-   Trục số, cửa sổ [0, 2π):
-   0        π/6       π/2        5π/6      π        3π/2      2π
-   |─────────•─────────|──────────•─────────|─────────|────────|
-            ✓ giữ                ✓ giữ
-   (các nghiệm π/6+2π, 5π/6+2π, ... nằm NGOÀI cửa sổ → loại)
-\`\`\`
+<svg viewBox="0 0 520 130" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục số cửa sổ [0, 2π): hai nghiệm π/6 và 5π/6 được giữ; các nghiệm ngoài cửa sổ bị loại">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="40" y="50" width="440" height="30" fill="#dbeafe" fill-opacity="0.6"/>
+  <line x1="20" y1="65" x2="505" y2="65" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <line x1="40.0" y1="58" x2="40.0" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="40.0" y="90" fill="#475569" font-size="12" text-anchor="middle">0</text>
+  <line x1="76.7" y1="58" x2="76.7" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="76.7" y="90" fill="#475569" font-size="12" text-anchor="middle">π/6</text>
+  <line x1="150.0" y1="58" x2="150.0" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="150.0" y="90" fill="#475569" font-size="12" text-anchor="middle">π/2</text>
+  <line x1="223.3" y1="58" x2="223.3" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="223.3" y="90" fill="#475569" font-size="12" text-anchor="middle">5π/6</text>
+  <line x1="260.0" y1="58" x2="260.0" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="260.0" y="90" fill="#475569" font-size="12" text-anchor="middle">π</text>
+  <line x1="370.0" y1="58" x2="370.0" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="370.0" y="90" fill="#475569" font-size="12" text-anchor="middle">3π/2</text>
+  <line x1="480.0" y1="58" x2="480.0" y2="72" stroke="#1a202c" stroke-width="1.5"/><text x="480.0" y="90" fill="#475569" font-size="12" text-anchor="middle">2π</text>
+  <circle cx="76.7" cy="65" r="6" fill="#dc2626"/><text x="76.7" y="40" fill="#dc2626" font-size="12" font-weight="700" text-anchor="middle">✓ giữ</text>
+  <circle cx="223.3" cy="65" r="6" fill="#dc2626"/><text x="223.3" y="40" fill="#dc2626" font-size="12" font-weight="700" text-anchor="middle">✓ giữ</text>
+  <text x="260.0" y="112" fill="#475569" font-size="12" text-anchor="middle">cửa sổ [0, 2π) — nghiệm π/6+2π, 5π/6+2π… nằm ngoài → loại</text>
+  <text x="502" y="90" fill="#475569" font-size="12" text-anchor="end">x</text>
+</svg>
 
 ### 8.2. Walk-through khó hơn — $\\tan x = \\sqrt{3}$ trong $(-\\pi, \\pi)$
 

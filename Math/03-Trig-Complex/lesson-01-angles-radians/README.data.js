@@ -93,13 +93,27 @@ $$\\begin{aligned}
 
 **1 radian** = góc ở tâm chắn **cung có độ dài bằng bán kính**.
 
-\`\`\`
-  ╱─────╲
- ╱   r   ╲       Cung dài r → góc = 1 rad
-│    ●────│  
- ╲   r   ╱      
-  ╲─────╱
-\`\`\`
+<svg viewBox="0 0 380 280" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Định nghĩa radian: cung tròn dài đúng bằng bán kính r chắn góc ở tâm bằng 1 radian, xấp xỉ 57.3 độ">
+  <!-- đường tròn bán kính r -->
+  <circle cx="150" cy="150" r="105" fill="none" stroke="#cbd5e0" stroke-width="1.4"/>
+  <!-- cung dài r: từ 0° tới 1 rad ≈ 57.3°, ngược kim đồng hồ -->
+  <path d="M 255 150 A 105 105 0 0 0 206.7 61.6" fill="none" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="255" cy="150" r="3.5" fill="#dc2626"/>
+  <circle cx="206.7" cy="61.6" r="3.5" fill="#dc2626"/>
+  <text x="252" y="90" font-size="12" font-weight="700" fill="#dc2626">cung dài r</text>
+  <!-- hai bán kính -->
+  <line x1="150" y1="150" x2="255" y2="150" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="150" y1="150" x2="206.7" y2="61.6" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200" y="167" font-size="12" font-weight="700" fill="#1d4ed8">r</text>
+  <text x="163" y="102" font-size="12" font-weight="700" fill="#1d4ed8">r</text>
+  <!-- góc 1 rad ở tâm -->
+  <path d="M 180 150 A 30 30 0 0 0 166.2 124.8" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="200" y="131" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">1 rad</text>
+  <text x="200" y="145" font-size="10" fill="#15803d" text-anchor="middle">≈ 57.3°</text>
+  <circle cx="150" cy="150" r="3" fill="#1a202c"/>
+  <text x="136" y="166" font-size="11" font-weight="700" fill="#1a202c">O</text>
+  <text x="190" y="272" font-size="11" fill="#475569" text-anchor="middle">cung dài đúng bằng bán kính r → góc ở tâm chắn cung = 1 radian</text>
+</svg>
 
 ⟶ Cả vòng tròn = chu vi $= 2\\pi r$ → góc đầy $= 2\\pi$ rad $= 360^\\circ$.
 
@@ -228,14 +242,47 @@ Khóa học này dùng **độ thập phân** ($12.5822^\\circ$), không dùng p
 
 💡 **Là gì**: Đường tròn tâm O, **bán kính = 1**, được dùng để định nghĩa sin, cos cho **mọi góc** (không chỉ trong tam giác vuông).
 
-\`\`\`
-       y
-       │   ●(cos θ, sin θ)
-       │  ╱
-       │ ╱ θ
-       │╱──────────── x
-      O
-\`\`\`
+<svg viewBox="0 0 340 312" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn lượng giác đơn vị: điểm M(cos θ, sin θ), góc θ đo từ trục x quay ngược chiều kim đồng hồ">
+  <defs>
+    <marker id="a2-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+    <marker id="a2-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+  </defs>
+  <!-- lưới (bước 0.5) -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="60" y1="20" x2="60" y2="292"/><line x1="110" y1="20" x2="110" y2="292"/>
+    <line x1="210" y1="20" x2="210" y2="292"/><line x1="260" y1="20" x2="260" y2="292"/>
+    <line x1="16" y1="55" x2="324" y2="55"/><line x1="16" y1="105" x2="324" y2="105"/>
+    <line x1="16" y1="205" x2="324" y2="205"/><line x1="16" y1="255" x2="324" y2="255"/>
+  </g>
+  <!-- trục -->
+  <line x1="14" y1="155" x2="326" y2="155" stroke="#1a202c" stroke-width="1.6" marker-end="url(#a2-ax)"/>
+  <line x1="160" y1="294" x2="160" y2="20" stroke="#1a202c" stroke-width="1.6" marker-end="url(#a2-ax)"/>
+  <text x="316" y="147" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="168" y="28" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <!-- nhãn số trên trục -->
+  <g font-size="10" fill="#64748b">
+    <text x="264" y="169">1</text>
+    <text x="48" y="169">−1</text>
+    <text x="152" y="59" text-anchor="end">1</text>
+    <text x="152" y="259" text-anchor="end">−1</text>
+  </g>
+  <!-- đường tròn đơn vị (r = 1 ↔ 100px) -->
+  <circle cx="160" cy="155" r="100" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <!-- gióng nét đứt từ M xuống 2 trục -->
+  <line x1="224.3" y1="78.4" x2="224.3" y2="155" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="224.3" y1="78.4" x2="160" y2="78.4" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="224" y="172" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">cos θ</text>
+  <text x="152" y="82" font-size="11" font-weight="700" fill="#15803d" text-anchor="end">sin θ</text>
+  <!-- bán kính OM và góc θ (θ = 50° minh họa) -->
+  <line x1="160" y1="155" x2="224.3" y2="78.4" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M 194 155 A 34 34 0 0 0 181.9 129" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#a2-arr)"/>
+  <text x="202" y="141" font-size="13" font-weight="700" fill="#dc2626">θ</text>
+  <circle cx="224.3" cy="78.4" r="5" fill="#dc2626"/>
+  <text x="230" y="70" font-size="12" font-weight="700" fill="#dc2626">M(cos θ, sin θ)</text>
+  <circle cx="160" cy="155" r="3" fill="#1a202c"/>
+  <text x="146" y="171" font-size="11" font-weight="700" fill="#1a202c">O</text>
+  <text x="170" y="306" font-size="11" fill="#475569" text-anchor="middle">bán kính = 1: cos θ = hoành độ, sin θ = tung độ của M</text>
+</svg>
 
 - Lấy điểm M trên đường tròn, đo góc $\\theta$ từ Ox quay ngược chiều kim đồng hồ.
 - **$\\cos\\theta$** = hoành độ M.
@@ -346,14 +393,46 @@ Ví dụ với $\\theta_0 = 30^\\circ$: $\\{\\ldots, -690^\\circ, -330^\\circ, 3
 
 💡 **Trực giác**: hệ trục $Oxy$ chia mặt phẳng thành **4 phần tư**, đánh số ngược chiều kim đồng hồ bắt đầu từ góc trên-phải. Biết góc nằm phần tư nào → biết ngay **dấu** của cos (hoành độ) và sin (tung độ).
 
-\`\`\`
-        y
-    II  │  I
-  (−,+) │ (+,+)     I:   0°–90°    (cos +, sin +)
-────────●──────── x  II:  90°–180°  (cos −, sin +)
-    III │  IV       III: 180°–270°  (cos −, sin −)
-  (−,−) │ (+,−)     IV:  270°–360°  (cos +, sin −)
-\`\`\`
+<svg viewBox="0 0 360 256" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn góc phần tư trên hệ trục Oxy và dấu của cos, sin trong từng phần tư">
+  <defs>
+    <marker id="a3-ax" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker>
+    <marker id="a3-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+  </defs>
+  <!-- trục -->
+  <line x1="16" y1="122" x2="344" y2="122" stroke="#1a202c" stroke-width="1.6" marker-end="url(#a3-ax)"/>
+  <line x1="180" y1="234" x2="180" y2="18" stroke="#1a202c" stroke-width="1.6" marker-end="url(#a3-ax)"/>
+  <text x="334" y="114" font-size="12" font-weight="700" fill="#1a202c">x</text>
+  <text x="188" y="26" font-size="12" font-weight="700" fill="#1a202c">y</text>
+  <circle cx="180" cy="122" r="3" fill="#1a202c"/>
+  <text x="166" y="138" font-size="11" font-weight="700" fill="#1a202c">O</text>
+  <!-- mũi tên chiều đánh số: ngược kim đồng hồ -->
+  <path d="M 212.8 113.2 A 34 34 0 0 0 188.8 89.2" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#a3-arr)"/>
+  <!-- phần tư I (trên-phải) -->
+  <g text-anchor="middle">
+    <text x="262" y="58" font-size="18" font-weight="700" fill="#1d4ed8">I</text>
+    <text x="262" y="78" font-size="11" fill="#475569">0° – 90°</text>
+    <text x="262" y="95" font-size="11" font-weight="700" fill="#334155">cos <tspan fill="#15803d">+</tspan>, sin <tspan fill="#15803d">+</tspan></text>
+  </g>
+  <!-- phần tư II (trên-trái) -->
+  <g text-anchor="middle">
+    <text x="96" y="58" font-size="18" font-weight="700" fill="#1d4ed8">II</text>
+    <text x="96" y="78" font-size="11" fill="#475569">90° – 180°</text>
+    <text x="96" y="95" font-size="11" font-weight="700" fill="#334155">cos <tspan fill="#dc2626">−</tspan>, sin <tspan fill="#15803d">+</tspan></text>
+  </g>
+  <!-- phần tư III (dưới-trái) -->
+  <g text-anchor="middle">
+    <text x="96" y="164" font-size="18" font-weight="700" fill="#1d4ed8">III</text>
+    <text x="96" y="184" font-size="11" fill="#475569">180° – 270°</text>
+    <text x="96" y="201" font-size="11" font-weight="700" fill="#334155">cos <tspan fill="#dc2626">−</tspan>, sin <tspan fill="#dc2626">−</tspan></text>
+  </g>
+  <!-- phần tư IV (dưới-phải) -->
+  <g text-anchor="middle">
+    <text x="262" y="164" font-size="18" font-weight="700" fill="#1d4ed8">IV</text>
+    <text x="262" y="184" font-size="11" fill="#475569">270° – 360°</text>
+    <text x="262" y="201" font-size="11" font-weight="700" fill="#334155">cos <tspan fill="#15803d">+</tspan>, sin <tspan fill="#dc2626">−</tspan></text>
+  </g>
+  <text x="180" y="248" font-size="11" fill="#475569" text-anchor="middle">đánh số I → II → III → IV ngược chiều kim đồng hồ, từ góc trên-phải</text>
+</svg>
 
 **4 ví dụ xác định phần tư** (đưa về dải chuẩn trước nếu cần):
 - $200^\\circ$: nằm trong $(180^\\circ, 270^\\circ)$ → **phần tư III** (cos $-$, sin $-$).

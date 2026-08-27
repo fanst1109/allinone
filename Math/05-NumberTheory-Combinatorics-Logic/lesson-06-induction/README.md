@@ -25,19 +25,35 @@ Thì **TẤT CẢ quân đều đổ**.
 
 Hình dung dãy domino — mỗi quân là một mệnh đề $P(n)$, "đổ" nghĩa là "đúng":
 
-```
-   P(1)   P(2)   P(3)   P(4)   P(5)        P(n)
-    ┃      ┃      ┃      ┃      ┃     ...    ┃
-    ┃ ───► ┃ ───► ┃ ───► ┃ ───► ┃           ┃
-    ▔▔     ▔▔     ▔▔     ▔▔     ▔▔           ▔▔
-    ▲       └──────┴──────┴──────┘
-    │              │
-  CƠ SỞ        BƯỚC QUY NẠP
- (đẩy quân    (quân k đổ ⟹ đổ quân k+1)
-  đầu tiên)
-
-   Có CẢ HAI ⟹ cả dãy đổ hết (P(n) đúng ∀ n ≥ 1)
-```
+<svg viewBox="0 0 600 290" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dãy domino P(1), P(2), …, P(n): cơ sở đẩy quân đầu, bước quy nạp truyền từ quân k sang k+1 → cả dãy đổ">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="ar6g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <rect x="48.0" y="60.0" width="24.0" height="90.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="48.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(1)</text>
+  <rect x="128.0" y="60.0" width="24.0" height="90.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="140.0" y="48.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(2)</text>
+  <rect x="208.0" y="60.0" width="24.0" height="90.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="220.0" y="48.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(3)</text>
+  <rect x="288.0" y="60.0" width="24.0" height="90.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="48.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(4)</text>
+  <rect x="368.0" y="60.0" width="24.0" height="90.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="48.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(5)</text>
+  <rect x="508.0" y="60.0" width="24.0" height="90.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="520.0" y="48.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(n)</text>
+  <text x="450.0" y="110.0" fill="#475569" font-size="20" text-anchor="middle">…</text>
+  <line x1="30.0" y1="152.0" x2="560.0" y2="152.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="76.0" y1="105.0" x2="124.0" y2="105.0" stroke="#dc2626" stroke-width="2" marker-end="url(#ar6)"/>
+  <line x1="156.0" y1="105.0" x2="204.0" y2="105.0" stroke="#dc2626" stroke-width="2" marker-end="url(#ar6)"/>
+  <line x1="236.0" y1="105.0" x2="284.0" y2="105.0" stroke="#dc2626" stroke-width="2" marker-end="url(#ar6)"/>
+  <line x1="316.0" y1="105.0" x2="364.0" y2="105.0" stroke="#dc2626" stroke-width="2" marker-end="url(#ar6)"/>
+  <line x1="60.0" y1="200.0" x2="60.0" y2="158.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#ar6g)"/>
+  <text x="60.0" y="222.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">CƠ SỞ</text>
+  <text x="60.0" y="238.0" fill="#15803d" font-size="11" text-anchor="middle">(đẩy quân đầu tiên)</text>
+  <path d="M 140,168 L 140,180 L 380,180 L 380,168" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="260.0" y1="180.0" x2="260.0" y2="196.0" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="260.0" y="222.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">BƯỚC QUY NẠP</text>
+  <text x="260.0" y="238.0" fill="#dc2626" font-size="11" text-anchor="middle">(quân k đổ ⟹ đổ quân k+1)</text>
+  <text x="300.0" y="272.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Có CẢ HAI ⟹ cả dãy đổ hết: P(n) đúng với mọi n ≥ 1</text>
+</svg>
 
 - **Cơ sở** = lực tay đẩy quân đầu. Không có nó, dù các quân xếp sát nhau cũng chẳng quân nào đổ.
 - **Bước quy nạp** = khoảng cách giữa hai quân đủ gần để quân trước chạm quân sau. Nếu có một khe hở ở đâu đó (bước $k \to k+1$ hỏng tại một $k$), dây chuyền **đứt** từ chỗ đó trở đi.
@@ -357,18 +373,32 @@ $$[P(n_0) \land P(n_0+1) \land \dots \land P(k)] \implies P(k+1)$$
 
 ⟶ Dùng khi P(k+1) cần kết quả của nhiều bước trước, không chỉ P(k).
 
-ASCII so sánh hai kiểu domino:
+So sánh hai kiểu domino:
 
-```
-QUY NẠP YẾU:  mỗi quân chỉ đẩy quân kế tiếp
-   P(k) ───► P(k+1)
-
-QUY NẠP MẠNH: P(k+1) được đẩy bởi TẤT CẢ quân trước
-   P(n₀) ┐
-   P(n₀+1)├──► P(k+1)
-    ...   │
-   P(k) ──┘
-```
+<svg viewBox="0 0 600 215" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh: quy nạp yếu chỉ dùng P(k) để suy P(k+1); quy nạp mạnh dùng tất cả P(n₀), P(n₀+1), …, P(k)">
+  <defs><marker id="ar7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <text x="150.0" y="26.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">QUY NẠP YẾU</text>
+  <text x="150.0" y="44.0" fill="#475569" font-size="11" text-anchor="middle">mỗi quân chỉ đẩy quân kế tiếp</text>
+  <rect x="40.0" y="70.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="92.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(k)</text>
+  <line x1="122.0" y1="87.0" x2="178.0" y2="87.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ar7)"/>
+  <rect x="180.0" y="70.0" width="90.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="225.0" y="92.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">P(k+1)</text>
+  <text x="450.0" y="26.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">QUY NẠP MẠNH</text>
+  <text x="450.0" y="44.0" fill="#475569" font-size="11" text-anchor="middle">P(k+1) được đẩy bởi TẤT CẢ quân trước</text>
+  <rect x="340.0" y="62.0" width="80.0" height="28.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="81.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">P(n₀)</text>
+  <line x1="422.0" y1="76.0" x2="478.0" y2="132.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar7)"/>
+  <rect x="340.0" y="98.0" width="80.0" height="28.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="117.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">P(n₀+1)</text>
+  <line x1="422.0" y1="112.0" x2="478.0" y2="132.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar7)"/>
+  <text x="380.0" y="156.0" fill="#15803d" font-size="16" text-anchor="middle">…</text>
+  <rect x="340.0" y="170.0" width="80.0" height="28.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="189.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">P(k)</text>
+  <line x1="422.0" y1="184.0" x2="478.0" y2="132.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar7)"/>
+  <rect x="480.0" y="115.0" width="90.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="525.0" y="137.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">P(k+1)</text>
+</svg>
 
 📊 **Bảng so sánh yếu / mạnh**:
 

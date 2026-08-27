@@ -173,13 +173,12 @@ $N$ không nguyên tố, nhưng cả $59$ và $509$ đều là nguyên tố **kh
 
 **Bảng số nguyên tố thưa dần** (để thấy "vô hạn" không mâu thuẫn với "ngày càng hiếm"):
 
-\`\`\`
-khoảng        | số nguyên tố | mật độ
-1 – 10        |      4       | 40%   (2,3,5,7)
-1 – 100       |     25       | 25%
-1 – 1000      |    168       | 16.8%
-1 – 10000     |   1229       | 12.3%
-\`\`\`
+| Khoảng | Số nguyên tố | Mật độ | Ghi chú |
+|---|:---:|:---:|---|
+| $1$ – $10$ | 4 | 40% | 2, 3, 5, 7 |
+| $1$ – $100$ | 25 | 25% | |
+| $1$ – $1000$ | 168 | 16.8% | |
+| $1$ – $10000$ | 1229 | 12.3% | |
 
 Mật độ giảm (định lý số nguyên tố: $\\approx 1/\\ln N$) nhưng tổng số vẫn vô hạn.
 
@@ -222,7 +221,7 @@ Mật độ giảm (định lý số nguyên tố: $\\approx 1/\\ln N$) nhưng t
 
 **Ví dụ $N=30$**: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 — **10 số nguyên tố**.
 
-### Walk-through ASCII từng bước với $N = 30$
+### Walk-through từng bước với $N = 30$
 
 Bắt đầu: liệt kê $2 \\ldots 30$, tất cả "chưa gạch" (\`.\`). Chỉ cần sàng tới $\\sqrt{30} \\approx 5.5$ → các nguyên tố cần xử lý là $2, 3, 5$.
 
@@ -307,13 +306,90 @@ Bước 4 — số \`.\` kế tiếp là **7**, nhưng $7 > \\sqrt{30}$ → DỪ
 
 **Lớp đồng dư mod 5** (mỗi số nguyên rơi vào đúng 1 trong 5 "ngăn"):
 
-\`\`\`
-lớp 0: ... -10  -5   0   5  10  15 ...   (chia 5 dư 0)
-lớp 1: ...  -9  -4   1   6  11  16 ...   (chia 5 dư 1)
-lớp 2: ...  -8  -3   2   7  12  17 ...   (chia 5 dư 2)
-lớp 3: ...  -7  -2   3   8  13  18 ...   (chia 5 dư 3)
-lớp 4: ...  -6  -1   4   9  14  19 ...   (chia 5 dư 4)
-\`\`\`
+<svg viewBox="0 0 580 275" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Năm lớp đồng dư mod 5: lớp 0 gồm …, −10, −5, 0, 5, 10, 15, …; lớp 1 gồm …, −9, −4, 1, 6, 11, 16, …; tương tự tới lớp 4">
+  <defs></defs>
+  <text x="20.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">lớp 0</text>
+  <text x="560.0" y="45.0" fill="#1d4ed8" font-size="12" text-anchor="end">chia 5 dư 0</text>
+  <rect x="72" y="25" width="46" height="30" rx="6" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">−10</text>
+  <rect x="140" y="25" width="46" height="30" rx="6" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="163.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">−5</text>
+  <rect x="208" y="25" width="46" height="30" rx="6" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="231.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <rect x="276" y="25" width="46" height="30" rx="6" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="299.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <rect x="344" y="25" width="46" height="30" rx="6" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="367.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <rect x="412" y="25" width="46" height="30" rx="6" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="435.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">15</text>
+  <text x="483.0" y="45.0" fill="#1d4ed8" font-size="14" text-anchor="middle">…</text>
+  <text x="45.0" y="45.0" fill="#1d4ed8" font-size="14" text-anchor="middle">…</text>
+  <text x="20.0" y="89.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">lớp 1</text>
+  <text x="560.0" y="89.0" fill="#15803d" font-size="12" text-anchor="end">chia 5 dư 1</text>
+  <rect x="72" y="69" width="46" height="30" rx="6" fill="#15803d" fill-opacity="0.15" stroke="#15803d" stroke-width="1.5"/>
+  <text x="95.0" y="89.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">−9</text>
+  <rect x="140" y="69" width="46" height="30" rx="6" fill="#15803d" fill-opacity="0.15" stroke="#15803d" stroke-width="1.5"/>
+  <text x="163.0" y="89.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">−4</text>
+  <rect x="208" y="69" width="46" height="30" rx="6" fill="#15803d" fill-opacity="0.15" stroke="#15803d" stroke-width="1.5"/>
+  <text x="231.0" y="89.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <rect x="276" y="69" width="46" height="30" rx="6" fill="#15803d" fill-opacity="0.15" stroke="#15803d" stroke-width="1.5"/>
+  <text x="299.0" y="89.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">6</text>
+  <rect x="344" y="69" width="46" height="30" rx="6" fill="#15803d" fill-opacity="0.15" stroke="#15803d" stroke-width="1.5"/>
+  <text x="367.0" y="89.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">11</text>
+  <rect x="412" y="69" width="46" height="30" rx="6" fill="#15803d" fill-opacity="0.15" stroke="#15803d" stroke-width="1.5"/>
+  <text x="435.0" y="89.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">16</text>
+  <text x="483.0" y="89.0" fill="#15803d" font-size="14" text-anchor="middle">…</text>
+  <text x="45.0" y="89.0" fill="#15803d" font-size="14" text-anchor="middle">…</text>
+  <text x="20.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">lớp 2</text>
+  <text x="560.0" y="133.0" fill="#dc2626" font-size="12" text-anchor="end">chia 5 dư 2</text>
+  <rect x="72" y="113" width="46" height="30" rx="6" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="95.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">−8</text>
+  <rect x="140" y="113" width="46" height="30" rx="6" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="163.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">−3</text>
+  <rect x="208" y="113" width="46" height="30" rx="6" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="231.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <rect x="276" y="113" width="46" height="30" rx="6" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="299.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">7</text>
+  <rect x="344" y="113" width="46" height="30" rx="6" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="367.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">12</text>
+  <rect x="412" y="113" width="46" height="30" rx="6" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="435.0" y="133.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">17</text>
+  <text x="483.0" y="133.0" fill="#dc2626" font-size="14" text-anchor="middle">…</text>
+  <text x="45.0" y="133.0" fill="#dc2626" font-size="14" text-anchor="middle">…</text>
+  <text x="20.0" y="177.0" fill="#b45309" font-size="13" text-anchor="start" font-weight="700">lớp 3</text>
+  <text x="560.0" y="177.0" fill="#b45309" font-size="12" text-anchor="end">chia 5 dư 3</text>
+  <rect x="72" y="157" width="46" height="30" rx="6" fill="#b45309" fill-opacity="0.15" stroke="#b45309" stroke-width="1.5"/>
+  <text x="95.0" y="177.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">−7</text>
+  <rect x="140" y="157" width="46" height="30" rx="6" fill="#b45309" fill-opacity="0.15" stroke="#b45309" stroke-width="1.5"/>
+  <text x="163.0" y="177.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">−2</text>
+  <rect x="208" y="157" width="46" height="30" rx="6" fill="#b45309" fill-opacity="0.15" stroke="#b45309" stroke-width="1.5"/>
+  <text x="231.0" y="177.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <rect x="276" y="157" width="46" height="30" rx="6" fill="#b45309" fill-opacity="0.15" stroke="#b45309" stroke-width="1.5"/>
+  <text x="299.0" y="177.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">8</text>
+  <rect x="344" y="157" width="46" height="30" rx="6" fill="#b45309" fill-opacity="0.15" stroke="#b45309" stroke-width="1.5"/>
+  <text x="367.0" y="177.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">13</text>
+  <rect x="412" y="157" width="46" height="30" rx="6" fill="#b45309" fill-opacity="0.15" stroke="#b45309" stroke-width="1.5"/>
+  <text x="435.0" y="177.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">18</text>
+  <text x="483.0" y="177.0" fill="#b45309" font-size="14" text-anchor="middle">…</text>
+  <text x="45.0" y="177.0" fill="#b45309" font-size="14" text-anchor="middle">…</text>
+  <text x="20.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="start" font-weight="700">lớp 4</text>
+  <text x="560.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="end">chia 5 dư 4</text>
+  <rect x="72" y="201" width="46" height="30" rx="6" fill="#7c3aed" fill-opacity="0.15" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="95.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">−6</text>
+  <rect x="140" y="201" width="46" height="30" rx="6" fill="#7c3aed" fill-opacity="0.15" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="163.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">−1</text>
+  <rect x="208" y="201" width="46" height="30" rx="6" fill="#7c3aed" fill-opacity="0.15" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="231.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <rect x="276" y="201" width="46" height="30" rx="6" fill="#7c3aed" fill-opacity="0.15" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="299.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">9</text>
+  <rect x="344" y="201" width="46" height="30" rx="6" fill="#7c3aed" fill-opacity="0.15" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="367.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">14</text>
+  <rect x="412" y="201" width="46" height="30" rx="6" fill="#7c3aed" fill-opacity="0.15" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="435.0" y="221.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">19</text>
+  <text x="483.0" y="221.0" fill="#7c3aed" font-size="14" text-anchor="middle">…</text>
+  <text x="45.0" y="221.0" fill="#7c3aed" font-size="14" text-anchor="middle">…</text>
+  <text x="290.0" y="258.0" fill="#475569" font-size="12" text-anchor="middle">mỗi số nguyên rơi vào đúng 1 trong 5 ngăn; cùng ngăn ⟺ đồng dư mod 5 (cách nhau bội của 5)</text>
+</svg>
 
 $17$ và $2$ cùng nằm ở lớp 2 → $17 \\equiv 2 \\pmod 5$.
 

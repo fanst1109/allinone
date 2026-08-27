@@ -36,13 +36,40 @@ Nếu A có $m$ cách và B có $n$ cách, **A rồi B** có **$m \\cdot n$** c�
 
 💡 **Trực giác — vẽ cây để thấy phép nhân**: quy tắc nhân không phải "phép thuật". Nó chỉ là *đếm số lá của một cái cây phân nhánh*. Mỗi giai đoạn = một tầng của cây; mỗi lựa chọn = một nhánh. Ví dụ chọn **2 áo** ($A_1, A_2$) RỒI **3 quần** ($Q_1, Q_2, Q_3$):
 
-\`\`\`
-            (gốc)
-           /     \\
-         A1       A2          ← tầng 1: chọn áo (2 nhánh)
-        /|\\       /|\\
-      Q1 Q2 Q3  Q1 Q2 Q3      ← tầng 2: mỗi áo lại tỏa 3 nhánh quần
-\`\`\`
+<svg viewBox="0 0 710 240" style="max-width:710px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây đếm: gốc tỏa 2 nhánh áo A1, A2; mỗi áo tỏa 3 nhánh quần Q1, Q2, Q3 → 6 lá">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <text x="12" y="110.0" fill="#475569" font-size="12" text-anchor="start">tầng 1: chọn áo (2 nhánh)</text>
+  <text x="12" y="180.0" fill="#475569" font-size="12" text-anchor="start">tầng 2: mỗi áo tỏa 3 nhánh quần</text>
+  <g transform="translate(150,0)">
+  <rect x="200.0" y="20.0" width="120.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="260.0" y="43.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">(gốc)</text>
+  <line x1="260.0" y1="56.0" x2="150.0" y2="90.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="120.0" y="92.0" width="60.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="113.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A1</text>
+  <line x1="150.0" y1="124.0" x2="85.0" y2="160.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="60.0" y="162.0" width="50.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="85.0" y="182.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Q1</text>
+  <line x1="150.0" y1="124.0" x2="145.0" y2="160.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="120.0" y="162.0" width="50.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="145.0" y="182.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Q2</text>
+  <line x1="150.0" y1="124.0" x2="205.0" y2="160.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="180.0" y="162.0" width="50.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="205.0" y="182.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Q3</text>
+  <line x1="260.0" y1="56.0" x2="430.0" y2="90.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="400.0" y="92.0" width="60.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="430.0" y="113.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A2</text>
+  <line x1="430.0" y1="124.0" x2="365.0" y2="160.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="340.0" y="162.0" width="50.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="365.0" y="182.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Q1</text>
+  <line x1="430.0" y1="124.0" x2="425.0" y2="160.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="400.0" y="162.0" width="50.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="425.0" y="182.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Q2</text>
+  <line x1="430.0" y1="124.0" x2="485.0" y2="160.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar1)"/>
+  <rect x="460.0" y="162.0" width="50.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="485.0" y="182.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Q3</text>
+  <text x="260.0" y="225.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">6 lá = 2 × 3 cách phối (quy tắc nhân)</text>
+  </g>
+</svg>
 
 Đếm số **lá** (đường đi từ gốc xuống đáy): mỗi nhánh áo (2 nhánh) đẻ ra 3 nhánh quần → $2 \\times 3 = 6$ lá = 6 bộ trang phục: $(A_1Q_1), (A_1Q_2), (A_1Q_3), (A_2Q_1), (A_2Q_2), (A_2Q_3)$. Tổng quát: tầng 1 có $m$ nhánh, mỗi nhánh đẻ $n$ nhánh con → $m \\cdot n$ lá. Đây là **toàn bộ lý do** quy tắc nhân đúng — không cần thuộc lòng, chỉ cần nhớ "đếm lá cây".
 
@@ -109,17 +136,69 @@ $$P(n) = n! = n \\cdot (n-1) \\cdot (n-2) \\cdot \\ldots \\cdot 2 \\cdot 1$$
 
 Hoán vị cũng là "đếm lá cây", chỉ khác cây đếm thường ở chỗ **số nhánh giảm dần mỗi tầng** (vì phần tử đã dùng không chọn lại được):
 
-\`\`\`
-                 (gốc)
-        /          |          \\
-       A           B           C        ← chỗ 1: 3 nhánh
-      / \\         / \\         / \\
-     B   C       A   C       A   B       ← chỗ 2: còn 2 nhánh (bỏ phần tử đã dùng)
-     |   |       |   |       |   |
-     C   B       C   A       B   A       ← chỗ 3: còn 1 nhánh
-   ─────────────────────────────────
-   ABC ACB     BAC BCA     CAB CBA       ← 6 lá = 3! hoán vị
-\`\`\`
+<svg viewBox="0 0 750 310" style="max-width:750px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây hoán vị 3 phần tử A, B, C: chỗ 1 có 3 nhánh, chỗ 2 còn 2, chỗ 3 còn 1 → 6 lá ABC, ACB, BAC, BCA, CAB, CBA">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <text x="12" y="100.0" fill="#475569" font-size="12" text-anchor="start">chỗ 1: 3 nhánh</text>
+  <text x="12" y="164.0" fill="#475569" font-size="12" text-anchor="start">chỗ 2: còn 2</text>
+  <text x="12" y="226.0" fill="#475569" font-size="12" text-anchor="start">chỗ 3: còn 1</text>
+  <g transform="translate(150,0)">
+  <rect x="240.0" y="16.0" width="100.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="290.0" y="37.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">(gốc)</text>
+  <line x1="290.0" y1="48.0" x2="90.0" y2="86.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="90.0" cy="98.0" r="14" fill="#1d4ed8"/>
+  <text x="90.0" y="103.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <line x1="90.0" y1="112.0" x2="45.0" y2="150.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="45.0" cy="162.0" r="14" fill="#15803d"/>
+  <text x="45.0" y="167.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <line x1="45.0" y1="176.0" x2="45.0" y2="212.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="45.0" cy="224.0" r="14" fill="#dc2626"/>
+  <text x="45.0" y="229.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <text x="45.0" y="268.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">ABC</text>
+  <line x1="90.0" y1="112.0" x2="135.0" y2="150.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="135.0" cy="162.0" r="14" fill="#15803d"/>
+  <text x="135.0" y="167.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <line x1="135.0" y1="176.0" x2="135.0" y2="212.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="135.0" cy="224.0" r="14" fill="#dc2626"/>
+  <text x="135.0" y="229.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <text x="135.0" y="268.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">ACB</text>
+  <line x1="290.0" y1="48.0" x2="290.0" y2="86.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="290.0" cy="98.0" r="14" fill="#1d4ed8"/>
+  <text x="290.0" y="103.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <line x1="290.0" y1="112.0" x2="245.0" y2="150.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="245.0" cy="162.0" r="14" fill="#15803d"/>
+  <text x="245.0" y="167.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <line x1="245.0" y1="176.0" x2="245.0" y2="212.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="245.0" cy="224.0" r="14" fill="#dc2626"/>
+  <text x="245.0" y="229.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <text x="245.0" y="268.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">BAC</text>
+  <line x1="290.0" y1="112.0" x2="335.0" y2="150.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="335.0" cy="162.0" r="14" fill="#15803d"/>
+  <text x="335.0" y="167.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <line x1="335.0" y1="176.0" x2="335.0" y2="212.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="335.0" cy="224.0" r="14" fill="#dc2626"/>
+  <text x="335.0" y="229.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <text x="335.0" y="268.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">BCA</text>
+  <line x1="290.0" y1="48.0" x2="490.0" y2="86.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="490.0" cy="98.0" r="14" fill="#1d4ed8"/>
+  <text x="490.0" y="103.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <line x1="490.0" y1="112.0" x2="445.0" y2="150.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="445.0" cy="162.0" r="14" fill="#15803d"/>
+  <text x="445.0" y="167.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <line x1="445.0" y1="176.0" x2="445.0" y2="212.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="445.0" cy="224.0" r="14" fill="#dc2626"/>
+  <text x="445.0" y="229.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <text x="445.0" y="268.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">CAB</text>
+  <line x1="490.0" y1="112.0" x2="535.0" y2="150.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="535.0" cy="162.0" r="14" fill="#15803d"/>
+  <text x="535.0" y="167.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <line x1="535.0" y1="176.0" x2="535.0" y2="212.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <circle cx="535.0" cy="224.0" r="14" fill="#dc2626"/>
+  <text x="535.0" y="229.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <text x="535.0" y="268.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">CBA</text>
+  <line x1="30.0" y1="246.0" x2="560.0" y2="246.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="290.0" y="295.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">6 lá = 3 · 2 · 1 = 3! hoán vị</text>
+  </g>
+</svg>
 
 Đếm lá: $3 \\times 2 \\times 1 = 3! = 6$. Mỗi tầng "tiêu" mất 1 lựa chọn → tích các số giảm dần $n(n-1)\\cdots 1 = n!$. Đây là vì sao hoán vị dùng giai thừa chứ không phải lũy thừa.
 
@@ -332,25 +411,48 @@ Tổng quát: mỗi nhóm $k$ phần tử có $k!$ cách sắp thứ tự; chỉ
 
 Khi gặp một bài đếm, chạy lần lượt 2 câu hỏi như sơ đồ dưới — mỗi lá là đúng 1 công thức:
 
-\`\`\`
-                     "Đếm số cách chọn/sắp k vật từ n loại"
-                                   │
-                ┌──────────────────┴──────────────────┐
-        Thứ tự CÓ quan trọng?                  Thứ tự KHÔNG quan trọng?
-        (đổi chỗ ⇒ cách khác)                  (đổi chỗ ⇒ cùng cách)
-                │                                      │
-        ┌───────┴────────┐                     ┌───────┴────────┐
-     Lặp?              Không lặp?            Lặp?              Không lặp?
-       │                  │                   │                   │
-  ┌────┴────┐        ┌────┴────┐         ┌────┴────┐         ┌────┴────┐
-  │  n^k    │        │ A(n,k)  │         │C(n+k-1,k)│        │ C(n,k)  │
-  │(PIN,    │        │=n!/(n-k)!│        │(mua bánh │         │=n!/     │
-  │ biển số)│        │(huy chương)│      │ nhiều loại)│       │(k!(n-k)!)│
-  └─────────┘        └─────────┘         └─────────┘         └─────────┘
-                                                              (chọn nhóm,
-                                                               xổ số)
-  Nếu k = n và không lặp, có thứ tự ⇒ hoán vị n! (trường hợp riêng của A(n,k)).
-\`\`\`
+<svg viewBox="0 0 600 325" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ quyết định chọn công thức đếm: thứ tự có/không quan trọng, có lặp/không lặp → 4 lá: nᵏ, A(n,k), C(n+k−1,k), C(n,k)">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <rect x="150.0" y="14.0" width="300.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="300.0" y="37.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Đếm số cách chọn / sắp k vật từ n loại</text>
+  <line x1="300.0" y1="50.0" x2="150.0" y2="86.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="45.0" y="88.0" width="210.0" height="44.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="107.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Thứ tự CÓ quan trọng</text>
+  <text x="150.0" y="123.0" fill="#1d4ed8" font-size="12" text-anchor="middle">(đổi chỗ ⇒ cách khác)</text>
+  <line x1="150.0" y1="132.0" x2="75.0" y2="166.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="30.0" y="168.0" width="90.0" height="28.0" rx="6" fill="#f8fafc" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="75.0" y="187.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Lặp?</text>
+  <line x1="75.0" y1="196.0" x2="75.0" y2="226.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="5.0" y="228.0" width="140.0" height="52.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="251.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">nᵏ</text>
+  <text x="75.0" y="267.0" fill="#1d4ed8" font-size="12" text-anchor="middle">(PIN, biển số)</text>
+  <line x1="150.0" y1="132.0" x2="225.0" y2="166.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="180.0" y="168.0" width="90.0" height="28.0" rx="6" fill="#f8fafc" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="225.0" y="187.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Không lặp?</text>
+  <line x1="225.0" y1="196.0" x2="225.0" y2="226.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="155.0" y="228.0" width="140.0" height="52.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="225.0" y="251.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A(n,k) = n!/(n−k)!</text>
+  <text x="225.0" y="267.0" fill="#1d4ed8" font-size="12" text-anchor="middle">(huy chương)</text>
+  <line x1="300.0" y1="50.0" x2="450.0" y2="86.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="345.0" y="88.0" width="210.0" height="44.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="107.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Thứ tự KHÔNG quan trọng</text>
+  <text x="450.0" y="123.0" fill="#15803d" font-size="12" text-anchor="middle">(đổi chỗ ⇒ cùng cách)</text>
+  <line x1="450.0" y1="132.0" x2="375.0" y2="166.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="330.0" y="168.0" width="90.0" height="28.0" rx="6" fill="#f8fafc" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="375.0" y="187.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Lặp?</text>
+  <line x1="375.0" y1="196.0" x2="375.0" y2="226.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="305.0" y="228.0" width="140.0" height="52.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="375.0" y="251.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">C(n+k−1, k)</text>
+  <text x="375.0" y="267.0" fill="#15803d" font-size="12" text-anchor="middle">(mua bánh nhiều loại)</text>
+  <line x1="450.0" y1="132.0" x2="525.0" y2="166.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="480.0" y="168.0" width="90.0" height="28.0" rx="6" fill="#f8fafc" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="525.0" y="187.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Không lặp?</text>
+  <line x1="525.0" y1="196.0" x2="525.0" y2="226.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <rect x="455.0" y="228.0" width="140.0" height="52.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="525.0" y="251.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">C(n,k) = n!/(k!(n−k)!)</text>
+  <text x="525.0" y="267.0" fill="#15803d" font-size="12" text-anchor="middle">(chọn nhóm, xổ số)</text>
+  <text x="300.0" y="308.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">k = n, không lặp, có thứ tự ⇒ hoán vị n! (trường hợp riêng của A(n,k))</text>
+</svg>
 
 **Bảng tra cứu nhanh** (kèm câu hỏi tự đặt + ví dụ chuẩn):
 

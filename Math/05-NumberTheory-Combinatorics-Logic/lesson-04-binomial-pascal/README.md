@@ -166,15 +166,46 @@ Tầng 6:        1   6  15  20  15   6   1
 
 💡 **Trực giác / Hình dung**: bạn **không cần** công thức giai thừa để dựng tam giác. Bắt đầu mỗi hàng bằng số $1$, kết thúc bằng số $1$, và mỗi số ở giữa = **cộng đúng 2 số kề nhau ở hàng ngay trên**. Giống dòng nước rơi xuống một khe, tách đôi rồi gộp lại ở khe dưới.
 
-```
-Tầng 0:            1
-                  / \
-Tầng 1:          1   1
-                / \ / \
-Tầng 2:        1   2   1
-              / \ / \ / \
-Tầng 3:      1   3   3   1
-```
+<svg viewBox="0 0 600 280" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác Pascal 4 tầng: 1; 1 1; 1 2 1; 1 3 3 1 — mỗi số nối bằng cạnh tới 2 số kề trên nó">
+  <defs></defs>
+  <text x="30.0" y="45.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Tầng 0</text>
+  <circle cx="300.0" cy="40.0" r="16" fill="#1d4ed8"/>
+  <text x="300.0" y="45.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <text x="30.0" y="105.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Tầng 1</text>
+  <line x1="300.0" y1="56.0" x2="260.0" y2="84.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="260.0" cy="100.0" r="16" fill="#1d4ed8"/>
+  <text x="260.0" y="105.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <line x1="300.0" y1="56.0" x2="340.0" y2="84.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="340.0" cy="100.0" r="16" fill="#1d4ed8"/>
+  <text x="340.0" y="105.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <text x="30.0" y="165.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Tầng 2</text>
+  <line x1="260.0" y1="116.0" x2="220.0" y2="144.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="220.0" cy="160.0" r="16" fill="#1d4ed8"/>
+  <text x="220.0" y="165.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <line x1="260.0" y1="116.0" x2="300.0" y2="144.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="340.0" y1="116.0" x2="300.0" y2="144.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="300.0" cy="160.0" r="16" fill="#1d4ed8"/>
+  <text x="300.0" y="165.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">2</text>
+  <line x1="340.0" y1="116.0" x2="380.0" y2="144.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="380.0" cy="160.0" r="16" fill="#1d4ed8"/>
+  <text x="380.0" y="165.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <text x="30.0" y="225.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Tầng 3</text>
+  <line x1="220.0" y1="176.0" x2="180.0" y2="204.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="180.0" cy="220.0" r="16" fill="#1d4ed8"/>
+  <text x="180.0" y="225.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <line x1="220.0" y1="176.0" x2="260.0" y2="204.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="300.0" y1="176.0" x2="260.0" y2="204.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="260.0" cy="220.0" r="16" fill="#dc2626"/>
+  <text x="260.0" y="225.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">3</text>
+  <line x1="300.0" y1="176.0" x2="340.0" y2="204.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="380.0" y1="176.0" x2="340.0" y2="204.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="340.0" cy="220.0" r="16" fill="#dc2626"/>
+  <text x="340.0" y="225.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">3</text>
+  <line x1="380.0" y1="176.0" x2="420.0" y2="204.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <circle cx="420.0" cy="220.0" r="16" fill="#1d4ed8"/>
+  <text x="420.0" y="225.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <text x="300.0" y="265.0" fill="#475569" font-size="12" text-anchor="middle">mỗi số = tổng 2 số kề nhau ở hàng trên (3 = 1 + 2); hai đầu luôn là 1</text>
+</svg>
 
 **Dựng từng số (đếm cột từ 0):**
 

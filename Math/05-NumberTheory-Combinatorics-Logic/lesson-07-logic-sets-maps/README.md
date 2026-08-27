@@ -285,27 +285,50 @@ $\Rightarrow \exists x: (x>0) \land (x^2 \le 0)$. Gốc đúng → phủ định
 | $A^c$ | Phần bù | $U \setminus A$ (U = tập vũ trụ) |
 | $A \times B$ | Tích Descartes | $\{(a, b) : a \in A, b \in B\}$ |
 
-#### Biểu đồ Venn (ASCII) — "thấy" các phép toán
+#### Biểu đồ Venn — "thấy" các phép toán
 
 Hai tập $A, B$ chồng nhau chia mặt phẳng thành 4 vùng. Vùng tô đậm là kết quả mỗi phép toán:
 
-```
-   A ∪ B  (hợp: tô CẢ HAI vòng)        A ∩ B  (giao: chỉ phần CHỒNG)
-    ┌───────────┬───────────┐           ┌───────────┬───────────┐
-    │ ███████   │   ███████ │           │           │           │
-    │ ████ ███████ ███████  │           │      ┌─────────┐      │
-    │ ███████ ███████ ████  │           │      │ ███████ │      │
-    │   A    ███████    B   │           │  A   │ ███ ███ │   B  │
-    └───────────┴───────────┘           └──────┴─────────┴──────┘
-
-   A \ B  (hiệu: A trừ phần chung)      Aᶜ  (phần bù: ngoài A, trong U)
-    ┌───────────┬───────────┐           ┌─U─────────────────────┐
-    │ ███████   │           │           │ ██████████████████████│
-    │ ████ ███  │           │           │ ████┌─────────┐███████│
-    │ ███████   │           │           │ ████│         │███████│
-    │   A    └──┴── B       │           │ ████│    A    │███████│
-    └───────────┴───────────┘           └─────┴─────────┴───────┘
-```
+<svg viewBox="0 0 560 370" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn phép toán tập hợp trên Venn hai vòng A, B trong U: hợp tô cả hai vòng, giao tô phần chồng, hiệu tô A trừ phần chung, phần bù tô ngoài A">
+  <defs></defs>
+  <text x="130.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">A ∪ B — hợp: tô CẢ HAI vòng</text>
+  <defs><clipPath id="cl1"><circle cx="95" cy="95" r="58"/></clipPath></defs>
+  <rect x="10.0" y="30.0" width="240.0" height="130.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="16.0" y="44.0" fill="#475569" font-size="11" text-anchor="start">U</text>
+  <circle cx="95" cy="95" r="58" fill="#1d4ed8" fill-opacity="0.55"/>
+  <circle cx="165" cy="95" r="58" fill="#1d4ed8" fill-opacity="0.55"/>
+  <circle cx="95" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="165" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="51.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">A</text>
+  <text x="209.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">B</text>
+  <text x="430.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">A ∩ B — giao: chỉ phần CHỒNG</text>
+  <defs><clipPath id="cl2"><circle cx="395" cy="95" r="58"/></clipPath></defs>
+  <rect x="310.0" y="30.0" width="240.0" height="130.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="316.0" y="44.0" fill="#475569" font-size="11" text-anchor="start">U</text>
+  <circle cx="465" cy="95" r="58" fill="#1d4ed8" fill-opacity="0.7" clip-path="url(#cl2)"/>
+  <circle cx="395" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="465" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="351.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">A</text>
+  <text x="509.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">B</text>
+  <text x="130.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">A \ B — hiệu: A trừ phần chung</text>
+  <defs><clipPath id="cl3"><circle cx="95" cy="285" r="58"/></clipPath></defs>
+  <rect x="10.0" y="220.0" width="240.0" height="130.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="16.0" y="234.0" fill="#475569" font-size="11" text-anchor="start">U</text>
+  <circle cx="95" cy="285" r="58" fill="#1d4ed8" fill-opacity="0.6"/>
+  <circle cx="165" cy="285" r="58" fill="#f8fafc"/>
+  <circle cx="95" cy="285" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="165" cy="285" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="51.0" y="289.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">A</text>
+  <text x="209.0" y="289.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">B</text>
+  <text x="430.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Aᶜ — phần bù: ngoài A, trong U</text>
+  <defs><clipPath id="cl4"><circle cx="395" cy="285" r="58"/></clipPath></defs>
+  <rect x="310.0" y="220.0" width="240.0" height="130.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="316.0" y="234.0" fill="#475569" font-size="11" text-anchor="start">U</text>
+  <rect x="310.0" y="220.0" width="240.0" height="130.0" rx="6" fill="#1d4ed8" fill-opacity="0.55" stroke="none" stroke-width="0"/>
+  <circle cx="395" cy="285" r="58" fill="#f8fafc"/>
+  <circle cx="395" cy="285" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="351.0" y="289.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">A</text>
+</svg>
 
 - **Hợp** $A \cup B$: gộp hết, vùng nào thuộc A **hoặc** B.
 - **Giao** $A \cap B$: chỉ phần **chồng** (thuộc A **và** B).
@@ -336,15 +359,32 @@ Cột $(A\cup B)^c$ trùng cột $A^c \cap B^c$ ở cả 4 dòng $(0,0,0,1)$ →
 
 **Cách 2 — đối chiếu Venn**: $(A \cup B)^c$ là "ngoài cả hai vòng"; $A^c \cap B^c$ là "ngoài A **và** ngoài B" = cũng "ngoài cả hai vòng". Hai mô tả chỉ cùng một vùng (góc ngoài cùng):
 
-```
-   (A ∪ B)ᶜ = vùng NGOÀI cả hai vòng        Aᶜ ∩ Bᶜ = ngoài A VÀ ngoài B
-    ┌─U───────────────────────┐              cũng chính là vùng đó
-    │██████████████████████████│
-    │████┌──────┬──────┐███████│   ⟹  hai vùng tô đậm TRÙNG nhau
-    │████│  A   │  B   │███████│
-    │████└──────┴──────┘███████│
-    └──────────────────────────┘
-```
+<svg viewBox="0 0 560 210" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="De Morgan trên Venn: (A ∪ B)ᶜ và Aᶜ ∩ Bᶜ đều là vùng ngoài cả hai vòng — trùng nhau">
+  <defs></defs>
+  <text x="130.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">(A ∪ B)ᶜ — vùng NGOÀI cả hai vòng</text>
+  <defs><clipPath id="cl5"><circle cx="95" cy="95" r="58"/></clipPath></defs>
+  <rect x="10.0" y="30.0" width="240.0" height="130.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="16.0" y="44.0" fill="#475569" font-size="11" text-anchor="start">U</text>
+  <rect x="10.0" y="30.0" width="240.0" height="130.0" rx="6" fill="#1d4ed8" fill-opacity="0.55" stroke="none" stroke-width="0"/>
+  <circle cx="95" cy="95" r="58" fill="#f8fafc"/>
+  <circle cx="165" cy="95" r="58" fill="#f8fafc"/>
+  <circle cx="95" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="165" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="51.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">A</text>
+  <text x="209.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">B</text>
+  <text x="430.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Aᶜ ∩ Bᶜ — ngoài A VÀ ngoài B</text>
+  <defs><clipPath id="cl6"><circle cx="395" cy="95" r="58"/></clipPath></defs>
+  <rect x="310.0" y="30.0" width="240.0" height="130.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="316.0" y="44.0" fill="#475569" font-size="11" text-anchor="start">U</text>
+  <rect x="310.0" y="30.0" width="240.0" height="130.0" rx="6" fill="#1d4ed8" fill-opacity="0.55" stroke="none" stroke-width="0"/>
+  <circle cx="395" cy="95" r="58" fill="#f8fafc"/>
+  <circle cx="465" cy="95" r="58" fill="#f8fafc"/>
+  <circle cx="395" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="465" cy="95" r="58" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="351.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">A</text>
+  <text x="509.0" y="99.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">B</text>
+  <text x="280.0" y="192.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">⟹ hai vùng tô đậm TRÙNG nhau: (A ∪ B)ᶜ = Aᶜ ∩ Bᶜ</text>
+</svg>
 
 **4 ví dụ số đa dạng** ($A = \{1,2,3\}$, $B = \{2,3,4\}$):
 - $A \cup B = \{1,2,3,4\}$ (hợp = gộp, không lặp).
@@ -470,23 +510,87 @@ $$|A \cup B| = |A| + |B| - |A \cap B|$$
 
 > 🔗 **Liên hệ Lesson 07 Tier 1 (Hàm số)**: ba khái niệm đơn/toàn/song ánh đã xuất hiện ở [Lesson 07 — Hàm số](../../01-Arithmetic-Algebra/lesson-07-functions-intro/) qua góc nhìn đồ thị (vertical/horizontal line test) và hàm ngược. Ở đây ta nhìn chúng **trừu tượng hơn** — không cần $A,B$ là tập số, có thể là tập bất kỳ — và nối thẳng vào khái niệm **lực lượng** (đếm được) bên dưới.
 
-#### Sơ đồ mũi tên (ASCII) — phân biệt 4 trường hợp
+#### Sơ đồ mũi tên — phân biệt 4 trường hợp
 
-```
-   ĐƠN ánh, KHÔNG toàn        TOÀN ánh, KHÔNG đơn
-   A          B               A          B
-   a1 ──────► b1              a1 ──┐
-   a2 ──────► b2              a2 ──┴───► b1
-              b3  ◄ thiếu nguồn        a3 ──────► b2
-   (mỗi b ≤1 mũi tên,         (b1 có 2 mũi tên → không đơn;
-    b3 trống → không toàn)      mọi b có nguồn → toàn)
-
-   SONG ánh (1-1 hoàn hảo)     KHÔNG đơn, KHÔNG toàn
-   a1 ──────► b1              a1 ──┐
-   a2 ──────► b2              a2 ──┴───► b1
-   a3 ──────► b3                         b2 ◄ thiếu nguồn
-   (mỗi b đúng 1 mũi tên)     (b1 hai nguồn, b2 trống)
-```
+<svg viewBox="0 0 660 380" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ mũi tên 4 trường hợp ánh xạ A → B: đơn ánh không toàn, toàn ánh không đơn, song ánh, không đơn không toàn">
+  <defs><marker id="ar8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="130.0" y="16.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">ĐƠN ánh, KHÔNG toàn</text>
+  <rect x="20.0" y="28.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="180.0" y="28.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="50.0" y="43.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <text x="210.0" y="43.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="50.0" cy="55.0" r="5" fill="#1d4ed8"/>
+  <text x="36.0" y="59.0" fill="#1d4ed8" font-size="12" text-anchor="end">a1</text>
+  <circle cx="50.0" cy="90.0" r="5" fill="#1d4ed8"/>
+  <text x="36.0" y="94.0" fill="#1d4ed8" font-size="12" text-anchor="end">a2</text>
+  <circle cx="210.0" cy="55.0" r="5" fill="#15803d"/>
+  <text x="224.0" y="59.0" fill="#15803d" font-size="12" text-anchor="start">b1</text>
+  <circle cx="210.0" cy="90.0" r="5" fill="#15803d"/>
+  <text x="224.0" y="94.0" fill="#15803d" font-size="12" text-anchor="start">b2</text>
+  <circle cx="210.0" cy="125.0" r="5" fill="#15803d"/>
+  <text x="224.0" y="129.0" fill="#15803d" font-size="12" text-anchor="start">b3</text>
+  <line x1="58.0" y1="55.0" x2="200.0" y2="55.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <line x1="58.0" y1="90.0" x2="200.0" y2="90.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <text x="250.0" y="129.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">◄ thiếu nguồn</text>
+  <text x="130.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">mỗi b ≤ 1 mũi tên; b3 trống → không toàn</text>
+  <text x="460.0" y="16.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">TOÀN ánh, KHÔNG đơn</text>
+  <rect x="350.0" y="28.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="510.0" y="28.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="380.0" y="43.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <text x="540.0" y="43.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="380.0" cy="55.0" r="5" fill="#1d4ed8"/>
+  <text x="366.0" y="59.0" fill="#1d4ed8" font-size="12" text-anchor="end">a1</text>
+  <circle cx="380.0" cy="90.0" r="5" fill="#1d4ed8"/>
+  <text x="366.0" y="94.0" fill="#1d4ed8" font-size="12" text-anchor="end">a2</text>
+  <circle cx="380.0" cy="125.0" r="5" fill="#1d4ed8"/>
+  <text x="366.0" y="129.0" fill="#1d4ed8" font-size="12" text-anchor="end">a3</text>
+  <circle cx="540.0" cy="55.0" r="5" fill="#15803d"/>
+  <text x="554.0" y="59.0" fill="#15803d" font-size="12" text-anchor="start">b1</text>
+  <circle cx="540.0" cy="90.0" r="5" fill="#15803d"/>
+  <text x="554.0" y="94.0" fill="#15803d" font-size="12" text-anchor="start">b2</text>
+  <line x1="388.0" y1="55.0" x2="530.0" y2="55.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <line x1="388.0" y1="90.0" x2="530.0" y2="55.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <line x1="388.0" y1="125.0" x2="530.0" y2="90.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <text x="460.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">b1 có 2 mũi tên → không đơn; mọi b có nguồn → toàn</text>
+  <text x="130.0" y="206.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">SONG ánh (1-1 hoàn hảo)</text>
+  <rect x="20.0" y="218.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="180.0" y="218.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="50.0" y="233.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <text x="210.0" y="233.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="50.0" cy="245.0" r="5" fill="#1d4ed8"/>
+  <text x="36.0" y="249.0" fill="#1d4ed8" font-size="12" text-anchor="end">a1</text>
+  <circle cx="50.0" cy="280.0" r="5" fill="#1d4ed8"/>
+  <text x="36.0" y="284.0" fill="#1d4ed8" font-size="12" text-anchor="end">a2</text>
+  <circle cx="50.0" cy="315.0" r="5" fill="#1d4ed8"/>
+  <text x="36.0" y="319.0" fill="#1d4ed8" font-size="12" text-anchor="end">a3</text>
+  <circle cx="210.0" cy="245.0" r="5" fill="#15803d"/>
+  <text x="224.0" y="249.0" fill="#15803d" font-size="12" text-anchor="start">b1</text>
+  <circle cx="210.0" cy="280.0" r="5" fill="#15803d"/>
+  <text x="224.0" y="284.0" fill="#15803d" font-size="12" text-anchor="start">b2</text>
+  <circle cx="210.0" cy="315.0" r="5" fill="#15803d"/>
+  <text x="224.0" y="319.0" fill="#15803d" font-size="12" text-anchor="start">b3</text>
+  <line x1="58.0" y1="245.0" x2="200.0" y2="245.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <line x1="58.0" y1="280.0" x2="200.0" y2="280.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <line x1="58.0" y1="315.0" x2="200.0" y2="315.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <text x="130.0" y="358.0" fill="#475569" font-size="11" text-anchor="middle">mỗi b đúng 1 mũi tên</text>
+  <text x="460.0" y="206.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">KHÔNG đơn, KHÔNG toàn</text>
+  <rect x="350.0" y="218.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="510.0" y="218.0" width="60.0" height="120.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="380.0" y="233.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <text x="540.0" y="233.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="380.0" cy="245.0" r="5" fill="#1d4ed8"/>
+  <text x="366.0" y="249.0" fill="#1d4ed8" font-size="12" text-anchor="end">a1</text>
+  <circle cx="380.0" cy="280.0" r="5" fill="#1d4ed8"/>
+  <text x="366.0" y="284.0" fill="#1d4ed8" font-size="12" text-anchor="end">a2</text>
+  <circle cx="540.0" cy="245.0" r="5" fill="#15803d"/>
+  <text x="554.0" y="249.0" fill="#15803d" font-size="12" text-anchor="start">b1</text>
+  <circle cx="540.0" cy="280.0" r="5" fill="#15803d"/>
+  <text x="554.0" y="284.0" fill="#15803d" font-size="12" text-anchor="start">b2</text>
+  <line x1="388.0" y1="245.0" x2="530.0" y2="245.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <line x1="388.0" y1="280.0" x2="530.0" y2="245.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar8)"/>
+  <text x="580.0" y="284.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">◄ thiếu nguồn</text>
+  <text x="460.0" y="358.0" fill="#475569" font-size="11" text-anchor="middle">b1 hai nguồn, b2 trống</text>
+</svg>
 
 #### Walk-through kiểm tra đơn/toàn ánh từng bước
 
@@ -565,16 +669,77 @@ Thử: $f(0)=0$, $f(1)=-1$, $f(2)=1$, $f(3)=-2$, $f(4)=2$ — phủ hết $\math
 
 **$\mathbb{Q}$ (số hữu tỉ) đếm được** — dù "dày đặc" (giữa 2 số hữu tỉ bất kỳ luôn có số hữu tỉ khác). Mẹo Cantor: xếp phân số $p/q$ vào lưới 2 chiều rồi **đi đường chéo (zig-zag)**, bỏ qua phân số rút gọn được trùng:
 
-```
-        q=1   q=2   q=3   q=4 ...
-  p=1   1/1 → 1/2   1/3 → 1/4
-         ↙     ↗     ↙
-  p=2   2/1   2/2   2/3   ...
-         ↓   ↗     ↙
-  p=3   3/1   3/2   ...
-         ↙
-  p=4   3/1 ...
-```
+<svg viewBox="0 0 640 300" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lưới Cantor các phân số p/q (p, q = 1..4) với đường zig-zag qua các đường chéo; phân số rút gọn trùng tô xám bị bỏ qua; các phân số còn lại được đánh số #1, #2, …">
+  <defs><marker id="ar9" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <text x="120.0" y="32.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">q = 1</text>
+  <text x="220.0" y="32.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">q = 2</text>
+  <text x="320.0" y="32.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">q = 3</text>
+  <text x="420.0" y="32.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">q = 4</text>
+  <text x="50.0" y="65.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">p = 1</text>
+  <text x="50.0" y="120.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">p = 2</text>
+  <text x="50.0" y="175.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">p = 3</text>
+  <text x="50.0" y="230.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">p = 4</text>
+  <path d="M 120.0,60.0 L 120.0,115.0 L 220.0,60.0 L 320.0,60.0 L 220.0,115.0 L 120.0,170.0 L 120.0,225.0 L 220.0,170.0 L 320.0,115.0 L 420.0,60.0 L 420.0,115.0 L 320.0,170.0 L 220.0,225.0 L 320.0,225.0 L 420.0,170.0 L 420.0,225.0" fill="none" stroke="#dc2626" stroke-width="1.8" stroke-linejoin="round" stroke-dasharray="5 3"/>
+  <line x1="120.0" y1="90.2" x2="120.0" y2="94.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="175.0" y1="84.8" x2="182.0" y2="80.9" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="275.0" y1="60.0" x2="282.0" y2="60.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="265.0" y1="90.2" x2="258.0" y2="94.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="165.0" y1="145.2" x2="158.0" y2="149.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="120.0" y1="200.2" x2="120.0" y2="204.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="175.0" y1="194.8" x2="182.0" y2="190.9" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="275.0" y1="139.8" x2="282.0" y2="135.9" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="375.0" y1="84.8" x2="382.0" y2="80.9" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="420.0" y1="90.2" x2="420.0" y2="94.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="365.0" y1="145.2" x2="358.0" y2="149.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="265.0" y1="200.2" x2="258.0" y2="204.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="275.0" y1="225.0" x2="282.0" y2="225.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="375.0" y1="194.8" x2="382.0" y2="190.9" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <line x1="420.0" y1="200.2" x2="420.0" y2="204.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar9)"/>
+  <rect x="98" y="47" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="120.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1/1</text>
+  <text x="146.0" y="50.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#1</text>
+  <rect x="98" y="102" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="120.0" y="120.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2/1</text>
+  <text x="146.0" y="105.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#2</text>
+  <rect x="198" y="47" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="220.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1/2</text>
+  <text x="246.0" y="50.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#3</text>
+  <rect x="298" y="47" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="320.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1/3</text>
+  <text x="346.0" y="50.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#4</text>
+  <rect x="198" y="102" width="44" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="220.0" y="120.0" fill="#94a3b8" font-size="12" text-anchor="middle">2/2</text>
+  <rect x="98" y="157" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="120.0" y="175.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3/1</text>
+  <text x="146.0" y="160.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#5</text>
+  <rect x="98" y="212" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="120.0" y="230.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4/1</text>
+  <text x="146.0" y="215.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#6</text>
+  <rect x="198" y="157" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="220.0" y="175.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3/2</text>
+  <text x="246.0" y="160.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#7</text>
+  <rect x="298" y="102" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="320.0" y="120.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2/3</text>
+  <text x="346.0" y="105.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#8</text>
+  <rect x="398" y="47" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="420.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1/4</text>
+  <text x="446.0" y="50.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#9</text>
+  <rect x="398" y="102" width="44" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="420.0" y="120.0" fill="#94a3b8" font-size="12" text-anchor="middle">2/4</text>
+  <rect x="298" y="157" width="44" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="320.0" y="175.0" fill="#94a3b8" font-size="12" text-anchor="middle">3/3</text>
+  <rect x="198" y="212" width="44" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="220.0" y="230.0" fill="#94a3b8" font-size="12" text-anchor="middle">4/2</text>
+  <rect x="298" y="212" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="320.0" y="230.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4/3</text>
+  <text x="346.0" y="215.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#10</text>
+  <rect x="398" y="157" width="44" height="26" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="420.0" y="175.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3/4</text>
+  <text x="446.0" y="160.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">#11</text>
+  <rect x="398" y="212" width="44" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="420.0" y="230.0" fill="#94a3b8" font-size="12" text-anchor="middle">4/4</text>
+  <text x="320.0" y="275.0" fill="#475569" font-size="11" text-anchor="middle">đi zig-zag theo đường chéo; ô xám (2/2, 2/4, …) rút gọn trùng → bỏ; đánh số #1, #2, … ⟹ ℚ⁺ đếm được</text>
+</svg>
 Mọi phân số đều "đến lượt" sau hữu hạn bước → đánh số được → $\mathbb{Q}$ đếm được ✓.
 
 ### Không đếm được: ℝ (đường chéo Cantor)

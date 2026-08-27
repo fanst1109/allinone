@@ -202,20 +202,23 @@ $$|A \cup B| = |A| + |B| - |A \cap B|$$
 
 💡 **Vì sao — đếm bằng Venn**: Cộng $|A| + |B|$ thì vùng giao $A\cap B$ bị đếm **2 lần** (1 lần trong $|A|$, 1 lần trong $|B|$). Trừ $|A\cap B|$ một lần để mỗi phần tử được đếm đúng 1 lần.
 
-```
-        ┌───────────────┐
-        │   A           │
-        │       ┌───────┼───────┐
-        │ chỉ A │ A∩B   │ chỉ B │
-        │       │ (đếm  │       │
-        │       │ 2 lần)│       │
-        └───────┼───────┘       │
-                │       B       │
-                └───────────────┘
-
-  |A|+|B| = (chỉ A) + (A∩B) + (A∩B) + (chỉ B)   ← A∩B đếm 2 lần
-  trừ |A∩B|:        (chỉ A) + (A∩B) + (chỉ B) = |A∪B|  ✓
-```
+<svg viewBox="0 0 580 280" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Venn hai tập A, B: vùng giao A∩B tô đậm bị đếm 2 lần khi cộng |A| + |B|, trừ đi một lần được |A ∪ B|">
+  <defs></defs>
+  <defs><clipPath id="ar5A"><circle cx="190" cy="120" r="85"/></clipPath></defs>
+  <circle cx="190" cy="120" r="85" fill="#1d4ed8" fill-opacity="0.35"/>
+  <circle cx="290" cy="120" r="85" fill="#15803d" fill-opacity="0.35"/>
+  <circle cx="290" cy="120" r="85" fill="#dc2626" fill-opacity="0.75" clip-path="url(#ar5A)"/>
+  <circle cx="190" cy="120" r="85" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="290" cy="120" r="85" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="115.0" y="57.0" fill="#1d4ed8" font-size="15" text-anchor="start" font-weight="700">A</text>
+  <text x="365.0" y="57.0" fill="#15803d" font-size="15" text-anchor="end" font-weight="700">B</text>
+  <text x="150.0" y="125.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">chỉ A</text>
+  <text x="330.0" y="125.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">chỉ B</text>
+  <text x="240.0" y="116.0" fill="white" font-size="13" text-anchor="middle" font-weight="700">A∩B</text>
+  <text x="240.0" y="132.0" fill="white" font-size="11" text-anchor="middle">(đếm 2 lần)</text>
+  <text x="290.0" y="240.0" fill="#1a202c" font-size="13" text-anchor="middle">|A| + |B| = (chỉ A) + (A∩B) + (A∩B) + (chỉ B)   ← A∩B đếm 2 lần</text>
+  <text x="290.0" y="262.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">trừ |A∩B|:  (chỉ A) + (A∩B) + (chỉ B) = |A ∪ B|  ✓</text>
+</svg>
 
 **Walk-through — TỪNG BƯỚC (ví dụ 1)**: Lớp 30 người, 18 thích toán ($T$), 15 thích vật lý ($L$), 8 thích cả 2 ($T\cap L$). Bao nhiêu người thích ít nhất 1 môn?
 - **B1** cộng đơn: $|T| + |L| = 18 + 15 = 33$ — nhưng $33 > 30$, vô lý → dấu hiệu đếm trùng.
@@ -238,23 +241,29 @@ $$|A \cup B \cup C| = |A| + |B| + |C| - |A \cap B| - |B \cap C| - |A \cap C| + |
 
 **Venn 3 tập — 7 vùng**: Sơ đồ chia mặt phẳng thành 7 miền. Khóa hiểu: phần tử ở vùng trung tâm ($A\cap B\cap C$) bị "co kéo" qua các hệ số rồi mới cân bằng về đúng 1.
 
-```
-            ┌─────────────────────┐
-            │  A                  │
-            │      a   ┌──────────┼──────┐
-            │          │   ab     │   b  │
-            │   ┌──────┼──┐       │      │
-            │   │  ac  │ abc      │  bc  │
-            │   │      │  (giữa)  │      │
-            └───┼──────┼──┘       │   B  │
-                │      └──────────┼──────┘
-                │   c      C      │
-                └─────────────────┘
-
-  a = chỉ A | b = chỉ B | c = chỉ C
-  ab = A∩B (ngoài C) | bc = B∩C (ngoài A) | ac = A∩C (ngoài B)
-  abc = A∩B∩C (trung tâm)
-```
+<svg viewBox="0 0 620 275" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Venn ba tập A, B, C chia mặt phẳng thành 7 vùng: a, b, c (chỉ một tập), ab, bc, ac (đúng hai tập), abc (trung tâm)">
+  <defs></defs>
+  <circle cx="235" cy="120" r="95" fill="#1d4ed8" fill-opacity="0.18" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="345" cy="120" r="95" fill="#15803d" fill-opacity="0.18" stroke="#15803d" stroke-width="2"/>
+  <circle cx="290" cy="210" r="95" fill="#b45309" fill-opacity="0.18" stroke="#b45309" stroke-width="2"/>
+  <text x="148.0" y="55.0" fill="#1d4ed8" font-size="16" text-anchor="start" font-weight="700">A</text>
+  <text x="432.0" y="55.0" fill="#15803d" font-size="16" text-anchor="end" font-weight="700">B</text>
+  <text x="290.0" y="293.0" fill="#b45309" font-size="16" text-anchor="middle" font-weight="700">C</text>
+  <text x="195.0" y="105.0" fill="#1d4ed8" font-size="15" text-anchor="middle" font-weight="700">a</text>
+  <text x="385.0" y="105.0" fill="#15803d" font-size="15" text-anchor="middle" font-weight="700">b</text>
+  <text x="290.0" y="245.0" fill="#b45309" font-size="15" text-anchor="middle" font-weight="700">c</text>
+  <text x="290.0" y="88.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">ab</text>
+  <text x="230.0" y="190.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">ac</text>
+  <text x="350.0" y="190.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">bc</text>
+  <text x="290.0" y="158.0" fill="#dc2626" font-size="15" text-anchor="middle" font-weight="700">abc</text>
+  <text x="290.0" y="174.0" fill="#dc2626" font-size="11" text-anchor="middle">(giữa)</text>
+  <text x="440.0" y="80.0" fill="#475569" font-size="12" text-anchor="start">a = chỉ A · b = chỉ B · c = chỉ C</text>
+  <text x="440.0" y="102.0" fill="#475569" font-size="12" text-anchor="start">ab = A∩B ngoài C</text>
+  <text x="440.0" y="122.0" fill="#475569" font-size="12" text-anchor="start">bc = B∩C ngoài A</text>
+  <text x="440.0" y="142.0" fill="#475569" font-size="12" text-anchor="start">ac = A∩C ngoài B</text>
+  <text x="440.0" y="168.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">abc = A∩B∩C (trung tâm)</text>
+  <text x="440.0" y="200.0" fill="#1a202c" font-size="12" text-anchor="start" font-weight="700">7 vùng rời nhau</text>
+</svg>
 
 **Walk-through — TỪNG BƯỚC (ví dụ 1)**: 100 sinh viên, 40 học Toán, 30 Lý, 25 Hóa. 15 Toán+Lý, 10 Lý+Hóa, 12 Toán+Hóa, 5 cả 3. Số học ít nhất 1 môn?
 - **B1** cộng đơn: $40+30+25 = 95$.

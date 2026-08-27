@@ -59,17 +59,49 @@ So sánh nhanh: rời rạc hỏi *"kỳ sau bằng bao nhiêu?"* ($x_{n+1} = f(
 - Thời gian nhân đôi: $e^{r\cdot t_2} = 2$ → $t_2 = \ln 2/r = 0.693/0.5 \approx$ **1.39 giờ**.
 - **Diễn giải tham số**: $N_0$ dịch toàn bộ đường lên/xuống (điểm xuất phát); $r$ điều khiển *độ cong* — gấp đôi $r$ thì cùng một bội số đạt được trong nửa thời gian. Đổi $N_0 = 200$ chỉ nhân đôi mọi giá trị, KHÔNG đổi thời gian nhân đôi (vẫn 1.39h) — nhân đôi là tính chất của $r$ thôi.
 
-ASCII — cùng $r$, đổi $N_0$ chỉ dịch đường; đổi $r$ đổi độ cong:
+Cùng $r$, đổi $N_0$ chỉ dịch đường; đổi $r$ đổi độ cong:
 
-```
-  N                          r=0.5, N₀=200 ┄┄►/
-    |                       r=0.5, N₀=100 ──►/
-    |                                       /  ./
-    |                            r=0.25 ┈┈►./.·
-    |                                   ._.·
-    +-------------------------------------------- t
-       N₀ nâng đường lên · r lớn → cong vểnh sớm
-```
+<svg viewBox="0 0 560 285" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba đường tăng trưởng mũ N₀eʳᵗ: cùng r = 0.5 với N₀ = 100 và 200 chỉ dịch đường; r = 0.25 cong chậm hơn">
+  <defs><marker id="ar11" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="150.0" y1="230.0" x2="150.0" y2="35.0"/>
+<line x1="240.0" y1="230.0" x2="240.0" y2="35.0"/>
+<line x1="330.0" y1="230.0" x2="330.0" y2="35.0"/>
+<line x1="420.0" y1="230.0" x2="420.0" y2="35.0"/>
+<line x1="60.0" y1="165.0" x2="487.5" y2="165.0"/>
+<line x1="60.0" y1="100.0" x2="487.5" y2="100.0"/>
+<line x1="60.0" y1="35.0" x2="487.5" y2="35.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="509.5" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar11)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="13.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar11)"/>
+  <text x="501.5" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">t</text>
+  <text x="68.0" y="23.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">N</text>
+  <line x1="150.0" y1="226.0" x2="150.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="150.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="240.0" y1="226.0" x2="240.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="330.0" y1="226.0" x2="330.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <line x1="420.0" y1="226.0" x2="420.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="420.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <line x1="56.0" y1="165.0" x2="64.0" y2="165.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="169.0" fill="#475569" font-size="11" text-anchor="end">500</text>
+  <line x1="56.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="104.0" fill="#475569" font-size="11" text-anchor="end">1000</text>
+  <line x1="56.0" y1="35.0" x2="64.0" y2="35.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="39.0" fill="#475569" font-size="11" text-anchor="end">1500</text>
+  <path d="M 60.0,204.0 L 63.0,203.1 L 66.0,202.2 L 69.0,201.3 L 72.0,200.3 L 75.0,199.3 L 78.0,198.2 L 81.0,197.2 L 84.0,196.0 L 87.0,194.9 L 90.0,193.7 L 93.0,192.5 L 96.0,191.2 L 99.0,189.9 L 102.0,188.5 L 105.0,187.1 L 108.0,185.7 L 111.0,184.2 L 114.0,182.6 L 117.0,181.0 L 120.0,179.3 L 123.0,177.6 L 126.0,175.8 L 129.1,174.0 L 132.1,172.1 L 135.1,170.1 L 138.1,168.1 L 141.1,166.0 L 144.1,163.8 L 147.1,161.6 L 150.1,159.3 L 153.1,156.9 L 156.1,154.4 L 159.1,151.8 L 162.1,149.2 L 165.1,146.4 L 168.1,143.6 L 171.1,140.7 L 174.1,137.6 L 177.1,134.5 L 180.1,131.3 L 183.1,127.9 L 186.1,124.5 L 189.1,120.9 L 192.1,117.2 L 195.1,113.3 L 198.1,109.4 L 201.1,105.3 L 204.1,101.1 L 207.1,96.7 L 210.1,92.2 L 213.1,87.5 L 216.1,82.7 L 219.1,77.7 L 222.1,72.5 L 225.1,67.2 L 228.1,61.6 L 231.1,55.9 L 234.1,50.0 L 237.1,43.9 L 240.1,37.6" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 60.0,217.0 L 64.0,216.4 L 68.1,215.8 L 72.1,215.1 L 76.2,214.4 L 80.2,213.7 L 84.3,213.0 L 88.3,212.2 L 92.3,211.4 L 96.4,210.5 L 100.4,209.6 L 104.5,208.7 L 108.5,207.7 L 112.5,206.7 L 116.6,205.6 L 120.6,204.5 L 124.7,203.3 L 128.7,202.1 L 132.8,200.8 L 136.8,199.5 L 140.8,198.1 L 144.9,196.6 L 148.9,195.1 L 153.0,193.5 L 157.0,191.8 L 161.0,190.0 L 165.1,188.2 L 169.1,186.3 L 173.2,184.3 L 177.2,182.2 L 181.3,180.0 L 185.3,177.7 L 189.3,175.3 L 193.4,172.8 L 197.4,170.1 L 201.5,167.4 L 205.5,164.5 L 209.6,161.5 L 213.6,158.4 L 217.6,155.1 L 221.7,151.6 L 225.7,148.0 L 229.8,144.3 L 233.8,140.3 L 237.8,136.2 L 241.9,131.9 L 245.9,127.4 L 250.0,122.7 L 254.0,117.8 L 258.1,112.6 L 262.1,107.2 L 266.1,101.6 L 270.2,95.7 L 274.2,89.5 L 278.3,83.0 L 282.3,76.3 L 286.3,69.2 L 290.4,61.9 L 294.4,54.1 L 298.5,46.0 L 302.5,37.6" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 60.0,217.0 L 67.0,216.5 L 74.0,216.0 L 80.9,215.4 L 87.9,214.8 L 94.9,214.2 L 101.8,213.6 L 108.8,212.9 L 115.8,212.3 L 122.8,211.6 L 129.8,210.8 L 136.7,210.1 L 143.7,209.3 L 150.7,208.5 L 157.7,207.6 L 164.6,206.8 L 171.6,205.8 L 178.6,204.9 L 185.6,203.9 L 192.5,202.9 L 199.5,201.8 L 206.5,200.7 L 213.5,199.5 L 220.4,198.3 L 227.4,197.1 L 234.4,195.7 L 241.4,194.4 L 248.3,193.0 L 255.3,191.5 L 262.3,190.0 L 269.2,188.4 L 276.2,186.8 L 283.2,185.1 L 290.2,183.3 L 297.2,181.5 L 304.1,179.5 L 311.1,177.5 L 318.1,175.5 L 325.1,173.3 L 332.0,171.1 L 339.0,168.8 L 346.0,166.3 L 353.0,163.8 L 359.9,161.2 L 366.9,158.5 L 373.9,155.7 L 380.9,152.7 L 387.8,149.7 L 394.8,146.5 L 401.8,143.2 L 408.8,139.8 L 415.7,136.2 L 422.7,132.5 L 429.7,128.6 L 436.7,124.6 L 443.6,120.5 L 450.6,116.1 L 457.6,111.6 L 464.6,107.0 L 471.5,102.1 L 478.5,97.1" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <rect x="75.0" y="20.0" width="190.0" height="74.0" rx="8" fill="white" fill-opacity="1" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="86.0" y1="38.0" x2="116.0" y2="38.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="124.0" y="42.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">r = 0.5, N₀ = 200</text>
+  <line x1="86.0" y1="60.0" x2="116.0" y2="60.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="124.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">r = 0.5, N₀ = 100</text>
+  <line x1="86.0" y1="82.0" x2="116.0" y2="82.0" stroke="#15803d" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="124.0" y="86.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">r = 0.25, N₀ = 100</text>
+  <text x="260.0" y="268.0" fill="#475569" font-size="12" text-anchor="middle">N₀ lớn → nâng đường lên (cùng dạng) · r lớn → cong vểnh sớm hơn</text>
+</svg>
 
 ### 2.1 Phân rã phóng xạ — chu kỳ bán rã
 
@@ -146,33 +178,158 @@ ASCII — cùng $r$, đổi $N_0$ chỉ dịch đường; đổi $r$ đổi đ�
 - $t \to \infty$: $e^{-0.5t} \to 0$ → $N \to$ **$1000 = K$** ✓.
 - **Diễn giải tham số**: $K$ = độ cao trần (đường ngang tiệm cận); $r$ = độ dốc — $r$ lớn thì chữ S "dựng" hơn (lên trần nhanh); $N_0$ (qua $A$) = vị trí xuất phát, càng nhỏ thì pha tăng tốc càng dài.
 
-ASCII — đường cong chữ S (logistic) tiệm cận trần $K$:
+Đường cong chữ S (logistic) tiệm cận trần $K$:
 
-```
-   N
-  K ┤- - - - - - - - - - - ___────────  ← tiệm cận trần K
-    │                  __──
-    │              _──    ← phần lõm: chậm lại (đông đúc)
-K/2 ┤··········_─·  ← điểm uốn t≈4.39, dốc nhất
-    │       _─    ← phần lồi: tăng tốc (gần mũ)
- N₀ ┤___──
-    └──────┬──────────────────────────── t
-          t≈4.39
-   chữ "S": lồi dưới → uốn ở K/2 → lõm trên → phẳng ở K
-```
+<svg viewBox="0 0 560 285" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường logistic chữ S từ N₀ tới trần K với điểm uốn tại K/2 (t ≈ 4.39), lồi phía dưới và lõm phía trên">
+  <defs><marker id="ar12" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="235.8" y1="230.0" x2="235.8" y2="23.0"/>
+<line x1="380.0" y1="230.0" x2="380.0" y2="23.0"/>
+<line x1="540.0" y1="230.0" x2="540.0" y2="23.0"/>
+<line x1="60.0" y1="212.0" x2="560.0" y2="212.0"/>
+<line x1="60.0" y1="140.0" x2="560.0" y2="140.0"/>
+<line x1="60.0" y1="50.0" x2="560.0" y2="50.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="582.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar12)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="1.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar12)"/>
+  <text x="574.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">t</text>
+  <text x="68.0" y="11.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">N</text>
+  <line x1="235.8" y1="226.0" x2="235.8" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="235.8" y="246.0" fill="#475569" font-size="11" text-anchor="middle">t ≈ 4.39</text>
+  <line x1="380.0" y1="226.0" x2="380.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="380.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <line x1="540.0" y1="226.0" x2="540.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="540.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">12</text>
+  <line x1="56.0" y1="212.0" x2="64.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="216.0" fill="#475569" font-size="11" text-anchor="end">N₀</text>
+  <line x1="56.0" y1="140.0" x2="64.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="144.0" fill="#475569" font-size="11" text-anchor="end">K/2</text>
+  <line x1="56.0" y1="50.0" x2="64.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">K</text>
+  <line x1="60.0" y1="50.0" x2="552.0" y2="50.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <line x1="60.0" y1="140.0" x2="235.8" y2="140.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="235.8" y1="230.0" x2="235.8" y2="140.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <path d="M 60.0,212.0 L 64.9,211.0 L 69.8,209.9 L 74.8,208.8 L 79.7,207.6 L 84.6,206.4 L 89.5,205.1 L 94.4,203.7 L 99.4,202.3 L 104.3,200.8 L 109.2,199.3 L 114.1,197.7 L 119.0,196.1 L 124.0,194.3 L 128.9,192.5 L 133.8,190.7 L 138.7,188.8 L 143.6,186.8 L 148.6,184.7 L 153.5,182.6 L 158.4,180.4 L 163.3,178.2 L 168.2,175.9 L 173.2,173.5 L 178.1,171.1 L 183.0,168.7 L 187.9,166.1 L 192.8,163.6 L 197.8,161.0 L 202.7,158.4 L 207.6,155.7 L 212.5,153.0 L 217.4,150.3 L 222.4,147.5 L 227.3,144.8 L 232.2,142.0 L 237.1,139.2 L 242.0,136.5 L 247.0,133.7 L 251.9,131.0 L 256.8,128.2 L 261.7,125.5 L 266.6,122.9 L 271.6,120.2 L 276.5,117.6 L 281.4,115.0 L 286.3,112.5 L 291.2,110.0 L 296.2,107.6 L 301.1,105.2 L 306.0,102.9 L 310.9,100.6 L 315.8,98.4 L 320.8,96.2 L 325.7,94.2 L 330.6,92.1 L 335.5,90.2 L 340.4,88.3 L 345.4,86.5 L 350.3,84.7 L 355.2,83.0 L 360.1,81.4 L 365.0,79.8 L 370.0,78.3 L 374.9,76.9 L 379.8,75.5 L 384.7,74.2 L 389.6,72.9 L 394.6,71.7 L 399.5,70.6 L 404.4,69.5 L 409.3,68.5 L 414.2,67.5 L 419.2,66.5 L 424.1,65.6 L 429.0,64.8 L 433.9,64.0 L 438.8,63.2 L 443.8,62.4 L 448.7,61.8 L 453.6,61.1 L 458.5,60.5 L 463.4,59.9 L 468.4,59.3 L 473.3,58.8 L 478.2,58.3 L 483.1,57.8 L 488.0,57.4 L 493.0,57.0 L 497.9,56.6 L 502.8,56.2 L 507.7,55.8 L 512.6,55.5 L 517.6,55.2 L 522.5,54.9 L 527.4,54.6 L 532.3,54.3 L 537.2,54.1 L 542.2,53.8 L 547.1,53.6 L 552.0,53.4" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="235.8" cy="140.0" r="5" fill="#dc2626"/>
+  <text x="245.8" y="144.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">điểm uốn (t ≈ 4.39, K/2): dốc nhất</text>
+  <text x="126.0" y="185.0" fill="#15803d" font-size="11" text-anchor="start">phần lồi: tăng tốc (gần mũ)</text>
+  <text x="360.0" y="84.6" fill="#b45309" font-size="11" text-anchor="start">phần lõm: chậm lại (đông đúc)</text>
+  <text x="548.0" y="42.0" fill="#94a3b8" font-size="11" text-anchor="end">tiệm cận trần K</text>
+  <text x="280.0" y="268.0" fill="#475569" font-size="12" text-anchor="middle">chữ S: lồi dưới → uốn ở K/2 → lõm trên → phẳng ở K</text>
+</svg>
 
-ASCII — trường hướng (slope field) của logistic, gạch = dấu/độ lớn của $dN/dt$:
+Trường hướng (slope field) của logistic, gạch = dấu/độ lớn của $dN/dt$:
 
-```
-  N
-  K  →  →  →  →  →     dN/dt = 0 (cân bằng ổn định, gạch ngang)
-     ↗  ↗  ↗  ↗        gần K: tăng chậm (gạch thoải)
- K/2 ⬈  ⬈  ⬈  ⬈        K/2: dốc nhất (gạch dựng)
-     ↗  ↗  ↗  ↗        nhỏ: tăng nhanh dần
-  0  →  →  →  →  →     dN/dt = 0 (cân bằng KHÔNG ổn định)
-     └──────────────── t
-   mọi nghiệm xuất phát trong (0,K) đều "trôi" lên K
-```
+<svg viewBox="0 0 680 285" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trường hướng của logistic dN/dt = rN(1 − N/K): gạch nằm ngang ở N = 0 và N = K, dựng nhất ở K/2; ba nghiệm đều tiến về K">
+  <defs><marker id="ar13" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="230.0" x2="487.5" y2="230.0"/>
+<line x1="60.0" y1="145.0" x2="487.5" y2="145.0"/>
+<line x1="60.0" y1="60.0" x2="487.5" y2="60.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="509.5" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar13)"/>
+  <line x1="60.0" y1="249.6" x2="60.0" y2="12.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar13)"/>
+  <text x="501.5" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">t</text>
+  <text x="68.0" y="22.5" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">N</text>
+  <line x1="56.0" y1="230.0" x2="64.0" y2="230.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="234.0" fill="#475569" font-size="11" text-anchor="end">0</text>
+  <line x1="56.0" y1="145.0" x2="64.0" y2="145.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="149.0" fill="#475569" font-size="11" text-anchor="end">K/2</text>
+  <line x1="56.0" y1="60.0" x2="64.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">K</text>
+  <line x1="60.0" y1="60.0" x2="478.5" y2="60.0" stroke="#15803d" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="60.0" y1="230.0" x2="478.5" y2="230.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="68.3" y1="221.3" x2="96.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="69.1" y1="207.7" x2="95.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="70.3" y1="183.8" x2="94.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="71.0" y1="150.4" x2="94.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="70.3" y1="115.8" x2="94.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="69.1" y1="88.7" x2="95.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="68.2" y1="69.8" x2="96.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="68.1" y1="60.0" x2="96.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="68.6" y1="44.1" x2="96.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="113.3" y1="221.3" x2="141.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="114.1" y1="207.7" x2="140.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="115.3" y1="183.8" x2="139.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="116.0" y1="150.4" x2="139.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="115.3" y1="115.8" x2="139.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="114.1" y1="88.7" x2="140.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="113.2" y1="69.8" x2="141.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="113.1" y1="60.0" x2="141.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="113.6" y1="44.1" x2="141.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="158.3" y1="221.3" x2="186.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="159.1" y1="207.7" x2="185.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="160.3" y1="183.8" x2="184.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="161.0" y1="150.4" x2="184.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="160.3" y1="115.8" x2="184.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="159.1" y1="88.7" x2="185.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="158.2" y1="69.8" x2="186.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="158.1" y1="60.0" x2="186.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="158.6" y1="44.1" x2="186.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="203.3" y1="221.3" x2="231.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="204.1" y1="207.7" x2="230.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="205.3" y1="183.8" x2="229.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="206.0" y1="150.4" x2="229.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="205.3" y1="115.8" x2="229.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="204.1" y1="88.7" x2="230.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="203.2" y1="69.8" x2="231.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="203.1" y1="60.0" x2="231.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="203.6" y1="44.1" x2="231.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="248.3" y1="221.3" x2="276.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="249.1" y1="207.7" x2="275.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="250.3" y1="183.8" x2="274.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="251.0" y1="150.4" x2="274.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="250.3" y1="115.8" x2="274.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="249.1" y1="88.7" x2="275.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="248.2" y1="69.8" x2="276.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="248.1" y1="60.0" x2="276.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="248.6" y1="44.1" x2="276.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="293.3" y1="221.3" x2="321.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="294.1" y1="207.7" x2="320.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="295.3" y1="183.8" x2="319.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="296.0" y1="150.4" x2="319.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="295.3" y1="115.8" x2="319.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="294.1" y1="88.7" x2="320.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="293.2" y1="69.8" x2="321.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="293.1" y1="60.0" x2="321.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="293.6" y1="44.1" x2="321.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="338.3" y1="221.3" x2="366.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="339.1" y1="207.7" x2="365.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="340.3" y1="183.8" x2="364.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="341.0" y1="150.4" x2="364.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="340.3" y1="115.8" x2="364.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="339.1" y1="88.7" x2="365.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="338.2" y1="69.8" x2="366.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="338.1" y1="60.0" x2="366.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="338.6" y1="44.1" x2="366.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="383.3" y1="221.3" x2="411.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="384.1" y1="207.7" x2="410.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="385.3" y1="183.8" x2="409.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="386.0" y1="150.4" x2="409.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="385.3" y1="115.8" x2="409.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="384.1" y1="88.7" x2="410.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="383.2" y1="69.8" x2="411.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="383.1" y1="60.0" x2="411.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="383.6" y1="44.1" x2="411.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="428.3" y1="221.3" x2="456.7" y2="218.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="429.1" y1="207.7" x2="455.9" y2="201.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="430.3" y1="183.8" x2="454.7" y2="174.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="431.0" y1="150.4" x2="454.0" y2="139.6" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="430.3" y1="115.8" x2="454.7" y2="106.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="429.1" y1="88.7" x2="455.9" y2="82.3" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="428.2" y1="69.8" x2="456.8" y2="67.2" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="428.1" y1="60.0" x2="456.9" y2="60.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="428.6" y1="44.1" x2="456.4" y2="48.7" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 60.0,213.0 L 65.2,212.1 L 70.5,211.1 L 75.7,210.1 L 80.9,209.1 L 86.2,208.0 L 91.4,206.9 L 96.6,205.7 L 101.8,204.4 L 107.1,203.2 L 112.3,201.8 L 117.5,200.4 L 122.8,199.0 L 128.0,197.5 L 133.2,195.9 L 138.5,194.3 L 143.7,192.6 L 148.9,190.9 L 154.2,189.1 L 159.4,187.3 L 164.6,185.4 L 169.9,183.5 L 175.1,181.5 L 180.3,179.5 L 185.6,177.4 L 190.8,175.2 L 196.0,173.1 L 201.2,170.8 L 206.5,168.6 L 211.7,166.3 L 216.9,163.9 L 222.2,161.6 L 227.4,159.2 L 232.6,156.8 L 237.9,154.4 L 243.1,151.9 L 248.3,149.4 L 253.6,147.0 L 258.8,144.5 L 264.0,142.0 L 269.2,139.6 L 274.5,137.1 L 279.7,134.7 L 284.9,132.3 L 290.2,129.9 L 295.4,127.5 L 300.6,125.1 L 305.9,122.8 L 311.1,120.5 L 316.3,118.3 L 321.6,116.1 L 326.8,113.9 L 332.0,111.8 L 337.3,109.7 L 342.5,107.7 L 347.7,105.7 L 353.0,103.8 L 358.2,102.0 L 363.4,100.1 L 368.6,98.4 L 373.9,96.7 L 379.1,95.0 L 384.3,93.5 L 389.6,91.9 L 394.8,90.4 L 400.0,89.0 L 405.3,87.6 L 410.5,86.3 L 415.7,85.1 L 421.0,83.8 L 426.2,82.7 L 431.4,81.6 L 436.7,80.5 L 441.9,79.5 L 447.1,78.5 L 452.3,77.5 L 457.6,76.7 L 462.8,75.8 L 468.0,75.0 L 473.3,74.2 L 478.5,73.5" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 60.0,111.0 L 65.2,108.9 L 70.5,106.9 L 75.7,105.0 L 80.9,103.1 L 86.2,101.3 L 91.4,99.5 L 96.6,97.7 L 101.8,96.1 L 107.1,94.4 L 112.3,92.9 L 117.5,91.4 L 122.8,89.9 L 128.0,88.5 L 133.2,87.1 L 138.5,85.8 L 143.7,84.6 L 148.9,83.4 L 154.2,82.2 L 159.4,81.1 L 164.6,80.1 L 169.9,79.1 L 175.1,78.1 L 180.3,77.2 L 185.6,76.3 L 190.8,75.5 L 196.0,74.7 L 201.2,73.9 L 206.5,73.2 L 211.7,72.5 L 216.9,71.9 L 222.2,71.2 L 227.4,70.6 L 232.6,70.1 L 237.9,69.5 L 243.1,69.0 L 248.3,68.5 L 253.6,68.1 L 258.8,67.6 L 264.0,67.2 L 269.2,66.8 L 274.5,66.5 L 279.7,66.1 L 284.9,65.8 L 290.2,65.5 L 295.4,65.2 L 300.6,64.9 L 305.9,64.6 L 311.1,64.4 L 316.3,64.1 L 321.6,63.9 L 326.8,63.7 L 332.0,63.5 L 337.3,63.3 L 342.5,63.1 L 347.7,62.9 L 353.0,62.8 L 358.2,62.6 L 363.4,62.5 L 368.6,62.3 L 373.9,62.2 L 379.1,62.1 L 384.3,62.0 L 389.6,61.9 L 394.8,61.7 L 400.0,61.6 L 405.3,61.6 L 410.5,61.5 L 415.7,61.4 L 421.0,61.3 L 426.2,61.2 L 431.4,61.2 L 436.7,61.1 L 441.9,61.0 L 447.1,61.0 L 452.3,60.9 L 457.6,60.9 L 462.8,60.8 L 468.0,60.8 L 473.3,60.7 L 478.5,60.7" fill="none" stroke="#b45309" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M 60.0,9.0 L 65.2,12.7 L 70.5,16.0 L 75.7,19.1 L 80.9,21.9 L 86.2,24.5 L 91.4,26.9 L 96.6,29.1 L 101.8,31.2 L 107.1,33.1 L 112.3,34.8 L 117.5,36.4 L 122.8,37.9 L 128.0,39.3 L 133.2,40.6 L 138.5,41.8 L 143.7,43.0 L 148.9,44.0 L 154.2,45.0 L 159.4,45.9 L 164.6,46.8 L 169.9,47.6 L 175.1,48.3 L 180.3,49.0 L 185.6,49.7 L 190.8,50.3 L 196.0,50.9 L 201.2,51.4 L 206.5,51.9 L 211.7,52.4 L 216.9,52.9 L 222.2,53.3 L 227.4,53.7 L 232.6,54.0 L 237.9,54.4 L 243.1,54.7 L 248.3,55.0 L 253.6,55.3 L 258.8,55.6 L 264.0,55.8 L 269.2,56.1 L 274.5,56.3 L 279.7,56.5 L 284.9,56.7 L 290.2,56.9 L 295.4,57.1 L 300.6,57.2 L 305.9,57.4 L 311.1,57.6 L 316.3,57.7 L 321.6,57.8 L 326.8,58.0 L 332.0,58.1 L 337.3,58.2 L 342.5,58.3 L 347.7,58.4 L 353.0,58.5 L 358.2,58.6 L 363.4,58.6 L 368.6,58.7 L 373.9,58.8 L 379.1,58.9 L 384.3,58.9 L 389.6,59.0 L 394.8,59.0 L 400.0,59.1 L 405.3,59.1 L 410.5,59.2 L 415.7,59.2 L 421.0,59.3 L 426.2,59.3 L 431.4,59.4 L 436.7,59.4 L 441.9,59.4 L 447.1,59.5 L 452.3,59.5 L 457.6,59.5 L 462.8,59.6 L 468.0,59.6 L 473.3,59.6 L 478.5,59.6" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linejoin="round"/>
+  <text x="509.5" y="56.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">N = K: dN/dt = 0</text>
+  <text x="509.5" y="72.0" fill="#15803d" font-size="11" text-anchor="start">cân bằng ỔN ĐỊNH</text>
+  <text x="509.5" y="226.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">N = 0: dN/dt = 0</text>
+  <text x="509.5" y="242.0" fill="#dc2626" font-size="11" text-anchor="start">cân bằng KHÔNG ổn định</text>
+  <text x="509.5" y="149.0" fill="#475569" font-size="11" text-anchor="start">K/2: gạch dựng nhất</text>
+  <text x="300.0" y="268.0" fill="#475569" font-size="12" text-anchor="middle">mọi nghiệm xuất phát trong (0, K) đều trôi lên K; xuất phát trên K trôi xuống K</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -236,19 +393,39 @@ ASCII — trường hướng (slope field) của logistic, gạch = dấu/độ 
 - $t=0$: $25 + 65 = 90$ ✓. $t=10$: $25 + 65e^{-1} = 25 + 23.9 = 48.9°$C. $t=20$: $25 + 65e^{-2} = 25 + 8.8 = 33.8°$C. $t\to\infty$: $T\to 25°$C ✓.
 - **Diễn giải tham số**: $T_p$ = đường tiệm cận (sàn nhiệt); $(T_0 - T_p)$ = chênh lệch ban đầu (biên độ); $k$ = tốc độ tiệm cận. Đổi phòng nóng hơn ($T_p=35$) thì cà phê chỉ nguội tới 35°C; đổi $k$ chỉ đổi *nhanh hay chậm*, không đổi đích.
 
-ASCII — nguội Newton: chênh lệch tắt theo mũ, tiệm cận $T_p$:
+Nguội Newton: chênh lệch tắt theo mũ, tiệm cận $T_p$:
 
-```
-   T
-  90 ●_
-     | `─_
-     |    `──__         chênh (T−Tp) giảm mũ
-  49 |        `───___
-     |               `─────____
-  25 ┤- - - - - - - - - - - - -─────── ← sàn Tp (phòng)
-     └──────────────────────────────── t
-     dốc nhất lúc đầu (chênh lớn), thoải dần khi gần Tp
-```
+<svg viewBox="0 0 560 285" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nguội Newton: nhiệt độ từ 90°C giảm theo mũ về sàn 25°C của phòng; qua 49°C khi chênh còn nửa nửa, dốc nhất lúc đầu">
+  <defs><marker id="ar14" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="189.5" y1="230.0" x2="189.5" y2="10.0"/>
+<line x1="60.0" y1="175.0" x2="541.0" y2="175.0"/>
+<line x1="60.0" y1="122.2" x2="541.0" y2="122.2"/>
+<line x1="60.0" y1="32.0" x2="541.0" y2="32.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="563.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar14)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="-12.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar14)"/>
+  <text x="555.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">t</text>
+  <text x="68.0" y="-2.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">T</text>
+  <line x1="189.5" y1="226.0" x2="189.5" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="189.5" y="246.0" fill="#475569" font-size="11" text-anchor="middle">t ≈ 5.0</text>
+  <line x1="56.0" y1="175.0" x2="64.0" y2="175.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="179.0" fill="#475569" font-size="11" text-anchor="end">25</text>
+  <line x1="56.0" y1="122.2" x2="64.0" y2="122.2" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="126.2" fill="#475569" font-size="11" text-anchor="end">49</text>
+  <line x1="56.0" y1="32.0" x2="64.0" y2="32.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="36.0" fill="#475569" font-size="11" text-anchor="end">90</text>
+  <line x1="60.0" y1="175.0" x2="535.8" y2="175.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <line x1="60.0" y1="122.2" x2="189.5" y2="122.2" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <line x1="189.5" y1="230.0" x2="189.5" y2="122.2" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <path d="M 60.0,32.0 L 64.8,37.1 L 69.5,42.1 L 74.3,46.9 L 79.0,51.5 L 83.8,55.9 L 88.5,60.2 L 93.3,64.3 L 98.1,68.3 L 102.8,72.1 L 107.6,75.8 L 112.3,79.4 L 117.1,82.8 L 121.9,86.1 L 126.6,89.3 L 131.4,92.4 L 136.1,95.4 L 140.9,98.2 L 145.6,101.0 L 150.4,103.7 L 155.2,106.2 L 159.9,108.7 L 164.7,111.1 L 169.4,113.4 L 174.2,115.6 L 178.9,117.7 L 183.7,119.8 L 188.5,121.8 L 193.2,123.7 L 198.0,125.5 L 202.7,127.3 L 207.5,129.0 L 212.3,130.7 L 217.0,132.3 L 221.8,133.8 L 226.5,135.3 L 231.3,136.7 L 236.0,138.1 L 240.8,139.4 L 245.6,140.7 L 250.3,141.9 L 255.1,143.1 L 259.8,144.3 L 264.6,145.4 L 269.4,146.4 L 274.1,147.5 L 278.9,148.4 L 283.6,149.4 L 288.4,150.3 L 293.1,151.2 L 297.9,152.1 L 302.7,152.9 L 307.4,153.7 L 312.2,154.4 L 316.9,155.2 L 321.7,155.9 L 326.4,156.6 L 331.2,157.2 L 336.0,157.9 L 340.7,158.5 L 345.5,159.1 L 350.2,159.7 L 355.0,160.2 L 359.8,160.7 L 364.5,161.3 L 369.3,161.8 L 374.0,162.2 L 378.8,162.7 L 383.5,163.1 L 388.3,163.6 L 393.1,164.0 L 397.8,164.4 L 402.6,164.7 L 407.3,165.1 L 412.1,165.5 L 416.8,165.8 L 421.6,166.1 L 426.4,166.5 L 431.1,166.8 L 435.9,167.1 L 440.6,167.3 L 445.4,167.6 L 450.2,167.9 L 454.9,168.1 L 459.7,168.4 L 464.4,168.6 L 469.2,168.9 L 473.9,169.1 L 478.7,169.3 L 483.5,169.5 L 488.2,169.7 L 493.0,169.9 L 497.7,170.1 L 502.5,170.2 L 507.3,170.4 L 512.0,170.6 L 516.8,170.7 L 521.5,170.9 L 526.3,171.0 L 531.0,171.2 L 535.8,171.3" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="60.0" cy="32.0" r="5" fill="#dc2626"/>
+  <circle cx="189.5" cy="122.2" r="4" fill="#dc2626"/>
+  <text x="86.0" y="193.0" fill="#94a3b8" font-size="11" text-anchor="start">sàn Tₚ = 25°C (phòng)</text>
+  <text x="216.0" y="71.6" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">chênh (T − Tₚ) giảm theo mũ</text>
+  <text x="70.0" y="26.0" fill="#dc2626" font-size="11" text-anchor="start">T₀ = 90</text>
+  <text x="280.0" y="268.0" fill="#475569" font-size="12" text-anchor="middle">dốc nhất lúc đầu (chênh lớn), thoải dần khi gần Tₚ</text>
+</svg>
 
 ### 4.2 Bài toán bể trộn (mixing)
 

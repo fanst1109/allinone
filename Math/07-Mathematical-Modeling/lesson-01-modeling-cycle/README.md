@@ -47,18 +47,34 @@
 
 Sáu bước:
 
-```
-        ┌─────────────────────────────────────────────┐
-        ▼                                             │
-1. Bài toán thực  →  2. Giả định  →  3. Lập mô hình   │
-   (xác định câu       (đơn giản       (biến + phương  │
-    hỏi cần trả lời)    hóa)            trình)         │
-                                          │            │
-                                          ▼            │
-6. Tinh chỉnh  ←  5. Kiểm chứng  ←  4. Giải / Phân tích│
-   (sửa giả định,    (so dữ liệu,      (tìm nghiệm,    │
-    quay lại B2)      ước lượng sai số)  mô phỏng)──────┘
-```
+<svg viewBox="0 0 620 225" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chu trình mô hình hoá 6 bước: bài toán thực → giả định → lập mô hình → giải/phân tích → kiểm chứng → tinh chỉnh, rồi vòng lại giả định">
+  <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar1r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <rect x="30.0" y="40.0" width="160.0" height="56.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="110.0" y="65.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. Bài toán thực</text>
+  <text x="110.0" y="80.5" fill="#475569" font-size="11" text-anchor="middle">xác định câu hỏi</text>
+  <rect x="230.0" y="40.0" width="160.0" height="56.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="65.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2. Giả định</text>
+  <text x="310.0" y="80.5" fill="#475569" font-size="11" text-anchor="middle">đơn giản hóa</text>
+  <rect x="430.0" y="40.0" width="160.0" height="56.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="510.0" y="65.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3. Lập mô hình</text>
+  <text x="510.0" y="80.5" fill="#475569" font-size="11" text-anchor="middle">biến + phương trình</text>
+  <rect x="430.0" y="150.0" width="160.0" height="56.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="510.0" y="175.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">4. Giải / Phân tích</text>
+  <text x="510.0" y="190.5" fill="#475569" font-size="11" text-anchor="middle">nghiệm, mô phỏng</text>
+  <rect x="230.0" y="150.0" width="160.0" height="56.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="175.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">5. Kiểm chứng</text>
+  <text x="310.0" y="190.5" fill="#475569" font-size="11" text-anchor="middle">so dữ liệu, sai số</text>
+  <rect x="30.0" y="150.0" width="160.0" height="56.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="110.0" y="175.5" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">6. Tinh chỉnh</text>
+  <text x="110.0" y="190.5" fill="#475569" font-size="11" text-anchor="middle">sửa giả định → B2</text>
+  <line x1="190.0" y1="68.0" x2="230.0" y2="68.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ar1)"/>
+  <line x1="390.0" y1="68.0" x2="430.0" y2="68.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ar1)"/>
+  <line x1="510.0" y1="96.0" x2="510.0" y2="148.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ar1)"/>
+  <line x1="430.0" y1="178.0" x2="392.0" y2="178.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ar1)"/>
+  <line x1="230.0" y1="178.0" x2="192.0" y2="178.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ar1)"/>
+  <path d="M 30,178 L 12,178 L 12,20 L 110,20 L 110,38" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ar1r)"/>
+  <text x="120.0" y="16.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">vòng lặp: chưa khớp dữ liệu → quay lại giả định</text>
+</svg>
 
 | Bước | Tên | Làm gì | Câu hỏi tự hỏi |
 |------|-----|--------|----------------|
@@ -435,15 +451,20 @@ RMSE (1.80) > MAE (1.75) vì RMSE phạt nặng các lệch $\pm 2$. Diễn gi�
 
 **Cách đúng — tách dữ liệu**:
 
-```
-   Dữ liệu  ┌──────────────── 80% ────────────────┬──── 20% ────┐
-            │   TẬP HUẤN LUYỆN (train)             │  TẬP KIỂM   │
-            │   — dùng hiệu chỉnh tham số          │  THỬ (test) │
-            │                                      │  — mô hình  │
-            │                                      │  CHƯA thấy  │
-            └──────────────────────────────────────┴─────────────┘
-                       hiệu chỉnh ở đây              đánh giá ở đây
-```
+<svg viewBox="0 0 580 140" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chia dữ liệu: 80% tập huấn luyện để hiệu chỉnh tham số, 20% tập kiểm thử mô hình chưa thấy để đánh giá">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="ar2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <text x="30.0" y="40.0" fill="#475569" font-size="13" text-anchor="start" font-weight="700">Dữ liệu</text>
+  <rect x="100.0" y="24.0" width="368.0" height="60.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="468.0" y="24.0" width="92.0" height="60.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="284.0" y="50.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">TẬP HUẤN LUYỆN (train) — 80%</text>
+  <text x="284.0" y="70.0" fill="#475569" font-size="11" text-anchor="middle">dùng hiệu chỉnh tham số</text>
+  <text x="514.0" y="50.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">TEST 20%</text>
+  <text x="514.0" y="70.0" fill="#475569" font-size="10" text-anchor="middle">mô hình CHƯA thấy</text>
+  <line x1="284.0" y1="96.0" x2="284.0" y2="110.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#ar2)"/>
+  <text x="284.0" y="126.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">hiệu chỉnh ở đây</text>
+  <line x1="514.0" y1="96.0" x2="514.0" y2="110.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar2r)"/>
+  <text x="514.0" y="126.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">đánh giá ở đây</text>
+</svg>
 
 - Hiệu chỉnh tham số **chỉ** trên tập train.
 - Đo sai số (MAE/RMSE) trên tập **test** — dữ liệu mô hình chưa nhìn → ước lượng *trung thực* khả năng dự báo.

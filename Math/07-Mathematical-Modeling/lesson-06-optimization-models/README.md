@@ -166,26 +166,45 @@ $P'(q) = 30 - 0{,}5q = 0 \Rightarrow q = 60$. $P''(q) = -0{,}5 < 0$ → cực **
 
 **Lập mô hình từ lời văn** (bước 1–3 đã có ở định nghĩa trên). **Vẽ miền khả thi** — hai đường ràng buộc cắt nhau cùng hai trục tạo một tứ giác:
 
-```
- y
- 45 +.
-    | .                  đường gỗ:   2x + y = 40  (dốc đứng)
-    |  .                 đường công: x + 3y = 45  (thoải)
-    |   .
- 15 +----.____           miền khả thi = vùng tô (dưới CẢ hai đường,
-    |####|####.___                       trong góc phần tư x,y ≥ 0)
- 10 +####|########* (15,10)  ← giao gỗ ∩ công
-    |####|########|.
-    |####|########| .
-    |####|########|  .
-  0 +####+--------+---*------ x
-    0    .       15   20
-         .            ↑
-       (0,15)       (20,0) chạm gỗ
-       chạm công
-
- Bốn đỉnh:  (0,0) · (20,0) · (15,10) · (0,15)
-```
+<svg viewBox="0 0 460 300" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Miền khả thi LP: dưới cả hai đường 2x + y = 40 và x + 3y = 45 trong góc phần tư dương; bốn đỉnh (0,0), (20,0), (15,10), (0,15)">
+  <defs><marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="195.0" y1="240.0" x2="195.0" y2="19.2"/>
+<line x1="240.0" y1="240.0" x2="240.0" y2="19.2"/>
+<line x1="60.0" y1="194.0" x2="294.0" y2="194.0"/>
+<line x1="60.0" y1="171.0" x2="294.0" y2="171.0"/>
+<line x1="60.0" y1="33.0" x2="294.0" y2="33.0"/>
+</g>
+  <line x1="54.0" y1="240.0" x2="316.0" y2="240.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <line x1="60.0" y1="246.0" x2="60.0" y2="-2.8" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+  <text x="308.0" y="256.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="7.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="195.0" y1="236.0" x2="195.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="195.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">15</text>
+  <line x1="240.0" y1="236.0" x2="240.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">20</text>
+  <line x1="56.0" y1="194.0" x2="64.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="198.0" fill="#475569" font-size="11" text-anchor="end">10</text>
+  <line x1="56.0" y1="171.0" x2="64.0" y2="171.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="175.0" fill="#475569" font-size="11" text-anchor="end">15</text>
+  <line x1="56.0" y1="33.0" x2="64.0" y2="33.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="37.0" fill="#475569" font-size="11" text-anchor="end">45</text>
+  <path d="M 60.0,240.0 L 240.0,240.0 L 195.0,194.0 L 60.0,171.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.3" stroke-linejoin="round"/>
+  <path d="M 60.0,56.0 L 150.0,148.0 L 240.0,240.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 60.0,171.0 L 172.5,190.2 L 285.0,209.3" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="132.0" y="120.4" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">gỗ: 2x + y = 40 (dốc đứng)</text>
+  <text x="248.5" y="220.9" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">công: x + 3y = 45 (thoải)</text>
+  <text x="114.0" y="221.6" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">miền khả thi</text>
+  <circle cx="60.0" cy="240.0" r="5" fill="#1a202c"/>
+  <text x="54.0" y="256.0" fill="#1a202c" font-size="11" text-anchor="end" font-weight="700">(0,0)</text>
+  <circle cx="240.0" cy="240.0" r="5" fill="#1a202c"/>
+  <text x="248.0" y="270.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">(20,0) chạm gỗ</text>
+  <circle cx="195.0" cy="194.0" r="5" fill="#1a202c"/>
+  <text x="205.0" y="186.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">(15,10) giao gỗ ∩ công</text>
+  <circle cx="60.0" cy="171.0" r="5" fill="#1a202c"/>
+  <text x="70.0" y="163.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">(0,15) chạm công</text>
+  <text x="240.0" y="285.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Bốn đỉnh: (0,0) · (20,0) · (15,10) · (0,15)</text>
+</svg>
 
 **Tìm các đỉnh của miền khả thi** (giao các đường ràng buộc):
 - $(0, 0)$: $P = 0$.
@@ -197,16 +216,41 @@ $P'(q) = 30 - 0{,}5q = 0 \Rightarrow q = 60$. $P''(q) = -0{,}5 < 0$ → cực **
 
 💡 **Hình dung đường mức hàm mục tiêu trượt qua miền.** Mỗi giá trị lợi nhuận cố định $P = k$ là một đường thẳng $40x + 30y = k$. Tăng $k$ → đường tịnh tiến song song ra xa gốc. Đẩy tới khi đường *vừa chạm* miền lần cuối — điểm chạm cuối cùng là đỉnh tối ưu:
 
-```
- y
-    \   \   \   \        các đường mức P = 300, 600, 900...
-     \   \   \   \       (song song, càng xa gốc P càng lớn)
-      \ ##\###\## \
-       \##*\(15,10) ← đường P=900 chạm miền lần cuối tại đây
-        \##\####\  \
- ────────\───\────\──\──── x
-          \   \    \  \
-```
+<svg viewBox="0 0 460 300" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Các đường mức P = 40x + 30y = 300, 600, 900, 1200 song song nhau; đường P = 900 chạm miền khả thi lần cuối tại đỉnh (15,10)">
+  <defs><marker id="ar7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="195.0" y1="240.0" x2="195.0" y2="19.2"/>
+<line x1="240.0" y1="240.0" x2="240.0" y2="19.2"/>
+<line x1="60.0" y1="194.0" x2="294.0" y2="194.0"/>
+<line x1="60.0" y1="171.0" x2="294.0" y2="171.0"/>
+</g>
+  <line x1="54.0" y1="240.0" x2="316.0" y2="240.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar7)"/>
+  <line x1="60.0" y1="246.0" x2="60.0" y2="-2.8" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar7)"/>
+  <text x="308.0" y="256.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="7.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="195.0" y1="236.0" x2="195.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="195.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">15</text>
+  <line x1="240.0" y1="236.0" x2="240.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">20</text>
+  <line x1="56.0" y1="194.0" x2="64.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="198.0" fill="#475569" font-size="11" text-anchor="end">10</text>
+  <line x1="56.0" y1="171.0" x2="64.0" y2="171.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="175.0" fill="#475569" font-size="11" text-anchor="end">15</text>
+  <path d="M 60.0,240.0 L 240.0,240.0 L 195.0,194.0 L 60.0,171.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.3" stroke-linejoin="round"/>
+  <path d="M 60.0,56.0 L 150.0,148.0 L 240.0,240.0" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M 60.0,171.0 L 172.5,190.2 L 285.0,209.3" fill="none" stroke="#15803d" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M 60.0,194.0 L 93.8,217.0 L 127.5,240.0" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <text x="66.0" y="188.0" fill="#94a3b8" font-size="11" text-anchor="start">P = 300</text>
+  <path d="M 60.0,148.0 L 127.5,194.0 L 195.0,240.0" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <text x="66.0" y="142.0" fill="#94a3b8" font-size="11" text-anchor="start">P = 600</text>
+  <path d="M 60.0,102.0 L 161.2,171.0 L 262.5,240.0" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="66.0" y="96.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">P = 900</text>
+  <path d="M 60.0,56.0 L 174.8,134.2 L 289.5,212.4" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <text x="66.0" y="50.0" fill="#94a3b8" font-size="11" text-anchor="start">P = 1200</text>
+  <circle cx="195.0" cy="194.0" r="6" fill="#7c3aed"/>
+  <text x="205.0" y="228.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">(15,10): P = 900 chạm miền lần cuối</text>
+  <text x="240.0" y="285.0" fill="#475569" font-size="11" text-anchor="middle">đường mức P = 40x + 30y song song; càng xa gốc P càng lớn</text>
+</svg>
 
 ### 3.3 Ví dụ LP thứ hai — bài khẩu phần (minimization)
 
@@ -217,20 +261,41 @@ $$\min\ C = 2x + 3y \quad\text{với}\quad 3x + y \ge 12,\ \ x + 2y \ge 8,\ \ x 
 
 **Miền khả thi** ở đây nằm *phía trên* hai đường (vì $\ge$), không bị chặn lên trên — nhưng min vẫn ở đỉnh dưới:
 
-```
- y
-12 *.                  miền khả thi = vùng PHÍA TRÊN cả hai đường
-   | .                 (ràng buộc ≥, mở lên trên-phải)
-   |  .   #############
-   |   . ##############
- 4 +    *##############   ← (3.2, 2.4) giao hai đường
-   |   #.###############
-   |  ##.################
-   | ###.################
- 0 +----*------*--------- x
-   0    4      8
-      (4,0)  đạm chạm tại (8,0)
-```
+<svg viewBox="0 0 360 285" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Miền khả thi của bài toán tối thiểu với ràng buộc ≥: phía trên cả hai đường 3x + y = 12 và x + 2y = 8, giao tại (3.2, 2.4)">
+  <defs><marker id="ar8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="156.0" y1="240.0" x2="156.0" y2="37.5"/>
+<line x1="252.0" y1="240.0" x2="252.0" y2="37.5"/>
+<line x1="60.0" y1="180.0" x2="336.0" y2="180.0"/>
+<line x1="60.0" y1="60.0" x2="336.0" y2="60.0"/>
+</g>
+  <line x1="54.0" y1="240.0" x2="358.0" y2="240.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar8)"/>
+  <line x1="60.0" y1="246.0" x2="60.0" y2="15.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar8)"/>
+  <text x="350.0" y="256.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="25.5" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="156.0" y1="236.0" x2="156.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="156.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="252.0" y1="236.0" x2="252.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="252.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <line x1="56.0" y1="180.0" x2="64.0" y2="180.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="184.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="56.0" y1="60.0" x2="64.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">12</text>
+  <path d="M 60.0,60.0 L 136.8,204.0 L 252.0,240.0 L 328.8,240.0 L 328.8,45.0 L 60.0,45.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.3" stroke-linejoin="round"/>
+  <path d="M 60.0,60.0 L 108.0,150.0 L 156.0,240.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 60.0,180.0 L 156.0,210.0 L 252.0,240.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="111.6" y="120.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">3x + y = 12</text>
+  <text x="198.0" y="214.5" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">x + 2y = 8</text>
+  <text x="228.0" y="105.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">miền khả thi (≥): mở lên trên-phải</text>
+  <circle cx="60.0" cy="60.0" r="5" fill="#1a202c"/>
+  <text x="68.0" y="56.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">(0,12)</text>
+  <circle cx="136.8" cy="204.0" r="5" fill="#1a202c"/>
+  <text x="144.8" y="196.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">(3.2, 2.4) giao hai đường</text>
+  <circle cx="156.0" cy="240.0" r="5" fill="#1a202c"/>
+  <text x="156.0" y="270.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">(4,0)</text>
+  <circle cx="252.0" cy="240.0" r="5" fill="#1a202c"/>
+  <text x="252.0" y="256.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">(8,0) chạm đạm</text>
+</svg>
 
 **Tìm đỉnh** (giao từng cặp ràng buộc chặt):
 - $(0, 12)$: chạm tinh bột $y = 12$; đạm $0 + 24 = 24 \ge 8$ ✓. $C = 3\cdot 12 = $ **36**.

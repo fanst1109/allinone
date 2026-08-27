@@ -28,18 +28,74 @@ window.README_MD = `# Lesson 02 — Mô hình từ dữ liệu (Hồi quy bình 
 
 Hình dung bằng **biểu đồ tán xạ (scatter plot)** — 5 điểm "giờ ôn → điểm" của mục 3, kèm đường khớp $\\hat{y} = 0.9x + 1.3$ đi *giữa* chúng (không qua điểm nào):
 
-\`\`\`
- điểm y
-   7 |
-   6 |                        ●        ← (5,6) lệch trên đường
-   5 |              ●                  ← (3,5) lệch trên
-   4 |        ___---⊙___---            đường khớp ŷ = 0.9x+1.3
-   3 |     ●⊙---     (4,4) lệch dưới   (⊙ = điểm trên đường)
-   2 |  ●⊙
-   1 |⊙
-   0 +--●--+----+----+----+----+→ x (giờ ôn)
-     0  1    2    3    4    5
-\`\`\`
+<svg viewBox="0 0 520 285" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Năm điểm dữ liệu (giờ ôn, điểm) và đường khớp ŷ = 0.9x + 1.3; đoạn đứt đỏ là phần dư của từng điểm">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="130.0" y1="230.0" x2="130.0" y2="32.4"/>
+<line x1="200.0" y1="230.0" x2="200.0" y2="32.4"/>
+<line x1="270.0" y1="230.0" x2="270.0" y2="32.4"/>
+<line x1="340.0" y1="230.0" x2="340.0" y2="32.4"/>
+<line x1="410.0" y1="230.0" x2="410.0" y2="32.4"/>
+<line x1="60.0" y1="204.0" x2="466.0" y2="204.0"/>
+<line x1="60.0" y1="178.0" x2="466.0" y2="178.0"/>
+<line x1="60.0" y1="152.0" x2="466.0" y2="152.0"/>
+<line x1="60.0" y1="126.0" x2="466.0" y2="126.0"/>
+<line x1="60.0" y1="100.0" x2="466.0" y2="100.0"/>
+<line x1="60.0" y1="74.0" x2="466.0" y2="74.0"/>
+<line x1="60.0" y1="48.0" x2="466.0" y2="48.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="488.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="10.4" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar3)"/>
+  <text x="480.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x (giờ)</text>
+  <text x="68.0" y="20.4" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y (điểm)</text>
+  <line x1="130.0" y1="226.0" x2="130.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="130.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="200.0" y1="226.0" x2="200.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="200.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="270.0" y1="226.0" x2="270.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="340.0" y1="226.0" x2="340.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="340.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="410.0" y1="226.0" x2="410.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="410.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="56.0" y1="204.0" x2="64.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="208.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="178.0" x2="64.0" y2="178.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="182.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="152.0" x2="64.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="156.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="126.0" x2="64.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="130.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="56.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="104.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <line x1="56.0" y1="74.0" x2="64.0" y2="74.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="78.0" fill="#475569" font-size="11" text-anchor="end">6</text>
+  <line x1="56.0" y1="48.0" x2="64.0" y2="48.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="52.0" fill="#475569" font-size="11" text-anchor="end">7</text>
+  <path d="M 60.0,196.2 L 99.2,183.1 L 138.4,170.0 L 177.6,156.9 L 216.8,143.8 L 256.0,130.7 L 295.2,117.6 L 334.4,104.5 L 373.6,91.4 L 412.8,78.3 L 452.0,65.2" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="81.0" y="141.6" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">ŷ = 0.9x + 1.3</text>
+  <line x1="130.0" y1="178.0" x2="130.0" y2="172.8" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="130.0" cy="172.8" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="130.0" cy="178.0" r="5" fill="#1a202c"/>
+  <text x="139.0" y="194.0" fill="#475569" font-size="10" text-anchor="start">(1,2) e = -0.2</text>
+  <line x1="200.0" y1="152.0" x2="200.0" y2="149.4" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="200.0" cy="149.4" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="200.0" cy="152.0" r="5" fill="#1a202c"/>
+  <text x="209.0" y="168.0" fill="#475569" font-size="10" text-anchor="start">(2,3) e = -0.1</text>
+  <line x1="270.0" y1="100.0" x2="270.0" y2="126.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="270.0" cy="126.0" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="270.0" cy="100.0" r="5" fill="#1a202c"/>
+  <text x="279.0" y="94.0" fill="#dc2626" font-size="10" text-anchor="start">(3,5) e = +1.0</text>
+  <line x1="340.0" y1="126.0" x2="340.0" y2="102.6" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="340.0" cy="102.6" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="340.0" cy="126.0" r="5" fill="#1a202c"/>
+  <text x="349.0" y="142.0" fill="#dc2626" font-size="10" text-anchor="start">(4,4) e = -0.9</text>
+  <line x1="410.0" y1="74.0" x2="410.0" y2="79.2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="410.0" cy="79.2" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="410.0" cy="74.0" r="5" fill="#1a202c"/>
+  <text x="419.0" y="68.0" fill="#475569" font-size="10" text-anchor="start">(5,6) e = +0.2</text>
+  <text x="280.0" y="268.0" fill="#475569" font-size="11" text-anchor="middle">● điểm thật · ○ điểm trên đường khớp · nét đứt đỏ = phần dư (lệch trên/dưới)</text>
+</svg>
 
 Đường *không* chạm điểm nào — nó "đi giữa", cân bằng các phần dư trên/dưới. Đó chính là khác biệt cốt lõi với nội suy (mục 2).
 
@@ -108,15 +164,28 @@ Hình dung bằng **biểu đồ tán xạ (scatter plot)** — 5 điểm "giờ
 
 **Phần dư là đoạn DỌC, không phải khoảng cách vuông góc.** Hình dung từng lò xo dọc kéo điểm về đường:
 
-\`\`\`
-   y                              ● y_i (điểm thật)
-                                  ┊  ↕ e_i = y_i − ŷ_i  (phần dư = đoạn dọc)
-            ____------------------⊙ ŷ_i (trên đường khớp)
-   ____-----      ŷ = ax + b
-   --
-   +--------------------------------→ x
-                                  x_i
-\`\`\`
+<svg viewBox="0 0 540 215" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phần dư eᵢ = yᵢ − ŷᵢ: đoạn dọc từ điểm thật yᵢ xuống điểm ŷᵢ trên đường khớp tại xᵢ">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="330.0" y1="190.0" x2="330.0" y2="22.0"/>
+</g>
+  <line x1="44.0" y1="190.0" x2="504.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <line x1="50.0" y1="196.0" x2="50.0" y2="0.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+  <text x="496.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="58.0" y="10.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="330.0" y1="186.0" x2="330.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">xᵢ</text>
+  <path d="M 50.0,158.0 L 91.6,147.6 L 133.2,137.2 L 174.8,126.8 L 216.4,116.4 L 258.0,106.0 L 299.6,95.6 L 341.2,85.2 L 382.8,74.8 L 424.4,64.4 L 466.0,54.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="146.0" y="124.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">ŷ = ax + b</text>
+  <line x1="330.0" y1="88.0" x2="330.0" y2="46.0" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="330.0" y1="190.0" x2="330.0" y2="88.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <circle cx="330.0" cy="88.0" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="330.0" cy="46.0" r="5" fill="#1a202c"/>
+  <text x="340.0" y="50.0" fill="#1a202c" font-size="12" text-anchor="start" font-weight="700">yᵢ (điểm thật)</text>
+  <text x="340.0" y="102.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">ŷᵢ (trên đường khớp)</text>
+  <text x="322.0" y="71.0" fill="#dc2626" font-size="13" text-anchor="end" font-weight="700">eᵢ = yᵢ − ŷᵢ</text>
+  <text x="322.0" y="87.0" fill="#dc2626" font-size="10" text-anchor="end">(phần dư = đoạn dọc)</text>
+</svg>
 
 Tổng bình phương $S = \\sum e_i^2$ chính là "tổng năng lượng lò xo" ($\\frac12 k e^2$ bỏ hằng số). Least squares = tìm đường làm tổng năng lượng đó **nhỏ nhất**. Lưu ý ta đo lệch *theo trục y* (dọc), không phải khoảng cách vuông góc tới đường — vì ta coi $x$ là đầu vào chính xác, chỉ $y$ có nhiễu. (Khi cả hai trục đều có nhiễu thì dùng "hồi quy trực giao / total least squares", một chủ đề khác.)
 
@@ -485,14 +554,47 @@ Lấy đường ôn thi $\\hat y = 0.9x + 1.3$ (mục 3). **Nội suy** (trong v
 
 💡 **Trực giác.** Sau khi fit, đừng chỉ nhìn $R^2$ — **vẽ phần dư $e_i$ theo $x_i$**. Nếu mô hình đúng dạng, phần dư phải rải **ngẫu nhiên quanh 0**, không có hình thù. Nếu thấy **mẫu hình (pattern)**, mô hình sai dạng.
 
-\`\`\`
- Phần dư đúng (mô hình ổn):        Phần dư cong (sai dạng — nên nâng bậc):
-  e                                 e
- +| ●    ●        ●                +|        ●  ●
- 0|----●-----●--------●→ x         0|---●-----------●---→ x
- -|  ●     ●     ●                 -| ●               ●
-   rải đều, không hình thù            hình chữ U → dữ liệu cong, đường thẳng underfit
-\`\`\`
+<svg viewBox="0 0 600 175" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai mẫu phần dư: rải đều quanh 0 (mô hình ổn) so với hình chữ U (sai dạng, nên nâng bậc)">
+  <defs><marker id="ar50" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ar5300" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="150.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Phần dư đúng (mô hình ổn)</text>
+  <line x1="34.0" y1="90.0" x2="309.0" y2="90.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar50)"/>
+  <line x1="40.0" y1="140.8" x2="40.0" y2="23.2" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar50)"/>
+  <text x="301.0" y="106.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="48.0" y="33.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">e</text>
+  <line x1="36.0" y1="62.0" x2="44.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="33.0" y="66.0" fill="#475569" font-size="11" text-anchor="end">+</text>
+  <line x1="36.0" y1="118.0" x2="44.0" y2="118.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="33.0" y="122.0" fill="#475569" font-size="11" text-anchor="end">−</text>
+  <circle cx="66.0" cy="64.8" r="4" fill="#15803d"/>
+  <circle cx="92.0" cy="109.6" r="4" fill="#15803d"/>
+  <circle cx="118.0" cy="81.6" r="4" fill="#15803d"/>
+  <circle cx="144.0" cy="118.0" r="4" fill="#15803d"/>
+  <circle cx="170.0" cy="59.2" r="4" fill="#15803d"/>
+  <circle cx="196.0" cy="84.4" r="4" fill="#15803d"/>
+  <circle cx="222.0" cy="106.8" r="4" fill="#15803d"/>
+  <circle cx="248.0" cy="67.6" r="4" fill="#15803d"/>
+  <circle cx="274.0" cy="101.2" r="4" fill="#15803d"/>
+  <text x="150.0" y="160.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">rải đều, không hình thù</text>
+  <text x="450.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Phần dư cong (sai dạng — nâng bậc)</text>
+  <line x1="334.0" y1="90.0" x2="609.0" y2="90.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5300)"/>
+  <line x1="340.0" y1="140.8" x2="340.0" y2="23.2" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5300)"/>
+  <text x="601.0" y="106.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="348.0" y="33.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">e</text>
+  <line x1="336.0" y1="62.0" x2="344.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="333.0" y="66.0" fill="#475569" font-size="11" text-anchor="end">+</text>
+  <line x1="336.0" y1="118.0" x2="344.0" y2="118.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="333.0" y="122.0" fill="#475569" font-size="11" text-anchor="end">−</text>
+  <circle cx="366.0" cy="56.4" r="4" fill="#dc2626"/>
+  <circle cx="392.0" cy="78.8" r="4" fill="#dc2626"/>
+  <circle cx="418.0" cy="104.0" r="4" fill="#dc2626"/>
+  <circle cx="444.0" cy="118.0" r="4" fill="#dc2626"/>
+  <circle cx="470.0" cy="120.8" r="4" fill="#dc2626"/>
+  <circle cx="496.0" cy="109.6" r="4" fill="#dc2626"/>
+  <circle cx="522.0" cy="90.0" r="4" fill="#dc2626"/>
+  <circle cx="548.0" cy="73.2" r="4" fill="#dc2626"/>
+  <circle cx="574.0" cy="53.6" r="4" fill="#dc2626"/>
+  <text x="450.0" y="160.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">hình chữ U → dữ liệu cong, đường thẳng underfit</text>
+</svg>
 
 Phần dư hình chữ U (hoặc ∩) → quan hệ phi tuyến mà ta ép đường thẳng → nâng lên bậc 2 (mục 7). Phần dư "loe rộng" khi $x$ tăng → phương sai không đều (cân nhắc fit có trọng số). Đây là lý do bộ Anscombe (mục 5) lừa được người chỉ nhìn $R^2$: vẽ phần dư ra là lộ ngay.
 

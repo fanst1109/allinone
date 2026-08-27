@@ -100,20 +100,151 @@ $$\\frac{\\text{số điểm trong cung}}{\\text{tổng số điểm}} \\approx 
 
 Đếm: **7 trong / 10 tổng** → $\\pi \\approx 4 \\cdot \\tfrac{7}{10} = $ **2.8**. Sai nhiều — vì $N=10$ quá nhỏ (sai số $\\sim 1/\\sqrt{10} \\approx 0.32$). Nhưng cơ chế đã rõ; tăng $N$ thì hội tụ.
 
-**Hình dung ASCII** (điểm \`o\` = trong cung, \`x\` = ngoài cung; đường cong là $x^2+y^2=1$):
+**Hình dung** (điểm xanh = trong cung, đỏ = ngoài cung; đường cong là $x^2+y^2=1$):
 
-\`\`\`
- y=1 +-----------------------+
-     | x      x       x   x  |   x : ngoài cung (góc trên-phải)
-     |    x      x   x       |
-     |  o   \`--.    x    x   |
-     | o  o     \`-.     x    |   cung tròn x²+y²=1
-     |  o   o     \`-.   x    |   uốn từ (1,0) lên (0,1)
-     | o  o   o      \`-.  x  |
-     |o  o  o    o      \`-.  |   o : trong cung (góc dưới-trái)
- y=0 +-----------------------+
-     x=0                   x=1
-\`\`\`
+<svg viewBox="0 0 560 270" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Monte Carlo ước lượng π: 120 điểm ngẫu nhiên trong hình vuông đơn vị, tô xanh nếu rơi trong cung tròn x² + y² = 1, đỏ nếu ngoài">
+  <defs><marker id="ar9" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="260.0" y1="240.0" x2="260.0" y2="10.0"/>
+<line x1="60.0" y1="40.0" x2="290.0" y2="40.0"/>
+</g>
+  <line x1="54.0" y1="240.0" x2="312.0" y2="240.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar9)"/>
+  <line x1="60.0" y1="246.0" x2="60.0" y2="-12.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar9)"/>
+  <text x="304.0" y="256.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="-2.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="260.0" y1="236.0" x2="260.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="56.0" y1="40.0" x2="64.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <rect x="60.0" y="40.0" width="200.0" height="200.0" rx="0" fill="none" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <path d="M 260.0,240.0 L 259.8,232.1 L 259.4,224.3 L 258.6,216.5 L 257.5,208.7 L 256.2,201.0 L 254.5,193.3 L 252.5,185.7 L 250.2,178.2 L 247.6,170.8 L 244.8,163.5 L 241.6,156.3 L 238.2,149.2 L 234.5,142.3 L 230.5,135.5 L 226.3,128.9 L 221.8,122.4 L 217.1,116.2 L 212.1,110.1 L 206.9,104.2 L 201.4,98.6 L 195.8,93.1 L 189.9,87.9 L 183.8,82.9 L 177.6,78.2 L 171.1,73.7 L 164.5,69.5 L 157.7,65.5 L 150.8,61.8 L 143.7,58.4 L 136.5,55.2 L 129.2,52.4 L 121.8,49.8 L 114.3,47.5 L 106.7,45.5 L 99.0,43.8 L 91.3,42.5 L 83.5,41.4 L 75.7,40.6 L 67.9,40.2 L 60.0,40.0 L 60.0,240.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.15" stroke-linejoin="round"/>
+  <path d="M 60.0,40.0 L 63.3,40.0 L 66.7,40.1 L 70.0,40.3 L 73.3,40.4 L 76.7,40.7 L 80.0,41.0 L 83.3,41.4 L 86.7,41.8 L 90.0,42.3 L 93.3,42.8 L 96.7,43.4 L 100.0,44.0 L 103.3,44.8 L 106.7,45.5 L 110.0,46.4 L 113.3,47.2 L 116.7,48.2 L 120.0,49.2 L 123.3,50.3 L 126.7,51.4 L 130.0,52.7 L 133.3,53.9 L 136.7,55.3 L 140.0,56.7 L 143.3,58.2 L 146.7,59.8 L 150.0,61.4 L 153.3,63.1 L 156.7,64.9 L 160.0,66.8 L 163.3,68.8 L 166.7,70.8 L 170.0,73.0 L 173.3,75.2 L 176.7,77.6 L 180.0,80.0 L 183.3,82.6 L 186.7,85.2 L 190.0,88.0 L 193.3,90.9 L 196.7,94.0 L 200.0,97.2 L 203.3,100.5 L 206.7,104.0 L 210.0,107.7 L 213.3,111.6 L 216.7,115.7 L 220.0,120.0 L 223.3,124.6 L 226.7,129.4 L 230.0,134.6 L 233.3,140.2 L 236.7,146.3 L 240.0,152.8 L 243.3,160.1 L 246.7,168.2 L 250.0,177.6 L 253.3,188.8 L 256.7,203.6 L 260.0,240.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="191.0" cy="179.0" r="2.6" fill="#15803d"/>
+  <circle cx="195.0" cy="218.6" r="2.6" fill="#15803d"/>
+  <circle cx="163.3" cy="142.1" r="2.6" fill="#15803d"/>
+  <circle cx="180.5" cy="166.0" r="2.6" fill="#15803d"/>
+  <circle cx="111.3" cy="165.2" r="2.6" fill="#15803d"/>
+  <circle cx="225.1" cy="205.5" r="2.6" fill="#15803d"/>
+  <circle cx="119.6" cy="111.3" r="2.6" fill="#15803d"/>
+  <circle cx="217.9" cy="42.4" r="2.6" fill="#dc2626"/>
+  <circle cx="220.1" cy="147.1" r="2.6" fill="#15803d"/>
+  <circle cx="167.8" cy="114.9" r="2.6" fill="#15803d"/>
+  <circle cx="110.0" cy="99.2" r="2.6" fill="#15803d"/>
+  <circle cx="203.3" cy="44.1" r="2.6" fill="#dc2626"/>
+  <circle cx="125.8" cy="150.9" r="2.6" fill="#15803d"/>
+  <circle cx="201.7" cy="92.0" r="2.6" fill="#dc2626"/>
+  <circle cx="94.6" cy="236.9" r="2.6" fill="#15803d"/>
+  <circle cx="216.5" cy="231.8" r="2.6" fill="#15803d"/>
+  <circle cx="179.5" cy="190.9" r="2.6" fill="#15803d"/>
+  <circle cx="171.3" cy="137.0" r="2.6" fill="#15803d"/>
+  <circle cx="139.5" cy="203.5" r="2.6" fill="#15803d"/>
+  <circle cx="189.2" cy="96.7" r="2.6" fill="#15803d"/>
+  <circle cx="121.0" cy="45.7" r="2.6" fill="#dc2626"/>
+  <circle cx="226.9" cy="162.0" r="2.6" fill="#15803d"/>
+  <circle cx="201.0" cy="214.9" r="2.6" fill="#15803d"/>
+  <circle cx="181.6" cy="130.2" r="2.6" fill="#15803d"/>
+  <circle cx="200.0" cy="59.2" r="2.6" fill="#dc2626"/>
+  <circle cx="139.4" cy="73.5" r="2.6" fill="#15803d"/>
+  <circle cx="183.7" cy="236.8" r="2.6" fill="#15803d"/>
+  <circle cx="135.0" cy="218.1" r="2.6" fill="#15803d"/>
+  <circle cx="172.1" cy="166.0" r="2.6" fill="#15803d"/>
+  <circle cx="90.0" cy="79.3" r="2.6" fill="#15803d"/>
+  <circle cx="74.4" cy="222.9" r="2.6" fill="#15803d"/>
+  <circle cx="99.4" cy="60.3" r="2.6" fill="#15803d"/>
+  <circle cx="169.8" cy="142.2" r="2.6" fill="#15803d"/>
+  <circle cx="135.2" cy="220.0" r="2.6" fill="#15803d"/>
+  <circle cx="150.7" cy="178.3" r="2.6" fill="#15803d"/>
+  <circle cx="135.4" cy="215.5" r="2.6" fill="#15803d"/>
+  <circle cx="249.1" cy="81.6" r="2.6" fill="#dc2626"/>
+  <circle cx="146.9" cy="126.9" r="2.6" fill="#15803d"/>
+  <circle cx="64.2" cy="47.9" r="2.6" fill="#15803d"/>
+  <circle cx="91.9" cy="170.2" r="2.6" fill="#15803d"/>
+  <circle cx="209.7" cy="96.0" r="2.6" fill="#dc2626"/>
+  <circle cx="226.4" cy="203.4" r="2.6" fill="#15803d"/>
+  <circle cx="199.7" cy="229.6" r="2.6" fill="#15803d"/>
+  <circle cx="258.2" cy="233.9" r="2.6" fill="#15803d"/>
+  <circle cx="92.1" cy="41.1" r="2.6" fill="#dc2626"/>
+  <circle cx="195.3" cy="232.2" r="2.6" fill="#15803d"/>
+  <circle cx="108.3" cy="112.2" r="2.6" fill="#15803d"/>
+  <circle cx="91.6" cy="58.2" r="2.6" fill="#15803d"/>
+  <circle cx="147.8" cy="67.5" r="2.6" fill="#15803d"/>
+  <circle cx="159.7" cy="207.3" r="2.6" fill="#15803d"/>
+  <circle cx="216.2" cy="239.3" r="2.6" fill="#15803d"/>
+  <circle cx="219.3" cy="181.4" r="2.6" fill="#15803d"/>
+  <circle cx="86.0" cy="196.4" r="2.6" fill="#15803d"/>
+  <circle cx="150.0" cy="191.3" r="2.6" fill="#15803d"/>
+  <circle cx="208.3" cy="97.2" r="2.6" fill="#dc2626"/>
+  <circle cx="116.4" cy="198.1" r="2.6" fill="#15803d"/>
+  <circle cx="194.5" cy="120.0" r="2.6" fill="#15803d"/>
+  <circle cx="236.1" cy="197.1" r="2.6" fill="#15803d"/>
+  <circle cx="86.7" cy="128.4" r="2.6" fill="#15803d"/>
+  <circle cx="257.5" cy="153.7" r="2.6" fill="#dc2626"/>
+  <circle cx="135.6" cy="227.9" r="2.6" fill="#15803d"/>
+  <circle cx="117.1" cy="94.9" r="2.6" fill="#15803d"/>
+  <circle cx="104.5" cy="169.6" r="2.6" fill="#15803d"/>
+  <circle cx="144.8" cy="164.0" r="2.6" fill="#15803d"/>
+  <circle cx="217.7" cy="57.5" r="2.6" fill="#dc2626"/>
+  <circle cx="186.1" cy="144.6" r="2.6" fill="#15803d"/>
+  <circle cx="174.0" cy="115.3" r="2.6" fill="#15803d"/>
+  <circle cx="209.8" cy="59.7" r="2.6" fill="#dc2626"/>
+  <circle cx="140.8" cy="169.7" r="2.6" fill="#15803d"/>
+  <circle cx="70.0" cy="152.5" r="2.6" fill="#15803d"/>
+  <circle cx="150.8" cy="205.7" r="2.6" fill="#15803d"/>
+  <circle cx="191.0" cy="55.6" r="2.6" fill="#dc2626"/>
+  <circle cx="218.0" cy="50.1" r="2.6" fill="#dc2626"/>
+  <circle cx="244.3" cy="53.5" r="2.6" fill="#dc2626"/>
+  <circle cx="192.1" cy="140.4" r="2.6" fill="#15803d"/>
+  <circle cx="186.1" cy="45.9" r="2.6" fill="#dc2626"/>
+  <circle cx="71.2" cy="234.3" r="2.6" fill="#15803d"/>
+  <circle cx="123.4" cy="118.0" r="2.6" fill="#15803d"/>
+  <circle cx="190.1" cy="216.5" r="2.6" fill="#15803d"/>
+  <circle cx="179.5" cy="122.9" r="2.6" fill="#15803d"/>
+  <circle cx="202.9" cy="59.0" r="2.6" fill="#dc2626"/>
+  <circle cx="224.8" cy="183.9" r="2.6" fill="#15803d"/>
+  <circle cx="81.0" cy="91.6" r="2.6" fill="#15803d"/>
+  <circle cx="244.5" cy="121.9" r="2.6" fill="#dc2626"/>
+  <circle cx="241.5" cy="237.7" r="2.6" fill="#15803d"/>
+  <circle cx="209.3" cy="114.1" r="2.6" fill="#15803d"/>
+  <circle cx="228.4" cy="172.7" r="2.6" fill="#15803d"/>
+  <circle cx="220.6" cy="191.0" r="2.6" fill="#15803d"/>
+  <circle cx="62.8" cy="61.3" r="2.6" fill="#15803d"/>
+  <circle cx="195.8" cy="77.8" r="2.6" fill="#dc2626"/>
+  <circle cx="82.0" cy="228.9" r="2.6" fill="#15803d"/>
+  <circle cx="66.0" cy="185.2" r="2.6" fill="#15803d"/>
+  <circle cx="186.1" cy="224.3" r="2.6" fill="#15803d"/>
+  <circle cx="151.2" cy="58.0" r="2.6" fill="#dc2626"/>
+  <circle cx="110.9" cy="230.0" r="2.6" fill="#15803d"/>
+  <circle cx="84.9" cy="85.9" r="2.6" fill="#15803d"/>
+  <circle cx="245.3" cy="75.2" r="2.6" fill="#dc2626"/>
+  <circle cx="154.9" cy="183.5" r="2.6" fill="#15803d"/>
+  <circle cx="212.6" cy="209.7" r="2.6" fill="#15803d"/>
+  <circle cx="229.8" cy="45.9" r="2.6" fill="#dc2626"/>
+  <circle cx="134.6" cy="92.4" r="2.6" fill="#15803d"/>
+  <circle cx="139.3" cy="85.8" r="2.6" fill="#15803d"/>
+  <circle cx="196.2" cy="153.7" r="2.6" fill="#15803d"/>
+  <circle cx="78.8" cy="58.6" r="2.6" fill="#15803d"/>
+  <circle cx="230.3" cy="184.9" r="2.6" fill="#15803d"/>
+  <circle cx="104.0" cy="81.2" r="2.6" fill="#15803d"/>
+  <circle cx="141.4" cy="113.5" r="2.6" fill="#15803d"/>
+  <circle cx="88.0" cy="52.4" r="2.6" fill="#15803d"/>
+  <circle cx="86.4" cy="218.4" r="2.6" fill="#15803d"/>
+  <circle cx="205.9" cy="177.9" r="2.6" fill="#15803d"/>
+  <circle cx="231.7" cy="143.9" r="2.6" fill="#15803d"/>
+  <circle cx="119.0" cy="210.6" r="2.6" fill="#15803d"/>
+  <circle cx="205.5" cy="165.6" r="2.6" fill="#15803d"/>
+  <circle cx="124.2" cy="107.8" r="2.6" fill="#15803d"/>
+  <circle cx="63.2" cy="67.2" r="2.6" fill="#15803d"/>
+  <circle cx="240.9" cy="115.6" r="2.6" fill="#dc2626"/>
+  <circle cx="85.6" cy="82.5" r="2.6" fill="#15803d"/>
+  <circle cx="100.0" cy="183.8" r="2.6" fill="#15803d"/>
+  <circle cx="228.3" cy="60.5" r="2.6" fill="#dc2626"/>
+  <circle cx="207.9" cy="118.8" r="2.6" fill="#15803d"/>
+  <text x="270.0" y="60.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">● trong cung (x² + y² ≤ 1)</text>
+  <text x="270.0" y="80.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">● ngoài cung</text>
+  <text x="270.0" y="110.0" fill="#475569" font-size="11" text-anchor="start">120 điểm: 96 trong → π ≈ 4·96/120 = 3.20</text>
+  <text x="270.0" y="130.0" fill="#475569" font-size="11" text-anchor="start">(tỉ lệ diện tích = π/4)</text>
+  <text x="170.0" y="130.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x² + y² = 1</text>
+</svg>
 
 Tỉ lệ vùng \`o\` (dưới đường cong) so với cả ô vuông $\\to \\pi/4$.
 
@@ -259,17 +390,78 @@ $f$-values: $0.04, 0.25, 0.49, 0.81$. Tổng $=1.59$, trung bình $=0.3975$, $\\
 
 Kết thúc ở $S_{10} = +2$. (Lý thuyết: $E[S_{10}]=0$, độ lệch chuẩn $=\\sqrt{10}\\approx 3.16$ — kết quả $+2$ hoàn toàn nằm trong khoảng điển hình.)
 
-**Hình dung ASCII quỹ đạo** (trục dọc = vị trí, trục ngang = bước; \`*\` = vị trí tại mỗi bước):
+**Hình dung quỹ đạo** (trục dọc = vị trí, trục ngang = bước; chấm = vị trí tại mỗi bước):
 
-\`\`\`
- pos
- +3 |                    *
- +2 |    *     *      *     *
- +1 | *     *     *  *
-  0 *-----------*----------------  bước →
- -1 |
-    0  1  2  3  4  5  6  7  8  9 10
-\`\`\`
+<svg viewBox="0 0 540 200" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quỹ đạo một bước đi ngẫu nhiên 10 bước: vị trí 0, 1, 2, 1, 2, 1, 0, 1, 2, 3, 2">
+  <defs><marker id="ar10" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="184.8" x2="60.0" y2="24.8"/>
+<line x1="102.0" y1="184.8" x2="102.0" y2="24.8"/>
+<line x1="144.0" y1="184.8" x2="144.0" y2="24.8"/>
+<line x1="186.0" y1="184.8" x2="186.0" y2="24.8"/>
+<line x1="228.0" y1="184.8" x2="228.0" y2="24.8"/>
+<line x1="270.0" y1="184.8" x2="270.0" y2="24.8"/>
+<line x1="312.0" y1="184.8" x2="312.0" y2="24.8"/>
+<line x1="354.0" y1="184.8" x2="354.0" y2="24.8"/>
+<line x1="396.0" y1="184.8" x2="396.0" y2="24.8"/>
+<line x1="438.0" y1="184.8" x2="438.0" y2="24.8"/>
+<line x1="480.0" y1="184.8" x2="480.0" y2="24.8"/>
+<line x1="60.0" y1="172.0" x2="505.2" y2="172.0"/>
+<line x1="60.0" y1="140.0" x2="505.2" y2="140.0"/>
+<line x1="60.0" y1="108.0" x2="505.2" y2="108.0"/>
+<line x1="60.0" y1="76.0" x2="505.2" y2="76.0"/>
+<line x1="60.0" y1="44.0" x2="505.2" y2="44.0"/>
+</g>
+  <line x1="54.0" y1="140.0" x2="527.2" y2="140.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar10)"/>
+  <line x1="60.0" y1="190.8" x2="60.0" y2="2.8" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar10)"/>
+  <text x="519.2" y="156.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">bước</text>
+  <text x="68.0" y="12.8" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">pos</text>
+  <line x1="60.0" y1="136.0" x2="60.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <line x1="102.0" y1="136.0" x2="102.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="102.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="144.0" y1="136.0" x2="144.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="144.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="186.0" y1="136.0" x2="186.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="186.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="228.0" y1="136.0" x2="228.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="228.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="270.0" y1="136.0" x2="270.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="312.0" y1="136.0" x2="312.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="312.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <line x1="354.0" y1="136.0" x2="354.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="354.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">7</text>
+  <line x1="396.0" y1="136.0" x2="396.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="396.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <line x1="438.0" y1="136.0" x2="438.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="438.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">9</text>
+  <line x1="480.0" y1="136.0" x2="480.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="480.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">10</text>
+  <line x1="56.0" y1="172.0" x2="64.0" y2="172.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="176.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="56.0" y1="140.0" x2="64.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="144.0" fill="#475569" font-size="11" text-anchor="end">0</text>
+  <line x1="56.0" y1="108.0" x2="64.0" y2="108.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="112.0" fill="#475569" font-size="11" text-anchor="end">+1</text>
+  <line x1="56.0" y1="76.0" x2="64.0" y2="76.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="80.0" fill="#475569" font-size="11" text-anchor="end">+2</text>
+  <line x1="56.0" y1="44.0" x2="64.0" y2="44.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="48.0" fill="#475569" font-size="11" text-anchor="end">+3</text>
+  <path d="M 60.0,140.0 L 102.0,108.0 L 144.0,76.0 L 186.0,108.0 L 228.0,76.0 L 270.0,108.0 L 312.0,140.0 L 354.0,108.0 L 396.0,76.0 L 438.0,44.0 L 480.0,76.0" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="60.0" cy="140.0" r="4" fill="#dc2626"/>
+  <circle cx="102.0" cy="108.0" r="4" fill="#dc2626"/>
+  <circle cx="144.0" cy="76.0" r="4" fill="#dc2626"/>
+  <circle cx="186.0" cy="108.0" r="4" fill="#dc2626"/>
+  <circle cx="228.0" cy="76.0" r="4" fill="#dc2626"/>
+  <circle cx="270.0" cy="108.0" r="4" fill="#dc2626"/>
+  <circle cx="312.0" cy="140.0" r="4" fill="#dc2626"/>
+  <circle cx="354.0" cy="108.0" r="4" fill="#dc2626"/>
+  <circle cx="396.0" cy="76.0" r="4" fill="#dc2626"/>
+  <circle cx="438.0" cy="44.0" r="4" fill="#dc2626"/>
+  <circle cx="480.0" cy="76.0" r="4" fill="#dc2626"/>
+  <text x="270.0" y="34.4" fill="#475569" font-size="11" text-anchor="middle">mỗi bước ±1 ngẫu nhiên: 0 → 1 → 2 → 1 → 2 → 1 → 0 → 1 → 2 → 3 → 2</text>
+</svg>
 
 **Vì sao "tản ra theo $\\sqrt{n}$" chứ không $n$?** Vì các bước $+1/-1$ ngẫu nhiên *triệt tiêu một phần* nhau — không cộng dồn cùng chiều. Walk-through phương sai: mỗi $X_i$ có $E[X_i]=0$, $\\text{Var}(X_i)=E[X_i^2]-0 = 1$. Do độc lập, $\\text{Var}(S_n)=\\sum_{i=1}^n \\text{Var}(X_i) = n$ → độ lệch chuẩn $\\sqrt{n}$. Số: sau $n=100$ bước, vị trí điển hình $\\approx \\pm 10$ (không phải $\\pm 100$); sau $n=10000$ bước $\\approx \\pm 100$.
 

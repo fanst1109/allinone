@@ -219,7 +219,7 @@ $$z_k = e^{i\\cdot 2k\\pi/n}, \\quad k = 0, 1, 2, \\ldots, n-1$$
 
 **Kiểm tra**: $z_1^3 = (e^{i\\cdot 2\\pi/3})^3 = e^{i\\cdot 2\\pi} = 1$ ✓.
 
-**ASCII — 3 căn bậc 3 của 1 trên đường tròn đơn vị** (cách đều $120^\\circ$):
+**Hình — 3 căn bậc 3 của 1 trên đường tròn đơn vị** (cách đều $120^\\circ$):
 
 <svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba căn bậc 3 của 1 trên đường tròn đơn vị: z₀ = 1 (0°), z₁ = e^{i120°}, z₂ = e^{i240°} — ba đỉnh tam giác đều cách nhau 120°">
   <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
@@ -390,9 +390,9 @@ So với căn của 1 (mục 3): chỉ khác ở **bán kính** ($R^{1/n}$ thay 
 
 **Kiểm tra**: $(-2)^3 = -8$ ✓. $(1+i\\sqrt{3})^3$: mô-đun $2^3 = 8$, góc $3\\cdot 60^\\circ = 180^\\circ$ → $8e^{i\\pi} = -8$ ✓.
 
-**ASCII — 3 căn bậc 3 của $-8$** (bán kính $\\rho = 2$, cách đều $120^\\circ$):
+**Hình — 3 căn bậc 3 của $-8$** (bán kính $\\rho = 2$, cách đều $120^\\circ$):
 
-<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba căn bậc 3 của 8 trên đường tròn bán kính 2: z₀ = 1 + √3·i (60°), z₁ = −2 (180°), z₂ = 1 − √3·i (300°) — tam giác đều cách nhau 120°">
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba căn bậc 3 của −8 trên đường tròn bán kính 2: z₀ = 1 + √3·i (60°), z₁ = −2 (180°), z₂ = 1 − √3·i (300°) — tam giác đều cách nhau 120°">
   <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
   <g stroke="#e2e8f0" stroke-width="1">
 <line x1="90" y1="40" x2="90" y2="260"/>
@@ -426,7 +426,7 @@ So với căn của 1 (mục 3): chỉ khác ở **bán kính** ($R^{1/n}$ thay 
   <text x="80.0" y="140.0" fill="#dc2626" font-size="12" font-weight="700" text-anchor="end">z₁ = −2 (180°)</text>
   <line x1="200" y1="150" x2="255.0" y2="245.3" stroke="#15803d" stroke-width="1.5"/><circle cx="255.0" cy="245.3" r="5" fill="#dc2626"/>
   <text x="265.0" y="263.3" fill="#dc2626" font-size="12" font-weight="700" text-anchor="start">z₂ = 1 − √3·i (300°)</text>
-  <text x="220" y="292" fill="#475569" font-size="12" text-anchor="middle">3 đỉnh tam giác đều · bán kính = ∛8 = 2 (KHÁC 1) · cách nhau 120°</text>
+  <text x="220" y="292" fill="#475569" font-size="12" text-anchor="middle">3 đỉnh tam giác đều · bán kính = ∛8 = 2 (KHÁC 1) · z³ = −8 · cách nhau 120°</text>
 </svg>
 
 #### 4.1.2. Walk-through ví dụ 2 — căn bậc 4 của $-16$

@@ -401,7 +401,9 @@
       html.rm-print-readme .rm-content pre code { color: inherit !important; }
       /* Khung cuộn ngang không cuộn được trên giấy — mở ra cho nội dung tự xuống trang */
       html.rm-print-readme .rm-content .rm-tablewrap { overflow: visible !important; }
-      html.rm-print-readme .rm-content .katex-display { overflow: visible !important; }
+      /* Display math trên màn hình là 22px cứng — so với body in 13px thì to gấp
+         ~1.7 lần. Khi in đưa về tỷ lệ sách: 1.2em ≈ 15.6px, nhỉnh hơn chữ thường. */
+      html.rm-print-readme .rm-content .katex-display { overflow: visible !important; font-size: 1.2em; }
       /* Ngắt trang gọn: heading không mồ côi cuối trang, khối liền không bị xé đôi */
       html.rm-print-readme .rm-content h1,
       html.rm-print-readme .rm-content h2,

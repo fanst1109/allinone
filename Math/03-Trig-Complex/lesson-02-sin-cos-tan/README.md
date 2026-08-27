@@ -26,21 +26,45 @@ Cho điểm M trên đường tròn đơn vị, ứng với góc $\theta$:
 
 💡 **Trực giác hình ảnh — "cos là bóng ngang, sin là bóng dọc"**: hình dung một con kiến bò trên đường tròn bán kính 1, xuất phát từ điểm $(1, 0)$ và bò ngược chiều kim đồng hồ. Tại mỗi thời điểm, vị trí con kiến là $M = (x, y)$. Chiếu M xuống **trục hoành** ⟶ được $x = \cos\theta$ (bóng ngang). Chiếu M lên **trục tung** ⟶ được $y = \sin\theta$ (bóng dọc). Khi $\theta$ tăng, con kiến leo lên (sin tăng) rồi sang trái (cos giảm) — cứ thế lặp lại sau mỗi vòng. Đây là lý do sâu xa khiến sin/cos là **sóng tuần hoàn**: chuyển động tròn nhìn từ một phía chính là dao động lên–xuống.
 
-```
-                  y
-                  ↑
-              · · M=(cosθ, sinθ)
-          ·      ╱│·
-        ·       ╱ │  ·
-       ·       ╱  │   ·
-      ·     OP╱   │sinθ = tung độ
-      ·     ╱     │    ·     (bóng dọc)
-      ·    ╱ θ    │    ·
-──────●───●───────┴────●─────→ x
-   (-1,0) O   cosθ    (1,0)
-              hoành độ
-            (bóng ngang)
-```
+<svg viewBox="0 0 400 300" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn đơn vị: điểm M=(cos θ, sin θ), cos θ là hình chiếu xuống trục x (bóng ngang), sin θ là hình chiếu lên trục y (bóng dọc)">
+<defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker></defs>
+<line x1="65.0" y1="30" x2="65.0" y2="270" stroke="#e2e8f0"/>
+<line x1="40" y1="45.0" x2="330" y2="45.0" stroke="#e2e8f0"/>
+<line x1="117.5" y1="30" x2="117.5" y2="270" stroke="#e2e8f0"/>
+<line x1="40" y1="97.5" x2="330" y2="97.5" stroke="#e2e8f0"/>
+<line x1="170.0" y1="30" x2="170.0" y2="270" stroke="#e2e8f0"/>
+<line x1="40" y1="150.0" x2="330" y2="150.0" stroke="#e2e8f0"/>
+<line x1="222.5" y1="30" x2="222.5" y2="270" stroke="#e2e8f0"/>
+<line x1="40" y1="202.5" x2="330" y2="202.5" stroke="#e2e8f0"/>
+<line x1="275.0" y1="30" x2="275.0" y2="270" stroke="#e2e8f0"/>
+<line x1="40" y1="255.0" x2="330" y2="255.0" stroke="#e2e8f0"/>
+<line x1="40" y1="150" x2="335" y2="150" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+<line x1="170" y1="275" x2="170" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar1)"/>
+<text x="330" y="166" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+<text x="178" y="30" font-size="13" font-weight="700" fill="#1a202c">y</text>
+<circle cx="170" cy="150" r="105" fill="none" stroke="#cbd5e0" stroke-width="1.6"/>
+<circle cx="275" cy="150" r="3" fill="#1a202c"/>
+<text x="281" y="168" font-size="11" fill="#475569" text-anchor="start">(1,0)</text>
+<circle cx="65" cy="150" r="3" fill="#1a202c"/>
+<text x="59" y="168" font-size="11" fill="#475569" text-anchor="end">(−1,0)</text>
+<text x="176" y="39" font-size="11" fill="#475569">(0,1)</text>
+<text x="176" y="269" font-size="11" fill="#475569">(0,−1)</text>
+<text x="164" y="166" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">O</text>
+<path d="M 204 150 A 34 34 0 0 0 191.9 124.0" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<text x="208.3" y="138.1" font-size="13" fill="#dc2626" font-weight="700">θ</text>
+<line x1="170" y1="150" x2="237.5" y2="69.6" stroke="#1d4ed8" stroke-width="2.2"/>
+<text x="189.7" y="105.8" font-size="11" fill="#1d4ed8" font-weight="700">1</text>
+<line x1="237.5" y1="69.6" x2="237.5" y2="150" stroke="#15803d" stroke-width="2" stroke-dasharray="5 3"/>
+<line x1="170" y1="150" x2="237.5" y2="150" stroke="#dc2626" stroke-width="3"/>
+<line x1="237.5" y1="69.6" x2="170" y2="69.6" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+<circle cx="237.5" cy="69.6" r="4.5" fill="#1d4ed8"/>
+<text x="245.5" y="65.6" font-size="12" fill="#1d4ed8" font-weight="700">M = (cos θ, sin θ)</text>
+<text x="245.5" y="113.8" font-size="11" fill="#15803d" font-weight="700">sin θ = tung độ</text>
+<text x="245.5" y="127.8" font-size="10" fill="#15803d">(bóng dọc)</text>
+<text x="203.7" y="180" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">cos θ = hoành độ</text>
+<text x="203.7" y="193" font-size="10" fill="#dc2626" text-anchor="middle">(bóng ngang)</text>
+<circle cx="237.5" cy="150" r="3" fill="#dc2626"/>
+</svg>
 
 **Bốn ví dụ đọc tọa độ trực tiếp** (không cần tam giác, chỉ nhìn điểm M):
 
@@ -104,15 +128,20 @@ Mẹo "bàn tay" tiện nhớ, nhưng các giá trị $\frac{1}{2}, \frac{\sqrt{
 
 💡 **Trực giác**: lấy một hình vuông cạnh 1, cắt theo đường chéo ⟶ được tam giác vuông cân, hai góc nhọn đều $45^\circ$, hai cạnh góc vuông đều dài 1.
 
-```
-        ╱│
-       ╱ │
-   c  ╱  │ 1   (cạnh góc vuông)
-     ╱   │
-    ╱ 45°│
-   ╱─────┘
-      1     (cạnh góc vuông)
-```
+<svg viewBox="0 0 400 285" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông cân 45-45-90: hai cạnh góc vuông dài 1, cạnh huyền √2">
+<polygon points="60,210 230,210 230,40" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M 218 210 L 218 198 L 230 198" fill="none" stroke="#475569" stroke-width="1.2"/>
+<path d="M 94.0 210.0 A 34 34 0 0 0 84.0 186.0" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<path d="M 206.0 64.0 A 34 34 0 0 0 230.0 74.0" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<text x="145" y="232" font-size="12" fill="#15803d" text-anchor="middle" font-weight="700">1  (cạnh góc vuông)</text>
+<text x="240" y="130" font-size="12" fill="#15803d" text-anchor="start" font-weight="700">1</text>
+<text x="252" y="130" font-size="11" fill="#15803d" text-anchor="start" font-weight="400">(cạnh góc vuông)</text>
+<text x="128" y="115" font-size="13" fill="#dc2626" text-anchor="end" font-weight="700">c = √2</text>
+<text x="128" y="131" font-size="11" fill="#dc2626" text-anchor="end" font-weight="400">(huyền)</text>
+<text x="98" y="204" font-size="12" fill="#dc2626" text-anchor="start" font-weight="700">45°</text>
+<text x="214" y="62" font-size="12" fill="#dc2626" text-anchor="end" font-weight="700">45°</text>
+<text x="30" y="270" font-size="11" fill="#475569" text-anchor="start" font-weight="400">Cắt hình vuông cạnh 1 theo đường chéo → tam giác vuông cân</text>
+</svg>
 
 Theo Pythagore, cạnh huyền $c = \sqrt{1^2 + 1^2} = \sqrt{2}$. Áp SOH-CAH-TOA cho góc $45^\circ$:
 
@@ -128,15 +157,20 @@ Vì hai cạnh góc vuông bằng nhau nên $\sin 45^\circ = \cos 45^\circ$ — 
 
 💡 **Trực giác**: lấy một **tam giác đều** cạnh 2, hạ đường cao từ một đỉnh ⟶ cắt đôi thành hai tam giác vuông $30$-$60$-$90$. Cạnh huyền = 2 (cạnh tam giác đều), cạnh đáy ngắn = 1 (nửa cạnh đáy).
 
-```
-         ╱│
-        ╱ │
-    2  ╱  │ h        h = √(2² − 1²) = √3
-      ╱   │
-     ╱ 30°│
-    ╱─────┘
-   60°  1
-```
+<svg viewBox="0 0 400 295" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông 30-60-90: cạnh đáy 1, đường cao √3, cạnh huyền 2; góc 60° ở đáy, góc 30° ở đỉnh">
+<polygon points="60,225 155,225 155,61" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M 143 225 L 143 213 L 155 213" fill="none" stroke="#475569" stroke-width="1.2"/>
+<path d="M 88.0 225.0 A 28 28 0 0 0 74.0 200.8" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<path d="M 135.0 95.6 A 40 40 0 0 0 155.0 101.0" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<text x="107.5" y="247" font-size="12" fill="#15803d" text-anchor="middle" font-weight="700">1  (nửa cạnh đáy)</text>
+<text x="165" y="140" font-size="13" fill="#15803d" text-anchor="start" font-weight="700">h = √3</text>
+<text x="165" y="157" font-size="11" fill="#475569" text-anchor="start" font-weight="400">h = √(2² − 1²)</text>
+<text x="95.5" y="120" font-size="13" fill="#dc2626" text-anchor="end" font-weight="700">2</text>
+<text x="95.5" y="136" font-size="11" fill="#dc2626" text-anchor="end" font-weight="400">(huyền)</text>
+<text x="90" y="214" font-size="12" fill="#dc2626" text-anchor="start" font-weight="700">60°</text>
+<text x="147" y="101" font-size="12" fill="#dc2626" text-anchor="end" font-weight="700">30°</text>
+<text x="20" y="280" font-size="11" fill="#475569" text-anchor="start" font-weight="400">Tam giác đều cạnh 2, hạ đường cao → hai tam giác vuông 30-60-90</text>
+</svg>
 
 Đường cao $h = \sqrt{2^2 - 1^2} = \sqrt{4 - 1} = \sqrt{3}$. Bây giờ đọc hai góc:
 
@@ -234,16 +268,51 @@ Từ 3 góc lõi cộng quy tắc dấu (mục 6), suy ra tọa độ điểm M 
 - **Lẻ**: $\sin(-x) = -\sin x$. Đồ thị đối xứng qua O.
 - Đi qua $O(0, 0)$, cực đại tại $\frac{\pi}{2}$ ($= 1$), cực tiểu tại $\frac{3\pi}{2}$ ($= -1$).
 
-```
- y
- 1┤      .-''-.                      .-''-.
-  │    .'      '.                  .'      '.
- 0┼──.'─────────'.──────────────.'─────────'.───→ x
-  │ 0          π '.    π      2π'.          .' 3π
--1┤              '.__.'          '.__.'
-       π/2          3π/2
-   ↑lên     ↑đỉnh=1   ↑xuống   ↑đáy=-1
-```
+<svg viewBox="0 0 640 260" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị y = sin x từ 0 đến 3π: qua gốc O, đỉnh 1 tại π/2, về 0 tại π, đáy −1 tại 3π/2, về 0 tại 2π">
+<defs><marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker></defs>
+<line x1="60.0" y1="39.0" x2="60.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="150.0" y1="39.0" x2="150.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="240.0" y1="39.0" x2="240.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="330.0" y1="39.0" x2="330.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="420.0" y1="39.0" x2="420.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="510.0" y1="39.0" x2="510.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="600.0" y1="39.0" x2="600.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="42.8" y1="200.0" x2="611.5" y2="200.0" stroke="#e2e8f0"/>
+<line x1="42.8" y1="60.0" x2="611.5" y2="60.0" stroke="#e2e8f0"/>
+<line x1="37.1" y1="130" x2="628.6" y2="130" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+<line x1="60" y1="235.0" x2="60" y2="7.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar4)"/>
+<text x="624.6" y="148" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+<text x="68" y="17.5" font-size="13" font-weight="700" fill="#1a202c">y</text>
+<line x1="60.0" y1="126" x2="60.0" y2="134" stroke="#1a202c"/>
+<text x="68.0" y="148" font-size="11" fill="#475569" text-anchor="middle">0</text>
+<line x1="150.0" y1="126" x2="150.0" y2="134" stroke="#1a202c"/>
+<text x="150.0" y="148" font-size="11" fill="#475569" text-anchor="middle">π/2</text>
+<line x1="240.0" y1="126" x2="240.0" y2="134" stroke="#1a202c"/>
+<text x="240.0" y="148" font-size="11" fill="#475569" text-anchor="middle">π</text>
+<line x1="330.0" y1="126" x2="330.0" y2="134" stroke="#1a202c"/>
+<text x="330.0" y="148" font-size="11" fill="#475569" text-anchor="middle">3π/2</text>
+<line x1="420.0" y1="126" x2="420.0" y2="134" stroke="#1a202c"/>
+<text x="420.0" y="148" font-size="11" fill="#475569" text-anchor="middle">2π</text>
+<line x1="510.0" y1="126" x2="510.0" y2="134" stroke="#1a202c"/>
+<text x="510.0" y="148" font-size="11" fill="#475569" text-anchor="middle">5π/2</text>
+<line x1="600.0" y1="126" x2="600.0" y2="134" stroke="#1a202c"/>
+<text x="600.0" y="148" font-size="11" fill="#475569" text-anchor="middle">3π</text>
+<line x1="56" y1="60.0" x2="64" y2="60.0" stroke="#1a202c"/>
+<text x="52" y="64.0" font-size="11" fill="#475569" text-anchor="end">1</text>
+<line x1="56" y1="200.0" x2="64" y2="200.0" stroke="#1a202c"/>
+<text x="52" y="204.0" font-size="11" fill="#475569" text-anchor="end">−1</text>
+<polyline points="60.0,130.0 63.0,126.3 66.0,122.7 69.0,119.0 72.0,115.4 75.0,111.9 78.0,108.4 81.0,104.9 84.0,101.5 87.0,98.2 90.0,95.0 93.0,91.9 96.0,88.9 99.0,85.9 102.0,83.2 105.0,80.5 108.0,78.0 111.0,75.6 114.0,73.4 117.0,71.3 120.0,69.4 123.0,67.6 126.0,66.1 129.0,64.6 132.0,63.4 135.0,62.4 138.0,61.5 141.0,60.9 144.0,60.4 147.0,60.1 150.0,60.0 153.0,60.1 156.0,60.4 159.0,60.9 162.0,61.5 165.0,62.4 168.0,63.4 171.0,64.6 174.0,66.1 177.0,67.6 180.0,69.4 183.0,71.3 186.0,73.4 189.0,75.6 192.0,78.0 195.0,80.5 198.0,83.2 201.0,85.9 204.0,88.9 207.0,91.9 210.0,95.0 213.0,98.2 216.0,101.5 219.0,104.9 222.0,108.4 225.0,111.9 228.0,115.4 231.0,119.0 234.0,122.7 237.0,126.3 240.0,130.0 243.0,133.7 246.0,137.3 249.0,141.0 252.0,144.6 255.0,148.1 258.0,151.6 261.0,155.1 264.0,158.5 267.0,161.8 270.0,165.0 273.0,168.1 276.0,171.1 279.0,174.1 282.0,176.8 285.0,179.5 288.0,182.0 291.0,184.4 294.0,186.6 297.0,188.7 300.0,190.6 303.0,192.4 306.0,193.9 309.0,195.4 312.0,196.6 315.0,197.6 318.0,198.5 321.0,199.1 324.0,199.6 327.0,199.9 330.0,200.0 333.0,199.9 336.0,199.6 339.0,199.1 342.0,198.5 345.0,197.6 348.0,196.6 351.0,195.4 354.0,193.9 357.0,192.4 360.0,190.6 363.0,188.7 366.0,186.6 369.0,184.4 372.0,182.0 375.0,179.5 378.0,176.8 381.0,174.1 384.0,171.1 387.0,168.1 390.0,165.0 393.0,161.8 396.0,158.5 399.0,155.1 402.0,151.6 405.0,148.1 408.0,144.6 411.0,141.0 414.0,137.3 417.0,133.7 420.0,130.0 423.0,126.3 426.0,122.7 429.0,119.0 432.0,115.4 435.0,111.9 438.0,108.4 441.0,104.9 444.0,101.5 447.0,98.2 450.0,95.0 453.0,91.9 456.0,88.9 459.0,85.9 462.0,83.2 465.0,80.5 468.0,78.0 471.0,75.6 474.0,73.4 477.0,71.3 480.0,69.4 483.0,67.6 486.0,66.1 489.0,64.6 492.0,63.4 495.0,62.4 498.0,61.5 501.0,60.9 504.0,60.4 507.0,60.1 510.0,60.0 513.0,60.1 516.0,60.4 519.0,60.9 522.0,61.5 525.0,62.4 528.0,63.4 531.0,64.6 534.0,66.1 537.0,67.6 540.0,69.4 543.0,71.3 546.0,73.4 549.0,75.6 552.0,78.0 555.0,80.5 558.0,83.2 561.0,85.9 564.0,88.9 567.0,91.9 570.0,95.0 573.0,98.2 576.0,101.5 579.0,104.9 582.0,108.4 585.0,111.9 588.0,115.4 591.0,119.0 594.0,122.7 597.0,126.3 600.0,130.0" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+<line x1="150.0" y1="130" x2="150.0" y2="60.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="150.0" cy="60.0" r="3.5" fill="#dc2626"/>
+<text x="150.0" y="51.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">đỉnh = 1</text>
+<line x1="330.0" y1="130" x2="330.0" y2="200.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="330.0" cy="200.0" r="3.5" fill="#dc2626"/>
+<text x="330.0" y="215.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">đáy = −1</text>
+<line x1="510.0" y1="130" x2="510.0" y2="60.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="510.0" cy="60.0" r="3.5" fill="#dc2626"/>
+<text x="510.0" y="51.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">đỉnh = 1</text>
+<text x="596.0" y="37.0" font-size="12" fill="#1d4ed8" font-weight="700" text-anchor="end">y = sin x</text>
+</svg>
 
 sin xuất phát từ 0, leo lên đỉnh 1 tại $\frac{\pi}{2}$, về 0 tại $\pi$, xuống đáy $-1$ tại $\frac{3\pi}{2}$, rồi về 0 tại $2\pi$ — đúng một vòng quanh đường tròn.
 
@@ -255,16 +324,54 @@ sin xuất phát từ 0, leo lên đỉnh 1 tại $\frac{\pi}{2}$, về 0 tại 
 - Đi qua $(0, 1)$, cực đại tại $x = 0$, cực tiểu tại $\pi$.
 - **Liên hệ với sin**: $\cos x = \sin(x + \frac{\pi}{2})$. Cos sớm pha hơn sin $\frac{\pi}{2}$.
 
-```
- y
- 1┤'-.                  .-''-.                  .-'
-  │   '.              .'      '.              .'
- 0┼─────'.──────────.'─────────'.──────────.'────→ x
-  │ 0     '.    π  .'     2π    '.        .' 3π
--1┤         '.__.'              '.__.'
-              π          ↑đáy=-1
-   ↑đỉnh=1
-```
+<svg viewBox="0 0 640 260" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị y = cos x từ 0 đến 3π: khởi đầu ở đỉnh 1 tại x = 0, về 0 tại π/2, đáy −1 tại π, đỉnh 1 tại 2π, đáy −1 tại 3π">
+<defs><marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker></defs>
+<line x1="60.0" y1="39.0" x2="60.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="150.0" y1="39.0" x2="150.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="240.0" y1="39.0" x2="240.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="330.0" y1="39.0" x2="330.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="420.0" y1="39.0" x2="420.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="510.0" y1="39.0" x2="510.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="600.0" y1="39.0" x2="600.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="42.8" y1="200.0" x2="611.5" y2="200.0" stroke="#e2e8f0"/>
+<line x1="42.8" y1="60.0" x2="611.5" y2="60.0" stroke="#e2e8f0"/>
+<line x1="37.1" y1="130" x2="628.6" y2="130" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+<line x1="60" y1="235.0" x2="60" y2="7.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar5)"/>
+<text x="624.6" y="148" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+<text x="68" y="17.5" font-size="13" font-weight="700" fill="#1a202c">y</text>
+<line x1="60.0" y1="126" x2="60.0" y2="134" stroke="#1a202c"/>
+<text x="68.0" y="148" font-size="11" fill="#475569" text-anchor="middle">0</text>
+<line x1="150.0" y1="126" x2="150.0" y2="134" stroke="#1a202c"/>
+<text x="150.0" y="148" font-size="11" fill="#475569" text-anchor="middle">π/2</text>
+<line x1="240.0" y1="126" x2="240.0" y2="134" stroke="#1a202c"/>
+<text x="240.0" y="148" font-size="11" fill="#475569" text-anchor="middle">π</text>
+<line x1="330.0" y1="126" x2="330.0" y2="134" stroke="#1a202c"/>
+<text x="330.0" y="148" font-size="11" fill="#475569" text-anchor="middle">3π/2</text>
+<line x1="420.0" y1="126" x2="420.0" y2="134" stroke="#1a202c"/>
+<text x="420.0" y="148" font-size="11" fill="#475569" text-anchor="middle">2π</text>
+<line x1="510.0" y1="126" x2="510.0" y2="134" stroke="#1a202c"/>
+<text x="510.0" y="148" font-size="11" fill="#475569" text-anchor="middle">5π/2</text>
+<line x1="600.0" y1="126" x2="600.0" y2="134" stroke="#1a202c"/>
+<text x="600.0" y="148" font-size="11" fill="#475569" text-anchor="middle">3π</text>
+<line x1="56" y1="60.0" x2="64" y2="60.0" stroke="#1a202c"/>
+<text x="52" y="64.0" font-size="11" fill="#475569" text-anchor="end">1</text>
+<line x1="56" y1="200.0" x2="64" y2="200.0" stroke="#1a202c"/>
+<text x="52" y="204.0" font-size="11" fill="#475569" text-anchor="end">−1</text>
+<polyline points="60.0,60.0 63.0,60.1 66.0,60.4 69.0,60.9 72.0,61.5 75.0,62.4 78.0,63.4 81.0,64.6 84.0,66.1 87.0,67.6 90.0,69.4 93.0,71.3 96.0,73.4 99.0,75.6 102.0,78.0 105.0,80.5 108.0,83.2 111.0,85.9 114.0,88.9 117.0,91.9 120.0,95.0 123.0,98.2 126.0,101.5 129.0,104.9 132.0,108.4 135.0,111.9 138.0,115.4 141.0,119.0 144.0,122.7 147.0,126.3 150.0,130.0 153.0,133.7 156.0,137.3 159.0,141.0 162.0,144.6 165.0,148.1 168.0,151.6 171.0,155.1 174.0,158.5 177.0,161.8 180.0,165.0 183.0,168.1 186.0,171.1 189.0,174.1 192.0,176.8 195.0,179.5 198.0,182.0 201.0,184.4 204.0,186.6 207.0,188.7 210.0,190.6 213.0,192.4 216.0,193.9 219.0,195.4 222.0,196.6 225.0,197.6 228.0,198.5 231.0,199.1 234.0,199.6 237.0,199.9 240.0,200.0 243.0,199.9 246.0,199.6 249.0,199.1 252.0,198.5 255.0,197.6 258.0,196.6 261.0,195.4 264.0,193.9 267.0,192.4 270.0,190.6 273.0,188.7 276.0,186.6 279.0,184.4 282.0,182.0 285.0,179.5 288.0,176.8 291.0,174.1 294.0,171.1 297.0,168.1 300.0,165.0 303.0,161.8 306.0,158.5 309.0,155.1 312.0,151.6 315.0,148.1 318.0,144.6 321.0,141.0 324.0,137.3 327.0,133.7 330.0,130.0 333.0,126.3 336.0,122.7 339.0,119.0 342.0,115.4 345.0,111.9 348.0,108.4 351.0,104.9 354.0,101.5 357.0,98.2 360.0,95.0 363.0,91.9 366.0,88.9 369.0,85.9 372.0,83.2 375.0,80.5 378.0,78.0 381.0,75.6 384.0,73.4 387.0,71.3 390.0,69.4 393.0,67.6 396.0,66.1 399.0,64.6 402.0,63.4 405.0,62.4 408.0,61.5 411.0,60.9 414.0,60.4 417.0,60.1 420.0,60.0 423.0,60.1 426.0,60.4 429.0,60.9 432.0,61.5 435.0,62.4 438.0,63.4 441.0,64.6 444.0,66.1 447.0,67.6 450.0,69.4 453.0,71.3 456.0,73.4 459.0,75.6 462.0,78.0 465.0,80.5 468.0,83.2 471.0,85.9 474.0,88.9 477.0,91.9 480.0,95.0 483.0,98.2 486.0,101.5 489.0,104.9 492.0,108.4 495.0,111.9 498.0,115.4 501.0,119.0 504.0,122.7 507.0,126.3 510.0,130.0 513.0,133.7 516.0,137.3 519.0,141.0 522.0,144.6 525.0,148.1 528.0,151.6 531.0,155.1 534.0,158.5 537.0,161.8 540.0,165.0 543.0,168.1 546.0,171.1 549.0,174.1 552.0,176.8 555.0,179.5 558.0,182.0 561.0,184.4 564.0,186.6 567.0,188.7 570.0,190.6 573.0,192.4 576.0,193.9 579.0,195.4 582.0,196.6 585.0,197.6 588.0,198.5 591.0,199.1 594.0,199.6 597.0,199.9 600.0,200.0" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+<line x1="60.0" y1="130" x2="60.0" y2="60.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="60.0" cy="60.0" r="3.5" fill="#dc2626"/>
+<text x="60.0" y="51.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="start">đỉnh = 1</text>
+<line x1="240.0" y1="130" x2="240.0" y2="200.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="240.0" cy="200.0" r="3.5" fill="#dc2626"/>
+<text x="240.0" y="215.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">đáy = −1</text>
+<line x1="420.0" y1="130" x2="420.0" y2="60.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="420.0" cy="60.0" r="3.5" fill="#dc2626"/>
+<text x="420.0" y="51.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="middle">đỉnh = 1</text>
+<line x1="600.0" y1="130" x2="600.0" y2="200.0" stroke="#94a3b8" stroke-dasharray="4 3"/>
+<circle cx="600.0" cy="200.0" r="3.5" fill="#dc2626"/>
+<text x="600.0" y="215.0" font-size="11" fill="#dc2626" font-weight="700" text-anchor="end">đáy = −1</text>
+<text x="596.0" y="37.0" font-size="12" fill="#1d4ed8" font-weight="700" text-anchor="end">y = cos x</text>
+</svg>
 
 cos chỉ là sin **trượt sang trái $\frac{\pi}{2}$**: nó khởi đầu ngay ở đỉnh 1 (vì $\cos 0 = 1$), trong khi sin khởi đầu ở 0.
 
@@ -275,17 +382,52 @@ cos chỉ là sin **trượt sang trái $\frac{\pi}{2}$**: nó khởi đầu nga
 - **Lẻ**: $\tan(-x) = -\tan x$.
 - **Tiệm cận đứng** tại $x = \frac{\pi}{2} + k\pi$ (nơi cos = 0).
 
-```
- y     ┊            ┊            ┊
-       ┊  ╱         ┊  ╱         ┊  ╱
-       ┊ ╱          ┊ ╱          ┊ ╱
- ──────┊╱───────────┊╱───────────┊╱──────→ x
-      ╱┊0          ╱┊π          ╱┊2π
-     ╱ ┊          ╱ ┊          ╱ ┊
-       ┊          ┊            ┊
-     -π/2        π/2          3π/2
-     (tiệm cận)  (tiệm cận)   (tiệm cận)
-```
+<svg viewBox="0 0 640 260" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị y = tan x: các nhánh lặp chu kỳ π, tiệm cận đứng nét đứt tại −π/2, π/2, 3π/2; mỗi nhánh đi từ −∞ lên +∞">
+<defs><marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker></defs>
+<line x1="60.0" y1="39.0" x2="60.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="150.0" y1="39.0" x2="150.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="240.0" y1="39.0" x2="240.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="330.0" y1="39.0" x2="330.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="420.0" y1="39.0" x2="420.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="510.0" y1="39.0" x2="510.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="600.0" y1="39.0" x2="600.0" y2="221.0" stroke="#e2e8f0"/>
+<line x1="42.8" y1="200.0" x2="611.5" y2="200.0" stroke="#e2e8f0"/>
+<line x1="42.8" y1="60.0" x2="611.5" y2="60.0" stroke="#e2e8f0"/>
+<line x1="37.1" y1="130" x2="628.6" y2="130" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+<line x1="60" y1="235.0" x2="60" y2="7.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar6)"/>
+<text x="624.6" y="148" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+<text x="68" y="17.5" font-size="13" font-weight="700" fill="#1a202c">y</text>
+<line x1="-30.0" y1="126" x2="-30.0" y2="134" stroke="#1a202c"/>
+<text x="-30.0" y="148" font-size="11" fill="#475569" text-anchor="middle">−π/2</text>
+<line x1="60.0" y1="126" x2="60.0" y2="134" stroke="#1a202c"/>
+<text x="68.0" y="148" font-size="11" fill="#475569" text-anchor="middle">0</text>
+<line x1="150.0" y1="126" x2="150.0" y2="134" stroke="#1a202c"/>
+<text x="150.0" y="148" font-size="11" fill="#475569" text-anchor="middle">π/2</text>
+<line x1="240.0" y1="126" x2="240.0" y2="134" stroke="#1a202c"/>
+<text x="240.0" y="148" font-size="11" fill="#475569" text-anchor="middle">π</text>
+<line x1="330.0" y1="126" x2="330.0" y2="134" stroke="#1a202c"/>
+<text x="330.0" y="148" font-size="11" fill="#475569" text-anchor="middle">3π/2</text>
+<line x1="420.0" y1="126" x2="420.0" y2="134" stroke="#1a202c"/>
+<text x="420.0" y="148" font-size="11" fill="#475569" text-anchor="middle">2π</text>
+<line x1="56" y1="60.0" x2="64" y2="60.0" stroke="#1a202c"/>
+<text x="52" y="64.0" font-size="11" fill="#475569" text-anchor="end">1</text>
+<line x1="56" y1="200.0" x2="64" y2="200.0" stroke="#1a202c"/>
+<text x="52" y="204.0" font-size="11" fill="#475569" text-anchor="end">−1</text>
+<line x1="-30.0" y1="21.5" x2="-30.0" y2="235.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="-26.0" y="33.5" font-size="10" fill="#94a3b8">tiệm cận</text>
+<line x1="150.0" y1="21.5" x2="150.0" y2="235.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="154.0" y="33.5" font-size="10" fill="#94a3b8">tiệm cận</text>
+<line x1="330.0" y1="21.5" x2="330.0" y2="235.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="334.0" y="33.5" font-size="10" fill="#94a3b8">tiệm cận</text>
+<polyline points="-12.4,229.1 -9.5,214.2 -6.6,202.7 -3.7,193.7 -0.8,186.3 2.1,180.2 5.0,175.0 7.9,170.5 10.8,166.5 13.7,163.0 16.6,159.8 19.5,156.9 22.4,154.3 25.3,151.8 28.2,149.6 31.1,147.4 33.9,145.4 36.8,143.5 39.7,141.6 42.6,139.9 45.5,138.1 48.4,136.5 51.3,134.8 54.2,133.2 57.1,131.6 60.0,130.0 62.9,128.4 65.8,126.8 68.7,125.2 71.6,123.5 74.5,121.9 77.4,120.1 80.3,118.4 83.2,116.5 86.1,114.6 88.9,112.6 91.8,110.4 94.7,108.2 97.6,105.7 100.5,103.1 103.4,100.2 106.3,97.0 109.2,93.5 112.1,89.5 115.0,85.0 117.9,79.8 120.8,73.7 123.7,66.3 126.6,57.3 129.5,45.8 132.4,30.9" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+<polyline points="167.6,229.1 170.5,214.2 173.4,202.7 176.3,193.7 179.2,186.3 182.1,180.2 185.0,175.0 187.9,170.5 190.8,166.5 193.7,163.0 196.6,159.8 199.5,156.9 202.4,154.3 205.3,151.8 208.2,149.6 211.1,147.4 213.9,145.4 216.8,143.5 219.7,141.6 222.6,139.9 225.5,138.1 228.4,136.5 231.3,134.8 234.2,133.2 237.1,131.6 240.0,130.0 242.9,128.4 245.8,126.8 248.7,125.2 251.6,123.5 254.5,121.9 257.4,120.1 260.3,118.4 263.2,116.5 266.1,114.6 268.9,112.6 271.8,110.4 274.7,108.2 277.6,105.7 280.5,103.1 283.4,100.2 286.3,97.0 289.2,93.5 292.1,89.5 295.0,85.0 297.9,79.8 300.8,73.7 303.7,66.3 306.6,57.3 309.5,45.8 312.4,30.9" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+<polyline points="347.6,229.1 350.5,214.2 353.4,202.7 356.3,193.7 359.2,186.3 362.1,180.2 365.0,175.0 367.9,170.5 370.8,166.5 373.7,163.0 376.6,159.8 379.5,156.9 382.4,154.3 385.3,151.8 388.2,149.6 391.1,147.4 393.9,145.4 396.8,143.5 399.7,141.6 402.6,139.9 405.5,138.1 408.4,136.5 411.3,134.8 414.2,133.2 417.1,131.6 420.0,130.0 422.9,128.4 425.8,126.8 428.7,125.2 431.6,123.5 434.5,121.9 437.4,120.1 440.3,118.4 443.2,116.5 446.1,114.6 448.9,112.6 451.8,110.4 454.7,108.2 457.6,105.7 460.5,103.1 463.4,100.2 466.3,97.0 469.2,93.5 472.1,89.5 475.0,85.0 477.9,79.8 480.8,73.7 483.7,66.3 486.6,57.3 489.5,45.8 492.4,30.9" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+<text x="109.0" y="92.5" font-size="11" fill="#dc2626" font-weight="700">tan(π/4) = 1</text>
+<circle cx="105.0" cy="98.5" r="3.5" fill="#dc2626"/>
+<circle cx="285.0" cy="98.5" r="3.5" fill="#dc2626"/>
+<text x="289.0" y="92.5" font-size="11" fill="#dc2626" font-weight="700">tan(5π/4) = 1</text>
+<text x="338.0" y="214.0" font-size="11" fill="#475569">chu kỳ π, không bị chặn</text>
+</svg>
 
 tan lao từ $-\infty$ lên $+\infty$ trong mỗi khoảng rộng $\pi$, đứt quãng tại mỗi tiệm cận (chỗ $\cos = 0$). Khác sin/cos, tan **không bị chặn** trên/dưới.
 
@@ -369,14 +511,18 @@ $$y = A\cdot\sin(\omega\cdot x + \varphi) + k$$
 💡 **Trực giác / Hình dung**: định nghĩa tam giác vuông là **trường hợp riêng** của định nghĩa đường tròn. Đặt huyền = bán kính 1, thì cạnh kề = hoành độ (cos), cạnh đối = tung độ (sin). Tam giác chỉ "phóng to/thu nhỏ" tam giác trong đường tròn đơn vị, nên tỉ số cạnh không đổi → cùng giá trị sin/cos.
 
 Khi $0 < \theta < \frac{\pi}{2}$:
-```
-       │╲
-       │ ╲ c (huyền)
-   a   │  ╲
-       │   ╲ θ
-       └────╲
-          b
-```
+
+<svg viewBox="0 0 320 235" style="max-width:340px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông với góc θ: cạnh đối a, cạnh kề b, cạnh huyền c">
+<polygon points="230,190 80,190 80,50" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M 92 190 L 92 178 L 80 178" fill="none" stroke="#475569" stroke-width="1.2"/>
+<path d="M 203.7 165.4 A 36 36 0 0 0 194.0 190.0" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<text x="155.0" y="214" font-size="13" fill="#15803d" text-anchor="middle" font-weight="700">b  (kề)</text>
+<text x="70" y="125" font-size="13" fill="#15803d" text-anchor="end" font-weight="700">a</text>
+<text x="70" y="142" font-size="11" fill="#475569" text-anchor="end" font-weight="400">(đối)</text>
+<text x="170" y="108" font-size="13" fill="#dc2626" text-anchor="start" font-weight="700">c (huyền)</text>
+<text x="190" y="184" font-size="14" fill="#dc2626" text-anchor="end" font-weight="700">θ</text>
+</svg>
+
 - $\sin\theta = \frac{a}{c}$ (đối/huyền).
 - $\cos\theta = \frac{b}{c}$ (kề/huyền).
 - $\tan\theta = \frac{a}{b}$ (đối/kề).
@@ -385,23 +531,25 @@ Khi $0 < \theta < \frac{\pi}{2}$:
 
 **Verify trùng khớp bằng số**: tam giác 3-4-5 (a=3 đối, b=4 kề, c=5 huyền). $\sin\theta = \frac{3}{5} = 0.6$, $\cos\theta = \frac{4}{5} = 0.8$. Kiểm Pythagore lượng giác: $0.6^2 + 0.8^2 = 0.36 + 0.64 = 1$ ✓ — đúng như điểm trên đường tròn đơn vị.
 
-💡 **Mẹo SOH-CAH-TOA bằng ASCII** — gắn nhãn 3 cạnh quanh góc $\theta$:
+💡 **Mẹo SOH-CAH-TOA bằng hình** — gắn nhãn 3 cạnh quanh góc $\theta$:
 
-```
-              │╲
-              │ ╲
-   ĐỐI        │  ╲  HUYỀN
- (opposite)   │   ╲  (hypotenuse)
-   đối diện θ  │    ╲
-              │  θ  ╲
-              └──────╲
-               KỀ (adjacent)
-              liền kề góc θ
-
-  SOH:  Sin = Đối / Huyền      (S = O/H)
-  CAH:  Cos = Kề  / Huyền      (C = A/H)
-  TOA:  Tan = Đối / Kề         (T = O/A)
-```
+<svg viewBox="0 0 620 260" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mẹo SOH-CAH-TOA: cạnh đối (opposite) không chạm góc θ, cạnh kề (adjacent) liền kề θ, cạnh huyền (hypotenuse) đối diện góc vuông; Sin = Đối/Huyền, Cos = Kề/Huyền, Tan = Đối/Kề">
+<polygon points="300,200 110,200 110,50" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M 122 200 L 122 188 L 110 188" fill="none" stroke="#475569" stroke-width="1.2"/>
+<path d="M 268.5 175.4 A 40 40 0 0 0 260.0 200.0" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+<text x="205.0" y="224" font-size="13" fill="#15803d" text-anchor="middle" font-weight="700">KỀ (adjacent)</text>
+<text x="205.0" y="240" font-size="11" fill="#475569" text-anchor="middle" font-weight="400">liền kề góc θ</text>
+<text x="98" y="115" font-size="13" fill="#1d4ed8" text-anchor="end" font-weight="700">ĐỐI</text>
+<text x="98" y="131" font-size="11" fill="#1d4ed8" text-anchor="end" font-weight="400">(opposite)</text>
+<text x="98" y="147" font-size="11" fill="#475569" text-anchor="end" font-weight="400">đối diện θ</text>
+<text x="222" y="110" font-size="13" fill="#dc2626" text-anchor="start" font-weight="700">HUYỀN</text>
+<text x="222" y="126" font-size="11" fill="#dc2626" text-anchor="start" font-weight="400">(hypotenuse)</text>
+<text x="256" y="194" font-size="14" fill="#dc2626" text-anchor="end" font-weight="700">θ</text>
+<text x="380" y="95" font-size="13" fill="#1d4ed8" text-anchor="start" font-weight="700">SOH: Sin = Đối / Huyền</text>
+<text x="380" y="125" font-size="13" fill="#15803d" text-anchor="start" font-weight="700">CAH: Cos = Kề / Huyền</text>
+<text x="380" y="155" font-size="13" fill="#dc2626" text-anchor="start" font-weight="700">TOA: Tan = Đối / Kề</text>
+<rect x="368" y="70" width="230" height="105" rx="8" fill="none" stroke="#cbd5e0"/>
+</svg>
 
 Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\theta$; cạnh **kề** là cạnh chạm vào $\theta$ (mà không phải huyền); **huyền** luôn là cạnh dài nhất, đối diện góc vuông.
 
@@ -446,18 +594,35 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\theta$; c�
 
 💡 **Mẹo "ASTC"**: All – Sin – Tan – Cos (góc phần tư nào hàm nào DƯƠNG). All Students Take Calculus.
 
-```
-            y
-            ↑
-       S    │    A
-    (Sin+)  │  (All+)     ← QI: cả sin, cos, tan đều +
-            │             ← QII: chỉ Sin +
-────────────●────────────→ x
-            │             ← QIII: chỉ Tan +
-       T    │    C        ← QIV: chỉ Cos +
-    (Tan+)  │  (Cos+)
-            │
-```
+<svg viewBox="0 0 400 310" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mẹo ASTC: bốn góc phần tư, QI All (sin, cos, tan đều dương), QII Sin dương, QIII Tan dương, QIV Cos dương, đọc ngược chiều kim đồng hồ">
+<defs><marker id="ar9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1a202c"/></marker></defs>
+<rect x="190" y="30" width="130" height="120" fill="#dcfce7" fill-opacity="0.6"/>
+<rect x="60" y="30" width="130" height="120" fill="#dbeafe" fill-opacity="0.6"/>
+<rect x="60" y="150" width="130" height="120" fill="#fee2e2" fill-opacity="0.6"/>
+<rect x="190" y="150" width="130" height="120" fill="#fef3c7" fill-opacity="0.7"/>
+<circle cx="190" cy="150" r="95" fill="none" stroke="#cbd5e0" stroke-dasharray="5 4"/>
+<line x1="40" y1="150" x2="340" y2="150" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar9)"/>
+<line x1="190" y1="280" x2="190" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar9)"/>
+<text x="336" y="166" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">x</text>
+<text x="198" y="30" font-size="13" font-weight="700" fill="#1a202c">y</text>
+<circle cx="190" cy="150" r="3.5" fill="#1a202c"/>
+<text x="255" y="80" font-size="30" font-weight="800" fill="#15803d" text-anchor="middle">A</text>
+<text x="255" y="98" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">(All +)</text>
+<text x="255" y="114" font-size="10" fill="#475569" text-anchor="middle">QI: sin, cos, tan đều +</text>
+<text x="125" y="80" font-size="30" font-weight="800" fill="#1d4ed8" text-anchor="middle">S</text>
+<text x="125" y="98" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">(Sin +)</text>
+<text x="125" y="114" font-size="10" fill="#475569" text-anchor="middle">QII: chỉ sin +</text>
+<text x="125" y="205" font-size="30" font-weight="800" fill="#dc2626" text-anchor="middle">T</text>
+<text x="125" y="223" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">(Tan +)</text>
+<text x="125" y="239" font-size="10" fill="#475569" text-anchor="middle">QIII: chỉ tan +</text>
+<text x="255" y="205" font-size="30" font-weight="800" fill="#b45309" text-anchor="middle">C</text>
+<text x="255" y="223" font-size="12" font-weight="700" fill="#b45309" text-anchor="middle">(Cos +)</text>
+<text x="255" y="239" font-size="10" fill="#475569" text-anchor="middle">QIV: chỉ cos +</text>
+<path d="M 302 120 A 116 116 0 0 0 220 38" fill="none" stroke="#475569" stroke-width="1.4" marker-end="url(#ar9)"/>
+<text x="298" y="58" font-size="10" fill="#475569" text-anchor="start">ngược chiều</text>
+<text x="298" y="70" font-size="10" fill="#475569" text-anchor="start">kim đồng hồ</text>
+<text x="200" y="298" font-size="11" fill="#475569" text-anchor="middle">A → S → T → C: "All Students Take Calculus"</text>
+</svg>
 
 Đọc ngược chiều kim đồng hồ từ QI: **A**ll → **S**in → **T**an → **C**os ("**A**ll **S**tudents **T**ake **C**alculus"). Hàm nào KHÔNG có tên trong góc phần tư đó thì **âm**. Vì $\cos\theta = $ hoành độ và $\sin\theta = $ tung độ điểm M, dấu của cos/sin chính là dấu của $x$/$y$ — không cần học vẹt, chỉ cần nhìn M nằm góc phần tư nào.
 

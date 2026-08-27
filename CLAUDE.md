@@ -228,6 +228,11 @@ readme-modal render markdown bằng marked (raw HTML được giữ nguyên) →
 - Không dùng `$...$` LaTeX bên trong SVG (KaTeX không vào SVG) — dùng unicode (θ, ², √).
 - Nhãn ở điểm gần mép khung: dịch vào trong / `text-anchor="end"` để không tràn.
 
+**Khi chuyển ASCII → SVG, phải dọn sạch dấu vết ASCII quanh khối:**
+- Xoá/đổi mọi caption, nhãn, câu dẫn nhắc tới "ASCII", "vẽ bằng ký tự", "sơ đồ chữ"... ngay trên/dưới khối (vd `**ASCII — 3 căn bậc 3 của 1**` → `**Hình — 3 căn bậc 3 của 1**`). Không để người đọc thấy chữ "ASCII" khi hình đã là SVG.
+- aria-label và chú thích trong SVG phải khớp nội dung toán (vd căn bậc 3 của $-8$ thì ghi −8, không ghi 8).
+- Trước khi commit: `grep -n -i 'ascii' <README>` trong lesson vừa sửa — chỉ được còn 0 kết quả (trừ README/CLAUDE.md nói về chính quy tắc này).
+
 **Quy trình:** sửa/tạo README có sơ đồ → chạy `go run tools/build-readme-data.go <đường-dẫn>` → verify render trong readme-modal (Playwright nếu có: mở viz, click `.rm-btn`, đếm `svg`/`circle` trong `.rm-panel .rm-content`, screenshot). Áp dụng cho lesson mới lẫn khi enrich lesson cũ; gặp ASCII-diagram loại 1-2 trong README cũ thì chuyển thành SVG.
 
 ## Điều hướng giữa các bài học (Navigation)

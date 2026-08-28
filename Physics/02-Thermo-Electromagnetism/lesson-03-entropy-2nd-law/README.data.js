@@ -143,13 +143,23 @@ Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (kh
 **Máy nhiệt** = thiết bị biến **nhiệt thành công**. Vd: động cơ ô tô, máy hơi nước, nhà máy nhiệt điện.
 
 Sơ đồ:
-\`\`\`
-Q_h (nhiệt nhận từ nguồn nóng T_h)
-  ↓
-[Máy nhiệt] → W (công ra)
-  ↓
-Q_c (nhiệt thải ra nguồn lạnh T_c)
-\`\`\`
+<svg viewBox="0 0 520 265" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ máy nhiệt: nhận Qₕ từ nguồn nóng Tₕ, sinh công W, thải Q_c ra nguồn lạnh T_c">
+  <defs><marker id="phr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="phb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="phg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <rect x="60.0" y="20.0" width="110.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="115.0" y="48.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">Nguồn nóng Tₕ</text>
+  <rect x="60.0" y="206.0" width="110.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="115.0" y="234.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Nguồn lạnh T_c</text>
+  <rect x="70.0" y="110.0" width="90.0" height="50.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="115.0" y="140.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Máy nhiệt</text>
+  <line x1="115.0" y1="64.0" x2="115.0" y2="108.0" stroke="#dc2626" stroke-width="3" marker-end="url(#phr)"/>
+  <text x="128.0" y="90.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">Qₕ (nhiệt nhận)</text>
+  <line x1="115.0" y1="160.0" x2="115.0" y2="204.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#phb)"/>
+  <text x="128.0" y="186.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">Q_c (nhiệt thải)</text>
+  <line x1="160.0" y1="135.0" x2="260.0" y2="135.0" stroke="#15803d" stroke-width="3" marker-end="url(#phg)"/>
+  <text x="270.0" y="140.0" fill="#15803d" font-size="14" text-anchor="start" font-weight="700">W (công ra)</text>
+  <text x="300.0" y="90.0" fill="#475569" font-size="12" text-anchor="start">Định luật I: Qₕ = W + Q_c</text>
+  <text x="300.0" y="112.0" fill="#475569" font-size="12" text-anchor="start">Hiệu suất η = W/Qₕ = 1 − Q_c/Qₕ</text>
+</svg>
 
 Bảo toàn năng lượng (định luật I): $Q_h = W + Q_c$.
 

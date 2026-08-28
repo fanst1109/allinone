@@ -296,10 +296,24 @@ Trục dọc = a, trục ngang = t.
 
 ### 4.4. Tổng kết quan hệ
 
-\`\`\`
-   x ── đạo hàm ──→ v ── đạo hàm ──→ a
-       ←── tích phân ───   ←── tích phân ──
-\`\`\`
+<svg viewBox="0 0 620 145" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quan hệ x, v, a: đạo hàm theo thời gian đi từ x sang v sang a; tích phân đi ngược lại">
+  <defs><marker id="pk" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="pko" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="40.0" y="50.0" width="130.0" height="46.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="105.0" y="78.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">x (vị trí)</text>
+  <rect x="250.0" y="50.0" width="130.0" height="46.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="315.0" y="78.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">v (vận tốc)</text>
+  <rect x="460.0" y="50.0" width="130.0" height="46.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="525.0" y="78.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">a (gia tốc)</text>
+  <line x1="174.0" y1="62.0" x2="244.0" y2="62.0" stroke="#1a202c" stroke-width="2" marker-end="url(#pk)"/>
+  <text x="210.0" y="52.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">đạo hàm d/dt</text>
+  <line x1="244.0" y1="84.0" x2="174.0" y2="84.0" stroke="#b45309" stroke-width="2" marker-end="url(#pko)"/>
+  <text x="210.0" y="104.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">tích phân ∫dt</text>
+  <line x1="384.0" y1="62.0" x2="454.0" y2="62.0" stroke="#1a202c" stroke-width="2" marker-end="url(#pk)"/>
+  <text x="420.0" y="52.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">đạo hàm d/dt</text>
+  <line x1="454.0" y1="84.0" x2="384.0" y2="84.0" stroke="#b45309" stroke-width="2" marker-end="url(#pko)"/>
+  <text x="420.0" y="104.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">tích phân ∫dt</text>
+  <text x="310.0" y="132.0" fill="#475569" font-size="11" text-anchor="middle">độ dốc đồ thị x–t → v · độ dốc v–t → a · diện tích dưới v–t → Δx · diện tích dưới a–t → Δv</text>
+</svg>
 
 Hoặc dạng đồ thị:
 - **Độ dốc** x-t $\\to v$; **độ dốc** v-t $\\to a$.

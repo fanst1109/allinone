@@ -307,36 +307,54 @@ Free Body Diagram = sơ đồ biểu diễn **tất cả các lực tác dụng 
 ### 5.2. Walk-through 3 ví dụ
 
 **Ví dụ 1 — Quyển sách trên bàn**:
-\`\`\`
-        N (lên)
-        ↑
-   [SÁCH]
-        ↓
-        W (xuống)
-\`\`\`
+<svg viewBox="0 0 360 230" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ lực quyển sách trên bàn: phản lực N hướng lên, trọng lực W hướng xuống, cân bằng nên N = W = mg">
+  <defs><marker id="pf1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="30.0" y1="137.0" x2="270.0" y2="137.0" stroke="#94a3b8" stroke-width="3"/>
+  <rect x="115.0" y="95.0" width="70.0" height="40.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="120.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">SÁCH</text>
+  <line x1="150.0" y1="88.8" x2="150.0" y2="40.0" stroke="#1a202c" stroke-width="3" marker-end="url(#pf1)"/>
+  <text x="158.0" y="44.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">N (lên)</text>
+  <line x1="150.0" y1="141.2" x2="150.0" y2="190.0" stroke="#1a202c" stroke-width="3" marker-end="url(#pf1)"/>
+  <text x="158.0" y="194.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">W = mg (xuống)</text>
+  <text x="180.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">đứng yên → a = 0 → N = W = m·g</text>
+</svg>
 - Tổng lực: $F = N - W = m\\cdot a$. Sách đứng yên $\\to a = 0 \\to N = W = m\\cdot g$.
 
 **Ví dụ 2 — Kéo hộp trên sàn (có ma sát)**:
-\`\`\`
-              N
-              ↑
-   f ←─── [HỘP] ───→ T  (lực kéo)
-              ↓
-              W
-\`\`\`
+<svg viewBox="0 0 400 230" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ lực hộp kéo trên sàn: N lên, W xuống, lực kéo T sang phải, ma sát f sang trái">
+  <defs><marker id="pf2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="40.0" y1="137.0" x2="360.0" y2="137.0" stroke="#94a3b8" stroke-width="3"/>
+  <rect x="165.0" y="95.0" width="70.0" height="40.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="120.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">HỘP</text>
+  <line x1="200.0" y1="88.8" x2="200.0" y2="40.0" stroke="#1a202c" stroke-width="3" marker-end="url(#pf2)"/>
+  <text x="208.0" y="44.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">N</text>
+  <line x1="200.0" y1="141.2" x2="200.0" y2="190.0" stroke="#1a202c" stroke-width="3" marker-end="url(#pf2)"/>
+  <text x="208.0" y="194.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">W</text>
+  <line x1="235.0" y1="115.0" x2="300.0" y2="115.0" stroke="#15803d" stroke-width="3" marker-end="url(#pf2)"/>
+  <text x="306.0" y="119.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">T (lực kéo)</text>
+  <line x1="165.0" y1="115.0" x2="100.0" y2="115.0" stroke="#dc2626" stroke-width="3" marker-end="url(#pf2)"/>
+  <text x="94.0" y="119.0" fill="#dc2626" font-size="13" text-anchor="end" font-weight="700">f (ma sát)</text>
+  <text x="200.0" y="214.0" fill="#475569" font-size="11" text-anchor="middle">trục y: N − W = 0 → N = mg · trục x: T − f = m·a</text>
+</svg>
 - Trục y: $N - W = 0 \\to N = W = m\\cdot g$.
 - Trục x: $T - f = m\\cdot a \\to a = \\frac{T - f}{m}$.
 
 **Ví dụ 3 — Vật trên mặt phẳng nghiêng góc $\\theta$**:
-\`\`\`
-         N
-         ↑ (vuông góc mặt nghiêng)
-       /
-     [VẬT]
-       \\\\
-         ↓
-         W (luôn xuống thẳng đứng)
-\`\`\`
+<svg viewBox="0 0 420 265" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ lực vật trên mặt phẳng nghiêng góc θ: N vuông góc mặt nghiêng, W luôn thẳng đứng xuống">
+  <defs><marker id="pf3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="40,215 380,215 380,56.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 100,215 A 60,60 0 0 0 94.4,189.6" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <text x="112.0" y="207.0" fill="#475569" font-size="14" text-anchor="start" font-style="italic">θ</text>
+  <rect x="145.7" y="105.1" width="70" height="40" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2" transform="rotate(-25 180.7 125.1)"/>
+  <text x="180.7" y="130.1" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">VẬT</text>
+  <line x1="168.9" y1="99.7" x2="144.8" y2="48.1" stroke="#1a202c" stroke-width="3" marker-end="url(#pf3)"/>
+  <text x="136.8" y="42.1" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">N ⊥ mặt nghiêng</text>
+  <line x1="180.7" y1="153.1" x2="180.7" y2="220.1" stroke="#1a202c" stroke-width="3" marker-end="url(#pf3)"/>
+  <text x="190.7" y="217.1" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">W (thẳng đứng xuống)</text>
+  <line x1="180.7" y1="125.1" x2="117.3" y2="154.7" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="113.3" y="170.7" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">W·sinθ (trượt xuống dọc mặt)</text>
+  <text x="210.0" y="252.0" fill="#475569" font-size="11" text-anchor="middle">N không đối diện W → phân tích W thành W·sinθ (dọc mặt) và W·cosθ (vuông góc mặt)</text>
+</svg>
 Phân tích W theo trục song song và vuông góc mặt nghiêng:
 - $W_{\\text{song song}} = W\\cdot\\sin\\theta = m\\cdot g\\cdot\\sin\\theta$ (kéo vật xuống dốc).
 - $W_{\\text{vuông góc}} = W\\cdot\\cos\\theta = m\\cdot g\\cdot\\cos\\theta$ (ép vật vào mặt nghiêng).

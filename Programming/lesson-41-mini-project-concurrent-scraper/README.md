@@ -98,22 +98,30 @@ go run . -file=urls.txt -workers=20 -rate=10 -timeout=5s -retry=2
 
 ### 2.2. Concurrency model
 
-```
-                                 [main goroutine]
-                                       │
-              ┌────────────────────────┼────────────────────────┐
-              │                        │                        │
-              ▼                        ▼                        ▼
-       [progress goroutine]     [worker 0..N-1]           [signal handler]
-       in tiến độ              consume jobs<-chan          ctx.cancel khi
-       mỗi 500ms               fetch → parse → write       Ctrl+C
-                                      │
-                                      ▼
-                              [JSONWriter (mutex)]
-                                      │
-                                      ▼
-                                result.json
-```
+<svg viewBox="0 0 620 315" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc scraper: main goroutine tạo progress goroutine, N worker và signal handler; worker ghi qua JSONWriter (mutex) ra result.json">
+  <defs><marker id="sc" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="230.0" y="14.0" width="160.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="35.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">main goroutine</text>
+  <line x1="310.0" y1="48.0" x2="110.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sc)"/>
+  <line x1="310.0" y1="48.0" x2="310.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sc)"/>
+  <line x1="310.0" y1="48.0" x2="510.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sc)"/>
+  <rect x="20.0" y="88.0" width="180.0" height="56.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="113.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">progress goroutine</text>
+  <text x="110.0" y="127.0" fill="#475569" font-size="11" text-anchor="middle">in tiến độ mỗi 500 ms</text>
+  <rect x="220.0" y="88.0" width="180.0" height="56.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="310.0" y="113.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">worker 0..N−1</text>
+  <text x="310.0" y="127.0" fill="#475569" font-size="11" text-anchor="middle">jobs → fetch → parse → write</text>
+  <rect x="420.0" y="88.0" width="180.0" height="56.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="510.0" y="113.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">signal handler</text>
+  <text x="510.0" y="127.0" fill="#475569" font-size="11" text-anchor="middle">ctx.cancel khi Ctrl+C</text>
+  <line x1="310.0" y1="144.0" x2="310.0" y2="170.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sc)"/>
+  <rect x="220.0" y="172.0" width="180.0" height="40.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="310.0" y="196.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">JSONWriter (mutex)</text>
+  <line x1="310.0" y1="212.0" x2="310.0" y2="238.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sc)"/>
+  <rect x="250.0" y="240.0" width="120.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="310.0" y="260.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">result.json</text>
+  <text x="310.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">3 nhánh goroutine song song; worker ghi kết quả qua JSONWriter có mutex</text>
+</svg>
 
 - 1 channel `jobs chan string` chứa toàn bộ URL, `close(jobs)` sau khi enqueue xong → worker dùng `range` hoặc `<-` để nhận tới khi hết.
 - Worker dùng chung **1 rate limiter** (token bucket) + **1 JSON writer** (mutex-protected).
@@ -140,23 +148,44 @@ solutions/
 
 ### 3.1. Diagram component-level
 
-```
-                      ┌──────────────────────────┐
-                      │  TokenBucket             │
-                      │  rate=5/s, capacity=6    │
-                      └────────────┬─────────────┘
-                                   │ Wait(ctx)
-                                   ▼
-   jobs<-chan str ──► Worker[0] ──┤
-   jobs<-chan str ──► Worker[1] ──┤
-   jobs<-chan str ──► Worker[2] ──┼─► JSONWriter.Write(Result)
-        ...                       │       (mutex-protected)
-   jobs<-chan str ──► Worker[N-1]─┘
-                                   │
-                                   ▼
-                          atomic counters
-                          done/success/failed
-```
+<svg viewBox="0 0 600 325" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng scraper: TokenBucket (5/s, capacity 6) cấp phép qua Wait(ctx); N worker nhận jobs từ channel, ghi qua JSONWriter (mutex) và cập nhật atomic counters">
+  <defs><marker id="tb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="220.0" y="14.0" width="200.0" height="44.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="33.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">TokenBucket</text>
+  <text x="320.0" y="47.0" fill="#475569" font-size="11" text-anchor="middle">rate = 5/s, capacity = 6</text>
+  <line x1="320.0" y1="58.0" x2="320.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tb)"/>
+  <text x="330.0" y="76.0" fill="#475569" font-size="10" text-anchor="start">Wait(ctx)</text>
+  <text x="20.0" y="108.0" fill="#1d4ed8" font-size="10" text-anchor="start">jobs &lt;-chan</text>
+  <line x1="100.0" y1="103.0" x2="148.0" y2="103.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tb)"/>
+  <rect x="150.0" y="86.0" width="110.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="205.0" y="107.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Worker[0]</text>
+  <line x1="262.0" y1="103.0" x2="318.0" y2="103.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="20.0" y="148.0" fill="#1d4ed8" font-size="10" text-anchor="start">jobs &lt;-chan</text>
+  <line x1="100.0" y1="143.0" x2="148.0" y2="143.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tb)"/>
+  <rect x="150.0" y="126.0" width="110.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="205.0" y="147.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Worker[1]</text>
+  <line x1="262.0" y1="143.0" x2="318.0" y2="143.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="20.0" y="188.0" fill="#1d4ed8" font-size="10" text-anchor="start">jobs &lt;-chan</text>
+  <line x1="100.0" y1="183.0" x2="148.0" y2="183.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tb)"/>
+  <rect x="150.0" y="166.0" width="110.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="205.0" y="187.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Worker[2]</text>
+  <line x1="262.0" y1="183.0" x2="318.0" y2="183.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="20.0" y="228.0" fill="#1d4ed8" font-size="10" text-anchor="start">jobs &lt;-chan</text>
+  <line x1="100.0" y1="223.0" x2="148.0" y2="223.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tb)"/>
+  <rect x="150.0" y="206.0" width="110.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="205.0" y="227.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Worker[N−1]</text>
+  <line x1="262.0" y1="223.0" x2="318.0" y2="223.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="320.0" y1="103.0" x2="320.0" y2="246.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="320.0" y1="175.0" x2="368.0" y2="175.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tb)"/>
+  <rect x="370.0" y="150.0" width="180.0" height="50.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="460.0" y="172.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">JSONWriter.Write</text>
+  <text x="460.0" y="186.0" fill="#475569" font-size="11" text-anchor="middle">mutex-protected</text>
+  <line x1="460.0" y1="200.0" x2="460.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tb)"/>
+  <rect x="370.0" y="242.0" width="180.0" height="40.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="460.0" y="259.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">atomic counters</text>
+  <text x="460.0" y="273.0" fill="#475569" font-size="11" text-anchor="middle">done / success / failed</text>
+  <text x="300.0" y="310.0" fill="#475569" font-size="11" text-anchor="middle">mỗi worker chờ token trước khi fetch; kết quả gom qua writer + counter atomic</text>
+</svg>
 
 ## 4. Step-by-step build (10 step)
 

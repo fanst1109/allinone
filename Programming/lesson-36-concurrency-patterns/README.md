@@ -173,22 +173,50 @@ func runPool(ctx context.Context, numWorkers int, jobs []Job) []Result {
 
 ### 3.1 Fan-out — 1 producer → N consumer
 
-```
-       ┌─► worker 1 ─┐
-input ─┼─► worker 2 ─┼─► (gộp)
-       └─► worker N ─┘
-```
+<svg viewBox="0 0 470 205" style="max-width:470px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Fan-out/fan-in: input chia cho worker 1, 2, …, N chạy song song rồi gộp kết quả">
+  <defs><marker id="fo" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="84.0" width="80.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="105.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">input</text>
+  <line x1="102.0" y1="101.0" x2="168.0" y2="41.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#fo)"/>
+  <rect x="170.0" y="24.0" width="110.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="225.0" y="45.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">worker 1</text>
+  <line x1="282.0" y1="41.0" x2="348.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#fo)"/>
+  <line x1="102.0" y1="101.0" x2="168.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#fo)"/>
+  <rect x="170.0" y="84.0" width="110.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="225.0" y="105.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">worker 2</text>
+  <line x1="282.0" y1="101.0" x2="348.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#fo)"/>
+  <line x1="102.0" y1="101.0" x2="168.0" y2="161.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#fo)"/>
+  <rect x="170.0" y="144.0" width="110.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="225.0" y="165.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">worker N</text>
+  <line x1="282.0" y1="161.0" x2="348.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#fo)"/>
+  <rect x="350.0" y="84.0" width="90.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="395.0" y="105.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">gộp</text>
+  <text x="230.0" y="190.0" fill="#475569" font-size="11" text-anchor="middle">fan-out: một nguồn chia cho N worker song song; fan-in: gộp kết quả</text>
+</svg>
 
 Cách làm: producer gửi vào 1 channel, N worker cùng `range` channel đó. Đây chính là **worker pool** ở mục 2,
 gọi tên khác.
 
 ### 3.2 Fan-in — N producer → 1 consumer
 
-```
-src 1 ─┐
-src 2 ─┼─► merge ─► output
-src 3 ─┘
-```
+<svg viewBox="0 0 470 180" style="max-width:470px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Merge: ba channel nguồn src 1, 2, 3 gộp thành một channel output">
+  <defs><marker id="mg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="24.0" width="80.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="45.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">src 1</text>
+  <line x1="102.0" y1="41.0" x2="168.0" y2="91.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mg)"/>
+  <rect x="20.0" y="74.0" width="80.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="95.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">src 2</text>
+  <line x1="102.0" y1="91.0" x2="168.0" y2="91.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mg)"/>
+  <rect x="20.0" y="124.0" width="80.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="145.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">src 3</text>
+  <line x1="102.0" y1="141.0" x2="168.0" y2="91.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mg)"/>
+  <rect x="170.0" y="74.0" width="100.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="220.0" y="95.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">merge</text>
+  <line x1="272.0" y1="91.0" x2="328.0" y2="91.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mg)"/>
+  <rect x="330.0" y="74.0" width="100.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="380.0" y="95.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">output</text>
+  <text x="230.0" y="165.0" fill="#475569" font-size="11" text-anchor="middle">merge: N channel vào → 1 channel ra (đóng khi mọi nguồn đóng)</text>
+</svg>
 
 Khi nào cần: bạn có nhiều stream độc lập (vd 3 server log) và muốn process tổng hợp.
 
@@ -587,20 +615,27 @@ Service A gọi service B. B sập (timeout). A vẫn cứ gọi B mỗi request
 
 ### 9.2 State machine
 
-```
-        success threshold
-   ┌───────────────────────┐
-   │                       │
-   ▼                       │
-┌────────┐  fail rate   ┌──────┐  test request fail   ┌────────────┐
-│ Closed │ ───────────► │ Open │ ───────────────────► │ (back Open) │
-│ (pass) │              │(fail │ ◄─────────────────── │             │
-│        │              │ fast)│   test request ok    │  Half-open  │
-└────────┘              └──────┘ ───────────────────► │             │
-   ▲                                                   └─────┬───────┘
-   │                                                         │
-   └──────────────  successful requests in half-open  ◄──────┘
-```
+<svg viewBox="0 0 630 240" style="max-width:630px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái circuit breaker: Closed → Open khi fail rate cao; Open → Half-open sau timeout; Half-open → Closed nếu test request OK, → Open nếu fail">
+  <defs><marker id="cb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="30.0" y="90.0" width="120.0" height="50.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="90.0" y="112.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Closed</text>
+  <text x="90.0" y="126.0" fill="#475569" font-size="11" text-anchor="middle">pass mọi request</text>
+  <rect x="250.0" y="90.0" width="120.0" height="50.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="112.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Open</text>
+  <text x="310.0" y="126.0" fill="#475569" font-size="11" text-anchor="middle">fail fast</text>
+  <rect x="470.0" y="90.0" width="130.0" height="50.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="535.0" y="112.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Half-open</text>
+  <text x="535.0" y="126.0" fill="#475569" font-size="11" text-anchor="middle">thử 1 request</text>
+  <line x1="152.0" y1="105.0" x2="248.0" y2="105.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#cb)"/>
+  <text x="200.0" y="128.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">fail rate ≥ ngưỡng</text>
+  <line x1="372.0" y1="105.0" x2="468.0" y2="105.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#cb)"/>
+  <text x="420.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">hết timeout</text>
+  <path d="M 500,140 Q 375,200 250,130" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#cb)"/>
+  <text x="375.0" y="190.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">test request FAIL → Open lại</text>
+  <path d="M 470,80 Q 300,20 152,88" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#cb)"/>
+  <text x="310.0" y="34.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">đủ success threshold → Closed</text>
+  <text x="315.0" y="225.0" fill="#475569" font-size="11" text-anchor="middle">circuit breaker: mở khi lỗi nhiều, thử lại có kiểm soát ở half-open</text>
+</svg>
 
 - **Closed**: bình thường, mọi request đi qua.
 - **Open**: B đã được coi là sập. Mọi request **fail ngay không gọi B** (fail fast). Tiết kiệm tài nguyên A.

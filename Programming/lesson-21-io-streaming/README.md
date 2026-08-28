@@ -95,19 +95,23 @@ type Reader interface {
 
 `Read(p)` nghĩa là: "Tôi đưa cho bạn cái thùng `p` rỗng (`[]byte`), bạn đổ dữ liệu vào, rồi nói cho tôi biết đã đổ được `n` byte." Khi không còn gì để đổ nữa, trả `io.EOF`.
 
-```
-              ┌──────────────────┐
-caller cấp p  │  p = [_,_,_,_,_] │
-              └──────────────────┘
-                       ↓ Read(p)
-              ┌──────────────────┐
-reader fill   │  p = [H,e,l,l,o] │  n=5, err=nil
-              └──────────────────┘
-                       ↓ Read(p) lần kế
-              ┌──────────────────┐
-reader fill   │  p = [!,_,_,_,_] │  n=1, err=io.EOF
-              └──────────────────┘
-```
+<svg viewBox="0 0 520 210" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai lần Read(p) với buffer 5 byte: lần 1 nhận Hello (n=5), lần 2 nhận ! (n=1, io.EOF)">
+  <defs><marker id="rd" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="150.0" y="14.0" width="220.0" height="36.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="260.0" y="29.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">p = [_, _, _, _, _]</text>
+  <text x="260.0" y="43.0" fill="#475569" font-size="11" text-anchor="middle">caller cấp buffer</text>
+  <line x1="260.0" y1="50.0" x2="260.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#rd)"/>
+  <text x="270.0" y="66.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Read(p)</text>
+  <rect x="150.0" y="74.0" width="220.0" height="36.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="260.0" y="89.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">p = [H, e, l, l, o]</text>
+  <text x="260.0" y="103.0" fill="#475569" font-size="11" text-anchor="middle">n = 5, err = nil</text>
+  <line x1="260.0" y1="110.0" x2="260.0" y2="132.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#rd)"/>
+  <text x="270.0" y="126.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Read(p) lần kế</text>
+  <rect x="150.0" y="134.0" width="220.0" height="36.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="260.0" y="149.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">p = [!, _, _, _, _]</text>
+  <text x="260.0" y="163.0" fill="#475569" font-size="11" text-anchor="middle">n = 1, err = io.EOF</text>
+  <text x="260.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle">reader FILL vào buffer của caller; trả n byte hợp lệ và err — chỉ dùng p[:n]</text>
+</svg>
 
 ### Walk-through bằng số
 
@@ -376,12 +380,37 @@ Có:
 
 Mỗi `Read()` của `*os.File` có thể trigger **syscall** (~µs/lần). Đọc từng byte một → triệu lần syscall = chậm chết. Wrap bằng `bufio.Reader` size 4 KB → 1 syscall đọc 4 KB, sau đó các `Read()` nhỏ múc từ buffer trong RAM (~ns).
 
-```
-Without bufio: app ── Read(1 byte) ──→ syscall ──→ disk    (lặp 10^6 lần)
-With bufio:    app ── Read(1 byte) ──→ bufio (RAM)           (10^6 lần)
-                                          ↓
-                                        Read(4096) ──→ syscall (lặp 250 lần)
-```
+<svg viewBox="0 0 600 225" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh: không bufio mỗi Read(1 byte) là một syscall tới đĩa (10⁶ lần); có bufio đọc từ RAM, chỉ 250 syscall Read(4096)">
+  <defs><marker id="bf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="20.0" y="40.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">Without bufio</text>
+  <rect x="150.0" y="22.0" width="60.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="180.0" y="42.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">app</text>
+  <line x1="212.0" y1="38.0" x2="268.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#bf)"/>
+  <text x="240.0" y="30.0" fill="#475569" font-size="9" text-anchor="middle">Read(1 B)</text>
+  <rect x="270.0" y="22.0" width="80.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="42.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">syscall</text>
+  <line x1="352.0" y1="38.0" x2="408.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#bf)"/>
+  <rect x="410.0" y="22.0" width="60.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="440.0" y="42.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">disk</text>
+  <text x="490.0" y="42.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">× 10⁶ lần</text>
+  <text x="20.0" y="110.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">With bufio</text>
+  <rect x="150.0" y="92.0" width="60.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="180.0" y="112.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">app</text>
+  <line x1="212.0" y1="108.0" x2="268.0" y2="108.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#bf)"/>
+  <text x="240.0" y="100.0" fill="#475569" font-size="9" text-anchor="middle">Read(1 B)</text>
+  <rect x="270.0" y="92.0" width="110.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="325.0" y="112.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">bufio (RAM)</text>
+  <text x="390.0" y="112.0" fill="#475569" font-size="10" text-anchor="start">× 10⁶ lần</text>
+  <line x1="325.0" y1="124.0" x2="325.0" y2="146.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#bf)"/>
+  <text x="335.0" y="140.0" fill="#475569" font-size="9" text-anchor="start">Read(4096)</text>
+  <rect x="270.0" y="148.0" width="80.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="168.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">syscall</text>
+  <line x1="352.0" y1="164.0" x2="408.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#bf)"/>
+  <rect x="410.0" y="148.0" width="60.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="440.0" y="168.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">disk</text>
+  <text x="490.0" y="168.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">× 250 lần</text>
+  <text x="300.0" y="210.0" fill="#475569" font-size="11" text-anchor="middle">bufio gom nhiều Read nhỏ thành ít syscall lớn → nhanh gấp ~4000 lần</text>
+</svg>
 
 ### Walk-through số
 
@@ -580,11 +609,21 @@ func TeeReader(r Reader, w Writer) Reader
 
 Giống lệnh `tee` Unix: dòng dữ liệu vừa chảy đi đâu đó, vừa được "rẽ nhánh" copy sang `w`. Đọc từ Reader trả về → tự động ghi vào `w` mỗi chunk.
 
-```
-src.Read ──→ TeeReader.Read ──→ caller
-                  │
-                  └──→ w.Write
-```
+<svg viewBox="0 0 600 180" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="TeeReader: dữ liệu từ src.Read đi qua TeeReader.Read tới caller, đồng thời rẽ nhánh ghi vào w.Write">
+  <defs><marker id="te" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="40.0" width="110.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="75.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">src.Read</text>
+  <line x1="132.0" y1="57.0" x2="188.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te)"/>
+  <rect x="190.0" y="40.0" width="140.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="260.0" y="61.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">TeeReader.Read</text>
+  <line x1="332.0" y1="57.0" x2="388.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te)"/>
+  <rect x="390.0" y="40.0" width="90.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="435.0" y="61.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">caller</text>
+  <line x1="260.0" y1="74.0" x2="260.0" y2="104.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te)"/>
+  <rect x="190.0" y="106.0" width="140.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="260.0" y="127.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">w.Write</text>
+  <text x="300.0" y="165.0" fill="#475569" font-size="11" text-anchor="middle">TeeReader: mỗi byte đọc qua được sao chép thêm vào w — 'chữ T' rẽ nhánh</text>
+</svg>
 
 ### Ví dụ thực tế: download file + compute SHA-256 cùng lúc
 
@@ -606,11 +645,24 @@ fmt.Printf("SHA256: %x\n", hasher.Sum(nil))
 
 ### Walk-through
 
-```
-network → resp.Body ──→ tee.Read(p) ┬─→ writes p to hasher
-                                     └─→ returns p to caller (io.Copy)
-                                          └─→ writes p to f
-```
+<svg viewBox="0 0 600 165" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng tải file: network → resp.Body → tee.Read(p) rẽ hai nhánh: ghi vào hasher và trả cho io.Copy ghi xuống file">
+  <defs><marker id="te2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="50.0" width="80.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="60.0" y="71.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">network</text>
+  <line x1="102.0" y1="67.0" x2="138.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te2)"/>
+  <rect x="140.0" y="50.0" width="100.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="190.0" y="71.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">resp.Body</text>
+  <line x1="242.0" y1="67.0" x2="278.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te2)"/>
+  <rect x="280.0" y="50.0" width="100.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="330.0" y="71.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">tee.Read(p)</text>
+  <line x1="382.0" y1="60.0" x2="438.0" y2="30.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te2)"/>
+  <line x1="382.0" y1="74.0" x2="438.0" y2="104.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#te2)"/>
+  <rect x="440.0" y="14.0" width="140.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="510.0" y="35.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">hasher.Write(p)</text>
+  <rect x="440.0" y="88.0" width="140.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="510.0" y="109.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">io.Copy → f.Write(p)</text>
+  <text x="300.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">một lần đọc từ mạng vừa tính hash vừa ghi file — không đọc hai lần</text>
+</svg>
 
 Mỗi chunk đi qua hash → file. 1 lượt I/O, không phải 2.
 
@@ -673,12 +725,21 @@ func Pipe() (*PipeReader, *PipeWriter)
 
 `io.Pipe` tạo một cặp Reader/Writer "đối diện": ghi vào `pw` → đọc được từ `pr`. **Synchronous, in-memory, không buffer**. Producer goroutine `pw.Write` block đến khi consumer goroutine `pr.Read` đọc xong.
 
-```
-   goroutine A                goroutine B
-   ───────────                ───────────
-   pw.Write(data)  ─────────→ pr.Read(buf)
-                  (blocks until paired)
-```
+<svg viewBox="0 0 400 218" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="io.Pipe: goroutine A gọi pw.Write bị chặn cho tới khi goroutine B gọi pr.Read — bắt cặp đồng bộ">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">goroutine A</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="186.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="260.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">goroutine B</text>
+  <line x1="320.0" y1="44.0" x2="320.0" y2="186.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="316.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="200.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">pw.Write(data)</text>
+  <text x="200.0" y="110.0" fill="#475569" font-size="10" text-anchor="middle">blocks until paired</text>
+  <line x1="317.0" y1="150.0" x2="84.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="200.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">pr.Read(buf) nhận data</text>
+  <text x="200.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">Pipe không có buffer: Write và Read phải gặp nhau</text>
+</svg>
 
 ### Vì sao cần
 
@@ -699,15 +760,31 @@ http.Post("https://api/upload", "application/json", pr)
 
 ### Walk-through
 
-```
-[ G1: encoder ]                [ G2: http.Post ]
-enc.Encode → pw.Write(chunk) ───→ blocks
-                                  ←─── pr.Read(buf) reads chunk
-pw.Write(chunk2) ───────────────→ blocks
-                                  ←─── pr.Read(buf) reads chunk2
-                       ...
-pw.Close() ─────────────────────→ pr.Read returns io.EOF
-```
+<svg viewBox="0 0 520 378" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Streaming JSON qua pipe: encoder ghi từng chunk (chặn), http.Post đọc từng chunk; pw.Close() làm pr.Read trả io.EOF">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">G1: encoder</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="380.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="440.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">G2: http.Post</text>
+  <line x1="440.0" y1="44.0" x2="440.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="436.0" y2="70.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="260.0" y="64.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">enc.Encode → pw.Write(chunk)</text>
+  <line x1="437.0" y1="110.0" x2="84.0" y2="110.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">pr.Read(buf) đọc chunk</text>
+  <line x1="83.0" y1="150.0" x2="436.0" y2="150.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="260.0" y="144.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">pw.Write(chunk2)</text>
+  <line x1="437.0" y1="190.0" x2="84.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">pr.Read(buf) đọc chunk2</text>
+  <text x="260.0" y="230.0" fill="#475569" font-size="10" text-anchor="middle">…</text>
+  <line x1="83.0" y1="270.0" x2="436.0" y2="270.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="264.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">pw.Close()</text>
+  <line x1="440.0" y1="302.0" x2="400.0" y2="302.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="400.0" y1="302.0" x2="400.0" y2="318.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="400.0" y1="318.0" x2="438.0" y2="318.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="392.0" y="313.0" fill="#1a202c" font-size="10" text-anchor="end">pr.Read → io.EOF</text>
+  <text x="260.0" y="372.0" fill="#475569" font-size="11" text-anchor="middle">nét đứt đỏ = Write bị block chờ Read; xanh = Read nhận dữ liệu</text>
+</svg>
 
 ### ⚠ Pitfall
 

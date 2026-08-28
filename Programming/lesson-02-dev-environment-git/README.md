@@ -320,15 +320,27 @@ Ngoài "ngược thời gian", Git còn:
 
 Đây là khái niệm **trung tâm**, hiểu được nó thì 80% Git hết khó:
 
-```
-┌──────────────────┐   git add    ┌──────────────────┐   git commit   ┌──────────────────┐
-│                  │ ───────────> │                  │ ─────────────> │                  │
-│  Working dir     │              │  Staging area    │                │  Repository      │
-│  (file thực)     │              │  (chuẩn bị)      │                │  (lịch sử)       │
-│                  │ <─────────── │                  │ <───────────── │                  │
-└──────────────────┘ git checkout └──────────────────┘ git reset      └──────────────────┘
-                     git restore                      HEAD~1
-```
+<svg viewBox="0 0 750 170" style="max-width:750px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba vùng của Git: Working dir → (git add) → Staging area → (git commit) → Repository; git checkout/restore và git reset đi ngược">
+  <defs><marker id="g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="gr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <rect x="20.0" y="60.0" width="170.0" height="60.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="105.0" y="87.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Working dir</text>
+  <text x="105.0" y="101.0" fill="#475569" font-size="11" text-anchor="middle">file thực</text>
+  <rect x="290.0" y="60.0" width="170.0" height="60.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="375.0" y="87.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Staging area</text>
+  <text x="375.0" y="101.0" fill="#475569" font-size="11" text-anchor="middle">chuẩn bị</text>
+  <rect x="560.0" y="60.0" width="170.0" height="60.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="645.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Repository</text>
+  <text x="645.0" y="101.0" fill="#475569" font-size="11" text-anchor="middle">lịch sử</text>
+  <line x1="192.0" y1="76.0" x2="288.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g)"/>
+  <text x="240.0" y="66.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">git add</text>
+  <line x1="462.0" y1="76.0" x2="558.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g)"/>
+  <text x="510.0" y="66.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">git commit</text>
+  <line x1="288.0" y1="106.0" x2="192.0" y2="106.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#gr)"/>
+  <text x="240.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="middle">git checkout / restore</text>
+  <line x1="558.0" y1="106.0" x2="462.0" y2="106.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#gr)"/>
+  <text x="510.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="middle">git reset HEAD~1</text>
+  <text x="375.0" y="155.0" fill="#475569" font-size="11" text-anchor="middle">ba vùng của Git: sửa file → add vào staging → commit vào lịch sử; mũi tên đỏ = đi ngược</text>
+</svg>
 
 - **Working directory** — các file `.go`, `.md`, `.yml` bạn đang sửa bằng editor. Đây là thứ duy nhất hệ điều hành "thấy".
 - **Staging area** (còn gọi **index**) — *vùng chuẩn bị*. Bạn `git add file.go` để đẩy 1 file từ working sang staging, ý "tôi sắp commit cái này".
@@ -420,11 +432,25 @@ Tip: từ Git 2.23 có lệnh `git switch` thay cho `git checkout` khi chỉ chu
 
 Trước merge:
 
-```
-main:       A ── B ── C
-                       \
-feature:                D ── E
-```
+<svg viewBox="0 0 520 160" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhánh feature tách từ commit C của main: main A–B–C, feature D–E">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">main:</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">feature:</text>
+  <line x1="100.0" y1="40.0" x2="170.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="170.0" y1="40.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="100.0" x2="380.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="170" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="240" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="310" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="380" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E</text>
+</svg>
 
 `main` đứng ở C, `feature` thêm D, E (rẽ từ C). Khi merge mà `main` không có commit mới nào ngoài C, Git chỉ cần **tua thẳng** con trỏ `main` lên E. Không tạo commit mới.
 
@@ -440,21 +466,66 @@ Khi `main` cũng có commit mới sau khi rẽ:
 
 Trước merge:
 
-```
-main:       A ── B ── C ── F ── G
-                       \
-feature:                D ── E
-```
+<svg viewBox="0 0 520 160" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="main đi tiếp F–G trong khi feature có D–E: hai nhánh phân kỳ từ C">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">main:</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">feature:</text>
+  <line x1="100.0" y1="40.0" x2="170.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="170.0" y1="40.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="40.0" x2="380.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="100.0" x2="380.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="170" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="240" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="310" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="380" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="310" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="380" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E</text>
+</svg>
 
 `main` đã tiến đến G, `feature` đã tiến đến E, **hai nhánh rẽ riêng** từ C. Git không thể tua. Phải tạo **merge commit M** ghép cả 2:
 
 Sau merge (3-way merge):
 
-```
-main:       A ── B ── C ── F ── G ── M
-                       \             /
-feature:                D ── E ─────
-```
+<svg viewBox="0 0 520 178" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Merge commit M trên main có hai cha G và E: gộp feature vào main giữ nguyên lịch sử">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">main:</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">feature:</text>
+  <line x1="100.0" y1="40.0" x2="170.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="170.0" y1="40.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="40.0" x2="380.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="40.0" x2="450.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="100.0" x2="380.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="100.0" x2="450.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="170" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="240" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="310" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="380" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="450" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="450.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">M</text>
+  <circle cx="310" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="380" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E</text>
+  <text x="260.0" y="170.0" fill="#475569" font-size="11" text-anchor="middle">M = merge commit (2 cha)</text>
+</svg>
 
 `M` có 2 cha (G và E). Cây có chỗ "ngã ba" nhập lại.
 
@@ -508,11 +579,35 @@ Cả 2 đều **gộp thay đổi từ branch này sang branch khác**. Khác nh
 
 Đã trình bày ở mục 4.4 (3-way merge). Lịch sử trông như:
 
-```
-main:    A ── B ── C ── F ── G ── M
-                  \             /
-feature:           D ── E ─────
-```
+<svg viewBox="0 0 520 160" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kết quả merge: main A–B–C–F–G–M, feature D–E nối vào M">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">main:</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">feature:</text>
+  <line x1="100.0" y1="40.0" x2="170.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="170.0" y1="40.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="40.0" x2="380.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="40.0" x2="450.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="100.0" x2="380.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="100.0" x2="450.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="170" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="240" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="310" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="380" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="450" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="450.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">M</text>
+  <circle cx="310" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="380" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E</text>
+</svg>
 
 #### Rebase — "viết lại lịch sử" cho thẳng
 
@@ -520,19 +615,60 @@ Rebase **dời** commit của branch hiện tại lên đỉnh của branch đí
 
 Trước rebase (giống ban đầu của 3-way):
 
-```
-main:       A ── B ── C ── F ── G
-                       \
-feature:                D ── E
-```
+<svg viewBox="0 0 520 160" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trước rebase: feature D–E tách từ C, main đã có F–G">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">main:</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">feature:</text>
+  <line x1="100.0" y1="40.0" x2="170.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="170.0" y1="40.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="40.0" x2="380.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="100.0" x2="380.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="170" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="240" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="310" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="380" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="310" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="380" cy="100" r="13" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E</text>
+</svg>
 
 Trên branch `feature` chạy `git rebase main`:
 
-```
-main:       A ── B ── C ── F ── G
-                                 \
-feature:                          D' ── E'
-```
+<svg viewBox="0 0 560 178" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau rebase: feature được viết lại thành D′–E′ nối tiếp sau G — lịch sử thẳng, commit mới có hash khác">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">main:</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">feature:</text>
+  <line x1="100.0" y1="40.0" x2="170.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="170.0" y1="40.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="40.0" x2="310.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="40.0" x2="380.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="40.0" x2="450.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="450.0" y1="100.0" x2="520.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="170" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="240" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="310" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="380" cy="40" r="13" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="450" cy="100" r="13" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="450.0" y="104.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">D'</text>
+  <circle cx="520" cy="100" r="13" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="520.0" y="104.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">E'</text>
+  <text x="280.0" y="170.0" fill="#475569" font-size="11" text-anchor="middle">D′, E′ (cam) là commit mới viết lại, hash khác D, E</text>
+</svg>
 
 `D'` và `E'` là **commit mới** (hash khác D, E) nhưng nội dung thay đổi tương đương. Sau đó merge `feature` vào `main` sẽ là fast-forward, lịch sử thẳng:
 

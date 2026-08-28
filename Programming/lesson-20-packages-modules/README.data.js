@@ -608,16 +608,27 @@ Go chọn: uuid v1.4.0  (= max của các minimum requirement)
 
 Giả sử cây dependency:
 
-\`\`\`
-my-app (v0.0.0)
-├─ require A v1.2.0
-├─ require B v1.5.0
-└─ A v1.2.0
-   └─ require C v1.0.0
-B v1.5.0
-   ├─ require A v1.1.0   ← yếu hơn root, bị "nâng" lên 1.2.0
-   └─ require C v1.3.0
-\`\`\`
+<svg viewBox="0 0 460 228" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị phụ thuộc MVS: my-app cần A v1.2.0 và B v1.5.0; A cần C v1.0.0; B cần A v1.1.0 (bị nâng lên 1.2.0) và C v1.3.0 → chọn C v1.3.0">
+  <defs></defs>
+  <line x1="192.5" y1="52.0" x2="80.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="80.0" y1="116.0" x2="80.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="45.0" y="148.0" width="70.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="80.0" y="168.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">C v1.0.0</text>
+  <rect x="45.0" y="84.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A v1.2.0</text>
+  <line x1="192.5" y1="52.0" x2="305.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="305.0" y1="116.0" x2="230.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="135.5" y="148.0" width="189.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="230.0" y="168.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">A v1.1.0 → nâng lên 1.2.0</text>
+  <line x1="305.0" y1="116.0" x2="380.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="345.0" y="148.0" width="70.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="380.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">C v1.3.0</text>
+  <rect x="270.0" y="84.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="305.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B v1.5.0</text>
+  <rect x="140.0" y="20.0" width="105.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="192.5" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">my-app v0.0.0</text>
+  <text x="230.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">MVS chọn phiên bản = max của các minimum: A 1.2.0, C 1.3.0</text>
+</svg>
 
 Build set cuối:
 

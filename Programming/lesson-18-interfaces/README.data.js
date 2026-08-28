@@ -261,17 +261,26 @@ fmt.Println(c.n)        // 7 — vẫn mutate c qua pointer trong interface
 
 ### ASCII art
 
-\`\`\`
-                  ┌──────────────┐
-   interface  ──> │ type pointer │ ──> *Counter (type descriptor)
-   value          ├──────────────┤
-                  │ value pointer│ ──> ─┐
-                  └──────────────┘      │
-                                        ▼
-                                  ┌────────────┐
-                                  │ n: 5       │  ← dữ liệu thật (Counter struct)
-                                  └────────────┘
-\`\`\`
+<svg viewBox="0 0 600 215" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục giá trị interface: hai ô type pointer (trỏ tới *Counter type descriptor) và value pointer (trỏ tới struct Counter {n: 5})">
+  <defs><marker id="iv" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="70.0" y="60.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">interface</text>
+  <text x="70.0" y="74.0" fill="#475569" font-size="12" text-anchor="middle">value</text>
+  <line x1="110.0" y1="66.0" x2="148.0" y2="66.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#iv)"/>
+  <rect x="150.0" y="40.0" width="150.0" height="56.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="150.0" y1="68.0" x2="300.0" y2="68.0" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="225.0" y="60.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">type pointer</text>
+  <text x="225.0" y="88.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">value pointer</text>
+  <line x1="302.0" y1="54.0" x2="360.0" y2="54.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#iv)"/>
+  <rect x="362.0" y="36.0" width="200.0" height="36.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="462.0" y="58.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">*Counter (type descriptor)</text>
+  <line x1="302.0" y1="82.0" x2="340.0" y2="82.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="340.0" y1="82.0" x2="340.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#iv)"/>
+  <rect x="290.0" y="132.0" width="120.0" height="40.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="149.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">n: 5</text>
+  <text x="350.0" y="163.0" fill="#475569" font-size="11" text-anchor="middle">Counter struct</text>
+  <text x="420.0" y="160.0" fill="#15803d" font-size="11" text-anchor="start">← dữ liệu thật</text>
+  <text x="300.0" y="200.0" fill="#475569" font-size="11" text-anchor="middle">giá trị interface = 2 từ máy: (kiểu, con trỏ dữ liệu); gọi method tra qua type descriptor</text>
+</svg>
 
 Mỗi biến interface có 2 words (16 bytes trên 64-bit):
 

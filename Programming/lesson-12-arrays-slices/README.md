@@ -182,16 +182,47 @@ arr := [8]int{10, 20, 30, 40, 50, 60, 70, 80}
 s := arr[2:5]  // s = [30, 40, 50]
 ```
 
-```
-arr (index):   0    1    2    3    4    5    6    7
-arr (value):  [10][20][30][40][50][60][70][80]
-                    └─ s.Data
-                       len=3 ──┐
-                       cap=6 ──────────────────────┐
-                       ↑                            ↑
-                       s[0]  s[1]  s[2]            slot trống
-                                   (s[2:5][2])    (capacity tới hết arr)
-```
+<svg viewBox="0 0 500 228" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Slice s = arr[2:5] trên mảng 8 phần tử: ptr trỏ arr[2], len 3 (ô xanh 30, 40, 50), cap 6 tới hết mảng (3 ô cam trống)">
+  <defs><marker id="sl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <text x="30.0" y="52.0" fill="#475569" font-size="12" text-anchor="end" font-weight="700">arr</text>
+  <rect x="40.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <text x="65.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <rect x="90.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="115.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">20</text>
+  <text x="115.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <rect x="140.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="165.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">30</text>
+  <text x="165.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <rect x="190.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="215.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">40</text>
+  <text x="215.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <rect x="240.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="265.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">50</text>
+  <text x="265.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <rect x="290.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="315.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">60</text>
+  <text x="315.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <rect x="340.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="365.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">70</text>
+  <text x="365.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <rect x="390.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="415.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">80</text>
+  <text x="415.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">7</text>
+  <rect x="140.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dcfce7" fill-opacity="0.6" stroke="#15803d" stroke-width="1.8"/>
+  <rect x="190.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dcfce7" fill-opacity="0.6" stroke="#15803d" stroke-width="1.8"/>
+  <rect x="240.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#dcfce7" fill-opacity="0.6" stroke="#15803d" stroke-width="1.8"/>
+  <rect x="290.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#fef3c7" fill-opacity="0.5" stroke="#b45309" stroke-width="1.5"/>
+  <rect x="340.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#fef3c7" fill-opacity="0.5" stroke="#b45309" stroke-width="1.5"/>
+  <rect x="390.0" y="36.0" width="50.0" height="34.0" rx="0" fill="#fef3c7" fill-opacity="0.5" stroke="#b45309" stroke-width="1.5"/>
+  <line x1="165.0" y1="100.0" x2="165.0" y2="74.0" stroke="#15803d" stroke-width="2" marker-end="url(#sl)"/>
+  <text x="165.0" y="116.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">s.Data (ptr → arr[2])</text>
+  <line x1="140.0" y1="136.0" x2="290.0" y2="136.0" stroke="#15803d" stroke-width="2.5"/>
+  <text x="215.0" y="152.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">len = 3 (s[0], s[1], s[2])</text>
+  <line x1="140.0" y1="170.0" x2="440.0" y2="170.0" stroke="#b45309" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="290.0" y="186.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">cap = 6 (tới hết arr; 3 slot cam còn trống, append dùng được)</text>
+  <text x="250.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">slice = {ptr, len, cap} nhìn vào một đoạn của mảng nền; s[2:5] bắt đầu từ arr[2]</text>
+</svg>
 
 - `len(s) = 5 - 2 = 3` (end - start)
 - `cap(s) = len(arr) - 2 = 6` (từ start tới hết underlying array)

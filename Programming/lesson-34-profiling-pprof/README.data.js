@@ -397,21 +397,30 @@ Cho output:
 
 Hình dung flamegraph dưới (mô tả text):
 
-\`\`\`
-                       main.main (6.0s, 100%)
-                              │
-                ┌─────────────┴──────────────┐
-                ▼                            ▼
-       http.ServeHTTP (4.5s)        background.Worker (1.5s)
-                │
-        api.HandleSearch (4.5s)
-                │
-    ┌───────────┼──────────────────┐
-    ▼           ▼                  ▼
-regexp.        json.            db.Query
-doMatch       Marshal           (0.3s)
-(3.0s)        (1.2s)
-\`\`\`
+<svg viewBox="0 0 630 286" style="max-width:630px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây gọi CPU profile: main 6.0s → http.ServeHTTP 4.5s → api.HandleSearch → regexp.doMatch 3.0s (nóng nhất), json.Marshal 1.2s, db.Query 0.3s; background.Worker 1.5s">
+  <defs></defs>
+  <line x1="390.0" y1="52.0" x2="240.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="240.0" y1="114.0" x2="240.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="240.0" y1="176.0" x2="90.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="9.5" y="206.0" width="161.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="90.0" y="226.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">regexp.doMatch (3.0s)</text>
+  <line x1="240.0" y1="176.0" x2="240.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="166.5" y="206.0" width="147.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="240.0" y="226.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">json.Marshal (1.2s)</text>
+  <line x1="240.0" y1="176.0" x2="390.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="330.5" y="206.0" width="119.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="390.0" y="226.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">db.Query (0.3s)</text>
+  <rect x="152.5" y="144.0" width="175.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="164.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">api.HandleSearch (4.5s)</text>
+  <rect x="159.5" y="82.0" width="161.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="102.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">http.ServeHTTP (4.5s)</text>
+  <line x1="390.0" y1="52.0" x2="540.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="449.0" y="82.0" width="182.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="540.0" y="102.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">background.Worker (1.5s)</text>
+  <rect x="306.0" y="20.0" width="168.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="390.0" y="40.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">main.main (6.0s, 100%)</text>
+  <text x="315.0" y="278.0" fill="#475569" font-size="11" text-anchor="middle">đỏ = hàm tốn CPU nhất (50% tổng) → tối ưu regexp trước</text>
+</svg>
 
 **Quan sát**:
 - \`doMatch\` rộng nhất ở leaf depth → **bottleneck #1**.
@@ -971,16 +980,33 @@ Yêu cầu:
 
 Cho mô tả flamegraph (text):
 
-\`\`\`
-main.main (10s, 100%)
-└── http.serverHandler.ServeHTTP (9.5s)
-    └── api.HandlePayment (9.5s)
-        ├── validatePayload (0.5s)
-        ├── computeFee (8.0s)        ← block rộng nhất
-        │   └── math.Pow (7.5s)
-        └── persistTransaction (1.0s)
-            └── sql.Exec (1.0s)
-\`\`\`
+<svg viewBox="0 0 460 348" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây gọi bài tập: main 10s → ServeHTTP → HandlePayment 9.5s → computeFee 8.0s (math.Pow 7.5s) là block rộng nhất; validatePayload 0.5s, persistTransaction 1.0s">
+  <defs></defs>
+  <line x1="230.0" y1="52.0" x2="230.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="230.0" y1="114.0" x2="230.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="230.0" y1="176.0" x2="90.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="6.0" y="206.0" width="168.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="90.0" y="226.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">validatePayload (0.5s)</text>
+  <line x1="230.0" y1="176.0" x2="230.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="230.0" y1="238.0" x2="230.0" y2="268.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="170.5" y="268.0" width="119.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="230.0" y="288.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">math.Pow (7.5s)</text>
+  <rect x="163.5" y="206.0" width="133.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="230.0" y="226.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">computeFee (8.0s)</text>
+  <line x1="230.0" y1="176.0" x2="370.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="370.0" y1="238.0" x2="370.0" y2="268.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="310.5" y="268.0" width="119.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="370.0" y="288.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">sql.Exec (1.0s)</text>
+  <rect x="275.5" y="206.0" width="189.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="370.0" y="226.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">persistTransaction (1.0s)</text>
+  <rect x="139.0" y="144.0" width="182.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="164.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">api.HandlePayment (9.5s)</text>
+  <rect x="100.5" y="82.0" width="259.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="102.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">http.serverHandler.ServeHTTP (9.5s)</text>
+  <rect x="149.5" y="20.0" width="161.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="40.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">main.main (10s, 100%)</text>
+  <text x="230.0" y="340.0" fill="#475569" font-size="11" text-anchor="middle">computeFee → math.Pow chiếm 75% → thay bằng phép nhân</text>
+</svg>
 
 Hỏi:
 1. Bottleneck là gì?

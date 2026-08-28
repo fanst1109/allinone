@@ -823,17 +823,30 @@ defer cancelC()
 
 ## 13. Cancellation propagation — vẽ tree
 
-\`\`\`
-context.Background()
-    │
-    └── WithTimeout(30s) ──── ctxA
-            │
-            ├── WithCancel ── ctxB ── WithValue("userID", 42) ── ctxB1
-            │                      └── WithTimeout(5s) ──────── ctxB2
-            │
-            └── WithDeadline(end of day) ── ctxC
-                                                └── WithCancel ── ctxC1
-\`\`\`
+<svg viewBox="0 0 600 286" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây context: Background → ctxA (timeout 30s) → ctxB (cancel) → ctxB1 (value), ctxB2 (timeout 5s); ctxA → ctxC (deadline) → ctxC1 (cancel)">
+  <defs></defs>
+  <line x1="347.5" y1="52.0" x2="347.5" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="347.5" y1="114.0" x2="205.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="205.0" y1="176.0" x2="110.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1.5" y="206.0" width="217.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="226.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ctxB1 = WithValue(userID, 42)</text>
+  <line x1="205.0" y1="176.0" x2="300.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="212.5" y="206.0" width="175.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="226.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ctxB2 = WithTimeout(5s)</text>
+  <rect x="138.5" y="144.0" width="133.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="205.0" y="164.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">ctxB = WithCancel</text>
+  <line x1="347.5" y1="114.0" x2="490.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="490.0" y1="176.0" x2="490.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="420.0" y="206.0" width="140.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="490.0" y="226.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ctxC1 = WithCancel</text>
+  <rect x="378.0" y="144.0" width="224.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="490.0" y="164.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">ctxC = WithDeadline(cuối ngày)</text>
+  <rect x="260.0" y="82.0" width="175.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="347.5" y="102.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">ctxA = WithTimeout(30s)</text>
+  <rect x="270.5" y="20.0" width="154.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="347.5" y="40.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">context.Background()</text>
+  <text x="300.0" y="278.0" fill="#475569" font-size="11" text-anchor="middle">huỷ một node → mọi node con bị huỷ theo; con không thể huỷ cha</text>
+</svg>
 
 Quy tắc lan:
 

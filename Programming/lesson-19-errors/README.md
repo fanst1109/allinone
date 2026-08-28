@@ -355,11 +355,21 @@ Tầng Service:
 
 Cây wrap chain:
 
-```text
-e2 ──Unwrap──▶ e1 ──Unwrap──▶ e0
-                                 ↑
-                                 (root, không Unwrap được nữa)
-```
+<svg viewBox="0 0 460 130" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi lỗi bọc: e2 → Unwrap → e1 → Unwrap → e0 (root, không Unwrap được nữa)">
+  <defs><marker id="uw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="30.0" y="30.0" width="90.0" height="36.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="75.0" y="52.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">e2</text>
+  <line x1="122.0" y1="48.0" x2="178.0" y2="48.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#uw)"/>
+  <text x="150.0" y="40.0" fill="#475569" font-size="10" text-anchor="middle">Unwrap</text>
+  <rect x="180.0" y="30.0" width="90.0" height="36.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="225.0" y="52.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">e1</text>
+  <line x1="272.0" y1="48.0" x2="328.0" y2="48.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#uw)"/>
+  <text x="300.0" y="40.0" fill="#475569" font-size="10" text-anchor="middle">Unwrap</text>
+  <rect x="330.0" y="30.0" width="90.0" height="36.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="375.0" y="52.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">e0</text>
+  <text x="375.0" y="90.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">↑ root: Unwrap() = nil</text>
+  <text x="230.0" y="116.0" fill="#475569" font-size="11" text-anchor="middle">errors.Is / errors.As đi dọc chuỗi Unwrap từ ngoài vào trong tới root</text>
+</svg>
 
 `errors.Is(e2, os.ErrNotExist)` đi từ e2 → e1 → e0, ở e0 match → trả `true`.
 

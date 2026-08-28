@@ -173,16 +173,48 @@ Từ Go 1.22 trở đi (`go.mod` có `go 1.22+`), `i` được scope mới mỗi
 
 ### Mô hình M:N (Go scheduler)
 
-```
-                    Go runtime scheduler
-                            │
-         ┌──────────────────┼──────────────────┐
-         │                  │                  │
-       M0 (OS thread)     M1 (OS thread)     M2 (OS thread)   ← N OS threads (N ≈ GOMAXPROCS)
-         │                  │                  │
-       G1 G2 G3           G4 G5              G6 G7 G8 G9      ← M goroutine (M ≫ N)
-       (chạy lần lượt)     ...               ...
-```
+<svg viewBox="0 0 552 228" style="max-width:552px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mô hình M:N: scheduler ghép 9 goroutine G1–G9 lên 3 OS thread M0–M2 (GOMAXPROCS); mỗi thread chạy lần lượt các goroutine của nó">
+  <defs></defs>
+  <line x1="262.5" y1="52.0" x2="114.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="114.0" y1="116.0" x2="60.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="42.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="60.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G1</text>
+  <line x1="114.0" y1="116.0" x2="114.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="96.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="114.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G2</text>
+  <line x1="114.0" y1="116.0" x2="168.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="150.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="168.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G3</text>
+  <rect x="58.0" y="84.0" width="112.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="114.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">M0 (OS thread)</text>
+  <line x1="262.5" y1="52.0" x2="249.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="249.0" y1="116.0" x2="222.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="204.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="222.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G4</text>
+  <line x1="249.0" y1="116.0" x2="276.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="258.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="276.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G5</text>
+  <rect x="193.0" y="84.0" width="112.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="249.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">M1 (OS thread)</text>
+  <line x1="262.5" y1="52.0" x2="411.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="411.0" y1="116.0" x2="330.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="312.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="330.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G6</text>
+  <line x1="411.0" y1="116.0" x2="384.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="366.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="384.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G7</text>
+  <line x1="411.0" y1="116.0" x2="438.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="420.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="438.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G8</text>
+  <line x1="411.0" y1="116.0" x2="492.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="474.0" y="148.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="492.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G9</text>
+  <rect x="355.0" y="84.0" width="112.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="411.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">M2 (OS thread)</text>
+  <rect x="185.5" y="20.0" width="154.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.5" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Go runtime scheduler</text>
+  <text x="276.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">N OS thread (N ≈ GOMAXPROCS) ≪ M goroutine; goroutine nhẹ (~2 KB stack), thread nặng</text>
+</svg>
 
 - `GOMAXPROCS` (default = số CPU core) = N.
 - Mỗi M có **local run queue** riêng (cache locality).
@@ -290,14 +322,27 @@ func main() {
 
 ### Timeline ASCII
 
-```
-Goroutine A (sender)          Goroutine B (receiver)
-───────────────────────       ────────────────────────
-t0: ch <- 42 (BLOCK)
-                              t1: v := <-ch (BLOCK)
-                              ─── runtime ghép cặp ───
-t2: unblock, tiếp tục         t2: v = 42, tiếp tục
-```
+<svg viewBox="0 0 560 258" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Channel không buffer: A gửi ở t0 bị chặn, B nhận ở t1 bị chặn, runtime ghép cặp tại t2 và chuyển 42">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Goroutine A (sender)</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="226.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Goroutine B (receiver)</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="226.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="80.0" y1="62.0" x2="120.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="120.0" y1="62.0" x2="120.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="120.0" y1="78.0" x2="82.0" y2="78.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="128.0" y="73.0" fill="#1a202c" font-size="10" text-anchor="start">t0: ch &lt;- 42 → BLOCK</text>
+  <line x1="480.0" y1="102.0" x2="440.0" y2="102.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="102.0" x2="440.0" y2="118.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="118.0" x2="478.0" y2="118.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="432.0" y="113.0" fill="#1a202c" font-size="10" text-anchor="end">t1: v := &lt;-ch → BLOCK</text>
+  <line x1="83.0" y1="150.0" x2="476.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">t2: runtime ghép cặp, chuyển 42</text>
+  <text x="280.0" y="190.0" fill="#475569" font-size="10" text-anchor="middle">t2: cả hai unblock, tiếp tục</text>
+  <text x="280.0" y="252.0" fill="#475569" font-size="11" text-anchor="middle">gửi/nhận trên channel không buffer là điểm đồng bộ (rendezvous)</text>
+</svg>
 
 Cả 2 phải "có mặt" → đây là cách Go **đồng bộ hoá** 2 goroutine mà không cần mutex.
 

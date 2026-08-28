@@ -20,11 +20,22 @@ window.README_MD = `# Lesson 05 — Queue (Hàng đợi)
 
 Hình dung: xếp hàng mua vé. Ai đến trước thì được phục vụ trước.
 
-\`\`\`
-enqueue(1,2,3):    [1,2,3]
-dequeue() -> 1
-dequeue() -> 2
-\`\`\`
+<svg viewBox="0 0 520 125" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Queue sau enqueue 1, 2, 3: front ở 1, rear sau 3; dequeue trả 1 rồi 2">
+  <defs><marker id="q" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="60.0" y="22.0" fill="#1a202c" font-size="12" text-anchor="start" font-weight="700">enqueue(1,2,3)</text>
+  <rect x="60.0" y="40.0" width="56.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="88.0" y="62.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <rect x="116.0" y="40.0" width="56.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="144.0" y="62.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <rect x="172.0" y="40.0" width="56.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="200.0" y="62.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <text x="60.0" y="56.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">front</text>
+  <text x="238.0" y="56.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">rear</text>
+  <line x1="300.0" y1="58.0" x2="340.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#q)"/>
+  <text x="420.0" y="48.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">dequeue() → 1</text>
+  <text x="420.0" y="66.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">dequeue() → 2</text>
+  <text x="260.0" y="110.0" fill="#475569" font-size="11" text-anchor="middle">FIFO: vào trước ra trước — lấy từ front, thêm vào rear</text>
+</svg>
 
 Hai đầu của queue:
 - **rear / tail**: nơi \`enqueue\` (thêm).
@@ -131,11 +142,30 @@ Nếu thay queue bằng **stack** (LIFO): node mới đẩy vào sẽ được x
 
 Đồ thị mẫu (vô hướng):
 
-\`\`\`
-    A ── B ── D
-    │    │
-    C ── E ── F
-\`\`\`
+<svg viewBox="0 0 405 200" style="max-width:405px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị vô hướng 6 đỉnh: A–B–D hàng trên, C–E–F hàng dưới, cạnh A–C, B–E">
+  <defs><marker id="gq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(42,0)">
+  <line x1="78.0" y1="50.0" x2="140.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="178.0" y1="50.0" x2="240.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="60.0" y1="68.0" x2="60.0" y2="120.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="160.0" y1="68.0" x2="160.0" y2="120.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="78.0" y1="140.0" x2="140.0" y2="140.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="178.0" y1="140.0" x2="240.0" y2="140.0" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="60.0" cy="50.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="55.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="160.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="260.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="60.0" cy="140.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="145.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="160.0" cy="140.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="145.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">E</text>
+  <circle cx="260.0" cy="140.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="145.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">F</text>
+  <text x="160.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">BFS từ A: tầng 0 {A}, tầng 1 {B, C}, tầng 2 {D, E}, tầng 3 {F}</text>
+  </g>
+</svg>
 
 \`adj[A]={B,C}\`, \`adj[B]={A,D,E}\`, \`adj[C]={A,E}\`, \`adj[D]={B}\`, \`adj[E]={B,C,F}\`, \`adj[F]={E}\`.
 
@@ -401,11 +431,24 @@ Mỗi thao tác $O(1)$.
 
 ### Bài 5 — Mô phỏng BFS bằng tay
 Đồ thị:
-\`\`\`
-A - B - D
-|   |
-C - E
-\`\`\`
+<svg viewBox="0 0 320 180" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị bài tập: A–B–D, A–C, B–E, C–E">
+  <defs><marker id="gq2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="50.0" x2="140.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="178.0" y1="50.0" x2="240.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="60.0" y1="68.0" x2="60.0" y2="120.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="160.0" y1="68.0" x2="160.0" y2="120.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="78.0" y1="140.0" x2="140.0" y2="140.0" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="60.0" cy="50.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="55.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="160.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="260.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="60.0" cy="140.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="145.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="160.0" cy="140.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="145.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">E</text>
+</svg>
 BFS từ A: queue=[A], visited={A}.
 - Dequeue A, thăm B, C → queue=[B,C].
 - Dequeue B, thăm D, E → queue=[C,D,E].

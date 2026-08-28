@@ -24,10 +24,30 @@ window.README_MD = `# Lesson 03 — Linked List (Danh sách liên kết)
 
 Khác với array, các node **không cần nằm liên tiếp trong bộ nhớ** — chúng liên kết bằng con trỏ.
 
-\`\`\`
-[10|next] -> [20|next] -> [30|next] -> [40|null]
-   head                                 (tail)
-\`\`\`
+<svg viewBox="0 0 480 145" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Danh sách liên kết đơn: head → [10|next] → [20|next] → [30|next] → [40|∅] (tail)">
+  <defs><marker id="ll" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="llg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="llg2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <rect x="30.0" y="40.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="72.0" y="40.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="51.0" y="63.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <line x1="86.0" y1="58.0" x2="136.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <rect x="140.0" y="40.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="182.0" y="40.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="161.0" y="63.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">20</text>
+  <line x1="196.0" y1="58.0" x2="246.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <rect x="250.0" y="40.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="292.0" y="40.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="271.0" y="63.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">30</text>
+  <line x1="306.0" y1="58.0" x2="356.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <rect x="360.0" y="40.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="402.0" y="40.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="381.0" y="63.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">40</text>
+  <text x="416.0" y="63.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">∅</text>
+  <text x="51.0" y="100.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">head</text>
+  <line x1="51.0" y1="92.0" x2="51.0" y2="80.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#llg)"/>
+  <text x="381.0" y="100.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">tail</text>
+  <line x1="381.0" y1="92.0" x2="381.0" y2="80.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#llg2)"/>
+  <text x="240.0" y="130.0" fill="#475569" font-size="11" text-anchor="middle">mỗi node: [value | next]; node cuối next = ∅ (null)</text>
+</svg>
 
 ### 1.1. 💡 Trực giác — xe lửa các toa nối nhau
 
@@ -64,10 +84,28 @@ node = { value, next }
 
 Mỗi node có cả \`next\` và \`prev\`. Đi được cả hai chiều.
 
-\`\`\`
-node = { value, prev, next }
-null <- [10] <-> [20] <-> [30] -> null
-\`\`\`
+<svg viewBox="0 0 480 125" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Danh sách liên kết đôi: ∅ ← [10] ⇄ [20] ⇄ [30] → ∅, mỗi node có prev và next">
+  <defs><marker id="ll" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="220.0" y="26.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">node = { value, prev, next }</text>
+  <text x="40.0" y="68.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">∅</text>
+  <line x1="48.0" y1="62.0" x2="72.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="80.0" y="44.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="122.0" y="44.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="101.0" y="67.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <line x1="136.0" y1="56.0" x2="186.0" y2="56.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <line x1="190.0" y1="70.0" x2="140.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <rect x="190.0" y="44.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="232.0" y="44.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="211.0" y="67.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">20</text>
+  <line x1="246.0" y1="56.0" x2="296.0" y2="56.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <line x1="300.0" y1="70.0" x2="250.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <rect x="300.0" y="44.0" width="42.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <rect x="342.0" y="44.0" width="28.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="321.0" y="67.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">30</text>
+  <line x1="356.0" y1="62.0" x2="390.0" y2="62.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ll)"/>
+  <text x="400.0" y="68.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">∅</text>
+  <text x="240.0" y="110.0" fill="#475569" font-size="11" text-anchor="middle">hai mũi tên giữa các node: next (trên) và prev (dưới); hai đầu ∅</text>
+</svg>
 
 ### 2.3. Circular linked list — vòng
 

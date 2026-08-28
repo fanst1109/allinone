@@ -18,11 +18,33 @@ window.README_MD = `# Lesson 02 — Array (Mảng)
 
 **Array (mảng)** là một dãy các phần tử **cùng kiểu**, được lưu **liên tiếp trong bộ nhớ**. Mỗi phần tử có một **chỉ số (index)**, thường bắt đầu từ 0.
 
-\`\`\`
-chỉ số:   0    1    2    3    4
-mảng:   [10,  20,  30,  40,  50]
-địa chỉ: 100  104  108  112  116   (giả sử mỗi int = 4 byte)
-\`\`\`
+<svg viewBox="0 0 460 165" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mảng 5 phần tử 10, 20, 30, 40, 50 với chỉ số 0–4 và địa chỉ 100, 104, …, 116 (mỗi int 4 byte)">
+  <defs></defs>
+  <text x="50.0" y="58.0" fill="#475569" font-size="11" text-anchor="end">chỉ số</text>
+  <text x="50.0" y="86.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">mảng</text>
+  <text x="50.0" y="116.0" fill="#475569" font-size="11" text-anchor="end">địa chỉ</text>
+  <rect x="60.0" y="66.0" width="64.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="92.0" y="88.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <text x="92.0" y="58.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <text x="92.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">100</text>
+  <rect x="124.0" y="66.0" width="64.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="156.0" y="88.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">20</text>
+  <text x="156.0" y="58.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <text x="156.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">104</text>
+  <rect x="188.0" y="66.0" width="64.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="220.0" y="88.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">30</text>
+  <text x="220.0" y="58.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <text x="220.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">108</text>
+  <rect x="252.0" y="66.0" width="64.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="284.0" y="88.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">40</text>
+  <text x="284.0" y="58.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <text x="284.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">112</text>
+  <rect x="316.0" y="66.0" width="64.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="348.0" y="88.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">50</text>
+  <text x="348.0" y="58.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <text x="348.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">116</text>
+  <text x="230.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">địa chỉ liên tiếp: addr(i) = base + i × 4 byte → truy cập O(1)</text>
+</svg>
 
 Vì các phần tử nằm cạnh nhau, máy tính chỉ cần một phép tính $\\text{base} + i \\times \\text{size}$ để tới được phần tử thứ $i$ — đây là lý do truy cập chỉ tốn $O(1)$.
 

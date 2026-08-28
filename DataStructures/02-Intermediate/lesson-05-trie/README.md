@@ -19,16 +19,38 @@
 Đường đi từ root tới một node tạo thành **tiền tố (prefix)**. Node được đánh dấu nếu đó là kết thúc của một chuỗi.
 
 Ví dụ chứa `{"cat", "car", "cup"}`:
-```
-       (root)
-         |
-         c
-       / |
-      a  u
-     /|  |
-    t r  p*
-    *  *
-```
+<svg viewBox="0 0 214 256" style="max-width:214px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trie chứa cat, car, cup: root → c → a → t (kết thúc), a → r (kết thúc), c → u → p (kết thúc)">
+  <defs></defs>
+  <g transform="translate(11,0)">
+  <line x1="110.0" y1="52.0" x2="110.0" y2="72.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="118.0" y="62.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">c</text>
+  <line x1="110.0" y1="104.0" x2="68.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="81.0" y="114.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">a</text>
+  <line x1="68.0" y1="156.0" x2="40.0" y2="176.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="46.0" y="166.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">t</text>
+  <circle cx="40.0" cy="192.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="196.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">t</text>
+  <line x1="68.0" y1="156.0" x2="96.0" y2="176.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="90.0" y="166.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">r</text>
+  <circle cx="96.0" cy="192.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="96.0" y="196.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r</text>
+  <circle cx="68.0" cy="140.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="144.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <line x1="110.0" y1="104.0" x2="152.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="139.0" y="114.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">u</text>
+  <line x1="152.0" y1="156.0" x2="152.0" y2="176.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="166.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">p</text>
+  <circle cx="152.0" cy="192.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="152.0" y="196.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">p</text>
+  <circle cx="152.0" cy="140.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="152.0" y="144.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">u</text>
+  <circle cx="110.0" cy="88.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="110.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <rect x="89.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="110.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">root</text>
+  <text x="96.0" y="248.0" fill="#475569" font-size="11" text-anchor="middle">node xanh = kết thúc một từ (*)</text>
+  </g>
+</svg>
 (`*` đánh dấu kết thúc từ.)
 
 ### 1.1. 💡 Trực giác — "Cây chữ cái chia sẻ tiền tố"
@@ -41,21 +63,34 @@ Hãy tưởng tượng bạn quản lý một **thư viện sách**, và mọi n
 - Mỗi tầng sâu xuống = thêm một ký tự vào prefix.
 - Hai chuỗi có chung prefix → **chia sẻ cùng đường đi từ root** cho đến chỗ chúng tách nhánh.
 
-```
-{"cat", "car", "card"}:
-
-(root)
-  │
-  c       ← prefix "c"
-  │
-  a       ← prefix "ca"
- / \
-t   r     ← prefix "cat" và "car"
-*   │\
-    * d   ← "car" kết thúc ở r (*), "card" tiếp tục
-       \
-        * ← "card" kết thúc
-```
+<svg viewBox="0 0 399 308" style="max-width:399px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trie {cat, car, card}: c → a → t* và a → r* → d*; card đi tiếp từ r">
+  <defs></defs>
+  <g transform="translate(131,0)">
+  <line x1="68.0" y1="52.0" x2="68.0" y2="72.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="62.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">c</text>
+  <line x1="68.0" y1="104.0" x2="68.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="114.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">a</text>
+  <line x1="68.0" y1="156.0" x2="40.0" y2="176.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="46.0" y="166.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">t</text>
+  <circle cx="40.0" cy="192.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="196.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">t</text>
+  <line x1="68.0" y1="156.0" x2="96.0" y2="176.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="90.0" y="166.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">r</text>
+  <line x1="96.0" y1="208.0" x2="96.0" y2="228.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="104.0" y="218.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">d</text>
+  <circle cx="96.0" cy="244.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="96.0" y="248.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
+  <circle cx="96.0" cy="192.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="96.0" y="196.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r</text>
+  <circle cx="68.0" cy="140.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="144.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <circle cx="68.0" cy="88.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <rect x="47.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">root</text>
+  <text x="68.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">prefix c, ca dùng chung · car kết thúc ở r, card kết thúc ở d</text>
+  </g>
+</svg>
 
 Lợi ích "chia sẻ prefix" cụ thể: 3 từ với tổng $3+3+4 = 10$ ký tự chỉ cần **5 node** (`c, a, t, r, d`) thay vì 10 — vì 3 ký tự đầu của `card`/`car` dùng chung node với `cat`.
 
@@ -120,15 +155,23 @@ Insert lần lượt `cat`, `car`, `card` vào trie rỗng. Mỗi bước, `*` =
 - `t`: `[a]`.children không có 't' → tạo `[t]`, đi xuống.
 - Hết chuỗi → `[t].isEnd = true`.
 
-```
-(root)
-  │
- [c]
-  │
- [a]
-  │
- [t]*
-```
+<svg viewBox="0 0 136 222" style="max-width:136px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau insert(cat): root → c → a → t*">
+  <defs></defs>
+  <line x1="40.0" y1="52.0" x2="40.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="48.0" y="61.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">c</text>
+  <line x1="40.0" y1="102.0" x2="40.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="48.0" y="111.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">a</text>
+  <line x1="40.0" y1="152.0" x2="40.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="48.0" y="161.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">t</text>
+  <circle cx="40.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">t</text>
+  <circle cx="40.0" cy="136.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="40.0" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <circle cx="40.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="40.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <rect x="19.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="40.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">root</text>
+</svg>
 
 **Insert "car"** — đi từng ký tự:
 
@@ -137,15 +180,30 @@ Insert lần lượt `cat`, `car`, `card` vào trie rỗng. Mỗi bước, `*` =
 - `r`: `(a)`.children không có 'r' → tạo `[r]`, đi xuống.
 - Hết → `[r].isEnd = true`.
 
-```
-(root)
-  │
- (c)
-  │
- (a)
- / \
-(t)* [r]*
-```
+<svg viewBox="0 0 227 250" style="max-width:227px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau insert(car): đi lại c, a có sẵn, tạo mới r* (tô cam)">
+  <defs></defs>
+  <g transform="translate(45,0)">
+  <line x1="68.0" y1="52.0" x2="68.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="61.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">c</text>
+  <line x1="68.0" y1="102.0" x2="68.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="111.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">a</text>
+  <line x1="68.0" y1="152.0" x2="40.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="46.0" y="161.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">t</text>
+  <circle cx="40.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">t</text>
+  <line x1="68.0" y1="152.0" x2="96.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="90.0" y="161.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">r</text>
+  <circle cx="96.0" cy="186.0" r="18" fill="#fef3c7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="96.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r</text>
+  <circle cx="68.0" cy="136.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <circle cx="68.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <rect x="47.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">root</text>
+  <text x="68.0" y="242.0" fill="#475569" font-size="11" text-anchor="middle">node cam = mới tạo; c, a tái dùng</text>
+  </g>
+</svg>
 
 **Insert "card"**:
 
@@ -153,17 +211,31 @@ Insert lần lượt `cat`, `car`, `card` vào trie rỗng. Mỗi bước, `*` =
 - `d`: `(r)`.children không có 'd' → tạo `[d]`, đi xuống.
 - Hết → `[d].isEnd = true`.
 
-```
-(root)
-  │
- (c)
-  │
- (a)
- / \
-(t)* (r)*
-      │
-     [d]*
-```
+<svg viewBox="0 0 136 272" style="max-width:136px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau insert(card): đi c, a, r có sẵn, tạo mới d* dưới r">
+  <defs></defs>
+  <line x1="68.0" y1="52.0" x2="68.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="61.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">c</text>
+  <line x1="68.0" y1="102.0" x2="68.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="76.0" y="111.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">a</text>
+  <line x1="68.0" y1="152.0" x2="40.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="46.0" y="161.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">t</text>
+  <circle cx="40.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">t</text>
+  <line x1="68.0" y1="152.0" x2="96.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="90.0" y="161.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">r</text>
+  <line x1="96.0" y1="202.0" x2="96.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="104.0" y="211.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">d</text>
+  <circle cx="96.0" cy="236.0" r="18" fill="#fef3c7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="96.0" y="240.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
+  <circle cx="96.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="96.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r</text>
+  <circle cx="68.0" cy="136.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <circle cx="68.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <rect x="47.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="68.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">root</text>
+</svg>
 
 **Quan sát quan trọng**: node `(r)` có **cả `isEnd=true` lẫn con `d`** — đây là tình huống "từ này là tiền tố của từ khác". Đây cũng là chỗ thường có bug nếu code xóa cẩu thả.
 
@@ -245,13 +317,47 @@ Giả định: 1 triệu từ tiếng Anh trung bình $8$ ký tự, alphabet a-z
 
 Giả sử từ điển gợi ý chứa `{"cat", "car", "card", "care", "dog"}`. Người dùng gõ prefix **`"ca"`**:
 
-```
-(root)
-  ├─ c ── a ──┬─ t*              "cat"
-  │           └─ r* ──┬─ d*       "car", "card"
-  │                   └─ e*       "care"
-  └─ d ── o ── g*                 "dog"
-```
+<svg viewBox="0 0 242 272" style="max-width:242px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trie bài tập {cat, car, card, care, dog}: nhánh c–a–t, c–a–r–d, c–a–r–e và nhánh d–o–g">
+  <defs></defs>
+  <line x1="141.2" y1="52.0" x2="80.5" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="102.9" y="61.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">c</text>
+  <line x1="80.5" y1="102.0" x2="80.5" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="88.5" y="111.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">a</text>
+  <line x1="80.5" y1="152.0" x2="40.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.2" y="161.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">t</text>
+  <circle cx="40.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">t</text>
+  <line x1="80.5" y1="152.0" x2="121.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="108.8" y="161.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">r</text>
+  <line x1="121.0" y1="202.0" x2="94.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="99.5" y="211.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">d</text>
+  <circle cx="94.0" cy="236.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="94.0" y="240.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
+  <line x1="121.0" y1="202.0" x2="148.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="142.5" y="211.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">e</text>
+  <circle cx="148.0" cy="236.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="148.0" y="240.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">e</text>
+  <circle cx="121.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="121.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r</text>
+  <circle cx="80.5" cy="136.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.5" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <circle cx="80.5" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.5" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <line x1="141.2" y1="52.0" x2="202.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="179.6" y="61.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">d</text>
+  <line x1="202.0" y1="102.0" x2="202.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="111.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">o</text>
+  <line x1="202.0" y1="152.0" x2="202.0" y2="170.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="161.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">g</text>
+  <circle cx="202.0" cy="186.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="202.0" y="190.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">g</text>
+  <circle cx="202.0" cy="136.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="202.0" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">o</text>
+  <circle cx="202.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="202.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">d</text>
+  <rect x="120.2" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="141.2" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">root</text>
+</svg>
 
 **Bước 1 — đi tới node của prefix** (chỉ $O(L)=O(2)$):
 

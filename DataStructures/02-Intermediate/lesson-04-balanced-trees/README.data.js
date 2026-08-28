@@ -58,15 +58,55 @@ Có bốn case khi mất cân bằng tại node \`z\`:
 - **RL (Right-Left)**: lệch phải-trái → rotate right ở con phải, rồi rotate left ở \`z\`.
 
 Ví dụ **rotate right**:
-\`\`\`
-       z                  y
-      / \\                / \\
-     y   T4   --->      x   z
-    / \\                / \\ / \\
-   x   T3            T1 T2 T3 T4
-  / \\
- T1 T2
-\`\`\`
+<svg viewBox="0 0 1170 224" style="max-width:1170px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Xoay phải quanh z: y lên làm gốc, z thành con phải của y, T3 chuyển sang làm con trái của z">
+  <defs></defs>
+  <text x="275.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Trước (lệch trái)</text>
+  <g transform="translate(0,22)">
+  <line x1="411.0" y1="40.0" x2="275.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="94.0" x2="139.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="148.0" x2="71.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="188.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="71.0" y="192.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <line x1="139.0" y1="148.0" x2="207.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="188.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="207.0" y="192.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <circle cx="139.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x</text>
+  <line x1="275.0" y1="94.0" x2="343.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="343.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <circle cx="275.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">y</text>
+  <line x1="411.0" y1="40.0" x2="479.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="479.0" cy="80.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="479.0" y="84.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T4</text>
+  <circle cx="411.0" cy="26.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="411.0" y="30.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">z</text>
+  </g>
+  <text x="895.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau rotate right</text>
+  <g transform="translate(620,22)">
+  <line x1="275.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="71.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="71.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <line x1="139.0" y1="94.0" x2="207.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="207.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x</text>
+  <line x1="275.0" y1="40.0" x2="411.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="411.0" y1="94.0" x2="343.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="343.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <line x1="411.0" y1="94.0" x2="479.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="479.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="479.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T4</text>
+  <circle cx="411.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="411.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">z</text>
+  <circle cx="275.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="275.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">y</text>
+  </g>
+</svg>
 
 ### 2.3. Độ phức tạp
 
@@ -95,15 +135,30 @@ Vì rotation chỉ động đến 2-3 node, nó là $O(1)$ — đây là lý do 
 
 Cho cây mất cân bằng LL tại \`z\`:
 
-\`\`\`
-         z
-        / \\
-       y   T4         balance(z) =  height(y) - height(T4) =  2  (trái nặng)
-      / \\             balance(y) =  height(x) - height(T3) =  1
-     x   T3
-    / \\
-   T1  T2
-\`\`\`
+<svg viewBox="0 0 550 228" style="max-width:550px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trường hợp LL: z lệch trái nặng (balance(z) = 2), y lệch trái (balance(y) = 1)">
+  <defs></defs>
+  <line x1="411.0" y1="40.0" x2="275.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="94.0" x2="139.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="148.0" x2="71.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="188.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="71.0" y="192.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <line x1="139.0" y1="148.0" x2="207.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="188.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="207.0" y="192.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <circle cx="139.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x</text>
+  <line x1="275.0" y1="94.0" x2="343.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="343.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <circle cx="275.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">y</text>
+  <line x1="411.0" y1="40.0" x2="479.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="479.0" cy="80.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="479.0" y="84.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T4</text>
+  <circle cx="411.0" cy="26.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="411.0" y="30.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">z</text>
+  <text x="275.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">balance(z) = height(y) − height(T4) = 2 · balance(y) = height(x) − height(T3) = 1</text>
+</svg>
 
 **Bước 1**: Lưu lại con phải của \`y\` → gọi là \`T3\` (chính là subtree mà \`y\` đang giữ phía phải).
 
@@ -115,13 +170,30 @@ Cho cây mất cân bằng LL tại \`z\`:
 
 **Bước 5**: **Update height** — trước tiên cho \`z\` (vì \`z\` giờ ở dưới), rồi cho \`y\` (ở trên). **Thứ tự rất quan trọng**: nếu update \`y\` trước thì height của \`z\` còn cũ → sai.
 
-\`\`\`
-         y
-        / \\
-       x   z          balance(y) =  height(x) - height(z) = 0  hoặc 1
-      / \\  / \\        balance(z) =  height(T3) - height(T4) = 0
-     T1 T2 T3 T4
-\`\`\`
+<svg viewBox="0 0 550 174" style="max-width:550px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau xoay phải: y gốc, x và z hai con, T1..T4 cùng độ sâu">
+  <defs></defs>
+  <line x1="275.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="71.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="71.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <line x1="139.0" y1="94.0" x2="207.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="207.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x</text>
+  <line x1="275.0" y1="40.0" x2="411.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="411.0" y1="94.0" x2="343.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="343.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <line x1="411.0" y1="94.0" x2="479.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="479.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="479.0" y="138.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">T4</text>
+  <circle cx="411.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="411.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">z</text>
+  <circle cx="275.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="275.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">y</text>
+  <text x="275.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">balance(y) = 0 hoặc 1 · balance(z) = 0</text>
+</svg>
 
 **Bảo toàn in-order**: trước rotate $T_1 < x < T_2 < y < T_3 < z < T_4$; sau rotate vẫn $T_1 < x < T_2 < y < T_3 < z < T_4$. ✓
 
@@ -133,24 +205,51 @@ Cho cây mất cân bằng LL tại \`z\`:
 
 Ví dụ: insert lần lượt \`30, 20, 10\`.
 
-\`\`\`
-Bước insert 30:        Bước insert 20:        Bước insert 10:
-   30                     30                     30          (z, balance = 2)
-                         /                      /
-                        20                     20            (y, balance = 1)
-                                              /
-                                             10              (x)
-\`\`\`
+<svg viewBox="0 0 650 170" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 30, 20, 10 liên tiếp: cây lệch trái, balance(30) = 2 → cần xoay phải">
+  <defs></defs>
+  <text x="65.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">insert 30</text>
+  <g transform="translate(0,22)">
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  </g>
+  <text x="265.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">insert 20</text>
+  <g transform="translate(170,22)">
+  <line x1="125.0" y1="40.0" x2="65.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="125.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  </g>
+  <text x="525.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">insert 10</text>
+  <g transform="translate(400,22)">
+  <line x1="185.0" y1="40.0" x2="125.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="94.0" x2="65.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="125.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="185.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <text x="205.0" y="18.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">z: 2</text>
+  </g>
+</svg>
 
 Sau khi insert \`10\`, balance(30) = \`height(20-subtree) - height(NIL) = 1 - (-1) = 2\` → mất cân bằng kiểu LL → **rotate right tại 30**:
 
-\`\`\`
-Sau rotate right:
-        20             (y mới là root)
-       /  \\
-      10   30
-balance(20) = 0, balance(10) = 0, balance(30) = 0. ✓
-\`\`\`
+<svg viewBox="0 0 301 120" style="max-width:301px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau rotate right: 20 là gốc mới, 10 và 30 là con">
+  <defs></defs>
+  <g transform="translate(4,0)">
+  <line x1="146.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <line x1="146.0" y1="40.0" x2="218.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="146.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="146.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <text x="146.0" y="114.0" fill="#475569" font-size="11" text-anchor="middle">balance(20) = balance(10) = balance(30) = 0 ✓</text>
+  </g>
+</svg>
 
 #### Case RR — Rotate Left tại \`z\`
 
@@ -158,21 +257,48 @@ balance(20) = 0, balance(10) = 0, balance(30) = 0. ✓
 
 Đối xứng LL. Ví dụ: insert \`10, 20, 30\`.
 
-\`\`\`
-10            10              10  (z, balance = -2)
-               \\               \\
-                20              20  (y)
-                                 \\
-                                  30  (x)
-\`\`\`
+<svg viewBox="0 0 650 170" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trường hợp RR: chèn 10, 20, 30 tăng dần → lệch phải, balance(10) = −2">
+  <defs></defs>
+  <text x="65.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <g transform="translate(0,22)">
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  </g>
+  <text x="265.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">+20</text>
+  <g transform="translate(170,22)">
+  <line x1="65.0" y1="40.0" x2="125.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="125.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  </g>
+  <text x="525.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">+30</text>
+  <g transform="translate(400,22)">
+  <line x1="65.0" y1="40.0" x2="125.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="94.0" x2="185.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="185.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="125.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <text x="85.0" y="18.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">z: −2</text>
+  </g>
+</svg>
 
 \`balance(10) = -2\`, \`balance(20) = -1\` → RR → **rotate left tại 10**:
 
-\`\`\`
-       20
-      /  \\
-     10   30        ✓ cân bằng
-\`\`\`
+<svg viewBox="0 0 292 94" style="max-width:292px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau rotate left: 20 gốc, 10 và 30 con — cân bằng">
+  <defs></defs>
+  <line x1="146.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <line x1="146.0" y1="40.0" x2="218.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="146.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="146.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">20</text>
+</svg>
 
 #### Case LR — Rotate Left tại con, rồi Rotate Right tại \`z\`
 
@@ -180,33 +306,78 @@ balance(20) = 0, balance(10) = 0, balance(30) = 0. ✓
 
 Ví dụ: insert \`30, 10, 20\`.
 
-\`\`\`
-30           30                30  (z, balance = 2)
-            /                 /
-           10                10    (y, balance = -1)  ← LR vì y lệch phải
-                              \\
-                               20  (x)
-\`\`\`
+<svg viewBox="0 0 650 170" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trường hợp LR: chèn 30, 10, 20 → z = 30 lệch trái (2), y = 10 lệch phải (−1)">
+  <defs></defs>
+  <text x="65.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">30</text>
+  <g transform="translate(0,22)">
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  </g>
+  <text x="265.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">+10</text>
+  <g transform="translate(170,22)">
+  <line x1="125.0" y1="40.0" x2="65.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="125.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  </g>
+  <text x="525.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">+20</text>
+  <g transform="translate(400,22)">
+  <line x1="185.0" y1="40.0" x2="65.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="65.0" y1="94.0" x2="125.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="125.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="65.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="185.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <text x="205.0" y="18.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">z: 2</text>
+  </g>
+</svg>
 
 Một lần rotate right ở \`30\` KHÔNG đủ — vì sau khi xoay, \`20\` sẽ thành con phải của \`10\`, mà \`10\` thì lại không có giá trị < \`10\` ở bên trái → cây vẫn lệch. **Phải xoay 2 lần**:
 
 **Bước 1** — Rotate left tại \`10\` (con trái của \`z\`): biến LR thành LL.
 
-\`\`\`
-30                  30
- \\   ← Sai chiều!  /
- 10  ← phải là    20      (giờ giống LL: z=30, y=20, x=10)
-  \\              /
-   20           10
-\`\`\`
+<svg viewBox="0 0 560 170" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bước 1 của LR: xoay trái quanh y = 10 để 20 lên, cây trở thành dạng LL (z = 30, y = 20, x = 10)">
+  <defs></defs>
+  <text x="125.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">sai chiều (zig-zag)</text>
+  <g transform="translate(0,22)">
+  <line x1="185.0" y1="40.0" x2="65.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="65.0" y1="94.0" x2="125.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="125.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="65.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="185.0" cy="26.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="185.0" y="30.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  </g>
+  <text x="435.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">sau rotate left tại 10</text>
+  <g transform="translate(310,22)">
+  <line x1="185.0" y1="40.0" x2="125.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="94.0" x2="65.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="125.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="185.0" cy="26.0" r="16" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="185.0" y="30.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  </g>
+</svg>
 
 **Bước 2** — Rotate right tại \`30\`:
 
-\`\`\`
-      20
-     /  \\
-    10   30        ✓
-\`\`\`
+<svg viewBox="0 0 292 94" style="max-width:292px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bước 2 của LR: xoay phải quanh 30 → 20 gốc, cân bằng">
+  <defs></defs>
+  <line x1="146.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <line x1="146.0" y1="40.0" x2="218.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="146.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="146.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">20</text>
+</svg>
 
 #### Case RL — Rotate Right tại con, rồi Rotate Left tại \`z\`
 
@@ -214,31 +385,62 @@ Một lần rotate right ở \`30\` KHÔNG đủ — vì sau khi xoay, \`20\` s�
 
 Đối xứng LR. Ví dụ: insert \`10, 30, 20\`.
 
-\`\`\`
-10           10                10  (z, balance = -2)
-              \\                 \\
-               30                30  (y, balance = 1)
-                                /
-                               20  (x)
-\`\`\`
+<svg viewBox="0 0 650 170" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trường hợp RL: chèn 10, 30, 20 → z = 10 lệch phải (−2), y = 30 lệch trái (1)">
+  <defs></defs>
+  <text x="65.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">10</text>
+  <g transform="translate(0,22)">
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  </g>
+  <text x="265.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">+30</text>
+  <g transform="translate(170,22)">
+  <line x1="65.0" y1="40.0" x2="125.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="125.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  </g>
+  <text x="525.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">+20</text>
+  <g transform="translate(400,22)">
+  <line x1="65.0" y1="40.0" x2="185.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="185.0" y1="94.0" x2="125.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="125.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="185.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="65.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <text x="85.0" y="18.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">z: −2</text>
+  </g>
+</svg>
 
 **Bước 1** — Rotate right tại \`30\`:
 
-\`\`\`
-10
- \\
-  20
-   \\
-    30
-\`\`\`
+<svg viewBox="0 0 278 148" style="max-width:278px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bước 1 của RL: xoay phải quanh 30 → 10 → 20 → 30 dạng RR">
+  <defs></defs>
+  <line x1="71.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="207.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">20</text>
+  <circle cx="71.0" cy="26.0" r="16" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="71.0" y="30.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">10</text>
+</svg>
 
 **Bước 2** — Rotate left tại \`10\`:
 
-\`\`\`
-       20
-      /  \\
-     10   30        ✓
-\`\`\`
+<svg viewBox="0 0 292 94" style="max-width:292px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bước 2 của RL: xoay trái quanh 10 → 20 gốc, cân bằng">
+  <defs></defs>
+  <line x1="146.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <line x1="146.0" y1="40.0" x2="218.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">30</text>
+  <circle cx="146.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="146.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">20</text>
+</svg>
 
 ### 2.7. Làm sao biết quay chiều nào? — Bảng quyết định
 
@@ -256,96 +458,184 @@ Một lần rotate right ở \`30\` KHÔNG đủ — vì sau khi xoay, \`20\` s�
 Insert lần lượt \`10, 20, 30, 40, 50, 25, 5\`. Vẽ cây sau mỗi bước, kèm balance factor (BF) trong dấu ngoặc.
 
 **Insert 10**:
-\`\`\`
-10(0)
-\`\`\`
+<svg viewBox="0 0 172 40" style="max-width:172px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 10: cây 1 node, balance 0">
+  <defs></defs>
+  <rect x="62.5" y="12.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+</svg>
 
 **Insert 20**:
-\`\`\`
-10(-1)
-   \\
-    20(0)
-\`\`\`
+<svg viewBox="0 0 260 94" style="max-width:260px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 20: 10 có con phải 20, balance(10) = −1">
+  <defs></defs>
+  <line x1="86.0" y1="40.0" x2="174.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="150.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">20(0)</text>
+  <rect x="59.0" y="12.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(-1)</text>
+</svg>
 
 **Insert 30** — BF(10) = -2, BF(20) = -1 → **RR** → rotate left tại 10:
-\`\`\`
-   20(0)
-   /  \\
- 10(0) 30(0)
-\`\`\`
+<svg viewBox="0 0 348 94" style="max-width:348px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 30 → balance(10) = −2 → xoay trái: 20 gốc, 10 và 30 con, mọi balance 0">
+  <defs></defs>
+  <line x1="174.0" y1="40.0" x2="86.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="62.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+  <line x1="174.0" y1="40.0" x2="262.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="238.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(0)</text>
+  <rect x="150.5" y="12.0" width="47.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="174.0" y="30.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">20(0)</text>
+</svg>
 
 **Insert 40**:
-\`\`\`
-   20(-1)
-   /  \\
- 10(0) 30(-1)
-          \\
-           40(0)
-\`\`\`
+<svg viewBox="0 0 436 148" style="max-width:436px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 40: 30 có con phải 40; balance(30) = −1, balance(20) = −1 — vẫn hợp lệ">
+  <defs></defs>
+  <line x1="174.0" y1="40.0" x2="86.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="62.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+  <line x1="174.0" y1="40.0" x2="262.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="262.0" y1="94.0" x2="350.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="326.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="350.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40(0)</text>
+  <rect x="235.0" y="66.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(-1)</text>
+  <rect x="147.0" y="12.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">20(-1)</text>
+</svg>
 
 **Insert 50** — sau insert: BF(30) = -2 → kiểm tra path: con phải của 30 là 40, BF(40) = -1 → **RR tại 30** → rotate left tại 30:
-\`\`\`
-   20(-1)
-   /  \\
- 10(0) 40(0)
-       / \\
-     30(0) 50(0)
-\`\`\`
+<svg viewBox="0 0 524 148" style="max-width:524px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 50 → balance(30) = −2 (RR) → xoay trái quanh 30: 40 lên, con 30 và 50">
+  <defs></defs>
+  <line x1="174.0" y1="40.0" x2="86.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="62.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+  <line x1="174.0" y1="40.0" x2="350.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="350.0" y1="94.0" x2="262.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="238.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(0)</text>
+  <line x1="350.0" y1="94.0" x2="438.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="414.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">50(0)</text>
+  <rect x="326.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="84.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">40(0)</text>
+  <rect x="147.0" y="12.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">20(-1)</text>
+</svg>
 Cập nhật lại BF(20): height(left)=0, height(right)=1 → BF(20) = -1. ✓
 
 **Insert 25** — đi xuống 20 → 40 → 30 → đặt 25 làm con trái của 30:
-\`\`\`
-   20(-1)
-   /  \\
- 10(0) 40(1)
-       / \\
-     30(1) 50(0)
-     /
-    25(0)
-\`\`\`
+<svg viewBox="0 0 612 202" style="max-width:612px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 25: vào con trái của 30; balance(30) = 1, balance(40) = 1, balance(20) = −1 — vẫn cân bằng">
+  <defs></defs>
+  <line x1="174.0" y1="40.0" x2="86.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="62.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+  <line x1="174.0" y1="40.0" x2="438.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="438.0" y1="94.0" x2="350.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="350.0" y1="148.0" x2="262.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="238.5" y="174.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="192.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">25(0)</text>
+  <rect x="326.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="350.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(1)</text>
+  <line x1="438.0" y1="94.0" x2="526.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="502.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="526.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">50(0)</text>
+  <rect x="414.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40(1)</text>
+  <rect x="147.0" y="12.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">20(-1)</text>
+</svg>
 BF(20): height(left)=0, height(right)=2 → BF(20) = -2. Path từ 20 đi xuống vùng nặng: 40 (BF=1) → khác dấu → **RL** → rotate right tại 40, rồi rotate left tại 20.
 
 Bước RL.1 — rotate right tại 40 (\`y=40\`, \`x=30\`):
-\`\`\`
-   20
-   /  \\
- 10   30(-1)
-        \\
-         40(-1)
-           \\
-            50
-         (25 là con trái của 30)
-\`\`\`
+<svg viewBox="0 0 612 228" style="max-width:612px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tình huống tưởng tượng nếu KHÔNG xoay khi chèn 50: 20 → 30 → 40 → 50 lệch phải dài (25 là con trái của 30)">
+  <defs></defs>
+  <line x1="174.0" y1="40.0" x2="86.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="86.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10</text>
+  <line x1="174.0" y1="40.0" x2="350.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="350.0" y1="94.0" x2="262.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="262.0" cy="134.0" r="16" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="262.0" y="138.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">25</text>
+  <line x1="350.0" y1="94.0" x2="438.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="438.0" y1="148.0" x2="526.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="526.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="526.0" y="192.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">50</text>
+  <rect x="411.0" y="120.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40(-1)</text>
+  <rect x="323.0" y="66.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="350.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(-1)</text>
+  <circle cx="174.0" cy="26.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="174.0" y="30.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">20</text>
+  <text x="306.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">so sánh với av18: nhờ xoay, cây thấp hơn 1 tầng</text>
+</svg>
 Chi tiết hơn:
-\`\`\`
-   20(-2)
-   /  \\
- 10(0) 30(-2)
-        / \\
-       25(0) 40(-1)
-                \\
-                 50(0)
-\`\`\`
+<svg viewBox="0 0 612 202" style="max-width:612px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau khi chèn 50 mà chưa xoay: balance(30) = −2, balance(20) = −2 → mất cân bằng tại 30 (RR)">
+  <defs></defs>
+  <line x1="174.0" y1="40.0" x2="86.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="62.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+  <line x1="174.0" y1="40.0" x2="350.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="350.0" y1="94.0" x2="262.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="238.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">25(0)</text>
+  <line x1="350.0" y1="94.0" x2="438.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="438.0" y1="148.0" x2="526.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="502.5" y="174.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="526.0" y="192.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">50(0)</text>
+  <rect x="411.0" y="120.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40(-1)</text>
+  <rect x="323.0" y="66.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="350.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(-2)</text>
+  <rect x="147.0" y="12.0" width="54.0" height="28.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="174.0" y="30.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">20(-2)</text>
+</svg>
 
 Bước RL.2 — rotate left tại 20 (\`z=20\`, \`y=30\`, \`T3 = 25\`):
-\`\`\`
-       30(0)
-      /     \\
-    20(0)   40(-1)
-    / \\        \\
-  10(0) 25(0)  50(0)
-\`\`\`
+<svg viewBox="0 0 612 148" style="max-width:612px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau xoay trái quanh 20: 30 gốc, 20 (10, 25) trái, 40 (→ 50) phải — cân bằng">
+  <defs></defs>
+  <line x1="350.0" y1="40.0" x2="174.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="174.0" y1="94.0" x2="86.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="62.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(0)</text>
+  <line x1="174.0" y1="94.0" x2="262.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="238.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">25(0)</text>
+  <rect x="150.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">20(0)</text>
+  <line x1="350.0" y1="40.0" x2="438.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="438.0" y1="94.0" x2="526.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="502.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="526.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">50(0)</text>
+  <rect x="411.0" y="66.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40(-1)</text>
+  <rect x="326.5" y="12.0" width="47.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="30.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">30(0)</text>
+</svg>
 
 **Insert 5** — đi xuống 30 → 20 → 10 → đặt 5 làm con trái của 10:
-\`\`\`
-       30(1)
-      /     \\
-    20(1)   40(-1)
-    / \\        \\
-  10(1) 25(0)  50(0)
-   /
-  5(0)
-\`\`\`
+<svg viewBox="0 0 700 202" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 5 dưới 10: balance(10) = 1, balance(20) = 1, balance(30) = 1 — vẫn hợp lệ, không cần xoay">
+  <defs></defs>
+  <line x1="438.0" y1="40.0" x2="262.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="262.0" y1="94.0" x2="174.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="174.0" y1="148.0" x2="86.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="66.0" y="174.0" width="40.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="192.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5(0)</text>
+  <rect x="150.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10(1)</text>
+  <line x1="262.0" y1="94.0" x2="350.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="326.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="350.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">25(0)</text>
+  <rect x="238.5" y="66.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">20(1)</text>
+  <line x1="438.0" y1="40.0" x2="526.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="526.0" y1="94.0" x2="614.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="590.5" y="120.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="614.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">50(0)</text>
+  <rect x="499.0" y="66.0" width="54.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="526.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40(-1)</text>
+  <rect x="414.5" y="12.0" width="47.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30(1)</text>
+</svg>
 BF tất cả node đều trong $[-1, 1]$ → không rotation cần thiết. ✓
 
 ### 2.9. ❓ Câu hỏi tự nhiên

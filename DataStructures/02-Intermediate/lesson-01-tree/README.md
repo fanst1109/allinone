@@ -35,13 +35,29 @@ Trước khi có định nghĩa hình thức, hãy nhìn **3 thứ bạn gặp h
 
 **Cây (tree)** là cấu trúc dữ liệu phi tuyến: gồm các **node**, mỗi node có thể có nhiều **node con**, không có chu trình.
 
-```
-         A          <- root
-        / \
-       B   C
-      / \   \
-     D   E   F      <- leaves: D, E, F
-```
+<svg viewBox="0 0 325 216" style="max-width:325px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây tổng quát: gốc A, con B và C; B có con D, E; C có con F; lá D, E, F">
+  <defs></defs>
+  <g transform="translate(62,0)">
+  <line x1="115.0" y1="52.0" x2="70.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="70.0" y1="110.0" x2="40.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="40.0" cy="152.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="156.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">D</text>
+  <line x1="70.0" y1="110.0" x2="100.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="100.0" cy="152.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="100.0" y="156.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">E</text>
+  <circle cx="70.0" cy="94.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="70.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <line x1="115.0" y1="52.0" x2="160.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="160.0" y1="110.0" x2="160.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="160.0" cy="152.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="160.0" y="156.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="160.0" cy="94.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="115.0" cy="36.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="115.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <text x="100.0" y="208.0" fill="#475569" font-size="11" text-anchor="middle">A = root (gốc) · D, E, F = leaves (lá, không con)</text>
+  </g>
+</svg>
 
 ## 2. Thuật ngữ
 
@@ -106,13 +122,23 @@ function postorder(node):
 ```
 
 Trên cây:
-```
-       1
-      / \
-     2   3
-    / \
-   4   5
-```
+<svg viewBox="0 0 480 148" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây nhị phân 5 node: 1 gốc, con trái 2 (có con 4, 5), con phải 3">
+  <defs></defs>
+  <line x1="320.0" y1="40.0" x2="160.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="160.0" y1="94.0" x2="80.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="80.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <line x1="160.0" y1="94.0" x2="240.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="240.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="160.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="320.0" y1="40.0" x2="400.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="400.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="400.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="320.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+</svg>
 - Preorder: `1 2 4 5 3`
 - Inorder: `4 2 5 1 3`
 - Postorder: `4 5 2 3 1`
@@ -205,24 +231,35 @@ n2.right = n5     # 2 → phải → 5
 
 Sau 4 dòng "gắn mũi tên", các object rời đã thành một cây. Vẽ ra bằng **hộp + mũi tên**:
 
-```
-        ┌─────────────────┐
-        │ value: 1        │
-        │ left ●──┐ right ●──┐
-        └─────────│─────────│──┘
-            ┌─────┘         └─────┐
-            ▼                     ▼
-   ┌─────────────────┐   ┌─────────────────┐
-   │ value: 2        │   │ value: 3        │
-   │ left ●─┐ right ●─┐  │ left: ∅ right: ∅ │  ← leaf
-   └────────│────────│┘  └─────────────────┘
-       ┌────┘        └────┐
-       ▼                  ▼
-┌──────────────┐   ┌──────────────┐
-│ value: 4     │   │ value: 5     │
-│ left:∅ right:∅│   │ left:∅ right:∅│  ← cả hai là leaf
-└──────────────┘   └──────────────┘
-```
+<svg viewBox="0 0 621 310" style="max-width:621px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục bộ nhớ 5 node: object value 1 có left trỏ tới object 2 và right tới object 3; object 2 trỏ tới 4 và 5; 3, 4, 5 là leaf với left/right rỗng">
+  <defs><marker id="mem" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(10,0)">
+  <rect x="230.0" y="20.0" width="150.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="38.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">value: 1</text>
+  <text x="240.0" y="60.0" fill="#475569" font-size="11" text-anchor="start">left ●</text>
+  <text x="310.0" y="60.0" fill="#475569" font-size="11" text-anchor="start">right ●</text>
+  <rect x="80.0" y="120.0" width="150.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">value: 2</text>
+  <text x="90.0" y="160.0" fill="#475569" font-size="11" text-anchor="start">left ●</text>
+  <text x="160.0" y="160.0" fill="#475569" font-size="11" text-anchor="start">right ●</text>
+  <rect x="380.0" y="120.0" width="150.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="390.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">value: 3</text>
+  <text x="390.0" y="160.0" fill="#475569" font-size="11" text-anchor="start">left: ∅   right: ∅</text>
+  <rect x="10.0" y="220.0" width="150.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="20.0" y="238.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">value: 4</text>
+  <text x="20.0" y="260.0" fill="#475569" font-size="11" text-anchor="start">left: ∅   right: ∅</text>
+  <rect x="160.0" y="220.0" width="150.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="170.0" y="238.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">value: 5</text>
+  <text x="170.0" y="260.0" fill="#475569" font-size="11" text-anchor="start">left: ∅   right: ∅</text>
+  <line x1="276.0" y1="60.0" x2="155.0" y2="118.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#mem)"/>
+  <line x1="346.0" y1="60.0" x2="455.0" y2="118.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#mem)"/>
+  <line x1="126.0" y1="160.0" x2="85.0" y2="218.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#mem)"/>
+  <line x1="196.0" y1="160.0" x2="235.0" y2="218.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#mem)"/>
+  <text x="540.0" y="150.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">← leaf</text>
+  <text x="320.0" y="250.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">← cả hai là leaf</text>
+  <text x="300.0" y="296.0" fill="#475569" font-size="11" text-anchor="middle">mỗi node là một object riêng trong bộ nhớ; left/right là con trỏ (mũi tên) tới object khác hoặc ∅</text>
+  </g>
+</svg>
 
 Toàn bộ "cây" thật ra chỉ là **5 hộp nằm rải rác + 4 mũi tên nối chúng**. Muốn đi từ node 1 xuống node 5: đi theo mũi tên `n1.left` (tới 2), rồi `n2.right` (tới 5). Mỗi lần "đi xuống một tầng" = **đi theo một mũi tên**.
 
@@ -244,25 +281,50 @@ Trên máy 64-bit:
 - Mỗi pointer chiếm **8 byte** (vì địa chỉ 64-bit).
 - Compiler chèn **padding** để mọi pointer align ở biên 8-byte → tổng cộng **24 byte/node**.
 
-```
-offset:  0      4      8              16             24
-        ┌──────┬──────┬───────────────┬───────────────┐
-        │value │ pad  │  left (ptr)   │  right (ptr)  │
-        │ 4B   │ 4B   │      8B       │      8B       │
-        └──────┴──────┴───────────────┴───────────────┘
-```
+<svg viewBox="0 0 520 130" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục struct Node 24 byte: value 4 byte tại offset 0, padding 4 byte, left pointer 8 byte tại 8, right pointer 8 byte tại 16">
+  <defs></defs>
+  <text x="40.0" y="30.0" fill="#475569" font-size="11" text-anchor="end">offset:</text>
+  <rect x="40.0" y="40.0" width="60.0" height="50.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="70.0" y="62.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">value</text>
+  <text x="70.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">4 B</text>
+  <rect x="100.0" y="40.0" width="60.0" height="50.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="130.0" y="62.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">pad</text>
+  <text x="130.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">4 B</text>
+  <rect x="160.0" y="40.0" width="160.0" height="50.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="62.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">left (ptr)</text>
+  <text x="240.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">8 B</text>
+  <rect x="320.0" y="40.0" width="160.0" height="50.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="400.0" y="62.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">right (ptr)</text>
+  <text x="400.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">8 B</text>
+  <text x="40.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <text x="100.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <text x="160.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <text x="320.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">16</text>
+  <text x="480.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">24</text>
+  <text x="260.0" y="118.0" fill="#475569" font-size="11" text-anchor="middle">sizeof(Node) = 24 byte: 4 (int) + 4 padding (căn 8) + 8 + 8 (hai con trỏ 64-bit)</text>
+</svg>
 
 ### 8.3. Walk-through bằng địa chỉ thật trên cây ví dụ
 
 Lấy lại cây ở mục 4:
 
-```
-       1
-      / \
-     2   3
-    / \
-   4   5
-```
+<svg viewBox="0 0 480 148" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây nhị phân 5 node (nhắc lại): 1 → 2 (4, 5), 3">
+  <defs></defs>
+  <line x1="320.0" y1="40.0" x2="160.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="160.0" y1="94.0" x2="80.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="80.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <line x1="160.0" y1="94.0" x2="240.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="240.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="160.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="320.0" y1="40.0" x2="400.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="400.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="400.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="320.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+</svg>
 
 Allocator (vd `malloc` / Go `new`) đặt 5 node ở các địa chỉ giả định (OS chọn ngẫu nhiên):
 
@@ -334,20 +396,51 @@ Có một cách lưu cây **hoàn toàn không dùng pointer**: xếp các node 
 
 Lấy lại cây ví dụ ở mục 4:
 
-```
-       1            idx 0
-      / \
-     2   3          idx 1, 2
-    / \
-   4   5            idx 3, 4
-```
+<svg viewBox="0 0 590 174" style="max-width:590px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây nhị phân hoàn chỉnh lưu trong mảng: node 1 ở idx 0, 2 và 3 ở idx 1, 2, 4 và 5 ở idx 3, 4">
+  <defs></defs>
+  <line x1="395.0" y1="40.0" x2="195.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="195.0" y1="94.0" x2="95.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="95.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="95.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <text x="115.0" y="126.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">idx 3</text>
+  <line x1="195.0" y1="94.0" x2="295.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="295.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="295.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <text x="315.0" y="126.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">idx 4</text>
+  <circle cx="195.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="195.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <text x="215.0" y="72.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">idx 1</text>
+  <line x1="395.0" y1="40.0" x2="495.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="495.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="495.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <text x="515.0" y="72.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">idx 2</text>
+  <circle cx="395.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="395.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <text x="415.0" y="18.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">idx 0</text>
+  <text x="295.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">con trái của i = 2i+1, con phải = 2i+2, cha = (i−1)/2</text>
+</svg>
 
 Đặt theo level-order vào mảng:
 
-```
-mảng:   [ 1 , 2 , 3 , 4 , 5 ]
-chỉ số:   0   1   2   3   4
-```
+<svg viewBox="0 0 300 90" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mảng [1, 2, 3, 4, 5] với chỉ số 0–4 biểu diễn cây nhị phân hoàn chỉnh">
+  <defs></defs>
+  <text x="40.0" y="52.0" fill="#475569" font-size="11" text-anchor="end">mảng</text>
+  <rect x="50.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="72.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="72.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <rect x="94.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="116.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <text x="116.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <rect x="138.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <text x="160.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <rect x="182.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="204.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <text x="204.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <rect x="226.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="248.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <text x="248.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+</svg>
 
 **Công thức (0-based)** — với node ở chỉ số $i$:
 
@@ -363,10 +456,36 @@ Không cần một byte pointer nào — "mũi tên" được thay bằng **phé
 
 **⚠ Nhưng cách này chỉ hợp khi cây gần ĐẦY.** Nếu cây lệch (skewed), giữa mảng đầy lỗ rỗng. Ví dụ cây chỉ-rẽ-phải `1 → 3 → 7`:
 
-```
-1 ở idx 0 → con phải idx 2 → con phải idx 6 → ...
-mảng:  [ 1 , _ , 3 , _ , _ , _ , 7 ]   ← 4 ô trống lãng phí cho 3 node thật
-```
+<svg viewBox="0 0 440 115" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây lệch phải 1 → 3 → 7 lưu trong mảng 7 ô: chỉ 3 ô có node, 4 ô trống (tô đỏ) lãng phí">
+  <defs></defs>
+  <text x="50.0" y="52.0" fill="#475569" font-size="11" text-anchor="end">mảng</text>
+  <rect x="60.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="82.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="82.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <rect x="104.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="126.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">_</text>
+  <text x="126.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <rect x="148.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="170.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <text x="170.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <rect x="192.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="214.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">_</text>
+  <text x="214.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <rect x="236.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="258.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">_</text>
+  <text x="258.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <rect x="280.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="302.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">_</text>
+  <text x="302.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <rect x="324.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="346.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">7</text>
+  <text x="346.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <text x="214.0" y="100.0" fill="#dc2626" font-size="11" text-anchor="middle">cây lệch phải 1 → 3 → 7: 4 ô trống (idx 1, 3, 4, 5) lãng phí cho 3 node thật</text>
+  <rect x="104.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="192.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="236.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="280.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#fee2e2" fill-opacity="0.5" stroke="#dc2626" stroke-width="1.5"/>
+</svg>
 
 Cây càng cao thì lỗ rỗng càng phình theo $2^h$. Vì vậy **mảng dành cho cây đầy** (heap, segment tree); **pointer dành cho cây tùy hình dạng** (BST động, cây thư mục). Học kỹ array-based ở [Lesson 03 — Heap](../lesson-03-heap-priority-queue/) và lý do "vì sao BST không lưu bằng mảng" ở [Lesson 02 — BST](../lesson-02-binary-search-tree/).
 
@@ -378,13 +497,24 @@ Cây càng cao thì lỗ rỗng càng phình theo $2^h$. Vì vậy **mảng dàn
 
 Khi bạn gõ `(3 + 4) * 5`, trình biên dịch/máy tính **không** tính từ trái qua phải. Nó dựng một **cây biểu thức**: lá là **số**, node trong là **toán tử**, và **cấu trúc cây mã hóa luôn thứ tự ưu tiên**.
 
-```
-        *           ← gốc: phép nhân làm cuối
-       / \
-      +   5
-     / \
-    3   4
-```
+<svg viewBox="0 0 480 174" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây biểu thức (3 + 4) × 5: gốc là phép nhân làm cuối, con trái là phép cộng 3 + 4, con phải là 5">
+  <defs></defs>
+  <line x1="320.0" y1="40.0" x2="160.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="160.0" y1="94.0" x2="80.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="80.0" cy="134.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="80.0" y="138.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="160.0" y1="94.0" x2="240.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="240.0" cy="134.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="138.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="160.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">+</text>
+  <line x1="320.0" y1="40.0" x2="400.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="400.0" cy="80.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="400.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="320.0" cy="26.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="30.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">*</text>
+  <text x="240.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">gốc = phép toán làm CUỐI; lá = toán hạng; duyệt post-order cho 3 4 + 5 *</text>
+</svg>
 
 Để **tính giá trị**, ta duyệt **postorder** (trái → phải → node) — đúng cái đã học ở [§4](#41-duyệt-theo-chiều-sâu-dfs): muốn tính một toán tử, phải có giá trị **hai con trước**.
 
@@ -417,16 +547,38 @@ Vì sao file `.zip`, `.jpg`, `.mp3` nhỏ hơn dữ liệu gốc? Một kỹ thu
 
 Cây Huffman (ký tự hay gặp nằm **nông**, gần gốc):
 
-```
-        (●)
-       /   \
-      A      (●)        A nông nhất (hay gặp nhất)
-    0/      /   \
-           B     (●)
-         10/    /   \
-                C     D
-              110   111
-```
+<svg viewBox="0 0 461 268" style="max-width:461px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây mã tiền tố: A nông nhất (mã 0), B mã 10, C mã 110, D mã 111; cạnh trái = 0, phải = 1">
+  <defs></defs>
+  <g transform="translate(100,0)">
+  <line x1="92.5" y1="52.0" x2="40.0" y2="76.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="58.2" y="64.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="40.0" cy="92.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="96.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <line x1="92.5" y1="52.0" x2="145.0" y2="76.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="126.8" y="64.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="145.0" y1="108.0" x2="100.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="114.5" y="120.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="100.0" cy="148.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="100.0" y="152.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <line x1="145.0" y1="108.0" x2="190.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="175.5" y="120.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="190.0" y1="164.0" x2="160.0" y2="188.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="167.0" y="176.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="160.0" cy="204.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="160.0" y="208.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">C</text>
+  <line x1="190.0" y1="164.0" x2="220.0" y2="188.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="176.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <circle cx="220.0" cy="204.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="220.0" y="208.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="190.0" cy="148.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="190.0" y="152.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">●</text>
+  <circle cx="145.0" cy="92.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="145.0" y="96.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">●</text>
+  <circle cx="92.5" cy="36.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="92.5" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">●</text>
+  <text x="130.0" y="260.0" fill="#475569" font-size="11" text-anchor="middle">A nông nhất (hay gặp nhất) → mã ngắn nhất; C, D sâu nhất → mã dài 3 bit</text>
+  </g>
+</svg>
 
 Bảng mã: `A = 0`, `B = 10`, `C = 110`, `D = 111`.
 
@@ -443,17 +595,27 @@ Mỗi khối `if/else` lồng nhau **là một cây nhị phân**: node trong l�
 
 Ví dụ "có nên cho vay?":
 
-```
-              Thu nhập > 20tr?
-               /          \
-             Có            Không
-            /                 \
-   Có nợ xấu?              TỪ CHỐI
-    /      \
-  Có       Không
-  /          \
-TỪ CHỐI     CHO VAY
-```
+<svg viewBox="0 0 380 200" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây quyết định vay: thu nhập &gt; 20 triệu? không → từ chối; có → có nợ xấu? có → từ chối, không → cho vay">
+  <defs></defs>
+  <line x1="220.0" y1="52.0" x2="130.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="167.0" y="68.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Có</text>
+  <line x1="130.0" y1="116.0" x2="70.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="92.0" y="132.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Có</text>
+  <rect x="38.5" y="148.0" width="63.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="70.0" y="168.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">TỪ CHỐI</text>
+  <line x1="130.0" y1="116.0" x2="190.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="168.0" y="132.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Không</text>
+  <rect x="158.5" y="148.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="190.0" y="168.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">CHO VAY</text>
+  <rect x="88.0" y="84.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="130.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Có nợ xấu?</text>
+  <line x1="220.0" y1="52.0" x2="310.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="273.0" y="68.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Không</text>
+  <rect x="278.5" y="84.0" width="63.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="104.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">TỪ CHỐI</text>
+  <rect x="157.0" y="20.0" width="126.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="220.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Thu nhập &gt; 20tr?</text>
+</svg>
 
 Phân loại một hồ sơ = **đi từ gốc xuống một lá** theo câu trả lời — độ phức tạp $O(h)$ với $h$ là chiều cao cây, *không* phải duyệt mọi luật. Random Forest, XGBoost (thắng vô số cuộc thi Kaggle) đều là **tập hợp nhiều cây quyết định**.
 
@@ -754,15 +916,26 @@ $O(n)$.
 
 ### Bài 5 — Tự vẽ và trace 4 cách duyệt
 Lấy cây:
-```
-        1
-       / \
-      2   3
-       \   \
-        5   6
-       /
-      4
-```
+<svg viewBox="0 0 508 202" style="max-width:508px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây bài tập: 1 → con trái 2 (chỉ có con phải 5, 5 có con trái 4), con phải 3 (chỉ có con phải 6)">
+  <defs></defs>
+  <line x1="290.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="74.0" y1="94.0" x2="218.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="218.0" y1="148.0" x2="146.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="146.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="218.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="290.0" y1="40.0" x2="362.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="362.0" y1="94.0" x2="434.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="434.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="434.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="362.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="362.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="290.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="290.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+</svg>
 - Preorder (Node-L-R): `1 2 5 4 3 6`.
 - Inorder (L-Node-R): `2 4 5 1 3 6`.
 - Postorder (L-R-Node): `4 5 2 6 3 1`.

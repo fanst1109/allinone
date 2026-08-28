@@ -65,11 +65,36 @@ Dùng hàm hash đơn giản nhất để dễ tính: \`hash(s) = (tổng mã AS
 | \`"dave"\`  | (tổng) = 416 → mod 10              | **6** |
 
 Bảng cuối cùng (xung đột "alice"/"eve" để chung 1 ô — xem mục 4):
-\`\`\`
-index:  0              6        7       9
-slots: [alice, eve]   dave    bob     carol
-(các ô 1,2,3,4,5,8 trống)
-\`\`\`
+<svg viewBox="0 0 600 140" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng hash 10 ô: ô 0 chứa alice và eve (va chạm), ô 6 dave, ô 7 bob, ô 9 carol; các ô còn lại trống">
+  <defs></defs>
+  <rect x="20.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="48.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <text x="48.0" y="55.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">alice</text>
+  <text x="48.0" y="69.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">eve</text>
+  <rect x="76.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="104.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <rect x="132.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="160.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <rect x="188.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="216.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <rect x="244.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="272.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <rect x="300.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="328.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <rect x="356.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="384.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <text x="384.0" y="65.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">dave</text>
+  <rect x="412.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="440.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">7</text>
+  <text x="440.0" y="65.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">bob</text>
+  <rect x="468.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="496.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <rect x="524.0" y="40.0" width="56.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="552.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle">9</text>
+  <text x="552.0" y="65.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">carol</text>
+  <text x="300.0" y="110.0" fill="#475569" font-size="10" text-anchor="middle">hash('alice') = 510 mod 10 = 0 (trùng với eve → chuỗi nối); dave → 6, bob → 7, carol → 9</text>
+  <text x="300.0" y="126.0" fill="#475569" font-size="10" text-anchor="middle">các ô 1–5, 8 trống</text>
+</svg>
 
 ### Truy vấn
 

@@ -79,32 +79,56 @@ Insert lần lượt `10, 20, 5, 6, 12, 30, 7, 17`. Node tối đa 3 khóa.
 - Lấy phần tử giữa (median) → `10` đẩy lên thành node cha mới.
 - Còn lại chia đôi: `[5, 6]` thành con trái, `[20]` thành con phải.
 
-```
-        [10]
-       /    \
-   [5, 6]   [20]
-```
+<svg viewBox="0 0 150 132" style="max-width:150px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="B-tree bậc nhỏ: gốc [10], con trái [5, 6], con phải [20]">
+  <defs></defs>
+  <line x1="75.0" y1="52.0" x2="40.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="12.0" y="80.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[5, 6]</text>
+  <line x1="75.0" y1="52.0" x2="110.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="89.0" y="80.0" width="42.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[20]</text>
+  <rect x="54.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="75.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[10]</text>
+</svg>
 
 **Insert 12** — đi vào con phải (vì 12 > 10):
-```
-        [10]
-       /    \
-   [5, 6]   [12, 20]
-```
+<svg viewBox="0 0 180 132" style="max-width:180px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau chèn 12: gốc [10], con phải thành [12, 20]">
+  <defs></defs>
+  <line x1="90.0" y1="52.0" x2="40.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="12.0" y="80.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[5, 6]</text>
+  <line x1="90.0" y1="52.0" x2="140.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="105.0" y="80.0" width="70.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="140.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[12, 20]</text>
+  <rect x="69.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[10]</text>
+</svg>
 
 **Insert 30** — đi vào con phải:
-```
-        [10]
-       /    \
-   [5, 6]   [12, 20, 30]
-```
+<svg viewBox="0 0 200 132" style="max-width:200px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau chèn 30: con phải [12, 20, 30] đầy">
+  <defs></defs>
+  <line x1="100.0" y1="52.0" x2="40.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="12.0" y="80.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[5, 6]</text>
+  <line x1="100.0" y1="52.0" x2="160.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="111.0" y="80.0" width="98.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="160.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[12, 20, 30]</text>
+  <rect x="79.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="100.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[10]</text>
+</svg>
 
 **Insert 7** — đi vào con trái (7 < 10):
-```
-        [10]
-       /     \
-  [5, 6, 7]  [12, 20, 30]
-```
+<svg viewBox="0 0 200 132" style="max-width:200px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau chèn 7: con trái [5, 6, 7] cũng đầy">
+  <defs></defs>
+  <line x1="100.0" y1="52.0" x2="40.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1.5" y="80.0" width="77.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[5, 6, 7]</text>
+  <line x1="100.0" y1="52.0" x2="160.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="111.0" y="80.0" width="98.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="160.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[12, 20, 30]</text>
+  <rect x="79.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="100.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[10]</text>
+</svg>
 
 **Insert 17** — đi vào con phải `[12, 20, 30]` (giữa 10 và ∞). Node đầy → tập hợp `[12, 17, 20, 30]` → split:
 
@@ -113,11 +137,20 @@ Insert lần lượt `10, 20, 5, 6, 12, 30, 7, 17`. Node tối đa 3 khóa.
 
 Đẩy 17 lên node cha `[10]` → cha thành `[10, 17]`, có 3 con:
 
-```
-              [10, 17]
-            /    |     \
-       [5,6,7] [12]  [20, 30]
-```
+<svg viewBox="0 0 260 132" style="max-width:260px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 17 làm nút [12, 20, 30] tách: 17 đẩy lên gốc thành [10, 17], hai nút con [12] và [20, 30]">
+  <defs></defs>
+  <line x1="130.0" y1="52.0" x2="40.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1.5" y="80.0" width="77.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[5, 6, 7]</text>
+  <line x1="130.0" y1="52.0" x2="130.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="109.0" y="80.0" width="42.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="130.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[12]</text>
+  <line x1="130.0" y1="52.0" x2="220.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="185.0" y="80.0" width="70.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="220.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">[20, 30]</text>
+  <rect x="95.0" y="20.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="130.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[10, 17]</text>
+</svg>
 
 ### 1.8. Walk-through search
 
@@ -168,11 +201,46 @@ Số lần đọc node: 2 (= chiều cao). Với $m = 256$ và $10^9$ khóa, chi
 
 Một linked list "có nhiều tầng": tầng 0 là toàn bộ phần tử; tầng trên chỉ chứa một số phần tử, mỗi tầng bỏ qua một nửa (xác suất).
 
-```
-tầng 2:  A -----------------> E
-tầng 1:  A -----> C --------> E
-tầng 0:  A -> B -> C -> D -> E
-```
+<svg viewBox="0 0 570 190" style="max-width:570px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Skip list 3 tầng: tầng 0 A → B → C → D → E, tầng 1 A → C → E, tầng 2 A → E; tầng cao bỏ qua nhiều node">
+  <defs><marker id="sk" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(50,0)">
+  <text x="-30.0" y="35.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">tầng 2</text>
+  <rect x="42.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="35.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <line x1="78.0" y1="30.0" x2="440.0" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="442.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="460.0" y="35.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">E</text>
+  <text x="-30.0" y="85.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">tầng 1</text>
+  <rect x="42.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <line x1="78.0" y1="80.0" x2="240.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="242.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <line x1="278.0" y1="80.0" x2="440.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="442.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="460.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">E</text>
+  <text x="-30.0" y="135.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">tầng 0</text>
+  <rect x="42.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">A</text>
+  <line x1="78.0" y1="130.0" x2="140.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="142.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="160.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <line x1="178.0" y1="130.0" x2="240.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="242.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <line x1="278.0" y1="130.0" x2="340.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="342.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="360.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <line x1="378.0" y1="130.0" x2="440.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="442.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="460.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">E</text>
+  <line x1="60.0" y1="42.0" x2="60.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="160.0" y1="42.0" x2="160.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="260.0" y1="42.0" x2="260.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="360.0" y1="42.0" x2="360.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="460.0" y1="42.0" x2="460.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  </g>
+</svg>
 
 Tìm kiếm đi từ tầng cao xuống, mỗi tầng bỏ qua nhiều node → $O(\log n)$ xác suất.
 
@@ -226,11 +294,79 @@ Skip list chứa `{3, 7, 10, 15, 18, 22, 30, 40}`. Cấp:
 - 15, 22: tầng 1.
 - Tất cả: tầng 0.
 
-```
-T2:  H ---------> 7 -------------------> 30 -----> NIL
-T1:  H -------- > 7 ----- > 15 -------- > 22 -- > 30 -----> NIL
-T0:  H -> 3 -> 7 -> 10 -> 15 -> 18 -> 22 -> 30 -> 40 -> NIL
-```
+<svg viewBox="0 0 670 190" style="max-width:670px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Skip list: T0 đủ 3, 7, 10, 15, 18, 22, 30, 40; T1 giữ 7, 15, 22, 30; T2 giữ 7, 30; H đầu, NIL cuối">
+  <defs><marker id="sk" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(50,0)">
+  <text x="-30.0" y="35.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">T2</text>
+  <rect x="42.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60.0" y="35.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">H</text>
+  <line x1="78.0" y1="30.0" x2="151.1" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="153.1" y="18.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="171.1" y="35.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="189.1" y1="30.0" x2="428.9" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="430.9" y="18.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="448.9" y="35.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30</text>
+  <line x1="466.9" y1="30.0" x2="540.0" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="542.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="560.0" y="35.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">NIL</text>
+  <text x="-30.0" y="85.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">T1</text>
+  <rect x="42.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60.0" y="85.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">H</text>
+  <line x1="78.0" y1="80.0" x2="151.1" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="153.1" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="171.1" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="189.1" y1="80.0" x2="262.2" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="264.2" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="282.2" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">15</text>
+  <line x1="300.2" y1="80.0" x2="373.3" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="375.3" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="393.3" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">22</text>
+  <line x1="411.3" y1="80.0" x2="428.9" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="430.9" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="448.9" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30</text>
+  <line x1="466.9" y1="80.0" x2="540.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="542.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="560.0" y="85.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">NIL</text>
+  <text x="-30.0" y="135.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">T0</text>
+  <rect x="42.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60.0" y="135.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">H</text>
+  <line x1="78.0" y1="130.0" x2="95.6" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="97.6" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="115.6" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="133.6" y1="130.0" x2="151.1" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="153.1" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="171.1" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="189.1" y1="130.0" x2="206.7" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="208.7" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="226.7" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10</text>
+  <line x1="244.7" y1="130.0" x2="262.2" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="264.2" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="282.2" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">15</text>
+  <line x1="300.2" y1="130.0" x2="317.8" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="319.8" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="337.8" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">18</text>
+  <line x1="355.8" y1="130.0" x2="373.3" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="375.3" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="393.3" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">22</text>
+  <line x1="411.3" y1="130.0" x2="428.9" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="430.9" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="448.9" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30</text>
+  <line x1="466.9" y1="130.0" x2="484.4" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="486.4" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="504.4" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40</text>
+  <line x1="522.4" y1="130.0" x2="540.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="542.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="560.0" y="135.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">NIL</text>
+  <line x1="115.6" y1="42.0" x2="115.6" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="171.1" y1="42.0" x2="171.1" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="226.7" y1="42.0" x2="226.7" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="282.2" y1="42.0" x2="282.2" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="337.8" y1="42.0" x2="337.8" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="393.3" y1="42.0" x2="393.3" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="448.9" y1="42.0" x2="448.9" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="504.4" y1="42.0" x2="504.4" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  </g>
+</svg>
 
 Search `18`:
 
@@ -249,11 +385,86 @@ Insert `12` vào skip list trên:
 3. Chèn vào tầng 0: `... 10 -> 12 -> 15 ...`.
 4. Chèn vào tầng 1: `... 7 -> 12 -> 15 ...` (giữa 7 và 15).
 
-```
-T2:  H ---------> 7 ----------------------> 30 -----> NIL
-T1:  H -------- > 7 -- > 12 - > 15 -------- > 22 -- > 30 -----> NIL
-T0:  H -> 3 -> 7 -> 10 -> 12 -> 15 -> 18 -> 22 -> 30 -> 40 -> NIL
-```
+<svg viewBox="0 0 670 190" style="max-width:670px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Skip list sau khi chèn 12 với tầng ngẫu nhiên 1: 12 xuất hiện ở T0 và T1">
+  <defs><marker id="sk" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(50,0)">
+  <text x="-30.0" y="35.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">T2</text>
+  <rect x="42.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60.0" y="35.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">H</text>
+  <line x1="78.0" y1="30.0" x2="140.0" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="142.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="160.0" y="35.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="178.0" y1="30.0" x2="440.0" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="442.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="460.0" y="35.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30</text>
+  <line x1="478.0" y1="30.0" x2="540.0" y2="30.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="542.0" y="18.0" width="36.0" height="24.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="560.0" y="35.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">NIL</text>
+  <text x="-30.0" y="85.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">T1</text>
+  <rect x="42.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60.0" y="85.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">H</text>
+  <line x1="78.0" y1="80.0" x2="140.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="142.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="160.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="178.0" y1="80.0" x2="240.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="242.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">12</text>
+  <line x1="278.0" y1="80.0" x2="290.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="292.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="310.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">15</text>
+  <line x1="328.0" y1="80.0" x2="390.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="392.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="410.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">22</text>
+  <line x1="428.0" y1="80.0" x2="440.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="442.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="460.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30</text>
+  <line x1="478.0" y1="80.0" x2="540.0" y2="80.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="542.0" y="68.0" width="36.0" height="24.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="560.0" y="85.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">NIL</text>
+  <text x="-30.0" y="135.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">T0</text>
+  <rect x="42.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60.0" y="135.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">H</text>
+  <line x1="78.0" y1="130.0" x2="90.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="92.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="110.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="128.0" y1="130.0" x2="140.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="142.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="160.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="178.0" y1="130.0" x2="190.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="192.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="210.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10</text>
+  <line x1="228.0" y1="130.0" x2="240.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="242.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">12</text>
+  <line x1="278.0" y1="130.0" x2="290.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="292.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="310.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">15</text>
+  <line x1="328.0" y1="130.0" x2="340.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="342.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="360.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">18</text>
+  <line x1="378.0" y1="130.0" x2="390.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="392.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="410.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">22</text>
+  <line x1="428.0" y1="130.0" x2="440.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="442.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="460.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">30</text>
+  <line x1="478.0" y1="130.0" x2="490.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="492.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="510.0" y="135.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">40</text>
+  <line x1="528.0" y1="130.0" x2="540.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sk)"/>
+  <rect x="542.0" y="118.0" width="36.0" height="24.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="560.0" y="135.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">NIL</text>
+  <line x1="110.0" y1="42.0" x2="110.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="160.0" y1="42.0" x2="160.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="210.0" y1="42.0" x2="210.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="260.0" y1="42.0" x2="260.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="310.0" y1="42.0" x2="310.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="360.0" y1="42.0" x2="360.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="410.0" y1="42.0" x2="410.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="460.0" y1="42.0" x2="460.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="510.0" y1="42.0" x2="510.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  </g>
+</svg>
 
 ### 2.8. Vì sao expected `O(log n)`?
 

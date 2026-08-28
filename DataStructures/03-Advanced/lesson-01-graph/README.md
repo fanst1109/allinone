@@ -20,12 +20,25 @@
 
 Ký hiệu: $G = (V, E)$.
 
-```
-      A --- B
-      |    /|
-      |   / |
-      C---D-E
-```
+<svg viewBox="0 0 320 200" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị vô hướng 5 đỉnh: A–B, A–C, B–D, B–E, C–D, D–E">
+  <defs><marker id="gg1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="50.0" x2="180.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="60.0" y1="68.0" x2="60.0" y2="130.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="193.3" y1="66.7" x2="167.4" y2="131.4" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="209.3" y1="65.4" x2="249.7" y2="132.9" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="78.0" y1="150.0" x2="140.0" y2="150.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="178.0" y1="150.0" x2="240.0" y2="150.0" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="60.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="200.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="60.0" cy="150.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="155.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="160.0" cy="150.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="155.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="260.0" cy="150.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="155.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">E</text>
+</svg>
 
 ### 1.1. 💡 Trực giác — đồ thị là "bản đồ + đường nối"
 
@@ -204,13 +217,29 @@ $O(V + E)$.
 
 Đồ thị mẫu (vô hướng, 7 đỉnh):
 
-```
-      1 --- 2 --- 4
-      |     |
-      0     3 --- 5
-            |
-            6
-```
+<svg viewBox="0 0 360 290" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị 7 đỉnh: 1–2–4 hàng trên, 1–0, 2–3, 3–5, 3–6">
+  <defs><marker id="gg2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="50.0" x2="160.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="198.0" y1="50.0" x2="280.0" y2="50.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="60.0" y1="68.0" x2="60.0" y2="130.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="180.0" y1="68.0" x2="180.0" y2="130.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="198.0" y1="150.0" x2="280.0" y2="150.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="180.0" y1="168.0" x2="180.0" y2="220.0" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="60.0" cy="150.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="155.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="60.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="180.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="300.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="180.0" cy="150.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="155.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="300.0" cy="150.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="155.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="180.0" cy="240.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="245.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">6</text>
+</svg>
 
 `adj[0]={1}`, `adj[1]={0,2}`, `adj[2]={1,3,4}`, `adj[3]={2,5,6}`, `adj[4]={2}`, `adj[5]={3}`, `adj[6]={3}`.
 

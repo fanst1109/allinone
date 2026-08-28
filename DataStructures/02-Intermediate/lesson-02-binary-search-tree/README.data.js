@@ -22,15 +22,36 @@ Một **Binary Search Tree** là cây nhị phân thỏa: với mọi node \`x\`
 
 Hệ quả: **duyệt inorder cho ra dãy đã sắp xếp**.
 
-\`\`\`
-       8
-      / \\
-     3   10
-    / \\    \\
-   1   6    14
-      / \\   /
-     4   7 13
-\`\`\`
+<svg viewBox="0 0 686 228" style="max-width:686px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BST: gốc 8; trái 3 (con 1, 6; 6 có con 4, 7); phải 10 (con phải 14; 14 có con trái 13)">
+  <defs></defs>
+  <line x1="411.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="71.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="139.0" y1="94.0" x2="275.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="148.0" x2="207.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <line x1="275.0" y1="148.0" x2="343.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="343.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <circle cx="275.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="411.0" y1="40.0" x2="479.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="479.0" y1="94.0" x2="615.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="615.0" y1="148.0" x2="547.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="547.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="547.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <circle cx="615.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="615.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">14</text>
+  <circle cx="479.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="479.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="411.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="411.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <text x="343.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">mọi node: trái &lt; node &lt; phải</text>
+</svg>
 
 Inorder: \`1 3 4 6 7 8 10 13 14\` — đã sắp xếp.
 
@@ -122,13 +143,23 @@ Insert lần lượt \`5, 2, 8, 1, 3\` vào cây rỗng:
 
 Cây cuối:
 
-\`\`\`
-       5
-      / \\
-     2   8
-    / \\
-   1   3
-\`\`\`
+<svg viewBox="0 0 436 148" style="max-width:436px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BST 5 node: 5 gốc, 2 (con 1, 3), 8">
+  <defs></defs>
+  <line x1="290.0" y1="40.0" x2="146.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="146.0" y1="94.0" x2="74.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="146.0" y1="94.0" x2="218.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="146.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="290.0" y1="40.0" x2="362.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="362.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="362.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="290.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="290.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+</svg>
 
 Inorder: 1, 2, 3, 5, 8 — sắp xếp đúng. ✓
 
@@ -181,46 +212,80 @@ Successor = min của subtree phải = đi sang phải 1 bước, rồi đi trá
 
 Cây ban đầu:
 
-\`\`\`
-       5
-      / \\
-     3   8
-    / \\   \\
-   1   4   9
-\`\`\`
+<svg viewBox="0 0 508 148" style="max-width:508px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BST trước khi xoá: 5; 3 (1, 4); 8 (con phải 9)">
+  <defs></defs>
+  <line x1="290.0" y1="40.0" x2="146.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="146.0" y1="94.0" x2="74.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="146.0" y1="94.0" x2="218.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="146.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="290.0" y1="40.0" x2="362.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="362.0" y1="94.0" x2="434.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="434.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="434.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">9</text>
+  <circle cx="362.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="362.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="290.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="290.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+</svg>
 
 **Case 1 — Xoá leaf \`1\`**: đi xuống 1 (5→3→1), \`node.left=null\` và \`node.right=null\` → return \`null\`. Cha (node 3) cập nhật \`left=null\`.
 
-\`\`\`
-       5
-      / \\
-     3   8
-      \\   \\
-       4   9
-\`\`\`
+<svg viewBox="0 0 436 148" style="max-width:436px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau khi xoá lá 1: 5; 3 (con phải 4); 8 (con phải 9)">
+  <defs></defs>
+  <line x1="218.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="74.0" y1="94.0" x2="146.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="146.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="218.0" y1="40.0" x2="290.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="290.0" y1="94.0" x2="362.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="362.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="362.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">9</text>
+  <circle cx="290.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="290.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="218.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+</svg>
 
 **Case 2 — Xoá node 1 con \`8\`** (chỉ có con phải \`9\`): tới 8, \`node.left=null\` → return \`node.right\` = 9. Cha (5) cập nhật \`right=9\`.
 
-\`\`\`
-       5
-      / \\
-     3   9
-      \\
-       4
-\`\`\`
+<svg viewBox="0 0 364 148" style="max-width:364px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau khi xoá 8 (1 con): 9 thay chỗ 8; 5; 3 (con phải 4); 9">
+  <defs></defs>
+  <line x1="218.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="74.0" y1="94.0" x2="146.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="146.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="218.0" y1="40.0" x2="290.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="290.0" cy="80.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="290.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">9</text>
+  <circle cx="218.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+</svg>
 
 **Case 3 — Xoá node 2 con \`5\`** (root, có cả trái và phải): 
 1. \`succ = minNode(right) = minNode(9)\`. 9 không có trái → succ = 9.
 2. \`node.value = 9\` (gán giá trị, không gán node).
 3. \`node.right = delete(node.right, 9)\` → xoá 9 (case 2, leaf-ish): return \`null\`.
 
-\`\`\`
-       9
-      /
-     3
-      \\
-       4
-\`\`\`
+<svg viewBox="0 0 292 148" style="max-width:292px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau khi xoá gốc 5 (2 con): successor 9 lên gốc; 3 (con phải 4) bên trái">
+  <defs></defs>
+  <line x1="218.0" y1="40.0" x2="74.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="74.0" y1="94.0" x2="146.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="146.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="74.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="218.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">9</text>
+</svg>
 
 Vẫn là BST hợp lệ. Inorder: 3, 4, 9. ✓
 
@@ -251,15 +316,21 @@ Vẫn là BST hợp lệ. Inorder: 3, 4, 9. ✓
 
 **Xấu nhất** xảy ra khi cây bị **suy biến thành dãy** (chèn dãy đã sắp xếp \`1, 2, 3, ...\` → cây thành linked list).
 
-\`\`\`
-1
- \\
-  2
-   \\
-    3
-     \\
-      4
-\`\`\`
+<svg viewBox="0 0 346 228" style="max-width:346px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BST thoái hoá thành danh sách: chèn 1, 2, 3, 4 tăng dần → mỗi node chỉ có con phải, cao 4">
+  <defs></defs>
+  <line x1="71.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="207.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="207.0" y1="148.0" x2="275.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="275.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="207.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="71.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <text x="173.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">chiều cao = n → tìm kiếm O(n), không còn O(log n)</text>
+</svg>
 
 → Đây là động lực để học **cây cân bằng** ở [Lesson 04](../lesson-04-balanced-trees/).
 
@@ -326,17 +397,23 @@ Heap lưu bằng mảng được vì nó **luôn là complete binary tree** (đ�
 
 Nếu cố nhét BST vào mảng theo công thức $left = 2i+1, right = 2i+2$, cây lệch sẽ tạo **mảng đầy lỗ rỗng**. Walk-through bằng số — lấy lại cây suy biến ở §5 (insert \`1, 2, 3, 4, 5\` đã sắp):
 
-\`\`\`
-1
- \\
-  2
-   \\
-    3
-     \\
-      4
-       \\
-        5
-\`\`\`
+<svg viewBox="0 0 414 256" style="max-width:414px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chèn 1..5 tăng dần: cây lệch hoàn toàn về phải, cao 5">
+  <defs></defs>
+  <line x1="71.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="207.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="207.0" y1="148.0" x2="275.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="202.0" x2="343.0" y2="228.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="242.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="343.0" y="246.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="275.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="207.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="71.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+</svg>
 
 Đặt vào mảng (node chỉ rẽ phải → mỗi tầng chỉ số nhân đôi rồi +2):
 
@@ -378,15 +455,35 @@ Nếu cố nhét BST vào mảng theo công thức $left = 2i+1, right = 2i+2$, 
 
 Đây là thế mạnh số một của BST. Lấy cây mẫu ở [§1](#1-tính-chất-bst):
 
-\`\`\`
-       8
-      / \\
-     3   10
-    / \\    \\
-   1   6    14
-      / \\   /
-     4   7 13
-\`\`\`
+<svg viewBox="0 0 686 202" style="max-width:686px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BST 8 gốc (bài tập): 3 (1, 6 → 4, 7), 10 (→ 14 → 13)">
+  <defs></defs>
+  <line x1="411.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="71.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="139.0" y1="94.0" x2="275.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="148.0" x2="207.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <line x1="275.0" y1="148.0" x2="343.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="343.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <circle cx="275.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="411.0" y1="40.0" x2="479.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="479.0" y1="94.0" x2="615.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="615.0" y1="148.0" x2="547.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="547.0" cy="188.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="547.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <circle cx="615.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="615.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">14</text>
+  <circle cx="479.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="479.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <circle cx="411.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="411.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+</svg>
 
 Tìm mọi key trong **\`[5, 11]\`** — duyệt inorder nhưng **cắt nhánh** dựa vào tính chất BST:
 
@@ -582,35 +679,107 @@ Cùng một thuật toán "trái nhỏ phải lớn", chỉ khác cú pháp. Hi�
 ## Lời giải chi tiết
 
 ### Bài 1 — Chèn \`5, 3, 8, 1, 4, 7, 9\` vào BST rỗng
-\`\`\`
-Sau 5:        5
-Sau 3:        5
-            /
-           3
-Sau 8:        5
-            /   \\
-           3     8
-Sau 1:        5
-            /   \\
-           3     8
-          /
-         1
-Sau 4:        5
-            /   \\
-           3     8
-          / \\
-         1   4
-Sau 7:        5
-            /   \\
-           3     8
-          / \\   /
-         1   4 7
-Sau 9:        5
-            /   \\
-           3     8
-          / \\   / \\
-         1   4 7   9
-\`\`\`
+<svg viewBox="0 0 2254 154" style="max-width:2254px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dựng BST từng bước khi chèn 5, 3, 8, 1, 4, 7, 9: mỗi khung là cây sau một lần chèn">
+  <defs></defs>
+  <text x="65.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 5</text>
+  <g transform="translate(0,22)">
+  <circle cx="65.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+  <text x="239.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 3</text>
+  <g transform="translate(144,22)">
+  <line x1="125.0" y1="38.0" x2="65.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="125.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+  <text x="473.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 8</text>
+  <g transform="translate(348,22)">
+  <line x1="125.0" y1="38.0" x2="65.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="125.0" y1="38.0" x2="185.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="185.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="125.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+  <text x="767.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 1</text>
+  <g transform="translate(612,22)">
+  <line x1="185.0" y1="38.0" x2="125.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="84.0" x2="65.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="125.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="185.0" y1="38.0" x2="245.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="245.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="245.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="185.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+  <text x="1121.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 4</text>
+  <g transform="translate(936,22)">
+  <line x1="245.0" y1="38.0" x2="125.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="84.0" x2="65.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="125.0" y1="84.0" x2="185.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="185.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="125.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="245.0" y1="38.0" x2="305.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="305.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="305.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="245.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="245.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+  <text x="1535.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 7</text>
+  <g transform="translate(1320,22)">
+  <line x1="245.0" y1="38.0" x2="125.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="84.0" x2="65.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="125.0" y1="84.0" x2="185.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="185.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="125.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="245.0" y1="38.0" x2="365.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="365.0" y1="84.0" x2="305.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="305.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="305.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <circle cx="365.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="365.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="245.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="245.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+  <text x="2009.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau 9</text>
+  <g transform="translate(1764,22)">
+  <line x1="245.0" y1="38.0" x2="125.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="125.0" y1="84.0" x2="65.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="65.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="65.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="125.0" y1="84.0" x2="185.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="185.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="125.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="125.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="245.0" y1="38.0" x2="365.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="365.0" y1="84.0" x2="305.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="305.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="305.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="365.0" y1="84.0" x2="425.0" y2="106.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="425.0" cy="118.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="425.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">9</text>
+  <circle cx="365.0" cy="72.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="365.0" y="76.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <circle cx="245.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="245.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  </g>
+</svg>
 
 ### Bài 2 — Validate BST
 Lưu ý: **không chỉ so node với cha**, mà cần khoảng \`[min, max]\` truyền xuống — node trái của subtree phải vẫn phải lớn hơn ông nó.

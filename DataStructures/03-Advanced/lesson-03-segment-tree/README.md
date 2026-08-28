@@ -62,18 +62,42 @@ Cây nhị phân, mỗi node lưu thông tin của một **đoạn `[l, r]`**:
 
 Dùng mảng cỡ $4n$ để chắc chắn đủ chỗ.
 
-```
-mảng a = [1, 3, 5, 7, 9, 11]
-         tổng = 36
-        /              \
-      [0,2]=9         [3,5]=27
-      /    \           /     \
-    [0,1]  [2,2]    [3,4]   [5,5]
-     =4     =5       =16     =11
-   /   \              / \
- [0,0][1,1]        [3,3][4,4]
-  =1   =3           =7   =9
-```
+<svg viewBox="0 0 1466 246" style="max-width:1466px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Segment tree tổng cho a = [1, 3, 5, 7, 9, 11]: gốc [0,5] = 36; [0,2] = 9, [3,5] = 27; xuống tới lá [i,i] = a[i]">
+  <defs></defs>
+  <line x1="733.0" y1="40.0" x2="485.0" y2="72.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="485.0" y1="100.0" x2="237.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="237.0" y1="160.0" x2="113.0" y2="192.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="82.5" y="192.0" width="61.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="113.0" y="210.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[0,0]=1</text>
+  <line x1="237.0" y1="160.0" x2="361.0" y2="192.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="330.5" y="192.0" width="61.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="361.0" y="210.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[1,1]=3</text>
+  <rect x="206.5" y="132.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="237.0" y="150.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">[0,1]=4</text>
+  <line x1="485.0" y1="100.0" x2="609.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="578.5" y="132.0" width="61.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="609.0" y="150.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[2,2]=5</text>
+  <rect x="454.5" y="72.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="485.0" y="90.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">[0,2]=9</text>
+  <line x1="733.0" y1="40.0" x2="1229.0" y2="72.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="1229.0" y1="100.0" x2="981.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="981.0" y1="160.0" x2="857.0" y2="192.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="826.5" y="192.0" width="61.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="857.0" y="210.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[3,3]=7</text>
+  <line x1="981.0" y1="160.0" x2="1105.0" y2="192.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1074.5" y="192.0" width="61.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="1105.0" y="210.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[4,4]=9</text>
+  <rect x="947.0" y="132.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="981.0" y="150.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">[3,4]=16</text>
+  <line x1="1229.0" y1="100.0" x2="1353.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1319.0" y="132.0" width="68.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="1353.0" y="150.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[5,5]=11</text>
+  <rect x="1195.0" y="72.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="1229.0" y="90.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">[3,5]=27</text>
+  <rect x="699.0" y="12.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="733.0" y="30.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">[0,5]=36</text>
+  <text x="733.0" y="240.0" fill="#475569" font-size="11" text-anchor="middle">mỗi node = tổng đoạn; node cha = tổng hai con; lá xanh = phần tử mảng</text>
+</svg>
 
 ### 2.2. Build (`O(n)`)
 

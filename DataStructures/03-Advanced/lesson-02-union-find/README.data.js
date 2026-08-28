@@ -107,13 +107,28 @@ index:   0  1  2  3  4
 
 \`parent[i]\` = chỉ số của **cha** node \`i\`. Gốc là node tự trỏ vào chính nó (\`parent[i] == i\`). Vẽ ra cây tương ứng:
 
-\`\`\`
-   4        3
-   |       /|\\
-  (gốc)   1 2 (3 là gốc nhánh này)
-          |
-          0
-\`\`\`
+<svg viewBox="0 0 320 194" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Rừng union-find: hai cây — 4 là gốc tập riêng; 3 là gốc tập {3, 1, 2, 0} với 1 → 0 và 2 là con của 3">
+  <defs></defs>
+  <text x="65.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">tập {4}</text>
+  <g transform="translate(0,22)">
+  <circle cx="40.0" cy="36.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="40.0" y="40.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  </g>
+  <text x="255.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">tập {3, 1, 2, 0}</text>
+  <g transform="translate(190,22)">
+  <line x1="65.0" y1="52.0" x2="40.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="40.0" y1="102.0" x2="40.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="40.0" cy="136.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="40.0" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="40.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="40.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="65.0" y1="52.0" x2="90.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="90.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="65.0" cy="36.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="65.0" y="40.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  </g>
+</svg>
 
 **Vì sao mảng đủ, không cần con trỏ?** Vì Union-Find **chỉ cần đi LÊN** (con → cha) để tìm gốc — không bao giờ cần duyệt từ cha xuống con. Mỗi node chỉ cần biết *một* thứ: cha nó là ai. Một \`int\` cho mỗi node là đủ.
 

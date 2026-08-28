@@ -17,13 +17,24 @@
 
 Hình dung: chồng đĩa. Đặt đĩa lên trên cùng (`push`), lấy cũng từ trên cùng (`pop`).
 
-```
-push(1) push(2) push(3)        pop() -> 3
-                                pop() -> 2
-   [3] <- top                   pop() -> 1
-   [2]
-   [1]
-```
+<svg viewBox="0 0 460 200" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau push(1), push(2), push(3): 3 ở trên cùng (top); pop lấy ra 3, rồi 2, rồi 1">
+  <defs><marker id="tp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <text x="90.0" y="22.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">push(1) push(2) push(3)</text>
+  <rect x="50.0" y="150.0" width="80.0" height="32.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="171.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">1</text>
+  <rect x="50.0" y="114.0" width="80.0" height="32.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="135.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">2</text>
+  <rect x="50.0" y="78.0" width="80.0" height="32.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="99.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">3</text>
+  <line x1="170.0" y1="94.0" x2="136.0" y2="94.0" stroke="#dc2626" stroke-width="2" marker-end="url(#tp)"/>
+  <text x="176.0" y="98.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">top</text>
+  <line x1="40.0" y1="182.0" x2="140.0" y2="182.0" stroke="#1a202c" stroke-width="3"/>
+  <text x="330.0" y="22.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">pop() liên tiếp</text>
+  <text x="330.0" y="65.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">pop() → 3</text>
+  <text x="330.0" y="101.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">pop() → 2</text>
+  <text x="330.0" y="137.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">pop() → 1</text>
+  <text x="330.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">LIFO: vào sau ra trước</text>
+</svg>
 
 ### 1.1. 💡 Trực giác — vì sao LIFO lại có mặt khắp nơi
 

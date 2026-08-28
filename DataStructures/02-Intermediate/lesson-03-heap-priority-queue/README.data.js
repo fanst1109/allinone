@@ -22,14 +22,43 @@ window.README_MD = `# Lesson 03 — Heap & Priority Queue
 - **Min-heap**: giá trị mỗi node ≤ giá trị các con → root là **nhỏ nhất**.
 - **Max-heap**: giá trị mỗi node ≥ giá trị các con → root là **lớn nhất**.
 
-\`\`\`
-Min-heap:                Max-heap:
-       1                      9
-      / \\                    / \\
-     3   2                  7   6
-    / \\                    / \\
-   5   4                  3   5
-\`\`\`
+<svg viewBox="0 0 932 170" style="max-width:932px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Min-heap 1 (3 → 5, 4; 2): cha ≤ con; Max-heap 9 (7 → 3, 5; 6): cha ≥ con">
+  <defs></defs>
+  <text x="218.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Min-heap</text>
+  <g transform="translate(0,22)">
+  <line x1="290.0" y1="40.0" x2="146.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="146.0" y1="94.0" x2="74.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <line x1="146.0" y1="94.0" x2="218.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="146.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="290.0" y1="40.0" x2="362.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="362.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="362.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="290.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="290.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  </g>
+  <text x="714.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Max-heap</text>
+  <g transform="translate(496,22)">
+  <line x1="290.0" y1="40.0" x2="146.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="146.0" y1="94.0" x2="74.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="74.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="74.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="146.0" y1="94.0" x2="218.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="218.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="218.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="146.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="146.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <line x1="290.0" y1="40.0" x2="362.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="362.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="362.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="290.0" cy="26.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="290.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">9</text>
+  </g>
+</svg>
 
 **Heap không phải BST**: heap chỉ ràng buộc cha-con, không ràng buộc trái-phải.
 
@@ -42,16 +71,48 @@ Với node tại chỉ số $i$ (0-based):
 - **Con trái**: $2i + 1$
 - **Con phải**: $2i + 2$
 
-\`\`\`
-mảng:   [1, 3, 2, 5, 4]
-chỉ số:  0  1  2  3  4
-
-cây:        1 (0)
-           / \\
-       (1)3   2(2)
-         / \\
-     (3)5   4(4)
-\`\`\`
+<svg viewBox="0 0 864 148" style="max-width:864px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Heap [1, 3, 2, 5, 4] dưới dạng mảng (chỉ số 0–4) và dạng cây: 1(0) gốc, 3(1) và 2(2), 5(3) và 4(4)">
+  <defs></defs>
+  <g transform="translate(0,0)">
+  <text x="50.0" y="52.0" fill="#475569" font-size="11" text-anchor="end">mảng</text>
+  <rect x="60.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="82.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="82.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <rect x="104.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="126.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <text x="126.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <rect x="148.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="170.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <text x="170.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <rect x="192.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="214.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <text x="214.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <rect x="236.0" y="36.0" width="44.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="258.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <text x="258.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  </g>
+  <g transform="translate(340,0)">
+  <line x1="350.0" y1="40.0" x2="174.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="174.0" y1="94.0" x2="86.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="86.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="86.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <text x="106.0" y="126.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">(3)</text>
+  <line x1="174.0" y1="94.0" x2="262.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="262.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="262.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <text x="282.0" y="126.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">(4)</text>
+  <circle cx="174.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="174.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <text x="194.0" y="72.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">(1)</text>
+  <line x1="350.0" y1="40.0" x2="438.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="438.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <text x="458.0" y="72.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">(2)</text>
+  <circle cx="350.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="350.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <text x="370.0" y="18.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">(0)</text>
+  </g>
+</svg>
 
 → Rất tiết kiệm bộ nhớ, cache-friendly.
 
@@ -61,13 +122,32 @@ cây:        1 (0)
 
 Quan sát bằng 1-based (đẹp nhất, để hiểu trước):
 
-\`\`\`
-       1                level 0
-      / \\
-     2   3              level 1
-    / \\ / \\
-   4  5 6  7            level 2
-\`\`\`
+<svg viewBox="0 0 584 174" style="max-width:584px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây hoàn chỉnh 7 node đánh số theo mức: 1 (level 0); 2, 3 (level 1); 4, 5, 6, 7 (level 2)">
+  <defs></defs>
+  <g transform="translate(17,0)">
+  <line x1="275.0" y1="40.0" x2="139.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="139.0" y1="94.0" x2="71.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <line x1="139.0" y1="94.0" x2="207.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="139.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="275.0" y1="40.0" x2="411.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="411.0" y1="94.0" x2="343.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="343.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <line x1="411.0" y1="94.0" x2="479.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="479.0" cy="134.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="479.0" y="138.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <circle cx="411.0" cy="80.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="411.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="275.0" cy="26.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <text x="275.0" y="168.0" fill="#475569" font-size="11" text-anchor="middle">level 0: 1 · level 1: 2, 3 · level 2: 4, 5, 6, 7 — đánh số theo BFS = chỉ số mảng (1-based)</text>
+  </g>
+</svg>
 
 - Level 0: chỉ có index 1 ($2^0$ node, bắt đầu từ $2^0$).
 - Level 1: index 2, 3 ($2^1$ node, bắt đầu từ $2^1$).
@@ -89,14 +169,35 @@ Khi chuyển sang **0-based** (chuẩn của Go, C, Python), shift toàn bộ xu
 
 Với heap \`[1, 3, 2, 5, 4]\` kiểu \`int32\` (4 byte/phần tử), mảng nằm **liên tiếp** trong RAM. Giả sử mảng bắt đầu ở địa chỉ \`0x1000\`:
 
-\`\`\`
-địa chỉ:  0x1000      0x1004      0x1008      0x100C      0x1010
-         ┌──────────┬──────────┬──────────┬──────────┬──────────┐
-         │   01     │   03     │   02     │   05     │   04     │  giá trị
-         │ idx 0    │ idx 1    │ idx 2    │ idx 3    │ idx 4    │
-         └──────────┴──────────┴──────────┴──────────┴──────────┘
-           4 byte     4 byte     4 byte     4 byte     4 byte
-\`\`\`
+<svg viewBox="0 0 520 120" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Heap trong bộ nhớ: 5 ô int liên tiếp từ 0x1000, mỗi ô 4 byte, giá trị 1, 3, 2, 5, 4 tại idx 0–4">
+  <defs></defs>
+  <text x="50.0" y="30.0" fill="#475569" font-size="10" text-anchor="end">địa chỉ</text>
+  <text x="102.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">0x1000</text>
+  <rect x="60.0" y="40.0" width="84.0" height="50.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="102.0" y="60.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">01</text>
+  <text x="102.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">idx 0</text>
+  <text x="102.0" y="108.0" fill="#475569" font-size="10" text-anchor="middle">4 byte</text>
+  <text x="186.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">0x1004</text>
+  <rect x="144.0" y="40.0" width="84.0" height="50.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="186.0" y="60.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">03</text>
+  <text x="186.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">idx 1</text>
+  <text x="186.0" y="108.0" fill="#475569" font-size="10" text-anchor="middle">4 byte</text>
+  <text x="270.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">0x1008</text>
+  <rect x="228.0" y="40.0" width="84.0" height="50.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="270.0" y="60.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">02</text>
+  <text x="270.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">idx 2</text>
+  <text x="270.0" y="108.0" fill="#475569" font-size="10" text-anchor="middle">4 byte</text>
+  <text x="354.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">0x100C</text>
+  <rect x="312.0" y="40.0" width="84.0" height="50.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="354.0" y="60.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">05</text>
+  <text x="354.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">idx 3</text>
+  <text x="354.0" y="108.0" fill="#475569" font-size="10" text-anchor="middle">4 byte</text>
+  <text x="438.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">0x1010</text>
+  <rect x="396.0" y="40.0" width="84.0" height="50.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="438.0" y="60.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">04</text>
+  <text x="438.0" y="80.0" fill="#475569" font-size="10" text-anchor="middle">idx 4</text>
+  <text x="438.0" y="108.0" fill="#475569" font-size="10" text-anchor="middle">4 byte</text>
+</svg>
 
 20 byte tổng cộng. **Zero metadata**: không pointer, không padding (vì \`int32\` tự align 4-byte).
 

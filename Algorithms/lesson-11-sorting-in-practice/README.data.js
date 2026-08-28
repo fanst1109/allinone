@@ -313,26 +313,63 @@ Tóm lại pdqsort = introsort + nhận diện pattern (gần sorted, nhiều tr
 
 > 💡 **Trực giác.** Đừng học thuộc — hãy hỏi *3 câu* theo thứ tự: (1) n có nhỏ không? (2) có cần ổn định không? (3) key có phải integer dải nhỏ không? Mỗi câu loại bớt lựa chọn.
 
-\`\`\`
-START: cần sort một slice
-│
-├─ n rất nhỏ (< ~20)?  ───────────────────► INSERTION SORT
-│                                            (ít overhead, nhanh trên mẩu nhỏ)
-│
-├─ Dữ liệu GẦN NHƯ đã sorted?  ────────────► INSERTION / TIMSORT
-│                                            (best O(n), khai thác run)
-│
-├─ Key là INTEGER trong dải nhỏ k ~ O(n)? ─► COUNTING / RADIX SORT
-│                                            (O(n), phá rào n log n)
-│
-├─ Cần ỔN ĐỊNH (giữ thứ tự phần tử bằng)? ─► MERGE SORT / sort.SliceStable
-│
-├─ Cần O(1) SPACE + GUARANTEED O(n log n)? ► HEAP SORT
-│                                            (không stable, cache kém)
-│
-└─ General-purpose, không ràng buộc khác? ─► QUICKSORT / INTROSORT
-                                             (Go: sort.Slice / slices.Sort)
-\`\`\`
+<svg viewBox="0 0 580 410" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Flowchart chọn thuật toán sort: hỏi lần lượt n nhỏ? gần sorted? key integer dải nhỏ? cần ổn định? cần O(1) space? → chọn insertion, timsort, counting/radix, merge, heap hoặc quicksort">
+  <defs><marker id="f11" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="30.0" y="14.0" width="220.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="140.0" y="35.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">START: cần sort một slice</text>
+  <line x1="140.0" y1="46.0" x2="140.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <rect x="30.0" y="62.0" width="240.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="150.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">n rất nhỏ (&lt; ~20)?</text>
+  <line x1="272.0" y1="80.0" x2="318.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="295.0" y="74.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">có</text>
+  <rect x="320.0" y="62.0" width="230.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="435.0" y="77.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">INSERTION SORT</text>
+  <text x="435.0" y="91.0" fill="#475569" font-size="9" text-anchor="middle">ít overhead, nhanh trên mẩu nhỏ</text>
+  <line x1="150.0" y1="98.0" x2="150.0" y2="120.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="160.0" y="112.0" fill="#475569" font-size="10" text-anchor="start">không</text>
+  <rect x="30.0" y="120.0" width="240.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="150.0" y="142.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Dữ liệu GẦN NHƯ đã sorted?</text>
+  <line x1="272.0" y1="138.0" x2="318.0" y2="138.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="295.0" y="132.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">có</text>
+  <rect x="320.0" y="120.0" width="230.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="435.0" y="135.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">INSERTION / TIMSORT</text>
+  <text x="435.0" y="149.0" fill="#475569" font-size="9" text-anchor="middle">best O(n), khai thác run</text>
+  <line x1="150.0" y1="156.0" x2="150.0" y2="178.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="160.0" y="170.0" fill="#475569" font-size="10" text-anchor="start">không</text>
+  <rect x="30.0" y="178.0" width="240.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="150.0" y="200.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Key là INTEGER dải nhỏ k ~ O(n)?</text>
+  <line x1="272.0" y1="196.0" x2="318.0" y2="196.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="295.0" y="190.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">có</text>
+  <rect x="320.0" y="178.0" width="230.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="435.0" y="193.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">COUNTING / RADIX</text>
+  <text x="435.0" y="207.0" fill="#475569" font-size="9" text-anchor="middle">O(n), phá rào n log n</text>
+  <line x1="150.0" y1="214.0" x2="150.0" y2="236.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="160.0" y="228.0" fill="#475569" font-size="10" text-anchor="start">không</text>
+  <rect x="30.0" y="236.0" width="240.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="150.0" y="258.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Cần ỔN ĐỊNH?</text>
+  <line x1="272.0" y1="254.0" x2="318.0" y2="254.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="295.0" y="248.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">có</text>
+  <rect x="320.0" y="236.0" width="230.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="435.0" y="254.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">MERGE SORT / sort.SliceStable</text>
+  <line x1="150.0" y1="272.0" x2="150.0" y2="294.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="160.0" y="286.0" fill="#475569" font-size="10" text-anchor="start">không</text>
+  <rect x="30.0" y="294.0" width="240.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="150.0" y="316.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Cần O(1) space + O(n log n) chắc chắn?</text>
+  <line x1="272.0" y1="312.0" x2="318.0" y2="312.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="295.0" y="306.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">có</text>
+  <rect x="320.0" y="294.0" width="230.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="435.0" y="309.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">HEAP SORT</text>
+  <text x="435.0" y="323.0" fill="#475569" font-size="9" text-anchor="middle">không stable, cache kém</text>
+  <line x1="150.0" y1="330.0" x2="150.0" y2="352.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="160.0" y="344.0" fill="#475569" font-size="10" text-anchor="start">không</text>
+  <rect x="30.0" y="352.0" width="240.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="150.0" y="374.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Không ràng buộc khác?</text>
+  <line x1="272.0" y1="370.0" x2="318.0" y2="370.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f11)"/>
+  <text x="295.0" y="364.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">có</text>
+  <rect x="320.0" y="352.0" width="230.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="435.0" y="367.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">QUICKSORT / INTROSORT</text>
+  <text x="435.0" y="381.0" fill="#475569" font-size="9" text-anchor="middle">Go: slices.Sort / sort.Slice</text>
+</svg>
 
 **Trong Go thực tế:** hầu hết trường hợp dùng \`slices.Sort\` / \`sort.Slice\` (general). Cần stable → \`sort.SliceStable\`. Còn lại (counting/radix/heap thuần) thường chỉ tự viết khi *học* hoặc có ràng buộc rất đặc biệt.
 

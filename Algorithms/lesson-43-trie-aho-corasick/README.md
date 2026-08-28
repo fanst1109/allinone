@@ -230,13 +230,48 @@ Với mỗi v (cha p, cạnh ký tự c), duyệt BFS:
 
 Đánh số node khi insert (root = 0):
 
-```
-Trie:
-0 root
-├─ h →1 ── e →2 (✓he) ── r →7 ── s →8 (✓hers)
-│         └ i →5 ── s →6 (✓his)
-└─ s →3 ── h →4 ── e →9 (✓she)
-```
+<svg viewBox="0 0 560 400" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trie cho các mẫu he, hers, his, she: root 0, nhánh h → 1 → e → 2(he) → r → 7 → s → 8(hers); 1 → i → 5 → s → 6(his); s → 3 → h → 4 → e → 9(she)">
+  <defs></defs>
+  <line x1="197.5" y1="52.0" x2="115.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.2" y="66.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">h</text>
+  <line x1="115.0" y1="112.0" x2="60.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="79.5" y="126.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">e</text>
+  <line x1="60.0" y1="172.0" x2="60.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="68.0" y="186.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">r</text>
+  <line x1="60.0" y1="232.0" x2="60.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="68.0" y="246.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">s</text>
+  <rect x="25.0" y="260.0" width="70.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="60.0" y="280.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">8 hers ✓</text>
+  <rect x="35.5" y="200.0" width="49.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="220.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7 her</text>
+  <rect x="32.0" y="140.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="60.0" y="160.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">2 he ✓</text>
+  <line x1="115.0" y1="112.0" x2="170.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="150.5" y="126.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">i</text>
+  <line x1="170.0" y1="172.0" x2="170.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="178.0" y="186.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">s</text>
+  <rect x="138.5" y="200.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="170.0" y="220.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">6 his ✓</text>
+  <rect x="149.0" y="140.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="170.0" y="160.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5 hi</text>
+  <circle cx="115.0" cy="96.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="115.0" y="100.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1 h</text>
+  <line x1="197.5" y1="52.0" x2="280.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="246.8" y="66.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">s</text>
+  <line x1="280.0" y1="112.0" x2="280.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="288.0" y="126.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">h</text>
+  <line x1="280.0" y1="172.0" x2="280.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="288.0" y="186.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">e</text>
+  <rect x="248.5" y="200.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="280.0" y="220.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">9 she ✓</text>
+  <rect x="259.0" y="140.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="280.0" y="160.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4 sh</text>
+  <circle cx="280.0" cy="96.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="280.0" y="100.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3 s</text>
+  <rect x="169.5" y="20.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="197.5" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0 root</text>
+  <text x="280.0" y="392.0" fill="#475569" font-size="11" text-anchor="middle">✓ = node kết thúc một mẫu; nhãn cạnh = ký tự chuyển</text>
+</svg>
 
 (Node 1="h", 2="he"✓, 7="her", 8="hers"✓, 5="hi", 6="his"✓, 3="s", 4="sh", 9="she"✓.)
 

@@ -232,19 +232,44 @@ heap = [ a:5, N3:6 ]
 
 **Lần 4.** Lấy 2 nhỏ nhất: `a:5` và `N3:6`. Ghép → node `N4` (gốc) weight `5+6=11`.
 
-```
-                 N4:11  (root)
-                /      \
-             0/          \1
-          [a:5]          N3:6
-                        /    \
-                     0/        \1
-                   N1:2        N2:4
-                  /    \      /    \
-                0/    1\    0/      \1
-             [c:1]  [d:1] [b:2]   [r:2]
-heap = [ N4:11 ]  ← còn 1 node, dừng.
-```
+<svg viewBox="0 0 408 298" style="max-width:408px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây Huffman hoàn chỉnh cho abracadabra: gốc N4:11, con trái a:5, con phải N3:6 gồm N1:2 (c, d) và N2:4 (b, r); cạnh trái = 0, phải = 1">
+  <defs></defs>
+  <line x1="144.0" y1="52.0" x2="44.0" y2="86.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="86.0" y="69.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="44.0" cy="102.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="44.0" y="106.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">a:5</text>
+  <line x1="144.0" y1="52.0" x2="244.0" y2="86.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="202.0" y="69.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="244.0" y1="118.0" x2="164.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="196.0" y="135.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <line x1="164.0" y1="184.0" x2="124.0" y2="218.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="136.0" y="201.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="124.0" cy="234.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="124.0" y="238.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">c:1</text>
+  <line x1="164.0" y1="184.0" x2="204.0" y2="218.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="192.0" y="201.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <circle cx="204.0" cy="234.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="204.0" y="238.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d:1</text>
+  <rect x="143.0" y="152.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="164.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N1:2</text>
+  <line x1="244.0" y1="118.0" x2="324.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="292.0" y="135.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="324.0" y1="184.0" x2="284.0" y2="218.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="296.0" y="201.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="284.0" cy="234.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="284.0" y="238.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">b:2</text>
+  <line x1="324.0" y1="184.0" x2="364.0" y2="218.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="352.0" y="201.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <circle cx="364.0" cy="234.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="364.0" y="238.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">r:2</text>
+  <rect x="303.0" y="152.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="324.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N2:4</text>
+  <rect x="223.0" y="86.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="244.0" y="106.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N3:6</text>
+  <rect x="95.0" y="20.0" width="98.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="144.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N4:11 (root)</text>
+  <text x="204.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">heap còn 1 node N4:11 → dừng; mã: a=0, c=100, d=101, b=110, r=111</text>
+</svg>
 
 ### 4.4 Bước 4 — gán mã (DFS, trái=0 phải=1)
 
@@ -673,20 +698,52 @@ Tần suất `{a:8, b:3, c:1, d:1, e:1, f:1}`, tổng = 15 ký tự. Min-heap ba
 
 Cây và mã (a là con trái của gốc → mã ngắn nhất):
 
-```
-            N5:15
-           /     \
-        0/         \1
-      [a:8]        N4:7
-                  /    \
-               0/        \1
-             [b:3]       N3:4
-                        /    \
-                     0/        \1
-                   N1:2        N2:4? -> N2:2
-                  /   \       /    \
-               [c]   [d]   [e]    [f]
-```
+<svg viewBox="0 0 468 356" style="max-width:468px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây Huffman cho tần số a:8, b:3, c,d,e,f:1: a là con trái gốc N5:15 nên mã ngắn nhất (0); c, d, e, f sâu nhất">
+  <defs></defs>
+  <line x1="129.5" y1="52.0" x2="44.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="78.8" y="68.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="44.0" cy="100.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="44.0" y="104.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">a:8</text>
+  <line x1="129.5" y1="52.0" x2="215.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="180.2" y="68.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="215.0" y1="116.0" x2="120.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="159.5" y="132.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="120.0" cy="164.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="120.0" y="168.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">b:3</text>
+  <line x1="215.0" y1="116.0" x2="310.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.5" y="132.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="310.0" y1="180.0" x2="234.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="264.0" y="196.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <line x1="234.0" y1="244.0" x2="196.0" y2="276.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="207.0" y="260.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="196.0" cy="292.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="196.0" y="296.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <line x1="234.0" y1="244.0" x2="272.0" y2="276.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="261.0" y="260.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <circle cx="272.0" cy="292.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="272.0" y="296.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
+  <rect x="213.0" y="212.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="234.0" y="232.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N1:2</text>
+  <line x1="310.0" y1="180.0" x2="386.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="356.0" y="196.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <line x1="386.0" y1="244.0" x2="348.0" y2="276.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="359.0" y="260.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">0</text>
+  <circle cx="348.0" cy="292.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="348.0" y="296.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">e</text>
+  <line x1="386.0" y1="244.0" x2="424.0" y2="276.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="413.0" y="260.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">1</text>
+  <circle cx="424.0" cy="292.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="424.0" y="296.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">f</text>
+  <rect x="365.0" y="212.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="386.0" y="232.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N2:2</text>
+  <rect x="289.0" y="148.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="168.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N3:4</text>
+  <rect x="194.0" y="84.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="215.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N4:7</text>
+  <rect x="105.0" y="20.0" width="49.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="129.5" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N5:15</text>
+  <text x="234.0" y="348.0" fill="#475569" font-size="11" text-anchor="middle">a=0 · b=10 · c=1100 · d=1101 · e=1110 · f=1111</text>
+</svg>
 
 | Ký tự | Mã    | Độ dài | freq | freq×len |
 |-------|-------|--------|------|----------|

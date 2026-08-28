@@ -56,18 +56,36 @@ Sau bài này bạn sẽ:
 
 Xét đồ thị 8 đỉnh (đánh số 0..7), cạnh có hướng:
 
-```
-0 → 1
-1 → 2
-2 → 0      (chu trình 0,1,2)
-2 → 3
-3 → 4
-4 → 5
-5 → 3      (chu trình 3,4,5)
-6 → 5
-6 → 7
-7 → 6      (chu trình 6,7)
-```
+<svg viewBox="0 0 580 220" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị 8 đỉnh với 3 thành phần liên thông mạnh: {0,1,2} (chu trình 0→1→2→0), {3,4,5} (chu trình 3→4→5→3), {6,7} (6↔7); cạnh nối 2→3 và 6→5">
+  <defs><marker id="g37" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="60.0" x2="160.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="170.7" y1="75.4" x2="130.3" y2="142.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="110.7" y1="144.6" x2="70.3" y2="77.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="138.0" y1="160.0" x2="260.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="293.8" y1="148.5" x2="384.6" y2="72.8" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="400.0" y1="78.0" x2="400.0" y2="140.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="382.0" y1="160.0" x2="300.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <line x1="506.2" y1="71.5" x2="415.4" y2="147.2" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <path d="M 520.0,78.0 Q 502.0,109.0 520.0,140.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <path d="M 520.0,142.0 Q 538.0,111.0 520.0,80.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g37)"/>
+  <circle cx="60.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="180.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="120.0" cy="160.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="165.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="280.0" cy="160.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="165.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="400.0" cy="60.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="400.0" y="65.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="400.0" cy="160.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="400.0" y="165.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="520.0" cy="60.0" r="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="520.0" y="65.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="520.0" cy="160.0" r="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="520.0" y="165.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">7</text>
+  <text x="290.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">3 SCC tô 3 màu: {0,1,2} xanh dương, {3,4,5} xanh lá, {6,7} tím; cạnh 2→3, 6→5 nối giữa các SCC</text>
+</svg>
 
 **Khoanh SCC bằng tay** — tìm các chu trình:
 

@@ -186,22 +186,30 @@ quicksort(A, lo, hi):
 
 Dùng Lomuto, pivot = phần tử cuối mỗi lần.
 
-\`\`\`
-quicksort[5,2,4,1,3] lo=0 hi=4, pivot=3
-  partition → [2,1,3,5,4], p=2  (3 đã đúng chỗ)
-  │
-  ├── quicksort[2,1] lo=0 hi=1, pivot=1
-  │     partition → [1,2], p=0   (1 đã đúng chỗ)
-  │     ├── quicksort lo=0 hi=-1 → rỗng
-  │     └── quicksort[2] lo=1 hi=1 → 1 phần tử, return
-  │
-  └── quicksort[5,4] lo=3 hi=4, pivot=4
-        partition → [4,5], p=3   (4 đã đúng chỗ)
-        ├── quicksort lo=3 hi=2 → rỗng
-        └── quicksort[5] lo=4 hi=4 → 1 phần tử, return
-
-Kết quả cuối: [1, 2, 3, 4, 5] ✓
-\`\`\`
+<svg viewBox="0 0 530 240" style="max-width:530px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây đệ quy quicksort Lomuto trên [5,2,4,1,3]: pivot 3 chia thành [2,1] và [5,4]; mỗi nhánh partition tiếp tới mảng rỗng hoặc 1 phần tử">
+  <defs></defs>
+  <line x1="265.0" y1="52.0" x2="115.0" y2="90.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="115.0" y1="122.0" x2="40.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="19.0" y="160.0" width="42.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="40.0" y="180.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">rỗng</text>
+  <line x1="115.0" y1="122.0" x2="190.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="190.0" cy="176.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="190.0" y="180.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[2]</text>
+  <rect x="34.5" y="90.0" width="161.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="115.0" y="110.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[2,1] pivot=1 → [1,2]</text>
+  <line x1="265.0" y1="52.0" x2="415.0" y2="90.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="415.0" y1="122.0" x2="340.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="319.0" y="160.0" width="42.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="340.0" y="180.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">rỗng</text>
+  <line x1="415.0" y1="122.0" x2="490.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="490.0" cy="176.0" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="490.0" y="180.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[5]</text>
+  <rect x="334.5" y="90.0" width="161.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="415.0" y="110.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[5,4] pivot=4 → [4,5]</text>
+  <rect x="142.5" y="20.0" width="245.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="265.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[5,2,4,1,3] pivot=3 → [2,1,3,5,4]</text>
+  <text x="265.0" y="232.0" fill="#475569" font-size="11" text-anchor="middle">mỗi tầng pivot về đúng chỗ (3, rồi 1 và 4); kết quả [1, 2, 3, 4, 5]</text>
+</svg>
 
 Mỗi node là một lời gọi \`quicksort\`; mỗi lần partition "đóng đinh" 1 pivot vào đúng chỗ. Cây có chiều cao ≈ $\\log n$ nếu pivot chia đều.
 

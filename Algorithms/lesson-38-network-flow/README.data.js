@@ -137,10 +137,33 @@ Khoan — $|f|=5$ mâu thuẫn với "max=4" ở mục 1? **Không.** Mục 1 ch
 
 Walk-through minh họa kinh điển. Mạng:
 
-\`\`\`
-   s →(3)→ a →(1)→ b →(3)→ t
-   s →(3)→ b        a →(3)→ t
-\`\`\`
+<svg viewBox="0 0 400 220" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạng luồng: s→a (3), s→b (3), a→b (1), a→t (3), b→t (3); max flow = 6">
+  <defs><marker id="g38" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="76.5" y1="102.9" x2="181.6" y2="57.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g38)"/>
+  <rect x="126.9" y="82.5" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="133.4" y="94.5" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="76.5" y1="117.1" x2="181.6" y2="162.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g38)"/>
+  <rect x="118.2" y="141.7" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="124.7" y="153.7" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="200.0" y1="68.0" x2="200.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g38)"/>
+  <rect x="182.5" y="101.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="189.0" y="113.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="216.5" y1="57.1" x2="321.6" y2="102.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g38)"/>
+  <rect x="258.2" y="81.7" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="264.7" y="93.7" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="216.5" y1="162.9" x2="321.6" y2="117.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g38)"/>
+  <rect x="266.9" y="142.5" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="273.4" y="154.5" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="60.0" cy="110.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="115.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">s</text>
+  <circle cx="200.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">a</text>
+  <circle cx="200.0" cy="170.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">b</text>
+  <circle cx="340.0" cy="110.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="340.0" y="115.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">t</text>
+  <text x="200.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">dung lượng c(s,a)=3, c(s,b)=3, c(a,b)=1, c(a,t)=3, c(b,t)=3 · max flow thật = 6</text>
+</svg>
 
 Cụ thể: $c(s,a)=3, c(s,b)=3, c(a,b)=1, c(a,t)=3, c(b,t)=3$. Max flow thật = **6**.
 

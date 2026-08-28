@@ -36,20 +36,44 @@ Bài này *dùng lại* gần như mọi thứ trong lộ trình. Các link quan
 
 Dòng chảy của một bài giải, nhìn từ trên xuống:
 
-\`\`\`
-ĐỀ LẠ
-  │
-  ├─[B1] Hiểu đề (rephrase, input/output, ràng buộc)
-  ├─[B2] Ví dụ nhỏ + edge case (giải tay)
-  ├─[B3] Brute-force (baseline ĐÚNG, có thể chậm)
-  ├─[B4] Big-O brute + đọc constraint  ──►  ĐỘ PHỨC TẠP MỤC TIÊU  (mục 3)
-  ├─[B5] Nhận diện pattern              ──►  CHỌN KỸ THUẬT          (mục 4)
-  ├─[B6] Code + test edge case
-  └─[B7] Tối ưu nếu chưa đạt mục tiêu
-  │
-  ▼
-LỜI GIẢI
-\`\`\`
+<svg viewBox="0 0 700 460" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dòng chảy giải một bài: đề lạ → B1 hiểu đề → B2 ví dụ nhỏ → B3 brute-force → B4 Big-O + constraint (độ phức tạp mục tiêu) → B5 nhận diện pattern (chọn kỹ thuật) → B6 code + test → B7 tối ưu → lời giải">
+  <defs><marker id="f50" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="200.0" y="14.0" width="160.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="280.0" y="35.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">ĐỀ LẠ</text>
+  <line x1="280.0" y1="46.0" x2="280.0" y2="62.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="64.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="80.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[B1] Hiểu đề</text>
+  <text x="280.0" y="94.0" fill="#475569" font-size="10" text-anchor="middle">rephrase, input/output, ràng buộc</text>
+  <line x1="280.0" y1="100.0" x2="280.0" y2="114.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="114.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="130.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[B2] Ví dụ nhỏ + edge case</text>
+  <text x="280.0" y="144.0" fill="#475569" font-size="10" text-anchor="middle">giải tay</text>
+  <line x1="280.0" y1="150.0" x2="280.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="164.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="180.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[B3] Brute-force</text>
+  <text x="280.0" y="194.0" fill="#475569" font-size="10" text-anchor="middle">baseline ĐÚNG, có thể chậm</text>
+  <line x1="280.0" y1="200.0" x2="280.0" y2="214.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="214.0" width="300.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="236.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[B4] Big-O brute + đọc constraint</text>
+  <line x1="432.0" y1="232.0" x2="478.0" y2="232.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="480.0" y="216.0" width="200.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="580.0" y="236.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">ĐỘ PHỨC TẠP MỤC TIÊU (mục 3)</text>
+  <line x1="280.0" y1="250.0" x2="280.0" y2="264.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="264.0" width="300.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="286.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[B5] Nhận diện pattern</text>
+  <line x1="432.0" y1="282.0" x2="478.0" y2="282.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="480.0" y="266.0" width="200.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="580.0" y="286.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">CHỌN KỸ THUẬT (mục 4)</text>
+  <line x1="280.0" y1="300.0" x2="280.0" y2="314.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="314.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="336.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[B6] Code + test edge case</text>
+  <line x1="280.0" y1="350.0" x2="280.0" y2="364.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="130.0" y="364.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="386.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[B7] Tối ưu nếu chưa đạt mục tiêu</text>
+  <line x1="280.0" y1="400.0" x2="280.0" y2="414.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f50)"/>
+  <rect x="200.0" y="414.0" width="160.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="435.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">LỜI GIẢI</text>
+</svg>
 
 Hai trục quyết định nằm ở B4 và B5: **constraint cho biết bạn được phép chậm tới đâu** (mục 3), **dấu hiệu trong đề cho biết đi hướng nào** (mục 4). Phần lớn lesson này đào sâu hai trục đó.
 
@@ -335,25 +359,69 @@ Phần này đi qua **đủ 7 bước** cho 3 bài kinh điển, kèm code Go th
 
 Khi đã đọc đề ở bước 5, đi theo cây này để khoanh vùng kỹ thuật:
 
-\`\`\`
-Bài hỏi gì?
-├─ Tối ưu (min/max/đếm cách)?
-│   ├─ Lựa chọn ảnh hưởng tương lai + bài con lặp?  → DP            (L23–L30)
-│   ├─ Chọn cục bộ tốt nhất + chứng minh được?       → Greedy        (L19–L22)
-│   └─ Liệt kê MỌI cấu hình (n nhỏ)?                  → Backtracking  (L18)
-├─ Truy vấn trên mảng/đoạn?
-│   ├─ Đã sorted, tìm biên/phần tử?                   → Binary search (L12)
-│   ├─ Subarray/substring liên tục?                   → Window/prefix (L14,L15)
-│   └─ Range query có cập nhật?                        → Segment tree  (L30)
-├─ Trên đồ thị/quan hệ?
-│   ├─ Lan toả/kết nối/ngắn nhất không trọng số?       → BFS/DFS       (L31)
-│   ├─ Ngắn nhất, trọng số ≥ 0?                         → Dijkstra      (L33)
-│   ├─ Thứ tự/phụ thuộc (DAG)?                          → Topo sort     (L32)
-│   └─ Nhóm/hợp-tìm?                                    → Union-Find    (L36)
-└─ Trên chuỗi?
-    ├─ Khớp 1 mẫu?                                       → KMP/Z/RK      (L40–L42)
-    └─ Nhiều mẫu/tiền tố chung?                          → Trie/Aho      (L43)
-\`\`\`
+<svg viewBox="0 0 700 528" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây khoanh vùng kỹ thuật theo câu hỏi của đề: tối ưu → DP/Greedy/Backtracking; truy vấn mảng → binary search/window-prefix/segment tree; đồ thị → BFS-DFS/Dijkstra/Topo/Union-Find; chuỗi → KMP-Z-RK/Trie-Aho">
+  <defs><marker id="t50" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <rect x="20.0" y="14.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="95.0" y="35.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Bài hỏi gì?</text>
+  <rect x="20.0" y="77.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="99.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Tối ưu (min/max/đếm cách)?</text>
+  <line x1="172.0" y1="94.0" x2="220.0" y2="66.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">bài con lặp, lựa chọn ảnh hưởng tương lai</text>
+  <rect x="470.0" y="52.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="70.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">DP (L23–L30)</text>
+  <line x1="172.0" y1="94.0" x2="220.0" y2="96.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="100.0" fill="#475569" font-size="10" text-anchor="start">chọn cục bộ tốt nhất + chứng minh được</text>
+  <rect x="470.0" y="82.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Greedy (L19–L22)</text>
+  <line x1="172.0" y1="94.0" x2="220.0" y2="126.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="130.0" fill="#475569" font-size="10" text-anchor="start">liệt kê MỌI cấu hình, n nhỏ</text>
+  <rect x="470.0" y="112.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="130.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Backtracking (L18)</text>
+  <rect x="20.0" y="189.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="211.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Truy vấn trên mảng/đoạn?</text>
+  <line x1="172.0" y1="206.0" x2="220.0" y2="178.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="182.0" fill="#475569" font-size="10" text-anchor="start">đã sorted, tìm biên/phần tử</text>
+  <rect x="470.0" y="164.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="182.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Binary search (L12)</text>
+  <line x1="172.0" y1="206.0" x2="220.0" y2="208.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="212.0" fill="#475569" font-size="10" text-anchor="start">subarray/substring liên tục</text>
+  <rect x="470.0" y="194.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="212.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Window / prefix (L14, L15)</text>
+  <line x1="172.0" y1="206.0" x2="220.0" y2="238.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="242.0" fill="#475569" font-size="10" text-anchor="start">range query có cập nhật</text>
+  <rect x="470.0" y="224.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="242.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Segment tree (L30)</text>
+  <rect x="20.0" y="316.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="338.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Trên đồ thị/quan hệ?</text>
+  <line x1="172.0" y1="333.0" x2="220.0" y2="290.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="294.0" fill="#475569" font-size="10" text-anchor="start">lan toả, kết nối, ngắn nhất không trọng số</text>
+  <rect x="470.0" y="276.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="294.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">BFS / DFS (L31)</text>
+  <line x1="172.0" y1="333.0" x2="220.0" y2="320.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="324.0" fill="#475569" font-size="10" text-anchor="start">ngắn nhất, trọng số ≥ 0</text>
+  <rect x="470.0" y="306.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="324.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Dijkstra (L33)</text>
+  <line x1="172.0" y1="333.0" x2="220.0" y2="350.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="354.0" fill="#475569" font-size="10" text-anchor="start">thứ tự/phụ thuộc (DAG)</text>
+  <rect x="470.0" y="336.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="354.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Topo sort (L32)</text>
+  <line x1="172.0" y1="333.0" x2="220.0" y2="380.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="384.0" fill="#475569" font-size="10" text-anchor="start">nhóm / hợp–tìm</text>
+  <rect x="470.0" y="366.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="384.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Union-Find (L36)</text>
+  <rect x="20.0" y="428.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="450.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Trên chuỗi?</text>
+  <line x1="172.0" y1="445.0" x2="220.0" y2="432.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="436.0" fill="#475569" font-size="10" text-anchor="start">khớp 1 mẫu</text>
+  <rect x="470.0" y="418.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="436.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">KMP / Z / Rabin-Karp (L40–L42)</text>
+  <line x1="172.0" y1="445.0" x2="220.0" y2="462.0" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#t50)"/>
+  <text x="228.0" y="466.0" fill="#475569" font-size="10" text-anchor="start">nhiều mẫu, tiền tố chung</text>
+  <rect x="470.0" y="448.0" width="210.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="575.0" y="466.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Trie / Aho-Corasick (L43)</text>
+  <line x1="95.0" y1="46.0" x2="95.0" y2="482.0" stroke="#1a202c" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="350.0" y="514.0" fill="#475569" font-size="11" text-anchor="middle">điểm khởi đầu, không phải phán quyết — luôn kiểm lại độ phức tạp mục tiêu (bước 4)</text>
+</svg>
 
 > ⚠ **Lỗi thường gặp.** Cây này là *điểm khởi đầu*, không phải phán quyết. Luôn quay lại bước 4: kỹ thuật chọn ra phải đạt độ phức tạp mục tiêu. Vd "subarray liên tục" mặc định gợi window, nhưng nếu có số âm thì rẽ sang prefix + hash (xem 🔁 ở mục 4).
 

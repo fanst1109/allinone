@@ -60,23 +60,26 @@ Sau bài này, bạn sẽ:
 
 Đây là khung xương lặp lại cho **mọi** bài optimize. Học thuộc nó như học bảng cửu chương.
 
-\`\`\`
-┌─────────────────────────────────────────────────────────────┐
-│ Bước 1. Viết BRUTE-FORCE (đúng)                              │
-│         → có baseline để test, hiểu đề                       │
-├─────────────────────────────────────────────────────────────┤
-│ Bước 2. Phân tích Big-O, tìm ĐIỂM PHÍ PHẠM                   │
-│         → "chỗ nào tính lại? chỗ nào duyệt thừa?"            │
-├─────────────────────────────────────────────────────────────┤
-│ Bước 3. Áp KỸ THUẬT                                          │
-│         → precompute / cache(hash) / sort / two-pointer / DP │
-├─────────────────────────────────────────────────────────────┤
-│ Bước 4. VERIFY khớp brute-force                             │
-│         → chạy random test, output 2 bản phải y hệt          │
-└─────────────────────────────────────────────────────────────┘
-        ↑                                              │
-        └──────── nếu chưa đủ nhanh, lặp lại ──────────┘
-\`\`\`
+<svg viewBox="0 0 560 264" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khung 4 bước tối ưu hoá: brute-force → phân tích Big-O → áp kỹ thuật → verify, lặp lại nếu chưa đủ nhanh">
+  <defs><marker id="f5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="141.0" y="16.0" width="278.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="33.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Bước 1. Viết BRUTE-FORCE (đúng)</text>
+  <text x="280.0" y="48.0" fill="#475569" font-size="11" text-anchor="middle">→ có baseline để test, hiểu đề</text>
+  <line x1="280.0" y1="58.0" x2="280.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f5)"/>
+  <rect x="97.0" y="70.0" width="366.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="87.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Bước 2. Phân tích Big-O, tìm ĐIỂM PHÍ PHẠM</text>
+  <text x="280.0" y="102.0" fill="#475569" font-size="11" text-anchor="middle">chỗ nào tính lại? chỗ nào duyệt thừa?</text>
+  <line x1="280.0" y1="112.0" x2="280.0" y2="122.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f5)"/>
+  <rect x="95.0" y="124.0" width="370.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="141.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Bước 3. Áp KỸ THUẬT</text>
+  <text x="280.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">precompute / cache(hash) / sort / two-pointer / DP</text>
+  <line x1="280.0" y1="166.0" x2="280.0" y2="176.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#f5)"/>
+  <rect x="141.0" y="178.0" width="278.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="195.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">Bước 4. VERIFY khớp brute-force</text>
+  <text x="280.0" y="210.0" fill="#475569" font-size="11" text-anchor="middle">random test, output 2 bản phải y hệt</text>
+  <path d="M 280,220 L 280,236 L 60,236 L 60,30 L 78,30" fill="none" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#f5)"/>
+  <text x="160.0" y="252.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">nếu chưa đủ nhanh → lặp lại từ Bước 2</text>
+</svg>
 
 ### Bước 1 — Viết brute-force đúng
 

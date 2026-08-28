@@ -114,18 +114,50 @@ Bellman-Ford không thông minh kiểu Dijkstra (chọn đỉnh gần nhất). N
 
 Đồ thị (nguồn = 0), danh sách cạnh:
 
-```
-0 → 1 :  6
-0 → 2 :  7
-1 → 2 :  8
-1 → 3 :  5
-1 → 4 : -4
-2 → 3 : -3
-2 → 4 :  9
-3 → 1 : -2
-4 → 0 :  2
-4 → 3 :  7
-```
+<svg viewBox="0 0 580 300" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị Bellman-Ford 5 đỉnh với cạnh âm: 0→1 (6), 0→2 (7), 1→2 (8), 1→3 (5), 1→4 (−4), 2→3 (−3), 2→4 (9), 3→1 (−2), 4→0 (2), 4→3 (7)">
+  <defs><marker id="g34a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="75.9" y1="131.6" x2="232.3" y2="49.3" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="137.1" y="100.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="143.6" y="112.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">6</text>
+  <line x1="75.9" y1="148.4" x2="232.3" y2="230.7" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="126.9" y="183.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="133.4" y="195.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <line x1="250.0" y1="58.0" x2="250.0" y2="220.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="232.5" y="114.8" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="239.0" y="126.8" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <path d="M 268.0,40.0 Q 364.0,58.0 460.0,40.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="357.5" y="57.2" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="364.0" y="69.2" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  <line x1="263.6" y1="51.8" x2="464.9" y2="226.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="326.9" y="122.1" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="336.9" y="134.1" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-4</text>
+  <line x1="263.6" y1="228.2" x2="464.9" y2="53.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="341.3" y="158.5" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="351.3" y="170.5" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-3</text>
+  <line x1="268.0" y1="240.0" x2="460.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="338.3" y="243.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="344.8" y="255.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">9</text>
+  <path d="M 462.0,40.0 Q 366.0,22.0 270.0,40.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="356.0" y="6.8" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="366.0" y="18.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-2</text>
+  <line x1="462.5" y1="235.8" x2="79.5" y2="144.6" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="305.3" y="180.7" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="311.8" y="192.7" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="480.0" y1="222.0" x2="480.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34a)"/>
+  <rect x="484.5" y="149.2" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="491.0" y="161.2" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">7</text>
+  <circle cx="60.0" cy="140.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="145.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="250.0" cy="40.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="250.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="250.0" cy="240.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="250.0" y="245.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="480.0" cy="40.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="480.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="480.0" cy="240.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="480.0" y="245.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <text x="290.0" y="292.0" fill="#475569" font-size="11" text-anchor="middle">nguồn 0; cạnh âm (−4, −3, −2) tô đỏ; không có chu trình âm</text>
+</svg>
 
 Khởi tạo: `dist = [0, ∞, ∞, ∞, ∞]`. Relax theo **đúng thứ tự danh sách cạnh trên**.
 
@@ -290,12 +322,30 @@ nếu (vòng V còn relax cạnh (u,v,w))  ⇒  có chu trình âm reachable t�
 
 ### Walk-through — đồ thị có chu trình âm
 
-```
-0 → 1 :  1
-1 → 2 :  -1
-2 → 3 :  -1
-3 → 1 :  -1     ← chu trình 1→2→3→1 tổng = -1-1-1 = -3 < 0
-```
+<svg viewBox="0 0 420 220" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị có chu trình âm: 0→1 (1), 1→2 (−1), 2→3 (−1), 3→1 (−1); chu trình 1→2→3→1 tổng −3">
+  <defs><marker id="g34b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="110.0" x2="180.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g34b)"/>
+  <rect x="122.5" y="113.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="129.0" y="125.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="216.3" y1="102.5" x2="311.8" y2="58.4" stroke="#dc2626" stroke-width="1.8" marker-end="url(#g34b)"/>
+  <rect x="258.7" y="82.4" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="268.7" y="94.4" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-1</text>
+  <line x1="330.0" y1="68.0" x2="330.0" y2="150.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#g34b)"/>
+  <rect x="309.0" y="101.0" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="319.0" y="113.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-1</text>
+  <line x1="313.7" y1="162.5" x2="218.2" y2="118.4" stroke="#dc2626" stroke-width="1.8" marker-end="url(#g34b)"/>
+  <rect x="260.5" y="122.4" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="270.5" y="134.4" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-1</text>
+  <circle cx="60.0" cy="110.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="115.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="200.0" cy="110.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="115.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="330.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="330.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="330.0" cy="170.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="330.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <text x="210.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">chu trình 1→2→3→1 = −1−1−1 = −3 &lt; 0 → dist giảm vô hạn</text>
+</svg>
 
 Nguồn = 0. `dist = [0, ∞, ∞, ∞]`.
 

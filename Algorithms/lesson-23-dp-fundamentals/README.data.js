@@ -672,17 +672,34 @@ func numDecodings(s string) int {
 - **Base:** \`dp[0]=1\`; \`dp[k]=0\` với \`k<0\`.
 
 **Chứng minh overlap** — vẽ một phần cây gọi cho \`f(5)\`:
-\`\`\`
-f(5)
-├── f(4)
-│   ├── f(3)        ← f(3) xuất hiện
-│   ├── f(1)
-│   └── f(0)
-├── f(2)
-│   └── f(1)
-└── f(1)
-... f(3) cũng xuất hiện từ nhánh khác (f(5)→f(4)→f(3))
-\`\`\`
+<svg viewBox="0 0 368 228" style="max-width:368px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Một phần cây gọi f(5) = f(4) + f(2) + f(1): f(1) xuất hiện 3 lần, f(3) cũng lặp từ nhánh khác — chồng lấp">
+  <defs></defs>
+  <line x1="219.0" y1="52.0" x2="114.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="114.0" y1="116.0" x2="44.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="23.0" y="148.0" width="42.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="44.0" y="168.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">f(3)</text>
+  <text x="71.0" y="168.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">lặp</text>
+  <line x1="114.0" y1="116.0" x2="114.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="93.0" y="148.0" width="42.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="114.0" y="168.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">f(1)</text>
+  <line x1="114.0" y1="116.0" x2="184.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="163.0" y="148.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="184.0" y="168.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">f(0)</text>
+  <rect x="93.0" y="84.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="114.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">f(4)</text>
+  <line x1="219.0" y1="52.0" x2="254.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="254.0" y1="116.0" x2="254.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="233.0" y="148.0" width="42.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="254.0" y="168.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">f(1)</text>
+  <rect x="233.0" y="84.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="254.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">f(2)</text>
+  <line x1="219.0" y1="52.0" x2="324.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="303.0" y="84.0" width="42.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="324.0" y="104.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">f(1)</text>
+  <rect x="198.0" y="20.0" width="42.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="219.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">f(5)</text>
+  <text x="184.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">f(1) lặp 3 lần (cam), f(3) lặp (đỏ) → overlap → cần memo</text>
+</svg>
 \`f(1)\` xuất hiện nhiều lần từ các nhánh khác nhau → **overlap rõ ràng** → cần memo.
 
 Walk-through bảng: \`dp[0]=1, dp[1]=1, dp[2]=1, dp[3]=2\` (\`1+1+1\`, \`3\`), \`dp[4]=4\` (\`1+1+1+1, 1+3, 3+1, 4\`), \`dp[5]=6\` (\`dp[4]+dp[2]+dp[1]=4+1+1\`). **Big-O:** $O(n)$.

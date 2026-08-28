@@ -76,12 +76,28 @@ Có HAI thứ tự topo hợp lệ: \`0, 1, 2, 3\` và \`0, 2, 1, 3\`. (1 và 2 
 KHÔNG có thứ tự topo (chu trình \`0→1→2→0\`).
 
 **Ví dụ 4 — đồ thị 6 đỉnh (dùng xuyên suốt bài):**
-\`\`\`
-5 → 0,  5 → 2
-4 → 0,  4 → 1
-2 → 3
-3 → 1
-\`\`\`
+<svg viewBox="0 0 460 240" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị có hướng 6 đỉnh: 5→0, 5→2, 4→0, 4→1, 2→3, 3→1 — một DAG dùng xuyên suốt bài">
+  <defs><marker id="g32" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="94.1" y1="71.2" x2="214.4" y2="167.5" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g32)"/>
+  <line x1="98.0" y1="60.0" x2="210.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g32)"/>
+  <line x1="98.0" y1="180.0" x2="210.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g32)"/>
+  <line x1="98.0" y1="180.0" x2="360.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g32)"/>
+  <line x1="248.0" y1="60.0" x2="360.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g32)"/>
+  <line x1="380.0" y1="78.0" x2="380.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g32)"/>
+  <circle cx="80.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="80.0" cy="180.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="230.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="230.0" cy="180.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="380.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="380.0" cy="180.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="230.0" y="232.0" fill="#475569" font-size="11" text-anchor="middle">một thứ tự topo hợp lệ: 4, 5, 2, 3, 1, 0 (mọi cạnh đều trái → phải)</text>
+</svg>
 Một thứ tự topo hợp lệ: \`4, 5, 2, 3, 1, 0\`. Một thứ tự khác cũng hợp lệ: \`5, 4, 2, 3, 1, 0\`. (Kiểm: mọi cạnh đều "trái → phải".)
 
 > 🔁 **Tự kiểm tra 1.** Dãy \`0, 5, 2, 3, 1, 4\` có phải topo order hợp lệ cho ví dụ 4 không?

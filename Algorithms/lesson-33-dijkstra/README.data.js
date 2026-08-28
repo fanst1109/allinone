@@ -39,18 +39,49 @@ Sau bài này bạn sẽ:
 
 **Ví dụ số cụ thể.** Đồ thị 5 đỉnh (0..4), nguồn \`src = 0\`:
 
-\`\`\`
-        4
-   0 ───────► 1
-   │ \\        │
- 1 │  \\ 2     │ 1
-   │   \\      ▼
-   ▼    ►2 ──►3
-   2    │  5  │
-        │ 3   │ 1
-        ▼     ▼
-        ... (xem mục 4 cho đồ thị walk-through đầy đủ)
-\`\`\`
+<svg viewBox="0 0 560 240" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị có hướng có trọng số 6 đỉnh dùng cho Dijkstra: 0→1 (4), 0→2 (1), 2→1 (2), 2→3 (5), 1→3 (1), 3→4 (3), 2→4 (8), 4→5 (2), 3→5 (6)">
+  <defs><marker id="g33a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="76.1" y1="112.0" x2="182.1" y2="58.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="127.5" y="87.3" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="134.0" y="99.3" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  <line x1="76.1" y1="128.0" x2="182.1" y2="181.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="117.7" y="156.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="124.2" y="168.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="200.0" y1="172.0" x2="200.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="204.5" y="113.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="211.0" y="125.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="212.7" y1="177.3" x2="325.9" y2="64.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="270.6" y="120.5" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="277.1" y="132.5" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  <line x1="218.0" y1="50.0" x2="320.0" y2="50.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="262.5" y="53.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="269.0" y="65.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="340.0" y1="68.0" x2="340.0" y2="170.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="322.5" y="111.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="329.0" y="123.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="218.0" y1="190.0" x2="320.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="262.5" y="193.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="269.0" y="205.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <line x1="356.1" y1="182.0" x2="462.1" y2="128.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="407.5" y="157.3" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="414.0" y="169.3" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="356.1" y1="58.0" x2="462.1" y2="111.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33a)"/>
+  <rect x="397.7" y="86.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="404.2" y="98.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="60.0" cy="120.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="125.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="200.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="200.0" cy="190.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="195.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="340.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="340.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="340.0" cy="190.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="340.0" y="195.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="480.0" cy="120.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="480.0" y="125.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <text x="280.0" y="232.0" fill="#475569" font-size="11" text-anchor="middle">nguồn src = 0 · đường ngắn nhất 0→3 là 0→2→1→3 = 1+2+1 = 4 (không phải 0→1→3 = 5)</text>
+</svg>
 
 Kết quả mong muốn (sẽ tính chi tiết ở mục 4): \`dist = [0, 3, 1, 4, ...]\` — tức từ 0 tới 1 ngắn nhất là 3 (đi 0→2→...→1 chứ không phải cạnh trực tiếp 0→1 = 4).
 
@@ -80,13 +111,25 @@ Kết quả mong muốn (sẽ tính chi tiết ở mục 4): \`dist = [0, 3, 1, 
 
 **Phản ví dụ cụ thể.** Đồ thị 3 đỉnh:
 
-\`\`\`
-   0 ─────10────► 2
-   │              ▲
-   1              │
-   ▼      1       │
-   1 ─────────────┘
-\`\`\`
+<svg viewBox="0 0 380 220" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phản ví dụ BFS: 0→2 trọng số 10 trực tiếp, nhưng đường vòng 0→1→2 chỉ 1 + 1 = 2">
+  <defs><marker id="g33b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="60.0" x2="280.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33b)"/>
+  <rect x="169.0" y="63.0" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="179.0" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">10</text>
+  <line x1="60.0" y1="78.0" x2="60.0" y2="150.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#g33b)"/>
+  <rect x="42.5" y="106.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="49.0" y="118.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="76.4" y1="162.5" x2="281.8" y2="68.3" stroke="#dc2626" stroke-width="1.8" marker-end="url(#g33b)"/>
+  <rect x="177.2" y="117.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="183.7" y="129.4" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="60.0" cy="60.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="65.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="300.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="60.0" cy="170.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="190.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">BFS chọn 0→2 (1 cạnh, dist 10) — SAI; đúng là 0→1→2 = 2</text>
+</svg>
 
 - Cạnh trực tiếp \`0 → 2\` trọng số **10** (1 cạnh).
 - Đường vòng \`0 → 1 → 2\` trọng số **1 + 1 = 2** (2 cạnh).
@@ -168,15 +211,49 @@ Vòng lặp: pop \`(d, u)\` từ heap; nếu \`d > dist[u]\` thì bỏ qua (stal
 
 Đồ thị có hướng 6 đỉnh, nguồn \`src = 0\`:
 
-\`\`\`
-  cạnh (u → v, w):
-  0→1 (4)   0→2 (1)
-  2→1 (2)   2→3 (5)
-  1→3 (1)
-  3→4 (3)
-  2→4 (8)
-  4→5 (2)   3→5 (6)
-\`\`\`
+<svg viewBox="0 0 560 240" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị walk-through Dijkstra 6 đỉnh, nguồn 0, cùng danh sách cạnh: 0→1 (4), 0→2 (1), 2→1 (2), 2→3 (5), 1→3 (1), 3→4 (3), 2→4 (8), 4→5 (2), 3→5 (6)">
+  <defs><marker id="g33c" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="76.1" y1="112.0" x2="182.1" y2="58.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="127.5" y="87.3" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="134.0" y="99.3" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  <line x1="76.1" y1="128.0" x2="182.1" y2="181.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="117.7" y="156.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="124.2" y="168.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="200.0" y1="172.0" x2="200.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="204.5" y="113.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="211.0" y="125.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="212.7" y1="177.3" x2="325.9" y2="64.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="270.6" y="120.5" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="277.1" y="132.5" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">5</text>
+  <line x1="218.0" y1="50.0" x2="320.0" y2="50.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="262.5" y="53.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="269.0" y="65.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="340.0" y1="68.0" x2="340.0" y2="170.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="322.5" y="111.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="329.0" y="123.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <line x1="218.0" y1="190.0" x2="320.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="262.5" y="193.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="269.0" y="205.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">8</text>
+  <line x1="356.1" y1="182.0" x2="462.1" y2="128.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="407.5" y="157.3" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="414.0" y="169.3" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="356.1" y1="58.0" x2="462.1" y2="111.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33c)"/>
+  <rect x="397.7" y="86.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="404.2" y="98.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">6</text>
+  <circle cx="60.0" cy="120.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="125.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="200.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="200.0" cy="190.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="195.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="340.0" cy="50.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="340.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="340.0" cy="190.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="340.0" y="195.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="480.0" cy="120.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="480.0" y="125.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <text x="280.0" y="232.0" fill="#475569" font-size="11" text-anchor="middle">cạnh (u → v, w): 0→1 (4) · 0→2 (1) · 2→1 (2) · 2→3 (5) · 1→3 (1) · 3→4 (3) · 2→4 (8) · 4→5 (2) · 3→5 (6)</text>
+</svg>
 
 ### 4.2 Bảng \`dist\` từng bước
 
@@ -400,14 +477,25 @@ Gọi $V = |\\text{đỉnh}|$, $E = |\\text{cạnh}|$.
 
 **Phản ví dụ cụ thể.** Đồ thị 3 đỉnh, \`src = 0\`:
 
-\`\`\`
-   0 ───1───► 1
-   │          │
-   4         -10
-   │          │
-   ▼          ▼
-   2 ◄────────┘   (cạnh 1 → 2 trọng số -10)
-\`\`\`
+<svg viewBox="0 0 380 230" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phản ví dụ cạnh âm: 0→1 (1), 0→2 (4), 1→2 (−10); đường 0→1→2 = −9 ngắn hơn 0→2 = 4">
+  <defs><marker id="g33d" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="60.0" x2="280.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33d)"/>
+  <rect x="172.5" y="63.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="179.0" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="76.1" y1="68.0" x2="282.1" y2="171.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33d)"/>
+  <rect x="167.7" y="121.4" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="174.2" y="133.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  <line x1="300.0" y1="78.0" x2="300.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33d)"/>
+  <rect x="275.5" y="111.0" width="27.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="289.0" y="123.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-10</text>
+  <circle cx="60.0" cy="60.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="65.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="300.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="300.0" cy="180.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <text x="190.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">cạnh 1→2 = −10 (đỏ) phá giả định 'chốt là xong' của Dijkstra</text>
+</svg>
 
 Cạnh: \`0→1 (1)\`, \`0→2 (4)\`, \`1→2 (-10)\`.
 
@@ -432,12 +520,25 @@ Khoan — ở ví dụ nhỏ này Dijkstra *tình cờ* ra đúng \`dist[2] = -9
 
 Để Dijkstra *thật sự sai*, cần đỉnh đích bị chốt **trước** khi đường âm tới nó. Phản ví dụ kinh điển:
 
-\`\`\`
-   src = 0
-   0→1 (1)        // 1 sẽ bị chốt rất sớm (dist nhỏ nhất)
-   0→2 (2)
-   2→1 (-2)       // nhưng đường 0→2→1 = 2 + (-2) = 0 < 1 — tốt hơn!
-\`\`\`
+<svg viewBox="0 0 380 230" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phản ví dụ kinh điển: 0→1 (1), 0→2 (2), 2→1 (−2); đỉnh 1 bị chốt sớm với dist 1 nhưng đường 0→2→1 = 0 tốt hơn">
+  <defs><marker id="g33e" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="78.0" y1="60.0" x2="280.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33e)"/>
+  <rect x="172.5" y="63.0" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="179.0" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="72.7" y1="72.7" x2="165.9" y2="165.9" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33e)"/>
+  <rect x="105.0" y="119.1" width="13.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="111.5" y="131.1" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="192.7" y1="167.3" x2="285.9" y2="74.1" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g33e)"/>
+  <rect x="237.1" y="120.5" width="20.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="247.1" y="132.5" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">-2</text>
+  <circle cx="60.0" cy="60.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="60.0" y="65.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="300.0" cy="60.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="180.0" cy="180.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <text x="190.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">1 bị chốt ngay (dist 1) trước khi thấy 0→2→1 = 2 + (−2) = 0</text>
+</svg>
 
 **Dijkstra (SAI):**
 1. Pop (0,0). \`dist[1]=1\`, \`dist[2]=2\`. Heap \`{(1,1),(2,2)}\`.

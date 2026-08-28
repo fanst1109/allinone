@@ -42,17 +42,44 @@ Bất kỳ comparison sort nào cũng có thể vẽ thành một **cây nhị p
 
 Vì thuật toán phải có khả năng sort **mọi** mảng đầu vào, cây phải chứa **đủ tất cả $n!$ hoán vị** ở các lá. (Nếu thiếu một hoán vị nào đó, sẽ có một đầu vào mà thuật toán sort sai.)
 
-\`\`\`
-            a[0] < a[1] ?
-           /            \\
-        yes              no
-         /                \\
-   a[1] < a[2]?        a[0] < a[2]?
-     /     \\             /     \\
-  [012]  a[0]<a[2]?   [102]   ...
-          /    \\
-       [021]  [201]
-\`\`\`
+<svg viewBox="0 0 484 298" style="max-width:484px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây quyết định so sánh cho n = 3: mỗi nút hỏi một so sánh, mỗi lá là một hoán vị; cây đầy đủ có 3! = 6 lá">
+  <defs></defs>
+  <line x1="254.0" y1="52.0" x2="122.0" y2="86.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="180.0" y="69.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">yes</text>
+  <line x1="122.0" y1="118.0" x2="50.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="78.0" y="135.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">yes</text>
+  <rect x="25.5" y="152.0" width="49.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="50.0" y="172.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[012]</text>
+  <line x1="122.0" y1="118.0" x2="194.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="166.0" y="135.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">no</text>
+  <line x1="194.0" y1="184.0" x2="146.0" y2="218.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="162.0" y="201.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">yes</text>
+  <rect x="121.5" y="218.0" width="49.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="146.0" y="238.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[021]</text>
+  <line x1="194.0" y1="184.0" x2="242.0" y2="218.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="226.0" y="201.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">no</text>
+  <rect x="217.5" y="218.0" width="49.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="242.0" y="238.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[201]</text>
+  <rect x="145.0" y="152.0" width="98.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="194.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a[0] &lt; a[2]?</text>
+  <rect x="73.0" y="86.0" width="98.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="122.0" y="106.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a[1] &lt; a[2]?</text>
+  <line x1="254.0" y1="52.0" x2="386.0" y2="86.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="328.0" y="69.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">no</text>
+  <line x1="386.0" y1="118.0" x2="338.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="354.0" y="135.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">yes</text>
+  <rect x="313.5" y="152.0" width="49.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="338.0" y="172.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[102]</text>
+  <line x1="386.0" y1="118.0" x2="434.0" y2="152.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="418.0" y="135.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">no</text>
+  <circle cx="434.0" cy="168.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="434.0" y="172.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="337.0" y="86.0" width="98.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="386.0" y="106.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a[0] &lt; a[2]?</text>
+  <rect x="205.0" y="20.0" width="98.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="254.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a[0] &lt; a[1]?</text>
+  <text x="242.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">mỗi lá = 1 hoán vị đầu ra; cây phải có ≥ n! lá → chiều cao ≥ log₂(n!) = Ω(n log n)</text>
+</svg>
 
 (Cây cho $n = 3$ có $3! = 6$ lá: \`[012],[021],[102],[120],[201],[210]\`.)
 

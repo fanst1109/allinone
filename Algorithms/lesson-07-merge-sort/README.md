@@ -228,12 +228,16 @@ Kết quả cuối: [1,2,3,4,5] ✓
 
 Gọi $T(n)$ = số phép so sánh/di chuyển để sort $n$ phần tử:
 
-```
-T(n) = 2·T(n/2) + Θ(n)
-       └──┬───┘   └─┬─┘
-   2 lời gọi đệ quy   chi phí merge (O(n))
-   trên nửa kích thước
-```
+<svg viewBox="0 0 480 125" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Công thức truy hồi T(n) = 2T(n/2) + Θ(n): phần 2T(n/2) là hai lời gọi đệ quy trên nửa kích thước, Θ(n) là chi phí merge">
+  <defs><marker id="r7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="r7g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <text x="40.0" y="50.0" fill="#1a202c" font-size="22" text-anchor="start" font-weight="700">T(n) = 2·T(n/2) + Θ(n)</text>
+  <path d="M 108,62 L 108,74 L 232,74 L 232,62" fill="none" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="170.0" y1="74.0" x2="170.0" y2="92.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#r7)"/>
+  <text x="150.0" y="110.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2 lời gọi đệ quy trên nửa kích thước</text>
+  <path d="M 250,62 L 250,74 L 320,74 L 320,62" fill="none" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="285.0" y1="74.0" x2="285.0" y2="92.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#r7g)"/>
+  <text x="300.0" y="110.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">chi phí merge O(n)</text>
+</svg>
 
 Đây đúng dạng Master Theorem (xem [Lesson 03](../lesson-03-recursion-recurrence/README.md)): $T(n) = a \cdot T(n/b) + f(n)$ với $a = 2$, $b = 2$, $f(n) = \Theta(n)$.
 

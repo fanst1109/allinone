@@ -490,17 +490,37 @@ Nhân 2 ma trận $n \times n$ kiểu 3 vòng lặp tốn O(n³). Chia mỗi ma 
 
 `fib(n) = fib(n−1) + fib(n−2)`. Nhìn giống D&C (chia 2 bài con). Nhưng khai triển cây:
 
-```
-fib(5)
-├── fib(4)
-│   ├── fib(3)
-│   │   ├── fib(2)
-│   │   └── fib(1)
-│   └── fib(2)      <- fib(2) bị tính LẠI
-└── fib(3)          <- fib(3) bị tính LẠI nguyên cụm!
-    ├── fib(2)      <- và LẠI nữa
-    └── fib(1)
-```
+<svg viewBox="0 0 400 310" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây gọi fib(5): fib(3) xuất hiện 2 lần, fib(2) 3 lần — các bài con chồng lấp">
+  <defs></defs>
+  <line x1="229.2" y1="52.0" x2="141.5" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="141.5" y1="116.0" x2="83.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="83.0" y1="180.0" x2="44.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="16.0" y="212.0" width="56.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="44.0" y="232.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">fib(2)</text>
+  <line x1="83.0" y1="180.0" x2="122.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="94.0" y="212.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="122.0" y="232.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">fib(1)</text>
+  <rect x="55.0" y="148.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="83.0" y="168.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">fib(3)</text>
+  <line x1="141.5" y1="116.0" x2="200.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="172.0" y="148.0" width="56.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="200.0" y="168.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">fib(2)</text>
+  <rect x="113.5" y="84.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="141.5" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">fib(4)</text>
+  <line x1="229.2" y1="52.0" x2="317.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="317.0" y1="116.0" x2="278.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="250.0" y="148.0" width="56.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="278.0" y="168.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">fib(2)</text>
+  <line x1="317.0" y1="116.0" x2="356.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="328.0" y="148.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="356.0" y="168.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">fib(1)</text>
+  <rect x="289.0" y="84.0" width="56.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="317.0" y="104.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">fib(3)</text>
+  <rect x="201.2" y="20.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="229.2" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">fib(5)</text>
+  <text x="200.0" y="284.0" fill="#475569" font-size="11" text-anchor="middle">đỏ: fib(3) tính LẠI nguyên cụm · cam: fib(2) tính 3 lần</text>
+  <text x="200.0" y="302.0" fill="#475569" font-size="11" text-anchor="middle">→ chồng lấp → cần memo (DP), không phải D&amp;C thuần</text>
+</svg>
 
 `fib(3)` xuất hiện 2 lần, `fib(2)` 3 lần... → **chồng lấp**. Không memo → O(2ⁿ). Đây là DP, **không phải** D&C thuần. Ngược lại merge sort: `mergeSort(a[0:4])` và `mergeSort(a[4:8])` xử lý phần *khác nhau* của mảng → không bao giờ trùng → D&C thuần, không cần memo.
 
@@ -599,15 +619,58 @@ Bài con thứ 2 là `[mid, hi]` — chứa `mid` trùng với bài con thứ 1,
 
 💡 Khi nghi ngờ thuật toán D&C có vấn đề, **vẽ cây đệ quy** vài mức là cách nhanh nhất để phát hiện:
 
-```
-                 T(n)                <- gốc: chi phí f(n)
-              /        \
-          T(n/2)      T(n/2)         <- mức 1: tổng f(n/2)·2
-          /    \      /    \
-       T(n/4) T(n/4) ...               <- mức 2: tổng f(n/4)·4
-        ...
-       T(1) T(1) ... T(1)            <- lá: n lá
-```
+<svg viewBox="0 0 600 330" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây đệ quy T(n) = aT(n/b) + f(n) với a = b = 2: mức 0 một nút chi phí f(n), mức 1 hai nút f(n/2), mức 2 bốn nút f(n/4), … lá T(1)">
+  <defs></defs>
+  <line x1="261.0" y1="52.0" x2="137.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="137.0" y1="114.0" x2="75.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="75.0" y1="176.0" x2="44.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="44.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="44.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="75.0" y1="176.0" x2="106.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="106.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="106.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="47.0" y="144.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="75.0" y="164.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n/4)</text>
+  <line x1="137.0" y1="114.0" x2="199.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="199.0" y1="176.0" x2="168.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="168.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="168.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="199.0" y1="176.0" x2="230.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="230.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="230.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="171.0" y="144.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="199.0" y="164.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n/4)</text>
+  <rect x="109.0" y="82.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="137.0" y="102.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n/2)</text>
+  <line x1="261.0" y1="52.0" x2="385.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="385.0" y1="114.0" x2="323.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="323.0" y1="176.0" x2="292.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="292.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="292.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="323.0" y1="176.0" x2="354.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="354.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="354.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="295.0" y="144.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="323.0" y="164.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n/4)</text>
+  <line x1="385.0" y1="114.0" x2="447.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="447.0" y1="176.0" x2="416.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="416.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="416.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="447.0" y1="176.0" x2="478.0" y2="206.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="478.0" cy="222.0" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="478.0" y="226.0" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="419.0" y="144.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="447.0" y="164.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n/4)</text>
+  <rect x="357.0" y="82.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="385.0" y="102.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n/2)</text>
+  <rect x="212.0" y="20.0" width="98.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="261.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T(n)  ← f(n)</text>
+  <text x="300.0" y="322.0" fill="#475569" font-size="11" text-anchor="middle">chiều cao log_b n · tổng mức i = aⁱ·f(n/bⁱ) · lá: n nút T(1)</text>
+  <text x="560.0" y="60.0" fill="#475569" font-size="11" text-anchor="end">mức 0: f(n)</text>
+  <text x="560.0" y="122.0" fill="#475569" font-size="11" text-anchor="end">mức 1: 2·f(n/2)</text>
+  <text x="560.0" y="184.0" fill="#475569" font-size="11" text-anchor="end">mức 2: 4·f(n/4)</text>
+  <text x="560.0" y="246.0" fill="#475569" font-size="11" text-anchor="end">… lá T(1): n lá</text>
+</svg>
 
 - Chiều cao cây = $\log_b n$ (mỗi mức chia n cho b). Quá sâu → stack overflow.
 - Tổng chi phí một mức $i$ = $a^i \cdot f(n/b^i)$. So tổng các mức → quyết định Case nào của Master.

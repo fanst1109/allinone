@@ -516,24 +516,33 @@ func main() {
 >
 > Săn phản ví dụ là "rẻ" và "nhanh kết luận sai". Chứng minh là "đắt" nhưng cho "kết luận đúng chắc chắn". Quy trình tối ưu: săn phản ví dụ **trước** (loại nhanh greedy tồi), chỉ chứng minh khi đã nghi greedy đúng.
 
-\`\`\`
-              ┌─────────────────────────┐
-              │  Bài toán tối ưu mới     │
-              └────────────┬────────────┘
-                           ▼
-              Đoán một greedy strategy
-                           ▼
-              Săn phản ví dụ nhỏ  ──── tìm thấy ──►  DÙNG DP
-                           │
-                      không thấy
-                           ▼
-        Thử chứng minh (exchange argument)
-                  │              │
-              chứng minh      không
-               được           chứng minh được
-                  ▼              ▼
-            DÙNG GREEDY        DÙNG DP
-\`\`\`
+<svg viewBox="0 0 600 295" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quy trình chọn greedy hay DP: đoán greedy → săn phản ví dụ (tìm thấy → DP) → thử chứng minh exchange argument (được → greedy, không → DP)">
+  <defs><marker id="g22" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="200.0" y="14.0" width="200.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="300.0" y="37.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Bài toán tối ưu mới</text>
+  <line x1="300.0" y1="50.0" x2="300.0" y2="66.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g22)"/>
+  <rect x="190.0" y="68.0" width="220.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Đoán một greedy strategy</text>
+  <line x1="300.0" y1="102.0" x2="300.0" y2="118.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g22)"/>
+  <rect x="190.0" y="120.0" width="220.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="142.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Săn phản ví dụ nhỏ</text>
+  <line x1="410.0" y1="137.0" x2="470.0" y2="137.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g22)"/>
+  <text x="440.0" y="130.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">tìm thấy</text>
+  <rect x="472.0" y="120.0" width="110.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="527.0" y="142.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">DÙNG DP</text>
+  <line x1="300.0" y1="154.0" x2="300.0" y2="172.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g22)"/>
+  <text x="310.0" y="166.0" fill="#475569" font-size="10" text-anchor="start">không thấy</text>
+  <rect x="170.0" y="174.0" width="260.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="196.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Thử chứng minh (exchange argument)</text>
+  <line x1="240.0" y1="208.0" x2="180.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g22)"/>
+  <text x="196.0" y="222.0" fill="#15803d" font-size="10" text-anchor="end" font-weight="700">được</text>
+  <line x1="360.0" y1="208.0" x2="420.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#g22)"/>
+  <text x="404.0" y="222.0" fill="#475569" font-size="10" text-anchor="start">không được</text>
+  <rect x="110.0" y="242.0" width="140.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="180.0" y="265.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">DÙNG GREEDY</text>
+  <rect x="350.0" y="242.0" width="140.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="420.0" y="265.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">DÙNG DP</text>
+</svg>
 
 > **📝 Tóm tắt mục 7**
 >

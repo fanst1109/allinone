@@ -266,20 +266,57 @@ func permute(nums []int) [][]int {
 
 ### Walk-through cây cho `[1,2,3]`
 
-```
-dfs([])
-├─ 1: dfs([1])               used=[T,F,F]
-│     ├─ 2: dfs([1,2])       used=[T,T,F]
-│     │     └─ 3: dfs([1,2,3]) → ghi [1,2,3]   (lá)
-│     └─ 3: dfs([1,3])       used=[T,F,T]
-│           └─ 2: dfs([1,3,2]) → ghi [1,3,2]   (lá)
-├─ 2: dfs([2])               used=[F,T,F]
-│     ├─ 1: dfs([2,1]) └─ 3: [2,1,3]
-│     └─ 3: dfs([2,3]) └─ 1: [2,3,1]
-└─ 3: dfs([3])               used=[F,F,T]
-      ├─ 1: dfs([3,1]) └─ 2: [3,1,2]
-      └─ 2: dfs([3,2]) └─ 1: [3,2,1]
-```
+<svg viewBox="0 0 488 304" style="max-width:488px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây DFS sinh hoán vị của [1,2,3]: gốc dfs([]), tầng 1 chọn phần tử đầu, tầng 2 chọn phần tử thứ hai, 6 lá là 6 hoán vị">
+  <defs></defs>
+  <line x1="244.0" y1="52.0" x2="84.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="84.0" y1="120.0" x2="44.0" y2="156.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="44.0" y1="188.0" x2="44.0" y2="224.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="12.5" y="224.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="44.0" y="244.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[1,2,3]</text>
+  <rect x="2.0" y="156.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="44.0" y="176.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([1,2])</text>
+  <line x1="84.0" y1="120.0" x2="124.0" y2="156.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="124.0" y1="188.0" x2="124.0" y2="224.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="92.5" y="224.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="124.0" y="244.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[1,3,2]</text>
+  <rect x="82.0" y="156.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="124.0" y="176.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([1,3])</text>
+  <rect x="49.0" y="88.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="84.0" y="108.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([1])</text>
+  <line x1="244.0" y1="52.0" x2="244.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="244.0" y1="120.0" x2="204.0" y2="156.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="204.0" y1="188.0" x2="204.0" y2="224.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="172.5" y="224.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="204.0" y="244.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[2,1,3]</text>
+  <rect x="162.0" y="156.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="204.0" y="176.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([2,1])</text>
+  <line x1="244.0" y1="120.0" x2="284.0" y2="156.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="284.0" y1="188.0" x2="284.0" y2="224.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="252.5" y="224.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="284.0" y="244.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[2,3,1]</text>
+  <rect x="242.0" y="156.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="284.0" y="176.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([2,3])</text>
+  <rect x="209.0" y="88.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="244.0" y="108.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([2])</text>
+  <line x1="244.0" y1="52.0" x2="404.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="404.0" y1="120.0" x2="364.0" y2="156.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="364.0" y1="188.0" x2="364.0" y2="224.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="332.5" y="224.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="364.0" y="244.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[3,1,2]</text>
+  <rect x="322.0" y="156.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="364.0" y="176.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([3,1])</text>
+  <line x1="404.0" y1="120.0" x2="444.0" y2="156.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="444.0" y1="188.0" x2="444.0" y2="224.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="412.5" y="224.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="444.0" y="244.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[3,2,1]</text>
+  <rect x="402.0" y="156.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="444.0" y="176.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([3,2])</text>
+  <rect x="369.0" y="88.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="404.0" y="108.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([3])</text>
+  <rect x="212.5" y="20.0" width="63.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="244.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">dfs([])</text>
+  <text x="244.0" y="296.0" fill="#475569" font-size="11" text-anchor="middle">6 lá = 6 hoán vị; đi xuống đặt used[i]=true, quay lui đặt lại false</text>
+</svg>
 
 6 lá = 6 hoán vị. Chú ý mỗi nhánh đi xuống làm `used[i]=true`, khi quay lui phải `used[i]=false` — nếu quên, các nhánh anh em sẽ tưởng phần tử đó vẫn đang bị dùng → mất hoán vị.
 

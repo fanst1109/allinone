@@ -250,23 +250,51 @@ func buildHeap(a []int) {
 
 **Walk-through build heap** trên `[5, 2, 4, 1, 3]` (n=5):
 
+<svg viewBox="0 0 184 172" style="max-width:184px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây heap ban đầu của [5,2,4,1,3]: gốc 5, con 2 và 4, dưới 2 là 1 và 3">
+  <defs></defs>
+  <line x1="106.0" y1="46.0" x2="64.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="64.0" y1="102.0" x2="36.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="36.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="36.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="64.0" y1="102.0" x2="92.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="92.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="92.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="64.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="64.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="106.0" y1="46.0" x2="148.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="148.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="148.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="106.0" cy="30.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="106.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+</svg>
+
 ```
-Cây ban đầu:
-         5
-       /   \
-      2     4
-     / \
-    1   3
 Index lá: 5/2=2 → lá là index 2,3,4. Node không-lá cuối = 5/2-1 = 1.
 Lặp i = 1, rồi i = 0.
-
 i=1 (giá trị 2): siftDown(a,1,5)
    left=3 (1), right=4 (3). largest: 1<2 giữ; 3>2 → largest=4.
    swap a[1]↔a[4] → [5, 3, 4, 1, 2]. i=4 → lá, dừng.
-                  5
-                /   \
-               3     4
-              / \
+```
+
+<svg viewBox="0 0 184 172" style="max-width:184px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sau siftDown tại i=1: cây [5,3,4,1,2] — 3 lên thay 2, 2 xuống lá">
+  <defs></defs>
+  <line x1="106.0" y1="46.0" x2="64.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="64.0" y1="102.0" x2="36.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="36.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="36.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="64.0" y1="102.0" x2="92.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="92.0" cy="142.0" r="18" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="92.0" y="146.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="64.0" cy="86.0" r="18" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="64.0" y="90.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <line x1="106.0" y1="46.0" x2="148.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="148.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="148.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="106.0" cy="30.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="106.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+</svg>
+
+```
              1   2
 i=0 (giá trị 5): siftDown(a,0,5)
    left=1 (3), right=2 (4). largest: 3<5 giữ; 4<5 giữ → largest=0=i → dừng ngay.
@@ -777,14 +805,25 @@ func main() {
 
 n=5. Lá: index 2,3,4. Node không-lá cuối = `5/2-1 = 1`. Lặp i=1, i=0.
 
-```
-Ban đầu:
-         4(0)
-       /     \
-     10(1)    3(2)
-    /  \
-   5(3) 1(4)
+<svg viewBox="0 0 184 172" style="max-width:184px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây ban đầu của [4,10,3,5,1] với chỉ số: 4(0) gốc, 10(1) và 3(2), dưới 10(1) là 5(3) và 1(4)">
+  <defs></defs>
+  <line x1="106.0" y1="46.0" x2="64.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="64.0" y1="102.0" x2="36.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="36.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="36.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <line x1="64.0" y1="102.0" x2="92.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="92.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="92.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="64.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="64.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <line x1="106.0" y1="46.0" x2="148.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="148.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="148.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="106.0" cy="30.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="106.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+</svg>
 
+```
 i=1 (giá trị 10): siftDown(1,5). left=3(5),right=4(1). largest: 5<10 giữ; 1<10 giữ
    → largest=1=i → dừng (10 đã lớn nhất nhánh). Mảng không đổi: [4,10,3,5,1].
 
@@ -794,12 +833,26 @@ i=0 (giá trị 4): siftDown(0,5). left=1(10),right=2(3). largest: 10>4 → larg
    swap a[1]↔a[3] → [10,5,3,4,1]. i=3. left=7 vượt n=5 → dừng.
 
 Kết quả max-heap: [10, 5, 3, 4, 1]
-         10
-        /   \
-       5     3
-      / \
-     4   1
 ```
+
+<svg viewBox="0 0 184 200" style="max-width:184px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Max-heap kết quả [10,5,3,4,1]: 10 ở gốc, 5 và 3 bên dưới, 4 và 1 là lá">
+  <defs></defs>
+  <line x1="106.0" y1="46.0" x2="64.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="64.0" y1="102.0" x2="36.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="36.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="36.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <line x1="64.0" y1="102.0" x2="92.0" y2="126.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="92.0" cy="142.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="92.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="64.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="64.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <line x1="106.0" y1="46.0" x2="148.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="148.0" cy="86.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="148.0" y="90.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="106.0" cy="30.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="106.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <text x="92.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">Kiểm tra: 10 ≥ 5, 10 ≥ 3, 5 ≥ 4, 5 ≥ 1 ✓</text>
+</svg>
 Kiểm tra: 10≥5, 10≥3, 5≥4, 5≥1 ✓.
 
 ### Bài 2 — Heap sort full trace `[7, 3, 9, 1, 5]`

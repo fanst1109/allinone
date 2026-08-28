@@ -29,17 +29,24 @@ Sau bài này bạn sẽ:
 
 Cấu trúc cơ bản:
 
-```
-          +Vcc
-           |
-      ┌────┴────┐
-V+ ───┤ +       │
-      │  Op-amp ├─── V_out
-V− ───┤ −       │
-      └────┬────┘
-           |
-          −Vcc (hoặc GND)
-```
+<svg viewBox="0 0 420 250" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ký hiệu op-amp: hai ngõ vào V+ và V−, ngõ ra V_out, cấp nguồn +V_cc và −V_cc">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <polygon points="160,84 160,156 240,120" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="104.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">+</text>
+  <text x="170.0" y="146.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">−</text>
+  <text x="192.0" y="124.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Op-amp</text>
+  <line x1="200.0" y1="84.0" x2="200.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="52.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">+V_cc</text>
+  <line x1="200.0" y1="156.0" x2="200.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">−V_cc (hoặc GND)</text>
+  <line x1="120.0" y1="100.0" x2="160.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="112.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">V+</text>
+  <line x1="120.0" y1="140.0" x2="160.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="112.0" y="144.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">V−</text>
+  <line x1="240.0" y1="120.0" x2="300.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="308.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">V_out</text>
+  <text x="200.0" y="236.0" fill="#475569" font-size="10" text-anchor="middle">V_out = A·(V+ − V−), A rất lớn (10⁵…10⁶); nguồn đôi ±V_cc hoặc đơn</text>
+</svg>
 
 Ba cực tín hiệu:
 - **V+**: ngõ vào không đảo (non-inverting input) — tín hiệu vào đây được khuếch đại giữ nguyên pha.
@@ -164,23 +171,67 @@ $V_- = V_+$ = **3 V** (quy tắc vàng 1 — đoản mạch ảo). Dòng vào ng
 
 ### 3.1. Cấu trúc mạch
 
-```
-          ┌───────── R_f ──────────┐
-          │                        │
-V_in ──── V+      Op-amp      V_out ┘
-              V− ──── R_in ──── GND
-```
+<svg viewBox="0 0 480 315" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khuếch đại không đảo: V_in vào V+, R_f từ V_out về V−, R_in từ V− xuống GND">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <polygon points="180,84 180,156 260,120" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="104.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">+</text>
+  <text x="190.0" y="146.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">−</text>
+  <text x="212.0" y="124.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Op-amp</text>
+  <line x1="80.0" y1="100.0" x2="180.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="72.0" y="104.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">V_in</text>
+  <line x1="260.0" y1="120.0" x2="360.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="320.0" cy="120.0" r="3.5" fill="#1a202c"/>
+  <text x="368.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">V_out</text>
+  <line x1="180.0" y1="140.0" x2="140.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="140.0" x2="140.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="140.0" cy="140.0" r="3.5" fill="#1a202c"/>
+  <rect x="133.0" y="190.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="152.0" y="216.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R_in</text>
+  <line x1="140.0" y1="234.0" x2="140.0" y2="250.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="250.0" x2="140.0" y2="260.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="126.0" y1="260.0" x2="154.0" y2="260.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="131.0" y1="265.0" x2="149.0" y2="265.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="270.0" x2="144.0" y2="270.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="140.0" y="284.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="320.0" y1="120.0" x2="320.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="320.0" y1="40.0" x2="140.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="40.0" x2="140.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="208.0" y="33.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="28.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_f</text>
+  <text x="240.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">V_out = V_in · (1 + R_f / R_in)</text>
+</svg>
 
 Cụ thể hơn:
 
-```
-V_in ─────────────────── V+ ───────────── V_out
-                           │
-                          V−
-                           │
-                   R_f     │     R_in
-        V_out ─────────────┤──────────── GND
-```
+<svg viewBox="0 0 480 315" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khuếch đại không đảo (vẽ lại): hồi tiếp R_f nối V_out về V−, R_in nối V− xuống GND">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <polygon points="180,84 180,156 260,120" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="104.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">+</text>
+  <text x="190.0" y="146.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">−</text>
+  <text x="212.0" y="124.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Op-amp</text>
+  <line x1="80.0" y1="100.0" x2="180.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="72.0" y="104.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">V_in</text>
+  <line x1="260.0" y1="120.0" x2="360.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="320.0" cy="120.0" r="3.5" fill="#1a202c"/>
+  <text x="368.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">V_out</text>
+  <line x1="180.0" y1="140.0" x2="140.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="140.0" x2="140.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="140.0" cy="140.0" r="3.5" fill="#1a202c"/>
+  <rect x="133.0" y="190.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="152.0" y="216.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R_in</text>
+  <line x1="140.0" y1="234.0" x2="140.0" y2="250.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="250.0" x2="140.0" y2="260.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="126.0" y1="260.0" x2="154.0" y2="260.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="131.0" y1="265.0" x2="149.0" y2="265.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="270.0" x2="144.0" y2="270.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="140.0" y="284.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="320.0" y1="120.0" x2="320.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="320.0" y1="40.0" x2="140.0" y2="40.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="40.0" x2="140.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="208.0" y="33.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="28.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_f</text>
+  <text x="240.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">hồi tiếp âm: op-amp tự chỉnh V_out để V− = V+ = V_in</text>
+</svg>
 
 Tức là:
 - $V_{in}$ nối thẳng vào $V_+$ (ngõ không đảo).
@@ -262,13 +313,36 @@ Thực tế: điện trở quá nhỏ (vài chục Ω) → dòng lớn → tiêu
 
 ### 4.1. Cấu trúc mạch
 
-```
-V_in ──── R_in ──── V− ──────────────────── V_out
-                    │           │
-                  R_f          (nối từ V_out về V−)
-                    │
-                  V+ = GND
-```
+<svg viewBox="0 0 480 280" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khuếch đại đảo: V_in qua R_in vào V−, R_f hồi tiếp từ V_out về V−, V+ nối GND">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="144.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">V_in</text>
+  <line x1="48.0" y1="140.0" x2="98.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="98.0" y="133.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="128.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_in</text>
+  <line x1="142.0" y1="140.0" x2="180.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="160.0" cy="140.0" r="3.5" fill="#1a202c"/>
+  <polygon points="180,84 180,156 260,120" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="104.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">+</text>
+  <text x="190.0" y="146.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">−</text>
+  <text x="212.0" y="124.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Op-amp</text>
+  <line x1="260.0" y1="120.0" x2="360.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="320.0" cy="120.0" r="3.5" fill="#1a202c"/>
+  <text x="368.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">V_out</text>
+  <line x1="160.0" y1="140.0" x2="160.0" y2="210.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="160.0" y1="210.0" x2="320.0" y2="210.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="320.0" y1="210.0" x2="320.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="218.0" y="203.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="198.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_f</text>
+  <line x1="180.0" y1="100.0" x2="150.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="100.0" x2="150.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="70.0" x2="150.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="60.0" x2="164.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="141.0" y1="55.0" x2="159.0" y2="55.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="146.0" y1="50.0" x2="154.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="42.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="120.0" y="104.0" fill="#475569" font-size="10" text-anchor="end">V+ = GND</text>
+  <text x="240.0" y="262.0" fill="#475569" font-size="11" text-anchor="middle">V_out = −(R_f / R_in) · V_in — đảo dấu; V− là 'đất ảo' ≈ 0 V</text>
+</svg>
 
 Cụ thể:
 - $V_{in}$ nối qua $R_{in}$ vào $V_-$ (ngõ đảo).
@@ -349,11 +423,23 @@ Kiểm tra bằng đất ảo: $I = 1.5\,\text{V} / 6\,\text{k}\Omega =$ 250 μA
 
 ### 5.1. Cấu trúc và công thức
 
-```
-V_in ──── V+ ────┐
-                  ├──── V_out
-         V− ─────┘
-```
+<svg viewBox="0 0 480 245" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bộ đệm điện áp (voltage follower): V_in vào V+, V_out nối thẳng về V−, V_out = V_in">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="72.0" y="104.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">V_in</text>
+  <line x1="80.0" y1="100.0" x2="180.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="180,84 180,156 260,120" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="104.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">+</text>
+  <text x="190.0" y="146.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">−</text>
+  <text x="212.0" y="124.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Op-amp</text>
+  <line x1="260.0" y1="120.0" x2="360.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="320.0" cy="120.0" r="3.5" fill="#1a202c"/>
+  <text x="368.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">V_out = V_in</text>
+  <line x1="180.0" y1="140.0" x2="150.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="140.0" x2="150.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="190.0" x2="320.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="320.0" y1="190.0" x2="320.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="240.0" y="230.0" fill="#475569" font-size="10" text-anchor="middle">voltage follower: hồi tiếp 100% → gain = 1; tách tầng (buffer), không nạp nguồn</text>
+</svg>
 
 Ngõ ra nối thẳng về ngõ vào đảo ($R_f$ = 0, $R_{in} = \infty$ → không có $R_{in}$). Áp dụng công thức không đảo:
 
@@ -376,13 +462,43 @@ Mạch phân áp: $R_1 = R_2 =$ 10 kΩ, nguồn $V$ = 10 V.
 
 **Giải pháp: thêm buffer giữa phân áp và tải:**
 
-```
-V ──── R_1 ──── V_divider ──── Buffer ──── V_out = V_divider ──── R_L
-                                  │
-                                 R_2
-                                  │
-                                 GND
-```
+<svg viewBox="0 0 440 220" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cầu chia áp R_1/R_2 nối qua bộ đệm gain 1 rồi ra tải R_L: tải không làm lệch V_divider">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="30.0" y="64.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">V</text>
+  <line x1="36.0" y1="60.0" x2="78.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="78.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_1</text>
+  <line x1="122.0" y1="60.0" x2="180.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="160.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="160.0" y1="60.0" x2="160.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="153.0" y="90.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="172.0" y="116.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R_2</text>
+  <line x1="160.0" y1="134.0" x2="160.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="160.0" y1="160.0" x2="160.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="146.0" y1="170.0" x2="174.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="151.0" y1="175.0" x2="169.0" y2="175.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="156.0" y1="180.0" x2="164.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="160.0" y="194.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="160.0" y="50.0" fill="#475569" font-size="12" text-anchor="start"></text>
+  <rect x="200.0" y="40.0" width="90.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="245.0" y="57.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Buffer</text>
+  <text x="245.0" y="70.5" fill="#475569" font-size="10" text-anchor="middle">gain 1</text>
+  <line x1="180.0" y1="60.0" x2="200.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="290.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="340.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <text x="340.0" y="44.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">V_out = V_divider</text>
+  <line x1="340.0" y1="60.0" x2="340.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="333.0" y="90.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="352.0" y="116.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">R_L</text>
+  <line x1="340.0" y1="134.0" x2="340.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="340.0" y1="160.0" x2="340.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="326.0" y1="170.0" x2="354.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="331.0" y1="175.0" x2="349.0" y2="175.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="336.0" y1="180.0" x2="344.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="340.0" y="194.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="120.0" y="90.0" fill="#475569" font-size="10" text-anchor="middle">V_divider</text>
+  <text x="220.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">buffer chắn R_L khỏi cầu chia: V_out không tụt khi tải đổi</text>
+</svg>
 
 Buffer có trở vào rất cao ($Z_{in} \approx$ 2 MΩ) → gần như không lấy dòng từ phân áp → $V_{\text{divider}}$ không bị kéo xuống. Buffer có trở ra rất thấp ($Z_{out} \approx$ 75 Ω) → cấp dòng cho $R_L$ từ nguồn op-amp.
 

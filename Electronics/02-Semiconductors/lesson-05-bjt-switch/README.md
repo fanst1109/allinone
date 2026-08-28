@@ -253,21 +253,52 @@ Với khóa tĩnh (DC ON/OFF), OD lớn chỉ tốn thêm dòng base (từ GPIO)
 
 Sơ đồ cơ bản (tải LED công suất):
 
-```
-V_CC (+12 V)
-     |
-  [R_s = 100 Ω]  ← giới hạn dòng LED
-     |
-  [LED (anode)]
-     |
-  (cathode) → Collector (C)
-                  |
-             Transistor NPN (BC337/2N2222)
-                  |
-              Emitter (E) → GND
-                  |
-              Base (B) ←── [R_B = 220 Ω] ←── GPIO (5V / 0V)
-```
+<svg viewBox="0 0 560 315" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BJT NPN làm công tắc LED: V_CC → R_s 100 Ω → LED → collector; emitter GND; base qua R_B 220 Ω từ GPIO">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <g transform="translate(90,0)">
+  <text x="200.0" y="24.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_CC (+12 V)</text>
+  <line x1="200.0" y1="30.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="50.0" x2="200.0" y2="58.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="193.0" y="58.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="212.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R_s</text>
+  <text x="212.0" y="97.0" fill="#475569" font-size="10" text-anchor="start">100 Ω</text>
+  <line x1="200.0" y1="102.0" x2="200.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="110.0" x2="200.0" y2="154.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="190.0,122.0 210.0,122.0 200.0,142.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="190.0" y1="142.0" x2="210.0" y2="142.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="216.0" y="136.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700"></text>
+  <line x1="212.0" y1="128.0" x2="226.0" y2="118.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
+  <line x1="212.0" y1="138.0" x2="226.0" y2="128.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
+  <text x="234.0" y="146.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">LED</text>
+  <line x1="158.0" y1="200.0" x2="182.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="182.0" y1="184.0" x2="182.0" y2="216.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="182.0" y1="194.0" x2="200.0" y2="176.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="182.0" y1="206.0" x2="200.0" y2="224.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="200.0" y1="176.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="224.0" x2="200.0" y2="234.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="190.0" y1="214.0" x2="199.0" y2="223.0" stroke="#7c3aed" stroke-width="2" marker-end="url(#npnm)"/>
+  <circle cx="190" cy="200" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="176.0" y="186.0" fill="#475569" font-size="10" text-anchor="end">B</text>
+  <text x="206.0" y="172.0" fill="#475569" font-size="10" text-anchor="start">C</text>
+  <text x="206.0" y="232.0" fill="#475569" font-size="10" text-anchor="start">E</text>
+  <text x="218.0" y="204.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">NPN</text>
+  <line x1="200.0" y1="150.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="166.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="234.0" x2="200.0" y2="256.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="256.0" x2="200.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="186.0" y1="266.0" x2="214.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="191.0" y1="271.0" x2="209.0" y2="271.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="196.0" y1="276.0" x2="204.0" y2="276.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="290.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="158.0" y1="200.0" x2="128.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="84.0" y="193.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="106.0" y="188.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_B</text>
+  <text x="106.0" y="224.0" fill="#475569" font-size="10" text-anchor="middle">220 Ω</text>
+  <line x1="84.0" y1="200.0" x2="58.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="52.0" y="204.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">GPIO (5 V / 0 V)</text>
+  </g>
+  <text x="280.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">GPIO = 5 V → BJT bão hoà → LED sáng; GPIO = 0 V → tắt</text>
+</svg>
 
 Phân tích trạng thái:
 - GPIO = LOW (0 V): $V_{BE}$ = 0 V < 0.6 V → cutoff → $I_C$ = 0 → LED tắt. $V_{CE} = V_{CC}$ = 12 V (toàn bộ nguồn rơi trên transistor, không sao vì $I_C \approx 0$, $P \approx 0$).
@@ -283,33 +314,109 @@ Relay và động cơ DC có **cuộn dây cảm (inductor)**. Khi transistor ng
 
 Lắp một diode **ngược chiều** song song với tải cảm:
 
-```
-V_CC (+5 V)
-     |
-  [Cuộn relay]
-     |─────────────────────────┐
-     |                         |
-  (cuộn relay)             [Diode 1N4007]
-     |                     (Cathode → V_CC)
-  (chân thứ 2)             (Anode → dây nối xuống)
-     |─────────────────────────┘
-     |
-  Collector (C) ← Transistor NPN
-     ...
-```
+<svg viewBox="0 0 560 315" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BJT lái relay với diode flyback 1N4007 song song cuộn relay (cathode nối V_CC, anode nối collector)">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <g transform="translate(90,0)">
+  <text x="200.0" y="24.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_CC (+5 V)</text>
+  <line x1="200.0" y1="30.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="50.0" x2="200.0" y2="58.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="188.0" y="58.0" width="24.0" height="60.0" rx="0" fill="white" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="184.0" y="92.0" fill="#7c3aed" font-size="10" text-anchor="end">cuộn relay</text>
+  <line x1="200.0" y1="118.0" x2="200.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="58.0" x2="270.0" y2="58.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="270.0" y1="58.0" x2="270.0" y2="66.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="270.0" y1="66.0" x2="270.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="260.0,98.0 280.0,98.0 270.0,78.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="260.0" y1="78.0" x2="280.0" y2="78.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="286.0" y="92.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700"></text>
+  <line x1="270.0" y1="110.0" x2="270.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="270.0" y1="142.0" x2="200.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="200.0" cy="58.0" r="3.5" fill="#1a202c"/>
+  <circle cx="200.0" cy="142.0" r="3.5" fill="#1a202c"/>
+  <text x="288.0" y="84.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">1N4007 (flyback)</text>
+  <text x="288.0" y="97.0" fill="#475569" font-size="9" text-anchor="start">cathode lên V_CC, anode xuống collector</text>
+  <line x1="158.0" y1="200.0" x2="182.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="182.0" y1="184.0" x2="182.0" y2="216.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="182.0" y1="194.0" x2="200.0" y2="176.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="182.0" y1="206.0" x2="200.0" y2="224.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="200.0" y1="176.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="224.0" x2="200.0" y2="234.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="190.0" y1="214.0" x2="199.0" y2="223.0" stroke="#7c3aed" stroke-width="2" marker-end="url(#npnm)"/>
+  <circle cx="190" cy="200" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="176.0" y="186.0" fill="#475569" font-size="10" text-anchor="end">B</text>
+  <text x="206.0" y="172.0" fill="#475569" font-size="10" text-anchor="start">C</text>
+  <text x="206.0" y="232.0" fill="#475569" font-size="10" text-anchor="start">E</text>
+  <text x="218.0" y="204.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">NPN</text>
+  <line x1="200.0" y1="150.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="166.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="234.0" x2="200.0" y2="256.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="256.0" x2="200.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="186.0" y1="266.0" x2="214.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="191.0" y1="271.0" x2="209.0" y2="271.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="196.0" y1="276.0" x2="204.0" y2="276.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="290.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="158.0" y1="200.0" x2="128.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="84.0" y="193.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="106.0" y="188.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_B</text>
+  <text x="106.0" y="224.0" fill="#475569" font-size="10" text-anchor="middle">220 Ω</text>
+  <line x1="84.0" y1="200.0" x2="58.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="52.0" y="204.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">GPIO (5 V / 0 V)</text>
+  </g>
+  <text x="280.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">khi BJT tắt đột ngột, dòng cuộn relay xả qua diode → bảo vệ transistor</text>
+</svg>
 
 Cụ thể hơn:
 
-```
-V_CC ─┬─[Cuộn relay]─┐
-      │               │
-      │            [1N4007] (cathode lên V_CC, anode xuống collector)
-      │               │
-      └───────────────┤
-                    Collector
-                  Transistor NPN
-                    Emitter → GND
-```
+<svg viewBox="0 0 560 315" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cách vẽ gọn: V_CC → cuộn relay ∥ 1N4007 → collector NPN → emitter GND">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <g transform="translate(90,0)">
+  <text x="200.0" y="24.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_CC</text>
+  <line x1="200.0" y1="30.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="50.0" x2="200.0" y2="58.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="188.0" y="58.0" width="24.0" height="60.0" rx="0" fill="white" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="184.0" y="92.0" fill="#7c3aed" font-size="10" text-anchor="end">cuộn relay</text>
+  <line x1="200.0" y1="118.0" x2="200.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="58.0" x2="270.0" y2="58.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="270.0" y1="58.0" x2="270.0" y2="66.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="270.0" y1="66.0" x2="270.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="260.0,98.0 280.0,98.0 270.0,78.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="260.0" y1="78.0" x2="280.0" y2="78.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="286.0" y="92.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700"></text>
+  <line x1="270.0" y1="110.0" x2="270.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="270.0" y1="142.0" x2="200.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="200.0" cy="58.0" r="3.5" fill="#1a202c"/>
+  <circle cx="200.0" cy="142.0" r="3.5" fill="#1a202c"/>
+  <text x="288.0" y="84.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">1N4007 (flyback)</text>
+  <text x="288.0" y="97.0" fill="#475569" font-size="9" text-anchor="start">cathode lên V_CC, anode xuống collector</text>
+  <line x1="158.0" y1="200.0" x2="182.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="182.0" y1="184.0" x2="182.0" y2="216.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="182.0" y1="194.0" x2="200.0" y2="176.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="182.0" y1="206.0" x2="200.0" y2="224.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="200.0" y1="176.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="224.0" x2="200.0" y2="234.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="190.0" y1="214.0" x2="199.0" y2="223.0" stroke="#7c3aed" stroke-width="2" marker-end="url(#npnm)"/>
+  <circle cx="190" cy="200" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="176.0" y="186.0" fill="#475569" font-size="10" text-anchor="end">B</text>
+  <text x="206.0" y="172.0" fill="#475569" font-size="10" text-anchor="start">C</text>
+  <text x="206.0" y="232.0" fill="#475569" font-size="10" text-anchor="start">E</text>
+  <text x="218.0" y="204.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">NPN</text>
+  <line x1="200.0" y1="150.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="166.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="234.0" x2="200.0" y2="256.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="256.0" x2="200.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="186.0" y1="266.0" x2="214.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="191.0" y1="271.0" x2="209.0" y2="271.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="196.0" y1="276.0" x2="204.0" y2="276.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="290.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="158.0" y1="200.0" x2="128.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="84.0" y="193.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="106.0" y="188.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_B</text>
+  <text x="106.0" y="224.0" fill="#475569" font-size="10" text-anchor="middle">220 Ω</text>
+  <line x1="84.0" y1="200.0" x2="58.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="52.0" y="204.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">GPIO (5 V / 0 V)</text>
+  </g>
+  <text x="280.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">cùng mạch với hình trên, vẽ gọn: relay và diode song song giữa V_CC và collector</text>
+</svg>
 
 Khi transistor ngắt: cuộn relay muốn duy trì dòng → tạo EMF ngược → diode 1N4007 phân cực thuận → tạo vòng tuần hoàn kín cho dòng cảm chạy qua diode → năng lượng cảm tiêu tán dần trong điện trở cuộn → spike bị dập tắt an toàn.
 
@@ -325,16 +432,44 @@ Xem thêm: [Lesson 02 — Diode](../lesson-02-diode/) về đặc tuyến diode 
 
 Cấu hình phổ biến nhất: transistor NPN nằm ở **phía thấp (low-side)** — tức là giữa tải và GND.
 
-```
-V_CC
-  |
-[Tải]
-  |
-  C ─── Collector
-  Transistor NPN
-  E ─── Emitter → GND
-  B ─── [R_B] → GPIO
-```
+<svg viewBox="0 0 560 315" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sườn chung BJT switch: V_CC → tải → collector; emitter GND; base qua R_B từ GPIO">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <g transform="translate(90,0)">
+  <text x="200.0" y="24.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_CC</text>
+  <line x1="200.0" y1="30.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="50.0" x2="200.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="170.0" y="80.0" width="60.0" height="40.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="200.0" y="104.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Tải</text>
+  <line x1="200.0" y1="120.0" x2="200.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="158.0" y1="200.0" x2="182.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="182.0" y1="184.0" x2="182.0" y2="216.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="182.0" y1="194.0" x2="200.0" y2="176.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="182.0" y1="206.0" x2="200.0" y2="224.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="200.0" y1="176.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="224.0" x2="200.0" y2="234.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="190.0" y1="214.0" x2="199.0" y2="223.0" stroke="#7c3aed" stroke-width="2" marker-end="url(#npnm)"/>
+  <circle cx="190" cy="200" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="176.0" y="186.0" fill="#475569" font-size="10" text-anchor="end">B</text>
+  <text x="206.0" y="172.0" fill="#475569" font-size="10" text-anchor="start">C</text>
+  <text x="206.0" y="232.0" fill="#475569" font-size="10" text-anchor="start">E</text>
+  <text x="218.0" y="204.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">NPN</text>
+  <line x1="200.0" y1="150.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="166.0" x2="200.0" y2="166.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="234.0" x2="200.0" y2="256.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="256.0" x2="200.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="186.0" y1="266.0" x2="214.0" y2="266.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="191.0" y1="271.0" x2="209.0" y2="271.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="196.0" y1="276.0" x2="204.0" y2="276.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="290.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="158.0" y1="200.0" x2="128.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="84.0" y="193.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="106.0" y="188.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_B</text>
+  <text x="106.0" y="224.0" fill="#475569" font-size="10" text-anchor="middle">220 Ω</text>
+  <line x1="84.0" y1="200.0" x2="58.0" y2="200.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="52.0" y="204.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">GPIO (5 V / 0 V)</text>
+  </g>
+  <text x="280.0" y="300.0" fill="#475569" font-size="11" text-anchor="middle">tải bất kỳ (LED, relay, motor nhỏ) đặt phía collector</text>
+</svg>
 
 Ưu điểm low-side NPN:
 - GPIO output 3.3–5 V dễ dàng phân cực thuận B–E ($V_{BE}$ = 0.7 V, không cần điện áp đặc biệt).

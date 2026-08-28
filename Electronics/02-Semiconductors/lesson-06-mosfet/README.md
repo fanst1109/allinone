@@ -185,19 +185,44 @@ $$P = I^2 \cdot R_{DS(\text{on})} = (10)^2 \times 0.044 = 100 \times 0.044 = \te
 
 ### 4.1. Sơ đồ mạch cơ bản
 
-```
-V_supply (+12 V)
-     │
-     ├── Tải (động cơ / LED)
-     │
-     D ─── Drain
-     │
-     S ─── Source ──── GND
-     │
-     G ─── Gate ──── R_G (100 Ω) ──── MCU GPIO
-                                          │
-                                         GND (cùng GND với Source)
-```
+<svg viewBox="0 0 460 265" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="MOSFET kênh N làm công tắc phía thấp: tải giữa V_supply và drain, source GND, gate qua R_G 100 Ω từ MCU GPIO">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="200.0" y="24.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_supply (+12 V)</text>
+  <line x1="200.0" y1="30.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="160.0" y="50.0" width="80.0" height="40.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="200.0" y="67.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Tải</text>
+  <text x="200.0" y="80.5" fill="#475569" font-size="10" text-anchor="middle">motor / LED</text>
+  <line x1="200.0" y1="90.0" x2="200.0" y2="116.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="158.0" y1="150.0" x2="178.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="178.0" y1="136.0" x2="178.0" y2="164.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="184.0" y1="134.0" x2="184.0" y2="166.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="184.0" y1="140.0" x2="200.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="140.0" x2="200.0" y2="116.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="184.0" y1="160.0" x2="200.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="160.0" x2="200.0" y2="184.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="184.0" y1="150.0" x2="200.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="150.0" x2="200.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="199.0" y1="150.0" x2="186.0" y2="150.0" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#npnm)"/>
+  <circle cx="190" cy="150" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="174.0" y="136.0" fill="#475569" font-size="10" text-anchor="end">G</text>
+  <text x="206.0" y="122.0" fill="#475569" font-size="10" text-anchor="start">D</text>
+  <text x="206.0" y="182.0" fill="#475569" font-size="10" text-anchor="start">S</text>
+  <text x="218.0" y="154.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">NMOS</text>
+  <line x1="200.0" y1="90.0" x2="200.0" y2="116.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="184.0" x2="200.0" y2="206.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="206.0" x2="200.0" y2="216.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="186.0" y1="216.0" x2="214.0" y2="216.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="191.0" y1="221.0" x2="209.0" y2="221.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="196.0" y1="226.0" x2="204.0" y2="226.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="240.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="158.0" y1="150.0" x2="128.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="84.0" y="143.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="106.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_G</text>
+  <text x="106.0" y="174.0" fill="#475569" font-size="10" text-anchor="middle">100 Ω</text>
+  <line x1="84.0" y1="150.0" x2="58.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="52.0" y="154.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">MCU GPIO</text>
+  <text x="230.0" y="250.0" fill="#475569" font-size="11" text-anchor="middle">GND của MCU nối chung với Source (nếu không, V_GS không xác định)</text>
+</svg>
 
 Nguyên tắc:
 - MCU xuất $V_{GS}$ = 0 V → MOSFET OFF → tải tắt.

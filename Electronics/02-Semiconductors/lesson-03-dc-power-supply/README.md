@@ -39,10 +39,33 @@ Vì 220 V là giá trị **rms (root mean square)** — giá trị hiệu dụng
 
 ### 1.2. Sơ đồ khối mạch nguồn DC
 
-```
-[Lưới AC 220 V] → [Biến áp] → [Chỉnh lưu] → [Tụ lọc] → [Ổn áp] → [V_out DC ổn định]
-     220 V~             12 V~       ~17 V peak     ~15 V dc     5 V hoặc 12 V
-```
+<svg viewBox="0 0 660 115" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ khối nguồn DC: lưới 220 V~ → biến áp 12 V~ → chỉnh lưu → tụ lọc → ổn áp → DC ổn định">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="92.0" height="44.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="62.0" y="49.5" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">Lưới AC</text>
+  <text x="62.0" y="62.5" fill="#475569" font-size="10" text-anchor="middle">220 V~</text>
+  <line x1="110.0" y1="52.0" x2="118.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="120.0" y="30.0" width="92.0" height="44.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="166.0" y="49.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Biến áp</text>
+  <text x="166.0" y="62.5" fill="#475569" font-size="10" text-anchor="middle">12 V~</text>
+  <line x1="214.0" y1="52.0" x2="222.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="224.0" y="30.0" width="92.0" height="44.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="270.0" y="49.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Chỉnh lưu</text>
+  <text x="270.0" y="62.5" fill="#475569" font-size="10" text-anchor="middle">~17 V peak</text>
+  <line x1="318.0" y1="52.0" x2="326.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="328.0" y="30.0" width="92.0" height="44.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="374.0" y="49.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Tụ lọc</text>
+  <text x="374.0" y="62.5" fill="#475569" font-size="10" text-anchor="middle">~15 V dc gợn</text>
+  <line x1="422.0" y1="52.0" x2="430.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="432.0" y="30.0" width="92.0" height="44.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="478.0" y="49.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Ổn áp</text>
+  <text x="478.0" y="62.5" fill="#475569" font-size="10" text-anchor="middle">5 V / 12 V</text>
+  <line x1="526.0" y1="52.0" x2="534.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="536.0" y="30.0" width="92.0" height="44.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="582.0" y="49.5" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">V_out DC</text>
+  <text x="582.0" y="62.5" fill="#475569" font-size="10" text-anchor="middle">ổn định</text>
+  <text x="330.0" y="100.0" fill="#475569" font-size="11" text-anchor="middle">chuỗi biến đổi: hạ áp → một chiều hoá → làm phẳng → giữ hằng</text>
+</svg>
 
 Mỗi khối giải quyết một vấn đề:
 
@@ -166,11 +189,46 @@ Tần số gợn sóng: **50 Hz** (bằng tần số nguồn AC vào).
 
 4 diode D1, D2, D3, D4 nối thành cầu:
 
-```
-        AC1 ○──┤D1├──○ (+) → Tải → ○ (−) ──┤D3├──○ AC1
-               |                              |
-        AC2 ○──┤D4├──○ (+)         (−) ──┤D2├──○ AC2
-```
+<svg viewBox="0 0 420 265" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cầu chỉnh lưu 4 diode: AC1, AC2 vào hai bên, cực (+) trên, (−) dưới; mỗi bán kỳ hai diode dẫn nên tải luôn nhận dòng một chiều">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="110.0" y1="120.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="50.0" x2="290.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="110.0" y1="120.0" x2="200.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="190.0" x2="290.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <g transform="rotate(-37.9 155.0 85.0)">
+  <polygon points="145.0,75.0 145.0,95.0 165.0,85.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="165.0" y1="75.0" x2="165.0" y2="95.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="155.0" y="69.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
+  </g>
+  <text x="133.0" y="71.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">D1</text>
+  <g transform="rotate(-37.9 245.0 155.0)">
+  <polygon points="235.0,145.0 235.0,165.0 255.0,155.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="255.0" y1="145.0" x2="255.0" y2="165.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="245.0" y="139.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
+  </g>
+  <text x="267.0" y="173.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">D2</text>
+  <g transform="rotate(-142.1 245.0 85.0)">
+  <polygon points="235.0,75.0 235.0,95.0 255.0,85.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="255.0" y1="75.0" x2="255.0" y2="95.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="245.0" y="69.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
+  </g>
+  <text x="267.0" y="71.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">D3</text>
+  <g transform="rotate(-142.1 155.0 155.0)">
+  <polygon points="145.0,145.0 145.0,165.0 165.0,155.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="165.0" y1="145.0" x2="165.0" y2="165.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="155.0" y="139.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
+  </g>
+  <text x="133.0" y="173.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">D4</text>
+  <line x1="110.0" y1="120.0" x2="60.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="52.0" y="124.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">AC1</text>
+  <line x1="290.0" y1="120.0" x2="340.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="348.0" y="124.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">AC2</text>
+  <line x1="200.0" y1="50.0" x2="200.0" y2="20.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="210.0" y="26.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(+) → Tải</text>
+  <line x1="200.0" y1="190.0" x2="200.0" y2="220.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="210.0" y="224.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">(−) ← Tải</text>
+  <text x="200.0" y="250.0" fill="#475569" font-size="10" text-anchor="middle">bán kỳ dương: AC1 → D1 → tải → D2 → AC2 · bán kỳ âm: AC2 → D3 → tải → D4 → AC1</text>
+</svg>
 
 Hoặc sơ đồ chuẩn: D1, D2, D3, D4 tạo thành vòng kín; hai đầu vào AC; hai đầu ra DC.
 

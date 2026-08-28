@@ -103,11 +103,29 @@ A: $I \\approx -I_s \\approx -10^{-12}$ A (cực kỳ nhỏ) — thực tế coi
 
 **Sơ đồ mạch cơ bản:**
 
-\`\`\`
-  V_s (+)──[R]──┬──(A)→|(K)──┬── GND
-                │              │
-              V_R            V_D
-\`\`\`
+<svg viewBox="0 0 420 165" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạch diode phân cực thuận: nguồn V_s qua R rồi diode (anode → cathode) về GND; V_s = V_R + V_D">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">V_s (+)</text>
+  <line x1="70.0" y1="60.0" x2="138.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="138.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R</text>
+  <text x="160.0" y="84.0" fill="#475569" font-size="10" text-anchor="middle">V_R</text>
+  <line x1="182.0" y1="60.0" x2="258.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="258.0" y1="60.0" x2="302.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="270.0,50.0 270.0,70.0 290.0,60.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="290.0" y1="50.0" x2="290.0" y2="70.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="280.0" y="44.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">D  (A → K)</text>
+  <line x1="302.0" y1="60.0" x2="360.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="360.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="360.0" y1="60.0" x2="360.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="360.0" y1="90.0" x2="360.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="346.0" y1="100.0" x2="374.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="351.0" y1="105.0" x2="369.0" y2="105.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="356.0" y1="110.0" x2="364.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="360.0" y="124.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="300.0" y="90.0" fill="#dc2626" font-size="10" text-anchor="middle">V_D ≈ 0,7 V</text>
+  <text x="210.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">KVL: V_s = V_R + V_D → I = (V_s − 0,7)/R</text>
+</svg>
 
 Áp dụng Kirchhoff điện áp (KVL):
 
@@ -168,14 +186,29 @@ Kiểm tra: V_R + V_D = 11.3 + 0.7 = 12 V ✓
 
 **Mạch chỉnh lưu bán kỳ (half-wave rectifier):**
 
-\`\`\`
-     D
-AC ──→|──┬── V_out (chỉ bán kỳ dương, trừ sụt 0.7 V)
-         │
-        [R_L]
-         │
-        GND
-\`\`\`
+<svg viewBox="0 0 420 220" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chỉnh lưu nửa sóng: diode nối tiếp AC, tải R_L xuống GND; chỉ bán kỳ dương qua">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">AC ~</text>
+  <line x1="70.0" y1="60.0" x2="138.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="138.0" y1="60.0" x2="182.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="150.0,50.0 150.0,70.0 170.0,60.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="170.0" y1="50.0" x2="170.0" y2="70.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="160.0" y="44.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <line x1="182.0" y1="60.0" x2="260.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="260.0" y1="60.0" x2="320.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="340.0" y="64.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">V_out</text>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="253.0" y="90.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="272.0" y="116.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">R_L</text>
+  <line x1="260.0" y1="134.0" x2="260.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="160.0" x2="260.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="170.0" x2="274.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="175.0" x2="269.0" y2="175.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="180.0" x2="264.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="194.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">chỉ bán kỳ dương đi qua (trừ sụt 0,7 V); bán kỳ âm bị chặn</text>
+</svg>
 
 **Hoạt động:**
 - Bán kỳ dương (V_in > 0.7 V): diode dẫn → V_out = V_in − 0.7 V ≈ V_in.
@@ -232,13 +265,31 @@ A: Khi tắt dòng qua cuộn cảm (inductor) hoặc relay, cuộn sinh xung đ
 
 **Sơ đồ:**
 
-\`\`\`
-  V_in (+)──[R_s]──┬──── V_out = V_Z (ổn định)
-                   │
-                 [Zener]  (cathode lên trên, anode xuống GND)
-                   │
-                  GND
-\`\`\`
+<svg viewBox="0 0 420 220" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ổn áp Zener: R_s nối tiếp, Zener phân cực ngược xuống GND, V_out ổn định bằng V_Z">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">V_in (+)</text>
+  <line x1="70.0" y1="60.0" x2="138.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="138.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_s</text>
+  <line x1="182.0" y1="60.0" x2="260.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="260.0" y1="60.0" x2="320.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="340.0" y="64.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">V_out = V_Z</text>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="90.0" x2="260.0" y2="134.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="250.0,122.0 270.0,122.0 260.0,102.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="250.0" y1="102.0" x2="270.0" y2="102.0" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="250.0" y1="102.0" x2="250.0" y2="108.0" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="270.0" y1="102.0" x2="270.0" y2="96.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="276.0" y="116.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">Zener</text>
+  <line x1="260.0" y1="134.0" x2="260.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="160.0" x2="260.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="170.0" x2="274.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="175.0" x2="269.0" y2="175.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="180.0" x2="264.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="194.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">Zener phân cực ngược (cathode lên trên): giữ V_out ≈ V_Z dù V_in đổi</text>
+</svg>
 
 **Điều kiện hoạt động đúng:**
 1. V_in > V_Z (cần có áp dư để Zener mở).

@@ -45,16 +45,11 @@ Mỗi dòng dữ liệu *trông* hợp lệ, nhưng tập dữ liệu lại **m�
 
 Ta dùng một bảng cụ thể xuyên suốt mục này:
 
-```
-students
-┌────┬──────────────────┬────────────┬───────┐
-│ id │ email            │ phone      │ name  │
-├────┼──────────────────┼────────────┼───────┤
-│ 1  │ an@uni.edu       │ 0901111111 │ An    │
-│ 2  │ binh@uni.edu     │ 0902222222 │ Binh  │
-│ 3  │ chi@uni.edu      │ 0903333333 │ Chi   │
-└────┴──────────────────┴────────────┴───────┘
-```
+| id | email | phone | name |
+|---|---|---|---|
+| 1 | an@uni.edu | 0901111111 | An |
+| 2 | binh@uni.edu | 0902222222 | Binh |
+| 3 | chi@uni.edu | 0903333333 | Chi |
 
 Giả thiết nghiệp vụ: **mỗi sinh viên có một `id` riêng, một `email` riêng, một `phone` riêng** — ba cột này đều không trùng nhau giữa các sinh viên. `name` thì có thể trùng (hai bạn cùng tên "An").
 
@@ -153,16 +148,13 @@ Một sinh viên học nhiều môn, một môn có nhiều sinh viên. `student
 
 **(c) Ví dụ.** Hai bảng:
 
-```
-customers(id PK, name)            orders(id PK, customer_id FK → customers.id, total)
-┌────┬──────┐                     ┌────┬─────────────┬───────┐
-│ id │ name │                     │ id │ customer_id │ total │
-├────┼──────┤                     ├────┼─────────────┼───────┤
-│ 1  │ An   │                     │ 10 │ 1           │ 500   │
-│ 2  │ Binh │                     │ 11 │ 2           │ 300   │
-└────┴──────┘                     │ 12 │ 1           │ 700   │
-                                  └────┴─────────────┴───────┘
-```
+**customers** (id PK, name) &nbsp;&nbsp;|&nbsp;&nbsp; **orders** (id PK, customer_id FK → customers.id, total)
+
+| customers.id | name | | orders.id | customer_id | total |
+|---|---|---|---|---|---|
+| 1 | An | | 10 | 1 | 500 |
+| 2 | Binh | | 11 | 2 | 300 |
+| | | | 12 | 1 | 700 |
 
 `orders.customer_id` là foreign key trỏ tới `customers.id`. Mọi `customer_id` trong `orders` (1, 2, 1) đều có mặt trong `customers.id` → hợp lệ.
 

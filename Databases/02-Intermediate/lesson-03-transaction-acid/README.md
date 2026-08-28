@@ -184,18 +184,31 @@ Kết quả hợp lệ, tổng không đổi.
 
 Một transaction đi qua các trạng thái sau:
 
-```
-                 đọc/ghi xong
-   ┌────────┐   tất cả thao tác   ┌──────────────────┐   COMMIT thành công   ┌───────────┐
-   │ active │ ──────────────────> │ partially         │ ────────────────────> │ committed │
-   └────────┘                     │ committed         │                       └───────────┘
-        │                         └──────────────────┘
-        │ gặp lỗi                          │ lỗi khi ghi xuống đĩa
-        v                                  v
-   ┌────────┐        rollback        ┌──────────┐
-   │ failed │ ─────────────────────> │ aborted  │
-   └────────┘                        └──────────┘
-```
+<svg viewBox="0 0 620 210" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái giao dịch: active → partially committed → committed; active gặp lỗi → failed → rollback → aborted; partially committed lỗi ghi đĩa → aborted">
+  <defs><marker id="tx" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="60.0" width="100.0" height="40.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="70.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">active</text>
+  <line x1="122.0" y1="80.0" x2="238.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tx)"/>
+  <text x="180.0" y="58.0" fill="#475569" font-size="10" text-anchor="middle">đọc/ghi xong</text>
+  <text x="180.0" y="70.0" fill="#475569" font-size="10" text-anchor="middle">tất cả thao tác</text>
+  <rect x="240.0" y="50.0" width="150.0" height="60.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="315.0" y="77.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">partially</text>
+  <text x="315.0" y="91.0" fill="#475569" font-size="11" text-anchor="middle">committed</text>
+  <line x1="392.0" y1="80.0" x2="478.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tx)"/>
+  <text x="435.0" y="70.0" fill="#475569" font-size="10" text-anchor="middle">COMMIT thành công</text>
+  <rect x="480.0" y="60.0" width="120.0" height="40.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="540.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">committed</text>
+  <line x1="70.0" y1="100.0" x2="70.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tx)"/>
+  <text x="80.0" y="128.0" fill="#dc2626" font-size="10" text-anchor="start">gặp lỗi</text>
+  <line x1="315.0" y1="110.0" x2="315.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tx)"/>
+  <text x="325.0" y="132.0" fill="#dc2626" font-size="10" text-anchor="start">lỗi khi ghi xuống đĩa</text>
+  <rect x="20.0" y="152.0" width="100.0" height="40.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="70.0" y="176.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">failed</text>
+  <line x1="122.0" y1="172.0" x2="238.0" y2="172.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#tx)"/>
+  <text x="180.0" y="164.0" fill="#475569" font-size="10" text-anchor="middle">rollback</text>
+  <rect x="240.0" y="152.0" width="150.0" height="40.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="315.0" y="176.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">aborted</text>
+</svg>
 
 | Trạng thái | Ý nghĩa |
 | --- | --- |

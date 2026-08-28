@@ -127,16 +127,25 @@ Tỉ lệ đánh đổi: thêm 1kg gạo = bớt $\frac{3}{2} = 1.5\text{kg}$ ng
 
 **Ví dụ 2 — PPF cong (đánh đổi tăng dần)**. Trong thực tế, một số nguồn lực phù hợp việc này hơn việc kia. Đất tốt cho gạo có thể không tốt cho ngô và ngược lại. Khi đó PPF có dạng **lồi ra ngoài**: chuyển từ gạo sang ngô lúc đầu rẻ (chuyển đất xấu), càng về sau càng đắt (phải hy sinh cả đất tốt nhất cho gạo).
 
-```
-Ngô │ A
-    │ . 
-    │   . 
-    │     . 
-    │       .  <- càng dốc về phía này, chi phí cơ hội của ngô càng cao
-    │         .
-    │           B
-    └─────────────── Gạo
-```
+<svg viewBox="0 0 440 275" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường PPF cong lồi từ A (toàn ngô) tới B (toàn gạo): càng về phía B, đường càng dốc — chi phí cơ hội của gạo tính bằng ngô càng cao">
+  <defs><marker id="ppf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+</g>
+  <line x1="54.0" y1="220.0" x2="358.0" y2="220.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ppf)"/>
+  <line x1="60.0" y1="226.0" x2="60.0" y2="29.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ppf)"/>
+  <text x="350.0" y="236.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">Gạo</text>
+  <text x="68.0" y="39.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">Ngô</text>
+  <path d="M 60.0,64.0 L 64.0,64.0 L 68.0,64.1 L 72.0,64.2 L 76.0,64.3 L 80.0,64.5 L 84.0,64.8 L 88.0,65.1 L 92.0,65.4 L 96.0,65.8 L 100.0,66.2 L 104.0,66.6 L 108.0,67.2 L 112.0,67.7 L 116.0,68.3 L 120.0,69.0 L 124.0,69.6 L 128.0,70.4 L 132.0,71.2 L 136.0,72.0 L 140.0,72.9 L 144.0,73.9 L 148.0,74.9 L 152.0,75.9 L 156.0,77.0 L 160.0,78.2 L 164.0,79.4 L 168.0,80.7 L 172.0,82.0 L 176.0,83.4 L 180.0,84.9 L 184.0,86.4 L 188.0,88.0 L 192.0,89.7 L 196.0,91.5 L 200.0,93.3 L 204.0,95.2 L 208.0,97.2 L 212.0,99.3 L 216.0,101.5 L 220.0,103.7 L 224.0,106.1 L 228.0,108.6 L 232.0,111.2 L 236.0,113.9 L 240.0,116.8 L 244.0,119.8 L 248.0,123.0 L 252.0,126.4 L 256.0,130.0 L 260.0,133.8 L 264.0,137.8 L 268.0,142.2 L 272.0,146.9 L 276.0,152.0 L 280.0,157.7 L 284.0,164.0 L 288.0,171.3 L 292.0,180.1 L 296.0,191.6 L 300.0,220.0" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="60.0" cy="64.0" r="5" fill="#dc2626"/>
+  <text x="70.0" y="60.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">A: toàn ngô</text>
+  <circle cx="300.0" cy="220.0" r="5" fill="#dc2626"/>
+  <text x="294.0" y="210.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">B: toàn gạo</text>
+  <circle cx="276.0" cy="152.4" r="4" fill="#15803d"/>
+  <text x="268.0" y="146.4" fill="#15803d" font-size="10" text-anchor="end" font-weight="700">gần B: dốc — thêm 1 gạo mất nhiều ngô</text>
+  <circle cx="120.0" cy="69.2" r="4" fill="#15803d"/>
+  <text x="128.0" y="83.2" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">gần A: thoải — thêm 1 gạo mất ít ngô</text>
+  <text x="210.0" y="258.0" fill="#475569" font-size="11" text-anchor="middle">đường giới hạn khả năng sản xuất (PPF) lồi ra ngoài: chi phí cơ hội tăng dần</text>
+</svg>
 
 **Ví dụ 3 — Tăng trưởng kinh tế = đường PPF dịch ra**. Khi công nghệ tiến bộ hoặc dân số tăng, cả 2 trục đều mở rộng → đường PPF dịch ra ngoài. Hàn Quốc 1960 vs 2024: PPF dịch ra hàng chục lần nhờ tích lũy vốn + giáo dục.
 

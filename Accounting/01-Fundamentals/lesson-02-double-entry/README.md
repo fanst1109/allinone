@@ -138,22 +138,55 @@ Nối tiếp quán cà phê của Lesson 01. Mỗi giao dịch: định khoản 
 
 **Đưa vào T-account** (cộng dồn theo cột). Bốn tài khoản có nhiều phát sinh nhất:
 
-```
-      Tiền mặt (tài sản)              Vay ngân hàng (nợ phải trả)
-   Nợ        |    Có                Nợ        |    Có
-   100 (#1)  |    60 (#3)           30 (#7)   |    50 (#2)
-    50 (#2)  |    20 (#5)          ----------+----------
-    40 (#4)  |    30 (#7)           Σ 30      |    Σ 50
-  ----------+----------             Số dư Có 20
-   Σ 190     |    Σ 110
-   Số dư Nợ 80
-
-      Doanh thu (doanh thu)          Chi phí lương (chi phí)
-   Nợ    |    Có                     Nợ        |    Có
-         |    40 (#4)                20 (#5)   |
-  --------+--------                 ----------+--------
-   Số dư Có 40                       Số dư Nợ 20
-```
+<svg viewBox="0 0 540 290" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn tài khoản chữ T: Tiền mặt (Nợ 190, Có 110, dư Nợ 80), Vay ngân hàng (Nợ 30, Có 50, dư Có 20), Doanh thu (Có 40), Chi phí lương (Nợ 20)">
+  <defs></defs>
+  <text x="120.0" y="20.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">Tiền mặt</text>
+  <text x="120.0" y="33.0" fill="#475569" font-size="10" text-anchor="middle">(tài sản)</text>
+  <line x1="20.0" y1="42.0" x2="220.0" y2="42.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="120.0" y1="42.0" x2="120.0" y2="144.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="70.0" y="56.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Nợ</text>
+  <text x="170.0" y="56.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Có</text>
+  <text x="110.0" y="74.0" fill="#1d4ed8" font-size="11" text-anchor="end">100 (#1)</text>
+  <text x="110.0" y="92.0" fill="#1d4ed8" font-size="11" text-anchor="end">50 (#2)</text>
+  <text x="110.0" y="110.0" fill="#1d4ed8" font-size="11" text-anchor="end">40 (#4)</text>
+  <text x="110.0" y="128.0" fill="#1d4ed8" font-size="11" text-anchor="end">Σ 190</text>
+  <text x="130.0" y="74.0" fill="#dc2626" font-size="11" text-anchor="start">60 (#3)</text>
+  <text x="130.0" y="92.0" fill="#dc2626" font-size="11" text-anchor="start">20 (#5)</text>
+  <text x="130.0" y="110.0" fill="#dc2626" font-size="11" text-anchor="start">30 (#7)</text>
+  <text x="130.0" y="128.0" fill="#dc2626" font-size="11" text-anchor="start">Σ 110</text>
+  <line x1="20.0" y1="130.0" x2="220.0" y2="130.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="120.0" y="148.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Số dư Nợ 80</text>
+  <text x="400.0" y="20.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">Vay ngân hàng</text>
+  <text x="400.0" y="33.0" fill="#475569" font-size="10" text-anchor="middle">(nợ phải trả)</text>
+  <line x1="300.0" y1="42.0" x2="500.0" y2="42.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="400.0" y1="42.0" x2="400.0" y2="108.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="350.0" y="56.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Nợ</text>
+  <text x="450.0" y="56.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Có</text>
+  <text x="390.0" y="74.0" fill="#1d4ed8" font-size="11" text-anchor="end">30 (#7)</text>
+  <text x="390.0" y="92.0" fill="#1d4ed8" font-size="11" text-anchor="end">Σ 30</text>
+  <text x="410.0" y="74.0" fill="#dc2626" font-size="11" text-anchor="start">50 (#2)</text>
+  <text x="410.0" y="92.0" fill="#dc2626" font-size="11" text-anchor="start">Σ 50</text>
+  <line x1="300.0" y1="94.0" x2="500.0" y2="94.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="400.0" y="112.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Số dư Có 20</text>
+  <text x="120.0" y="190.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">Doanh thu</text>
+  <text x="120.0" y="203.0" fill="#475569" font-size="10" text-anchor="middle">(doanh thu)</text>
+  <line x1="20.0" y1="212.0" x2="220.0" y2="212.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="120.0" y1="212.0" x2="120.0" y2="260.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="70.0" y="226.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Nợ</text>
+  <text x="170.0" y="226.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Có</text>
+  <text x="130.0" y="244.0" fill="#dc2626" font-size="11" text-anchor="start">40 (#4)</text>
+  <line x1="20.0" y1="246.0" x2="220.0" y2="246.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="120.0" y="264.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Số dư Có 40</text>
+  <text x="400.0" y="190.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">Chi phí lương</text>
+  <text x="400.0" y="203.0" fill="#475569" font-size="10" text-anchor="middle">(chi phí)</text>
+  <line x1="300.0" y1="212.0" x2="500.0" y2="212.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="400.0" y1="212.0" x2="400.0" y2="260.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="350.0" y="226.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Nợ</text>
+  <text x="450.0" y="226.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Có</text>
+  <text x="390.0" y="244.0" fill="#1d4ed8" font-size="11" text-anchor="end">20 (#5)</text>
+  <line x1="300.0" y1="246.0" x2="500.0" y2="246.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="400.0" y="264.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Số dư Nợ 20</text>
+</svg>
 
 Các tài khoản còn lại chỉ có một phát sinh: Thiết bị **Nợ 60**, Hàng tồn kho **Nợ 15**, Vốn góp **Có 100**, Phải trả người bán **Có 15**.
 

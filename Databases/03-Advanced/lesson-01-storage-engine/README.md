@@ -102,14 +102,30 @@ $$8{.}168 / 80 \approx 102 \text{ row mỗi page}$$
 
 Bên trong mỗi page, DBMS dùng bố cục **slotted page (trang có khe)**. Vấn đề cần giải: row có **độ dài thay đổi** (tên người dài ngắn khác nhau), và khi xóa row thì để lại "lỗ hổng". Slotted page giải quyết bằng cách tách **danh bạ khe** khỏi **vùng dữ liệu**:
 
-```
-+--------------------------------------------------+
-| Header | slot0 | slot1 | slot2 | →  ... free ...  |
-|        |  ↓con trỏ trỏ xuống dưới                  |
-|         ...... khoảng trống ......                |
-|                          [ row2 ][ row1 ][ row0 ] |  ← dữ liệu mọc từ cuối lên
-+--------------------------------------------------+
-```
+<svg viewBox="0 0 600 215" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục trang (slotted page): header và slot directory ở đầu, dòng dữ liệu row0, row1, row2 mọc từ cuối lên, khoảng trống ở giữa; mỗi slot trỏ tới một dòng">
+  <defs><marker id="pg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <rect x="20.0" y="30.0" width="560.0" height="150.0" rx="0" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <rect x="20.0" y="30.0" width="90.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="65.0" y="53.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">Header</text>
+  <rect x="110.0" y="30.0" width="60.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="53.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">slot0</text>
+  <rect x="170.0" y="30.0" width="60.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="200.0" y="53.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">slot1</text>
+  <rect x="230.0" y="30.0" width="60.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="53.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">slot2</text>
+  <text x="340.0" y="53.0" fill="#475569" font-size="11" text-anchor="start">→ … free …</text>
+  <text x="300.0" y="110.0" fill="#94a3b8" font-size="12" text-anchor="middle">…… khoảng trống ……</text>
+  <rect x="420.0" y="144.0" width="50.0" height="36.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="445.0" y="167.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">row2</text>
+  <rect x="470.0" y="144.0" width="50.0" height="36.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="495.0" y="167.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">row1</text>
+  <rect x="520.0" y="144.0" width="50.0" height="36.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="545.0" y="167.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">row0</text>
+  <path d="M 140,66 Q 300,110 545,144" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#pg)"/>
+  <path d="M 200,66 Q 300,110 495,144" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#pg)"/>
+  <path d="M 260,66 Q 300,110 445,144" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#pg)"/>
+  <text x="300.0" y="200.0" fill="#475569" font-size="11" text-anchor="middle">slot directory ở đầu trỏ xuống; dữ liệu mọc từ cuối trang lên — hai đầu tiến về giữa</text>
+</svg>
 
 - **Slot array** mọc từ đầu page xuống; mỗi slot là một con trỏ `(offset, length)` tới một row.
 - **Dữ liệu row** mọc từ cuối page lên trên.

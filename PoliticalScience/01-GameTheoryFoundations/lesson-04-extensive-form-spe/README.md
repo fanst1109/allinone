@@ -67,14 +67,28 @@ Payoffs (Player1, Player2):
 ```
 
 **Tree**:
-```
-P1
-├── Out → (2, 3)
-└── In
-    └── P2
-        ├── Cooperate → (4, 4)
-        └── Fight → (0, 1)
-```
+<svg viewBox="0 0 360 220" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây trò chơi: P1 chọn Out → (2,3) hoặc In; nếu In, P2 chọn Cooperate → (4,4) hoặc Fight → (0,1)">
+  <defs></defs>
+  <line x1="152.5" y1="52.0" x2="70.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="103.2" y="66.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Out</text>
+  <rect x="42.0" y="80.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="70.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(2, 3)</text>
+  <line x1="152.5" y1="52.0" x2="235.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="201.8" y="66.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">In</text>
+  <line x1="235.0" y1="112.0" x2="180.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="199.5" y="126.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Cooperate</text>
+  <rect x="152.0" y="140.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="180.0" y="160.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(4, 4)</text>
+  <line x1="235.0" y1="112.0" x2="290.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.5" y="126.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Fight</text>
+  <rect x="262.0" y="140.0" width="56.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="290.0" y="160.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">(0, 1)</text>
+  <rect x="217.0" y="80.0" width="36.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="235.0" y="100.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">P2</text>
+  <rect x="134.5" y="20.0" width="36.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="152.5" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">P1</text>
+  <text x="180.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">payoff (P1, P2); giải bằng quy nạp ngược từ nút P2</text>
+</svg>
 
 **Backward induction**:
 - Step 1 (node P2): C cho P2 payoff 4 > F payoff 1 → P2 chọn C. Gán node P2 = (4, 4).
@@ -125,12 +139,23 @@ Backward induction:
 > 💡 **Trực giác**: Proposer chia 100 đồng cho Responder. Responder có thể Accept hoặc Reject. Nếu Reject — cả hai nhận 0.
 
 **Game tree**:
-```
-Proposer offer x ∈ {0, 1, 2, ..., 100}
-└── Responder
-    ├── Accept → (100−x, x)
-    └── Reject → (0, 0)
-```
+<svg viewBox="0 0 280 192" style="max-width:280px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ultimatum game: Proposer đề nghị x, Responder Accept → (100 − x, x) hoặc Reject → (0, 0)">
+  <defs></defs>
+  <line x1="140.0" y1="52.0" x2="140.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.0" y="66.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">x</text>
+  <line x1="140.0" y1="112.0" x2="70.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="97.0" y="126.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Accept</text>
+  <rect x="21.0" y="140.0" width="98.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="70.0" y="160.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(100 − x, x)</text>
+  <line x1="140.0" y1="112.0" x2="210.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="183.0" y="126.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Reject</text>
+  <rect x="182.0" y="140.0" width="56.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="210.0" y="160.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">(0, 0)</text>
+  <rect x="101.5" y="80.0" width="77.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="140.0" y="100.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Responder</text>
+  <rect x="31.5" y="20.0" width="217.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="140.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Proposer: đề nghị x ∈ {0…100}</text>
+</svg>
 
 **Backward induction**:
 - Node Responder khi Proposer offer x: Accept = x, Reject = 0.
@@ -200,15 +225,35 @@ Backward induction: Follower best response BRF(qL) → substitute vào utility L
 
 ### Bài 1
 
-```
-P1
-├── Out → (1, 3)
-└── In
-    └── P2
-        ├── High
-        │   └── P1: Accept→(3,2) / Reject→(0,0)
-        └── Low → (2, 1)
-```
+<svg viewBox="0 0 440 252" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây trò chơi 3 tầng: P1 Out → (1,3) hoặc In; P2 High → P1 Accept (3,2) / Reject (0,0), hoặc Low → (2,1)">
+  <defs></defs>
+  <line x1="182.5" y1="52.0" x2="70.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="118.2" y="66.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Out</text>
+  <rect x="42.0" y="80.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="70.0" y="100.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(1, 3)</text>
+  <line x1="182.5" y1="52.0" x2="295.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="246.8" y="66.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">In</text>
+  <line x1="295.0" y1="112.0" x2="220.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="249.5" y="126.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">High</text>
+  <line x1="220.0" y1="172.0" x2="170.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="187.0" y="186.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">Accept</text>
+  <rect x="142.0" y="200.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="170.0" y="220.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(3, 2)</text>
+  <line x1="220.0" y1="172.0" x2="270.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="253.0" y="186.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Reject</text>
+  <rect x="242.0" y="200.0" width="56.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="270.0" y="220.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">(0, 0)</text>
+  <rect x="202.0" y="140.0" width="36.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="220.0" y="160.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">P1</text>
+  <line x1="295.0" y1="112.0" x2="370.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="340.5" y="126.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Low</text>
+  <rect x="342.0" y="140.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="370.0" y="160.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(2, 1)</text>
+  <rect x="277.0" y="80.0" width="36.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="295.0" y="100.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">P2</text>
+  <rect x="164.5" y="20.0" width="36.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="182.5" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">P1</text>
+</svg>
 
 Backward induction:
 - **Node P1 sau High**: Accept=(3) > Reject=(0) → P1 chọn Accept. Gán High node → (3, 2).

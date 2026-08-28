@@ -32,10 +32,37 @@ Trong hoạt hình, tốc độ **không** được ghi trực tiếp — nó l�
 
 Khi các họa sĩ vẽ đường chuyển động, họ chấm vị trí vật ở từng frame. Nhìn dãy chấm là đọc được tốc độ:
 
-\`\`\`
-Linear (đều):   A •   •   •   •   •   •   •   •   •   • B     ← chấm cách đều = máy móc
-Ease-in-out:    A ••  •    •      •      •    •  •• B          ← dồn 2 đầu = sống
-\`\`\`
+<svg viewBox="0 0 560 140" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khoảng cách khung hình từ A tới B: linear chấm cách đều; ease-in-out chấm dồn ở hai đầu, thưa ở giữa">
+  <defs></defs>
+  <text x="20.0" y="44.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Linear (đều)</text>
+  <text x="20.0" y="104.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Ease-in-out</text>
+  <text x="150.0" y="44.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <text x="530.0" y="44.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <text x="150.0" y="104.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <text x="530.0" y="104.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="170.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="207.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="244.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="281.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="318.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="355.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="392.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="429.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="466.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="503.0" cy="40.0" r="5" fill="#1d4ed8"/>
+  <circle cx="170.0" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="181.4" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="212.0" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="256.3" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="308.9" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="364.1" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="416.7" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="461.0" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="491.6" cy="100.0" r="5" fill="#7c3aed"/>
+  <circle cx="503.0" cy="100.0" r="5" fill="#7c3aed"/>
+  <text x="350.0" y="66.0" fill="#475569" font-size="10" text-anchor="middle">chấm cách đều = chuyển động máy móc</text>
+  <text x="350.0" y="126.0" fill="#475569" font-size="10" text-anchor="middle">chấm dồn 2 đầu (chậm khởi động, chậm dừng) = chuyển động sống</text>
+</svg>
 
 > ⚠ **Lỗi thường gặp #1.** *"Chỉ cần đúng điểm đầu (A) và điểm cuối (B) là được."* **Sai.** Cùng điểm A và B, cùng số frame, cùng thời lượng — nhưng **cách phân bố spacing ở giữa** mới quyết định chuyển động sống hay chết. Ease không đổi *đi đâu* và *mất bao lâu*, nó chỉ đổi *nhịp* trên đường đi.
 

@@ -26,15 +26,32 @@ Sau bài này bạn sẽ:
 
 💡 **Trực giác.** Hình dung bạn làm game và bắt đầu bằng cây kế thừa OOP "tự nhiên":
 
-```
-GameObject
- ├── Character
- │    ├── Player
- │    └── Enemy
- │         ├── Goblin          (đi bộ, đánh cận chiến)
- │         └── Bat             (biết bay)
- └── Projectile
-```
+<svg viewBox="0 0 566 274" style="max-width:566px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây kế thừa OOP: GameObject → Character (Player, Enemy → Goblin, Bat) và Projectile">
+  <defs></defs>
+  <g transform="translate(88,0)">
+  <line x1="228.8" y1="52.0" x2="127.5" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="127.5" y1="110.0" x2="60.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="32.0" y="136.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="60.0" y="156.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Player</text>
+  <line x1="127.5" y1="110.0" x2="195.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="195.0" y1="168.0" x2="150.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="122.0" y="194.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="150.0" y="214.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Goblin</text>
+  <line x1="195.0" y1="168.0" x2="240.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="222.0" y="194.0" width="36.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="214.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Bat</text>
+  <rect x="170.5" y="136.0" width="49.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="195.0" y="156.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Enemy</text>
+  <rect x="89.0" y="78.0" width="77.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="127.5" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Character</text>
+  <line x1="228.8" y1="52.0" x2="330.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="288.0" y="78.0" width="84.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="330.0" y="98.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Projectile</text>
+  <rect x="186.8" y="20.0" width="84.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="228.8" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">GameObject</text>
+  <text x="195.0" y="266.0" fill="#475569" font-size="11" text-anchor="middle">Goblin đi bộ, đánh cận chiến · Bat biết bay — kế thừa sâu khó chia sẻ hành vi chéo nhánh</text>
+  </g>
+</svg>
 
 Mọi thứ êm đẹp — cho tới khi designer gửi yêu cầu mới:
 

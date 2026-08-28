@@ -121,12 +121,30 @@ $$s(t) = \cos(2\pi f_c t) + \frac{m}{2}\cos\big(2\pi (f_c{-}f_m) t\big) + \frac{
 
 Với message thật trải $0 \to f_{max}$ (không phải một tông), mỗi tần số $f$ trong message tạo một cặp vạch tại $f_c \pm f$ → ta được **hai dải biên** liên tục, mỗi dải rộng $f_{max}$, đối xứng quanh $f_c$:
 
-```
-       LSB          carrier         USB
-   ┌────────┐         |         ┌────────┐
-───┴────────┴─────────┼─────────┴────────┴───►  f
-  fc-fmax    fc-... fc fc+...   fc+fmax
-```
+<svg viewBox="0 0 615 215" style="max-width:615px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phổ tín hiệu AM: vạch carrier tại f_c, dải biên dưới LSB từ f_c − f_max tới f_c − f_min, dải biên trên USB từ f_c + f_min tới f_c + f_max">
+  <defs><marker id="am" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(27,0)">
+  <line x1="40.0" y1="150.0" x2="520.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#am)"/>
+  <text x="528.0" y="154.0" fill="#475569" font-size="12" text-anchor="start">f</text>
+  <line x1="280.0" y1="150.0" x2="280.0" y2="40.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="280.0" y="32.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">carrier f_c</text>
+  <rect x="150.0" y="80.0" width="90.0" height="70.0" rx="0" fill="#dbeafe" fill-opacity="0.8" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="195.0" y="120.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">LSB</text>
+  <rect x="320.0" y="80.0" width="90.0" height="70.0" rx="0" fill="#dcfce7" fill-opacity="0.8" stroke="#15803d" stroke-width="1.8"/>
+  <text x="365.0" y="120.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">USB</text>
+  <line x1="150.0" y1="146.0" x2="150.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="150.0" y="170.0" fill="#475569" font-size="10" text-anchor="middle">f_c − f_max</text>
+  <line x1="240.0" y1="146.0" x2="240.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="170.0" fill="#475569" font-size="10" text-anchor="middle">f_c − f_min</text>
+  <line x1="280.0" y1="146.0" x2="280.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="280.0" y="170.0" fill="#475569" font-size="10" text-anchor="middle">f_c</text>
+  <line x1="320.0" y1="146.0" x2="320.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="170.0" fill="#475569" font-size="10" text-anchor="middle">f_c + f_min</text>
+  <line x1="410.0" y1="146.0" x2="410.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="410.0" y="170.0" fill="#475569" font-size="10" text-anchor="middle">f_c + f_max</text>
+  <text x="280.0" y="200.0" fill="#475569" font-size="11" text-anchor="middle">AM: phổ bản tin được dịch lên quanh f_c thành 2 dải biên đối xứng (LSB, USB), băng thông 2·f_max</text>
+  </g>
+</svg>
 
 **Băng thông AM:** $B_{AM} = 2 f_{max}$ (gấp đôi băng gốc, vì có 2 dải biên).
 

@@ -307,17 +307,36 @@ Vùng gốc $(0,0)$ rộng $400 \\times 400$, \`capacity = 2\`. Chèn 6 vật th
 5. Chèn P6$(40,350)$ → SW của gốc → SW.items = {P6}.
 
 **Cây kết quả:**
-\`\`\`
-root [0,0,400,400]
-├── NW [0,0,200,200]  (đã chia)
-│   ├── NW-NW [0,0,100,100]   items = {P1, P3}
-│   ├── NW-NE [100,0,100,100] items = {}
-│   ├── NW-SW [0,100,100,100] items = {P2}
-│   └── NW-SE [100,100,100,100] items = {}
-├── NE [200,0,200,200]  items = {P4}   (lá)
-├── SW [0,200,200,200]  items = {P6}   (lá)
-└── SE [200,200,200,200] items = {P5}   (lá)
-\`\`\`
+<svg viewBox="0 0 764 228" style="max-width:764px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quadtree: root 400×400 chia 4; NW chia tiếp thành 4 ô 100×100 chứa P1, P3 (NW-NW) và P2 (NW-SW); NE chứa P4, SW chứa P6, SE chứa P5">
+  <defs></defs>
+  <line x1="460.0" y1="52.0" x2="226.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="226.0" y1="116.0" x2="70.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="14.0" y="148.0" width="112.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="70.0" y="168.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">NW-NW {P1, P3}</text>
+  <line x1="226.0" y1="116.0" x2="174.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="139.0" y="148.0" width="70.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="174.0" y="168.0" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">NW-NE {}</text>
+  <line x1="226.0" y1="116.0" x2="278.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="236.0" y="148.0" width="84.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="278.0" y="168.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">NW-SW {P2}</text>
+  <line x1="226.0" y1="116.0" x2="382.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="347.0" y="148.0" width="70.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="382.0" y="168.0" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">NW-SE {}</text>
+  <rect x="163.0" y="84.0" width="126.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="226.0" y="104.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">NW [0,0,200,200]</text>
+  <line x1="460.0" y1="52.0" x2="486.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="454.5" y="84.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="486.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">NE {P4}</text>
+  <line x1="460.0" y1="52.0" x2="590.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="558.5" y="84.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="590.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">SW {P6}</text>
+  <line x1="460.0" y1="52.0" x2="694.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="662.5" y="84.0" width="63.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="694.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">SE {P5}</text>
+  <rect x="390.0" y="20.0" width="140.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="460.0" y="40.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">root [0,0,400,400]</text>
+  <text x="382.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">ô xám = rỗng; chỉ ô NW bị chia tiếp vì chứa nhiều vật</text>
+</svg>
 
 **Đếm cặp ứng viên** (mỗi vật query vùng quanh nó; cặp trong cùng lá + lá giao vùng query):
 
@@ -447,18 +466,20 @@ mạnh khi vật di chuyển ít giữa các frame — danh sách gần như đ�
 
 Một frame xử lý va chạm gồm 3 bước nối tiếp:
 
-\`\`\`
-1. BROAD-PHASE  (bài này)
-   → dựng grid/quadtree/SAP, sinh DANH SÁCH CẶP ỨNG VIÊN (đã khử trùng)
-                │
-                ▼
-2. NARROW-PHASE  (L06 AABB & Circle)
-   → với mỗi cặp ứng viên: test chính xác overlap; nếu chạm → tính độ xuyên sâu, pháp tuyến
-                │
-                ▼
-3. RESPONSE  (L09 Impulse)
-   → với mỗi cặp CHẠM THẬT: tính xung lực, tách hai vật ra, cập nhật vận tốc
-\`\`\`
+<svg viewBox="0 0 600 230" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline va chạm 3 bước: broad-phase sinh cặp ứng viên → narrow-phase test chính xác → response tính xung lực">
+  <defs><marker id="pp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="60.0" y="14.0" width="480.0" height="52.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="37.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. BROAD-PHASE (bài này)</text>
+  <text x="300.0" y="51.0" fill="#475569" font-size="11" text-anchor="middle">dựng grid / quadtree / SAP → DANH SÁCH CẶP ỨNG VIÊN (đã khử trùng)</text>
+  <line x1="300.0" y1="66.0" x2="300.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#pp)"/>
+  <rect x="60.0" y="88.0" width="480.0" height="52.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="111.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">2. NARROW-PHASE (L06 AABB &amp; Circle)</text>
+  <text x="300.0" y="125.0" fill="#475569" font-size="11" text-anchor="middle">mỗi cặp ứng viên: test chính xác; nếu chạm → độ xuyên sâu, pháp tuyến</text>
+  <line x1="300.0" y1="140.0" x2="300.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#pp)"/>
+  <rect x="60.0" y="162.0" width="480.0" height="52.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="300.0" y="185.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">3. RESPONSE (L09 Impulse)</text>
+  <text x="300.0" y="199.0" fill="#475569" font-size="11" text-anchor="middle">mỗi cặp CHẠM THẬT: xung lực, tách hai vật, cập nhật vận tốc</text>
+</svg>
 
 - Broad-phase (bài này) chỉ làm bước 1: **rẻ + có thể false positive**, mục tiêu cắt số cặp.
 - [L06 — AABB & Circle](../lesson-01-aabb-circle/) làm bước 2: chính xác, đắt, chạy trên ít cặp nhờ broad-phase.

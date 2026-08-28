@@ -28,15 +28,27 @@ Nhớ phản ứng $\text{Zn} + \text{CuSO}_4 \rightarrow \text{ZnSO}_4 + \text{
 
 ### 1.1. Cấu tạo pin Daniell (Zn-Cu)
 
-```
-   anode (−)                          cathode (+)
-   Zn rod                             Cu rod
-       |                                |
-       |── electron chạy ngoài ──→     |
-       |                                |
-   ZnSO₄ (1 M)  ←── cầu muối ──→   CuSO₄ (1 M)
-                  (KCl hoặc NH₄NO₃)
-```
+<svg viewBox="0 0 561 265" style="max-width:561px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pin Galvani Zn–Cu: thanh Zn (anode −) trong ZnSO₄, thanh Cu (cathode +) trong CuSO₄, electron chạy qua dây ngoài từ Zn sang Cu, cầu muối nối hai dung dịch">
+  <defs><marker id="gc" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g transform="translate(0,0)">
+  <rect x="40.0" y="90.0" width="150.0" height="120.0" rx="0" fill="#dbeafe" fill-opacity="0.5" stroke="#1d4ed8" stroke-width="1.5"/>
+  <rect x="370.0" y="90.0" width="150.0" height="120.0" rx="0" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="1.5"/>
+  <text x="115.0" y="228.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">ZnSO₄ (1 M)</text>
+  <text x="445.0" y="228.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">CuSO₄ (1 M)</text>
+  <rect x="105.0" y="40.0" width="20.0" height="140.0" rx="0" fill="#94a3b8" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="115.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">Zn rod</text>
+  <text x="115.0" y="18.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">anode (−)</text>
+  <rect x="435.0" y="40.0" width="20.0" height="140.0" rx="0" fill="#b45309" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="445.0" y="30.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">Cu rod</text>
+  <text x="445.0" y="18.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">cathode (+)</text>
+  <line x1="125.0" y1="50.0" x2="435.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="50.0" x2="340.0" y2="50.0" stroke="#dc2626" stroke-width="3" marker-end="url(#gc)"/>
+  <text x="280.0" y="42.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">electron chạy ngoài dây →</text>
+  <path d="M 190,150 L 190,120 L 370,120 L 370,150" fill="none" stroke="#7c3aed" stroke-width="10" stroke-linecap="round"/>
+  <text x="280.0" y="112.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">cầu muối (KCl hoặc NH₄NO₃)</text>
+  <text x="280.0" y="250.0" fill="#475569" font-size="10" text-anchor="middle">Zn → Zn²⁺ + 2e⁻ (oxi hoá ở anode) · Cu²⁺ + 2e⁻ → Cu (khử ở cathode); cầu muối cân bằng điện tích</text>
+  </g>
+</svg>
 
 - **Anode** (cực âm trong pin galvanic, được ký hiệu −): Zn bị oxy hóa, mất e.
 

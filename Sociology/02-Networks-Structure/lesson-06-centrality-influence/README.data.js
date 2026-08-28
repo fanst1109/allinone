@@ -30,15 +30,40 @@ window.README_MD = `# Lesson 06 — Trung tâm & ảnh hưởng (Centrality)
 
 **Mạng ví dụ dùng xuyên suốt bài** — 9 người, chia hai nhóm nối nhau qua đúng một người:
 
-\`\`\`
-   B                               F
-   |\\                             /|
-   | \\                           / |
-   |  A --- D --- M --- E --- H    G
-   | /                        |\\  /
-   |/                         | \\/
-   C                          (E,F,G,H là nhóm 2)
-\`\`\`
+<svg viewBox="0 0 600 220" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạng 9 người: nhóm 1 (A, B, C) và nhóm 2 (E, F, G, H) nối qua cầu A – D – M – E">
+  <defs><marker id="cen" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="74.4" y1="50.8" x2="124.0" y2="88.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="74.4" y1="149.2" x2="124.0" y2="112.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="60.0" y1="58.0" x2="60.0" y2="140.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="158.0" y1="100.0" x2="210.0" y2="100.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="248.0" y1="100.0" x2="300.0" y2="100.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="338.0" y1="100.0" x2="390.0" y2="100.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="428.0" y1="100.0" x2="480.0" y2="100.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="426.3" y1="92.5" x2="521.8" y2="48.4" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="426.3" y1="107.5" x2="521.8" y2="151.6" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="540.0" y1="58.0" x2="540.0" y2="140.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="510.0" y1="85.0" x2="528.9" y2="56.6" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="510.0" y1="115.0" x2="528.9" y2="143.4" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="60.0" cy="40.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="60.0" cy="160.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="165.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="140.0" cy="100.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="140.0" y="105.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="230.0" cy="100.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="105.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="320.0" cy="100.0" r="16" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="320.0" y="105.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">M</text>
+  <circle cx="410.0" cy="100.0" r="16" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="410.0" y="105.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">E</text>
+  <circle cx="500.0" cy="100.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="500.0" y="105.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">H</text>
+  <circle cx="540.0" cy="40.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="540.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">F</text>
+  <circle cx="540.0" cy="160.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="540.0" y="165.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">G</text>
+  <text x="300.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">M là cầu nối (betweenness cao nhất) dù chỉ có 2 liên kết</text>
+</svg>
 
 Cụ thể (cạnh = có quan hệ hai chiều):
 

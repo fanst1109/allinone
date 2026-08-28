@@ -37,15 +37,23 @@ Sau bài này bạn sẽ:
 
 ### 2.1 Chuỗi HPA (Hypothalamic-Pituitary-Adrenal)
 
-```
-Stressor
-  ↓
-Hypothalamus → CRH (Corticotropin-Releasing Hormone)
-  ↓
-Anterior Pituitary → ACTH (Adrenocorticotropic Hormone)
-  ↓
-Adrenal Cortex → Cortisol (glucocorticoid)
-```
+<svg viewBox="0 0 520 235" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục HPA: stressor → hypothalamus tiết CRH → tuyến yên trước tiết ACTH → vỏ thượng thận tiết cortisol">
+  <defs><marker id="hp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="160.0" y="14.0" width="200.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="260.0" y="34.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Stressor</text>
+  <line x1="260.0" y1="46.0" x2="260.0" y2="66.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#hp)"/>
+  <rect x="110.0" y="68.0" width="300.0" height="40.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="260.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Hypothalamus</text>
+  <text x="260.0" y="99.0" fill="#475569" font-size="11" text-anchor="middle">→ CRH (Corticotropin-Releasing Hormone)</text>
+  <line x1="260.0" y1="108.0" x2="260.0" y2="128.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#hp)"/>
+  <rect x="110.0" y="130.0" width="300.0" height="40.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="260.0" y="147.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Anterior Pituitary</text>
+  <text x="260.0" y="161.0" fill="#475569" font-size="11" text-anchor="middle">→ ACTH (Adrenocorticotropic Hormone)</text>
+  <line x1="260.0" y1="170.0" x2="260.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#hp)"/>
+  <rect x="110.0" y="192.0" width="300.0" height="40.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="260.0" y="209.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Adrenal Cortex</text>
+  <text x="260.0" y="223.0" fill="#475569" font-size="11" text-anchor="middle">→ Cortisol (glucocorticoid)</text>
+</svg>
 
 **Song song**: Sympathetic Nervous System (SNS) activation → Adrenal Medulla → **Epinephrine (adrenaline) + Norepinephrine** → "fight or flight" tức thì.
 

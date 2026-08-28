@@ -70,13 +70,26 @@ Tức là tra 1 dòng trong **100 triệu dòng** chỉ cần đọc **4 page** 
 
 Tìm khóa `57` trong B+tree (mỗi node minh họa giữ vài khóa cho gọn):
 
-```
-                 [ 30 | 60 ]                ← root
-                /     |     \
-        [10|20]   [40|50]   [70|80]         ← internal
-                     |
-              [40][50][57][58]              ← leaf  → con trỏ tới dòng
-```
+<svg viewBox="0 0 603 228" style="max-width:603px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="B+ tree: root [30|60], ba nút trong [10|20], [40|50], [70|80]; nút lá [40][50][57][58] trỏ tới dòng dữ liệu">
+  <defs></defs>
+  <g transform="translate(61,0)">
+  <line x1="240.0" y1="52.0" x2="90.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="51.5" y="84.0" width="77.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[10 | 20]</text>
+  <line x1="240.0" y1="52.0" x2="240.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="240.0" y1="116.0" x2="240.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="177.0" y="148.0" width="126.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="168.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[40][50][57][58]</text>
+  <rect x="201.5" y="84.0" width="77.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[40 | 50]</text>
+  <line x1="240.0" y1="52.0" x2="390.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="351.5" y="84.0" width="77.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="390.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[70 | 80]</text>
+  <rect x="194.5" y="20.0" width="91.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="240.0" y="40.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[ 30 | 60 ]</text>
+  <text x="240.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">root (đỏ) → internal (xanh) → leaf (xanh lá): lá chứa con trỏ tới dòng, nối nhau để range scan</text>
+  </g>
+</svg>
 
 1. **Root** `[30 | 60]`: 57 nằm giữa 30 và 60 → đi nhánh giữa.
 2. **Internal** `[40 | 50]`: 57 > 50 → đi nhánh phải của node này (tới lá `[...57...]`).

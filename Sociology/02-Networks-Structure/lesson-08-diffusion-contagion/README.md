@@ -60,13 +60,29 @@ $$\text{node } v \text{ trở thành adopter} \iff (\text{số hàng xóm đã a
 
 **Walk-through bằng số** — mạng 6 node hình vòng có dây cung:
 
-```
-      1 --- 2
-     /|     |\
-    6 |     | 3       (cạnh: 1-2, 2-3, 3-4, 4-5, 5-6, 6-1, 1-3, 4-6)
-     \|     |/
-      5 --- 4
-```
+<svg viewBox="0 0 360 240" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạng 6 đỉnh vòng 1-2-3-4-5-6 với hai cạnh chéo 1-3 và 4-6">
+  <defs><marker id="dif" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="138.0" y1="40.0" x2="220.0" y2="40.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="250.8" y1="54.4" x2="288.0" y2="104.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="289.2" y1="134.4" x2="252.0" y2="184.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="222.0" y1="200.0" x2="140.0" y2="200.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="109.2" y1="185.6" x2="72.0" y2="136.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="70.8" y1="105.6" x2="108.0" y2="56.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="136.4" y1="47.3" x2="281.7" y2="111.9" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="223.6" y1="192.7" x2="78.3" y2="128.1" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="120.0" cy="40.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="240.0" cy="40.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="300.0" cy="120.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="125.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="240.0" cy="200.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="205.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">4</text>
+  <circle cx="120.0" cy="200.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="205.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">5</text>
+  <circle cx="60.0" cy="120.0" r="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="125.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">6</text>
+</svg>
 
 Hàng xóm: $1\!:\{2,6,3\}$, $2\!:\{1,3\}$, $3\!:\{2,4,1\}$, $4\!:\{3,5,6\}$, $5\!:\{4,6\}$, $6\!:\{5,1,4\}$.
 

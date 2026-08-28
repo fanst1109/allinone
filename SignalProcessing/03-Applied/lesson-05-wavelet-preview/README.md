@@ -42,14 +42,42 @@ $$\Delta t \cdot \Delta f \ge \frac{1}{4\pi}$$
 
 STFT cố định $\Delta t$ (vì khung cố định) ⇒ cố định luôn cả $\Delta f$ ⇒ **một lưới phân giải đồng đều** trên toàn mặt phẳng thời gian–tần số:
 
-```
-tần số ▲   STFT: mọi ô cùng kích thước (khung cố định)
-       │  ┌──┬──┬──┬──┬──┬──┐
-  cao  │  │  │  │  │  │  │  │   ← ô cao cũng rộng như ô thấp
-       │  ├──┼──┼──┼──┼──┼──┤      → tiếng gõ ngắn bị bôi ra
- thấp  │  │  │  │  │  │  │  │
-       └──┴──┴──┴──┴──┴──┴──┴──▶ thời gian
-```
+<svg viewBox="0 0 460 260" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lưới thời gian–tần số của STFT: mọi ô cùng kích thước, khung phân tích cố định">
+  <defs><marker id="tl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(40,0)">
+  <line x1="50.0" y1="210.0" x2="50.0" y2="20.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tl)"/>
+  <line x1="50.0" y1="210.0" x2="330.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tl)"/>
+  <text x="58.0" y="24.0" fill="#475569" font-size="11" text-anchor="start">tần số</text>
+  <text x="330.0" y="226.0" fill="#475569" font-size="11" text-anchor="end">thời gian</text>
+  <text x="44.0" y="60.0" fill="#475569" font-size="10" text-anchor="end">cao</text>
+  <text x="44.0" y="190.0" fill="#475569" font-size="10" text-anchor="end">thấp</text>
+  <rect x="55.0" y="30.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="99.0" y="30.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="143.0" y="30.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="187.0" y="30.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="231.0" y="30.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="275.0" y="30.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="55.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="99.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="143.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="187.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="231.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="275.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="55.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="99.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="143.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="187.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="231.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="275.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="55.0" y="162.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="99.0" y="162.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="143.0" y="162.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="187.0" y="162.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="231.0" y="162.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <rect x="275.0" y="162.0" width="44.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="190.0" y="246.0" fill="#475569" font-size="10" text-anchor="middle">STFT: mọi ô cùng kích thước → tiếng gõ ngắn ở tần cao bị bôi ra theo thời gian</text>
+  </g>
+</svg>
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Vậy Fourier thường (không trượt khung) thì sao?"* — Tệ hơn: Fourier cho **độ phân giải tần số hoàn hảo nhưng KHÔNG có thông tin thời gian** ($\Delta t = \infty$). Nó nói "có 80 Hz trong tín hiệu" nhưng không nói 80 Hz xuất hiện **lúc nào**.
@@ -64,15 +92,55 @@ Wavelet đề xuất: **cửa sổ co giãn theo tần số.**
 - Tần số **cao** → cửa sổ **hẹp** (định vị thời gian sắc — bắt được tiếng gõ).
 - Tần số **thấp** → cửa sổ **rộng** (phân giải tần số tốt — đọc được cao độ nốt trầm).
 
-```
-tần số ▲   Wavelet: ô cao thì hẹp-cao, ô thấp thì rộng-thấp
-       │  ┌┬┬┬┬┬┬┬┐
-  cao  │  ├┼┼┼┼┼┼┼┤   ← nhiều ô hẹp: định vị thời gian tốt
-       │  ├─┼─┼─┼─┤
-       │  ├──┼──┼──┤
- thấp  │  │     │     │ ← ít ô rộng: phân giải tần số tốt
-       └──┴─────┴─────┴──▶ thời gian
-```
+<svg viewBox="0 0 578 260" style="max-width:578px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lưới thời gian–tần số của wavelet: ô hẹp và cao ở tần số cao, ô rộng và thấp ở tần số thấp">
+  <defs><marker id="tl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(99,0)">
+  <line x1="50.0" y1="210.0" x2="50.0" y2="20.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tl)"/>
+  <line x1="50.0" y1="210.0" x2="330.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#tl)"/>
+  <text x="58.0" y="24.0" fill="#475569" font-size="11" text-anchor="start">tần số</text>
+  <text x="330.0" y="226.0" fill="#475569" font-size="11" text-anchor="end">thời gian</text>
+  <text x="44.0" y="60.0" fill="#475569" font-size="10" text-anchor="end">cao</text>
+  <text x="44.0" y="190.0" fill="#475569" font-size="10" text-anchor="end">thấp</text>
+  <rect x="55.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="79.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="103.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="127.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="151.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="175.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="199.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="223.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="247.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="271.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="295.0" y="30.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="55.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="79.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="103.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="127.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="151.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="175.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="199.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="223.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="247.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="271.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="295.0" y="52.0" width="24.0" height="22.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="55.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="99.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="143.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="187.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="231.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="275.0" y="74.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="55.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="99.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="143.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="187.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="231.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="275.0" y="118.0" width="44.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="55.0" y="162.0" width="88.0" height="46.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="143.0" y="162.0" width="88.0" height="46.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <rect x="231.0" y="162.0" width="88.0" height="46.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.2"/>
+  <text x="190.0" y="246.0" fill="#475569" font-size="10" text-anchor="middle">Wavelet: tần cao → ô hẹp-cao (định vị thời gian tốt); tần thấp → ô rộng-thấp (phân giải tần số tốt)</text>
+  </g>
+</svg>
 
 Cùng tuân nguyên lý bất định (diện tích mỗi ô vẫn $\ge \frac{1}{4\pi}$), nhưng wavelet **phân bổ lại** diện tích đó cho khôn ngoan — đúng chỗ cần.
 

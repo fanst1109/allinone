@@ -138,17 +138,23 @@ $$\\text{butterfly}(a, b, W) = \\big(\\; a + W b, \\;\\; a - W b \\;\\big).$$
 
 Tên gọi "butterfly" (con bướm) đến từ sơ đồ luồng dữ liệu: hai đường vào chéo nhau giống cánh bướm.
 
-\`\`\`
-a ──────●────────► a + W·b
-         \\      /
-          \\    /
-           \\  /
-            \\/
-            /\\
-           /  \\   (× W trên nhánh dưới)
-          /    \\
-b ──────●────────► a − W·b
-\`\`\`
+<svg viewBox="0 0 440 215" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Butterfly FFT: hai ngõ vào a, b; nhánh dưới nhân W; ngõ ra a + W·b và a − W·b">
+  <defs><marker id="bf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#1d4ed8" font-size="14" text-anchor="end" font-weight="700">a</text>
+  <circle cx="80.0" cy="60.0" r="5" fill="#1d4ed8"/>
+  <text x="40.0" y="164.0" fill="#15803d" font-size="14" text-anchor="end" font-weight="700">b</text>
+  <circle cx="80.0" cy="160.0" r="5" fill="#15803d"/>
+  <line x1="80.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1d4ed8" stroke-width="2" marker-end="url(#bf)"/>
+  <line x1="80.0" y1="160.0" x2="300.0" y2="160.0" stroke="#15803d" stroke-width="2" marker-end="url(#bf)"/>
+  <line x1="80.0" y1="60.0" x2="296.0" y2="156.0" stroke="#1d4ed8" stroke-width="2" marker-end="url(#bf)"/>
+  <line x1="80.0" y1="160.0" x2="296.0" y2="64.0" stroke="#15803d" stroke-width="2" marker-end="url(#bf)"/>
+  <text x="190.0" y="150.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">× W</text>
+  <rect x="160.0" y="140.0" width="50.0" height="18.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="185.0" y="153.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">× W</text>
+  <text x="310.0" y="64.0" fill="#1a202c" font-size="14" text-anchor="start" font-weight="700">a + W·b</text>
+  <text x="310.0" y="164.0" fill="#1a202c" font-size="14" text-anchor="start" font-weight="700">a − W·b</text>
+  <text x="220.0" y="200.0" fill="#475569" font-size="11" text-anchor="middle">butterfly: 1 phép nhân phức (W·b) + 2 phép cộng cho 2 ngõ ra</text>
+</svg>
 
 ### 3.3. Walk-through một butterfly bằng số
 

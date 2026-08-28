@@ -46,18 +46,12 @@ Vì thế nó **luôn cân** (chính là lý do có tên "cân đối"): vế tr
 
 Bảng cân đối chuẩn chia mỗi vế thành nhóm nhỏ theo **tính thanh khoản** (khả năng biến thành tiền nhanh hay chậm):
 
-\`\`\`
-        TÀI SẢN                 │        NGUỒN VỐN
-────────────────────────────────┼────────────────────────────────
-  Tài sản ngắn hạn              │  Nợ ngắn hạn
-    tiền, phải thu, tồn kho...  │    phải trả người bán, vay ngắn...
-  Tài sản dài hạn               │  Nợ dài hạn
-    thiết bị, nhà xưởng, đất... │    vay dài hạn, trái phiếu...
-                                │  Vốn chủ sở hữu
-                                │    vốn góp + lợi nhuận giữ lại
-────────────────────────────────┼────────────────────────────────
-  TỔNG TÀI SẢN         =        │  TỔNG NỢ + VỐN CHỦ
-\`\`\`
+| TÀI SẢN | NGUỒN VỐN |
+|---|---|
+| **Tài sản ngắn hạn** — tiền, phải thu, tồn kho… | **Nợ ngắn hạn** — phải trả người bán, vay ngắn… |
+| **Tài sản dài hạn** — thiết bị, nhà xưởng, đất… | **Nợ dài hạn** — vay dài hạn, trái phiếu… |
+| | **Vốn chủ sở hữu** — vốn góp + lợi nhuận giữ lại |
+| **TỔNG TÀI SẢN** | **= TỔNG NỢ + VỐN CHỦ** |
 
 ### 2.1 Tài sản ngắn hạn (Current assets)
 

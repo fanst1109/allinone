@@ -215,11 +215,18 @@ T1 giữ A chờ B; T2 giữ B chờ A → vòng tròn chờ vĩnh viễn.
 
 **Đồ thị wait-for (chờ):** vẽ mũi tên "ai chờ ai". Có **chu trình (cycle)** ⇒ deadlock.
 
-\`\`\`
-   T1  ──chờ B (T2 giữ)──▶  T2
-    ▲                        │
-    └────chờ A (T1 giữ)──────┘
-\`\`\`
+<svg viewBox="0 0 420 165" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Deadlock: T1 chờ khoá B do T2 giữ, T2 chờ khoá A do T1 giữ — vòng chờ">
+  <defs><marker id="dl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <circle cx="90" cy="70" r="26" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="90.0" y="75.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">T1</text>
+  <circle cx="330" cy="70" r="26" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="330.0" y="75.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">T2</text>
+  <path d="M 116,60 Q 210,20 302,60" fill="none" stroke="#1a202c" stroke-width="2" marker-end="url(#dl)"/>
+  <text x="210.0" y="34.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">chờ B (T2 giữ)</text>
+  <path d="M 304,82 Q 210,122 118,82" fill="none" stroke="#1a202c" stroke-width="2" marker-end="url(#dl)"/>
+  <text x="210.0" y="118.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">chờ A (T1 giữ)</text>
+  <text x="210.0" y="150.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">vòng chờ khép kín → deadlock: không ai tiến được</text>
+</svg>
 
 **Cách xử lý:**
 - **Timeout:** transaction chờ quá ngưỡng (vd 1s) thì tự hủy (rollback) và thử lại. Đơn giản nhưng có thể hủy nhầm khi hệ thống chỉ chậm.
@@ -316,11 +323,18 @@ Vì reader đọc một *phiên bản cũ* (snapshot tại lúc bắt đầu tra
 
 Đồ thị wait-for (mũi tên "X chờ Y"):
 
-\`\`\`
-   T1  ──chờ R2 (T2 giữ)──▶  T2
-    ▲                         │
-    └────chờ R1 (T1 giữ)──────┘
-\`\`\`
+<svg viewBox="0 0 420 165" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Deadlock hai tài nguyên R1, R2: T1 chờ R2 do T2 giữ, T2 chờ R1 do T1 giữ">
+  <defs><marker id="dl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <circle cx="90" cy="70" r="26" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="90.0" y="75.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">T1</text>
+  <circle cx="330" cy="70" r="26" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="330.0" y="75.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">T2</text>
+  <path d="M 116,60 Q 210,20 302,60" fill="none" stroke="#1a202c" stroke-width="2" marker-end="url(#dl)"/>
+  <text x="210.0" y="34.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">chờ R2 (T2 giữ)</text>
+  <path d="M 304,82 Q 210,122 118,82" fill="none" stroke="#1a202c" stroke-width="2" marker-end="url(#dl)"/>
+  <text x="210.0" y="118.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">chờ R1 (T1 giữ)</text>
+  <text x="210.0" y="150.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">vòng chờ khép kín → deadlock: không ai tiến được</text>
+</svg>
 
 - T1 giữ R1, xin R2 (do T2 giữ) → \`T1 → T2\`. T2 giữ R2, xin R1 (do T1 giữ) → \`T2 → T1\`.
 - Có **chu trình** \`T1 → T2 → T1\` ⇒ **có deadlock**.

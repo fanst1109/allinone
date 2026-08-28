@@ -152,16 +152,24 @@ Trong tập nhân viên công ty hàng đầu: tài năng và may mắn có tư�
 
 DAG là đồ thị có hướng, không có chu trình, biểu diễn cấu trúc nhân quả:
 
-```
-Quy ước:
-  A → B     (A gây B)
-  A → B     (mũi tên = quan hệ nhân quả trực tiếp)
-
-Ví dụ DAG cho nghiên cứu thuốc:
-  Phân công điều trị (Z) → Dùng thuốc (A) → Kết quả (Y)
-                                    ↑
-  Tuổi (C) ─────────────────────→ (C) → Y
-```
+<svg viewBox="0 0 584 230" style="max-width:584px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="DAG nghiên cứu thuốc: Phân công điều trị Z → Dùng thuốc A → Kết quả Y; Tuổi C là confounder tác động lên cả A và Y">
+  <defs><marker id="dag" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(57,0)">
+  <line x1="94.0" y1="60.0" x2="204.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dag)"/>
+  <line x1="254.0" y1="60.0" x2="364.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dag)"/>
+  <line x1="295.9" y1="150.6" x2="245.3" y2="81.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dag)"/>
+  <line x1="324.1" y1="150.6" x2="374.7" y2="81.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dag)"/>
+  <circle cx="70.0" cy="60.0" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="70.0" y="65.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Z</text>
+  <circle cx="230.0" cy="60.0" r="22" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="390.0" cy="60.0" r="22" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="390.0" y="65.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">Y</text>
+  <circle cx="310.0" cy="170.0" r="22" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="310.0" y="175.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <text x="235.0" y="222.0" fill="#475569" font-size="11" text-anchor="middle">Z: phân công điều trị · A: dùng thuốc · Y: kết quả · C: tuổi (confounder → phải điều chỉnh)</text>
+  </g>
+</svg>
 
 **Quy tắc d-separation**: Hai biến là d-separated (điều kiện độc lập) khi đã kiểm soát một tập biến S, nếu mọi đường nối chúng đều bị "chặn" bởi S. Kiểm soát confounder (trên backdoor path) → chặn tốt. Kiểm soát collider → mở path mới → tạo bias!
 

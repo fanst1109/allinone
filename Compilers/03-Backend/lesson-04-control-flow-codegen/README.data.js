@@ -518,27 +518,32 @@ CFG nối thẳng vào IR ở [L11](../lesson-01-ir-three-address/): tối ưu h
 
 Bốn block:
 
-\`\`\`
-        ┌─────────────────────┐
-        │ B0 (cond)           │
-        │ 0: LOAD x           │
-        │ 1: PUSH 10          │
-        │ 2: LT               │
-        │ 3: JMPF 7           │
-        └──────┬───────┬──────┘
-   true (đi tiếp)│      │ false (JMPF 7)
-        ┌────────▼──┐ ┌─▼──────────┐
-        │ B1 (then) │ │ B2 (else)  │
-        │ 4: PUSH 1 │ │ 7: PUSH 2  │
-        │ 5: PRINT  │ │ 8: PRINT   │
-        │ 6: JMP 9  │ │            │
-        └─────┬─────┘ └─────┬──────┘
-              │ JMP 9       │ fall-through
-        ┌─────▼─────────────▼──────┐
-        │ B3 (end, merge)          │
-        │ 9: ...                   │
-        └──────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 520 332" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CFG của if/else: B0 cond (LOAD x, PUSH 10, LT, JMPF 7) rẽ true sang B1 then (PUSH 1, PRINT, JMP 9), false sang B2 else (PUSH 2, PRINT); cả hai hội tụ B3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="150.0" y="16.0" width="220.0" height="86.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="40.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B0 (cond)</text>
+  <text x="260.0" y="55.4" fill="#475569" font-size="10" text-anchor="middle">0: LOAD x · 1: PUSH 10</text>
+  <text x="260.0" y="70.3" fill="#475569" font-size="10" text-anchor="middle">2: LT</text>
+  <text x="260.0" y="85.3" fill="#475569" font-size="10" text-anchor="middle">3: JMPF 7</text>
+  <path d="M 200.0,102.0 L 200.0,130.0 L 120.0,130.0 L 120.0,150.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="112.0" y="124.0" fill="#15803d" font-size="10" text-anchor="end">true (đi tiếp)</text>
+  <path d="M 320.0,102.0 L 320.0,130.0 L 400.0,130.0 L 400.0,150.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="408.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="start">false (JMPF 7)</text>
+  <rect x="40.0" y="152.0" width="160.0" height="70.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="120.0" y="175.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">B1 (then)</text>
+  <text x="120.0" y="190.8" fill="#475569" font-size="10" text-anchor="middle">4: PUSH 1 · 5: PRINT</text>
+  <text x="120.0" y="205.8" fill="#475569" font-size="10" text-anchor="middle">6: JMP 9</text>
+  <rect x="320.0" y="152.0" width="160.0" height="70.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="400.0" y="183.3" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">B2 (else)</text>
+  <text x="400.0" y="198.3" fill="#475569" font-size="10" text-anchor="middle">7: PUSH 2 · 8: PRINT</text>
+  <path d="M 120.0,222.0 L 120.0,250.0 L 220.0,250.0 L 220.0,270.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="112.0" y="244.0" fill="#475569" font-size="10" text-anchor="end">JMP 9</text>
+  <path d="M 400.0,222.0 L 400.0,250.0 L 300.0,250.0 L 300.0,270.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="408.0" y="244.0" fill="#475569" font-size="10" text-anchor="start">fall-through</text>
+  <rect x="130.0" y="272.0" width="260.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="290.4" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">B3 (end, merge)</text>
+  <text x="260.0" y="305.4" fill="#475569" font-size="10" text-anchor="middle">9: …</text>
+</svg>
 
 - \`B0\` có **hai** cạnh ra (đây là điểm rẽ nhánh): tới \`B1\` (điều kiện đúng, fall-through) và tới \`B2\` (điều kiện sai, \`JMPF\`).
 - \`B1\` và \`B2\` đều có cạnh tới \`B3\` — \`B3\` là **điểm hợp nhất (merge point)**, có hai cạnh vào.
@@ -546,34 +551,32 @@ Bốn block:
 
 ### 6.4 CFG của \`while\` (dùng bytecode §4.2)
 
-\`\`\`
-        ┌──────────────┐
-        │ B0 (init)    │
-        │ 0: PUSH 0    │
-        │ 1: STORE i   │
-        └──────┬───────┘
-               ▼
-        ┌──────────────┐ ◄──────────┐
-        │ B1 (cond)    │            │ JMP 2 (cạnh lùi)
-        │ 2: LOAD i    │            │
-        │ 3: PUSH 3    │            │
-        │ 4: LT        │            │
-        │ 5: JMPF 13   │            │
-        └──┬────────┬──┘            │
-  true(tiếp)│        │ false(JMPF)  │
-        ┌───▼──────┐ │              │
-        │ B2 (body)│ │              │
-        │ 6: LOAD i│ │              │
-        │ 7: PRINT │ │              │
-        │ ...      │ │              │
-        │ 12: JMP 2│─┼──────────────┘
-        └──────────┘ │
-                     ▼
-              ┌──────────────┐
-              │ B3 (end)     │
-              │ 13: ...      │
-              └──────────────┘
-\`\`\`
+<svg viewBox="0 0 600 380" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CFG của while: B0 init → B1 cond (LOAD i, PUSH 3, LT, JMPF 13); true sang B2 body rồi JMP 2 quay lại B1 (cạnh lùi); false sang B3 end">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="150.0" y="16.0" width="180.0" height="56.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="32.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B0 (init)</text>
+  <text x="240.0" y="47.9" fill="#475569" font-size="10" text-anchor="middle">0: PUSH 0</text>
+  <text x="240.0" y="62.9" fill="#475569" font-size="10" text-anchor="middle">1: STORE i</text>
+  <line x1="240.0" y1="74.0" x2="240.0" y2="98.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="150.0" y="100.0" width="180.0" height="86.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="240.0" y="124.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">B1 (cond)</text>
+  <text x="240.0" y="139.3" fill="#475569" font-size="10" text-anchor="middle">2: LOAD i · 3: PUSH 3</text>
+  <text x="240.0" y="154.3" fill="#475569" font-size="10" text-anchor="middle">4: LT</text>
+  <text x="240.0" y="169.3" fill="#475569" font-size="10" text-anchor="middle">5: JMPF 13</text>
+  <path d="M 190.0,186.0 L 190.0,214.0 L 130.0,214.0 L 130.0,234.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="122.0" y="208.0" fill="#15803d" font-size="10" text-anchor="end">true (tiếp)</text>
+  <path d="M 290.0,186.0 L 290.0,214.0 L 400.0,214.0 L 400.0,318.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="408.0" y="208.0" fill="#dc2626" font-size="10" text-anchor="start">false (JMPF 13)</text>
+  <rect x="40.0" y="236.0" width="180.0" height="70.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="130.0" y="259.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">B2 (body)</text>
+  <text x="130.0" y="274.9" fill="#475569" font-size="10" text-anchor="middle">6: LOAD i · 7: PRINT</text>
+  <text x="130.0" y="289.9" fill="#475569" font-size="10" text-anchor="middle">… · 12: JMP 2</text>
+  <path d="M 220.0,290.0 L 480.0,290.0 L 480.0,143.0 L 332.0,143.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="488.0" y="220.0" fill="#b45309" font-size="10" text-anchor="start">JMP 2 (cạnh lùi)</text>
+  <rect x="310.0" y="320.0" width="180.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="400.0" y="338.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B3 (end)</text>
+  <text x="400.0" y="353.4" fill="#475569" font-size="10" text-anchor="middle">13: …</text>
+</svg>
 
 - **Cạnh lùi (back edge)** \`B2 → B1\` là dấu hiệu của vòng lặp trong CFG. Một CFG có chu trình (cycle) ⇔ có vòng lặp.
 - \`B1\` có hai cạnh ra: tới \`B2\` (tiếp tục vòng) và tới \`B3\` (thoát).

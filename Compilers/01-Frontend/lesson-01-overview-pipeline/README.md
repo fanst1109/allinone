@@ -112,24 +112,42 @@ Có ba cách phổ biến để "làm cho code chạy". Mỗi cách trả lời 
 
 Dây chuyền chuẩn của một compiler:
 
-```
-source code (text)
-      │  Lexer (Scanner)
-      ▼
-tokens   ──────►  Parser
-                    │
-                    ▼
-                  AST   ──────►  Semantic Analysis
-                                      │
-                                      ▼
-                                     IR  ──────►  Optimizer
-                                                     │
-                                                     ▼
-                                                    IR'  ──────►  CodeGen
-                                                                    │
-                                                                    ▼
-                                                          mã máy / bytecode → máy chạy
-```
+<svg viewBox="0 0 1132 400" style="max-width:1132px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dây chuyền compiler: source code → Lexer → tokens → Parser → AST → Semantic Analysis → IR → Optimizer → IR' → CodeGen → mã máy/bytecode">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="91.0" y="36.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">source code</text>
+  <line x1="168.0" y1="33.0" x2="204.0" y2="33.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="206.0" y="16.0" width="150.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="281.0" y="36.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Lexer (Scanner)</text>
+  <line x1="281.0" y1="52.0" x2="281.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="206.0" y="80.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="281.0" y="100.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">tokens</text>
+  <line x1="358.0" y1="97.0" x2="394.0" y2="97.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="396.0" y="80.0" width="150.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="471.0" y="100.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Parser</text>
+  <line x1="471.0" y1="116.0" x2="471.0" y2="142.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="396.0" y="144.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="471.0" y="164.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">AST</text>
+  <line x1="548.0" y1="161.0" x2="584.0" y2="161.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="586.0" y="144.0" width="150.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="661.0" y="164.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Semantic Analysis</text>
+  <line x1="661.0" y1="180.0" x2="661.0" y2="206.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="586.0" y="208.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="661.0" y="228.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">IR</text>
+  <line x1="738.0" y1="225.0" x2="774.0" y2="225.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="776.0" y="208.0" width="150.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="851.0" y="228.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Optimizer</text>
+  <line x1="851.0" y1="244.0" x2="851.0" y2="270.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="776.0" y="272.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="851.0" y="292.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">IR'</text>
+  <line x1="928.0" y1="289.0" x2="964.0" y2="289.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="966.0" y="272.0" width="150.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="1041.0" y="292.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">CodeGen</text>
+  <line x1="1041.0" y1="308.0" x2="1041.0" y2="334.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="966.0" y="336.0" width="150.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="1041.0" y="356.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">mã máy / bytecode</text>
+  <text x="1041.0" y="388.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">→ máy chạy</text>
+</svg>
 
 Ta đẩy biểu thức quen thuộc `x = (2+3)*4` qua từng trạm. **Để ý: mỗi trạm chỉ đổi cách biểu diễn, ý nghĩa không đổi.**
 
@@ -300,14 +318,65 @@ Sức mạnh: **cấu trúc cây mã hóa luôn độ ưu tiên** — không c�
 
 Bốn ví dụ AST nhỏ (đọc cây → biểu thức):
 
-```
-1)   -          2)    =         3)    >          4)     +
-    / \              / \           (so sánh)          / \
-   7   2          x    +          / \                a   *
-   → 7 - 2           / \         a   b                  / \
-                    1   1        → a > b               b   c
-   = 5            → x = 1+1                          → a + b*c
-```
+<svg viewBox="0 0 1504 164" style="max-width:1504px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn AST nhỏ: 7−2, x = 1+1, a &gt; b, a + b*c — nút cha là toán tử, con là toán hạng">
+  <defs></defs>
+  <text x="139.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">1) 7 − 2 = 5</text>
+  <g transform="translate(0,22)">
+  <line x1="139.0" y1="39.0" x2="71.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <line x1="139.0" y1="39.0" x2="207.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="139.0" cy="26.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">−</text>
+  </g>
+  <text x="525.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">2) x = 1 + 1</text>
+  <g transform="translate(318,22)">
+  <line x1="139.0" y1="39.0" x2="71.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">x</text>
+  <line x1="139.0" y1="39.0" x2="275.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="87.0" x2="207.0" y2="109.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="122.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="126.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="275.0" y1="87.0" x2="343.0" y2="109.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="122.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="343.0" y="126.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="275.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">+</text>
+  <circle cx="139.0" cy="26.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">=</text>
+  </g>
+  <text x="911.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">3) a &gt; b</text>
+  <g transform="translate(772,22)">
+  <line x1="139.0" y1="39.0" x2="71.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <line x1="139.0" y1="39.0" x2="207.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">b</text>
+  <circle cx="139.0" cy="26.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">&gt;</text>
+  </g>
+  <text x="1297.0" y="16.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">4) a + b·c</text>
+  <g transform="translate(1090,22)">
+  <line x1="139.0" y1="39.0" x2="71.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="71.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="71.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">a</text>
+  <line x1="139.0" y1="39.0" x2="275.0" y2="61.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="275.0" y1="87.0" x2="207.0" y2="109.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="207.0" cy="122.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="207.0" y="126.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">b</text>
+  <line x1="275.0" y1="87.0" x2="343.0" y2="109.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="343.0" cy="122.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="343.0" y="126.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">c</text>
+  <circle cx="275.0" cy="74.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="275.0" y="78.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">*</text>
+  <circle cx="139.0" cy="26.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="139.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">+</text>
+  </g>
+</svg>
 
 > ❓ *"Vì sao gọi là 'trừu tượng'?"* — Vì nó **bỏ chi tiết cú pháp thừa**: dấu ngoặc, dấu chấm phẩy, khoảng trắng không xuất hiện trong cây — chúng chỉ giúp *dựng* cây rồi biến mất. Cây giữ lại *cấu trúc ý nghĩa*, không giữ *hình thức bề mặt*. (Cây giữ cả chi tiết bề mặt gọi là *concrete syntax tree* / parse tree — nặng hơn, ít dùng để xử lý.)
 

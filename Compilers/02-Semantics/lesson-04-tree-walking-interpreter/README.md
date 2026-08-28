@@ -75,11 +75,29 @@ eval(node, env) → value
 
 Ta đi qua **từng node**, theo dõi cả giá trị trả về lẫn `env`. AST gồm một `Block` 2 câu:
 
-```
-Block
-├── Assign(name="x", rhs=Lit(5))
-└── Print(expr=BinaryOp(op="+", left=Var("x"), right=Lit(3)))
-```
+<svg viewBox="0 0 360 240" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="AST của x = 5; print(x + 3): Block gồm Assign(x, Lit 5) và Print(BinaryOp(+, Var x, Lit 3))">
+  <defs></defs>
+  <line x1="152.5" y1="44.0" x2="70.0" y2="76.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="70.0" y1="104.0" x2="70.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="42.0" y="136.0" width="56.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="70.0" y="154.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Lit(5)</text>
+  <rect x="7.0" y="76.0" width="126.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="70.0" y="94.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Assign(name="x")</text>
+  <line x1="152.5" y1="44.0" x2="235.0" y2="76.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="235.0" y1="104.0" x2="235.0" y2="136.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="235.0" y1="164.0" x2="180.0" y2="196.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="145.0" y="196.0" width="70.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="180.0" y="214.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Var("x")</text>
+  <line x1="235.0" y1="164.0" x2="290.0" y2="196.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="262.0" y="196.0" width="56.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="290.0" y="214.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Lit(3)</text>
+  <rect x="189.5" y="136.0" width="91.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="235.0" y="154.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">BinaryOp(+)</text>
+  <rect x="210.5" y="76.0" width="49.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="235.0" y="94.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Print</text>
+  <rect x="128.0" y="16.0" width="49.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="152.5" y="34.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Block</text>
+</svg>
 
 Bắt đầu với `env = { }` (rỗng):
 
@@ -299,14 +317,50 @@ Mỗi vòng: eval lại `cond` (giá trị có thể đổi vì thân vừa sử
 
 AST:
 
-```
-Block
-├── Assign("i", Lit(0))
-└── While(
-      cond = BinaryOp(<, Var(i), Lit(3)),
-      body = Block([ Print(Var(i)), Assign("i", BinaryOp(+, Var(i), Lit(1))) ])
-    )
-```
+<svg viewBox="0 0 580 350" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="AST vòng while: Block gồm Assign(i, 0) và While(cond i &lt; 3, body Block[Print(i), Assign(i, i + 1)])">
+  <defs></defs>
+  <line x1="180.8" y1="44.0" x2="60.0" y2="74.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="102.0" x2="60.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="32.0" y="132.0" width="56.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="60.0" y="150.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Lit(0)</text>
+  <rect x="14.5" y="74.0" width="91.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="60.0" y="92.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Assign("i")</text>
+  <line x1="180.8" y1="44.0" x2="301.5" y2="74.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="301.5" y1="102.0" x2="198.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="198.0" y1="160.0" x2="152.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="117.0" y="190.0" width="70.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="152.0" y="208.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Var("i")</text>
+  <line x1="198.0" y1="160.0" x2="244.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="216.0" y="190.0" width="56.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="244.0" y="208.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Lit(3)</text>
+  <rect x="131.5" y="132.0" width="133.0" height="28.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="198.0" y="150.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">cond: BinaryOp(&lt;)</text>
+  <line x1="301.5" y1="102.0" x2="405.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="405.0" y1="160.0" x2="336.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="336.0" y1="218.0" x2="336.0" y2="248.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="301.0" y="248.0" width="70.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="336.0" y="266.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Var("i")</text>
+  <rect x="311.5" y="190.0" width="49.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="336.0" y="208.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Print</text>
+  <line x1="405.0" y1="160.0" x2="474.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="474.0" y1="218.0" x2="474.0" y2="248.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="474.0" y1="276.0" x2="428.0" y2="306.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="393.0" y="306.0" width="70.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="428.0" y="324.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Var("i")</text>
+  <line x1="474.0" y1="276.0" x2="520.0" y2="306.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="492.0" y="306.0" width="56.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="520.0" y="324.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Lit(1)</text>
+  <rect x="428.5" y="248.0" width="91.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="474.0" y="266.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">BinaryOp(+)</text>
+  <rect x="428.5" y="190.0" width="91.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="474.0" y="208.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Assign("i")</text>
+  <rect x="359.5" y="132.0" width="91.0" height="28.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="405.0" y="150.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">body: Block</text>
+  <rect x="277.0" y="74.0" width="49.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="301.5" y="92.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">While</text>
+  <rect x="156.2" y="16.0" width="49.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="180.8" y="34.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Block</text>
+</svg>
 
 Bắt đầu `env = { }`:
 

@@ -419,13 +419,35 @@ Nhận ra không? **Y hệt mô hình stack machine của L13** — chỉ khác 
 
 **LLVM** là hạ tầng compiler thực tế đứng sau Clang (C/C++), Rust, Swift, Julia... Ý tưởng cốt lõi:
 
-\`\`\`
-                          ┌─→ x86-64 backend  → mã Intel/AMD
-nguồn C ─┐                │
-nguồn Rust ─┼─→  LLVM IR ─┼─→ ARM64 backend   → mã Apple Silicon / điện thoại
-nguồn Swift ─┘            │
-                          └─→ WASM backend    → mã chạy trình duyệt
-\`\`\`
+<svg viewBox="0 0 760 140" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="LLVM: nguồn C, Rust, Swift đều dịch ra LLVM IR chung, rồi backend x86-64, ARM64, WASM sinh mã cho từng target">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="110.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="38.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">nguồn C</text>
+  <path d="M 126.0,35.0 L 160.0,35.0 L 160.0,75.0 L 198.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="60.0" width="110.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="78.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">nguồn Rust</text>
+  <path d="M 126.0,75.0 L 160.0,75.0 L 160.0,75.0 L 198.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="100.0" width="110.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="118.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">nguồn Swift</text>
+  <path d="M 126.0,115.0 L 160.0,115.0 L 160.0,75.0 L 198.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="200.0" y="55.0" width="110.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="255.0" y="79.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">LLVM IR</text>
+  <path d="M 310.0,75.0 L 350.0,75.0 L 350.0,35.0 L 388.0,35.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="20.0" width="130.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="455.0" y="38.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">x86-64 backend</text>
+  <line x1="522.0" y1="35.0" x2="548.0" y2="35.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="554.0" y="39.0" fill="#15803d" font-size="10" text-anchor="start">mã Intel/AMD</text>
+  <path d="M 310.0,75.0 L 350.0,75.0 L 350.0,75.0 L 388.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="60.0" width="130.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="455.0" y="78.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">ARM64 backend</text>
+  <line x1="522.0" y1="75.0" x2="548.0" y2="75.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="554.0" y="79.0" fill="#15803d" font-size="10" text-anchor="start">mã Apple Silicon / điện thoại</text>
+  <path d="M 310.0,75.0 L 350.0,75.0 L 350.0,115.0 L 388.0,115.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="100.0" width="130.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="455.0" y="118.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">WASM backend</text>
+  <line x1="522.0" y1="115.0" x2="548.0" y2="115.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="554.0" y="119.0" fill="#15803d" font-size="10" text-anchor="start">mã chạy trình duyệt</text>
+</svg>
 
 - **Front-end** (mỗi ngôn ngữ một bộ) dịch source → **LLVM IR** chung.
 - **Back-end** (mỗi kiến trúc một bộ) dịch LLVM IR → mã target, *bao gồm register allocation* (chính phần ta học hôm nay!).
@@ -458,43 +480,68 @@ nguồn Swift ─┘            │
 
 Trình biên dịch đồ chơi của chúng ta giờ đã **hoàn chỉnh**. Đi lại toàn bộ pipeline, mỗi chặng là một lesson đã học:
 
-\`\`\`
-  mã nguồn (source code)
-        │  "x = (a + b) * 2"
-        ▼
-  ┌─────────────┐   Front-end
-  │ 1. Lexer    │   chuỗi ký tự → token: [x] [=] [(] [a] [+] [b] [)] [*] [2]
-  ├─────────────┤
-  │ 2. Parser   │   token → cây cú pháp (AST)
-  ├─────────────┤
-  │ 3. AST      │        =
-  │             │       / \\
-  │             │      x   *
-  │             │         / \\
-  │             │        +   2
-  │             │       / \\
-  │             │      a   b
-  └─────────────┘
-        │
-        ▼
-  ┌─────────────┐   Semantics (giữa)
-  │ 4. Semantic │   kiểm tra kiểu (type), khai báo, scope
-  │   analysis  │
-  └─────────────┘
-        │
-        ▼
-  ┌─────────────┐   Back-end (bài này + L11–L14)
-  │ 5. IR       │   t1 = a + b ; t2 = t1 * 2 ; x = t2     (L11)
-  ├─────────────┤
-  │ 6. Optimize │   bỏ dead code, gập hằng (constant fold) (L12)
-  ├─────────────┤
-  │ 7. Codegen  │   liveness → tô màu → register alloc      (L15 — bài này)
-  │             │   → chọn target (native / WASM / JVM)     (L14, L15)
-  └─────────────┘
-        │
-        ▼
-  máy thật chạy  ──►  R1 = a ; R1 += b ; R1 *= 2 ; store x, R1
-\`\`\`
+<svg viewBox="0 0 620 632" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Toàn bộ dây chuyền compiler đồ chơi cho x = (a+b)*2: Front-end (Lexer, Parser, AST), Semantic analysis, Back-end (IR, Optimize, Codegen) rồi máy chạy">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="150.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="36.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">mã nguồn</text>
+  <text x="180.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">"x = (a + b) * 2"</text>
+  <line x1="95.0" y1="52.0" x2="95.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="76.0" width="150.0" height="236.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="180.0" y="92.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">Front-end</text>
+  <rect x="30.0" y="86.0" width="130.0" height="34.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="95.0" y="108.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">1. Lexer</text>
+  <rect x="30.0" y="130.0" width="130.0" height="34.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="95.0" y="152.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">2. Parser</text>
+  <rect x="30.0" y="174.0" width="130.0" height="34.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="95.0" y="196.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">3. AST</text>
+  <text x="180.0" y="108.0" fill="#475569" font-size="10" text-anchor="start">chuỗi ký tự → token: [x] [=] [(] [a] [+] [b] [)] [*] [2]</text>
+  <text x="180.0" y="152.0" fill="#475569" font-size="10" text-anchor="start">token → cây cú pháp (AST)</text>
+  <g transform="translate(180,170)">
+  <line x1="97.0" y1="35.0" x2="53.0" y2="51.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="53.0" cy="60.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="53.0" y="64.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">x</text>
+  <line x1="97.0" y1="35.0" x2="273.0" y2="51.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="273.0" y1="69.0" x2="185.0" y2="85.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="185.0" y1="103.0" x2="141.0" y2="119.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="141.0" cy="128.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="141.0" y="132.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">a</text>
+  <line x1="185.0" y1="103.0" x2="229.0" y2="119.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="229.0" cy="128.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="229.0" y="132.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">b</text>
+  <circle cx="185.0" cy="94.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="98.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">+</text>
+  <line x1="273.0" y1="69.0" x2="317.0" y2="85.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="317.0" cy="94.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="317.0" y="98.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="273.0" cy="60.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="273.0" y="64.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">*</text>
+  <circle cx="97.0" cy="26.0" r="11" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="97.0" y="30.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">=</text>
+  </g>
+  <line x1="95.0" y1="314.0" x2="95.0" y2="336.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="338.0" width="150.0" height="50.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="95.0" y="360.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">4. Semantic</text>
+  <text x="95.0" y="376.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">analysis</text>
+  <text x="180.0" y="356.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Semantics (giữa)</text>
+  <text x="180.0" y="372.0" fill="#475569" font-size="10" text-anchor="start">kiểm tra kiểu (type), khai báo, scope</text>
+  <line x1="95.0" y1="390.0" x2="95.0" y2="412.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="414.0" width="150.0" height="140.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="180.0" y="430.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">Back-end (bài này + L11–L14)</text>
+  <rect x="30.0" y="424.0" width="130.0" height="32.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#b45309" stroke-width="1.2"/>
+  <text x="95.0" y="445.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">5. IR</text>
+  <text x="180.0" y="445.0" fill="#475569" font-size="10" text-anchor="start">t1 = a + b ; t2 = t1 * 2 ; x = t2   (L11)</text>
+  <rect x="30.0" y="466.0" width="130.0" height="32.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#b45309" stroke-width="1.2"/>
+  <text x="95.0" y="487.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">6. Optimize</text>
+  <text x="180.0" y="487.0" fill="#475569" font-size="10" text-anchor="start">bỏ dead code, gập hằng (constant fold)   (L12)</text>
+  <rect x="30.0" y="508.0" width="130.0" height="32.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#b45309" stroke-width="1.2"/>
+  <text x="95.0" y="529.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">7. Codegen</text>
+  <text x="180.0" y="529.0" fill="#475569" font-size="10" text-anchor="start">liveness → tô màu → register alloc (L15) · chọn target (L14, L15)</text>
+  <line x1="95.0" y1="556.0" x2="95.0" y2="578.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="580.0" width="150.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="95.0" y="600.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">máy thật chạy</text>
+  <line x1="172.0" y1="597.0" x2="206.0" y2="597.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="212.0" y="601.0" fill="#15803d" font-size="10" text-anchor="start">R1 = a ; R1 += b ; R1 *= 2 ; store x, R1</text>
+</svg>
 
 Từng mảnh ghép đã có:
 

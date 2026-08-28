@@ -151,47 +151,60 @@ Gọi `fact(3)`. Theo dõi call stack **từng bước**, đỉnh stack ở trê
 
 Bước 1 — gọi `fact(3)`. `n = 3`, `n == 0`? Không. Cần tính `3 * fact(2)` → phải gọi `fact(2)` trước. Push frame:
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(3)  n=3  chờ fact(2)│
-└─────────────────────────┘
-```
+<svg viewBox="0 0 440 80" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 1: chỉ có frame fact(3) n=3 chờ fact(2)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  chờ fact(2)</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <line x1="30.0" y1="50.0" x2="310.0" y2="50.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="66.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Bước 2 — gọi `fact(2)`. `n = 2`, `n == 0`? Không. Cần `2 * fact(1)`. Push:
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(2)  n=2  chờ fact(1)│
-├─────────────────────────┤
-│ fact(3)  n=3  chờ fact(2)│
-└─────────────────────────┘
-```
+<svg viewBox="0 0 440 114" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 2: fact(2) đè lên fact(3)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(2)  n=2  chờ fact(1)</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <rect x="30.0" y="50.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  chờ fact(2)</text>
+  <line x1="30.0" y1="84.0" x2="310.0" y2="84.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="100.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Bước 3 — gọi `fact(1)`. `n = 1`, `n == 0`? Không. Cần `1 * fact(0)`. Push:
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(1)  n=1  chờ fact(0)│
-├─────────────────────────┤
-│ fact(2)  n=2  chờ fact(1)│
-├─────────────────────────┤
-│ fact(3)  n=3  chờ fact(2)│
-└─────────────────────────┘
-```
+<svg viewBox="0 0 440 148" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 3: fact(1), fact(2), fact(3)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(1)  n=1  chờ fact(0)</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <rect x="30.0" y="50.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(2)  n=2  chờ fact(1)</text>
+  <rect x="30.0" y="84.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="106.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  chờ fact(2)</text>
+  <line x1="30.0" y1="118.0" x2="310.0" y2="118.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="134.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Bước 4 — gọi `fact(0)`. `n = 0`, `n == 0`? **Có!** Chạm base case, `return 1`. Push rồi sắp pop:
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(0)  n=0  return 1   │   ← base case, không gọi tiếp
-├─────────────────────────┤
-│ fact(1)  n=1  chờ fact(0)│
-├─────────────────────────┤
-│ fact(2)  n=2  chờ fact(1)│
-├─────────────────────────┤
-│ fact(3)  n=3  chờ fact(2)│
-└─────────────────────────┘
-```
+<svg viewBox="0 0 520 182" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 4: fact(0) chạm base case return 1 trên đỉnh, dưới là fact(1), fact(2), fact(3)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">fact(0)  n=0  return 1</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <text x="320.0" y="52.0" fill="#dc2626" font-size="10" text-anchor="start">← base case, không gọi tiếp</text>
+  <rect x="30.0" y="50.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(1)  n=1  chờ fact(0)</text>
+  <rect x="30.0" y="84.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="106.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(2)  n=2  chờ fact(1)</text>
+  <rect x="30.0" y="118.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="140.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  chờ fact(2)</text>
+  <line x1="30.0" y1="152.0" x2="310.0" y2="152.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="168.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Stack đã **phình tối đa: 4 frame**. Giờ bắt đầu **XẸP** — pop và lan giá trị ngược lên.
 
@@ -199,33 +212,45 @@ Stack đã **phình tối đa: 4 frame**. Giờ bắt đầu **XẸP** — pop v
 
 Bước 5 — `fact(0)` trả `1`. Pop. Giá trị `1` về cho `fact(1)`: nó tính `1 * fact(0) = 1 * 1 = 1`.
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(1)  n=1  1*1 = 1    │   ← nhận 1 từ fact(0), return 1
-├─────────────────────────┤
-│ fact(2)  n=2  chờ fact(1)│
-├─────────────────────────┤
-│ fact(3)  n=3  chờ fact(2)│
-└─────────────────────────┘
-```
+<svg viewBox="0 0 520 148" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 5: fact(0) đã pop, fact(1) nhận 1, tính 1*1 = 1">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">fact(1)  n=1  1*1 = 1</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <text x="320.0" y="52.0" fill="#dc2626" font-size="10" text-anchor="start">← nhận 1 từ fact(0), return 1</text>
+  <rect x="30.0" y="50.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(2)  n=2  chờ fact(1)</text>
+  <rect x="30.0" y="84.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="106.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  chờ fact(2)</text>
+  <line x1="30.0" y1="118.0" x2="310.0" y2="118.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="134.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Bước 6 — `fact(1)` trả `1`. Pop. Về cho `fact(2)`: `2 * fact(1) = 2 * 1 = 2`.
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(2)  n=2  2*1 = 2    │   ← nhận 1 từ fact(1), return 2
-├─────────────────────────┤
-│ fact(3)  n=3  chờ fact(2)│
-└─────────────────────────┘
-```
+<svg viewBox="0 0 520 114" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 6: fact(1) đã pop, fact(2) tính 2*1 = 2">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">fact(2)  n=2  2*1 = 2</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <text x="320.0" y="52.0" fill="#dc2626" font-size="10" text-anchor="start">← nhận 1 từ fact(1), return 2</text>
+  <rect x="30.0" y="50.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  chờ fact(2)</text>
+  <line x1="30.0" y1="84.0" x2="310.0" y2="84.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="100.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Bước 7 — `fact(2)` trả `2`. Pop. Về cho `fact(3)`: `3 * fact(2) = 3 * 2 = 6`.
 
-```
-┌─────────────────────────┐  ← đỉnh
-│ fact(3)  n=3  3*2 = 6    │   ← nhận 2 từ fact(2), return 6
-└─────────────────────────┘
-```
+<svg viewBox="0 0 520 80" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sau bước 7: chỉ còn fact(3) tính 3*2 = 6, kết quả cuối">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">fact(3)  n=3  3*2 = 6</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <text x="320.0" y="52.0" fill="#dc2626" font-size="10" text-anchor="start">← nhận 2 từ fact(2), return 6</text>
+  <line x1="30.0" y1="50.0" x2="310.0" y2="50.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="66.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 
 Bước 8 — `fact(3)` trả `6`. Pop. Stack rỗng. **Kết quả cuối: `6`** ✓ (đúng `3! = 3·2·1 = 6`).
 
@@ -453,13 +478,20 @@ bad(0);  // bad(0) → bad(1) → bad(2) → ... → STACK OVERFLOW
 
 Stack frame chồng chất không bao giờ pop:
 
-```
-│ bad(99999) ... │  ← cứ phình
-│ bad(2)         │
-│ bad(1)         │
-│ bad(0)         │
-└────────────────┘  → tràn vùng nhớ stack → crash
-```
+<svg viewBox="0 0 560 180" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack frame bad(0), bad(1), bad(2)… chồng chất không bao giờ pop, phình tới tràn stack và crash">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="170.0" y="22.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">⋮  cứ phình lên mãi</text>
+  <rect x="30.0" y="32.0" width="280.0" height="32.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.6"/>
+  <text x="170.0" y="53.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">bad(99999) …</text>
+  <rect x="30.0" y="64.0" width="280.0" height="32.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">bad(2)</text>
+  <rect x="30.0" y="96.0" width="280.0" height="32.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="117.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">bad(1)</text>
+  <rect x="30.0" y="128.0" width="280.0" height="32.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="149.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">bad(0)</text>
+  <line x1="30.0" y1="160.0" x2="310.0" y2="160.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="330.0" y="156.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">→ tràn vùng nhớ stack → crash</text>
+</svg>
 
 > ⚠ **Lỗi thường gặp.** (1) Quên base case hoàn toàn. (2) Có base case nhưng bước đệ quy **không tiến về** nó — ví dụ `fact(n)` viết nhầm `n * fact(n)` (không giảm) → vô hạn. (3) Đệ quy quá sâu *dù* đúng — ví dụ `fact(1000000)` vẫn tràn vì cần 1 triệu frame. Với độ sâu lớn, đổi sang **vòng lặp** (chỉ dùng 1 frame) hoặc tail-call optimization (một số ngôn ngữ).
 
@@ -564,13 +596,21 @@ Kết quả: **`14`**. `callEnv` chứa đúng một entry `x → 7`, cha là gl
 `sum(3)`:
 
 **Phình** (push tới base case):
-```
-│ sum(0)  n=0  return 0     │  ← đỉnh, base case
-│ sum(1)  n=1  chờ sum(0)   │
-│ sum(2)  n=2  chờ sum(1)   │
-│ sum(3)  n=3  chờ sum(2)   │
-└───────────────────────────┘
-```
+<svg viewBox="0 0 480 182" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stack sum(3) lúc phình tối đa: sum(0) base case trên đỉnh, dưới là sum(1), sum(2), sum(3)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="280.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="170.0" y="38.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">sum(0)  n=0  return 0</text>
+  <text x="320.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">← đỉnh</text>
+  <text x="320.0" y="52.0" fill="#dc2626" font-size="10" text-anchor="start">← base case</text>
+  <rect x="30.0" y="50.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">sum(1)  n=1  chờ sum(0)</text>
+  <rect x="30.0" y="84.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="106.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">sum(2)  n=2  chờ sum(1)</text>
+  <rect x="30.0" y="118.0" width="280.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="170.0" y="140.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">sum(3)  n=3  chờ sum(2)</text>
+  <line x1="30.0" y1="152.0" x2="310.0" y2="152.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="170.0" y="168.0" fill="#475569" font-size="9" text-anchor="middle">đáy stack</text>
+</svg>
 Stack cao tối đa 4 frame (`n=3,2,1,0`).
 
 **Xẹp** (pop, giá trị lan ngược):
@@ -590,12 +630,20 @@ Kết quả: **`6`** (đúng `0+1+2+3 = 6`). Giá trị trả lan ngược: `0 �
 - `triple = mul` → `triple.defEnv = callEnv_M {k:3}`.
 
 Environment captured của `triple`:
-```
-triple = closure {
-  body: return n * k
-  defEnv ──→ callEnv_M { k: 3 } ──→ global
-}
-```
+<svg viewBox="0 0 620 116" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Environment captured của triple: closure có body return n*k và defEnv trỏ tới callEnv_M {k: 3}, rồi tới global">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="250.0" height="84.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="30.0" y="36.0" fill="#7c3aed" font-size="12" text-anchor="start" font-weight="700">triple = closure {</text>
+  <text x="44.0" y="56.0" fill="#475569" font-size="11" text-anchor="start">body: return n * k</text>
+  <text x="44.0" y="76.0" fill="#475569" font-size="11" text-anchor="start">defEnv ─→</text>
+  <text x="30.0" y="94.0" fill="#7c3aed" font-size="12" text-anchor="start" font-weight="700">}</text>
+  <line x1="120.0" y1="74.0" x2="296.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="298.0" y="56.0" width="150.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="373.0" y="77.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">callEnv_M { k: 3 }</text>
+  <line x1="450.0" y1="74.0" x2="506.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="508.0" y="56.0" width="90.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="553.0" y="77.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">global</text>
+</svg>
 
 **Walk-through `triple(5)`**:
 - Tạo `callEnv` mới: `{ n: 5 }`, cha = `triple.defEnv` = `callEnv_M`.

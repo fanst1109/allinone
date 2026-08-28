@@ -52,22 +52,24 @@ Kết quả lexer trả về cho dòng `x=12+3`:
 
 ### 1.1. Vị trí trong pipeline
 
-```
-Mã nguồn (chuỗi ký tự thô)
-        │
-        ▼
-   ┌─────────┐
-   │  LEXER  │   ← bài này: chuỗi ký tự → dãy token
-   └─────────┘
-        │  [ID(x), EQ, NUM(12), PLUS, NUM(3)]
-        ▼
-   ┌─────────┐
-   │ PARSER  │   ← Lesson 04: dãy token → cây cú pháp (AST)
-   └─────────┘
-        │
-        ▼
-   Semantic analysis → IR → tối ưu → mã máy
-```
+<svg viewBox="0 0 560 378" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vị trí Lexer: mã nguồn → LEXER → dãy token [ID(x), EQ, NUM(12), PLUS, NUM(3)] → PARSER → AST → các bước sau">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="110.0" y="14.0" width="340.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Mã nguồn</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">chuỗi ký tự thô</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="114.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="110.0" y="116.0" width="340.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="141.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">LEXER</text>
+  <text x="280.0" y="157.2" fill="#475569" font-size="11" text-anchor="middle">bài này: chuỗi ký tự → dãy token</text>
+  <line x1="280.0" y1="176.0" x2="280.0" y2="216.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="288.0" y="200.0" fill="#475569" font-size="10" text-anchor="start">[ID(x), EQ, NUM(12), PLUS, NUM(3)]</text>
+  <rect x="110.0" y="218.0" width="340.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="243.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">PARSER</text>
+  <text x="280.0" y="259.2" fill="#475569" font-size="11" text-anchor="middle">Lesson 04: dãy token → cây cú pháp (AST)</text>
+  <line x1="280.0" y1="278.0" x2="280.0" y2="318.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="110.0" y="320.0" width="340.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="346.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Semantic analysis → IR → tối ưu → mã máy</text>
+</svg>
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Sao không để parser đọc thẳng ký tự, bỏ qua lexer?"* — Được về mặt lý thuyết (gọi là *scannerless parsing*), nhưng phức tạp hơn nhiều: parser sẽ phải vừa lo whitespace, comment, vừa lo cấu trúc câu. Tách 2 tầng giúp mỗi tầng đơn giản, dễ test, dễ tối ưu. Lexer chạy rất nhanh (chỉ là DFA), parser phức tạp hơn nhưng chỉ nhìn token.
@@ -322,16 +324,26 @@ Trong lexer thực tế, ta dùng **DFA** vì nó chạy O(độ dài input) —
 
 Automaton có 3 trạng thái:
 
-```
-        digit (0-9)            digit (0-9)
-         ┌────┐                  ┌────┐
-         │    ▼                  │    ▼
-   ──▶ (S0:start) ──digit──▶ ((S1:accept))
-         │                          │
-       khác                       khác → DỪNG, phát NUM
-         ▼
-     (Sx: reject)
-```
+<svg viewBox="0 0 520 236" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="DFA nhận số nguyên: S0 start, đọc digit sang S1 accept, S1 lặp digit; ký tự khác ở S1 dừng và phát NUM; khác ở S0 reject">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="142.0" y1="90.0" x2="294.0" y2="90.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="220.0" y="82.0" fill="#475569" font-size="10" text-anchor="middle">digit (0-9)</text>
+  <line x1="120.0" y1="112.0" x2="120.0" y2="164.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="120.0" y="144.0" fill="#475569" font-size="10" text-anchor="start">khác</text>
+  <path d="M 312,70 C 290,30 350,30 329,69" fill="none" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="320.0" y="32.0" fill="#475569" font-size="10" text-anchor="middle">digit (0-9)</text>
+  <circle cx="120" cy="90" r="22" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="120.0" y="94.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">S0</text>
+  <line x1="60.0" y1="90.0" x2="94.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <circle cx="320" cy="90" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <circle cx="320" cy="90" r="17" fill="none" stroke="#15803d" stroke-width="1.5"/>
+  <text x="320.0" y="94.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">S1</text>
+  <circle cx="120" cy="190" r="22" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="120.0" y="194.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Sx</text>
+  <text x="260.0" y="228.0" fill="#475569" font-size="10" text-anchor="middle">S1: ký tự khác → DỪNG, phát NUM · Sx: reject</text>
+  <text x="360.0" y="150.0" fill="#15803d" font-size="10" text-anchor="start">khác → DỪNG, phát NUM</text>
+  <line x1="320.0" y1="112.0" x2="320.0" y2="140.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#arg)"/>
+</svg>
 
 - `S0` (start): chưa đọc gì. Gặp chữ số → sang `S1`. Gặp ký tự khác → reject (không phải số).
 - `S1` (accept, vòng tròn kép): đã đọc ≥1 chữ số. Gặp chữ số nữa → ở lại `S1`. Gặp ký tự khác → **dừng, chấp nhận**, phát token `NUM`.
@@ -349,14 +361,21 @@ Chạy trên chuỗi `12+` (từng ký tự):
 
 ### 4.4. Walk-through DFA nhận **định danh** `[a-zA-Z_][a-zA-Z0-9_]*`
 
-```
-   letter/_                 letter/digit/_
-    ┌──┐                       ┌──┐
-    │  ▼                       │  ▼
-──▶(S0)──letter or '_'──▶((S1:accept))
-                              │
-                            khác → DỪNG, phát ID (rồi tra keyword)
-```
+<svg viewBox="0 0 560 206" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="DFA nhận định danh: S0 start, letter hoặc _ sang S1 accept, S1 lặp letter/digit/_; ký tự khác dừng, phát ID rồi tra keyword">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="142.0" y1="100.0" x2="314.0" y2="100.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="230.0" y="92.0" fill="#475569" font-size="10" text-anchor="middle">letter or '_'</text>
+  <path d="M 332,80 C 310,40 370,40 349,79" fill="none" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="340.0" y="42.0" fill="#475569" font-size="10" text-anchor="middle">letter / digit / _</text>
+  <circle cx="120" cy="100" r="22" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="120.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">S0</text>
+  <line x1="60.0" y1="100.0" x2="94.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <circle cx="340" cy="100" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <circle cx="340" cy="100" r="17" fill="none" stroke="#15803d" stroke-width="1.5"/>
+  <text x="340.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">S1</text>
+  <text x="340.0" y="170.0" fill="#15803d" font-size="10" text-anchor="middle">khác → DỪNG, phát ID (rồi tra keyword)</text>
+  <line x1="340.0" y1="122.0" x2="340.0" y2="152.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#arg)"/>
+</svg>
 
 - `S0`: ký tự đầu **phải** là chữ cái hoặc `_` (KHÔNG được là chữ số) → sang `S1`.
 - `S1` (accept): các ký tự sau có thể là chữ cái, chữ số, hoặc `_` → ở lại `S1`. Gặp ký tự khác → dừng, phát `ID`.
@@ -740,11 +759,29 @@ Bài học: keyword chỉ khi *toàn bộ lexeme* khớp đúng một mục tron
 
 DFA nhận `[0-9]+\.[0-9]+` có 4 trạng thái:
 
-```
-──▶(S0)──digit──▶(S1)──'.'──▶(S2)──digit──▶((S3:accept))
-              │  ▲                       │  ▲
-              └──┘ digit (lặp)           └──┘ digit (lặp)
-```
+<svg viewBox="0 0 620 150" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="DFA nhận số thực [0-9]+.[0-9]+: S0 digit S1 (lặp digit), '.' sang S2, digit sang S3 accept (lặp digit)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="112.0" y1="100.0" x2="214.0" y2="100.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="165.0" y="92.0" fill="#475569" font-size="10" text-anchor="middle">digit</text>
+  <line x1="262.0" y1="100.0" x2="364.0" y2="100.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="315.0" y="92.0" fill="#475569" font-size="10" text-anchor="middle">'.'</text>
+  <line x1="412.0" y1="100.0" x2="514.0" y2="100.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="465.0" y="92.0" fill="#475569" font-size="10" text-anchor="middle">digit</text>
+  <path d="M 232,80 C 210,40 270,40 249,79" fill="none" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="240.0" y="42.0" fill="#475569" font-size="10" text-anchor="middle">digit (lặp)</text>
+  <path d="M 532,80 C 510,40 570,40 549,79" fill="none" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="540.0" y="42.0" fill="#475569" font-size="10" text-anchor="middle">digit (lặp)</text>
+  <circle cx="90" cy="100" r="22" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">S0</text>
+  <line x1="30.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <circle cx="240" cy="100" r="22" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="240.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">S1</text>
+  <circle cx="390" cy="100" r="22" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="390.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">S2</text>
+  <circle cx="540" cy="100" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <circle cx="540" cy="100" r="17" fill="none" stroke="#15803d" stroke-width="1.5"/>
+  <text x="540.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">S3</text>
+</svg>
 
 - `S0` start: gặp chữ số → `S1`.
 - `S1`: phần nguyên, lặp khi còn chữ số; gặp `.` → `S2`.

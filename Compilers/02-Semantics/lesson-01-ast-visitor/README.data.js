@@ -52,11 +52,30 @@ Câu hỏi cốt lõi của bài: **làm sao thực hiện cả 3 việc mà kh�
 
 ### 1.2 Vị trí AST trong pipeline trình biên dịch
 
-\`\`\`
-source code  ──lexer──▶  tokens  ──parser──▶  AST  ──┬──▶ typecheck (L08)
-   "(2+3)*4"             [ ( 2 + 3 ) * 4 ]            ├──▶ interpreter (L09)
-                                                       └──▶ codegen (Tier 3)
-\`\`\`
+<svg viewBox="0 0 700 166" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vị trí AST: source code → lexer → tokens → parser → AST, rồi AST đi vào typecheck, interpreter hoặc codegen">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="60.0" width="120.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="76.0" y="76.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">source code</text>
+  <text x="76.0" y="91.3" fill="#475569" font-size="10" text-anchor="middle">"(2+3)*4"</text>
+  <line x1="138.0" y1="80.0" x2="196.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="167.0" y="73.0" fill="#475569" font-size="10" text-anchor="middle">lexer</text>
+  <rect x="198.0" y="60.0" width="120.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="258.0" y="76.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">tokens</text>
+  <text x="258.0" y="91.3" fill="#475569" font-size="10" text-anchor="middle">[ ( 2 + 3 ) * 4 ]</text>
+  <line x1="320.0" y1="80.0" x2="378.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="349.0" y="73.0" fill="#475569" font-size="10" text-anchor="middle">parser</text>
+  <rect x="380.0" y="60.0" width="80.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="420.0" y="83.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">AST</text>
+  <path d="M 460.0,80.0 L 500.0,80.0 L 500.0,38.0 L 528.0,38.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="530.0" y="20.0" width="150.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="605.0" y="41.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">typecheck (L08)</text>
+  <path d="M 460.0,80.0 L 500.0,80.0 L 500.0,84.0 L 528.0,84.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="530.0" y="66.0" width="150.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="605.0" y="87.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">interpreter (L09)</text>
+  <path d="M 460.0,80.0 L 500.0,80.0 L 500.0,130.0 L 528.0,130.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="530.0" y="112.0" width="150.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="605.0" y="133.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">codegen (Tier 3)</text>
+</svg>
 
 AST là **giao diện chung** giữa frontend (đã xong) và mọi backend (sắp học). Vì thế đầu tư thiết kế node sạch + cách duyệt gọn ở đây sẽ trả cổ tức suốt phần còn lại của môn.
 

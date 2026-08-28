@@ -490,26 +490,30 @@ L2:     print i            ; (B3)  <- leader: có label
 
 Chia thành 4 basic block và nối cạnh:
 
-```
-        ┌──────────┐
-        │  B0      │  i = 0
-        │  i = 0   │
-        └────┬─────┘
-             │ (rơi xuống)
-             v
-        ┌──────────┐
-   ┌───>│  B1      │  t1 = i < n ; ifFalse t1 goto L2
-   │    └──┬────┬──┘
-   │       │    │ t1 sai (thoát)
-   │ t1 đúng    └──────────┐
-   │       v               v
-   │  ┌──────────┐    ┌──────────┐
-   │  │  B2      │    │  B3      │  print i
-   │  │  i=i+1   │    └──────────┘
-   │  │  goto L1 │
-   │  └────┬─────┘
-   └───────┘ (quay lại B1)
-```
+<svg viewBox="0 0 520 270" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CFG vòng lặp: B0 (i=0) rơi xuống B1 (t1 = i&lt;n); t1 đúng sang B2 (i=i+1, goto L1 quay lại B1); t1 sai sang B3 (print i)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="200.0" y="16.0" width="140.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="270.0" y="34.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B0</text>
+  <text x="270.0" y="49.4" fill="#475569" font-size="10" text-anchor="middle">i = 0</text>
+  <line x1="270.0" y1="62.0" x2="270.0" y2="96.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="278.0" y="84.0" fill="#475569" font-size="10" text-anchor="start">rơi xuống</text>
+  <rect x="160.0" y="98.0" width="220.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="270.0" y="116.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">B1</text>
+  <text x="270.0" y="131.3" fill="#475569" font-size="10" text-anchor="middle">t1 = i &lt; n ; ifFalse t1 goto L2</text>
+  <path d="M 220.0,142.0 L 220.0,176.0 L 170.0,176.0 L 170.0,196.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="150.0" y="170.0" fill="#15803d" font-size="10" text-anchor="end">t1 đúng</text>
+  <path d="M 320.0,142.0 L 320.0,176.0 L 400.0,176.0 L 400.0,196.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="410.0" y="170.0" fill="#dc2626" font-size="10" text-anchor="start">t1 sai (thoát)</text>
+  <rect x="90.0" y="198.0" width="160.0" height="54.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="213.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">B2</text>
+  <text x="170.0" y="228.8" fill="#475569" font-size="10" text-anchor="middle">i = i + 1</text>
+  <text x="170.0" y="243.8" fill="#475569" font-size="10" text-anchor="middle">goto L1</text>
+  <rect x="330.0" y="198.0" width="140.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="400.0" y="216.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">B3</text>
+  <text x="400.0" y="231.3" fill="#475569" font-size="10" text-anchor="middle">print i</text>
+  <path d="M 90.0,225.0 L 50.0,225.0 L 50.0,120.0 L 158.0,120.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="56.0" y="180.0" fill="#b45309" font-size="10" text-anchor="start">quay lại B1</text>
+</svg>
 
 Các cạnh: `B0 → B1` (fall-through), `B1 → B2` (điều kiện đúng), `B1 → B3` (điều kiện sai, thoát vòng), `B2 → B1` (quay lại đầu vòng — **cạnh ngược tạo nên vòng lặp**).
 
@@ -546,12 +550,34 @@ CFG là **cấu trúc dữ liệu nền** cho gần như mọi phân tích/tối
 
 Vị trí của IR trong toàn bộ dây chuyền (nối lại [L01 Pipeline](../../01-Frontend/lesson-01-overview-pipeline/)):
 
-```
-nguồn → [Lexer] → [Parser] → AST → [kiểm tra ngữ nghĩa] → IR ──┬──> [Tối ưu trên IR]  (L12)
-                                                                 └──> [Sinh mã]:
-                                                                       • bytecode + VM  (L13)
-                                                                       • mã máy native
-```
+<svg viewBox="0 0 870 152" style="max-width:870px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vị trí IR: nguồn → Lexer → Parser → AST → kiểm tra ngữ nghĩa → IR, rồi tối ưu trên IR hoặc sinh mã (bytecode + VM / mã máy)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="50.0" width="70.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="51.0" y="70.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">nguồn</text>
+  <line x1="88.0" y1="67.0" x2="114.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="116.0" y="50.0" width="70.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="151.0" y="70.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Lexer</text>
+  <line x1="188.0" y1="67.0" x2="214.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="216.0" y="50.0" width="70.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="251.0" y="70.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Parser</text>
+  <line x1="288.0" y1="67.0" x2="314.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="316.0" y="50.0" width="60.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="346.0" y="70.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">AST</text>
+  <line x1="378.0" y1="67.0" x2="404.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="406.0" y="50.0" width="150.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="481.0" y="70.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">kiểm tra ngữ nghĩa</text>
+  <line x1="558.0" y1="67.0" x2="584.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="586.0" y="50.0" width="50.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="611.0" y="70.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">IR</text>
+  <path d="M 636.0,67.0 L 660.0,67.0 L 660.0,34.0 L 688.0,34.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="690.0" y="16.0" width="160.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="770.0" y="37.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Tối ưu trên IR (L12)</text>
+  <path d="M 660.0,67.0 L 660.0,100.0 L 688.0,100.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="690.0" y="82.0" width="160.0" height="56.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="770.0" y="98.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Sinh mã</text>
+  <text x="770.0" y="113.8" fill="#475569" font-size="10" text-anchor="middle">bytecode + VM (L13)</text>
+  <text x="770.0" y="128.8" fill="#475569" font-size="10" text-anchor="middle">mã máy native</text>
+</svg>
 
 - **IR là đầu vào của tối ưu** — mọi biến đổi cải thiện mã ([L12](../lesson-02-optimization/)) làm việc trên IR + CFG, không phải trên AST hay text.
 - **IR là đầu vào của sinh mã** — back-end dịch IR sang bytecode (chạy trên VM, [L13](../lesson-03-bytecode-vm/)) hoặc mã máy native.
@@ -718,14 +744,29 @@ CFG (cạnh):
 - `B1 → B2` (điều kiện `t1` đúng, rơi xuống) và `B1 → B3` (điều kiện sai, `goto L2`).
 - `B2 → B1` (`goto L1`, cạnh ngược tạo vòng lặp).
 
-```
-B0 ──> B1 ──(t1 đúng)──> B2
-        ^                 │
-        │   (sai) ┐       │
-        └─────────┘<──────┘  (B2 -> B1)
-        │
-        └──(t1 sai)──> B3
-```
+<svg viewBox="0 0 440 220" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CFG rút gọn: B0 → B1; B1 → B2 khi t1 đúng; B2 → B1 (cạnh ngược, vòng lặp); B1 → B3 khi t1 sai">
+  <defs><marker id="cfg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="82.0" y1="60.0" x2="176.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#cfg)"/>
+  <rect x="116.6" y="63.0" width="6.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="119.6" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700"></text>
+  <path d="M 222.0,60.0 Q 279.0,78.0 336.0,60.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#cfg)"/>
+  <rect x="251.5" y="77.2" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="279.0" y="89.2" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">t1 đúng</text>
+  <path d="M 338.0,60.0 Q 281.0,42.0 224.0,60.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#cfg)"/>
+  <rect x="253.5" y="26.8" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="281.0" y="38.8" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">goto L1</text>
+  <line x1="200.0" y1="82.0" x2="200.0" y2="146.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#cfg)"/>
+  <rect x="165.0" y="99.6" width="48.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="189.0" y="111.6" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">t1 sai</text>
+  <circle cx="60.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="60.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B0</text>
+  <circle cx="200.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B1</text>
+  <circle cx="360.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="360.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B2</text>
+  <circle cx="200.0" cy="170.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">B3</text>
+</svg>
 `B2 → B1` là cạnh ngược → có vòng lặp (đúng vì nguồn là một while loop).
 
 ### Bài 7

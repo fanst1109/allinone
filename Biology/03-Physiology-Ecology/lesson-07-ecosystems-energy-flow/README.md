@@ -176,17 +176,38 @@ Lưới thức ăn: tập hợp nhiều chuỗi đan vào nhau. Một loài thư
 
 **Ví dụ lưới đồng cỏ đơn giản**:
 
-```
-                  Đại bàng
-                 /         \
-               Rắn          \
-              /            Cáo
-           Ếch              |
-          /  \             Thỏ
-   Châu chấu  Chim sâu     |
-        \    /  \         /
-         Cỏ ──── Cây bụi ─/
-```
+<svg viewBox="0 0 600 305" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lưới thức ăn: cỏ và cây bụi → châu chấu, chim sâu, thỏ → ếch, cáo → rắn → đại bàng; mũi tên chỉ hướng dòng năng lượng">
+  <defs><marker id="fw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="102.0" y1="238.8" x2="81.6" y2="182.8" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="144.3" y1="241.8" x2="200.9" y2="179.4" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="334.5" y1="242.7" x2="260.7" y2="178.4" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="379.8" y1="239.5" x2="406.3" y2="182.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="82.6" y1="160.8" x2="112.9" y2="110.5" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="206.3" y1="161.4" x2="168.4" y2="109.8" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="164.0" y1="91.6" x2="191.2" y2="49.6" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="249.4" y1="37.3" x2="284.7" y2="23.1" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="430.0" y1="156.0" x2="430.0" y2="106.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <line x1="404.7" y1="82.5" x2="350.4" y2="28.6" stroke="#1a202c" stroke-width="1.6" marker-end="url(#fw)"/>
+  <rect x="80.0" y="237.0" width="80.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="120.0" y="254.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Cỏ</text>
+  <rect x="320.0" y="237.0" width="80.0" height="26.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="360.0" y="254.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Cây bụi</text>
+  <rect x="20.0" y="157.0" width="80.0" height="26.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="174.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Châu chấu</text>
+  <rect x="190.0" y="157.0" width="80.0" height="26.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="174.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Chim sâu</text>
+  <rect x="390.0" y="157.0" width="80.0" height="26.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="430.0" y="174.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Thỏ</text>
+  <rect x="100.0" y="87.0" width="80.0" height="26.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="140.0" y="104.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Ếch</text>
+  <rect x="180.0" y="27.0" width="80.0" height="26.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="220.0" y="44.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Rắn</text>
+  <rect x="390.0" y="77.0" width="80.0" height="26.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="430.0" y="94.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Cáo</text>
+  <rect x="280.0" y="7.0" width="80.0" height="26.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="24.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Đại bàng</text>
+  <text x="300.0" y="292.0" fill="#475569" font-size="10" text-anchor="middle">mũi tên = dòng năng lượng (bị ăn → ăn) · xanh lá: sản xuất · xanh dương: tiêu thụ bậc 1 · cam/đỏ: bậc cao</text>
+</svg>
 
 Nếu đại bàng biến mất: rắn và cáo (tầng dưới) sẽ tăng tạm thời → ếch và thỏ giảm → có thể đại bàng bị thay thế bởi loài săn mồi khác (vd cú lớn). Lưới có khả năng "đệm".
 
@@ -308,22 +329,33 @@ Khi **dòng vào = dòng ra**, bể ở trạng thái cân bằng. Khi không c�
 
 4 bể chính + các dòng:
 
-```
-        Khí quyển (CO₂, ~870 Gt C)
-         ↑↓                ↑
-   Quang hợp           Đốt nhiên liệu hóa thạch
-   (~120 Gt/năm)       (~10 Gt/năm)
-         ↓                  ↑
-    Sinh khối           Nhiên liệu hóa thạch
-    (~550 Gt C)         (~4,000 Gt C)
-         ↓
-    Hô hấp + Phân giải
-    (~120 Gt/năm)
-         ↓
-    Khí quyển (CO₂)
-                     ↑↓
-              Đại dương (~38,000 Gt C)
-```
+<svg viewBox="0 0 650 350" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng carbon: khí quyển ~870 Gt C trao đổi với sinh khối ~550 (quang hợp / hô hấp ~120 Gt/năm), đại dương ~38 000 (hoà tan/thoát), và nhận ~10 Gt/năm từ đốt nhiên liệu hoá thạch ~4 000">
+  <defs><marker id="cbg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="cbo" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="cbr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="cbb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <rect x="220.0" y="14.0" width="200.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="320.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Khí quyển</text>
+  <text x="320.0" y="48.0" fill="#475569" font-size="11" text-anchor="middle">CO₂ ~870 Gt C</text>
+  <rect x="30.0" y="150.0" width="170.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="115.0" y="170.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Sinh khối</text>
+  <text x="115.0" y="184.0" fill="#475569" font-size="11" text-anchor="middle">~550 Gt C</text>
+  <rect x="430.0" y="150.0" width="190.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="525.0" y="170.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Nhiên liệu hoá thạch</text>
+  <text x="525.0" y="184.0" fill="#475569" font-size="11" text-anchor="middle">~4 000 Gt C</text>
+  <rect x="220.0" y="270.0" width="200.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="320.0" y="290.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Đại dương</text>
+  <text x="320.0" y="304.0" fill="#475569" font-size="11" text-anchor="middle">~38 000 Gt C</text>
+  <line x1="250.0" y1="58.0" x2="105.0" y2="148.0" stroke="#15803d" stroke-width="2.2" marker-end="url(#cbg)"/>
+  <text x="120.0" y="80.0" fill="#15803d" font-size="10" text-anchor="end" font-weight="700">quang hợp ~120 Gt/năm</text>
+  <line x1="125.0" y1="148.0" x2="270.0" y2="58.0" stroke="#b45309" stroke-width="2.2" marker-end="url(#cbo)"/>
+  <text x="225.0" y="132.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">hô hấp + phân giải ~120 Gt/năm</text>
+  <line x1="500.0" y1="148.0" x2="380.0" y2="58.0" stroke="#dc2626" stroke-width="2.2" marker-end="url(#cbr)"/>
+  <text x="470.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">đốt nhiên liệu ~10 Gt/năm</text>
+  <line x1="115.0" y1="194.0" x2="220.0" y2="268.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="150.0" y="245.0" fill="#475569" font-size="9" text-anchor="middle">chôn vùi (rất chậm)</text>
+  <line x1="305.0" y1="58.0" x2="305.0" y2="268.0" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#cbb)"/>
+  <line x1="335.0" y1="268.0" x2="335.0" y2="58.0" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#cbb)"/>
+  <text x="345.0" y="170.0" fill="#1d4ed8" font-size="10" text-anchor="start">hoà tan ⇄ thoát khí</text>
+  <text x="325.0" y="336.0" fill="#475569" font-size="10" text-anchor="middle">kho lớn nhất: đại dương · dòng nhân tạo ~10 Gt/năm nhỏ hơn quang hợp nhưng KHÔNG cân bằng → CO₂ tích luỹ</text>
+</svg>
 
 **Dòng chính:**
 
@@ -521,13 +553,25 @@ So sánh: Bài 1 bậc 5 = 2 kJ; bài này bậc 5 = 4.05 kJ → gấp đôi. L�
 
 **Bài 6**: Tháp năng lượng:
 
-```
-Bậc 5 (Diều hâu)    | ▌                                |     2 kJ
-Bậc 4 (Rắn)         | █                                |    20 kJ
-Bậc 3 (Ếch)         | ████                             |   200 kJ
-Bậc 2 (Châu chấu)   | █████████████                    |  2,000 kJ
-Bậc 1 (Lúa)         | █████████████████████████████    | 20,000 kJ
-```
+<svg viewBox="0 0 620 275" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tháp năng lượng 5 bậc: lúa 20 000 kJ → châu chấu 2 000 → ếch 200 → rắn 20 → diều hâu 2 kJ, mỗi bậc còn 10%">
+  <defs></defs>
+  <rect x="317.0" y="20.0" width="6.0" height="30.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="150.0" y="40.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">Bậc 5 (Diều hâu)</text>
+  <text x="490.0" y="40.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">2 kJ</text>
+  <rect x="317.0" y="64.0" width="6.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="150.0" y="84.0" fill="#b45309" font-size="12" text-anchor="end" font-weight="700">Bậc 4 (Rắn)</text>
+  <text x="490.0" y="84.0" fill="#b45309" font-size="12" text-anchor="start" font-weight="700">20 kJ</text>
+  <rect x="317.0" y="108.0" width="6.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="150.0" y="128.0" fill="#b45309" font-size="12" text-anchor="end" font-weight="700">Bậc 3 (Ếch)</text>
+  <text x="490.0" y="128.0" fill="#b45309" font-size="12" text-anchor="start" font-weight="700">200 kJ</text>
+  <rect x="305.0" y="152.0" width="30.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">Bậc 2 (Châu chấu)</text>
+  <text x="490.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">2 000 kJ</text>
+  <rect x="170.0" y="196.0" width="300.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="150.0" y="216.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">Bậc 1 (Lúa)</text>
+  <text x="490.0" y="216.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">20 000 kJ</text>
+  <text x="320.0" y="258.0" fill="#475569" font-size="11" text-anchor="middle">quy tắc 10%: mỗi bậc chỉ giữ ~10% năng lượng bậc dưới (hô hấp, nhiệt, phần không tiêu hoá)</text>
+</svg>
 
 **Vì sao không thể đảo:**
 

@@ -464,14 +464,21 @@ A: Tủ lạnh ức chế tổng hợp ethylene (enzyme cần nhiệt độ ấm
 - Khe sáng ở 1 phía → ánh sáng kích hoạt phototropin (thụ thể ánh sáng) → **auxin di chuyển từ phía sáng sang phía tối** của thân.
 - Phía tối nhiều auxin hơn → tế bào phía tối **kéo dài** nhiều hơn → thân cong **về phía sáng**.
 
-```
-   Khe sáng    (thân nhìn ngang)
-   ─────────► [phía sáng — auxin ít — tế bào ngắn]
-              [trục cây]
-              [phía tối — auxin nhiều — tế bào dài]
-                                              ▼
-              thân cong sang phía sáng (vì phía tối dài hơn)
-```
+<svg viewBox="0 0 600 290" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quang hướng động: ánh sáng chiếu từ trái, auxin dồn về phía tối làm tế bào phía đó dài hơn, thân cong về phía sáng">
+  <defs><marker id="ph" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <line x1="20.0" y1="120.0" x2="110.0" y2="120.0" stroke="#b45309" stroke-width="3" marker-end="url(#ph)"/>
+  <text x="60.0" y="108.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">ánh sáng</text>
+  <path d="M 200,250 L 200,150 Q 200,90 150,60" fill="none" stroke="#15803d" stroke-width="14" stroke-linecap="round"/>
+  <path d="M 200,250 L 200,150 Q 200,90 150,60" fill="none" stroke="#86efac" stroke-width="8" stroke-linecap="round"/>
+  <line x1="150.0" y1="250.0" x2="250.0" y2="250.0" stroke="#94a3b8" stroke-width="3"/>
+  <text x="200.0" y="270.0" fill="#475569" font-size="11" text-anchor="middle">đất</text>
+  <rect x="300.0" y="40.0" width="270.0" height="60.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="435.0" y="60.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">phía SÁNG: auxin ít → tế bào ngắn</text>
+  <text x="435.0" y="84.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">phía TỐI: auxin nhiều → tế bào dài</text>
+  <line x1="240.0" y1="110.0" x2="300.0" y2="80.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="435.0" y="140.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">phía tối dài hơn → thân CONG sang phía sáng</text>
+  <text x="435.0" y="160.0" fill="#475569" font-size="10" text-anchor="middle">(quang hướng động dương)</text>
+</svg>
 
 - **Cắt đỉnh ngọn**: đỉnh ngọn là nơi tổng hợp auxin chính. Không có auxin → không có cơ chế kéo dài bất đối xứng → cây **mất hướng quang**. Thí nghiệm Darwin và Boysen-Jensen (~1880–1913) đã chứng minh điều này.
 

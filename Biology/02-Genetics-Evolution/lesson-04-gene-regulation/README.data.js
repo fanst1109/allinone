@@ -97,14 +97,40 @@ Câu chuyện: bình thường có bảo vệ ngồi, dây chuyền TẮT. Khi l
 
 ### 2.1. Cấu trúc operon Lac
 
-\`\`\`
-[ lacI ]   [ Promoter | Operator | lacZ | lacY | lacA ]
-   ↓                                ↓        ↓      ↓
- Repressor                    β-galactosidase  permease  transacetylase
- (luôn được tổng hợp,        (cắt lactose →    (đưa     (vai trò
-  có hoặc không lactose)      glucose+galactose) lactose phụ)
-                                                vào tế bào)
-\`\`\`
+<svg viewBox="0 0 600 205" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ lac operon: gen lacI tạo repressor; cụm promoter – operator – lacZ – lacY – lacA tạo β-galactosidase, permease, transacetylase">
+  <defs><marker id="lac" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="40.0" width="80.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="60.0" y="65.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">lacI</text>
+  <line x1="60.0" y1="80.0" x2="60.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lac)"/>
+  <rect x="10.0" y="112.0" width="100.0" height="54.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="60.0" y="137.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Repressor</text>
+  <text x="60.0" y="151.0" fill="#475569" font-size="11" text-anchor="middle">luôn tổng hợp</text>
+  <rect x="130.0" y="40.0" width="90.0" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="175.0" y="65.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Promoter</text>
+  <rect x="220.0" y="40.0" width="90.0" height="40.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="265.0" y="65.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Operator</text>
+  <rect x="310.0" y="40.0" width="90.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="355.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">lacZ</text>
+  <line x1="355.0" y1="80.0" x2="355.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lac)"/>
+  <rect x="400.0" y="40.0" width="90.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="445.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">lacY</text>
+  <line x1="445.0" y1="80.0" x2="445.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lac)"/>
+  <rect x="490.0" y="40.0" width="90.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="535.0" y="65.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">lacA</text>
+  <line x1="535.0" y1="80.0" x2="535.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lac)"/>
+  <rect x="270.0" y="112.0" width="100.0" height="54.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="320.0" y="130.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">β-galactosidase</text>
+  <text x="320.0" y="144.0" fill="#475569" font-size="9" text-anchor="middle">cắt lactose → glucose</text>
+  <text x="320.0" y="158.0" fill="#475569" font-size="9" text-anchor="middle">+ galactose</text>
+  <rect x="360.0" y="112.0" width="100.0" height="54.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="410.0" y="130.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">permease</text>
+  <text x="410.0" y="144.0" fill="#475569" font-size="9" text-anchor="middle">đưa lactose</text>
+  <text x="410.0" y="158.0" fill="#475569" font-size="9" text-anchor="middle">vào tế bào</text>
+  <rect x="450.0" y="112.0" width="100.0" height="54.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="500.0" y="137.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">transacetylase</text>
+  <text x="500.0" y="151.0" fill="#475569" font-size="9" text-anchor="middle">vai trò phụ</text>
+  <text x="300.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">operon: 1 promoter + 1 operator điều khiển 3 gen cấu trúc; lacI nằm riêng, tạo repressor</text>
+</svg>
 
 - **lacI** (regulatory gene): nằm trước operon, có promoter riêng, **luôn tổng hợp** repressor LacI ở mức thấp ổn định.
 - **Promoter**: chỗ RNA polymerase gắn để khởi động phiên mã.
@@ -299,13 +325,30 @@ A: Có — **attenuation** (làm suy giảm). Đây là cơ chế thứ 2 dùng 
 
 ### 4.1. Năm cấp điều hòa (theo dòng thông tin)
 
-\`\`\`
-DNA → mRNA tiền thân (pre-mRNA) → mRNA trưởng thành → protein → protein hoạt động
- ↑          ↑                       ↑                   ↑           ↑
- 1.        2.                      3.                  4.          5.
-Chromatin  Phiên mã              Sau phiên mã         Dịch mã    Sau dịch mã
-                                 (splicing, miRNA)
-\`\`\`
+<svg viewBox="0 0 680 175" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Năm tầng điều hoà biểu hiện gen: chromatin → phiên mã → sau phiên mã → dịch mã → sau dịch mã">
+  <defs><marker id="lv" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="75.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">DNA</text>
+  <text x="75.0" y="120.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">1. Chromatin</text>
+  <line x1="132.0" y1="70.0" x2="146.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lv)"/>
+  <rect x="148.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="203.0" y="75.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">pre-mRNA</text>
+  <text x="203.0" y="120.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">2. Phiên mã</text>
+  <line x1="260.0" y1="70.0" x2="274.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lv)"/>
+  <rect x="276.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="331.0" y="75.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">mRNA trưởng thành</text>
+  <text x="331.0" y="120.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">3. Sau phiên mã</text>
+  <text x="331.0" y="134.0" fill="#475569" font-size="9" text-anchor="middle">(splicing, miRNA)</text>
+  <line x1="388.0" y1="70.0" x2="402.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lv)"/>
+  <rect x="404.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="459.0" y="75.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">protein</text>
+  <text x="459.0" y="120.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">4. Dịch mã</text>
+  <line x1="516.0" y1="70.0" x2="530.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#lv)"/>
+  <rect x="532.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="587.0" y="75.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">protein hoạt động</text>
+  <text x="587.0" y="120.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">5. Sau dịch mã</text>
+  <text x="340.0" y="160.0" fill="#475569" font-size="11" text-anchor="middle">5 điểm kiểm soát biểu hiện gen ở sinh vật nhân thực</text>
+</svg>
 
 **Cấp 1 — Chromatin (đóng/mở DNA)**: DNA trong nhân quấn quanh histone tạo nucleosome. Nếu chromatin **đặc** (heterochromatin) → DNA ẩn → không phiên mã. Nếu **lỏng** (euchromatin) → DNA lộ ra → phiên mã được. Điều khiển bởi modifications biểu sinh (xem §5).
 

@@ -271,20 +271,26 @@ Cốt lõi: **lệch khỏi điểm đặt → kích hoạt phản ứng TRỞ N
 
 ### 5.1. Vòng phản hồi âm có 4 thành phần
 
-```
-                   ┌──────────────────────┐
-                   │  Điểm đặt (set point) │
-                   └──────────┬───────────┘
-                              │ so sánh
-                              ▼
-   ┌─────────┐    ┌──────────────────┐    ┌─────────────┐
-   │ Cảm biến │ →  │ Trung tâm điều khiển │ →  │  Hiệu ứng   │
-   │ (sensor) │    │     (control)         │    │ (effector)  │
-   └─────────┘    └──────────────────┘    └──────┬──────┘
-        ▲                                         │
-        │                                         ▼
-        └────────── đại lượng được điều hòa ──────┘
-```
+<svg viewBox="0 0 600 225" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng phản hồi điều hoà: cảm biến đo đại lượng, trung tâm so với điểm đặt, hiệu ứng điều chỉnh, đại lượng quay về cảm biến">
+  <defs><marker id="hs" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="200.0" y="14.0" width="200.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="300.0" y="37.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Điểm đặt (set point)</text>
+  <line x1="300.0" y1="50.0" x2="300.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#hs)"/>
+  <text x="310.0" y="74.0" fill="#475569" font-size="10" text-anchor="start">so sánh</text>
+  <rect x="30.0" y="92.0" width="150.0" height="50.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="105.0" y="115.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Cảm biến</text>
+  <text x="105.0" y="129.0" fill="#475569" font-size="11" text-anchor="middle">(sensor)</text>
+  <rect x="190.0" y="92.0" width="220.0" height="50.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="115.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Trung tâm điều khiển</text>
+  <text x="300.0" y="129.0" fill="#475569" font-size="11" text-anchor="middle">(control)</text>
+  <rect x="420.0" y="92.0" width="150.0" height="50.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="495.0" y="115.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Hiệu ứng</text>
+  <text x="495.0" y="129.0" fill="#475569" font-size="11" text-anchor="middle">(effector)</text>
+  <line x1="182.0" y1="117.0" x2="188.0" y2="117.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#hs)"/>
+  <line x1="412.0" y1="117.0" x2="418.0" y2="117.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#hs)"/>
+  <path d="M 495,142 L 495,190 L 105,190 L 105,144" fill="none" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#hs)"/>
+  <text x="300.0" y="206.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">đại lượng được điều hoà (feedback)</text>
+</svg>
 
 1. **Cảm biến (sensor)** — đo đại lượng hiện tại.
 2. **Trung tâm điều khiển** — so sánh với điểm đặt, ra lệnh.
@@ -504,28 +510,26 @@ Cả 2 tiêu chuẩn đều dương tính → **có tiểu đường**.
 
 Vòng phản hồi âm điều hòa Ca²⁺ máu:
 
-```
-         Điểm đặt: ~10 mg/dL Ca²⁺
-                ▲
-  Ca²⁺ giảm    │     phản hồi: Ca²⁺ về 10 mg/dL
-        │      │      ▲
-        ▼      │      │
-  ┌──────────────────────┐
-  │ Cảm biến: tế bào      │
-  │ tuyến CẬN GIÁP        │
-  │ (parathyroid)         │
-  └──────────┬────────────┘
-             │ tiết PTH
-             ▼
-  ┌──────────────────────┐
-  │ Hiệu ứng:             │
-  │ 1. Xương: giải phóng   │
-  │    Ca²⁺                │
-  │ 2. Thận: giữ Ca²⁺     │
-  │ 3. Ruột: tăng hấp thụ │
-  │    Ca²⁺ (qua vit D)   │
-  └──────────────────────┘
-```
+<svg viewBox="0 0 620 280" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điều hoà Ca²⁺ bằng phản hồi âm: Ca²⁺ giảm → tuyến cận giáp tiết PTH → xương giải phóng, thận giữ, ruột tăng hấp thụ → Ca²⁺ về điểm đặt 10 mg/dL">
+  <defs><marker id="ca" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="180.0" y="14.0" width="240.0" height="34.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="300.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Điểm đặt: ~10 mg/dL Ca²⁺</text>
+  <line x1="300.0" y1="48.0" x2="300.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ca)"/>
+  <text x="200.0" y="70.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Ca²⁺ giảm ↓</text>
+  <rect x="150.0" y="86.0" width="300.0" height="54.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="111.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Cảm biến: tế bào tuyến CẬN GIÁP</text>
+  <text x="300.0" y="125.0" fill="#475569" font-size="11" text-anchor="middle">(parathyroid)</text>
+  <line x1="300.0" y1="140.0" x2="300.0" y2="176.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ca)"/>
+  <text x="310.0" y="162.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">tiết PTH</text>
+  <rect x="120.0" y="178.0" width="360.0" height="84.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="204.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Hiệu ứng</text>
+  <text x="300.0" y="218.0" fill="#475569" font-size="11" text-anchor="middle">1. Xương: giải phóng Ca²⁺</text>
+  <text x="300.0" y="232.0" fill="#475569" font-size="11" text-anchor="middle">2. Thận: giữ Ca²⁺</text>
+  <text x="300.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">3. Ruột: tăng hấp thụ Ca²⁺ (qua vitamin D)</text>
+  <path d="M 480,220 L 540,220 L 540,31 L 424,31" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ca)"/>
+  <text x="548.0" y="130.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">phản hồi:</text>
+  <text x="548.0" y="144.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">Ca²⁺ về 10</text>
+</svg>
 
 Bốn thành phần:
 - **Đại lượng**: Ca²⁺ trong máu.

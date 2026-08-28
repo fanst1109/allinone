@@ -92,17 +92,38 @@ Nguyên phân giống **photocopy rồi cắt đôi 1 lần** — ra 2 bản gi�
 
 ### 2.1. Dòng chảy tổng thể
 
-\`\`\`
-Tế bào mẹ 2n  ──(pha S: nhân đôi DNA)──►  2n (mỗi NST 2 chromatid)
-        │
-        ├─ GIẢM PHÂN I (giảm nhiễm): tách 2 NST TƯƠNG ĐỒNG
-        │       ▼
-        │   2 tế bào n  (mỗi NST vẫn còn 2 chromatid)
-        │
-        └─ GIẢM PHÂN II (tương đương): tách 2 NHIỄM SẮC TỬ chị em
-                ▼
-            4 tế bào n  (mỗi NST còn 1 chromatid) = GIAO TỬ
-\`\`\`
+<svg viewBox="0 0 600 315" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ giảm phân: tế bào mẹ 2n nhân đôi DNA, giảm phân I tách NST tương đồng thành 2 tế bào n, giảm phân II tách nhiễm sắc tử chị em thành 4 giao tử n">
+  <defs><marker id="m1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="190.0" y="14.0" width="220.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Tế bào mẹ 2n</text>
+  <line x1="300.0" y1="54.0" x2="300.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <text x="310.0" y="72.0" fill="#475569" font-size="11" text-anchor="start">pha S: nhân đôi DNA</text>
+  <rect x="150.0" y="82.0" width="300.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="107.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2n — mỗi NST 2 chromatid</text>
+  <line x1="230.0" y1="122.0" x2="150.0" y2="158.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <line x1="370.0" y1="122.0" x2="450.0" y2="158.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <text x="300.0" y="146.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">GIẢM PHÂN I: tách 2 NST TƯƠNG ĐỒNG</text>
+  <rect x="60.0" y="160.0" width="180.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="150.0" y="178.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <text x="150.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">mỗi NST vẫn 2 chromatid</text>
+  <rect x="360.0" y="160.0" width="180.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="178.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <text x="450.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">mỗi NST vẫn 2 chromatid</text>
+  <text x="300.0" y="226.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">GIẢM PHÂN II</text>
+  <line x1="110.0" y1="200.0" x2="70.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <line x1="190.0" y1="200.0" x2="230.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <line x1="410.0" y1="200.0" x2="370.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <line x1="490.0" y1="200.0" x2="530.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#m1)"/>
+  <rect x="20.0" y="242.0" width="100.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="70.0" y="265.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <rect x="180.0" y="242.0" width="100.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="265.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <rect x="320.0" y="242.0" width="100.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="370.0" y="265.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <rect x="480.0" y="242.0" width="100.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="530.0" y="265.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <text x="300.0" y="300.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">4 tế bào n (mỗi NST còn 1 chromatid) = GIAO TỬ — giảm phân II tách 2 nhiễm sắc tử chị em</text>
+</svg>
 
 Điểm dễ quên: **giữa giảm phân I và II KHÔNG có pha S** (không nhân đôi DNA lại). Đó là lý do 2 lần phân chia nhưng chỉ 1 lần nhân đôi → kết quả giảm một nửa.
 

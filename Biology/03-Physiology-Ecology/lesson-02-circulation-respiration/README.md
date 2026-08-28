@@ -125,21 +125,41 @@ Hình dung **số 8 nằm ngang (∞)**, với **tim ở giao điểm giữa**. 
 
 ### 3.1. Vòng nhỏ (pulmonary circulation) — tim → phổi → tim
 
-```
-Tâm thất phải → động mạch phổi → mao mạch phế nang → tĩnh mạch phổi → tâm nhĩ trái
-   (nghèo O₂)                       (trao đổi khí)                    (giàu O₂)
-```
+<svg viewBox="0 0 640 360" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai vòng tuần hoàn: vòng nhỏ tim → phổi → tim (nhận O₂), vòng lớn tim → mô → tim (trao O₂); máu nghèo O₂ xanh, giàu O₂ đỏ">
+  <defs><marker id="ci" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="cir" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <rect x="230.0" y="20.0" width="180.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="320.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">PHỔI</text>
+  <text x="320.0" y="54.0" fill="#475569" font-size="11" text-anchor="middle">trao đổi khí</text>
+  <rect x="230.0" y="150.0" width="180.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="320.0" y="170.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">TIM</text>
+  <text x="320.0" y="184.0" fill="#475569" font-size="11" text-anchor="middle">4 buồng</text>
+  <rect x="230.0" y="280.0" width="180.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="320.0" y="300.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">MÔ / TẾ BÀO</text>
+  <text x="320.0" y="314.0" fill="#475569" font-size="11" text-anchor="middle">trao đổi với tế bào</text>
+  <line x1="270.0" y1="150.0" x2="270.0" y2="66.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#ci)"/>
+  <text x="258.0" y="112.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">tâm thất phải → động mạch phổi</text>
+  <text x="258.0" y="126.0" fill="#475569" font-size="9" text-anchor="end">máu nghèo O₂</text>
+  <line x1="370.0" y1="66.0" x2="370.0" y2="148.0" stroke="#dc2626" stroke-width="3" marker-end="url(#cir)"/>
+  <text x="382.0" y="112.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">tĩnh mạch phổi → tâm nhĩ trái</text>
+  <text x="382.0" y="126.0" fill="#475569" font-size="9" text-anchor="start">máu giàu O₂</text>
+  <line x1="370.0" y1="194.0" x2="370.0" y2="278.0" stroke="#dc2626" stroke-width="3" marker-end="url(#cir)"/>
+  <text x="382.0" y="240.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">tâm thất trái → động mạch chủ → mao mạch mô</text>
+  <text x="382.0" y="254.0" fill="#475569" font-size="9" text-anchor="start">máu giàu O₂</text>
+  <line x1="270.0" y1="280.0" x2="270.0" y2="196.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#ci)"/>
+  <text x="258.0" y="240.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">mao mạch mô → tĩnh mạch chủ → tâm nhĩ phải</text>
+  <text x="258.0" y="254.0" fill="#475569" font-size="9" text-anchor="end">máu nghèo O₂</text>
+  <text x="100.0" y="60.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">VÒNG NHỎ</text>
+  <text x="100.0" y="76.0" fill="#475569" font-size="10" text-anchor="middle">tim → phổi → tim</text>
+  <text x="560.0" y="60.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">VÒNG LỚN</text>
+  <text x="560.0" y="76.0" fill="#475569" font-size="10" text-anchor="middle">tim → mô → tim</text>
+  <text x="320.0" y="348.0" fill="#475569" font-size="11" text-anchor="middle">xanh = máu nghèo O₂ · đỏ = máu giàu O₂ · hai vòng nối tiếp qua tim</text>
+</svg>
+
 
 **"Nghịch lý" duy nhất trong cơ thể**: ở đây **động mạch mang máu nghèo O₂** và **tĩnh mạch mang máu giàu O₂** — ngược định nghĩa thông thường. Lý do: "động mạch" định nghĩa theo **hướng đi xa tim**, không phải theo nồng độ O₂. Cứ máu rời tim = động mạch.
 
 ### 3.2. Vòng lớn (systemic circulation) — tim → toàn thân → tim
 
-```
-Tâm thất trái → động mạch chủ (aorta) → động mạch nhỏ → mao mạch ở mô
-   (giàu O₂)                                          (trao đổi với tế bào)
-                                                              ↓
-Tâm nhĩ phải ← tĩnh mạch chủ ← tĩnh mạch nhỏ ← (máu nghèo O₂ sau trao đổi)
-```
 
 Ở mô: O₂ rời máu sang tế bào; CO₂ rời tế bào vào máu. Máu giàu → nghèo O₂ chỉ trong mao mạch (~1 mm cuối hành trình).
 

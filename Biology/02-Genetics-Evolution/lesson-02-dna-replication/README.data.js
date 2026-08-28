@@ -308,16 +308,29 @@ Tại chạc nhân đôi, chữ Y có 2 nhánh:
 
 Độ dài đoạn Okazaki: vi khuẩn ~1000–2000 nt, eukaryote ~100–200 nt.
 
-\`\`\`
-                         fork
-                    →  →  →  
-                       /
-Mạch khuôn A: 3' ━━━━━━━━━━━━━ 5'
-                       ╲╲╲╲╲╲ ← mạch dẫn đầu (5'→3', liên tục)
-Mạch khuôn B: 5' ━━━━━━━━━━━━━ 3'
-              ╲╲ ╲╲ ╲╲ ╲╲      ← mạch trễ (5'→3', từng đoạn Okazaki)
-              ↑ligase nối các đoạn
-\`\`\`
+<svg viewBox="0 0 460 285" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chạc sao chép: mạch khuôn lộ 3′ cho mạch dẫn đầu tổng hợp liên tục theo chiều fork; mạch khuôn lộ 5′ cho mạch trễ tổng hợp từng đoạn Okazaki ngược chiều, ligase nối">
+  <defs><marker id="fk1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="fk1g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="fk1r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <line x1="60.0" y1="90.0" x2="300.0" y2="90.0" stroke="#1d4ed8" stroke-width="4"/>
+  <line x1="60.0" y1="190.0" x2="300.0" y2="190.0" stroke="#1d4ed8" stroke-width="4"/>
+  <path d="M 300,90 Q 360,140 300,190" fill="none" stroke="#1d4ed8" stroke-width="4"/>
+  <line x1="300.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="40.0" y="94.0" fill="#475569" font-size="12" text-anchor="end">3′</text>
+  <text x="40.0" y="194.0" fill="#475569" font-size="12" text-anchor="end">5′</text>
+  <text x="60.0" y="80.0" fill="#475569" font-size="11" text-anchor="start">mạch khuôn A (lộ 3′)</text>
+  <text x="60.0" y="212.0" fill="#475569" font-size="11" text-anchor="start">mạch khuôn B (lộ 5′)</text>
+  <line x1="70.0" y1="110.0" x2="270.0" y2="110.0" stroke="#15803d" stroke-width="3.5" marker-end="url(#fk1g)"/>
+  <text x="170.0" y="128.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">mạch dẫn đầu (leading): 5′→3′ liên tục, theo fork</text>
+  <line x1="142.0" y1="170.0" x2="90.0" y2="170.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fk1r)"/>
+  <text x="116.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">Okazaki</text>
+  <line x1="212.0" y1="170.0" x2="160.0" y2="170.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fk1r)"/>
+  <text x="186.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">Okazaki</text>
+  <line x1="282.0" y1="170.0" x2="230.0" y2="170.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fk1r)"/>
+  <text x="256.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">Okazaki</text>
+  <text x="120.0" y="240.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">← các đoạn Okazaki 5′→3′ ngược chiều fork; ligase nối lại</text>
+  <line x1="330.0" y1="140.0" x2="390.0" y2="140.0" stroke="#1a202c" stroke-width="2" marker-end="url(#fk1)"/>
+  <text x="360.0" y="132.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">fork đi →</text>
+  <text x="230.0" y="270.0" fill="#475569" font-size="11" text-anchor="middle">DNA polymerase chỉ nối vào đầu 3′-OH → mọi mạch mới đều mọc 5′→3′</text>
+</svg>
 
 ### 4.3. 5 bước cụ thể tại chạc
 
@@ -495,16 +508,29 @@ A: Vì (1) phần lớn lỗi rơi vào vùng không mã hóa (intron, vùng gi�
 - **Mạch khuôn lộ đầu 5' về phía fork**: nếu polymerase muốn tổng hợp 5'→3', nó phải đi *ngược* chiều fork. Khi fork mở thêm một đoạn, polymerase đã đi xa rồi không quay lại được — phải **đặt primer mới** và tổng hợp một đoạn ngắn ngược về phía primer trước → tổng hợp **ngắt quãng** (mạch trễ), tạo các **đoạn Okazaki**.
 
 Sơ đồ:
-\`\`\`
-                        Fork đi →
-                          /
-Mạch khuôn (lộ 3'): 3'━━━━━━━━━━━ 5'
-Mạch mới (leading):      ──────→ 5'→3', liên tục
-                          \\
-Mạch khuôn (lộ 5'): 5'━━━━━━━━━━━ 3'
-Mạch mới (lagging):   ←── ←── ←── từng đoạn Okazaki
-                       ligase nối
-\`\`\`
+<svg viewBox="0 0 460 285" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chạc sao chép (lời giải): leading liên tục cùng chiều fork trên khuôn lộ 3′; lagging từng đoạn Okazaki trên khuôn lộ 5′, ligase nối">
+  <defs><marker id="fk2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="fk2g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="fk2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <line x1="60.0" y1="90.0" x2="300.0" y2="90.0" stroke="#1d4ed8" stroke-width="4"/>
+  <line x1="60.0" y1="190.0" x2="300.0" y2="190.0" stroke="#1d4ed8" stroke-width="4"/>
+  <path d="M 300,90 Q 360,140 300,190" fill="none" stroke="#1d4ed8" stroke-width="4"/>
+  <line x1="300.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="40.0" y="94.0" fill="#475569" font-size="12" text-anchor="end">3′</text>
+  <text x="40.0" y="194.0" fill="#475569" font-size="12" text-anchor="end">5′</text>
+  <text x="60.0" y="80.0" fill="#475569" font-size="11" text-anchor="start">mạch khuôn A (lộ 3′)</text>
+  <text x="60.0" y="212.0" fill="#475569" font-size="11" text-anchor="start">mạch khuôn B (lộ 5′)</text>
+  <line x1="70.0" y1="110.0" x2="270.0" y2="110.0" stroke="#15803d" stroke-width="3.5" marker-end="url(#fk2g)"/>
+  <text x="170.0" y="128.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">mạch dẫn đầu (leading): 5′→3′ liên tục, theo fork</text>
+  <line x1="142.0" y1="170.0" x2="90.0" y2="170.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fk2r)"/>
+  <text x="116.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">Okazaki</text>
+  <line x1="212.0" y1="170.0" x2="160.0" y2="170.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fk2r)"/>
+  <text x="186.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">Okazaki</text>
+  <line x1="282.0" y1="170.0" x2="230.0" y2="170.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fk2r)"/>
+  <text x="256.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">Okazaki</text>
+  <text x="120.0" y="240.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">← các đoạn Okazaki 5′→3′ ngược chiều fork; ligase nối lại</text>
+  <line x1="330.0" y1="140.0" x2="390.0" y2="140.0" stroke="#1a202c" stroke-width="2" marker-end="url(#fk2)"/>
+  <text x="360.0" y="132.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">fork đi →</text>
+  <text x="230.0" y="270.0" fill="#475569" font-size="11" text-anchor="middle">leading = 1 primer · lagging = nhiều primer + Okazaki + ligase</text>
+</svg>
 
 ---
 

@@ -34,13 +34,24 @@ Luận đề trung tâm chính là cái mạch "bản gốc → bản photo → 
 
 Thông tin di truyền trong tế bào chảy theo chiều:
 
-\`\`\`
-   replication
-       ↻
-       DNA  ─────────►  RNA  ─────────►  Protein
-            phiên mã          dịch mã
-         (transcription)    (translation)
-\`\`\`
+<svg viewBox="0 0 650 145" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dogma trung tâm: DNA tự sao (replication), phiên mã thành RNA, dịch mã thành protein">
+  <defs><marker id="cd" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="40.0" y="60.0" width="120.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="87.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">DNA</text>
+  <line x1="162.0" y1="82.0" x2="258.0" y2="82.0" stroke="#1a202c" stroke-width="2" marker-end="url(#cd)"/>
+  <text x="210.0" y="72.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">phiên mã</text>
+  <text x="210.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">(transcription)</text>
+  <rect x="260.0" y="60.0" width="120.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="320.0" y="87.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">RNA</text>
+  <line x1="382.0" y1="82.0" x2="478.0" y2="82.0" stroke="#1a202c" stroke-width="2" marker-end="url(#cd)"/>
+  <text x="430.0" y="72.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">dịch mã</text>
+  <text x="430.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">(translation)</text>
+  <rect x="480.0" y="60.0" width="130.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="545.0" y="87.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Protein</text>
+  <path d="M 80,60 A 30,30 0 1 1 120,60" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#cd)"/>
+  <text x="100.0" y="20.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">replication (tự sao)</text>
+  <text x="325.0" y="130.0" fill="#475569" font-size="11" text-anchor="middle">dogma trung tâm: thông tin đi DNA → RNA → protein</text>
+</svg>
 
 - **DNA → DNA**: nhân đôi (replication), học ở [\`Lesson 02\`](../lesson-02-dna-replication/).
 - **DNA → RNA**: phiên mã (transcription) — §2 bài này.

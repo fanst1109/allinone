@@ -279,17 +279,32 @@ Cây phát sinh chủng loại giống **cây phả hệ gia tộc**, nhưng cho
 
 ### 4.1. Các thành phần của một cây
 
-\`\`\`
-         (con người)   (tinh tinh)    (gorilla)         (đười ươi)
-              |             |              |                 |
-              +------+------+              |                 |
-                     |                     |                 |
-                     +----------+----------+                 |
-                                |                            |
-                                +-------------+--------------+
-                                              |
-                                          GỐC (root)
-\`\`\`
+<svg viewBox="0 0 580 290" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây phát sinh loài: con người và tinh tinh tách gần nhất, rồi gorilla, rồi đười ươi; gốc ở dưới">
+  <defs></defs>
+  <rect x="25.0" y="20.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="80.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Con người</text>
+  <line x1="80.0" y1="52.0" x2="80.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="165.0" y="20.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="220.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Tinh tinh</text>
+  <line x1="220.0" y1="52.0" x2="220.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="305.0" y="20.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="360.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Gorilla</text>
+  <line x1="360.0" y1="52.0" x2="360.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="445.0" y="20.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="500.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Đười ươi</text>
+  <line x1="500.0" y1="52.0" x2="500.0" y2="210.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80.0" y1="110.0" x2="220.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="110.0" x2="150.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="160.0" x2="360.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="255.0" y1="160.0" x2="255.0" y2="210.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="255.0" y1="210.0" x2="500.0" y2="210.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="377.0" y1="210.0" x2="377.0" y2="250.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="377.0" cy="250.0" r="5" fill="#1a202c"/>
+  <text x="377.0" y="272.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">GỐC (root)</text>
+  <text x="160.0" y="104.0" fill="#475569" font-size="10" text-anchor="middle">tổ tiên chung gần nhất người–tinh tinh</text>
+  <text x="270.0" y="154.0" fill="#475569" font-size="10" text-anchor="start">+ gorilla</text>
+  <text x="390.0" y="204.0" fill="#475569" font-size="10" text-anchor="start">+ đười ươi</text>
+</svg>
 
 - **Gốc (root)**: tổ tiên chung xa nhất trong cây — thường ở dưới hoặc bên trái.
 - **Nút (node)**: điểm chia nhánh — đại diện cho **tổ tiên chung** của các nhánh phía trên.

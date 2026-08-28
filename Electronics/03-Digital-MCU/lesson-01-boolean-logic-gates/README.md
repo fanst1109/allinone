@@ -497,11 +497,51 @@ Chứng minh $Y = A \oplus B$ bằng bảng (kiểm tra từng bước):
 | 1 | 1 | 0 | $\overline{1 \cdot 0}=1$ | $\overline{1 \cdot 0}=1$ | $\overline{1 \cdot 1}=\mathbf{0}$ ✓ |
 
 Mô tả sơ đồ:
-```
-A ──┬── NAND₁(A,B) ──P──┬── NAND₂(A,P) ──Q──┐
-    │                    │                     NAND₄(Q,R) ── Y = A⊕B
-B ──┴──────────────────── NAND₃(B,P) ──R──┘
-```
+<svg viewBox="0 0 640 230" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="XOR từ 4 cổng NAND: N₁ tạo P = NAND(A,B); N₂ = NAND(A,P), N₃ = NAND(B,P); N₄ = NAND(Q,R) cho Y = A ⊕ B">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="30.0" y="64.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700">A</text>
+  <text x="30.0" y="164.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700">B</text>
+  <line x1="36.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="36.0" y1="160.0" x2="300.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="70.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <circle cx="70.0" cy="160.0" r="3.5" fill="#1a202c"/>
+  <line x1="70.0" y1="60.0" x2="70.0" y2="104.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="70.0" y1="160.0" x2="70.0" y2="116.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="70.0" y1="104.0" x2="150.0" y2="104.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="70.0" y1="116.0" x2="150.0" y2="116.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 150,90 L 180,90 A 20,20 0 0 1 180,130 L 150,130 Z" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="204" cy="110" r="4" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="166.8" y="114.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">N₁</text>
+  <line x1="214.0" y1="110.0" x2="240.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="240.0" cy="110.0" r="3.5" fill="#1a202c"/>
+  <text x="248.0" y="104.0" fill="#dc2626" font-size="10" text-anchor="start">P = ¬(AB)</text>
+  <line x1="240.0" y1="110.0" x2="240.0" y2="72.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="110.0" x2="240.0" y2="148.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="72.0" x2="300.0" y2="72.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="148.0" x2="300.0" y2="148.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 300,50 L 330,50 A 20,20 0 0 1 330,90 L 300,90 Z" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="354" cy="70" r="4" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="316.8" y="74.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">N₂</text>
+  <path d="M 300,138 L 330,138 A 20,20 0 0 1 330,178 L 300,178 Z" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="354" cy="158" r="4" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="316.8" y="162.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">N₃</text>
+  <line x1="364.0" y1="70.0" x2="390.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="398.0" y="66.0" fill="#dc2626" font-size="10" text-anchor="start">Q</text>
+  <line x1="364.0" y1="158.0" x2="390.0" y2="158.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="398.0" y="164.0" fill="#dc2626" font-size="10" text-anchor="start">R</text>
+  <line x1="390.0" y1="70.0" x2="410.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="390.0" y1="158.0" x2="410.0" y2="158.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="410.0" y1="70.0" x2="410.0" y2="104.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="410.0" y1="158.0" x2="410.0" y2="124.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="410.0" y1="104.0" x2="430.0" y2="104.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="410.0" y1="124.0" x2="430.0" y2="124.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 430,94 L 460,94 A 20,20 0 0 1 460,134 L 430,134 Z" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="484" cy="114" r="4" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="446.8" y="118.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">N₄</text>
+  <line x1="494.0" y1="114.0" x2="540.0" y2="114.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="548.0" y="118.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">Y = A ⊕ B</text>
+  <text x="300.0" y="215.0" fill="#475569" font-size="10" text-anchor="middle">Q = ¬(A·P), R = ¬(B·P) → Y = ¬(Q·R) = A⊕B (chỉ dùng NAND — cổng vạn năng)</text>
+</svg>
 
 ---
 

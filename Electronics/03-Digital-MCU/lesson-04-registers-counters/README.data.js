@@ -29,14 +29,44 @@ Sau bài này bạn sẽ:
 
 **Thanh ghi n bit** = n D flip-flop mắc song song, cùng chia sẻ một đường clock (CLK) và thường có chung tín hiệu reset (CLR):
 
-\`\`\`
-D₀ ─── [FF₀] ─── Q₀
-D₁ ─── [FF₁] ─── Q₁       (tất cả FF dùng chung CLK)
-D₂ ─── [FF₂] ─── Q₂
-D₃ ─── [FF₃] ─── Q₃
-         ↑
-        CLK (cạnh lên)
-\`\`\`
+<svg viewBox="0 0 480 260" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thanh ghi 4 bit: 4 D flip-flop song song dùng chung CLK, mỗi FF nạp D_i ra Q_i tại cạnh lên">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="54.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D₀</text>
+  <line x1="46.0" y1="50.0" x2="90.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="90.0" y="30.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="125.0" y="54.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₀</text>
+  <line x1="160.0" y1="50.0" x2="200.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="208.0" y="54.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">Q₀</text>
+  <line x1="125.0" y1="70.0" x2="125.0" y2="76.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="125.0" y1="76.0" x2="125.0" y2="71.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D₁</text>
+  <line x1="46.0" y1="96.0" x2="90.0" y2="96.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="90.0" y="76.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="125.0" y="100.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₁</text>
+  <line x1="160.0" y1="96.0" x2="200.0" y2="96.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="208.0" y="100.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">Q₁</text>
+  <line x1="125.0" y1="116.0" x2="125.0" y2="122.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="125.0" y1="122.0" x2="125.0" y2="117.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="40.0" y="146.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D₂</text>
+  <line x1="46.0" y1="142.0" x2="90.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="90.0" y="122.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="125.0" y="146.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₂</text>
+  <line x1="160.0" y1="142.0" x2="200.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="208.0" y="146.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">Q₂</text>
+  <line x1="125.0" y1="162.0" x2="125.0" y2="168.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="125.0" y1="168.0" x2="125.0" y2="163.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="40.0" y="192.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D₃</text>
+  <line x1="46.0" y1="188.0" x2="90.0" y2="188.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="90.0" y="168.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="125.0" y="192.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₃</text>
+  <line x1="160.0" y1="188.0" x2="200.0" y2="188.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="208.0" y="192.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">Q₃</text>
+  <line x1="125.0" y1="208.0" x2="125.0" y2="214.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="125.0" y1="214.0" x2="125.0" y2="209.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="125.0" y1="214.0" x2="125.0" y2="230.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="125.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">CLK (cạnh lên, chung 4 FF)</text>
+  <text x="320.0" y="120.0" fill="#475569" font-size="11" text-anchor="middle">4 D-FF song song = thanh ghi 4 bit: nạp D₀..D₃ cùng lúc tại cạnh lên</text>
+</svg>
 
 Tại mỗi **cạnh lên của clock**, toàn bộ dữ liệu ở ngõ vào $D_0$–$D_3$ được "chụp" đồng thời vào $Q_0$–$Q_3$. Dữ liệu giữ nguyên cho đến cạnh clock kế tiếp.
 
@@ -97,11 +127,38 @@ Tất cả 8 bit được nạp cùng lúc trong một cạnh clock. Đây là c
 
 **Cấu trúc 4 tầng (4-bit shift register)**:
 
-\`\`\`
-Serial In ─── [FF₃] ─── [FF₂] ─── [FF₁] ─── [FF₀] ─── Serial Out
-                ↑           ↑           ↑           ↑
-               CLK         CLK         CLK         CLK  (chung)
-\`\`\`
+<svg viewBox="0 0 600 165" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thanh ghi dịch 4 bit: Serial In vào FF₃, mỗi nhịp CLK bit dịch qua FF₂, FF₁, FF₀ tới Serial Out; CLK chung">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">Serial In</text>
+  <line x1="46.0" y1="60.0" x2="80.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="80.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="115.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₃</text>
+  <line x1="150.0" y1="60.0" x2="190.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="115.0" y1="80.0" x2="115.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="115.0" y1="104.0" x2="115.0" y2="82.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="115.0" y="118.0" fill="#475569" font-size="10" text-anchor="middle">CLK</text>
+  <rect x="190.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="225.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₂</text>
+  <line x1="260.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="225.0" y1="80.0" x2="225.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="225.0" y1="104.0" x2="225.0" y2="82.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="225.0" y="118.0" fill="#475569" font-size="10" text-anchor="middle">CLK</text>
+  <rect x="300.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="335.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₁</text>
+  <line x1="370.0" y1="60.0" x2="410.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="335.0" y1="80.0" x2="335.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="335.0" y1="104.0" x2="335.0" y2="82.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="335.0" y="118.0" fill="#475569" font-size="10" text-anchor="middle">CLK</text>
+  <rect x="410.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="445.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">FF₀</text>
+  <line x1="480.0" y1="60.0" x2="520.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="445.0" y1="80.0" x2="445.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="445.0" y1="104.0" x2="445.0" y2="82.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#arw)"/>
+  <text x="445.0" y="118.0" fill="#475569" font-size="10" text-anchor="middle">CLK</text>
+  <text x="528.0" y="64.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">Serial Out</text>
+  <line x1="115.0" y1="104.0" x2="445.0" y2="104.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="280.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">mỗi cạnh CLK, bit dịch sang phải một ô: vào FF₃, ra ở FF₀ sau 4 nhịp</text>
+</svg>
 
 Mỗi FF: $D = Q_{\\text{kế tiếp bên trái}}$. Tại mỗi cạnh clock, mỗi FF sao chép trạng thái của FF bên trái sang.
 
@@ -223,10 +280,45 @@ Dùng **T flip-flop** (hoặc JK FF với J=K=1). T flip-flop đảo ngõ ra Q m
 
 **Chuỗi 4 T flip-flop**:
 
-\`\`\`
-CLK ─── [T-FF₀] ─── Q₀ ─── [T-FF₁] ─── Q₁ ─── [T-FF₂] ─── Q₂ ─── [T-FF₃] ─── Q₃
-                       ↓ (Q̄₀ làm CLK cho FF₁)
-\`\`\`
+<svg viewBox="0 0 600 135" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bộ đếm ripple 4 bit: CLK vào T-FF₀, ngõ Q̄ của mỗi FF làm clock cho FF kế tiếp; Q₀…Q₃ là 4 bit đếm">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">CLK</text>
+  <line x1="46.0" y1="60.0" x2="80.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="80.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="115.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T-FF₀</text>
+  <line x1="150.0" y1="50.0" x2="180.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="165.0" y="40.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Q₀</text>
+  <line x1="150.0" y1="70.0" x2="180.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="165.0" y="86.0" fill="#475569" font-size="10" text-anchor="middle">Q̄₀</text>
+  <line x1="180.0" y1="70.0" x2="190.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="190.0" y1="70.0" x2="190.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="190.0" y1="60.0" x2="200.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="200.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="235.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T-FF₁</text>
+  <line x1="270.0" y1="50.0" x2="300.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="285.0" y="40.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Q₁</text>
+  <line x1="270.0" y1="70.0" x2="300.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="285.0" y="86.0" fill="#475569" font-size="10" text-anchor="middle">Q̄₁</text>
+  <line x1="300.0" y1="70.0" x2="310.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="70.0" x2="310.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="310.0" y1="60.0" x2="320.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="320.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="355.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T-FF₂</text>
+  <line x1="390.0" y1="50.0" x2="420.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="405.0" y="40.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Q₂</text>
+  <line x1="390.0" y1="70.0" x2="420.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="405.0" y="86.0" fill="#475569" font-size="10" text-anchor="middle">Q̄₂</text>
+  <line x1="420.0" y1="70.0" x2="430.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="430.0" y1="70.0" x2="430.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="430.0" y1="60.0" x2="440.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="440.0" y="40.0" width="70.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="475.0" y="64.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T-FF₃</text>
+  <line x1="510.0" y1="50.0" x2="540.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="525.0" y="40.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Q₃</text>
+  <line x1="510.0" y1="70.0" x2="540.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="525.0" y="86.0" fill="#475569" font-size="10" text-anchor="middle">Q̄₃</text>
+  <text x="300.0" y="120.0" fill="#475569" font-size="10" text-anchor="middle">Q̄ᵢ làm CLK cho FFᵢ₊₁ → bộ đếm nhị phân bất đồng bộ (ripple): Q₀ nhanh nhất, Q₃ = CLK/16</text>
+</svg>
 
 Mỗi FF dùng ngõ ra đảo $\\overline{Q}$ của tầng trước làm clock (cạnh lên $\\overline{Q}$ = cạnh xuống Q). Kết quả: mỗi tầng đếm gấp đôi chu kỳ tầng trước → **chia đôi tần số**.
 
@@ -445,11 +537,21 @@ $N=6 = 0110_2$. Nối $Q_2$ và $Q_1$ vào NAND:
 - **Mod-12** (đồng hồ 12 giờ): $N=12 = 1100_2$. Nối $Q_3$ và $Q_2$ vào NAND.
 - **Mod-60** (đếm giây/phút 0–59): ghép hai bộ đếm — mod-10 (hàng đơn vị) và mod-6 (hàng chục). Khi mod-10 reset từ 9→0, nó gửi xung clock cho mod-6.
 
-\`\`\`
-CLK ──→ [Mod-10 counter] ──→ (carry out khi 9→0) ──→ [Mod-6 counter]
-            Q₃Q₂Q₁Q₀                                      Q₂Q₁Q₀
-          = đơn vị (0-9)                                 = chục (0-5)
-\`\`\`
+<svg viewBox="0 0 560 125" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ghép bộ đếm mod-10 (đơn vị) và mod-6 (chục): carry của mod-10 khi 9→0 làm clock cho mod-6, đếm 00–59">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">CLK</text>
+  <line x1="46.0" y1="60.0" x2="100.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="100.0" y="36.0" width="150.0" height="48.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="175.0" y="57.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Mod-10 counter</text>
+  <text x="175.0" y="70.5" fill="#475569" font-size="10" text-anchor="middle">Q₃Q₂Q₁Q₀ = đơn vị 0–9</text>
+  <line x1="250.0" y1="60.0" x2="330.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="290.0" y="50.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">carry out</text>
+  <text x="290.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">khi 9 → 0</text>
+  <rect x="330.0" y="36.0" width="150.0" height="48.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="405.0" y="57.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Mod-6 counter</text>
+  <text x="405.0" y="70.5" fill="#475569" font-size="10" text-anchor="middle">Q₂Q₁Q₀ = chục 0–5</text>
+  <text x="290.0" y="112.0" fill="#475569" font-size="11" text-anchor="middle">ghép 2 bộ đếm: đếm 00–59 (giây / phút)</text>
+</svg>
 
 Kết quả: đếm 00–59 (= 60 trạng thái) → chia tần số cho 60.
 
@@ -499,27 +601,37 @@ $N=5 = 101_2$. Cần 3 bit (3 FF). Nối $Q_2$ và $Q_0$ vào NAND. Khi $Q_2=Q_0
 
 Kiến trúc đồng hồ số hoàn chỉnh từ thạch anh 32.768 kHz:
 
-\`\`\`
-32.768 kHz
-    │
-    ▼
-[15 tầng chia 2] → 1 Hz (xung giây)
-    │
-    ▼
-[Mod-10 giây đơn vị] ──→ khi = 9→0: xung
-    │ (ngõ ra song song → bộ giải mã 7 đoạn)
-    ▼
-[Mod-6 giây chục] ──→ khi = 5→0: xung
-    │
-    ▼
-[Mod-10 phút đơn vị] ──→ ...tương tự...
-    │
-    ▼
-[Mod-6 phút chục] ──→ khi phút = 59→0: xung
-    │
-    ▼
-[Mod-12 giờ] hoặc [Mod-24 giờ]
-\`\`\`
+<svg viewBox="0 0 580 430" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồng hồ số: thạch anh 32.768 kHz → 15 tầng chia 2 → 1 Hz → mod-10 giây đơn vị → mod-6 giây chục → mod-10 phút → mod-6 phút chục → mod-12/24 giờ">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="170.0" y="14.0" width="240.0" height="40.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="290.0" y="31.5" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">32.768 kHz</text>
+  <text x="290.0" y="44.5" fill="#475569" font-size="10" text-anchor="middle">thạch anh</text>
+  <line x1="290.0" y1="54.0" x2="290.0" y2="66.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="170.0" y="68.0" width="240.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="85.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">15 tầng chia 2</text>
+  <text x="290.0" y="98.5" fill="#475569" font-size="10" text-anchor="middle">→ 1 Hz (xung giây)</text>
+  <line x1="290.0" y1="108.0" x2="290.0" y2="120.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="170.0" y="122.0" width="240.0" height="40.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="139.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Mod-10 giây đơn vị</text>
+  <text x="290.0" y="152.5" fill="#475569" font-size="10" text-anchor="middle">9→0: xung ra</text>
+  <line x1="290.0" y1="162.0" x2="290.0" y2="174.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="170.0" y="176.0" width="240.0" height="40.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="193.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Mod-6 giây chục</text>
+  <text x="290.0" y="206.5" fill="#475569" font-size="10" text-anchor="middle">5→0: xung ra</text>
+  <line x1="290.0" y1="216.0" x2="290.0" y2="228.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="170.0" y="230.0" width="240.0" height="40.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="247.5" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Mod-10 phút đơn vị</text>
+  <text x="290.0" y="260.5" fill="#475569" font-size="10" text-anchor="middle">9→0</text>
+  <line x1="290.0" y1="270.0" x2="290.0" y2="282.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="170.0" y="284.0" width="240.0" height="40.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="301.5" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Mod-6 phút chục</text>
+  <text x="290.0" y="314.5" fill="#475569" font-size="10" text-anchor="middle">59→0: xung ra</text>
+  <line x1="290.0" y1="324.0" x2="290.0" y2="336.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="170.0" y="338.0" width="240.0" height="40.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="362.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Mod-12 / Mod-24 giờ</text>
+  <text x="290.0" y="406.0" fill="#475569" font-size="10" text-anchor="middle">mỗi tầng: ngõ ra song song → giải mã 7 đoạn hiển thị</text>
+  <text x="290.0" y="420.0" fill="#475569" font-size="10" text-anchor="middle">32 768 = 2¹⁵ → chia 2 mười lăm lần được đúng 1 Hz</text>
+</svg>
 
 Mỗi cặp mod-10 + mod-6 = **1 chữ số hai con số** (00–59). Ngõ ra song song từ mỗi bộ đếm nối vào IC **giải mã BCD-7 đoạn** (74HC4511) để hiển thị LED 7 đoạn.
 

@@ -41,11 +41,35 @@ Ngược lại, vi điều khiển (MCU), máy tính, và mọi thiết bị s�
 
 Xét hệ thống thu âm:
 
-\`\`\`
-Giọng nói → Microphone → [tín hiệu điện áp tương tự]
-→ Bộ lọc anti-aliasing → ADC → Dữ liệu số → Xử lý (DSP/MCU)
-→ DAC → Bộ khuếch đại → Loa
-\`\`\`
+<svg viewBox="0 0 660 115" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi xử lý âm thanh: giọng nói → micro → lọc anti-aliasing → ADC → DSP/MCU → DAC → khuếch đại → loa">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="12.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="48.0" y="56.0" fill="#475569" font-size="9" text-anchor="middle" font-weight="700">Giọng nói</text>
+  <line x1="85.0" y1="52.0" x2="92.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="92.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="128.0" y="49.5" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">Microphone</text>
+  <text x="128.0" y="62.5" fill="#475569" font-size="8" text-anchor="middle">điện áp tương tự</text>
+  <line x1="165.0" y1="52.0" x2="172.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="172.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="208.0" y="56.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">Lọc anti-aliasing</text>
+  <line x1="245.0" y1="52.0" x2="252.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="252.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="288.0" y="49.5" fill="#dc2626" font-size="9" text-anchor="middle" font-weight="700">ADC</text>
+  <text x="288.0" y="62.5" fill="#475569" font-size="8" text-anchor="middle">dữ liệu số</text>
+  <line x1="325.0" y1="52.0" x2="332.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="332.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="368.0" y="56.0" fill="#7c3aed" font-size="9" text-anchor="middle" font-weight="700">Xử lý DSP/MCU</text>
+  <line x1="405.0" y1="52.0" x2="412.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="412.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="448.0" y="56.0" fill="#dc2626" font-size="9" text-anchor="middle" font-weight="700">DAC</text>
+  <line x1="485.0" y1="52.0" x2="492.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="492.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="528.0" y="56.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">Khuếch đại</text>
+  <line x1="565.0" y1="52.0" x2="572.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="572.0" y="30.0" width="72.0" height="44.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="608.0" y="56.0" fill="#475569" font-size="9" text-anchor="middle" font-weight="700">Loa</text>
+  <text x="330.0" y="100.0" fill="#475569" font-size="11" text-anchor="middle">analog → số → xử lý → analog: ADC và DAC là hai cầu nối</text>
+</svg>
 
 Mỗi bước đều có tham số kỹ thuật cụ thể: tần số lấy mẫu, số bit, điện áp tham chiếu. Bài này giải thích từng khái niệm.
 

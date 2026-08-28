@@ -448,21 +448,19 @@ Kiểm tra: m₁(A=0,B=1): $0+1=1$ ✓. m₂(A=1,B=0): $1+0=1$ ✓. m₃(A=1,B=1
 
 K-map 3 biến (A, B, C), 8 ô, sắp theo mã Gray trên trục BC:
 
-\`\`\`
-      BC=00  BC=01  BC=11  BC=10
-A=0  [ m₀ ] [ m₁ ] [ m₃ ] [ m₂ ]
-A=1  [ m₄ ] [ m₅ ] [ m₇ ] [ m₆ ]
-\`\`\`
+| | BC=00 | BC=01 | BC=11 | BC=10 |
+|---|:---:|:---:|:---:|:---:|
+| **A=0** | m₀ | m₁ | m₃ | m₂ |
+| **A=1** | m₄ | m₅ | m₇ | m₆ |
 
 ⚠ **Thứ tự cột là BC=00, 01, 11, 10 (mã Gray), không phải 00, 01, 10, 11** — đây là lỗi phổ biến nhất khi vẽ K-map. Nếu sắp thứ tự sai, các ô kề nhau sẽ không chỉ khác 1 bit → gộp nhầm → kết quả sai.
 
 **Ví dụ 2 K-map 3 biến**: F = Σm(0, 1, 2, 4, 5)
 
-\`\`\`
-      BC=00  BC=01  BC=11  BC=10
-A=0  [  1  ] [  1  ] [  0  ] [  1  ]
-A=1  [  1  ] [  1  ] [  0  ] [  0  ]
-\`\`\`
+| | BC=00 | BC=01 | BC=11 | BC=10 |
+|---|:---:|:---:|:---:|:---:|
+| **A=0** | 1 | 1 | 0 | 1 |
+| **A=1** | 1 | 1 | 0 | 0 |
 
 Nhận dạng nhóm:
 - Nhóm 1 (4 ô): {m₀, m₁, m₄, m₅} — cột BC=00 và BC=01, tức B=0 (B=0 trong cả 4 minterm: m₀[B=0], m₁[B=0], m₄[B=0], m₅[B=0]). A và C thay đổi tự do → chỉ B=0 là chung — Hãy phân tích lại cẩn thận với bảng cụ thể:
@@ -478,11 +476,10 @@ Nhận dạng nhóm:
 | 6 | 1 | 1 | 0 | 0 |
 | 7 | 1 | 1 | 1 | 0 |
 
-\`\`\`
-      BC=00  BC=01  BC=11  BC=10
-A=0  [m₀=1] [m₁=1] [m₃=0] [m₂=1]
-A=1  [m₄=1] [m₅=1] [m₇=0] [m₆=0]
-\`\`\`
+| | BC=00 | BC=01 | BC=11 | BC=10 |
+|---|:---:|:---:|:---:|:---:|
+| **A=0** | m₀=1 | m₁=1 | m₃=0 | m₂=1 |
+| **A=1** | m₄=1 | m₅=1 | m₇=0 | m₆=0 |
 
 Nhận dạng nhóm:
 - **Nhóm 1** (4 ô): {m₀, m₁, m₄, m₅} — cột BC=00 và BC=01, tức B=0 (B=0 trong cả 4 minterm: m₀[B=0], m₁[B=0], m₄[B=0], m₅[B=0]). A và C thay đổi tự do → chỉ B=0 là chung → $\\overline{B}$.
@@ -509,11 +506,10 @@ Bảng giá trị:
 - m₀(A=0,B=0,C=0)=1, m₃(A=0,B=1,C=1)=1, m₅(A=1,B=0,C=1)=1, m₆(A=1,B=1,C=0)=1
 
 K-map:
-\`\`\`
-      BC=00  BC=01  BC=11  BC=10
-A=0  [  1  ] [  0  ] [  1  ] [  0  ]
-A=1  [  0  ] [  1  ] [  0  ] [  1  ]
-\`\`\`
+| | BC=00 | BC=01 | BC=11 | BC=10 |
+|---|:---:|:---:|:---:|:---:|
+| **A=0** | 1 | 0 | 1 | 0 |
+| **A=1** | 0 | 1 | 0 | 1 |
 
 Không thể gộp nhóm 4 ô. Kiểm tra từng cặp:
 - {m₀, m₃}: A=0, BC thay đổi (00↔11 — không kề nhau).
@@ -637,11 +633,10 @@ Biểu thức minterm: $Y_6 = A_2 \\cdot A_1 \\cdot \\overline{A_0} = 1 \\cdot 1
 
 K-map:
 
-\`\`\`
-      BC=00  BC=01  BC=11  BC=10
-A=0  [m₀=1] [m₁=1] [m₃=0] [m₂=0]
-A=1  [m₄=1] [m₅=1] [m₇=1] [m₆=0]
-\`\`\`
+| | BC=00 | BC=01 | BC=11 | BC=10 |
+|---|:---:|:---:|:---:|:---:|
+| **A=0** | m₀=1 | m₁=1 | m₃=0 | m₂=0 |
+| **A=1** | m₄=1 | m₅=1 | m₇=1 | m₆=0 |
 
 Nhận dạng nhóm:
 - **Nhóm 1** (4 ô): {m₀, m₁, m₄, m₅} — cột BC=00 và BC=01 (tức B=0). A và C thay đổi → $\\overline{B}$.

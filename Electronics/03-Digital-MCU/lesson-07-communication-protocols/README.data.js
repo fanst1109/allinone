@@ -90,10 +90,20 @@ Ví dụ cụ thể:
 
 **UART** (đọc là "iu-a") là giao thức giao tiếp nối tiếp bất đồng bộ đơn giản nhất. Chỉ cần **2 dây** TX (Transmit — phát) và RX (Receive — nhận), nối chéo nhau:
 
-\`\`\`
-MCU_A.TX ──────────────→ MCU_B.RX
-MCU_A.RX ←────────────── MCU_B.TX
-\`\`\`
+<svg viewBox="0 0 560 155" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kết nối UART: TX của MCU_A nối RX của MCU_B và ngược lại">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="30.0" width="120.0" height="90.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="90.0" y="79.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">MCU_A</text>
+  <rect x="410.0" y="30.0" width="120.0" height="90.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="470.0" y="79.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">MCU_B</text>
+  <line x1="150.0" y1="55.0" x2="410.0" y2="55.0" stroke="#1a202c" stroke-width="2" marker-end="url(#arw)"/>
+  <text x="168.0" y="49.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">TX</text>
+  <text x="392.0" y="49.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">RX</text>
+  <line x1="410.0" y1="95.0" x2="150.0" y2="95.0" stroke="#1a202c" stroke-width="2" marker-end="url(#arw)"/>
+  <text x="168.0" y="111.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">RX</text>
+  <text x="392.0" y="111.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">TX</text>
+  <text x="280.0" y="140.0" fill="#475569" font-size="11" text-anchor="middle">UART: 2 dây chéo TX↔RX (+ GND chung), không clock, cùng baud rate</text>
+</svg>
 
 💡 **Vì sao cần**: UART là giao tiếp "phổ thông" nhất trong vi điều khiển — gần như mọi MCU đều có ít nhất 1 cổng UART. Dùng để debug (in log ra Serial Monitor), nạp firmware, giao tiếp với module GPS/Bluetooth, nói chuyện với máy tính qua chip USB-UART (CH340, CP2102, FTDI).
 
@@ -103,10 +113,57 @@ MCU_A.RX ←────────────── MCU_B.TX
 
 Mỗi byte dữ liệu được đóng gói trong một **khung (frame)**. Cấu trúc khung UART phổ biến nhất (8N1):
 
-\`\`\`
-IDLE  [Start] [D0] [D1] [D2] [D3] [D4] [D5] [D6] [D7] [Stop]  IDLE
-HIGH   LOW    data bit LSB ──────────────────────── MSB   HIGH
-\`\`\`
+<svg viewBox="0 0 660 180" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khung UART: đường idle HIGH, bit Start kéo xuống LOW, 8 bit dữ liệu D0…D7 (LSB trước), bit Stop HIGH, về idle">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="56.0" y="40.0" width="50.0" height="36.0" rx="3" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="81.0" y="63.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">IDLE</text>
+  <line x1="56.0" y1="110.0" x2="106.0" y2="110.0" stroke="#1a202c" stroke-width="2.5"/>
+  <rect x="106.0" y="40.0" width="50.0" height="36.0" rx="3" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="131.0" y="63.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Start</text>
+  <line x1="106.0" y1="132.0" x2="156.0" y2="132.0" stroke="#1a202c" stroke-width="2.5"/>
+  <line x1="106.0" y1="110.0" x2="106.0" y2="132.0" stroke="#1a202c" stroke-width="2.5"/>
+  <rect x="156.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="179.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D0</text>
+  <line x1="156.0" y1="110.0" x2="202.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="156.0" y1="132.0" x2="202.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="202.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="225.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D1</text>
+  <line x1="202.0" y1="110.0" x2="248.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="202.0" y1="132.0" x2="248.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="248.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="271.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D2</text>
+  <line x1="248.0" y1="110.0" x2="294.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="248.0" y1="132.0" x2="294.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="294.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="317.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D3</text>
+  <line x1="294.0" y1="110.0" x2="340.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="294.0" y1="132.0" x2="340.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="340.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="363.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D4</text>
+  <line x1="340.0" y1="110.0" x2="386.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="340.0" y1="132.0" x2="386.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="386.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="409.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D5</text>
+  <line x1="386.0" y1="110.0" x2="432.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="386.0" y1="132.0" x2="432.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="432.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="455.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D6</text>
+  <line x1="432.0" y1="110.0" x2="478.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="432.0" y1="132.0" x2="478.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="478.0" y="40.0" width="46.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="501.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D7</text>
+  <line x1="478.0" y1="110.0" x2="524.0" y2="110.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <line x1="478.0" y1="132.0" x2="524.0" y2="132.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="524.0" y="40.0" width="50.0" height="36.0" rx="3" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="549.0" y="63.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Stop</text>
+  <line x1="524.0" y1="110.0" x2="574.0" y2="110.0" stroke="#1a202c" stroke-width="2.5"/>
+  <rect x="574.0" y="40.0" width="50.0" height="36.0" rx="3" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="599.0" y="63.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">IDLE</text>
+  <line x1="574.0" y1="110.0" x2="624.0" y2="110.0" stroke="#1a202c" stroke-width="2.5"/>
+  <text x="50.0" y="114.0" fill="#475569" font-size="9" text-anchor="end">HIGH</text>
+  <text x="50.0" y="136.0" fill="#475569" font-size="9" text-anchor="end">LOW</text>
+  <text x="340.0" y="165.0" fill="#475569" font-size="11" text-anchor="middle">data bit: mức tuỳ giá trị (nét đứt), LSB D0 gửi trước, MSB D7 sau; mỗi bit dài 1/baud</text>
+</svg>
 
 Chi tiết từng phần:
 
@@ -196,9 +253,26 @@ Cả SDA và SCL đều dùng cấu trúc **open-drain** (cực máng hở): b�
 
 **Khung truyền I2C**:
 
-\`\`\`
-[Start] [Addr 7-bit] [R/W] [ACK] [Data 8-bit] [ACK] ... [Stop]
-\`\`\`
+<svg viewBox="0 0 520 125" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khung I2C: Start, địa chỉ 7 bit, bit R/W, ACK từ slave, dữ liệu 8 bit, ACK, … Stop">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="50.0" height="36.0" rx="3" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="41.0" y="63.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Start</text>
+  <rect x="66.0" y="40.0" width="100.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="116.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Addr 7-bit</text>
+  <rect x="166.0" y="40.0" width="44.0" height="36.0" rx="3" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="188.0" y="63.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">R/W</text>
+  <rect x="210.0" y="40.0" width="44.0" height="36.0" rx="3" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="232.0" y="63.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ACK</text>
+  <rect x="254.0" y="40.0" width="110.0" height="36.0" rx="3" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="309.0" y="63.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Data 8-bit</text>
+  <rect x="364.0" y="40.0" width="44.0" height="36.0" rx="3" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="386.0" y="63.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ACK</text>
+  <rect x="408.0" y="40.0" width="40.0" height="36.0" rx="3" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="428.0" y="63.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">…</text>
+  <rect x="448.0" y="40.0" width="50.0" height="36.0" rx="3" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="473.0" y="63.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Stop</text>
+  <text x="260.0" y="110.0" fill="#475569" font-size="11" text-anchor="middle">master phát Start / Addr / R-W; slave trả ACK sau mỗi byte; Stop kết thúc</text>
+</svg>
 
 - **Start condition**: SDA xuống LOW trong khi SCL vẫn HIGH.
 - **Địa chỉ 7-bit**: master gửi địa chỉ slave muốn nói chuyện (ví dụ \`0x76\` cho BME280).
@@ -275,20 +349,61 @@ Cả SDA và SCL đều dùng cấu trúc **open-drain** (cực máng hở): b�
 
 **Kết nối nhiều slave**:
 
-\`\`\`
-MCU ─── MOSI ──┬──── Slave A (thẻ SD)
-               ├──── Slave B (màn hình TFT)
-               └──── Slave C (Flash SPI)
-       MISO ──┬──── Slave A
-               ├──── Slave B
-               └──── Slave C
-       SCLK ──┬──── Slave A
-               ├──── Slave B
-               └──── Slave C
-       CS_A ──────── Slave A (chỉ Slave A active khi CS_A = LOW)
-       CS_B ──────── Slave B
-       CS_C ──────── Slave C
-\`\`\`
+<svg viewBox="0 0 600 280" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bus SPI: MCU master nối 3 dây chung MOSI, MISO, SCLK tới 3 slave (thẻ SD, TFT, Flash) và 3 dây chọn chip CS_A, CS_B, CS_C riêng">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="60.0" width="90.0" height="150.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="65.0" y="132.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">MCU</text>
+  <text x="65.0" y="145.5" fill="#475569" font-size="11" text-anchor="middle">master</text>
+  <rect x="440.0" y="30.0" width="120.0" height="50.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="500.0" y="52.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Slave A</text>
+  <text x="500.0" y="65.5" fill="#475569" font-size="10" text-anchor="middle">thẻ SD</text>
+  <rect x="440.0" y="100.0" width="120.0" height="50.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="500.0" y="122.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Slave B</text>
+  <text x="500.0" y="135.5" fill="#475569" font-size="10" text-anchor="middle">màn hình TFT</text>
+  <rect x="440.0" y="170.0" width="120.0" height="50.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="500.0" y="192.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Slave C</text>
+  <text x="500.0" y="205.5" fill="#475569" font-size="10" text-anchor="middle">Flash SPI</text>
+  <line x1="110.0" y1="80.0" x2="360.0" y2="80.0" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="116.0" y="76.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">MOSI</text>
+  <line x1="360.0" y1="80.0" x2="360.0" y2="180.0" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="360.0" cy="40.0" r="3" fill="#1d4ed8"/>
+  <line x1="360.0" y1="40.0" x2="440.0" y2="40.0" stroke="#1d4ed8" stroke-width="1.5"/>
+  <circle cx="360.0" cy="110.0" r="3" fill="#1d4ed8"/>
+  <line x1="360.0" y1="110.0" x2="440.0" y2="110.0" stroke="#1d4ed8" stroke-width="1.5"/>
+  <circle cx="360.0" cy="180.0" r="3" fill="#1d4ed8"/>
+  <line x1="360.0" y1="180.0" x2="440.0" y2="180.0" stroke="#1d4ed8" stroke-width="1.5"/>
+  <line x1="110.0" y1="102.0" x2="378.0" y2="102.0" stroke="#dc2626" stroke-width="2"/>
+  <text x="116.0" y="98.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">MISO</text>
+  <line x1="378.0" y1="102.0" x2="378.0" y2="188.0" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="378.0" cy="48.0" r="3" fill="#dc2626"/>
+  <line x1="378.0" y1="48.0" x2="440.0" y2="48.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="378.0" cy="118.0" r="3" fill="#dc2626"/>
+  <line x1="378.0" y1="118.0" x2="440.0" y2="118.0" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="378.0" cy="188.0" r="3" fill="#dc2626"/>
+  <line x1="378.0" y1="188.0" x2="440.0" y2="188.0" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="110.0" y1="124.0" x2="396.0" y2="124.0" stroke="#7c3aed" stroke-width="2"/>
+  <text x="116.0" y="120.0" fill="#7c3aed" font-size="10" text-anchor="start" font-weight="700">SCLK</text>
+  <line x1="396.0" y1="124.0" x2="396.0" y2="196.0" stroke="#7c3aed" stroke-width="2"/>
+  <circle cx="396.0" cy="56.0" r="3" fill="#7c3aed"/>
+  <line x1="396.0" y1="56.0" x2="440.0" y2="56.0" stroke="#7c3aed" stroke-width="1.5"/>
+  <circle cx="396.0" cy="126.0" r="3" fill="#7c3aed"/>
+  <line x1="396.0" y1="126.0" x2="440.0" y2="126.0" stroke="#7c3aed" stroke-width="1.5"/>
+  <circle cx="396.0" cy="196.0" r="3" fill="#7c3aed"/>
+  <line x1="396.0" y1="196.0" x2="440.0" y2="196.0" stroke="#7c3aed" stroke-width="1.5"/>
+  <line x1="110.0" y1="150.0" x2="300.0" y2="150.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="72.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="300.0" y1="72.0" x2="440.0" y2="72.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="116.0" y="147.0" fill="#475569" font-size="9" text-anchor="start" font-weight="700">CS_A</text>
+  <line x1="110.0" y1="172.0" x2="320.0" y2="172.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="320.0" y1="172.0" x2="320.0" y2="142.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="320.0" y1="142.0" x2="440.0" y2="142.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="116.0" y="169.0" fill="#475569" font-size="9" text-anchor="start" font-weight="700">CS_B</text>
+  <line x1="110.0" y1="194.0" x2="340.0" y2="194.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="340.0" y1="194.0" x2="340.0" y2="212.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="340.0" y1="212.0" x2="440.0" y2="212.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="116.0" y="191.0" fill="#475569" font-size="9" text-anchor="start" font-weight="700">CS_C</text>
+  <text x="290.0" y="262.0" fill="#475569" font-size="10" text-anchor="middle">3 dây chung MOSI / MISO / SCLK; mỗi slave một dây CS riêng — chỉ slave có CS = LOW mới trả lời</text>
+</svg>
 
 Mỗi slave cần 1 chân CS riêng. MOSI, MISO, SCLK dùng chung.
 

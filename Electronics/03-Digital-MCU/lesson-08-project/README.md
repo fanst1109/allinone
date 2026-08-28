@@ -28,34 +28,42 @@ Sau bài này bạn sẽ:
 
 💡 **Trực giác**: mọi hệ nhúng — dù là lò nướng bánh, máy lạnh, robot hút bụi hay vệ tinh — đều hoạt động theo một vòng lặp duy nhất: **cảm nhận thế giới → xử lý thông tin → hành động lên thế giới**. Không có ngoại lệ.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                 HỆ NHÚNG TỔNG QUÁT                      │
-│                                                         │
-│  [MÔI TRƯỜNG]                                           │
-│       │ tín hiệu vật lý (nhiệt, ánh sáng, âm thanh...) │
-│       ▼                                                 │
-│  [CẢM BIẾN / SENSOR]  ──►  [CHUYỂN ĐỔI A/D]            │
-│  (thermistor, LM35,          (ADC 10-bit)               │
-│   DHT22, PIR...)                                        │
-│                               │ số hóa                  │
-│                               ▼                         │
-│                    [VI ĐIỀU KHIỂN / MCU]                │
-│                    (Arduino, ESP32, STM32)               │
-│                    • Đọc cảm biến                       │
-│                    • Chạy thuật toán điều khiển          │
-│                    • Giao tiếp (I2C, UART, SPI)          │
-│                               │ quyết định              │
-│                               ▼                         │
-│  [ACTUATOR / BỘ CHẤP HÀNH]                              │
-│  (MOSFET + quạt, relay + sưởi, servo, buzzer...)        │
-│       │ tác động                                        │
-│       ▼                                                 │
-│  [MÔI TRƯỜNG] ← vòng lặp khép kín (closed-loop)        │
-│                                                         │
-│  SONG SONG: [HIỂN THỊ] (OLED I2C, LCD, UART/Serial)    │
-└─────────────────────────────────────────────────────────┘
-```
+<svg viewBox="0 0 660 365" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ khối hệ nhúng: môi trường → cảm biến → ADC → MCU → actuator → tác động lại môi trường (vòng khép kín); MCU song song đẩy dữ liệu ra hiển thị">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="40.0" y="20.0" width="180.0" height="40.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="130.0" y="37.5" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">MÔI TRƯỜNG</text>
+  <text x="130.0" y="50.5" fill="#475569" font-size="10" text-anchor="middle">nhiệt, ánh sáng, âm thanh…</text>
+  <line x1="130.0" y1="60.0" x2="130.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="140.0" y="76.0" fill="#475569" font-size="9" text-anchor="start">tín hiệu vật lý</text>
+  <rect x="40.0" y="86.0" width="180.0" height="52.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="130.0" y="109.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">CẢM BIẾN / SENSOR</text>
+  <text x="130.0" y="122.5" fill="#475569" font-size="10" text-anchor="middle">thermistor, LM35, DHT22, PIR</text>
+  <line x1="220.0" y1="112.0" x2="270.0" y2="112.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="270.0" y="86.0" width="150.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="345.0" y="109.5" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">CHUYỂN ĐỔI A/D</text>
+  <text x="345.0" y="122.5" fill="#475569" font-size="10" text-anchor="middle">ADC 10-bit</text>
+  <line x1="345.0" y1="138.0" x2="345.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="355.0" y="156.0" fill="#475569" font-size="9" text-anchor="start">số hoá</text>
+  <rect x="230.0" y="166.0" width="230.0" height="80.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="345.0" y="190.5" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">VI ĐIỀU KHIỂN / MCU</text>
+  <text x="345.0" y="203.5" fill="#475569" font-size="10" text-anchor="middle">Arduino, ESP32, STM32</text>
+  <text x="345.0" y="216.5" fill="#475569" font-size="10" text-anchor="middle">đọc cảm biến · thuật toán điều khiển</text>
+  <text x="345.0" y="229.5" fill="#475569" font-size="10" text-anchor="middle">giao tiếp I2C / UART / SPI</text>
+  <line x1="345.0" y1="246.0" x2="345.0" y2="272.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="355.0" y="264.0" fill="#475569" font-size="9" text-anchor="start">quyết định</text>
+  <rect x="230.0" y="274.0" width="230.0" height="52.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="345.0" y="297.5" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">ACTUATOR / BỘ CHẤP HÀNH</text>
+  <text x="345.0" y="310.5" fill="#475569" font-size="10" text-anchor="middle">MOSFET+quạt, relay+sưởi, servo, buzzer</text>
+  <path d="M 230,300 L 130,300 L 130,62" fill="none" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arw)"/>
+  <text x="124.0" y="304.0" fill="#b45309" font-size="10" text-anchor="end">tác động</text>
+  <text x="124.0" y="200.0" fill="#b45309" font-size="10" text-anchor="end">vòng lặp</text>
+  <text x="124.0" y="214.0" fill="#b45309" font-size="10" text-anchor="end">khép kín</text>
+  <line x1="460.0" y1="206.0" x2="500.0" y2="206.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="500.0" y="180.0" width="120.0" height="52.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="560.0" y="203.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">HIỂN THỊ</text>
+  <text x="560.0" y="216.5" fill="#475569" font-size="9" text-anchor="middle">OLED I2C, LCD, Serial</text>
+  <text x="330.0" y="350.0" fill="#475569" font-size="10" text-anchor="middle">hệ nhúng tổng quát: cảm biến → ADC → MCU → actuator → môi trường (closed-loop), hiển thị song song</text>
+</svg>
 
 **Bốn khối chức năng chính**:
 
@@ -113,31 +121,131 @@ Thiết kế hệ điều khiển nhiệt độ lồng ấp gà (hoặc phòng n
 
 ### 2.3. Sơ đồ kết nối (schematic mô tả)
 
-```
-Arduino Uno
-─────────────────────────────────────────────────────────────
-  A0 ────────── Node giữa (R1 + Thermistor)
-                    │
-  5V ──── R1 (10 kΩ) ──── Node giữa ──── Thermistor ──── GND
-
-  D9  ────── R_G (100 Ω) ────── Gate MOSFET (IRLZ44N)
-                                 Drain ──── Quạt DC (+) ──── 12V
-                                 Source ──── GND (chung)
-                                 (1N4007 từ Drain → 12V, ngược chiều)
-
-  D7  ────── Relay IN (active LOW module)
-              Relay COM/NO ──── Đèn sưởi ──── 220V AC
-
-  D6  ────── R_LED (150 Ω) ──── LED đỏ ──── GND
-  D5  ────── R_LED (150 Ω) ──── LED xanh ──── GND
-  D4  ────── Buzzer ──── GND
-
-  A4 (SDA) ──── OLED SDA
-  A5 (SCL) ──── OLED SCL
-  5V ──── OLED VCC
-  GND ──── OLED GND
-─────────────────────────────────────────────────────────────
-```
+<svg viewBox="0 0 660 455" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ nối dây Arduino Uno: A0 đọc cầu chia R1 10 kΩ + NTC; D9 PWM qua R_G vào MOSFET IRLZ44N lái quạt 12 V; D7 relay đèn sưởi; D6, D5 LED qua 150 Ω; D4 buzzer; A4/A5 I2C OLED">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="20.0" width="110.0" height="400.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="224.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Arduino Uno</text>
+  <line x1="130.0" y1="50.0" x2="160.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="46.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">A0</text>
+  <line x1="130.0" y1="80.0" x2="160.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="76.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">5V</text>
+  <line x1="130.0" y1="160.0" x2="160.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="156.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D9</text>
+  <line x1="130.0" y1="230.0" x2="160.0" y2="230.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="226.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D7</text>
+  <line x1="130.0" y1="280.0" x2="160.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="276.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D6</text>
+  <line x1="130.0" y1="320.0" x2="160.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="316.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D5</text>
+  <line x1="130.0" y1="360.0" x2="160.0" y2="360.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="356.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D4</text>
+  <line x1="130.0" y1="400.0" x2="160.0" y2="400.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="396.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">A4/A5</text>
+  <line x1="160.0" y1="50.0" x2="240.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="240.0" cy="50.0" r="3.5" fill="#1a202c"/>
+  <line x1="160.0" y1="80.0" x2="190.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="190.0" y="73.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="212.0" y="68.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <text x="212.0" y="104.0" fill="#475569" font-size="10" text-anchor="middle">10 kΩ</text>
+  <line x1="234.0" y1="80.0" x2="240.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="80.0" x2="240.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240.0" y1="50.0" x2="330.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="330.0" y="38.0" width="50.0" height="24.0" rx="4" fill="white" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="355.0" y="54.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">NTC</text>
+  <line x1="380.0" y1="50.0" x2="420.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="420.0" y1="50.0" x2="420.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="406.0" y1="60.0" x2="434.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="411.0" y1="65.0" x2="429.0" y2="65.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="416.0" y1="70.0" x2="424.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="420.0" y="84.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="250.0" y="42.0" fill="#475569" font-size="9" text-anchor="start">node → A0</text>
+  <line x1="160.0" y1="160.0" x2="190.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="190.0" y="153.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="212.0" y="148.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_G</text>
+  <text x="212.0" y="184.0" fill="#475569" font-size="10" text-anchor="middle">100 Ω</text>
+  <line x1="234.0" y1="160.0" x2="258.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="258.0" y1="160.0" x2="278.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="278.0" y1="146.0" x2="278.0" y2="174.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="284.0" y1="144.0" x2="284.0" y2="176.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="284.0" y1="150.0" x2="300.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="126.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="284.0" y1="170.0" x2="300.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300.0" y1="170.0" x2="300.0" y2="194.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="284.0" y1="160.0" x2="300.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300.0" y1="160.0" x2="300.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="299.0" y1="160.0" x2="286.0" y2="160.0" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#npnm)"/>
+  <circle cx="290" cy="160" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="274.0" y="146.0" fill="#475569" font-size="10" text-anchor="end">G</text>
+  <text x="306.0" y="132.0" fill="#475569" font-size="10" text-anchor="start">D</text>
+  <text x="306.0" y="192.0" fill="#475569" font-size="10" text-anchor="start">S</text>
+  <text x="318.0" y="164.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">IRLZ44N</text>
+  <line x1="300.0" y1="126.0" x2="300.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="276.0" y="104.0" width="48.0" height="16.0" rx="3" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="300.0" y="116.0" fill="#15803d" font-size="9" text-anchor="middle" font-weight="700">Quạt DC</text>
+  <line x1="300.0" y1="104.0" x2="300.0" y2="92.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="300.0" y="88.0" fill="#15803d" font-size="9" text-anchor="middle">12 V</text>
+  <line x1="300.0" y1="194.0" x2="300.0" y2="204.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300.0" y1="204.0" x2="300.0" y2="214.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="286.0" y1="214.0" x2="314.0" y2="214.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="291.0" y1="219.0" x2="309.0" y2="219.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="296.0" y1="224.0" x2="304.0" y2="224.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="300.0" y="238.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="400.0" y="150.0" fill="#475569" font-size="9" text-anchor="start">1N4007 flyback ∥ quạt</text>
+  <line x1="160.0" y1="230.0" x2="330.0" y2="230.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="330.0" y="216.0" width="100.0" height="28.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="380.0" y="234.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Relay IN</text>
+  <line x1="430.0" y1="230.0" x2="450.0" y2="230.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="454.0" y="234.0" fill="#dc2626" font-size="9" text-anchor="start">COM/NO → đèn sưởi 220 V AC</text>
+  <line x1="160.0" y1="280.0" x2="190.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="190.0" y="273.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="212.0" y="268.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">150 Ω</text>
+  <line x1="234.0" y1="280.0" x2="258.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="258.0" y1="280.0" x2="302.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="270.0,270.0 270.0,290.0 290.0,280.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="290.0" y1="270.0" x2="290.0" y2="290.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="280.0" y="264.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
+  <line x1="282.0" y1="266.0" x2="292.0" y2="254.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
+  <line x1="290.0" y1="268.0" x2="300.0" y2="256.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
+  <text x="310.0" y="284.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">LED đỏ</text>
+  <line x1="302.0" y1="280.0" x2="380.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="280.0" x2="380.0" y2="290.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="366.0" y1="290.0" x2="394.0" y2="290.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="371.0" y1="295.0" x2="389.0" y2="295.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="376.0" y1="300.0" x2="384.0" y2="300.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="380.0" y="314.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="160.0" y1="320.0" x2="190.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="190.0" y="313.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="212.0" y="308.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">150 Ω</text>
+  <line x1="234.0" y1="320.0" x2="258.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="258.0" y1="320.0" x2="302.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="270.0,310.0 270.0,330.0 290.0,320.0" fill="#dc2626" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="290.0" y1="310.0" x2="290.0" y2="330.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="280.0" y="304.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
+  <line x1="282.0" y1="306.0" x2="292.0" y2="294.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
+  <line x1="290.0" y1="308.0" x2="300.0" y2="296.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
+  <text x="310.0" y="324.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">LED xanh</text>
+  <line x1="302.0" y1="320.0" x2="380.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="380.0" y1="320.0" x2="380.0" y2="330.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="366.0" y1="330.0" x2="394.0" y2="330.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="371.0" y1="335.0" x2="389.0" y2="335.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="376.0" y1="340.0" x2="384.0" y2="340.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="380.0" y="354.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="160.0" y1="360.0" x2="330.0" y2="360.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="330.0" y="350.0" width="60.0" height="20.0" rx="3" fill="white" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="360.0" y="364.0" fill="#475569" font-size="9" text-anchor="middle" font-weight="700">Buzzer</text>
+  <line x1="390.0" y1="360.0" x2="420.0" y2="360.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="420.0" y1="360.0" x2="420.0" y2="370.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="406.0" y1="370.0" x2="434.0" y2="370.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="411.0" y1="375.0" x2="429.0" y2="375.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="416.0" y1="380.0" x2="424.0" y2="380.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="420.0" y="394.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="160.0" y1="400.0" x2="330.0" y2="400.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="245.0" y="394.0" fill="#475569" font-size="9" text-anchor="middle">SDA / SCL (I2C)</text>
+  <rect x="330.0" y="384.0" width="110.0" height="32.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="385.0" y="397.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">OLED</text>
+  <text x="385.0" y="410.5" fill="#475569" font-size="9" text-anchor="middle">VCC 5 V, GND</text>
+  <text x="330.0" y="442.0" fill="#475569" font-size="9" text-anchor="middle">A0 đọc chia áp NTC · D9 PWM quạt qua MOSFET · D7 relay sưởi · D6/D5 LED · D4 buzzer · A4/A5 OLED</text>
+</svg>
 
 📝 **Tóm tắt mục 2**
 - Thermistor NTC + R1 tạo mạch phân áp, A0 đọc điện áp ở giữa.

@@ -86,14 +86,37 @@ Cần một mạch có thể:
 
 Cấu trúc: 2 cổng NOR nối chéo hồi tiếp (ngõ ra của mỗi cổng là ngõ vào của cổng kia).
 
-\`\`\`
-       S ─┐
-          NOR──── Q
-   ┌───┤
-   │   Q' ─── NOR──── Q'
-   │          ├── R
-   └──────────┘
-\`\`\`
+<svg viewBox="0 0 330 258" style="max-width:330px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chốt SR bằng hai cổng NOR chéo nhau: S vào NOR trên cho Q, R vào NOR dưới cho Q′, mỗi ngõ ra hồi tiếp về NOR kia">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="54.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700">S</text>
+  <line x1="46.0" y1="50.0" x2="120.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="40.0" y="194.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700">R</text>
+  <line x1="46.0" y1="190.0" x2="120.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 120,40 Q 132,60 120,80 L 148,80 Q 173,72 176,60 Q 173,48 148,40 Z" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="180" cy="60" r="4" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="145.2" y="64.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">NOR</text>
+  <path d="M 120,160 Q 132,180 120,200 L 148,200 Q 173,192 176,180 Q 173,168 148,160 Z" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="180" cy="180" r="4" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="145.2" y="184.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">NOR</text>
+  <line x1="120.0" y1="70.0" x2="110.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="120.0" y1="170.0" x2="110.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="184.0" y1="60.0" x2="260.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="230.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <text x="268.0" y="64.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">Q</text>
+  <line x1="184.0" y1="180.0" x2="260.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="230.0" cy="180.0" r="3.5" fill="#1a202c"/>
+  <text x="268.0" y="184.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">Q′</text>
+  <line x1="230.0" y1="60.0" x2="230.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="230.0" y1="110.0" x2="96.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="96.0" y1="110.0" x2="96.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="96.0" y1="170.0" x2="110.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="230.0" y1="180.0" x2="230.0" y2="130.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="230.0" y1="130.0" x2="84.0" y2="130.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="84.0" y1="130.0" x2="84.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="84.0" y1="70.0" x2="110.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="165.0" y="230.0" fill="#475569" font-size="10" text-anchor="middle">ngõ ra mỗi NOR hồi tiếp về NOR kia</text>
+  <text x="165.0" y="244.0" fill="#475569" font-size="10" text-anchor="middle">S=1 đặt Q=1 · R=1 xoá Q=0 · S=R=0 giữ</text>
+</svg>
 
 **Bảng chân trị SR Latch (NOR):**
 
@@ -179,12 +202,17 @@ Trong mạch số: nếu nhiều flip-flop cập nhật ở thời điểm khác
 - Giữa hai cạnh clock, ngõ ra **hoàn toàn không thay đổi** dù ngõ vào thay đổi liên tục.
 - Hầu hết flip-flop trong thiết kế số hiện đại đều dùng cạnh lên (positive edge-triggered).
 
-\`\`\`
-Clock:  _____|‾‾‾‾‾‾‾|_______|‾‾‾‾‾‾‾|_____
-              ↑               ↑
-         Cạnh lên          Cạnh lên
-         (lấy mẫu D)       (lấy mẫu D)
-\`\`\`
+<svg viewBox="0 0 560 142" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Xung clock: mức thấp, lên cao, xuống thấp, lặp lại; mũi tên đánh dấu hai cạnh lên nơi flip-flop lấy mẫu D">
+  <defs></defs>
+  <text x="60.0" y="62.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">Clock</text>
+  <line x1="70.0" y1="74.0" x2="530.0" y2="74.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,70.0 L 135.7,70.0 L 135.7,46.0 L 234.3,46.0 L 234.3,70.0 L 332.9,70.0 L 332.9,46.0 L 431.4,46.0 L 431.4,70.0 L 530.0,70.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="135.7" y1="44.0" x2="135.7" y2="94.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="135.7" y="108.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑ cạnh lên (lấy mẫu D)</text>
+  <line x1="332.9" y1="44.0" x2="332.9" y2="94.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="332.9" y="108.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑ cạnh lên</text>
+  <text x="280.0" y="134.0" fill="#475569" font-size="11" text-anchor="middle">flip-flop kích cạnh lên: chỉ lấy mẫu D tại thời điểm ↑</text>
+</svg>
 
 ### 3.3. Tần số clock
 
@@ -242,16 +270,27 @@ Tại cạnh lên: ngõ ra kế tiếp $Q^+$ đơn giản sao chép đầu vào 
 
 ### 4.3. Giản đồ thời gian (timing diagram)
 
-\`\`\`
-CLK: _____|‾‾‾|_____|‾‾‾|_____|‾‾‾|_____|‾‾‾|_____
-           ↑         ↑         ↑         ↑
-
-D:   ______|‾‾‾‾‾‾‾‾‾‾‾‾‾|___________|‾‾‾‾‾‾‾|___
-           0→1 tại t=1   1→0 tại t=3  0→1 tại t=3.5
-
-Q:   __________________|‾‾‾‾‾‾‾‾‾‾‾|___________|‾‾
-     Q cập nhật tại ↑: t=1 D=0→Q=0, t=2 D=1→Q=1, t=3 D=1→Q=1, t=4 D=0→Q=0
-\`\`\`
+<svg viewBox="0 0 600 250" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giản đồ D flip-flop: CLK 4 cạnh lên tại t = 1, 2, 3, 4; D đổi 0→1 tại t=1, 1→0 tại t=3, 0→1 tại t=3.5; Q chỉ cập nhật tại cạnh lên">
+  <defs></defs>
+  <text x="60.0" y="62.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">CLK</text>
+  <line x1="70.0" y1="74.0" x2="570.0" y2="74.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,70.0 L 156.5,70.0 L 156.5,46.0 L 195.0,46.0 L 195.0,70.0 L 252.7,70.0 L 252.7,46.0 L 291.2,46.0 L 291.2,70.0 L 348.8,70.0 L 348.8,46.0 L 387.3,46.0 L 387.3,70.0 L 445.0,70.0 L 445.0,46.0 L 483.5,46.0 L 483.5,70.0 L 570.0,70.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="60.0" y="116.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D</text>
+  <line x1="70.0" y1="128.0" x2="570.0" y2="128.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,124.0 L 171.0,124.0 L 171.0,100.0 L 358.5,100.0 L 358.5,124.0 L 406.5,124.0 L 406.5,100.0 L 512.3,100.0 L 512.3,124.0 L 570.0,124.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="60.0" y="170.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">Q</text>
+  <line x1="70.0" y1="182.0" x2="570.0" y2="182.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,178.0 L 252.7,178.0 L 252.7,154.0 L 445.0,154.0 L 445.0,178.0 L 570.0,178.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="156.5" y1="44.0" x2="156.5" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="156.5" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">t=1</text>
+  <line x1="252.7" y1="44.0" x2="252.7" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="252.7" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">t=2</text>
+  <line x1="348.8" y1="44.0" x2="348.8" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="348.8" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">t=3</text>
+  <line x1="445.0" y1="44.0" x2="445.0" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="445.0" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">t=4</text>
+  <text x="300.0" y="242.0" fill="#475569" font-size="11" text-anchor="middle">t=1 lấy D=0 → Q=0 · t=2 D=1 → Q=1 · t=3 D=1 (vừa đổi 0, xét đúng cạnh) → Q=1 · t=4 D=0 → Q=0</text>
+</svg>
 
 **Walk-through cụ thể** (Q ban đầu = 0, clock có 4 cạnh lên):
 
@@ -343,10 +382,16 @@ $$Q^+ = T \\oplus Q$$
 
 Cách dùng đơn giản nhất: **cố định T=1**. Khi đó, mỗi cạnh clock, Q đảo.
 
-\`\`\`
-CLK: _|‾|_|‾|_|‾|_|‾|_|‾|_|‾|_|‾|_|‾|_   (8 cạnh lên)
-Q:   __|‾‾‾‾|______|‾‾‾‾|______|‾‾‾‾|____   (4 chu kỳ → ½ tần số)
-\`\`\`
+<svg viewBox="0 0 600 196" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chia tần: CLK 8 cạnh lên, Q đảo mỗi cạnh lên nên chỉ hoàn thành 4 chu kỳ — tần số bằng nửa">
+  <defs></defs>
+  <text x="60.0" y="62.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">CLK</text>
+  <line x1="70.0" y1="74.0" x2="570.0" y2="74.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,70.0 L 100.5,70.0 L 100.5,46.0 L 131.0,46.0 L 131.0,70.0 L 161.5,70.0 L 161.5,46.0 L 192.0,46.0 L 192.0,70.0 L 222.4,70.0 L 222.4,46.0 L 252.9,46.0 L 252.9,70.0 L 283.4,70.0 L 283.4,46.0 L 313.9,46.0 L 313.9,70.0 L 344.4,70.0 L 344.4,46.0 L 374.9,46.0 L 374.9,70.0 L 405.4,70.0 L 405.4,46.0 L 435.9,46.0 L 435.9,70.0 L 466.3,70.0 L 466.3,46.0 L 496.8,46.0 L 496.8,70.0 L 527.3,70.0 L 527.3,46.0 L 557.8,46.0 L 557.8,70.0 L 570.0,70.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="60.0" y="116.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">Q</text>
+  <line x1="70.0" y1="128.0" x2="570.0" y2="128.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,124.0 L 100.5,124.0 L 100.5,100.0 L 161.5,100.0 L 161.5,124.0 L 222.4,124.0 L 222.4,100.0 L 283.4,100.0 L 283.4,124.0 L 344.4,124.0 L 344.4,100.0 L 405.4,100.0 L 405.4,124.0 L 466.3,124.0 L 466.3,100.0 L 527.3,100.0 L 527.3,124.0 L 570.0,124.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="300.0" y="188.0" fill="#475569" font-size="11" text-anchor="middle">T-FF (toggle): Q lật ở mỗi cạnh lên → f_Q = f_CLK / 2</text>
+</svg>
 
 **Ứng dụng chia tần**: Với T=1 cố định, ngõ ra Q có tần số **bằng một nửa** tần số clock:
 
@@ -406,12 +451,23 @@ Flip-flop kích cạnh không lấy mẫu D vào đúng tại cạnh clock một
 
 Ràng buộc timing tổng quát: D không được thay đổi trong cửa sổ $[t_{\\text{clk}} - t_{\\text{su}},\\; t_{\\text{clk}} + t_h]$.
 
-\`\`\`
-         t_su     t_h
-          ←──┐  ┌──→
-CLK: ________|‾‾‾‾‾‾‾‾|______
-D:   ════════|════════|═════   ← D phải không đổi trong vùng gạch đôi
-\`\`\`
+<svg viewBox="0 0 560 196" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Setup và hold: D phải giữ ổn định trong khoảng t_su trước cạnh lên CLK và t_h sau cạnh lên">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <text x="60.0" y="62.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">CLK</text>
+  <line x1="70.0" y1="74.0" x2="530.0" y2="74.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,70.0 L 272.4,70.0 L 272.4,46.0 L 438.0,46.0 L 438.0,70.0 L 530.0,70.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="60.0" y="116.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D</text>
+  <line x1="70.0" y1="128.0" x2="530.0" y2="128.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,124.0 L 143.6,124.0 L 143.6,100.0 L 401.2,100.0 L 401.2,124.0 L 530.0,124.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="217.2" y="100.0" width="92.0" height="24.0" rx="0" fill="#dc2626" fill-opacity="0.18" stroke="none" stroke-width="0"/>
+  <line x1="217.2" y1="96.0" x2="217.2" y2="148.0" stroke="#dc2626" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="309.2" y1="96.0" x2="309.2" y2="148.0" stroke="#dc2626" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="217.2" y1="156.0" x2="272.4" y2="156.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="309.2" y1="156.0" x2="272.4" y2="156.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="244.8" y="172.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">t_su</text>
+  <text x="290.8" y="172.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">t_h</text>
+  <text x="280.0" y="188.0" fill="#475569" font-size="11" text-anchor="middle">vùng đỏ quanh cạnh lên tại t=2.2: D không được đổi (nếu đổi → metastable)</text>
+</svg>
 
 **Giá trị điển hình** cho CMOS hiện đại: $t_{\\text{su}} \\sim 0.1$–1 ns, $t_h \\sim 0.05$–0.5 ns. Nhỏ nhưng không thể bỏ qua khi thiết kế mạch tốc độ cao.
 
@@ -497,14 +553,31 @@ Khi $\\overline{S}=\\overline{R}$=0 đang hoạt động:
 
 Q ban đầu = 0. D tại các cạnh: 1, 1, 0, 1, 0, 0.
 
-\`\`\`
-CLK: _|‾|_|‾|_|‾|_|‾|_|‾|_|‾|_
-      ↑   ↑   ↑   ↑   ↑   ↑
-
-D:   _|‾‾‾‾‾‾‾‾‾|___|‾‾‾|_______
-
-Q:   ___|‾‾‾‾‾‾‾|___|‾‾‾|_______
-\`\`\`
+<svg viewBox="0 0 600 250" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bài tập D flip-flop: CLK 6 cạnh lên; D lên 1 ngay sau cạnh 1, xuống 0 sau cạnh 3, lên 1 sau cạnh 4, xuống sau cạnh 5; Q theo D với độ trễ 1 cạnh">
+  <defs></defs>
+  <text x="60.0" y="62.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">CLK</text>
+  <line x1="70.0" y1="74.0" x2="570.0" y2="74.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,70.0 L 110.3,70.0 L 110.3,46.0 L 150.6,46.0 L 150.6,70.0 L 191.0,70.0 L 191.0,46.0 L 231.3,46.0 L 231.3,70.0 L 271.6,70.0 L 271.6,46.0 L 311.9,46.0 L 311.9,70.0 L 352.3,70.0 L 352.3,46.0 L 392.6,46.0 L 392.6,70.0 L 432.9,70.0 L 432.9,46.0 L 473.2,46.0 L 473.2,70.0 L 513.5,70.0 L 513.5,46.0 L 553.9,46.0 L 553.9,70.0 L 570.0,70.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="60.0" y="116.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">D</text>
+  <line x1="70.0" y1="128.0" x2="570.0" y2="128.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,124.0 L 118.4,124.0 L 118.4,100.0 L 344.2,100.0 L 344.2,124.0 L 368.4,124.0 L 368.4,100.0 L 449.0,100.0 L 449.0,124.0 L 570.0,124.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="60.0" y="170.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">Q</text>
+  <line x1="70.0" y1="182.0" x2="570.0" y2="182.0" stroke="#e2e8f0" stroke-width="1"/>
+  <path d="M 70.0,178.0 L 191.0,178.0 L 191.0,154.0 L 352.3,154.0 L 352.3,178.0 L 432.9,178.0 L 432.9,154.0 L 513.5,154.0 L 513.5,178.0 L 570.0,178.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="110.3" y1="44.0" x2="110.3" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="110.3" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑</text>
+  <line x1="191.0" y1="44.0" x2="191.0" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="191.0" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑</text>
+  <line x1="271.6" y1="44.0" x2="271.6" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="271.6" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑</text>
+  <line x1="352.3" y1="44.0" x2="352.3" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="352.3" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑</text>
+  <line x1="432.9" y1="44.0" x2="432.9" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="432.9" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑</text>
+  <line x1="513.5" y1="44.0" x2="513.5" y2="202.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="513.5" y="216.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑</text>
+  <text x="300.0" y="242.0" fill="#475569" font-size="11" text-anchor="middle">Q(t) = D ngay trước mỗi cạnh lên (t = 0.5, 1.5, …)</text>
+</svg>
 
 | Cạnh | D | Q mới |
 |------|---|-------|

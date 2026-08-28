@@ -402,13 +402,45 @@ void loop() {
 ⚠ **Không nối motor trực tiếp vào chân PWM** — motor DC nhỏ cần 100–500 mA, vượt xa giới hạn 40 mA của GPIO. Cần MOSFET (ví dụ: IRLZ44N) làm công tắc khuếch đại dòng. Xem [Lesson 06 — MOSFET](../../02-Semiconductors/lesson-06-mosfet/).
 
 **Sơ đồ nguyên lý**:
-\`\`\`
-MCU Pin 9 (PWM) ──[R_gate = 100 Ω]── Gate MOSFET
-                                       Source ── GND
-                                       Drain  ── Motor (−)
-Motor (+) ── VCC_motor (6 V / 12 V...)
-GND_motor ── GND chung với MCU
-\`\`\`
+<svg viewBox="0 0 600 235" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="MCU chân 9 PWM qua R_gate 100 Ω vào gate MOSFET; source GND; drain nối motor (−), motor (+) nối VCC_motor; GND chung">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="124.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">MCU Pin 9 (PWM)</text>
+  <line x1="46.0" y1="120.0" x2="78.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="78.0" y="113.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="100.0" y="108.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R_gate</text>
+  <text x="100.0" y="144.0" fill="#475569" font-size="10" text-anchor="middle">100 Ω</text>
+  <line x1="122.0" y1="120.0" x2="158.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="158.0" y1="120.0" x2="178.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="178.0" y1="106.0" x2="178.0" y2="134.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="184.0" y1="104.0" x2="184.0" y2="136.0" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="184.0" y1="110.0" x2="200.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="110.0" x2="200.0" y2="86.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="184.0" y1="130.0" x2="200.0" y2="130.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="130.0" x2="200.0" y2="154.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="184.0" y1="120.0" x2="200.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="120.0" x2="200.0" y2="130.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="199.0" y1="120.0" x2="186.0" y2="120.0" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#npnm)"/>
+  <circle cx="190" cy="120" r="24" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <text x="174.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">G</text>
+  <text x="206.0" y="92.0" fill="#475569" font-size="10" text-anchor="start">D</text>
+  <text x="206.0" y="152.0" fill="#475569" font-size="10" text-anchor="start">S</text>
+  <text x="218.0" y="124.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">NMOS</text>
+  <line x1="200.0" y1="154.0" x2="200.0" y2="176.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="200.0" y1="176.0" x2="200.0" y2="186.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="186.0" y1="186.0" x2="214.0" y2="186.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="191.0" y1="191.0" x2="209.0" y2="191.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="196.0" y1="196.0" x2="204.0" y2="196.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="210.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="200.0" y1="86.0" x2="200.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="170.0" y="20.0" width="60.0" height="40.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="200.0" y="37.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Motor</text>
+  <text x="200.0" y="50.5" fill="#475569" font-size="9" text-anchor="middle">(−) dưới, (+) trên</text>
+  <line x1="200.0" y1="20.0" x2="200.0" y2="0.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="200.0" y="-8.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">VCC_motor (6–12 V)</text>
+  <text x="400.0" y="80.0" fill="#475569" font-size="10" text-anchor="start">GND_motor nối chung GND MCU</text>
+  <text x="400.0" y="96.0" fill="#475569" font-size="10" text-anchor="start">PWM duty ↑ → thời gian ON ↑ → tốc độ ↑</text>
+  <text x="400.0" y="120.0" fill="#dc2626" font-size="10" text-anchor="start">nếu motor có cuộn: thêm diode flyback</text>
+</svg>
 
 🔁 **Tự kiểm tra**: \`analogWrite(9, 191)\` cho duty cycle bao nhiêu %? $V_{\\text{avg}}$ bao nhiêu V (5 V supply)?
 

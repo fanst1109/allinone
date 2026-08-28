@@ -319,23 +319,29 @@ Nhân viên WFH         Internet                   Mạng công ty
 
 **DMZ (Demilitarized Zone)** là vùng mạng đặt giữa mạng nội bộ (internal) và internet, chứa các server cần tiếp nhận kết nối từ internet (web server, mail server, DNS server công khai).
 
-```
-Internet
-    |
-[Firewall ngoài]
-    |
-   DMZ (10.0.1.0/24)
-   ├── Web Server (10.0.1.10)
-   ├── Mail Server (10.0.1.20)
-   └── DNS Server (10.0.1.30)
-    |
-[Firewall trong]
-    |
- Internal (10.0.2.0/24)
- ├── DB Server (10.0.2.10)
- ├── App Server (10.0.2.20)
- └── Workstations (10.0.2.100-200)
-```
+<svg viewBox="0 0 560 376" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc DMZ: Internet → Firewall ngoài → DMZ (web, mail, DNS) → Firewall trong → mạng Internal (DB, app, workstation)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="210.0" y="14.0" width="140.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="280.0" y="34.2" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Internet</text>
+  <line x1="280.0" y1="48.0" x2="280.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="170.0" y="64.0" width="220.0" height="30.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="84.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Firewall ngoài</text>
+  <line x1="280.0" y1="96.0" x2="280.0" y2="112.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="30.0" y="112.0" width="500.0" height="92.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="40.0" y="130.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">DMZ (10.0.1.0/24)</text>
+  <text x="52.0" y="148.0" fill="#475569" font-size="10" text-anchor="start">• Web Server (10.0.1.10)</text>
+  <text x="52.0" y="166.0" fill="#475569" font-size="10" text-anchor="start">• Mail Server (10.0.1.20)</text>
+  <text x="52.0" y="184.0" fill="#475569" font-size="10" text-anchor="start">• DNS Server (10.0.1.30)</text>
+  <line x1="280.0" y1="206.0" x2="280.0" y2="222.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="170.0" y="222.0" width="220.0" height="30.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="242.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Firewall trong</text>
+  <line x1="280.0" y1="254.0" x2="280.0" y2="270.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="30.0" y="270.0" width="500.0" height="92.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="40.0" y="288.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Internal (10.0.2.0/24)</text>
+  <text x="52.0" y="306.0" fill="#475569" font-size="10" text-anchor="start">• DB Server (10.0.2.10)</text>
+  <text x="52.0" y="324.0" fill="#475569" font-size="10" text-anchor="start">• App Server (10.0.2.20)</text>
+  <text x="52.0" y="342.0" fill="#475569" font-size="10" text-anchor="start">• Workstations (10.0.2.100-200)</text>
+</svg>
 
 **Ruleset điển hình**:
 ```
@@ -559,26 +565,34 @@ Mục tiêu thực tế: giảm xuống còn 50-200 alert/ngày có chất lư�
 
 **Bài 6 — Thiết kế phân vùng e-commerce**:
 
-```
-Internet
-    |
-[External Firewall]
-    |
-   DMZ (10.1.1.0/24)
-   ├── Web Server     10.1.1.10   — nhận HTTP/HTTPS từ internet
-   └── Mail Server    10.1.1.20   — nhận/gửi email
-    |
-[Internal Firewall]
-    |
-   App Zone (10.1.2.0/24)
-   └── App Server     10.1.2.10   — xử lý đơn hàng, logic nghiệp vụ
-    |
-   Data Zone (10.1.3.0/24)        ← tách riêng, hạn chế truy cập tối đa
-   └── DB Server      10.1.3.10   — khách hàng + thẻ tín dụng
-    |
-   Office Zone (10.1.4.0/24)
-   └── Workstations 10.1.4.x      — nhân viên
-```
+<svg viewBox="0 0 600 470" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân vùng mạng: Internet → External Firewall → DMZ → Internal Firewall → App Zone, Data Zone (DB tách riêng), Office Zone">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="230.0" y="14.0" width="140.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="300.0" y="34.2" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Internet</text>
+  <line x1="300.0" y1="48.0" x2="300.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="190.0" y="64.0" width="220.0" height="30.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="84.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">External Firewall</text>
+  <line x1="300.0" y1="96.0" x2="300.0" y2="112.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="30.0" y="112.0" width="540.0" height="74.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="40.0" y="130.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">DMZ (10.1.1.0/24)</text>
+  <text x="52.0" y="148.0" fill="#475569" font-size="10" text-anchor="start">• Web Server 10.1.1.10 — nhận HTTP/HTTPS từ internet</text>
+  <text x="52.0" y="166.0" fill="#475569" font-size="10" text-anchor="start">• Mail Server 10.1.1.20 — nhận/gửi email</text>
+  <line x1="300.0" y1="188.0" x2="300.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="190.0" y="204.0" width="220.0" height="30.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="224.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Internal Firewall</text>
+  <line x1="300.0" y1="236.0" x2="300.0" y2="252.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="30.0" y="252.0" width="540.0" height="56.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="40.0" y="270.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">App Zone (10.1.2.0/24)</text>
+  <text x="52.0" y="288.0" fill="#475569" font-size="10" text-anchor="start">• App Server 10.1.2.10 — xử lý đơn hàng, logic nghiệp vụ</text>
+  <line x1="300.0" y1="310.0" x2="300.0" y2="326.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="30.0" y="326.0" width="540.0" height="56.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="40.0" y="344.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">Data Zone (10.1.3.0/24) — tách riêng, hạn chế truy cập tối đa</text>
+  <text x="52.0" y="362.0" fill="#475569" font-size="10" text-anchor="start">• DB Server 10.1.3.10 — khách hàng + thẻ tín dụng</text>
+  <line x1="300.0" y1="384.0" x2="300.0" y2="400.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="30.0" y="400.0" width="540.0" height="56.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="40.0" y="418.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Office Zone (10.1.4.0/24)</text>
+  <text x="52.0" y="436.0" fill="#475569" font-size="10" text-anchor="start">• Workstations 10.1.4.x — nhân viên</text>
+</svg>
 
 Rule firewall chính:
 ```

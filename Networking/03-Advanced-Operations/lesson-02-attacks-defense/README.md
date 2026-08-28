@@ -79,11 +79,24 @@ Sau bài này bạn sẽ:
 **Cơ chế** (kết nối với bài [TCP Lesson 08 Tier 1](../../01-Foundations-LowerLayers/lesson-08-tcp/)):
 
 Bắt tay TCP 3 bước bình thường:
-```
-Client   ──SYN──>    Server   (Server: cấp phát entry half-open, lưu SEQ_client)
-Client   <─SYN-ACK─  Server   (Server: chờ ACK cuối)
-Client   ──ACK──>    Server   (Server: chuyển sang ESTABLISHED, xóa entry half-open)
-```
+<svg viewBox="0 0 520 260" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bắt tay 3 bước và bảng half-open: server cấp entry khi nhận SYN, chờ ACK cuối, xóa khi ESTABLISHED — SYN flood lợi dụng bước chờ này">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="380.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="440.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="440.0" y1="44.0" x2="440.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="436.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SYN</text>
+  <text x="430.0" y="100.0" fill="#475569" font-size="10" text-anchor="end">cấp phát entry half-open, lưu SEQ_client</text>
+  <line x1="437.0" y1="130.0" x2="84.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="124.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SYN-ACK</text>
+  <text x="430.0" y="160.0" fill="#475569" font-size="10" text-anchor="end">chờ ACK cuối</text>
+  <line x1="83.0" y1="190.0" x2="436.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ACK</text>
+  <text x="430.0" y="220.0" fill="#475569" font-size="10" text-anchor="end">ESTABLISHED, xóa entry half-open</text>
+</svg>
 
 Server duy trì **SYN backlog**: hàng đợi các kết nối ở trạng thái **SYN_RCVD** (half-open — nhận SYN nhưng chưa nhận ACK). Kích thước mặc định: 128–1024 entry tùy kernel.
 

@@ -220,16 +220,24 @@ Sau khi biết đường đi, máy bạn thiết lập **kết nối TCP** đế
 
 ### 4.1. Diễn biến 3-way handshake
 
-\`\`\`
-Client                              Server (93.184.216.34:443)
-  │                                      │
-  │─── SYN (SEQ=x) ────────────────────→│  x = số random, ví dụ 3215782400
-  │                                      │  Server nhớ x
-  │←── SYN-ACK (SEQ=y, ACK=x+1) ────────│  y = số random phía server, ví dụ 872341500
-  │                                      │
-  │─── ACK (SEQ=x+1, ACK=y+1) ────────→│
-  │                                      │  Kết nối được thiết lập!
-\`\`\`
+<svg viewBox="0 0 560 260" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bắt tay TCP 3 bước với số thứ tự: SYN SEQ=x, SYN-ACK SEQ=y ACK=x+1, ACK SEQ=x+1 ACK=y+1">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server :443</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SYN (SEQ=x)</text>
+  <text x="470.0" y="100.0" fill="#475569" font-size="10" text-anchor="end">x random, vd 3215782400 — server nhớ x</text>
+  <line x1="477.0" y1="130.0" x2="84.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="124.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SYN-ACK (SEQ=y, ACK=x+1)</text>
+  <text x="470.0" y="160.0" fill="#475569" font-size="10" text-anchor="end">y random phía server, vd 872341500</text>
+  <line x1="83.0" y1="190.0" x2="476.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ACK (SEQ=x+1, ACK=y+1)</text>
+  <text x="470.0" y="220.0" fill="#475569" font-size="10" text-anchor="end">kết nối được thiết lập!</text>
+</svg>
 
 Với ví dụ số cụ thể:
 - Client gửi SYN: SEQ = 3215782400 (ISN — Initial Sequence Number, chọn ngẫu nhiên để bảo mật).
@@ -261,22 +269,24 @@ Sau TCP handshake, kết nối là **plaintext** — bất kỳ router nào trê
 
 ### 5.1. TLS 1.3 Handshake (rút gọn)
 
-\`\`\`
-Client                                Server
-  │                                      │
-  │─── ClientHello ─────────────────────→│
-  │    (TLS version, cipher suites,      │
-  │     client random, KeyShare)         │
-  │                                      │
-  │←── ServerHello + Certificate ────────│
-  │    + CertificateVerify + Finished    │
-  │    (server random, KeyShare,         │
-  │     cert chain, chữ ký số)          │
-  │                                      │
-  │─── Finished ────────────────────────→│
-  │                                      │
-  │←→ [Dữ liệu mã hóa] ─────────────────│
-\`\`\`
+<svg viewBox="0 0 600 260" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="TLS 1.3 handshake trong project: ClientHello, ServerHello+Certificate+CertificateVerify+Finished, Finished, rồi dữ liệu mã hóa">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="460.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="520.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="520.0" y1="44.0" x2="520.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="516.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="300.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ClientHello</text>
+  <text x="90.0" y="100.0" fill="#475569" font-size="10" text-anchor="start">TLS version, cipher suites, client random, KeyShare</text>
+  <line x1="517.0" y1="130.0" x2="84.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="300.0" y="124.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ServerHello + Certificate + CertificateVerify + Finished</text>
+  <text x="510.0" y="160.0" fill="#475569" font-size="10" text-anchor="end">server random, KeyShare, cert chain, chữ ký số</text>
+  <line x1="83.0" y1="190.0" x2="516.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="300.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Finished</text>
+  <text x="90.0" y="220.0" fill="#475569" font-size="10" text-anchor="start">[Dữ liệu mã hóa] hai chiều</text>
+</svg>
 
 TLS 1.3 chỉ cần **1 RTT** (thay vì 2 RTT của TLS 1.2). Nếu phiên đã biết (session resumption), có thể dùng **0-RTT** (gửi dữ liệu ngay trong ClientHello).
 
@@ -369,19 +379,38 @@ Response quay về theo đường ngược lại qua CDN → NAT gateway → LAN
 
 Ở mỗi hop, gói tin được **bóc và đóng lại** (decapsulate rồi re-encapsulate) ở tầng Data Link:
 
-\`\`\`
-Máy bạn gửi đi:
-┌─────────────────────────────────────────────────────────┐
-│ Ethernet Header (dst=gateway MAC) │ IP │ TCP │ TLS │ HTTP│
-└─────────────────────────────────────────────────────────┘
-                     ↓ Router 1 nhận, bóc Ethernet, thấy IP
-                     ↓ Tra bảng định tuyến, forward ra interface mới
-                     ↓ Đóng Ethernet mới với MAC của router tiếp theo
-┌─────────────────────────────────────────────────────────┐
-│ Ethernet Header (dst=router2 MAC)  │ IP │ TCP │ TLS │ HTTP│
-└─────────────────────────────────────────────────────────┘
-                     ↓ (tiếp tục cho đến destination)
-\`\`\`
+<svg viewBox="0 0 640 210" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Qua mỗi router chỉ lớp Ethernet bị bóc và đóng lại với MAC mới; IP, TCP, TLS, HTTP giữ nguyên">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="22.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Máy bạn gửi đi:</text>
+  <rect x="40.0" y="30.0" width="210.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="145.0" y="54.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Ethernet (dst = gateway MAC)</text>
+  <rect x="250.0" y="30.0" width="60.0" height="36.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="280.0" y="54.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">IP</text>
+  <rect x="310.0" y="30.0" width="60.0" height="36.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="340.0" y="54.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">TCP</text>
+  <rect x="370.0" y="30.0" width="60.0" height="36.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="400.0" y="54.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">TLS</text>
+  <rect x="430.0" y="30.0" width="70.0" height="36.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="465.0" y="54.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">HTTP</text>
+  <line x1="150.0" y1="68.0" x2="150.0" y2="84.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="162.0" y="80.0" fill="#475569" font-size="10" text-anchor="start">Router 1 nhận, bóc Ethernet, thấy IP</text>
+  <line x1="150.0" y1="90.0" x2="150.0" y2="106.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="162.0" y="102.0" fill="#475569" font-size="10" text-anchor="start">tra bảng định tuyến, forward ra interface mới</text>
+  <line x1="150.0" y1="112.0" x2="150.0" y2="128.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="162.0" y="124.0" fill="#475569" font-size="10" text-anchor="start">đóng Ethernet mới với MAC của router tiếp theo</text>
+  <rect x="40.0" y="140.0" width="210.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="145.0" y="164.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Ethernet (dst = router2 MAC)</text>
+  <rect x="250.0" y="140.0" width="60.0" height="36.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="280.0" y="164.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">IP</text>
+  <rect x="310.0" y="140.0" width="60.0" height="36.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="340.0" y="164.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">TCP</text>
+  <rect x="370.0" y="140.0" width="60.0" height="36.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="400.0" y="164.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">TLS</text>
+  <rect x="430.0" y="140.0" width="70.0" height="36.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="465.0" y="164.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">HTTP</text>
+  <line x1="150.0" y1="178.0" x2="150.0" y2="196.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="162.0" y="192.0" fill="#475569" font-size="10" text-anchor="start">tiếp tục cho đến destination — IP/TCP/TLS/HTTP giữ nguyên, chỉ Ethernet đổi</text>
+</svg>
 
 Quy tắc quan trọng:
 - **IP header (L3)**: nguồn/đích không đổi suốt hành trình (trừ NAT).
@@ -424,15 +453,35 @@ So sánh với server không có CDN (ở Mỹ, RTT ~280 ms):
 
 ### 8.2. Đường đi gói tin đầy đủ
 
-\`\`\`
-[Máy bạn] ──LAN Ethernet──→ [Router nhà / NAT]
-         ──DSL/Fiber──→ [Router ISP]
-         ──Cáp quang biển──→ [Router ISP Singapore]
-         ──Backbone──→ [CDN Edge Singapore]
-         ──CDN internal──→ [Load Balancer]
-         ──→ [App Server]
-         ←── (đường về ngược lại)
-\`\`\`
+<svg viewBox="0 0 460 516" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường đi gói tin: máy bạn → Router nhà/NAT → Router ISP → Router ISP Singapore → CDN Edge Singapore → Load Balancer → App Server, đường về ngược lại">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="120.0" y="14.0" width="220.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Máy bạn</text>
+  <line x1="230.0" y1="60.0" x2="230.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="238.0" y="77.0" fill="#475569" font-size="10" text-anchor="start">LAN Ethernet</text>
+  <rect x="120.0" y="88.0" width="220.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="114.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Router nhà / NAT</text>
+  <line x1="230.0" y1="134.0" x2="230.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="238.0" y="151.0" fill="#475569" font-size="10" text-anchor="start">DSL/Fiber</text>
+  <rect x="120.0" y="162.0" width="220.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="188.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Router ISP</text>
+  <line x1="230.0" y1="208.0" x2="230.0" y2="234.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="238.0" y="225.0" fill="#475569" font-size="10" text-anchor="start">Cáp quang biển</text>
+  <rect x="120.0" y="236.0" width="220.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="262.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Router ISP Singapore</text>
+  <line x1="230.0" y1="282.0" x2="230.0" y2="308.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="238.0" y="299.0" fill="#475569" font-size="10" text-anchor="start">Backbone</text>
+  <rect x="120.0" y="310.0" width="220.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="230.0" y="336.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">CDN Edge Singapore</text>
+  <line x1="230.0" y1="356.0" x2="230.0" y2="382.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="238.0" y="373.0" fill="#475569" font-size="10" text-anchor="start">CDN internal</text>
+  <rect x="120.0" y="384.0" width="220.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="230.0" y="410.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Load Balancer</text>
+  <line x1="230.0" y1="430.0" x2="230.0" y2="456.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="120.0" y="458.0" width="220.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="230.0" y="484.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">App Server</text>
+  <text x="230.0" y="999.0" fill="#475569" font-size="1" text-anchor="start"></text>
+</svg>
 
 ---
 

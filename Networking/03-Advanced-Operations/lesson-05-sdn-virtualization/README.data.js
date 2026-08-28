@@ -74,28 +74,24 @@ Khi mạng chỉ có 10–20 router: quản lý thủ công còn được. Nhưn
 
 **Kiến trúc SDN có 3 tầng**:
 
-\`\`\`
-┌─────────────────────────────────────────────┐
-│  TẦNG ỨNG DỤNG (Application Plane)          │
-│  Ứng dụng mạng: load balancer, firewall,    │
-│  traffic engineering, monitoring...          │
-└─────────────────────┬───────────────────────┘
-                      │ Northbound API (REST/gRPC)
-┌─────────────────────▼───────────────────────┐
-│  TẦNG ĐIỀU KHIỂN (Control Plane)            │
-│  SDN Controller (OpenDaylight, ONOS, NOX)   │
-│  - Biết toàn bộ topology mạng               │
-│  - Quyết định flow rule cho từng switch     │
-│  - Duy nhất một (hoặc cluster) controller   │
-└─────────────────────┬───────────────────────┘
-                      │ Southbound API (OpenFlow, NETCONF)
-┌─────────────────────▼───────────────────────┐
-│  TẦNG CHUYỂN TIẾP (Data Plane)              │
-│  Switch "ngu" (dumb switch): chỉ tra bảng   │
-│  flow table và chuyển gói theo lệnh         │
-│  Không cần CPU mạnh, không chạy OSPF/BGP   │
-└─────────────────────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 600 310" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba tầng SDN: Application Plane nói với Control Plane qua Northbound API (REST/gRPC), Control Plane điều khiển Data Plane qua Southbound API (OpenFlow, NETCONF)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="40.0" y="14.0" width="520.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="39.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">TẦNG ỨNG DỤNG (Application Plane)</text>
+  <text x="300.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">ứng dụng mạng: load balancer, firewall, traffic engineering, monitoring…</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="308.0" y="96.0" fill="#475569" font-size="10" text-anchor="start">Northbound API (REST/gRPC)</text>
+  <rect x="40.0" y="112.0" width="520.0" height="72.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="136.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">TẦNG ĐIỀU KHIỂN (Control Plane)</text>
+  <text x="300.0" y="152.2" fill="#475569" font-size="11" text-anchor="middle">SDN Controller (OpenDaylight, ONOS, NOX): biết toàn bộ topology,</text>
+  <text x="300.0" y="168.2" fill="#475569" font-size="11" text-anchor="middle">quyết định flow rule cho từng switch, một (hoặc cluster) controller</text>
+  <line x1="300.0" y1="186.0" x2="300.0" y2="222.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="308.0" y="208.0" fill="#475569" font-size="10" text-anchor="start">Southbound API (OpenFlow, NETCONF)</text>
+  <rect x="40.0" y="224.0" width="520.0" height="72.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="248.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">TẦNG CHUYỂN TIẾP (Data Plane)</text>
+  <text x="300.0" y="264.2" fill="#475569" font-size="11" text-anchor="middle">switch "ngu": chỉ tra flow table và chuyển gói theo lệnh,</text>
+  <text x="300.0" y="280.2" fill="#475569" font-size="11" text-anchor="middle">không cần CPU mạnh, không chạy OSPF/BGP</text>
+</svg>
 
 ### 2.2. OpenFlow — giao thức nói chuyện controller–switch
 
@@ -182,11 +178,31 @@ Rule 3: match(*)                             → action: send_to_controller [pri
 \`\`\`
 
 **Frame Ethernet với tag 802.1Q**:
-\`\`\`
-[ Dst MAC 6B ][ Src MAC 6B ][ 0x8100 2B ][ TCI 2B ][ EtherType 2B ][ Payload ][ FCS 4B ]
-                             └──────────────────────┘
-                                  VLAN Tag (4 byte)
-\`\`\`
+<svg viewBox="0 0 512 120" style="max-width:512px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Khung Ethernet có VLAN tag: sau Src MAC chèn 4 byte gồm TPID 0x8100 và TCI, rồi EtherType, Payload, FCS">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="70.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="51.0" y="47.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Dst MAC</text>
+  <text x="51.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">6B</text>
+  <rect x="86.0" y="30.0" width="70.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="121.0" y="47.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Src MAC</text>
+  <text x="121.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">6B</text>
+  <rect x="156.0" y="30.0" width="60.0" height="44.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="186.0" y="47.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">0x8100</text>
+  <text x="186.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">2B</text>
+  <rect x="216.0" y="30.0" width="50.0" height="44.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="241.0" y="47.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">TCI</text>
+  <text x="241.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">2B</text>
+  <rect x="266.0" y="30.0" width="70.0" height="44.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="301.0" y="47.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">EtherType</text>
+  <text x="301.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">2B</text>
+  <rect x="336.0" y="30.0" width="110.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="391.0" y="54.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Payload</text>
+  <rect x="446.0" y="30.0" width="50.0" height="44.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="471.0" y="47.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">FCS</text>
+  <text x="471.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">4B</text>
+  <path d="M 156,86 L 156,94 L 266,94 L 266,86" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="211.0" y="108.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">VLAN Tag 802.1Q (4 byte)</text>
+</svg>
 
 Trường **TCI (Tag Control Information)** 2 byte bao gồm:
 - **PCP (3 bit)**: Priority Code Point — ưu tiên 0–7 (dùng cho QoS, liên kết với [Lesson 04 — QoS](../lesson-04-qos/)).
@@ -295,14 +311,26 @@ Giải pháp: **mạng overlay** — xây một mạng ảo "bên trên" mạng 
 
 **Cấu trúc gói VXLAN**:
 
-\`\`\`
-[ Outer Ethernet Header ]  ← header của mạng vật lý (underlay)
-[ Outer IP Header       ]  ← src/dst IP của 2 VTEP (máy vật lý)
-[ UDP Header            ]  ← dst port 4789 (cổng VXLAN chuẩn)
-[ VXLAN Header (8 byte) ]  ← chứa VNI (VXLAN Network Identifier)
-[ Inner Ethernet Frame  ]  ← frame gốc của khách hàng (overlay)
-[ Inner IP/Payload      ]
-\`\`\`
+<svg viewBox="0 0 600 270" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đóng gói VXLAN: Outer Ethernet, Outer IP (VTEP), UDP port 4789, VXLAN header 8 byte chứa VNI, rồi Inner Ethernet frame và Inner IP/Payload của khách">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="230.0" height="34.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="135.0" y="37.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Outer Ethernet Header</text>
+  <text x="260.0" y="37.0" fill="#475569" font-size="10" text-anchor="start">header của mạng vật lý (underlay)</text>
+  <rect x="20.0" y="56.0" width="230.0" height="34.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="135.0" y="77.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Outer IP Header</text>
+  <text x="260.0" y="77.0" fill="#475569" font-size="10" text-anchor="start">src/dst IP của 2 VTEP (máy vật lý)</text>
+  <rect x="20.0" y="96.0" width="230.0" height="34.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="135.0" y="117.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">UDP Header</text>
+  <text x="260.0" y="117.0" fill="#475569" font-size="10" text-anchor="start">dst port 4789 (cổng VXLAN chuẩn)</text>
+  <rect x="20.0" y="136.0" width="230.0" height="34.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="135.0" y="157.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">VXLAN Header (8 byte)</text>
+  <text x="260.0" y="157.0" fill="#475569" font-size="10" text-anchor="start">chứa VNI (VXLAN Network Identifier)</text>
+  <rect x="20.0" y="176.0" width="230.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="135.0" y="197.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Inner Ethernet Frame</text>
+  <text x="260.0" y="197.0" fill="#475569" font-size="10" text-anchor="start">frame gốc của khách hàng (overlay)</text>
+  <rect x="20.0" y="216.0" width="230.0" height="34.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="135.0" y="237.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Inner IP / Payload</text>
+</svg>
 
 **VNI (VXLAN Network Identifier)**: 24 bit → 2^24 = **16.777.216 mạng ảo** (so với 4094 của VLAN). Đủ cho cloud nhiều triệu tenant.
 

@@ -154,12 +154,30 @@ Chuẩn 802.11 chia thành 13 kênh (ở Việt Nam/châu Âu), mỗi kênh rộ
 
 Vì mỗi kênh rộng 22 MHz mà chỉ cách nhau 5 MHz, chỉ có **3 kênh không chồng lấn** nhau: **1, 6, 11**.
 
-```
-  Kênh 1   ████████████████████████            2.401–2.423 GHz
-  Kênh 6            ████████████████████████   2.426–2.448 GHz
-  Kênh 11                     ████████████████████████ 2.451–2.473 GHz
-  Kênh 3    ████████████████████████           2.411–2.433 GHz (chồng lấn kênh 1 và 6!)
-```
+<svg viewBox="0 0 660 204" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phổ Wi-Fi 2.4 GHz: kênh 1, 6, 11 tách rời; kênh 3 (2.411–2.433 GHz) chồng lấn kênh 1 và 6">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="90.0" y1="20.0" x2="90.0" y2="150.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="90.0" y="164.0" fill="#475569" font-size="9" text-anchor="middle">2.40 GHz</text>
+  <line x1="226.0" y1="20.0" x2="226.0" y2="150.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="226.0" y="164.0" fill="#475569" font-size="9" text-anchor="middle">2.42 GHz</text>
+  <line x1="362.0" y1="20.0" x2="362.0" y2="150.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="362.0" y="164.0" fill="#475569" font-size="9" text-anchor="middle">2.44 GHz</text>
+  <line x1="498.0" y1="20.0" x2="498.0" y2="150.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="498.0" y="164.0" fill="#475569" font-size="9" text-anchor="middle">2.46 GHz</text>
+  <text x="82.0" y="41.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">Kênh 1</text>
+  <rect x="96.8" y="26.0" width="149.6" height="22.0" rx="3" fill="#1d4ed8" fill-opacity="0.8" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="171.6" y="41.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">2.401–2.423</text>
+  <text x="82.0" y="71.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">Kênh 6</text>
+  <rect x="266.8" y="56.0" width="149.6" height="22.0" rx="3" fill="#15803d" fill-opacity="0.8" stroke="#15803d" stroke-width="0"/>
+  <text x="341.6" y="71.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">2.426–2.448</text>
+  <text x="82.0" y="101.0" fill="#7c3aed" font-size="11" text-anchor="end" font-weight="700">Kênh 11</text>
+  <rect x="436.8" y="86.0" width="149.6" height="22.0" rx="3" fill="#7c3aed" fill-opacity="0.8" stroke="#7c3aed" stroke-width="0"/>
+  <text x="511.6" y="101.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">2.451–2.473</text>
+  <text x="82.0" y="131.0" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">Kênh 3</text>
+  <rect x="164.8" y="116.0" width="149.6" height="22.0" rx="3" fill="#dc2626" fill-opacity="0.8" stroke="#dc2626" stroke-width="0"/>
+  <text x="239.6" y="131.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">2.411–2.433</text>
+  <text x="345.0" y="190.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Kênh 1, 6, 11 không chồng lấn; kênh 3 chồng lấn cả kênh 1 và 6 → nhiễu</text>
+</svg>
 
 ### 3.2. Tại sao chỉ dùng kênh 1/6/11?
 
@@ -243,12 +261,32 @@ Cơ chế:
 3. **DATA**: A gửi frame dữ liệu.
 4. **ACK**: AP xác nhận nhận được.
 
-```
-Thời gian:
-A:   [RTS]───────────────[DATA]────────────────────
-AP:       [CTS]──────────────────────────[ACK]
-B:             im lặng (NAV timer)
-```
+<svg viewBox="0 0 620 138" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="RTS/CTS: A gửi RTS, AP trả CTS, A truyền DATA, AP gửi ACK; B im lặng trong thời gian NAV">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="80.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="560.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">100 (thời gian →)</text>
+  <line x1="200.0" y1="24.0" x2="200.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="200.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">25</text>
+  <line x1="320.0" y1="24.0" x2="320.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="320.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">50</text>
+  <line x1="440.0" y1="24.0" x2="440.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="440.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">75</text>
+  <line x1="80.0" y1="24.0" x2="80.0" y2="118.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="560.0" y1="24.0" x2="560.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="72.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">A</text>
+  <rect x="80.0" y="32.0" width="57.6" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="108.8" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">RTS</text>
+  <rect x="224.0" y="32.0" width="240.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="344.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">DATA</text>
+  <text x="72.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">AP</text>
+  <rect x="152.0" y="62.0" width="57.6" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="180.8" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">CTS</text>
+  <rect x="483.2" y="62.0" width="57.6" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="512.0" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">ACK</text>
+  <text x="72.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">B</text>
+  <rect x="152.0" y="92.0" width="388.8" height="20.0" rx="3" fill="#94a3b8" fill-opacity="0.85" stroke="#94a3b8" stroke-width="0"/>
+  <text x="346.4" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">im lặng (NAV timer)</text>
+</svg>
 
 **NAV (Network Allocation Vector)**: Khi nghe RTS hoặc CTS, mọi thiết bị đặt bộ đếm NAV = thời gian cần thiết (ghi trong frame). Trong thời gian NAV, thiết bị **không cạnh tranh** kênh — tương tự "đặt cờ bận".
 

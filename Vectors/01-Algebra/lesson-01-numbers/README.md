@@ -374,28 +374,28 @@ $$\mathbb{N} \subset \mathbb{Z} \subset \mathbb{Q} \subset \mathbb{R}$$
 
 Đọc: $\mathbb{N}$ là tập con thực sự của $\mathbb{Z}$, $\mathbb{Z}$ là tập con thực sự của $\mathbb{Q}$, và $\mathbb{Q}$ là tập con thực sự của $\mathbb{R}$. Mỗi mũi tên là một lần mở rộng. Vô tỉ $\mathbb{R} \setminus \mathbb{Q}$ nằm trong $\mathbb{R}$ nhưng không nằm trong $\mathbb{Q}$.
 
-Sơ đồ Venn (vẽ bằng ASCII):
+Sơ đồ Venn các tập số:
 
-```
-   +---------------------------------------------+
-   |  ℝ  (số thực)                               |
-   |                                             |
-   |   +-------------------+    +-------------+  |
-   |   |  ℚ  (hữu tỉ)      |    |  ℝ\ℚ        |  |
-   |   |                   |    |  (vô tỉ)    |  |
-   |   |  +-------------+  |    |             |  |
-   |   |  |  ℤ          |  |    |   √2, π, e  |  |
-   |   |  |             |  |    |             |  |
-   |   |  |  +-------+  |  |    |             |  |
-   |   |  |  |  ℕ    |  |  |    |             |  |
-   |   |  |  | 0,1,2 |  |  |    |             |  |
-   |   |  |  +-------+  |  |    +-------------+  |
-   |   |  |  -1, -2     |  |                     |
-   |   |  +-------------+  |                     |
-   |   |  1/2, -3/4, 0.333.|                     |
-   |   +-------------------+                     |
-   +---------------------------------------------+
-```
+<svg viewBox="0 0 560 325" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ Venn các tập số: ℕ nằm trong ℤ, ℤ trong ℚ, ℚ trong ℝ; phần vô tỉ ℝ\ℚ (√2, π, e) nằm trong ℝ nhưng tách rời ℚ">
+  <defs></defs>
+  <rect x="20.0" y="20.0" width="520.0" height="270.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="36.0" y="44.0" fill="#1a202c" font-size="15" text-anchor="start" font-weight="700">ℝ (số thực)</text>
+  <rect x="40.0" y="60.0" width="290.0" height="215.0" rx="10" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="56.0" y="84.0" fill="#7c3aed" font-size="14" text-anchor="start" font-weight="700">ℚ (hữu tỉ)</text>
+  <text x="60.0" y="258.0" fill="#7c3aed" font-size="12" text-anchor="start">1/2, −3/4, 0.333…</text>
+  <rect x="60.0" y="100.0" width="220.0" height="135.0" rx="10" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="76.0" y="124.0" fill="#1d4ed8" font-size="14" text-anchor="start" font-weight="700">ℤ (nguyên)</text>
+  <text x="80.0" y="222.0" fill="#1d4ed8" font-size="12" text-anchor="start">−1, −2, −3, …</text>
+  <rect x="80.0" y="140.0" width="150.0" height="68.0" rx="10" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="96.0" y="164.0" fill="#15803d" font-size="14" text-anchor="start" font-weight="700">ℕ (tự nhiên)</text>
+  <text x="96.0" y="190.0" fill="#15803d" font-size="12" text-anchor="start">0, 1, 2, 3, …</text>
+  <rect x="360.0" y="60.0" width="160.0" height="215.0" rx="10" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="376.0" y="84.0" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700">ℝ \ ℚ (vô tỉ)</text>
+  <text x="440.0" y="150.0" fill="#dc2626" font-size="16" text-anchor="middle" font-weight="700">√2, π, e</text>
+  <text x="440.0" y="180.0" fill="#475569" font-size="11" text-anchor="middle">không viết được</text>
+  <text x="440.0" y="196.0" fill="#475569" font-size="11" text-anchor="middle">dạng p/q</text>
+  <text x="280.0" y="308.0" fill="#475569" font-size="12" text-anchor="middle">ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ · ℚ và ℝ\ℚ rời nhau, hợp lại thành ℝ</text>
+</svg>
 
 Bảng so sánh nhanh:
 
@@ -451,12 +451,29 @@ Trục số là **bản đồ 1 chiều của $\mathbb{R}$**: mỗi số là m�
 
 Trục số là một đường thẳng nằm ngang, có chiều dương (sang phải), gốc là `0`, và mỗi điểm tương ứng với **đúng một số thực** (và ngược lại).
 
-```
-       -3   -2   -1    0    1    2    3
-   ────┼────┼────┼────┼────┼────┼────┼────►
-                      ↑              ↑
-                     gốc           x = 2
-```
+<svg viewBox="0 0 520 120" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục số từ −3 đến 3: gốc tại 0, điểm x = 2 đánh dấu bên phải">
+  <defs><marker id="nl1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="34.4" y1="60.0" x2="482.4" y2="60.0" stroke="#1a202c" stroke-width="2" marker-end="url(#nl1)"/>
+  <line x1="482.4" y1="60.0" x2="34.4" y2="60.0" stroke="#1a202c" stroke-width="2" marker-end="url(#nl1)"/>
+  <line x1="60.0" y1="54.0" x2="60.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">−3</text>
+  <line x1="124.0" y1="54.0" x2="124.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="124.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">−2</text>
+  <line x1="188.0" y1="54.0" x2="188.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="188.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">−1</text>
+  <line x1="252.0" y1="54.0" x2="252.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="252.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">0</text>
+  <line x1="316.0" y1="54.0" x2="316.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="316.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">1</text>
+  <line x1="380.0" y1="54.0" x2="380.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="380.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">2</text>
+  <line x1="444.0" y1="54.0" x2="444.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="444.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">3</text>
+  <circle cx="252.0" cy="60.0" r="6" fill="#15803d"/>
+  <text x="252.0" y="46.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">gốc</text>
+  <circle cx="380.0" cy="60.0" r="6" fill="#dc2626"/>
+  <text x="380.0" y="46.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">x = 2</text>
+</svg>
 
 Số nhỏ nằm bên trái, số lớn nằm bên phải. Đây là cách trực quan nhất để hình dung *thứ tự*.
 
@@ -610,11 +627,33 @@ Hãy hình dung bạn đang đứng tại vị trí $x$ trên trục số. Câu 
 
 $\lvert x \rvert$ = **khoảng cách từ x tới 0 trên trục số**. Vì khoảng cách luôn không âm, $\lvert x \rvert \geq 0$ luôn đúng.
 
-```
-        |−3|=3              |2|=2
-       ←─────────────│─────────────►
-       -3    -2   -1   0    1    2
-```
+<svg viewBox="0 0 520 120" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục số minh họa giá trị tuyệt đối: |−3| = 3 là khoảng cách từ −3 tới 0, |2| = 2 là khoảng cách từ 2 tới 0">
+  <defs><marker id="nl2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="nl2b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="nl2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <line x1="34.4" y1="60.0" x2="482.4" y2="60.0" stroke="#1a202c" stroke-width="2" marker-end="url(#nl2)"/>
+  <line x1="482.4" y1="60.0" x2="34.4" y2="60.0" stroke="#1a202c" stroke-width="2" marker-end="url(#nl2)"/>
+  <line x1="60.0" y1="54.0" x2="60.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">−3</text>
+  <line x1="124.0" y1="54.0" x2="124.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="124.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">−2</text>
+  <line x1="188.0" y1="54.0" x2="188.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="188.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">−1</text>
+  <line x1="252.0" y1="54.0" x2="252.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="252.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">0</text>
+  <line x1="316.0" y1="54.0" x2="316.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="316.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">1</text>
+  <line x1="380.0" y1="54.0" x2="380.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="380.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">2</text>
+  <line x1="444.0" y1="54.0" x2="444.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="444.0" y="82.0" fill="#475569" font-size="13" text-anchor="middle">3</text>
+  <line x1="252.0" y1="36.0" x2="60.0" y2="36.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#nl2b)"/>
+  <text x="156.0" y="28.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">|−3| = 3</text>
+  <line x1="252.0" y1="36.0" x2="380.0" y2="36.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#nl2r)"/>
+  <text x="316.0" y="28.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">|2| = 2</text>
+  <circle cx="252.0" cy="60.0" r="5" fill="#1a202c"/>
+  <circle cx="60.0" cy="60.0" r="5" fill="#1d4ed8"/>
+  <circle cx="380.0" cy="60.0" r="5" fill="#dc2626"/>
+  <text x="252.0" y="100.0" fill="#475569" font-size="12" text-anchor="middle">|x| = khoảng cách từ x tới 0 (luôn ≥ 0)</text>
+</svg>
 
 Cả $-3$ và $3$ cách $0$ đúng 3 đơn vị, nên $\lvert -3 \rvert = \lvert 3 \rvert = 3$.
 

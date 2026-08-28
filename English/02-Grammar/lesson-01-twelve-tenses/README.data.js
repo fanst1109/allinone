@@ -23,22 +23,11 @@ Không bắt buộc, nhưng có ích nếu đã đọc:
 
 Tiếng Anh chia thì theo **2 chiều**:
 
-\`\`\`
-                    ┌─────────────┬──────────────────────────────┐
-                    │             │  4 ASPECT (cách nhìn hành động)
-                    │             ├──────────┬───────────────────┤
-                    │             │ Simple   │ Continuous        │
-                    │             ├──────────┼───────────────────┤
-                    │             │ Perfect  │ Perfect Continuous│
-                    │             ├──────────┼───────────────────┤
-              ┌─────┼─────────────┼──────────┴───────────────────┤
-              │ PAST│ I worked    │ I was working                │
-3 TIME        ├─────┼─────────────┼──────────────────────────────┤
-(thời gian   │ NOW │ I work      │ I am working                 │
-chính)        ├─────┼─────────────┼──────────────────────────────┤
-              │FUTURE│ I will work│ I will be working            │
-              └─────┴─────────────┴──────────────────────────────┘
-\`\`\`
+| 3 TIME ↓ / 4 ASPECT → | Simple | Continuous | Perfect | Perfect Continuous |
+|---|---|---|---|---|
+| **PAST** | I worked | I was working | I had worked | I had been working |
+| **NOW** (present) | I work | I am working | I have worked | I have been working |
+| **FUTURE** | I will work | I will be working | I will have worked | I will have been working |
 
 **3 thời** (past, present, future) × **4 aspect** (simple, continuous, perfect, perfect continuous) = **12 thì**.
 

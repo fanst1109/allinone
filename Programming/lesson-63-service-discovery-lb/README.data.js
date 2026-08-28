@@ -47,13 +47,33 @@ Nếu service A hard-code \`http://10.0.0.7:8080\` để gọi B, thì ngay khi 
 
 ### 1.2 Bài toán cụ thể
 
-\`\`\`
-order-service (3 instance) cần gọi payment-service (đang có 5 instance, IP động)
-
-  order-1  ──┐
-  order-2  ──┼──► ???  ──► payment-{1..5} (IP thay đổi mỗi lần scale/restart)
-  order-3  ──┘
-\`\`\`
+<svg viewBox="0 0 520 192" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="order-service không biết IP payment-service: cần thành phần ??? ở giữa">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="20.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="42.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">order-1</text>
+  <path d="M 130.0,38.0 L 170.0,38.0 L 170.0,88.0 L 210.0,88.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="70.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="92.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">order-2</text>
+  <path d="M 130.0,88.0 L 170.0,88.0 L 170.0,88.0 L 210.0,88.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="120.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="142.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">order-3</text>
+  <path d="M 130.0,138.0 L 170.0,138.0 L 170.0,88.0 L 210.0,88.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="210.0" y="66.0" width="90.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="255.0" y="92.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">???</text>
+  <line x1="302.0" y1="88.0" x2="350.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="350.0" y="20.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="42.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-1</text>
+  <rect x="350.0" y="70.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="92.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-2</text>
+  <rect x="350.0" y="120.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="142.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-5</text>
+  <text x="415.0" y="143.0" fill="#15803d" font-size="14" text-anchor="middle">…</text>
+  <path d="M 350.0,88.0 L 330.0,88.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <path d="M 330.0,88.0 L 330.0,38.0 L 348.0,38.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 330.0,88.0 L 330.0,88.0 L 348.0,88.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 330.0,88.0 L 330.0,138.0 L 348.0,138.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="260.0" y="178.0" fill="#475569" font-size="10" text-anchor="middle">order-service (3 instance) cần gọi payment-service (5 instance, IP đổi mỗi lần scale/restart)</text>
+</svg>
 
 Hai câu hỏi phải trả lời:
 
@@ -79,15 +99,23 @@ Có hai kiến trúc lớn để trả lời "B ở đâu".
 
 > 💡 **Trực giác.** Client tự cầm cuốn danh bạ. Trước khi gọi B, client hỏi **registry** (danh bạ trung tâm) "B có những instance nào?", rồi **tự chọn** một instance (tự load balance) và gọi thẳng.
 
-\`\`\`
-                      ┌──────────────┐
-   order-svc  ──(1)──►│   Registry   │  "payment có ai?"
-       │              └──────────────┘
-       │ (2) trả về: [10.0.0.1, 10.0.0.2, 10.0.0.3]
-       │
-       │ (3) client TỰ chọn 1 instance (round-robin/...) rồi gọi thẳng
-       └────────────────────────────────────────────► payment-2 (10.0.0.2)
-\`\`\`
+<svg viewBox="0 0 520 226" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Client-side discovery: order-svc hỏi Registry, nhận danh sách IP, tự chọn và gọi thẳng payment-2">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="60.0" width="110.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="86.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">order-svc</text>
+  <rect x="300.0" y="20.0" width="140.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="370.0" y="46.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Registry</text>
+  <path d="M 130.0,66.0 L 200.0,66.0 L 200.0,36.0 L 298.0,36.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="206.0" y="28.0" fill="#475569" font-size="10" text-anchor="start">(1) "payment có ai?"</text>
+  <path d="M 300.0,56.0 L 240.0,56.0 L 240.0,84.0 L 132.0,84.0" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+  <text x="250.0" y="78.0" fill="#7c3aed" font-size="10" text-anchor="start">(2) trả về: [10.0.0.1, 10.0.0.2, 10.0.0.3]</text>
+  <path d="M 75.0,104.0 L 75.0,190.0 L 298.0,190.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="82.0" y="178.0" fill="#15803d" font-size="10" text-anchor="start">(3) client TỰ chọn 1 instance (round-robin/...) rồi gọi thẳng</text>
+  <rect x="300.0" y="168.0" width="150.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="375.0" y="186.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-2</text>
+  <text x="375.0" y="202.2" fill="#475569" font-size="11" text-anchor="middle">10.0.0.2</text>
+  <path d="M 75.0,104.0 L 75.0,140.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+</svg>
 
 - **Ví dụ**: Netflix **Eureka** + Ribbon (LB nằm trong client library).
 - **Ưu**: ít hop mạng (gọi thẳng, không qua proxy trung gian); client biết rõ topology nên LB thông minh được (least-connection theo metric của chính nó).
@@ -97,12 +125,30 @@ Có hai kiến trúc lớn để trả lời "B ở đâu".
 
 > 💡 **Trực giác.** Client không biết gì về danh bạ. Nó chỉ gọi tới **một địa chỉ ổn định** (load balancer / proxy). LB mới là cái cầm danh bạ và route request tới instance phù hợp.
 
-\`\`\`
-   order-svc ──(1) gọi "payment.svc" (địa chỉ cố định)──► ┌──────────┐
-                                                          │    LB    │──► payment-{1..5}
-                                                          └────┬─────┘    (LB hỏi registry,
-                                                               └── (2) tự route)
-\`\`\`
+<svg viewBox="0 0 520 192" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Server-side discovery: order-svc gọi một địa chỉ cố định, LB hỏi registry rồi tự route sang payment-N">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="50.0" width="110.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="76.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">order-svc</text>
+  <rect x="250.0" y="50.0" width="90.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="295.0" y="76.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">LB</text>
+  <line x1="130.0" y1="72.0" x2="248.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="189.0" y="64.0" fill="#475569" font-size="10" text-anchor="middle">(1) gọi "payment.svc"</text>
+  <text x="189.0" y="86.0" fill="#475569" font-size="9" text-anchor="middle">(địa chỉ cố định)</text>
+  <path d="M 340.0,72.0 L 370.0,72.0 L 370.0,30.0 L 398.0,30.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 340.0,72.0 L 370.0,72.0 L 370.0,72.0 L 398.0,72.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 340.0,72.0 L 370.0,72.0 L 370.0,114.0 L 398.0,114.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="400.0" y="14.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="455.0" y="34.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-1</text>
+  <rect x="400.0" y="56.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="455.0" y="76.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-2</text>
+  <rect x="400.0" y="98.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="455.0" y="118.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payment-5</text>
+  <text x="455.0" y="148.0" fill="#15803d" font-size="14" text-anchor="middle">…</text>
+  <rect x="230.0" y="140.0" width="130.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="295.0" y="162.2" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Registry</text>
+  <path d="M 295.0,94.0 L 295.0,140.0" fill="none" stroke="#475569" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+  <text x="285.0" y="122.0" fill="#475569" font-size="10" text-anchor="end">(2) LB hỏi registry, tự route</text>
+</svg>
 
 - **Ví dụ**: AWS **ELB/ALB**, Kubernetes **Service** (qua kube-proxy), Nginx, Envoy.
 - **Ưu**: client cực kỳ đơn giản (chỉ cần 1 địa chỉ); logic LB tập trung, dễ vận hành; polyglot dễ (mọi ngôn ngữ chỉ cần biết HTTP).
@@ -150,15 +196,29 @@ Registry là cái "danh bạ" trung tâm — nguồn sự thật về instance n
 
 ### 3.2 Vòng đời một instance trong registry
 
-\`\`\`
-[startup]  ──► REGISTER (svc=payment, id=payment-3, addr=10.0.0.9:80)
-              ↓
-[running]  ──► HEARTBEAT mỗi 10s / health check pass → giữ trong registry
-              ↓
-[shutdown] ──► DEREGISTER (graceful) ──► registry xóa ngay
-   hoặc
-[crash]    ──► không heartbeat ──► TTL hết hạn ──► registry tự xóa
-\`\`\`
+<svg viewBox="0 0 520 250" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng đời một instance trong registry: startup REGISTER, running HEARTBEAT, shutdown DEREGISTER hoặc crash và bị TTL xóa">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="16.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="75.0" y="38.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[startup]</text>
+  <line x1="132.0" y1="34.0" x2="160.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="166.0" y="38.0" fill="#475569" font-size="11" text-anchor="start">REGISTER (svc=payment, id=payment-3, addr=10.0.0.9:80)</text>
+  <line x1="75.0" y1="54.0" x2="75.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="74.0" width="110.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="75.0" y="96.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[running]</text>
+  <line x1="132.0" y1="92.0" x2="160.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="166.0" y="96.0" fill="#475569" font-size="11" text-anchor="start">HEARTBEAT mỗi 10s / health check pass → giữ trong registry</text>
+  <line x1="75.0" y1="112.0" x2="75.0" y2="146.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="20.0" y="132.0" width="110.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="75.0" y="154.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">[shutdown]</text>
+  <line x1="132.0" y1="150.0" x2="160.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="166.0" y="154.0" fill="#475569" font-size="11" text-anchor="start">DEREGISTER (graceful) → registry xóa ngay</text>
+  <rect x="20.0" y="190.0" width="110.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="75.0" y="212.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[crash]</text>
+  <line x1="132.0" y1="208.0" x2="160.0" y2="208.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="166.0" y="212.0" fill="#475569" font-size="11" text-anchor="start">không heartbeat → TTL hết hạn → registry tự xóa</text>
+  <text x="84.0" y="183.0" fill="#475569" font-size="10" text-anchor="start" font-style="italic">hoặc</text>
+  <line x1="75.0" y1="170.0" x2="75.0" y2="186.0" stroke="#1a202c" stroke-width="1.8"/>
+</svg>
 
 1. **Register on startup**: instance vừa lên gọi registry để đăng ký địa chỉ + metadata.
 2. **Health check / heartbeat**: registry định kỳ kiểm tra (hoặc instance gửi heartbeat) để biết instance còn sống. Xem mục 5.
@@ -354,16 +414,28 @@ Chỉ thêm 1 node mà phần lớn key bị remap. Với N lớn, tỉ lệ rem
 
 > 💡 **Trực giác.** Đặt cả **node** lẫn **key** lên một vòng tròn các con số \`[0, 2³²)\`. Một key thuộc về node **đầu tiên gặp khi đi theo chiều kim đồng hồ** từ vị trí của key. Khi thêm/bớt một node, chỉ những key nằm trong **một cung** giữa node mới và node liền trước bị ảnh hưởng — phần còn lại không đổi.
 
-\`\`\`
-            0 / 2³²
-              ●
-        keyA  │   nodeB (hash=50)
-   nodeA ●────┼────● ──► keyA đi cw gặp nodeB trước → thuộc nodeB
-   (h=300)    │
-              │   keyB
-         nodeC●────● ──► keyB đi cw gặp nodeC trước → thuộc nodeC
-        (h=200)
-\`\`\`
+<svg viewBox="0 0 600 280" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng consistent hashing: nodeB, nodeC, nodeA trên vòng 0..2^32; keyA thuộc nodeB, keyB thuộc nodeC theo chiều kim đồng hồ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <circle cx="190" cy="150" r="105" fill="none" stroke="#94a3b8" stroke-width="2.5"/>
+  <circle cx="190.0" cy="45.0" r="4" fill="#1a202c"/>
+  <text x="190.0" y="31.0" fill="#475569" font-size="11" text-anchor="middle">0 / 2³²</text>
+  <circle cx="280.9" cy="97.5" r="7" fill="#1d4ed8"/>
+  <text x="292.9" y="101.5" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">nodeB (hash=50)</text>
+  <circle cx="171.8" cy="253.4" r="7" fill="#1d4ed8"/>
+  <text x="159.8" y="257.4" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">nodeC (h=200)</text>
+  <circle cx="91.3" cy="114.1" r="7" fill="#1d4ed8"/>
+  <text x="79.3" y="118.1" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">nodeA (h=300)</text>
+  <circle cx="234.4" cy="54.8" r="5" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+  <text x="246.4" y="58.8" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">keyA</text>
+  <path d="M 248.7,44.2 A 121,121 0 0 1 287.9,78.9" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)"/>
+  <circle cx="242.5" cy="240.9" r="5" fill="#f8fafc" stroke="#dc2626" stroke-width="2"/>
+  <text x="254.5" y="244.9" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">keyB</text>
+  <path d="M 243.0,258.8 A 121,121 0 0 1 181.6,270.7" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="190.0" y="144.0" fill="#475569" font-size="10" text-anchor="middle">đi theo chiều</text>
+  <text x="190.0" y="158.0" fill="#475569" font-size="10" text-anchor="middle">kim đồng hồ (cw)</text>
+  <text x="330.0" y="60.0" fill="#475569" font-size="11" text-anchor="start">keyA đi cw gặp nodeB trước → thuộc nodeB</text>
+  <text x="330.0" y="80.0" fill="#475569" font-size="11" text-anchor="start">keyB đi cw gặp nodeC trước → thuộc nodeC</text>
+</svg>
 
 ### 7.3 Walk-through thêm node
 
@@ -441,21 +513,35 @@ K8s gói toàn bộ discovery + LB lại thành vài abstraction.
 
 ### 9.1 Các thành phần
 
-\`\`\`
-Pod (payment-xxx) ──label: app=payment──┐
-Pod (payment-yyy) ──label: app=payment──┤
-                                        ▼
-        Service (payment) selector: app=payment
-               │  → tạo virtual IP (ClusterIP) ổn định
-               ▼
-        Endpoints / EndpointSlice  ──► danh sách IP pod khỏe (readiness pass)
-               │
-        ┌──────┴───────┐
-   kube-proxy        CoreDNS
- (route ClusterIP   (phân giải tên
-  → pod, dùng        payment.default.svc
-  iptables/IPVS)     → ClusterIP)
-\`\`\`
+<svg viewBox="0 0 520 360" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kubernetes Service: Pod có label app=payment được Service chọn qua selector, tạo ClusterIP; Endpoints liệt kê IP pod khỏe; kube-proxy route và CoreDNS phân giải tên">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="16.0" width="190.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="115.0" y="30.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Pod (payment-xxx)</text>
+  <text x="115.0" y="45.4" fill="#475569" font-size="10" text-anchor="middle">label: app=payment</text>
+  <rect x="20.0" y="60.0" width="190.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="115.0" y="74.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Pod (payment-yyy)</text>
+  <text x="115.0" y="89.3" fill="#475569" font-size="10" text-anchor="middle">label: app=payment</text>
+  <path d="M 210.0,34.0 L 240.0,34.0 L 240.0,78.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="210.0" y1="78.0" x2="240.0" y2="78.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="240.0" y1="78.0" x2="240.0" y2="120.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="120.0" y="122.0" width="260.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="250.0" y="140.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Service (payment)</text>
+  <text x="250.0" y="155.3" fill="#475569" font-size="10" text-anchor="middle">selector: app=payment → ClusterIP ổn định</text>
+  <line x1="250.0" y1="168.0" x2="250.0" y2="196.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="198.0" width="340.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="250.0" y="216.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Endpoints / EndpointSlice</text>
+  <text x="250.0" y="231.3" fill="#475569" font-size="10" text-anchor="middle">danh sách IP pod khỏe (readiness pass)</text>
+  <path d="M 250.0,244.0 L 250.0,262.0 L 150.0,262.0 L 150.0,280.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 250.0,262.0 L 350.0,262.0 L 350.0,280.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="40.0" y="282.0" width="220.0" height="60.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="150.0" y="300.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">kube-proxy</text>
+  <text x="150.0" y="315.9" fill="#475569" font-size="10" text-anchor="middle">route ClusterIP → pod</text>
+  <text x="150.0" y="330.9" fill="#475569" font-size="10" text-anchor="middle">dùng iptables/IPVS</text>
+  <rect x="280.0" y="282.0" width="220.0" height="60.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="390.0" y="300.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">CoreDNS</text>
+  <text x="390.0" y="315.9" fill="#475569" font-size="10" text-anchor="middle">payment.default.svc</text>
+  <text x="390.0" y="330.9" fill="#475569" font-size="10" text-anchor="middle">→ ClusterIP</text>
+</svg>
 
 - **Service**: abstraction ổn định (tên + ClusterIP cố định). Đây là server-side discovery.
 - **Endpoints / EndpointSlice**: danh sách IP các pod khỏe khớp selector. Pod fail readiness → tự bị gỡ khỏi đây → ngừng nhận traffic (đúng mục 5.1).
@@ -532,13 +618,31 @@ Health check (mục 5) chủ động dọn instance chết theo chu kỳ, nhưng
 
 > 💡 **Trực giác.** Mỗi instance có một "cầu dao". Khi request tới instance B fail liên tục, cầu dao của B **mở** (Open) → LB ngừng gửi request tới B ngay lập tức (không chờ đến lần health check kế tiếp), chuyển sang instance khác. Sau một khoảng, cầu dao chuyển Half-Open thử lại vài request; nếu OK → đóng lại (đưa B trở về pool).
 
-\`\`\`
-request → B fail, fail, fail... → breaker[B] = OPEN
-       → LB loại B khỏi danh sách chọn (passive health)
-       → (sau cooldown) Half-Open: thử 1 request
-            ├─ OK   → Closed, B trở lại pool
-            └─ fail → Open lại
-\`\`\`
+<svg viewBox="0 0 720 266" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Circuit breaker trong LB: B fail nhiều lần → OPEN, loại khỏi pool; sau cooldown Half-Open thử 1 request: OK về Closed, fail lại Open">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="65.0" y="42.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">request</text>
+  <line x1="112.0" y1="38.0" x2="150.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="150.0" y="20.0" width="150.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="225.0" y="42.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">B fail, fail, fail…</text>
+  <line x1="302.0" y1="38.0" x2="340.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="340.0" y="20.0" width="170.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="425.0" y="42.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">breaker[B] = OPEN</text>
+  <line x1="425.0" y1="58.0" x2="425.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="280.0" y="86.0" width="290.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="425.0" y="100.3" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">LB loại B khỏi danh sách chọn</text>
+  <text x="425.0" y="115.3" fill="#475569" font-size="10" text-anchor="middle">(passive health)</text>
+  <line x1="425.0" y1="124.0" x2="425.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="440.0" y="141.0" fill="#475569" font-size="10" text-anchor="start">sau cooldown</text>
+  <rect x="300.0" y="152.0" width="250.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="425.0" y="174.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Half-Open: thử 1 request</text>
+  <path d="M 300.0,170.0 L 200.0,170.0 L 200.0,210.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <path d="M 550.0,170.0 L 600.0,170.0 L 600.0,210.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="100.0" y="212.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="200.0" y="233.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">OK → Closed, B trở lại pool</text>
+  <rect x="500.0" y="212.0" width="200.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="600.0" y="233.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">fail → Open lại</text>
+</svg>
 
 Kết hợp:
 - **Active health check** = dọn dẹp định kỳ (mục 5).

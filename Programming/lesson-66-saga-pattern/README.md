@@ -39,14 +39,24 @@ Nếu bất kỳ câu nào fail, `ROLLBACK` đưa mọi thứ về như chưa t�
 
 Trong kiến trúc microservice, mỗi service có **DB riêng** (database-per-service). Order Service không có quyền `UPDATE` bảng của Payment Service hay Inventory Service. Không có một `BEGIN/COMMIT` nào bao trùm 3 DB khác nhau ở 3 process khác nhau, có khi ở 3 máy khác nhau.
 
-```
-  Order Service          Payment Service        Inventory Service
-  ┌───────────┐          ┌────────────┐         ┌─────────────┐
-  │ orders DB │          │ payments DB│         │ inventory DB│
-  └───────────┘          └────────────┘         └─────────────┘
-        │                       │                       │
-        └────── network ────────┴────────── network ────┘
-```
+<svg viewBox="0 0 540 170" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba service với ba database riêng nối nhau qua network — không có transaction xuyên service">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <text x="90.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Order Service</text>
+  <rect x="20.0" y="40.0" width="140.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="90.0" y="64.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">orders DB</text>
+  <line x1="90.0" y1="80.0" x2="90.0" y2="112.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="270.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Payment Service</text>
+  <rect x="200.0" y="40.0" width="140.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="270.0" y="64.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">payments DB</text>
+  <line x1="270.0" y1="80.0" x2="270.0" y2="112.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="450.0" y="30.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Inventory Service</text>
+  <rect x="380.0" y="40.0" width="140.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="64.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">inventory DB</text>
+  <line x1="450.0" y1="80.0" x2="450.0" y2="112.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="90.0" y1="112.0" x2="450.0" y2="112.0" stroke="#94a3b8" stroke-width="2"/>
+  <text x="270.0" y="132.0" fill="#475569" font-size="11" text-anchor="middle" font-style="italic">network</text>
+  <text x="270.0" y="156.0" fill="#475569" font-size="10" text-anchor="middle">3 DB riêng, không có transaction chung → cần Saga để giữ nhất quán</text>
+</svg>
 
 Câu hỏi: làm sao đảm bảo "tạo order + trừ tiền + trừ kho" hoặc **tất cả thành công**, hoặc **không có gì xảy ra**, khi chúng nằm ở 3 service riêng?
 
@@ -90,13 +100,39 @@ Hai kịch bản:
 - **Thành công xuôi (happy path):** `T₁ → T₂ → ... → Tₙ`. Mỗi bước commit, không cần compensate.
 - **Thất bại ở bước k:** `T₁ → T₂ → ... → Tₖ (FAIL)` → chạy compensation **ngược chiều**: `Cₖ₋₁ → Cₖ₋₂ → ... → C₁`. (Bản thân `Tₖ` fail thì thường tự rollback local DB của nó, hoặc không có gì để bù.)
 
-```
-Happy path:   T1 ──► T2 ──► T3 ──► T4   ✅ done
-
-Fail tại T3:  T1 ──► T2 ──► T3 ✗
-                            │ T3 thất bại
-              C1 ◄── C2 ◄───┘   (bù ngược: undo T2, rồi undo T1)
-```
+<svg viewBox="0 0 560 186" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Saga: happy path T1→T2→T3→T4 hoàn tất; nếu T3 thất bại thì chạy compensation C2 rồi C1 theo chiều ngược">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <text x="16.0" y="34.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Happy path:</text>
+  <rect x="110.0" y="16.0" width="60.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="140.0" y="36.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <rect x="200.0" y="16.0" width="60.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="230.0" y="36.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <rect x="290.0" y="16.0" width="60.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="320.0" y="36.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <rect x="380.0" y="16.0" width="60.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="410.0" y="36.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T4</text>
+  <line x1="172.0" y1="32.0" x2="198.0" y2="32.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="262.0" y1="32.0" x2="288.0" y2="32.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="352.0" y1="32.0" x2="378.0" y2="32.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="485.0" y="37.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">✓ done</text>
+  <text x="16.0" y="100.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">Fail tại T3:</text>
+  <rect x="110.0" y="82.0" width="60.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="140.0" y="102.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <rect x="200.0" y="82.0" width="60.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="230.0" y="102.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <rect x="290.0" y="82.0" width="60.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="320.0" y="102.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <line x1="172.0" y1="98.0" x2="198.0" y2="98.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="262.0" y1="98.0" x2="288.0" y2="98.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="360.0" y="103.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">✗ T3 thất bại</text>
+  <path d="M 320.0,114.0 L 320.0,152.0 L 262.0,152.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="110.0" y="136.0" width="60.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="140.0" y="156.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">C1</text>
+  <rect x="200.0" y="136.0" width="60.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="230.0" y="156.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">C2</text>
+  <line x1="198.0" y1="152.0" x2="172.0" y2="152.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="360.0" y="157.0" fill="#b45309" font-size="10" text-anchor="start">bù ngược: C2 undo T2, rồi C1 undo T1</text>
+</svg>
 
 **Điểm mấu chốt khác 2PC:** mỗi `Tᵢ` **commit ngay** (không giữ lock chờ ai). Vì vậy:
 
@@ -264,17 +300,49 @@ Một **Saga Orchestrator** giữ trạng thái và **chủ động gọi** từ
 
 ### 7.1 State machine của order saga
 
-```
-        ┌─────────────────────────────────────────────────────────┐
-START ─► CREATE_ORDER ─► RESERVE_PAYMENT ─► RESERVE_INV ─► SHIP ─► DONE
-            │ fail           │ fail            │ fail        │ fail
-            ▼                ▼                  ▼             ▼
-        (không có gì     COMP_CANCEL_ORDER ◄ COMP_REFUND ◄ COMP_RELEASE_INV
-         để bù → ABORT)  ◄────────────────────────────────────┘
-            │
-            ▼
-         ABORTED
-```
+<svg viewBox="0 0 880 214" style="max-width:880px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái saga: START → CREATE_ORDER → RESERVE_PAYMENT → RESERVE_INV → SHIP → DONE; mỗi bước fail nhảy xuống compensation chạy ngược về ABORTED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="20.0" width="70.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="55.0" y="40.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">START</text>
+  <rect x="110.0" y="20.0" width="140.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">CREATE_ORDER</text>
+  <rect x="270.0" y="20.0" width="160.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="350.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">RESERVE_PAYMENT</text>
+  <rect x="450.0" y="20.0" width="130.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="515.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">RESERVE_INV</text>
+  <rect x="660.0" y="20.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="700.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">SHIP</text>
+  <rect x="780.0" y="20.0" width="80.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="820.0" y="40.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">DONE</text>
+  <line x1="92.0" y1="37.0" x2="108.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="252.0" y1="37.0" x2="268.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="432.0" y1="37.0" x2="448.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="582.0" y1="37.0" x2="658.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="742.0" y1="37.0" x2="778.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="180.0" y1="56.0" x2="180.0" y2="96.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="186.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="start">fail</text>
+  <rect x="116.9" y="98.0" width="126.2" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="180.0" y="111.3" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">ABORT</text>
+  <text x="180.0" y="126.3" fill="#475569" font-size="10" text-anchor="middle">(không có gì để bù)</text>
+  <line x1="350.0" y1="56.0" x2="350.0" y2="96.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="356.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="start">fail</text>
+  <rect x="276.2" y="98.0" width="147.5" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="350.0" y="118.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">COMP_CANCEL_ORDER</text>
+  <line x1="515.0" y1="56.0" x2="515.0" y2="96.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="521.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="start">fail</text>
+  <rect x="463.8" y="98.0" width="102.5" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="515.0" y="118.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">COMP_REFUND</text>
+  <line x1="700.0" y1="56.0" x2="700.0" y2="96.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="706.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="start">fail</text>
+  <rect x="630.0" y="98.0" width="140.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="700.0" y="118.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">COMP_RELEASE_INV</text>
+  <line x1="628.0" y1="115.0" x2="568.2" y2="115.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <line x1="461.8" y1="115.0" x2="425.8" y2="115.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <line x1="274.2" y1="115.0" x2="222.0" y2="115.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <line x1="180.0" y1="134.0" x2="180.0" y2="162.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="130.0" y="164.0" width="100.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="180.0" y="185.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">ABORTED</text>
+</svg>
 
 Orchestrator chạy như sau (pseudo):
 

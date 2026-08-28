@@ -154,17 +154,28 @@ Raft (Ongaro & Ousterhout, 2014) sinh ra để **dễ hiểu** hơn Paxos, với
 
 ## 5. Node states — 3 trạng thái
 
-\`\`\`
-            timeout, bắt đầu election
-   ┌──────────────────────────────────────┐
-   │                                       ▼
-┌──────────┐   nhận heartbeat   ┌───────────┐  thắng majority  ┌────────┐
-│ Follower │◄───────────────────│ Candidate │─────────────────►│ Leader │
-└──────────┘   của leader hợp lệ└───────────┘                  └────────┘
-   ▲                                  │  thấy term cao hơn /         │
-   │     thấy term cao hơn            │  bị leader khác chiếm        │
-   └──────────────────────────────────┴──────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 640 244" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái Raft: Follower timeout thành Candidate; thắng majority thành Leader; nhận heartbeat hoặc thấy term cao hơn thì về Follower">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="90.0" width="120.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="116.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Follower</text>
+  <rect x="260.0" y="90.0" width="120.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="320.0" y="116.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Candidate</text>
+  <rect x="500.0" y="90.0" width="120.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="560.0" y="116.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Leader</text>
+  <path d="M 80.0,90.0 L 80.0,40.0 L 320.0,40.0 L 320.0,88.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="200.0" y="32.0" fill="#475569" font-size="10" text-anchor="middle">timeout, bắt đầu election</text>
+  <line x1="258.0" y1="120.0" x2="142.0" y2="120.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="200.0" y="138.0" fill="#475569" font-size="9" text-anchor="middle">nhận heartbeat của</text>
+  <text x="200.0" y="150.0" fill="#475569" font-size="9" text-anchor="middle">leader hợp lệ</text>
+  <line x1="382.0" y1="112.0" x2="498.0" y2="112.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="440.0" y="104.0" fill="#475569" font-size="10" text-anchor="middle">thắng majority</text>
+  <path d="M 320.0,134.0 L 320.0,180.0 L 80.0,180.0 L 80.0,136.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="200.0" y="196.0" fill="#dc2626" font-size="10" text-anchor="middle">thấy term cao hơn / bị leader khác chiếm</text>
+  <path d="M 560.0,134.0 L 560.0,210.0 L 60.0,210.0 L 60.0,136.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="320.0" y="226.0" fill="#dc2626" font-size="10" text-anchor="middle">thấy term cao hơn</text>
+  <path d="M 340.0,88.0 L 340.0,60.0 L 380.0,60.0 L 380.0,88.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="400.0" y="72.0" fill="#b45309" font-size="9" text-anchor="start">split vote → election lại</text>
+</svg>
 
 | Trạng thái | Vai trò |
 |------------|---------|

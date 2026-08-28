@@ -184,14 +184,32 @@ Client → Shipping(40ms)
 ```
 
 **Có gateway** (gateway fan-out song song):
-```
-Client → Gateway (1 request, 5ms qua mạng client→gateway)
-   Gateway → Order    ┐
-   Gateway → User     ├ chạy SONG SONG trong data center (nội bộ ~5ms mỗi cái)
-   Gateway → Shipping ┘
-   max(5,5,5) = 5ms, gom lại → trả 1 JSON
-Tổng ≈ 5 (client→gw) + 5 (fan-out) + 5 (gw→client) ≈ 15ms
-```
+<svg viewBox="0 0 760 196" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="API Gateway aggregation: client gọi 1 request, gateway fan-out song song tới Order, User, Shipping rồi gom thành 1 JSON, tổng khoảng 15ms">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="80.0" width="90.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="104.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="108.0" y1="100.0" x2="176.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="142.0" y="92.0" fill="#475569" font-size="10" text-anchor="middle">1 request</text>
+  <text x="142.0" y="114.0" fill="#475569" font-size="9" text-anchor="middle">5ms</text>
+  <rect x="178.0" y="80.0" width="110.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="233.0" y="104.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Gateway</text>
+  <path d="M 288.0,100.0 L 320.0,100.0 L 320.0,48.0 L 348.0,48.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="350.0" y="30.0" width="100.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="400.0" y="52.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Order</text>
+  <text x="458.0" y="52.0" fill="#475569" font-size="9" text-anchor="start">~5ms</text>
+  <path d="M 288.0,100.0 L 320.0,100.0 L 320.0,94.0 L 348.0,94.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="350.0" y="76.0" width="100.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="400.0" y="98.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">User</text>
+  <text x="458.0" y="98.0" fill="#475569" font-size="9" text-anchor="start">~5ms</text>
+  <path d="M 288.0,100.0 L 320.0,100.0 L 320.0,140.0 L 348.0,140.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="350.0" y="122.0" width="100.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="400.0" y="144.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Shipping</text>
+  <text x="458.0" y="144.0" fill="#475569" font-size="9" text-anchor="start">~5ms</text>
+  <path d="M 500,30 L 512,30 L 512,150 L 500,150" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <text x="520.0" y="86.0" fill="#475569" font-size="10" text-anchor="start">chạy SONG SONG trong data center</text>
+  <text x="520.0" y="100.0" fill="#475569" font-size="10" text-anchor="start">max(5,5,5) = 5ms → gom lại trả 1 JSON</text>
+  <text x="280.0" y="178.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Tổng ≈ 5 (client→gw) + 5 (fan-out) + 5 (gw→client) ≈ 15ms</text>
+</svg>
 
 Client chỉ thấy **1 request, 1 response**. Latency giảm vì các call nội bộ data center rẻ và chạy song song.
 
@@ -216,11 +234,31 @@ Một gateway chung cho cả web và mobile thường "đủ cho không ai": web
 
 ### 4.1 Mô hình
 
-```
-Web App    → BFF-Web    ┐
-Mobile App → BFF-Mobile  ├→ (cùng tập service backend)
-Partner API→ BFF-Public ┘     Order, User, Catalog, ...
-```
+<svg viewBox="0 0 600 176" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Backend-for-Frontend: mỗi loại client có BFF riêng, tất cả cùng gọi một tập service backend">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="16.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="38.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Web App</text>
+  <line x1="128.0" y1="34.0" x2="168.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="170.0" y="16.0" width="120.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="38.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">BFF-Web</text>
+  <path d="M 290.0,34.0 L 330.0,34.0 L 330.0,84.0 L 368.0,84.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="66.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="88.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Mobile App</text>
+  <line x1="128.0" y1="84.0" x2="168.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="170.0" y="66.0" width="120.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="88.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">BFF-Mobile</text>
+  <path d="M 290.0,84.0 L 330.0,84.0 L 330.0,84.0 L 368.0,84.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="116.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="138.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Partner API</text>
+  <line x1="128.0" y1="134.0" x2="168.0" y2="134.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="170.0" y="116.0" width="120.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="138.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">BFF-Public</text>
+  <path d="M 290.0,134.0 L 330.0,134.0 L 330.0,84.0 L 368.0,84.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="370.0" y="50.0" width="200.0" height="68.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="470.0" y="72.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Backend services</text>
+  <text x="470.0" y="87.8" fill="#475569" font-size="10" text-anchor="middle">Order, User, Catalog, …</text>
+  <text x="470.0" y="102.8" fill="#475569" font-size="10" text-anchor="middle">(cùng tập service)</text>
+</svg>
 
 - **BFF-Web**: trả payload đầy đủ, gom nhiều thông tin cho dashboard.
 - **BFF-Mobile**: trả payload gọn (chỉ field cần), gộp nhiều call, nén ảnh.

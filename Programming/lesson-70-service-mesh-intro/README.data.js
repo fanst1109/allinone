@@ -116,15 +116,34 @@ Cơ chế (walk-through cụ thể):
 4. Envoy \`cart\` lo: chọn instance \`checkout\` nào (LB), mở mTLS, set timeout, retry nếu lỗi, ghi metric/trace.
 5. Envoy \`cart\` gửi tới Envoy của \`checkout\`. Envoy \`checkout\` giải mã mTLS, kiểm tra danh tính \`cart\` có quyền không, rồi chuyển vào app \`checkout\` qua \`localhost\`.
 
-\`\`\`
-┌─────────── Pod: cart ───────────┐        ┌────────── Pod: checkout ─────────┐
-│  ┌─────────┐      ┌──────────┐  │  mTLS  │  ┌──────────┐      ┌──────────┐  │
-│  │  app    │─────▶│  Envoy   │──┼────────┼─▶│  Envoy   │─────▶│  app     │  │
-│  │  cart   │ local│ sidecar  │  │ network│  │ sidecar  │ local│ checkout │  │
-│  └─────────┘      └──────────┘  │        │  └──────────┘      └──────────┘  │
-└─────────────────────────────────┘        └───────────────────────────────────┘
-   "gọi http://checkout"            Envoy↔Envoy lo mọi network concern
-\`\`\`
+<svg viewBox="0 0 736 180" style="max-width:736px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Service mesh sidecar: app cart gọi http://checkout qua Envoy local; hai Envoy nói với nhau bằng mTLS; app checkout chỉ xử lý nghiệp vụ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="30.0" width="300.0" height="110.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="166.0" y="22.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">Pod: cart</text>
+  <rect x="420.0" y="30.0" width="300.0" height="110.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="570.0" y="22.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">Pod: checkout</text>
+  <rect x="30.0" y="60.0" width="110.0" height="50.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="85.0" y="81.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">app</text>
+  <text x="85.0" y="97.2" fill="#475569" font-size="11" text-anchor="middle">cart</text>
+  <line x1="142.0" y1="85.0" x2="180.0" y2="85.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="161.0" y="78.0" fill="#475569" font-size="9" text-anchor="middle">local</text>
+  <rect x="182.0" y="60.0" width="120.0" height="50.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="242.0" y="81.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Envoy</text>
+  <text x="242.0" y="97.2" fill="#475569" font-size="11" text-anchor="middle">sidecar</text>
+  <rect x="434.0" y="60.0" width="120.0" height="50.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="494.0" y="81.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Envoy</text>
+  <text x="494.0" y="97.2" fill="#475569" font-size="11" text-anchor="middle">sidecar</text>
+  <line x1="556.0" y1="85.0" x2="594.0" y2="85.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="575.0" y="78.0" fill="#475569" font-size="9" text-anchor="middle">local</text>
+  <rect x="596.0" y="60.0" width="110.0" height="50.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="651.0" y="81.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">app</text>
+  <text x="651.0" y="97.2" fill="#475569" font-size="11" text-anchor="middle">checkout</text>
+  <line x1="304.0" y1="85.0" x2="430.0" y2="85.0" stroke="#15803d" stroke-width="4" marker-end="url(#arg)"/>
+  <text x="367.0" y="74.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">mTLS</text>
+  <text x="367.0" y="102.0" fill="#475569" font-size="9" text-anchor="middle">network</text>
+  <text x="166.0" y="162.0" fill="#475569" font-size="10" text-anchor="middle" font-style="italic">"gọi http://checkout"</text>
+  <text x="570.0" y="162.0" fill="#475569" font-size="10" text-anchor="middle" font-style="italic">Envoy↔Envoy lo mọi network concern</text>
+</svg>
 
 **Cơ chế iptables cụ thể (vì sao app "không biết"):** khi inject sidecar, mesh chạy một init-container cài quy tắc iptables trong network namespace của pod, đại ý: "mọi gói tin outbound (trừ tới chính Envoy) → chuyển hướng (REDIRECT) tới cổng Envoy \`15001\`; mọi gói inbound → chuyển tới cổng \`15006\`". Vì app và Envoy **chung network namespace** (cùng pod), app gọi \`connect(checkout:80)\` nhưng kernel lặng lẽ nối socket đó vào Envoy. App nhận về response bình thường, không hề biết đã đi vòng. Đây là lý do mesh "trong suốt" — không SDK, không đổi code, không đổi biến môi trường.
 
@@ -583,12 +602,31 @@ App \`cart\` tự làm **mọi** thứ: phân giải tên \`checkout\`, chọn i
 
 **(b) Có sidecar:**
 
-\`\`\`
-[app cart] ─local→ [Envoy cart] ══mTLS══▶ [Envoy checkout] ─local→ [app checkout]
-   (chỉ gọi          (LB, mTLS,             (verify mTLS,           (chỉ xử lý
-    http://checkout)  retry, timeout,        kiểm quyền,             nghiệp vụ)
-                      metric, trace)         metric)
-\`\`\`
+<svg viewBox="0 0 760 104" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi gọi qua mesh: app cart → Envoy cart → (mTLS) → Envoy checkout → app checkout, mỗi khâu một trách nhiệm">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="14.0" y="14.0" width="150.0" height="76.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="89.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">app cart</text>
+  <text x="89.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">chỉ gọi</text>
+  <text x="89.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">http://checkout</text>
+  <line x1="166.0" y1="52.0" x2="206.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="186.0" y="45.0" fill="#475569" font-size="9" text-anchor="middle">local</text>
+  <rect x="208.0" y="14.0" width="150.0" height="76.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="283.0" y="40.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Envoy cart</text>
+  <text x="283.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">LB, mTLS, retry,</text>
+  <text x="283.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">timeout, metric, trace</text>
+  <line x1="360.0" y1="52.0" x2="400.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="380.0" y="45.0" fill="#475569" font-size="9" text-anchor="middle">mTLS</text>
+  <rect x="402.0" y="14.0" width="150.0" height="76.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="477.0" y="40.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Envoy checkout</text>
+  <text x="477.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">verify mTLS, kiểm</text>
+  <text x="477.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">quyền, metric</text>
+  <line x1="554.0" y1="52.0" x2="594.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="574.0" y="45.0" fill="#475569" font-size="9" text-anchor="middle">local</text>
+  <rect x="596.0" y="14.0" width="150.0" height="76.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="671.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">app checkout</text>
+  <text x="671.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">chỉ xử lý</text>
+  <text x="671.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">nghiệp vụ</text>
+</svg>
 
 - **App cart làm:** chỉ một việc — gọi \`http://checkout\`. Không biết gì về TLS/retry/LB.
 - **Envoy cart làm:** LB chọn instance, mở mTLS, retry, timeout, đo metric + trace, định tuyến (canary).

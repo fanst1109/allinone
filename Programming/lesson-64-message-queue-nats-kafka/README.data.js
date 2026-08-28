@@ -118,11 +118,26 @@ Mọi broker đều xoay quanh 2 pattern này (hoặc kết hợp).
 
 💡 **Hình dung**: một hàng người xếp trước **một** quầy. Có 3 nhân viên (consumer) cùng phục vụ hàng đó. Mỗi khách (message) được **đúng một** nhân viên xử lý — không ai bị phục vụ 2 lần.
 
-\`\`\`
-                    ┌──► Consumer A  (xử lý msg 1, 4)
-Producer ──► [Queue] ──► Consumer B  (xử lý msg 2, 5)
-                    └──► Consumer C  (xử lý msg 3, 6)
-\`\`\`
+<svg viewBox="0 0 620 162" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Queue: mỗi message chỉ tới MỘT consumer — A nhận msg 1,4; B nhận 2,5; C nhận 3,6">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="61.0" width="100.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="70.0" y="85.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Producer</text>
+  <line x1="122.0" y1="81.0" x2="160.0" y2="81.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="160.0" y="61.0" width="110.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="215.0" y="85.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Queue</text>
+  <path d="M 270.0,81.0 L 300.0,81.0 L 300.0,42.0 L 328.0,42.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="24.0" width="170.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="45.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Consumer A</text>
+  <text x="508.0" y="46.0" fill="#475569" font-size="10" text-anchor="start">xử lý msg 1, 4</text>
+  <path d="M 270.0,81.0 L 300.0,81.0 L 300.0,86.0 L 328.0,86.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="68.0" width="170.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="89.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Consumer B</text>
+  <text x="508.0" y="90.0" fill="#475569" font-size="10" text-anchor="start">xử lý msg 2, 5</text>
+  <path d="M 270.0,81.0 L 300.0,81.0 L 300.0,130.0 L 328.0,130.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="112.0" width="170.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="133.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Consumer C</text>
+  <text x="508.0" y="134.0" fill="#475569" font-size="10" text-anchor="start">xử lý msg 3, 6</text>
+</svg>
 
 - Dùng cho **task distribution / work queue**: chia việc cho nhiều worker để xử lý song song.
 - Thêm consumer → mỗi consumer làm ít hơn → throughput tăng (scale out).
@@ -132,11 +147,26 @@ Producer ──► [Queue] ──► Consumer B  (xử lý msg 2, 5)
 
 💡 **Hình dung**: đài phát thanh. Đài (producer) phát **một** chương trình lên tần số (topic). **Mọi** radio đang bắt tần số đó (subscriber) đều nghe được **bản sao** của chương trình.
 
-\`\`\`
-                       ┌──► Subscriber 1 (Email service)     — nhận bản sao
-Producer ──► [Topic] ──┼──► Subscriber 2 (Inventory service) — nhận bản sao
-                       └──► Subscriber 3 (Analytics service)  — nhận bản sao
-\`\`\`
+<svg viewBox="0 0 620 162" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Topic pub/sub: mỗi subscriber nhận một bản sao của mọi message">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="20.0" y="61.0" width="100.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="70.0" y="85.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Producer</text>
+  <line x1="122.0" y1="81.0" x2="160.0" y2="81.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="160.0" y="61.0" width="110.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="215.0" y="85.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Topic</text>
+  <path d="M 270.0,81.0 L 300.0,81.0 L 300.0,42.0 L 328.0,42.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="24.0" width="170.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="45.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Subscriber 1 (Email)</text>
+  <text x="508.0" y="46.0" fill="#475569" font-size="10" text-anchor="start">nhận bản sao</text>
+  <path d="M 270.0,81.0 L 300.0,81.0 L 300.0,86.0 L 328.0,86.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="68.0" width="170.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="89.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Subscriber 2 (Inventory)</text>
+  <text x="508.0" y="90.0" fill="#475569" font-size="10" text-anchor="start">nhận bản sao</text>
+  <path d="M 270.0,81.0 L 300.0,81.0 L 300.0,130.0 L 328.0,130.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="112.0" width="170.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="415.0" y="133.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Subscriber 3 (Analytics)</text>
+  <text x="508.0" y="134.0" fill="#475569" font-size="10" text-anchor="start">nhận bản sao</text>
+</svg>
 
 - Dùng cho **event broadcast / fan-out**: một sự kiện → nhiều bên quan tâm.
 - Mỗi subscriber nhận **bản sao riêng** của message (khác hẳn queue — không chia nhau).
@@ -203,13 +233,28 @@ partition 2:  [o:0][o:1][o:2][o:3][o:4]
 
 Các consumer trong cùng một **consumer group** *chia nhau* các partition của topic. **Một partition chỉ được gán cho đúng 1 consumer trong group** tại một thời điểm.
 
-\`\`\`
-Topic "orders" có 3 partition. Consumer group "billing" có 3 consumer:
-
-  P0 ──► consumer C1
-  P1 ──► consumer C2        ← mỗi consumer 1 partition → song song hoàn toàn
-  P2 ──► consumer C3
-\`\`\`
+<svg viewBox="0 0 640 186" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Consumer group với 3 consumer trên 3 partition: mỗi consumer gắn đúng một partition, xử lý song song">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <text x="20.0" y="26.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Topic "orders" (3 partition)</text>
+  <text x="330.0" y="26.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Consumer group "billing"</text>
+  <rect x="20.0" y="40.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="61.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P0</text>
+  <line x1="142.0" y1="57.0" x2="328.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="40.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="390.0" y="61.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">consumer C1</text>
+  <rect x="20.0" y="86.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="107.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P1</text>
+  <line x1="142.0" y1="103.0" x2="328.0" y2="103.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="86.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="390.0" y="107.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">consumer C2</text>
+  <rect x="20.0" y="132.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="153.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P2</text>
+  <line x1="142.0" y1="149.0" x2="328.0" y2="149.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="132.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="390.0" y="153.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">consumer C3</text>
+  <text x="460.0" y="100.0" fill="#475569" font-size="11" text-anchor="start">← mỗi consumer 1 partition</text>
+  <text x="460.0" y="116.0" fill="#475569" font-size="11" text-anchor="start">→ song song hoàn toàn</text>
+</svg>
 
 Nếu group có **2** consumer cho 3 partition:
 
@@ -220,12 +265,29 @@ Nếu group có **2** consumer cho 3 partition:
 
 Nếu group có **4** consumer cho 3 partition → 1 consumer **rảnh** (không có partition nào):
 
-\`\`\`
-  P0 ──► C1
-  P1 ──► C2
-  P2 ──► C3
-        C4  ← idle (số consumer hữu ích tối đa = số partition)
-\`\`\`
+<svg viewBox="0 0 760 226" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="4 consumer nhưng chỉ 3 partition: C4 không có partition nào để đọc, đứng idle">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <text x="20.0" y="26.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Topic "orders" (3 partition)</text>
+  <text x="330.0" y="26.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Consumer group "billing"</text>
+  <rect x="20.0" y="40.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="61.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P0</text>
+  <line x1="142.0" y1="57.0" x2="328.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="40.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="390.0" y="61.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">consumer C1</text>
+  <rect x="20.0" y="86.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="107.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P1</text>
+  <line x1="142.0" y1="103.0" x2="328.0" y2="103.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="86.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="390.0" y="107.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">consumer C2</text>
+  <rect x="20.0" y="132.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="153.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P2</text>
+  <line x1="142.0" y1="149.0" x2="328.0" y2="149.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="330.0" y="132.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="390.0" y="153.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">consumer C3</text>
+  <rect x="330.0" y="178.0" width="120.0" height="34.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="390.0" y="199.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">C4</text>
+  <text x="458.0" y="199.0" fill="#475569" font-size="10" text-anchor="start">← idle (số consumer hữu ích tối đa = số partition)</text>
+</svg>
 
 > ⚠ **Quy tắc vàng**: số consumer hữu ích trong 1 group ≤ số partition. Muốn scale lên 10 consumer → cần ≥ 10 partition. Đặt số partition là quyết định *kiến trúc* khó đổi về sau (đổi số partition làm thay đổi key→partition mapping).
 

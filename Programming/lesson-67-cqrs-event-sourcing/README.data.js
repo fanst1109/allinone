@@ -206,13 +206,22 @@ func (a Account) apply(e Event) Account {
 
 **Quan trọng:** \`apply\` chỉ biến đổi state, **không validate**. Validate là việc của command handler **trước khi** sinh event (vì event là sự thật đã xảy ra — không thể từ chối quá khứ). Phân biệt rõ:
 
-\`\`\`
-Command (PlaceWithdraw 200)
-   │  command handler validate: balance đủ không?
-   ▼
-   ├─ nếu THIẾU → từ chối, KHÔNG sinh event
-   └─ nếu ĐỦ   → sinh event Withdrew{200}  → apply → balance giảm
-\`\`\`
+<svg viewBox="0 0 580 184" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Command handler: validate PlaceWithdraw 200; thiếu tiền thì từ chối không sinh event, đủ thì sinh event Withdrew rồi apply">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="150.0" y="16.0" width="260.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Command: PlaceWithdraw 200</text>
+  <line x1="280.0" y1="58.0" x2="280.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="290.0" y="76.0" fill="#475569" font-size="10" text-anchor="start">command handler validate: balance đủ không?</text>
+  <circle cx="280.0" cy="92.0" r="5" fill="#1a202c"/>
+  <path d="M 280.0,92.0 L 150.0,92.0 L 150.0,120.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <path d="M 280.0,92.0 L 410.0,92.0 L 410.0,120.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="30.0" y="122.0" width="240.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="150.0" y="140.3" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">THIẾU → từ chối</text>
+  <text x="150.0" y="155.3" fill="#475569" font-size="10" text-anchor="middle">KHÔNG sinh event</text>
+  <rect x="290.0" y="122.0" width="260.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="420.0" y="140.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">ĐỦ → sinh event Withdrew{200}</text>
+  <text x="420.0" y="155.3" fill="#475569" font-size="10" text-anchor="middle">apply → balance giảm</text>
+</svg>
 
 ### 4.1 Walk-through replay bằng số thật
 
@@ -496,14 +505,24 @@ Còn vài cái nhỏ hơn nhưng đau:
 
 Trong CQRS + ES, ghi và đọc đi qua **hai đường khác nhau**:
 
-\`\`\`
-Command → write (ghi event) ──┐
-                              ▼
-                          Event store
-                              │  (projection bất đồng bộ, có ĐỘ TRỄ)
-                              ▼
-                          Read model ← Query
-\`\`\`
+<svg viewBox="0 0 600 186" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CQRS: Command ghi event vào Event store; projection bất đồng bộ dựng Read model có độ trễ; Query đọc từ Read model">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="20.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="44.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Command</text>
+  <line x1="128.0" y1="40.0" x2="196.0" y2="40.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="162.0" y="32.0" fill="#475569" font-size="9" text-anchor="middle">write (ghi event)</text>
+  <rect x="198.0" y="20.0" width="140.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="268.0" y="44.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Event store</text>
+  <line x1="268.0" y1="62.0" x2="268.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="278.0" y="88.0" fill="#475569" font-size="10" text-anchor="start">projection bất đồng bộ</text>
+  <text x="278.0" y="102.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">(có ĐỘ TRỄ)</text>
+  <rect x="198.0" y="126.0" width="140.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="268.0" y="150.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Read model</text>
+  <line x1="468.0" y1="146.0" x2="340.0" y2="146.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="404.0" y="138.0" fill="#475569" font-size="10" text-anchor="middle">Query</text>
+  <rect x="470.0" y="126.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="525.0" y="150.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Query</text>
+</svg>
 
 Vì projection cập nhật read model **sau một khoảng trễ** (vài ms tới vài giây), read model **lag** sau write. Hệ quả khó chịu nhất là **read-your-write**: user vừa đặt đơn hàng thành công, refresh ngay → read model **chưa kịp cập nhật** → "không thấy đơn vừa đặt" → user hoang mang.
 

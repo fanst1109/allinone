@@ -189,15 +189,27 @@ Khi một nghiệp vụ cần **nhiều service phối hợp** (vd: order → pa
 
 **Không có nhạc trưởng.** Mỗi service tự lắng nghe event và phản ứng, phát ra event mới. Luồng "tự chảy" qua chuỗi event.
 
-\`\`\`
-OrderService:     publish OrderCreated
-                       ↓ (PaymentService nghe)
-PaymentService:   xử lý → publish PaymentCharged
-                       ↓ (InventoryService nghe)
-InventoryService: xử lý → publish StockReserved
-                       ↓ (ShippingService nghe)
-ShippingService:  xử lý → publish ShipmentScheduled
-\`\`\`
+<svg viewBox="0 0 560 362" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Choreography: mỗi service nghe event của service trước rồi phát event của mình, không có điều phối trung tâm">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="260.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">OrderService</text>
+  <text x="150.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">publish OrderCreated</text>
+  <line x1="150.0" y1="74.0" x2="150.0" y2="104.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="158.0" y="93.0" fill="#475569" font-size="10" text-anchor="start">PaymentService nghe OrderCreated</text>
+  <rect x="20.0" y="106.0" width="260.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="150.0" y="131.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">PaymentService</text>
+  <text x="150.0" y="147.2" fill="#475569" font-size="11" text-anchor="middle">xử lý → publish PaymentCharged</text>
+  <line x1="150.0" y1="166.0" x2="150.0" y2="196.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="158.0" y="185.0" fill="#475569" font-size="10" text-anchor="start">InventoryService nghe PaymentCharged</text>
+  <rect x="20.0" y="198.0" width="260.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="150.0" y="223.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">InventoryService</text>
+  <text x="150.0" y="239.2" fill="#475569" font-size="11" text-anchor="middle">xử lý → publish StockReserved</text>
+  <line x1="150.0" y1="258.0" x2="150.0" y2="288.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="158.0" y="277.0" fill="#475569" font-size="10" text-anchor="start">ShippingService nghe StockReserved</text>
+  <rect x="20.0" y="290.0" width="260.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="150.0" y="315.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">ShippingService</text>
+  <text x="150.0" y="331.2" fill="#475569" font-size="11" text-anchor="middle">xử lý → publish ShipmentScheduled</text>
+</svg>
 
 > **💡 Trực giác**: như một điệu nhảy tập thể không có biên đạo đứng chỉ — mỗi vũ công nhìn người bên cạnh và tự biết bước tiếp theo. Đẹp khi trơn tru, nhưng nếu một người sai nhịp thì khó biết "ai đang dẫn".
 
@@ -207,15 +219,30 @@ ShippingService:  xử lý → publish ShipmentScheduled
 
 Một **orchestrator** trung tâm (vd \`OrderSaga\`) điều phối: nó gửi command tới từng service, nhận kết quả, quyết định bước tiếp.
 
-\`\`\`
-        OrderOrchestrator
-        ┌──────┼──────┬──────────┐
-        ↓      ↓      ↓          ↓
-   (1)Charge (2)Reserve (3)Schedule
-   Payment   Stock     Shipment
-        ↑      ↑      ↑
-     PaymentCharged / StockReserved / ... (reply về orchestrator)
-\`\`\`
+<svg viewBox="0 0 560 212" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Orchestration: OrderOrchestrator gửi lần lượt ChargePayment, ReserveStock, ScheduleShipment; các service reply bằng event về orchestrator">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="170.0" y="16.0" width="220.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">OrderOrchestrator</text>
+  <path d="M 280.0,56.0 L 280.0,76.0 L 68.0,76.0 L 68.0,112.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 92.0,112.0 L 92.0,90.0 L 292.0,90.0 L 292.0,58.0" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#arg)"/>
+  <rect x="0.0" y="114.0" width="160.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="80.0" y="130.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">ChargePayment</text>
+  <text x="80.0" y="145.3" fill="#475569" font-size="10" text-anchor="middle">(1) command</text>
+  <text x="80.0" y="172.0" fill="#15803d" font-size="10" text-anchor="middle">reply: PaymentCharged</text>
+  <path d="M 280.0,56.0 L 280.0,76.0 L 268.0,76.0 L 268.0,112.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 292.0,112.0 L 292.0,90.0 L 292.0,90.0 L 292.0,58.0" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#arg)"/>
+  <rect x="200.0" y="114.0" width="160.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="130.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">ReserveStock</text>
+  <text x="280.0" y="145.3" fill="#475569" font-size="10" text-anchor="middle">(2) command</text>
+  <text x="280.0" y="172.0" fill="#15803d" font-size="10" text-anchor="middle">reply: StockReserved</text>
+  <path d="M 280.0,56.0 L 280.0,76.0 L 468.0,76.0 L 468.0,112.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 492.0,112.0 L 492.0,90.0 L 292.0,90.0 L 292.0,58.0" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#arg)"/>
+  <rect x="400.0" y="114.0" width="160.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="480.0" y="130.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">ScheduleShipment</text>
+  <text x="480.0" y="145.3" fill="#475569" font-size="10" text-anchor="middle">(3) command</text>
+  <text x="480.0" y="172.0" fill="#15803d" font-size="10" text-anchor="middle">reply: ShipmentScheduled</text>
+  <text x="280.0" y="196.0" fill="#475569" font-size="10" text-anchor="middle">Mũi tên liền: orchestrator gửi command · nét đứt xanh: event trả lời về orchestrator</text>
+</svg>
 
 Orchestrator: \`gửi ChargePayment\` → chờ \`PaymentCharged\` → \`gửi ReserveStock\` → chờ \`StockReserved\` → \`gửi ScheduleShipment\` → ...
 
@@ -515,12 +542,38 @@ Một event mà consumer **xử lý mãi không xong** (bug, data hỏng, depend
 
 **Retry với backoff**: thử lại vài lần, mỗi lần chờ lâu hơn (1s, 2s, 4s...). Nếu vẫn fail sau N lần → chuyển sang **Dead Letter Queue (DLQ)**.
 
-\`\`\`
-event → consumer fail → retry (1s) → fail → retry (2s) → ... → fail lần thứ N
-     → đẩy vào DLQ  (kèm metadata: lý do lỗi, số lần thử, stack trace)
-     → luồng chính tiếp tục với event sau (không bị kẹt)
-     → người/đội xử lý DLQ riêng: sửa bug, fix data, rồi replay
-\`\`\`
+<svg viewBox="0 0 800 214" style="max-width:800px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dead Letter Queue: event fail sau N lần retry được đẩy vào DLQ kèm metadata; luồng chính tiếp tục, đội riêng xử lý và replay">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="20.0" width="70.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="51.0" y="42.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">event</text>
+  <line x1="88.0" y1="38.0" x2="116.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="118.0" y="20.0" width="120.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="178.0" y="42.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">consumer fail</text>
+  <line x1="240.0" y1="38.0" x2="268.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="270.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="315.0" y="42.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">retry (1s)</text>
+  <line x1="362.0" y1="38.0" x2="390.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="392.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="437.0" y="42.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">retry (2s)</text>
+  <line x1="484.0" y1="38.0" x2="512.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="514.0" y="20.0" width="60.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="544.0" y="42.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="576.0" y1="38.0" x2="604.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="606.0" y="20.0" width="110.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="661.0" y="42.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">fail lần thứ N</text>
+  <line x1="661.0" y1="58.0" x2="661.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="480.0" y="88.0" width="300.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="630.0" y="106.3" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">DLQ (Dead Letter Queue)</text>
+  <text x="630.0" y="121.3" fill="#475569" font-size="10" text-anchor="middle">kèm lý do lỗi, số lần thử, stack trace</text>
+  <path d="M 480.0,110.0 L 300.0,110.0 L 300.0,150.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="120.0" y="152.0" width="300.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="270.0" y="170.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">luồng chính tiếp tục event sau</text>
+  <text x="270.0" y="185.3" fill="#475569" font-size="10" text-anchor="middle">không bị kẹt</text>
+  <line x1="630.0" y1="134.0" x2="630.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="480.0" y="152.0" width="300.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="630.0" y="170.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">người/đội xử lý DLQ riêng</text>
+  <text x="630.0" y="185.3" fill="#475569" font-size="10" text-anchor="middle">sửa bug, fix data, rồi replay</text>
+</svg>
 
 > **⚠ Lỗi thường gặp**
 >

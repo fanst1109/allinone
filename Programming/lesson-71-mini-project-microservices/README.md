@@ -86,11 +86,19 @@ Mỗi service là một **package độc lập** trong `solutions/internal/`. Qu
 
 **Trách nhiệm**: tạo order, theo dõi vòng đời trạng thái.
 
-```
-PENDING ──(saga thành công)──> CONFIRMED
-   │
-   └────(saga thất bại)──────> CANCELLED
-```
+<svg viewBox="0 0 460 166" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trạng thái order: PENDING chuyển sang CONFIRMED nếu saga thành công, sang CANCELLED nếu saga thất bại">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="71.0" y="74.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">PENDING</text>
+  <line x1="128.0" y1="62.0" x2="318.0" y2="62.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="223.0" y="55.0" fill="#15803d" font-size="10" text-anchor="middle">saga thành công</text>
+  <rect x="320.0" y="42.0" width="120.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="66.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">CONFIRMED</text>
+  <path d="M 71.0,92.0 L 71.0,130.0 L 318.0,130.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="190.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="middle">saga thất bại</text>
+  <rect x="320.0" y="110.0" width="120.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="380.0" y="134.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">CANCELLED</text>
+</svg>
 
 API chính:
 
@@ -157,14 +165,33 @@ func (s *Service) Stock(sku string) int
 
 > 💡 **Trực giác.** Saga giống chơi cờ domino dựng đứng: bạn đặt từng quân (forward). Nếu một quân không đứng được, bạn phải **gỡ ngược** những quân đã đặt — không gỡ theo thứ tự đặt mà theo **thứ tự ngược** (cái đặt cuối gỡ trước), vì cái sau có thể phụ thuộc cái trước.
 
-```
-FORWARD (thứ tự tiến):
-  CreateOrder ─► ReserveInventory ─► ChargePayment ─► ConfirmOrder
-       │                │                 │
-       ▼                ▼                 ▼
-COMPENSATION (chạy NGƯỢC nếu một bước sau fail):
-  CancelOrder ◄─ ReleaseInventory ◄─ RefundPayment
-```
+<svg viewBox="0 0 666 186" style="max-width:666px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Saga forward: CreateOrder → ReserveInventory → ChargePayment → ConfirmOrder; compensation ngược: RefundPayment → ReleaseInventory → CancelOrder">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <text x="16.0" y="30.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">FORWARD (thứ tự tiến):</text>
+  <rect x="16.0" y="40.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="81.0" y="61.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">CreateOrder</text>
+  <rect x="166.0" y="40.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="231.0" y="61.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">ReserveInventory</text>
+  <rect x="346.0" y="40.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="411.0" y="61.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">ChargePayment</text>
+  <rect x="516.0" y="40.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="581.0" y="61.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">ConfirmOrder</text>
+  <line x1="148.0" y1="58.0" x2="164.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="298.0" y1="58.0" x2="344.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="478.0" y1="58.0" x2="514.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="16.0" y="120.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">COMPENSATION (chạy NGƯỢC nếu một bước sau fail):</text>
+  <rect x="16.0" y="130.0" width="130.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="81.0" y="151.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">CancelOrder</text>
+  <rect x="166.0" y="130.0" width="130.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="231.0" y="151.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">ReleaseInventory</text>
+  <rect x="346.0" y="130.0" width="130.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="411.0" y="151.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">RefundPayment</text>
+  <line x1="81.0" y1="78.0" x2="81.0" y2="128.0" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <line x1="231.0" y1="78.0" x2="231.0" y2="128.0" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <line x1="411.0" y1="78.0" x2="411.0" y2="128.0" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <line x1="164.0" y1="148.0" x2="148.0" y2="148.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <line x1="344.0" y1="148.0" x2="298.0" y2="148.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+</svg>
 
 Bảng ánh xạ bước ↔ bồi hoàn:
 
@@ -251,27 +278,39 @@ Quy luật chung: fail ở bước thứ `k` (1-indexed) → đúng `k-1` bồi 
 
 ## 4. Architecture (kiến trúc)
 
-```
-                          ┌───────────────────────────┐
-                          │     SAGA ORCHESTRATOR      │
-                          │  (place-order coordinator) │
-                          │  forward steps + compensate│
-                          └─────────────┬─────────────┘
-                                        │ publish / subscribe
-                          ┌─────────────▼─────────────┐
-                          │       MESSAGE BUS          │
-                          │  (in-memory, pub/sub,      │
-                          │   at-least-once + dedup)   │
-                          └──┬───────────┬──────────┬──┘
-            order.* events   │           │          │  payment.* events
-                     ┌───────▼──┐   ┌────▼─────┐  ┌─▼──────────┐
-                     │  ORDER   │   │INVENTORY │  │  PAYMENT   │
-                     │ service  │   │ service  │  │  service   │
-                     │ PENDING/ │   │ reserve/ │  │  charge/   │
-                     │ CONFIRMED│   │ release  │  │  refund    │
-                     │ CANCELLED│   │ stock[]  │  │ charges[]  │
-                     └──────────┘   └──────────┘  └────────────┘
-```
+<svg viewBox="0 0 600 312" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc mini-project: Saga Orchestrator nói với Message Bus (pub/sub, at-least-once + dedup); bus nối tới Order, Inventory, Payment service">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="170.0" y="16.0" width="260.0" height="56.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="32.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">SAGA ORCHESTRATOR</text>
+  <text x="300.0" y="47.9" fill="#475569" font-size="10" text-anchor="middle">(place-order coordinator)</text>
+  <text x="300.0" y="62.9" fill="#475569" font-size="10" text-anchor="middle">forward steps + compensate</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="104.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="308.0" y="93.0" fill="#475569" font-size="10" text-anchor="start">publish / subscribe</text>
+  <rect x="170.0" y="106.0" width="260.0" height="56.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="122.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">MESSAGE BUS</text>
+  <text x="300.0" y="137.8" fill="#475569" font-size="10" text-anchor="middle">(in-memory, pub/sub,</text>
+  <text x="300.0" y="152.8" fill="#475569" font-size="10" text-anchor="middle">at-least-once + dedup)</text>
+  <path d="M 300.0,162.0 L 300.0,180.0 L 100.0,180.0 L 100.0,206.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 300.0,162.0 L 300.0,206.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 300.0,162.0 L 300.0,180.0 L 500.0,180.0 L 500.0,206.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="90.0" y="196.0" fill="#475569" font-size="9" text-anchor="end">order.* events</text>
+  <text x="510.0" y="196.0" fill="#475569" font-size="9" text-anchor="start">payment.* events</text>
+  <rect x="20.0" y="208.0" width="160.0" height="86.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="100.0" y="232.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">ORDER service</text>
+  <text x="100.0" y="247.3" fill="#475569" font-size="10" text-anchor="middle">PENDING /</text>
+  <text x="100.0" y="262.4" fill="#475569" font-size="10" text-anchor="middle">CONFIRMED /</text>
+  <text x="100.0" y="277.4" fill="#475569" font-size="10" text-anchor="middle">CANCELLED</text>
+  <rect x="220.0" y="208.0" width="160.0" height="86.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="232.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">INVENTORY service</text>
+  <text x="300.0" y="247.3" fill="#475569" font-size="10" text-anchor="middle">reserve /</text>
+  <text x="300.0" y="262.4" fill="#475569" font-size="10" text-anchor="middle">release</text>
+  <text x="300.0" y="277.4" fill="#475569" font-size="10" text-anchor="middle">stock[]</text>
+  <rect x="420.0" y="208.0" width="160.0" height="86.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="500.0" y="232.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">PAYMENT service</text>
+  <text x="500.0" y="247.3" fill="#475569" font-size="10" text-anchor="middle">charge /</text>
+  <text x="500.0" y="262.4" fill="#475569" font-size="10" text-anchor="middle">refund</text>
+  <text x="500.0" y="277.4" fill="#475569" font-size="10" text-anchor="middle">charges[]</text>
+</svg>
 
 > 💡 **Trực giác.** Message bus giống một **băng chuyền bưu kiện ở sân bay**. Mỗi service đặt kiện hàng (event) lên băng chuyền với một nhãn topic; ai đăng ký nhận topic đó thì gắp kiện xuống. Người gửi không cần biết ai sẽ nhận, không cần biết người nhận có đang bận hay không (băng chuyền đệm giúp). Đó là vì sao bus làm **giảm coupling**: thêm/bớt một service nhận chỉ là thêm/bớt người đứng cạnh băng chuyền, không đụng tới người gửi.
 
@@ -463,17 +502,47 @@ Nhìn cột "kho": nó tụt xuống 2 rồi **về lại 3** — đúng như "c
 
 > 💡 **Trực giác.** Có thể nhìn cả saga như một **máy trạng thái (state machine)**: mỗi event đẩy saga sang trạng thái kế tiếp. Đây cũng là cầu nối tới **event sourcing** (L67) — nếu lưu lại TOÀN BỘ event theo thứ tự, bạn có thể "tua lại" (replay) để dựng lại trạng thái cuối của bất kỳ order nào, mà không cần lưu trạng thái riêng.
 
-```
-        order.created          inventory.reserved        payment.charged       order.confirm
- START ───────────────► CREATED ──────────────► RESERVED ───────────► CHARGED ─────────────► CONFIRMED
-                           │                       │                     │
-                           │ (fail)                │ (fail)              │ (fail)
-                           ▼                        ▼                     ▼
-                       order.cancel          inventory.released     payment.refunded
-                           │                        │                     │
-                           ▼                        ▼                     ▼
-                       CANCELLED  ◄───────────  CANCELLED  ◄──────────  CANCELLED
-```
+<svg viewBox="0 0 880 200" style="max-width:880px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái saga đặt hàng: START → CREATED → RESERVED → CHARGED → CONFIRMED; fail ở bước nào thì chạy compensation ngược về CANCELLED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker></defs>
+  <rect x="16.0" y="30.0" width="80.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="56.0" y="50.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">START</text>
+  <rect x="170.0" y="30.0" width="110.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="225.0" y="50.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">CREATED</text>
+  <rect x="360.0" y="30.0" width="120.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="420.0" y="50.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">RESERVED</text>
+  <rect x="560.0" y="30.0" width="110.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="615.0" y="50.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">CHARGED</text>
+  <rect x="740.0" y="30.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="800.0" y="50.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">CONFIRMED</text>
+  <line x1="98.0" y1="47.0" x2="168.0" y2="47.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="133.0" y="20.0" fill="#475569" font-size="9" text-anchor="middle">order.created</text>
+  <line x1="282.0" y1="47.0" x2="358.0" y2="47.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="320.0" y="20.0" fill="#475569" font-size="9" text-anchor="middle">inventory.reserved</text>
+  <line x1="482.0" y1="47.0" x2="558.0" y2="47.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="520.0" y="20.0" fill="#475569" font-size="9" text-anchor="middle">payment.charged</text>
+  <line x1="672.0" y1="47.0" x2="738.0" y2="47.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="705.0" y="20.0" fill="#475569" font-size="9" text-anchor="middle">order.confirm</text>
+  <line x1="225.0" y1="66.0" x2="225.0" y2="100.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="231.0" y="86.0" fill="#dc2626" font-size="9" text-anchor="start">(fail)</text>
+  <text x="225.0" y="112.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">order.cancel</text>
+  <line x1="225.0" y1="118.0" x2="225.0" y2="148.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <rect x="170.0" y="150.0" width="110.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="225.0" y="170.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">CANCELLED</text>
+  <line x1="420.0" y1="66.0" x2="420.0" y2="100.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="426.0" y="86.0" fill="#dc2626" font-size="9" text-anchor="start">(fail)</text>
+  <text x="420.0" y="112.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">inventory.released</text>
+  <line x1="420.0" y1="118.0" x2="420.0" y2="148.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <rect x="365.0" y="150.0" width="110.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="420.0" y="170.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">CANCELLED</text>
+  <line x1="615.0" y1="66.0" x2="615.0" y2="100.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="621.0" y="86.0" fill="#dc2626" font-size="9" text-anchor="start">(fail)</text>
+  <text x="615.0" y="112.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">payment.refunded</text>
+  <line x1="615.0" y1="118.0" x2="615.0" y2="148.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <rect x="560.0" y="150.0" width="110.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="615.0" y="170.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">CANCELLED</text>
+  <line x1="558.0" y1="167.0" x2="477.0" y2="167.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <line x1="363.0" y1="167.0" x2="282.0" y2="167.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+</svg>
 
 `bus.Log()` trong code chính là một **event log** thu nhỏ: nó ghi mọi event đã publish theo thứ tự. Trong `TestLog` ta kiểm tra log có đúng số event. Production sẽ persist log này (Kafka topic / event store) để audit và replay.
 

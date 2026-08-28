@@ -65,12 +65,30 @@ Không biến mất hoàn toàn. Bộ lọc RC bậc 1 **suy giảm dần** (kh�
 
 Mắc nối tiếp **R** rồi **C**, lấy điện áp ra tại hai đầu tụ C:
 
-```
-V_in ─── R ─── ┬─── V_out
-               C
-               │
-              GND
-```
+<svg viewBox="0 0 420 220" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bộ lọc thông thấp RC: R nối tiếp, C xuống GND, V_out lấy trên C">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_in</text>
+  <line x1="60.0" y1="60.0" x2="158.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="158.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="372.0" y="64.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V_out</text>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="88.0" x2="260.0" y2="105.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="248.0" y1="105.0" x2="272.0" y2="105.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="248.0" y1="115.0" x2="272.0" y2="115.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="260.0" y1="115.0" x2="260.0" y2="132.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="276.0" y="114.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">C</text>
+  <line x1="260.0" y1="132.0" x2="260.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="150.0" x2="260.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="160.0" x2="274.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="165.0" x2="269.0" y2="165.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="170.0" x2="264.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="184.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">tần số cao: C 'ngắn mạch' → V_out nhỏ · f_c = 1/(2πRC)</text>
+</svg>
 
 Tụ C đóng vai trò **chia áp phụ thuộc tần số**. Nhớ lại từ [Lesson 04](../lesson-04-capacitor-rc/) và [Lesson 06](../lesson-06-ac-impedance-rlc/): trở kháng tụ $Z_C = 1/(j\omega C)$ với $\omega = 2\pi f$.
 
@@ -176,12 +194,30 @@ $f_c = \dfrac{1}{2\pi \times 2200 \times 47 \times 10^{-9}} = \dfrac{1}{2\pi \ti
 
 Đổi vị trí R và C: mắc **C nối tiếp** trước, lấy điện áp ra tại **R**:
 
-```
-V_in ─── C ─── ┬─── V_out
-               R
-               │
-              GND
-```
+<svg viewBox="0 0 420 220" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bộ lọc thông cao RC: C nối tiếp, R xuống GND, V_out lấy trên R">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_in</text>
+  <line x1="60.0" y1="60.0" x2="158.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="158.0" y1="60.0" x2="175.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="175.0" y1="48.0" x2="175.0" y2="72.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="185.0" y1="48.0" x2="185.0" y2="72.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="185.0" y1="60.0" x2="202.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="180.0" y="42.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="372.0" y="64.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V_out</text>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="253.0" y="88.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="272.0" y="114.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R</text>
+  <line x1="260.0" y1="132.0" x2="260.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="150.0" x2="260.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="160.0" x2="274.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="165.0" x2="269.0" y2="165.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="170.0" x2="264.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="184.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">tần số thấp: C 'hở mạch' → V_out nhỏ · f_c = 1/(2πRC)</text>
+</svg>
 
 💡 **Hình dung**: Tụ C chặn một chiều (DC) và cản tần số thấp. Khi tần số thấp, $Z_C$ lớn → điện áp rơi chủ yếu trên C → $V_{\text{out}}$ nhỏ. Khi tần số cao, $Z_C$ nhỏ → C gần ngắn mạch → hầu hết điện áp rơi trên R → $V_{\text{out}} \approx V_{\text{in}}$.
 
@@ -327,33 +363,93 @@ Ghép nhiều tầng RC nối tiếp → độ dốc dốc hơn:
 
 **Phần dốc** (roll-off region): ở f >> f_c, đường thẳng nghiêng xuống với độ dốc **−20 dB/decade**. Mỗi decade (×10 lần tần số) = giảm thêm 20 dB.
 
-```
-Biên độ (dB)
-     0 ─────────────────────────\
-                                 \
-   −20                            \  ← dốc −20 dB/decade
-                                   \
-   −40                              \
-         10   100  1k   10k  100k  (Hz, thang log)
-                   ↑
-                  f_c
-```
+<svg viewBox="0 0 640 220" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị Bode biên độ bộ lọc thông thấp: 0 dB dưới f_c, giảm −20 dB/decade trên f_c = 1 kHz, −3 dB tại f_c">
+  <defs><marker id="bd1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="160.0" y1="174.4" x2="160.0" y2="42.4"/>
+<line x1="250.0" y1="174.4" x2="250.0" y2="42.4"/>
+<line x1="340.0" y1="174.4" x2="340.0" y2="42.4"/>
+<line x1="430.0" y1="174.4" x2="430.0" y2="42.4"/>
+<line x1="520.0" y1="174.4" x2="520.0" y2="42.4"/>
+<line x1="70.0" y1="60.0" x2="547.0" y2="60.0"/>
+<line x1="70.0" y1="104.0" x2="547.0" y2="104.0"/>
+<line x1="70.0" y1="148.0" x2="547.0" y2="148.0"/>
+</g>
+  <line x1="64.0" y1="60.0" x2="569.0" y2="60.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bd1)"/>
+  <line x1="70.0" y1="180.4" x2="70.0" y2="20.4" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bd1)"/>
+  <text x="561.0" y="76.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">f (Hz, log)</text>
+  <text x="78.0" y="30.4" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">dB</text>
+  <line x1="160.0" y1="56.0" x2="160.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">10</text>
+  <line x1="250.0" y1="56.0" x2="250.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="250.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">100</text>
+  <line x1="340.0" y1="56.0" x2="340.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="340.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">1k</text>
+  <line x1="430.0" y1="56.0" x2="430.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="430.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">10k</text>
+  <line x1="520.0" y1="56.0" x2="520.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="520.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">100k</text>
+  <line x1="66.0" y1="60.0" x2="74.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="63.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">0</text>
+  <line x1="66.0" y1="104.0" x2="74.0" y2="104.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="63.0" y="108.0" fill="#475569" font-size="11" text-anchor="end">−20</text>
+  <line x1="66.0" y1="148.0" x2="74.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="63.0" y="152.0" fill="#475569" font-size="11" text-anchor="end">−40</text>
+  <path d="M 79.0,60.0 L 82.8,60.0 L 86.7,60.0 L 90.5,60.0 L 94.3,60.0 L 98.1,60.0 L 102.0,60.0 L 105.8,60.0 L 109.6,60.0 L 113.4,60.0 L 117.2,60.0 L 121.1,60.0 L 124.9,60.0 L 128.7,60.0 L 132.6,60.0 L 136.4,60.0 L 140.2,60.0 L 144.0,60.0 L 147.9,60.0 L 151.7,60.0 L 155.5,60.0 L 159.3,60.0 L 163.2,60.0 L 167.0,60.0 L 170.8,60.0 L 174.6,60.0 L 178.5,60.0 L 182.3,60.0 L 186.1,60.0 L 189.9,60.0 L 193.8,60.0 L 197.6,60.0 L 201.4,60.0 L 205.2,60.0 L 209.1,60.0 L 212.9,60.0 L 216.7,60.0 L 220.5,60.0 L 224.3,60.0 L 228.2,60.0 L 232.0,60.0 L 235.8,60.0 L 239.7,60.1 L 243.5,60.1 L 247.3,60.1 L 251.1,60.1 L 255.0,60.1 L 258.8,60.1 L 262.6,60.2 L 266.4,60.2 L 270.3,60.3 L 274.1,60.3 L 277.9,60.4 L 281.7,60.5 L 285.6,60.6 L 289.4,60.7 L 293.2,60.8 L 297.0,61.0 L 300.9,61.2 L 304.7,61.5 L 308.5,61.7 L 312.3,62.1 L 316.2,62.5 L 320.0,62.9 L 323.8,63.5 L 327.6,64.1 L 331.5,64.8 L 335.3,65.5 L 339.1,66.4 L 342.9,67.4 L 346.8,68.4 L 350.6,69.6 L 354.4,70.8 L 358.2,72.1 L 362.1,73.5 L 365.9,74.9 L 369.7,76.4 L 373.5,78.0 L 377.4,79.6 L 381.2,81.2 L 385.0,82.9 L 388.8,84.6 L 392.7,86.4 L 396.5,88.1 L 400.3,89.9 L 404.1,91.7 L 408.0,93.5 L 411.8,95.3 L 415.6,97.2 L 419.4,99.0 L 423.3,100.8 L 427.1,102.7 L 430.9,104.5 L 434.7,106.4 L 438.5,108.2 L 442.4,110.1 L 446.2,112.0 L 450.0,113.8 L 453.9,115.7 L 457.7,117.6 L 461.5,119.4 L 465.3,121.3 L 469.1,123.2 L 473.0,125.0 L 476.8,126.9 L 480.6,128.8 L 484.4,130.6 L 488.3,132.5 L 492.1,134.4 L 495.9,136.2 L 499.8,138.1 L 503.6,140.0 L 507.4,141.8 L 511.2,143.7 L 515.0,145.6 L 518.9,147.5 L 522.7,149.3 L 526.5,151.2 L 530.4,153.1 L 534.2,154.9 L 538.0,156.8" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="340.0" y1="174.4" x2="340.0" y2="55.6" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="340.0" y="47.2" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">f_c = 1 kHz (−3 dB)</text>
+  <circle cx="340.0" cy="66.6" r="4" fill="#dc2626"/>
+  <line x1="79.0" y1="60.0" x2="340.0" y2="60.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="340.0" y1="60.0" x2="538.0" y2="156.8" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="466.0" y="112.8" fill="#475569" font-size="11" text-anchor="start">dốc −20 dB/decade</text>
+  <text x="300.0" y="205.0" fill="#475569" font-size="10" text-anchor="middle">đường xanh: đáp ứng thật · nét đứt: xấp xỉ tiệm cận</text>
+</svg>
 
 ### 5.3. Giản đồ Bode cho HPF bậc 1
 
 Đối xứng ngược với LPF:
 
-```
-Biên độ (dB)
-     0                      ─────────────────
-                            /
-   −20           /         /  ← dốc +20 dB/decade
-                /
-   −40         /
-         10   100  1k   10k  100k  (Hz, thang log)
-                   ↑
-                  f_c
-```
+<svg viewBox="0 0 640 220" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị Bode biên độ bộ lọc thông cao: tăng +20 dB/decade dưới f_c, 0 dB trên f_c = 1 kHz">
+  <defs><marker id="bd2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="160.0" y1="174.4" x2="160.0" y2="42.4"/>
+<line x1="250.0" y1="174.4" x2="250.0" y2="42.4"/>
+<line x1="340.0" y1="174.4" x2="340.0" y2="42.4"/>
+<line x1="430.0" y1="174.4" x2="430.0" y2="42.4"/>
+<line x1="520.0" y1="174.4" x2="520.0" y2="42.4"/>
+<line x1="70.0" y1="60.0" x2="547.0" y2="60.0"/>
+<line x1="70.0" y1="104.0" x2="547.0" y2="104.0"/>
+<line x1="70.0" y1="148.0" x2="547.0" y2="148.0"/>
+</g>
+  <line x1="64.0" y1="60.0" x2="569.0" y2="60.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bd2)"/>
+  <line x1="70.0" y1="180.4" x2="70.0" y2="20.4" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bd2)"/>
+  <text x="561.0" y="76.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">f (Hz, log)</text>
+  <text x="78.0" y="30.4" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">dB</text>
+  <line x1="160.0" y1="56.0" x2="160.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">10</text>
+  <line x1="250.0" y1="56.0" x2="250.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="250.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">100</text>
+  <line x1="340.0" y1="56.0" x2="340.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="340.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">1k</text>
+  <line x1="430.0" y1="56.0" x2="430.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="430.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">10k</text>
+  <line x1="520.0" y1="56.0" x2="520.0" y2="64.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="520.0" y="76.0" fill="#475569" font-size="11" text-anchor="middle">100k</text>
+  <line x1="66.0" y1="60.0" x2="74.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="63.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">0</text>
+  <line x1="66.0" y1="104.0" x2="74.0" y2="104.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="63.0" y="108.0" fill="#475569" font-size="11" text-anchor="end">−20</text>
+  <line x1="66.0" y1="148.0" x2="74.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="63.0" y="152.0" fill="#475569" font-size="11" text-anchor="end">−40</text>
+  <path d="M 79.0,187.6 L 82.8,185.7 L 86.7,183.9 L 90.5,182.0 L 94.3,180.1 L 98.1,178.3 L 102.0,176.4 L 105.8,174.5 L 109.6,172.6 L 113.4,170.8 L 117.2,168.9 L 121.1,167.0 L 124.9,165.2 L 128.7,163.3 L 132.6,161.4 L 136.4,159.6 L 140.2,157.7 L 144.0,155.8 L 147.9,153.9 L 151.7,152.1 L 155.5,150.2 L 159.3,148.3 L 163.2,146.5 L 167.0,144.6 L 170.8,142.7 L 174.6,140.9 L 178.5,139.0 L 182.3,137.1 L 186.1,135.2 L 189.9,133.4 L 193.8,131.5 L 197.6,129.6 L 201.4,127.8 L 205.2,125.9 L 209.1,124.0 L 212.9,122.2 L 216.7,120.3 L 220.5,118.4 L 224.3,116.6 L 228.2,114.7 L 232.0,112.8 L 235.8,111.0 L 239.7,109.1 L 243.5,107.3 L 247.3,105.4 L 251.1,103.6 L 255.0,101.7 L 258.8,99.9 L 262.6,98.0 L 266.4,96.2 L 270.3,94.4 L 274.1,92.6 L 277.9,90.8 L 281.7,89.0 L 285.6,87.2 L 289.4,85.4 L 293.2,83.7 L 297.0,82.0 L 300.9,80.3 L 304.7,78.7 L 308.5,77.1 L 312.3,75.6 L 316.2,74.1 L 320.0,72.7 L 323.8,71.4 L 327.6,70.1 L 331.5,68.9 L 335.3,67.8 L 339.1,66.8 L 342.9,65.9 L 346.8,65.1 L 350.6,64.4 L 354.4,63.7 L 358.2,63.2 L 362.1,62.7 L 365.9,62.3 L 369.7,61.9 L 373.5,61.6 L 377.4,61.3 L 381.2,61.1 L 385.0,60.9 L 388.8,60.8 L 392.7,60.6 L 396.5,60.5 L 400.3,60.4 L 404.1,60.4 L 408.0,60.3 L 411.8,60.2 L 415.6,60.2 L 419.4,60.2 L 423.3,60.1 L 427.1,60.1 L 430.9,60.1 L 434.7,60.1 L 438.5,60.1 L 442.4,60.1 L 446.2,60.0 L 450.0,60.0 L 453.9,60.0 L 457.7,60.0 L 461.5,60.0 L 465.3,60.0 L 469.1,60.0 L 473.0,60.0 L 476.8,60.0 L 480.6,60.0 L 484.4,60.0 L 488.3,60.0 L 492.1,60.0 L 495.9,60.0 L 499.8,60.0 L 503.6,60.0 L 507.4,60.0 L 511.2,60.0 L 515.0,60.0 L 518.9,60.0 L 522.7,60.0 L 526.5,60.0 L 530.4,60.0 L 534.2,60.0 L 538.0,60.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="340.0" y1="174.4" x2="340.0" y2="55.6" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="340.0" y="47.2" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">f_c = 1 kHz (−3 dB)</text>
+  <circle cx="340.0" cy="66.6" r="4" fill="#dc2626"/>
+  <line x1="340.0" y1="60.0" x2="538.0" y2="60.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="79.0" y1="187.6" x2="340.0" y2="60.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="106.0" y="112.8" fill="#475569" font-size="11" text-anchor="start">dốc +20 dB/decade</text>
+  <text x="300.0" y="205.0" fill="#475569" font-size="10" text-anchor="middle">đường xanh: đáp ứng thật · nét đứt: xấp xỉ tiệm cận</text>
+</svg>
 
 Phần dốc ở trái f_c dốc lên +20 dB/decade (tần số tăng gấp 10 → biên độ tăng gấp 10). Bên phải f_c: 0 dB.
 

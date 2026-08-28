@@ -41,13 +41,33 @@ Sau bài này bạn sẽ:
 - Khi tải kéo dòng $I$, có sụt áp trên $R_{\\text{nội}}$: $\\Delta V = I \\times R_{\\text{nội}}$.
 - Điện áp tại đầu ra (terminal voltage): $V_{\\text{tải}} = V_{\\text{nguồn}} - I \\times R_{\\text{nội}}$.
 
-\`\`\`
-  ┌───R_nội───┬─── (+) terminal
-  │           │
-[V_nguồn]   [R_tải]
-  │           │
-  └───────────┴─── (−) terminal
-\`\`\`
+<svg viewBox="0 0 460 250" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nguồn thật = nguồn lý tưởng V_nguồn nối tiếp nội trở R_nội; tải R_tải nối hai terminal (+) và (−)">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <circle cx="80" cy="120" r="18" fill="white" stroke="#15803d" stroke-width="2"/>
+  <text x="80.0" y="116.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">+</text>
+  <text x="80.0" y="133.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">−</text>
+  <text x="56.0" y="124.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">V_nguồn</text>
+  <line x1="80.0" y1="102.0" x2="80.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80.0" y1="60.0" x2="150.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="158.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="180.0" y="48.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">R_nội</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="300.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="360.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="376.0" y="64.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">(+)</text>
+  <line x1="300.0" y1="60.0" x2="300.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="293.0" y="98.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="312.0" y="124.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">R_tải</text>
+  <line x1="300.0" y1="142.0" x2="300.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80.0" y1="138.0" x2="80.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80.0" y1="180.0" x2="300.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="300.0" cy="180.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="180.0" x2="360.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="376.0" y="184.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">(−)</text>
+  <rect x="50.0" y="40.0" width="180.0" height="160.0" rx="6" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <text x="60.0" y="214.0" fill="#475569" font-size="10" text-anchor="start">bên trong nguồn thật</text>
+  <text x="230.0" y="236.0" fill="#475569" font-size="11" text-anchor="middle">V_terminal = V_nguồn − I·R_nội → càng tải nặng càng tụt áp</text>
+</svg>
 
 ### 1.2. Ví dụ số — Sụt áp nội trở
 
@@ -170,14 +190,31 @@ Multimeter có ít nhất 3 đầu đo:
 
 ### 3.2. Đo điện áp — mắc SONG SONG
 
-\`\`\`
-     R1
-──┬──┤├──┬──
-  │       │
- [V?]   [V]
-  │       │
-──┴───────┴──
-\`\`\`
+<svg viewBox="0 0 400 275" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mắc vôn kế: song song với R1 để đo hiệu điện thế hai đầu R1">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="30.0" y1="60.0" x2="100.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="100.0" y1="60.0" x2="160.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="168.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="212.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="300.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="360.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="100.0" y1="60.0" x2="100.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100" cy="130" r="16" fill="white" stroke="#94a3b8" stroke-width="2"/>
+  <text x="100.0" y="135.0" fill="#94a3b8" font-size="13" text-anchor="middle" font-weight="700">V?</text>
+  <line x1="100.0" y1="146.0" x2="100.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300.0" y1="60.0" x2="300.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="300" cy="130" r="16" fill="white" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="135.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">V</text>
+  <line x1="300.0" y1="146.0" x2="300.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="30.0" y1="180.0" x2="360.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100.0" cy="180.0" r="3.5" fill="#1a202c"/>
+  <circle cx="300.0" cy="180.0" r="3.5" fill="#1a202c"/>
+  <text x="100.0" y="236.0" fill="#94a3b8" font-size="10" text-anchor="middle">V? đo cả đoạn mạch (không phải riêng R1)</text>
+  <text x="300.0" y="236.0" fill="#dc2626" font-size="10" text-anchor="middle">ĐÚNG: vôn kế SONG SONG với R1</text>
+  <text x="200.0" y="260.0" fill="#475569" font-size="10" text-anchor="middle">vôn kế nội trở rất lớn → mắc song song phần tử cần đo, không làm đổi dòng</text>
+</svg>
 
 **Quy tắc**: Que đo cắm song song (parallel) với phần tử cần đo. Điện áp tại 2 điểm = nhau → đo được hiệu điện thế.
 
@@ -187,11 +224,22 @@ Multimeter có ít nhất 3 đầu đo:
 
 ### 3.3. Đo dòng điện — mắc NỐI TIẾP
 
-\`\`\`
-     R1       [A]
-──┬──┤├──┬────┤├────┬──
-  │       └───────────┘
-\`\`\`
+<svg viewBox="0 0 400 190" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mắc ampe kế: nối tiếp với R1 trong cùng nhánh để đo dòng qua R1">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="30.0" y1="60.0" x2="100.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="100.0" y1="60.0" x2="160.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="168.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="212.0" y1="60.0" x2="250.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="266" cy="60" r="16" fill="white" stroke="#dc2626" stroke-width="2"/>
+  <text x="266.0" y="65.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <line x1="282.0" y1="60.0" x2="360.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="360.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <text x="200.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">ampe kế nối TIẾP trong nhánh cần đo (nội trở rất nhỏ)</text>
+  <path d="M 100,60 L 100,110 L 360,110 L 360,60" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="230.0" y="172.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">nét đứt: KHÔNG được nối ampe kế song song — ngắn mạch, cháy máy đo</text>
+</svg>
 
 **Quy tắc**: Cắt mạch tại điểm cần đo, nối đồng hồ vào chỗ cắt (nối tiếp). Toàn bộ dòng phải chạy qua đồng hồ.
 

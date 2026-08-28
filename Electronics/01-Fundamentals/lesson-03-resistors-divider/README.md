@@ -42,10 +42,9 @@ Bảng mã màu (học thuộc: **B**lack **B**ears **R**obbed **O**ur **Y**ello
 
 **Cấu trúc 4 vòng**:
 
-```
-[Vòng 1] [Vòng 2] [Vòng 3 = Nhân] [Vòng 4 = Dung sai]
-  Chữ số đầu  Chữ số 2   Số nhân (thập phân)   ±%
-```
+| Vòng 1 | Vòng 2 | Vòng 3 = Nhân | Vòng 4 = Dung sai |
+|---|---|---|---|
+| Chữ số đầu | Chữ số 2 | Số nhân (lũy thừa 10) | ±% |
 
 Giá trị $= (\text{Vòng1} \times 10 + \text{Vòng2}) \times \text{Nhân}$.
 
@@ -174,14 +173,27 @@ Safety margin 2×: $0.172 \times 2 = 0.344$ W → chọn **½W (0.5 W)**. ¼W (0
 
 💡 **Trực giác**: Nối 2 điện trở R1 và R2 nối tiếp giữa V_in và GND. Điện áp "rơi" trên mỗi điện trở tỉ lệ thuận với giá trị điện trở đó — giống như chia miếng bánh: mảnh to hơn lấy phần lớn hơn.
 
-```
-       R1
-V_in ──┤├──┬─── V_out
-           │
-          R2
-           │
-          GND
-```
+<svg viewBox="0 0 420 230" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạch chia áp: R1 nối tiếp R2, V_out lấy giữa hai điện trở, R2 nối GND">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_in</text>
+  <line x1="60.0" y1="60.0" x2="158.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="158.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="372.0" y="64.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V_out</text>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="253.0" y="100.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="272.0" y="126.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R2</text>
+  <line x1="260.0" y1="144.0" x2="260.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="170.0" x2="260.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="180.0" x2="274.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="185.0" x2="269.0" y2="185.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="190.0" x2="264.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="204.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">V_out = V_in · R2 / (R1 + R2)</text>
+</svg>
 
 Dòng qua chuỗi: $I = V_{\text{in}} / (R_1 + R_2)$.
 
@@ -240,14 +252,37 @@ Kiểm tra: $I = 12 / 133{,}000 \approx 90.2$ µA. $V_{R_1} = 90.2$ µA $\times 
 
 Khi mắc tải $R_L$ song song với $R_2$, mạch không còn là phân áp đơn giản nữa:
 
-```
-       R1
-V_in ──┤├──┬─── V_out
-           │
-          R2 ││ R_L  (song song)
-           │
-          GND
-```
+<svg viewBox="0 0 420 230" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chia áp có tải: R_L mắc song song R2 làm điện trở dưới giảm, V_out tụt">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_in</text>
+  <line x1="60.0" y1="60.0" x2="158.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="158.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="372.0" y="64.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V_out</text>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="253.0" y="100.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="272.0" y="126.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">R2</text>
+  <line x1="260.0" y1="144.0" x2="260.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="170.0" x2="260.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="180.0" x2="274.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="185.0" x2="269.0" y2="185.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="190.0" x2="264.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="204.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <line x1="260.0" y1="60.0" x2="330.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="330.0" y1="60.0" x2="330.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="323.0" y="100.0" width="14.0" height="44.0" rx="0" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="342.0" y="126.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">R_L</text>
+  <line x1="330.0" y1="144.0" x2="330.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="330.0" y1="170.0" x2="330.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="316.0" y1="180.0" x2="344.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="321.0" y1="185.0" x2="339.0" y2="185.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="326.0" y1="190.0" x2="334.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="330.0" y="204.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">R2 ∥ R_L &lt; R2 → V_out giảm khi có tải</text>
+</svg>
 
 Điện trở tương đương: $R_{2,\text{eff}} = R_2 \times R_L / (R_2 + R_L)$ (luôn $< R_2$).
 
@@ -314,14 +349,31 @@ Vì $R_L = 2 \times R_2$, không đủ "$\gg R_2$" nên sụt điện áp đáng
 
 💡 **Trực giác**: Hai điện trở mắc **song song** chia sẻ cùng điện áp, nhưng mỗi nhánh có dòng khác nhau. Nhánh điện trở nhỏ hơn → dòng lớn hơn (ống rộng hơn, nước chảy nhiều hơn).
 
-```
-        I_tổng →
-V ──┬──┤R1├── → I1
-    │
-    └──┤R2├── → I2
-    │
-   GND
-```
+<svg viewBox="0 0 420 220" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạch chia dòng: I_tổng vào nút, chia thành I1 qua R1 và I2 qua R2 song song">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="30.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V</text>
+  <line x1="45.0" y1="60.0" x2="100.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="100.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="100.0" y1="30.0" x2="140.0" y2="30.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="120.0" y="22.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">I_tổng</text>
+  <line x1="100.0" y1="60.0" x2="100.0" y2="140.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="100.0" y1="60.0" x2="160.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="168.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="212.0" y1="60.0" x2="270.0" y2="60.0" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="290.0" y="64.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">I1</text>
+  <line x1="100.0" y1="120.0" x2="160.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="168.0" y="113.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="190.0" y="108.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R2</text>
+  <line x1="212.0" y1="120.0" x2="270.0" y2="120.0" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#arw)"/>
+  <text x="290.0" y="124.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">I2</text>
+  <line x1="100.0" y1="140.0" x2="100.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="86.0" y1="150.0" x2="114.0" y2="150.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="91.0" y1="155.0" x2="109.0" y2="155.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="96.0" y1="160.0" x2="104.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="100.0" y="174.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="205.0" fill="#475569" font-size="11" text-anchor="middle">nút chia dòng: I_tổng = I1 + I2 (KCL); I1/I2 = R2/R1</text>
+</svg>
 
 Điện áp trên cả 2 nhánh bằng nhau $= V$.
 
@@ -380,14 +432,29 @@ Kiểm tra: $1 + 4 = 5$ mA ✓. $V = 1$ mA $\times 4$ kΩ $= 4$ V $= 4$ mA $\tim
 
 Mắc LDR vào mạch phân áp với điện trở cố định R_ref:
 
-```
-       R_ref
-V_cc ──┤├──┬─── V_out → ADC của MCU
-           │
-         [LDR]  (thay đổi theo ánh sáng)
-           │
-          GND
-```
+<svg viewBox="0 0 420 230" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chia áp với LDR: R_ref trên, quang trở LDR dưới nối GND, V_out vào ADC của MCU">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_in</text>
+  <line x1="60.0" y1="60.0" x2="158.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="158.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="248.0" y="104.0" width="24.0" height="40.0" rx="4" fill="white" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="260.0" y="128.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">LDR</text>
+  <line x1="230.0" y1="106.0" x2="244.0" y2="116.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="230.0" y1="120.0" x2="244.0" y2="130.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="260.0" y1="144.0" x2="260.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="170.0" x2="260.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="180.0" x2="274.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="185.0" x2="269.0" y2="185.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="190.0" x2="264.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="204.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">V_out thay đổi theo ánh sáng → ADC đọc</text>
+  <text x="372.0" y="64.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">V_out → ADC</text>
+</svg>
 
 $V_{\text{out}} = V_{\text{cc}} \times \text{LDR} / (R_{\text{ref}} + \text{LDR})$.
 
@@ -420,12 +487,27 @@ Tương tự LDR nhưng thay đổi theo nhiệt độ:
 
 **Mạch phân áp với NTC thermistor** y hệt LDR, chọn $R_{\text{ref}} = 10$ kΩ để nhạy nhất quanh nhiệt độ phòng:
 
-```
-V_cc ──[10kΩ]──┬── V_out → ADC
-             [NTC]
-               │
-              GND
-```
+<svg viewBox="0 0 420 230" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chia áp với NTC: 10 kΩ trên, nhiệt trở NTC dưới, V_out vào ADC">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="64.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V_in</text>
+  <line x1="60.0" y1="60.0" x2="158.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="158.0" y="53.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="48.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">10 kΩ</text>
+  <line x1="202.0" y1="60.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <circle cx="260.0" cy="60.0" r="3.5" fill="#1a202c"/>
+  <line x1="300.0" y1="60.0" x2="340.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <line x1="260.0" y1="60.0" x2="260.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="248.0" y="104.0" width="24.0" height="40.0" rx="4" fill="white" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="260.0" y="128.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">NTC</text>
+  <line x1="260.0" y1="144.0" x2="260.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="260.0" y1="170.0" x2="260.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="246.0" y1="180.0" x2="274.0" y2="180.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="251.0" y1="185.0" x2="269.0" y2="185.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="256.0" y1="190.0" x2="264.0" y2="190.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="260.0" y="204.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
+  <text x="210.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">R_NTC giảm khi nóng → V_out tăng</text>
+  <text x="372.0" y="64.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">V_out → ADC</text>
+</svg>
 
 $V_{\text{out}}$ tăng khi nhiệt độ giảm (NTC: lạnh → $R_{\text{thermistor}}$ cao → $V_{\text{out}}$ cao).
 
@@ -435,15 +517,20 @@ $V_{\text{out}}$ tăng khi nhiệt độ giảm (NTC: lạnh → $R_{\text{therm
 
 **Chiết áp** là điện trở có 3 chân: 2 đầu cố định (tổng trở $R_{\text{total}}$) và 1 chân trượt (wiper) lấy $V_{\text{out}}$:
 
-```
-  A (đầu 1, V_cc)
-  |
-  ≡  ← điện trở than/dây quấn
-  | ← wiper (chân trượt)
-  ≡
-  |
-  B (đầu 2, GND)
-```
+<svg viewBox="0 0 460 240" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Biến trở (potentiometer): dải điện trở giữa đầu A và B, chân trượt wiper lấy điện áp ở vị trí bất kỳ">
+  <defs><marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="ledm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="npnm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="26.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">A (đầu 1, V_cc)</text>
+  <line x1="120.0" y1="32.0" x2="120.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <rect x="108.0" y="60.0" width="24.0" height="120.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="196.0" fill="#1d4ed8" font-size="10" text-anchor="middle">điện trở than / dây quấn</text>
+  <line x1="120.0" y1="180.0" x2="120.0" y2="210.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="120.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">B (đầu 2, GND)</text>
+  <line x1="200.0" y1="120.0" x2="134.0" y2="120.0" stroke="#dc2626" stroke-width="2" marker-end="url(#arw)"/>
+  <line x1="200.0" y1="120.0" x2="240.0" y2="120.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="250.0" y="124.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">wiper (chân trượt) → V_out</text>
+  <text x="280.0" y="80.0" fill="#475569" font-size="10" text-anchor="start">trượt lên ↑ V_out tăng</text>
+  <text x="280.0" y="164.0" fill="#475569" font-size="10" text-anchor="start">trượt xuống ↓ V_out giảm</text>
+</svg>
 
 $V_{\text{out}} = V_{\text{cc}} \times (\text{vị trí wiper} / R_{\text{total}})$ — thay đổi liên tục từ 0 đến $V_{\text{cc}}$ khi xoay.
 

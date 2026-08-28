@@ -85,13 +85,18 @@ Ký hiệu **R** = "phần còn lại của phân tử" (thường là chuỗi h
 
 **Nhóm carbonyl $\\text{C}{=}\\text{O}$** gắn ở **đầu** chuỗi (luôn có 1 H gắn vào C của $\\text{C}{=}\\text{O}$).
 
-\`\`\`
-        O
-        ‖
-   R − C
-        \\\\
-         H
-\`\`\`
+<svg viewBox="0 0 320 200" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhóm aldehyde: C=O với một H và gốc R (R–CHO)">
+  <defs></defs>
+  <line x1="74.0" y1="100.0" x2="136.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="146.5" y1="86.0" x2="146.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="153.5" y1="86.0" x2="153.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="161.4" y1="108.1" x2="208.6" y2="141.9" stroke="#1a202c" stroke-width="2"/>
+  <text x="60.0" y="105.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">R</text>
+  <text x="150.0" y="105.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="220.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="160.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">aldehyde R–CHO: C=O ở đầu mạch, gắn H</text>
+</svg>
 
 Tên IUPAC: thay -ane → -anal. Vd $\\text{HCHO}$ = methanal (formaldehyde), $\\text{CH}_3\\text{CHO}$ = ethanal (acetaldehyde).
 
@@ -121,11 +126,18 @@ Tên IUPAC: thay -ane → -anal. Vd $\\text{HCHO}$ = methanal (formaldehyde), $\
 
 **Nhóm carbonyl** ở **giữa** chuỗi (không ở đầu).
 
-\`\`\`
-        O
-        ‖
-   R − C − R'
-\`\`\`
+<svg viewBox="0 0 320 200" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhóm ketone: C=O nằm giữa hai gốc R và R′">
+  <defs></defs>
+  <line x1="74.0" y1="100.0" x2="136.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="146.5" y1="86.0" x2="146.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="153.5" y1="86.0" x2="153.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="100.0" x2="226.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="60.0" y="105.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">R</text>
+  <text x="150.0" y="105.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="240.0" y="105.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">R′</text>
+  <text x="160.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">ketone R–CO–R′: C=O giữa mạch</text>
+</svg>
 
 Tên IUPAC: thay -ane → -anone, kèm vị trí.
 
@@ -156,13 +168,18 @@ Khác ketone:
 
 **Nhóm carboxyl $-\\text{COOH}$** = $\\text{C}{=}\\text{O}$ + $\\text{O}{-}\\text{H}$ gắn cùng một C.
 
-\`\`\`
-        O
-        ‖
-   R − C
-        \\\\
-         O − H
-\`\`\`
+<svg viewBox="0 0 320 200" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhóm acid carboxylic: C=O và –OH trên cùng carbon (R–COOH)">
+  <defs></defs>
+  <line x1="74.0" y1="100.0" x2="136.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="146.5" y1="86.0" x2="146.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="153.5" y1="86.0" x2="153.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="161.9" y1="107.4" x2="218.1" y2="142.6" stroke="#1a202c" stroke-width="2"/>
+  <text x="60.0" y="105.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">R</text>
+  <text x="150.0" y="105.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="230.0" y="155.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">OH</text>
+  <text x="160.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">acid carboxylic R–COOH: C=O + O–H</text>
+</svg>
 
 Tên IUPAC: thay -ane → -anoic acid. Vd $\\text{HCOOH}$ = methanoic acid (formic acid), $\\text{CH}_3\\text{COOH}$ = ethanoic acid (acetic acid).
 
@@ -206,13 +223,18 @@ $$\\underset{\\text{acetic}}{\\text{CH}_3\\text{COOH}} + \\underset{\\text{ethan
 
 Tạo từ acid carboxylic + alcohol, mất $\\text{H}_2\\text{O}$:
 
-\`\`\`
-        O
-        ‖
-   R − C
-        \\\\
-         O − R'
-\`\`\`
+<svg viewBox="0 0 320 200" style="max-width:320px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhóm ester: C=O và –O–R′ (R–COO–R′)">
+  <defs></defs>
+  <line x1="74.0" y1="100.0" x2="136.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="146.5" y1="86.0" x2="146.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="153.5" y1="86.0" x2="153.5" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="162.2" y1="106.8" x2="220.8" y2="139.3" stroke="#1a202c" stroke-width="2"/>
+  <text x="60.0" y="105.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">R</text>
+  <text x="150.0" y="105.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="240.0" y="155.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">O–R′</text>
+  <text x="160.0" y="192.0" fill="#475569" font-size="11" text-anchor="middle">ester R–COO–R′: thay H của acid bằng R′</text>
+</svg>
 
 Tên IUPAC: \`<alcohol>-yl <acid>-oate\`. Vd ethyl ethanoate ($\\text{CH}_3\\text{COOC}_2\\text{H}_5$) = ester của ethanol + acetic acid.
 

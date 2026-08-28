@@ -264,11 +264,19 @@ Công thức Lewis biểu diễn **mọi electron lớp ngoài cùng** dưới d
 4. Còn 8 − 4 = 4 e. H đã đủ (mỗi H có 2 e từ liên kết) → đặt 4 e vào O.
 5. O: 2 cặp e tự do + 2 cặp e liên kết = 8 e ✓.
 
-```
-      ··
-   H—O—H
-      ··
-```
+<svg viewBox="0 0 300 150" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc Lewis H₂O: O ở giữa liên kết 2 H, 2 cặp electron riêng trên O">
+  <defs></defs>
+  <line x1="136.0" y1="80.0" x2="94.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="80.0" x2="206.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="85.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="80.0" y="85.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="220.0" y="85.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <circle cx="146.0" cy="56.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="56.0" r="2.2" fill="#1a202c"/>
+  <circle cx="146.0" cy="104.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="104.0" r="2.2" fill="#1a202c"/>
+  <text x="150.0" y="142.0" fill="#475569" font-size="11" text-anchor="middle">2 cặp electron riêng (chấm) trên O → phân tử gấp khúc</text>
+</svg>
 
 (O có 2 lone pair, 2 bonding pair.)
 
@@ -295,12 +303,19 @@ Công thức Lewis biểu diễn **mọi electron lớp ngoài cùng** dưới d
 4. Còn 2 e → đặt vào N.
 5. N có 3 cặp liên kết + 1 lone pair = 8 e ✓.
 
-```
-        ··
-     H—N—H
-        |
-        H
-```
+<svg viewBox="0 0 300 190" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc Lewis NH₃: N liên kết 3 H, 1 cặp electron riêng trên N">
+  <defs></defs>
+  <line x1="136.0" y1="80.0" x2="94.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="80.0" x2="206.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="94.0" x2="150.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="85.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">N</text>
+  <text x="80.0" y="85.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="220.0" y="85.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <circle cx="146.0" cy="56.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="56.0" r="2.2" fill="#1a202c"/>
+  <text x="150.0" y="182.0" fill="#475569" font-size="11" text-anchor="middle">1 cặp electron riêng → hình chóp tam giác</text>
+</svg>
 
 (N: 1 lone pair, 3 bonding pair.)
 
@@ -392,35 +407,79 @@ $\text{S}^{2-}$: 18 e, cấu hình $[\text{Ar}] = 1s^2\,2s^2\,2p^6\,3s^2\,3p^6$.
 **Bài 3**:
 
 **$\text{CH}_4$** (tổng e = 4 + 4×1 = 8):
-```
-        H
-        |
-     H—C—H
-        |
-        H
-```
+<svg viewBox="0 0 300 185" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc Lewis CH₄: C liên kết 4 H, không có electron riêng">
+  <defs></defs>
+  <line x1="150.0" y1="76.0" x2="150.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="104.0" x2="150.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="90.0" x2="104.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="90.0" x2="196.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="90.0" y="95.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="210.0" y="95.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="177.0" fill="#475569" font-size="11" text-anchor="middle">4 cặp electron liên kết, C đủ 8 electron</text>
+</svg>
 (C: 4 bonding pair, 0 lone pair; mỗi H: 2 e từ liên kết.)
 
 **$\text{O}_3$** (tổng e = 3×6 = 18; chú ý có 2 cấu trúc cộng hưởng):
-```
-   O=O—O:    ↔    :O—O=O
-```
+<svg viewBox="0 0 520 160" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai cấu trúc cộng hưởng của ozon O₃: liên kết đôi ở bên trái hoặc bên phải; thực tế trung gian">
+  <defs></defs>
+  <line x1="51.5" y1="81.3" x2="95.8" y2="62.3" stroke="#1a202c" stroke-width="2"/>
+  <line x1="54.2" y1="87.7" x2="98.5" y2="68.7" stroke="#1a202c" stroke-width="2"/>
+  <line x1="122.9" y1="65.5" x2="167.1" y2="84.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="332.9" y1="84.5" x2="377.1" y2="65.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="404.2" y1="62.3" x2="448.5" y2="81.3" stroke="#1a202c" stroke-width="2"/>
+  <line x1="401.5" y1="68.7" x2="445.8" y2="87.7" stroke="#1a202c" stroke-width="2"/>
+  <text x="40.0" y="95.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="110.0" y="65.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="180.0" y="95.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="320.0" y="95.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="390.0" y="65.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="460.0" y="95.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <circle cx="36.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="44.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="176.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="184.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="316.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="324.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="456.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <circle cx="464.0" cy="114.0" r="2.2" fill="#1a202c"/>
+  <text x="250.0" y="95.0" fill="#475569" font-size="22" text-anchor="middle" font-weight="700">↔</text>
+  <text x="260.0" y="152.0" fill="#475569" font-size="11" text-anchor="middle">thực tế: hai liên kết O–O bằng nhau (bậc 1,5) — cộng hưởng</text>
+</svg>
 (Liên kết 1.5 giữa các O do cộng hưởng. Đơn giản hóa: vẽ 1 trong 2.)
 
 **$\text{HCl}$** (tổng e = 1 + 7 = 8):
-```
-   H—Cl:
-       ··
-       ··
-```
+<svg viewBox="0 0 260 130" style="max-width:260px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc Lewis HCl: H liên kết Cl, 3 cặp electron riêng trên Cl">
+  <defs></defs>
+  <line x1="84.0" y1="70.0" x2="136.0" y2="70.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="70.0" y="75.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="75.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">Cl</text>
+  <circle cx="146.0" cy="46.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="46.0" r="2.2" fill="#1a202c"/>
+  <circle cx="146.0" cy="94.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="94.0" r="2.2" fill="#1a202c"/>
+  <circle cx="176.0" cy="66.0" r="2.2" fill="#1a202c"/>
+  <circle cx="176.0" cy="74.0" r="2.2" fill="#1a202c"/>
+  <text x="130.0" y="122.0" fill="#475569" font-size="11" text-anchor="middle">3 cặp electron riêng trên Cl</text>
+</svg>
 (Cl: 1 bonding pair + 3 lone pair = 8 e.)
 
 **$\text{H}_2\text{S}$** (tổng e = 2 + 6 = 8):
-```
-      ··
-   H—S—H
-      ··
-```
+<svg viewBox="0 0 300 150" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc Lewis H₂S: giống H₂O, S ở giữa với 2 cặp electron riêng">
+  <defs></defs>
+  <line x1="136.0" y1="80.0" x2="94.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="80.0" x2="206.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="85.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">S</text>
+  <text x="80.0" y="85.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="220.0" y="85.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <circle cx="146.0" cy="56.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="56.0" r="2.2" fill="#1a202c"/>
+  <circle cx="146.0" cy="104.0" r="2.2" fill="#1a202c"/>
+  <circle cx="154.0" cy="104.0" r="2.2" fill="#1a202c"/>
+  <text x="150.0" y="142.0" fill="#475569" font-size="11" text-anchor="middle">cùng dạng với H₂O → gấp khúc</text>
+</svg>
 (S: 2 bonding pair + 2 lone pair = 8 e. Giống $\text{H}_2\text{O}$.)
 
 **Bài 4**:

@@ -36,19 +36,30 @@ Sau bài này bạn sẽ:
 
 Công thức $\\text{C}_6\\text{H}_{12}\\text{O}_6$. Tồn tại ở dạng vòng (95%) hoặc mạch thẳng (5%) trong nước:
 
-\`\`\`
-   CHO
-   |
-   CHOH      (mạch thẳng)
-   |
-   CHOH
-   |        ↔  vòng pyranose 6 cạnh (95% trong dung dịch)
-   CHOH
-   |
-   CHOH
-   |
-   CH₂OH
-\`\`\`
+<svg viewBox="0 0 460 320" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Glucose mạch thẳng: CHO – 4 × CHOH – CH₂OH (6 carbon); trong dung dịch 95% ở dạng vòng pyranose 6 cạnh">
+  <defs></defs>
+  <line x1="90.0" y1="60.0" x2="90.0" y2="46.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.0" y1="106.0" x2="90.0" y2="92.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.0" y1="152.0" x2="90.0" y2="138.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.0" y1="198.0" x2="90.0" y2="184.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.0" y1="244.0" x2="90.0" y2="230.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="90.0" y="35.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CHO</text>
+  <text x="90.0" y="81.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CHOH</text>
+  <text x="90.0" y="127.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CHOH</text>
+  <text x="90.0" y="173.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CHOH</text>
+  <text x="90.0" y="219.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CHOH</text>
+  <text x="90.0" y="265.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₂OH</text>
+  <text x="200.0" y="150.0" fill="#475569" font-size="22" text-anchor="middle" font-weight="700">⟷</text>
+  <text x="330.0" y="130.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">vòng pyranose 6 cạnh</text>
+  <text x="330.0" y="148.0" fill="#475569" font-size="10" text-anchor="middle">(95% trong dung dịch)</text>
+  <line x1="330.0" y1="175.0" x2="295.4" y2="195.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="295.4" y1="195.0" x2="295.4" y2="235.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="295.4" y1="235.0" x2="330.0" y2="255.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="330.0" y1="255.0" x2="364.6" y2="235.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="364.6" y1="235.0" x2="364.6" y2="195.0" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="364.6" y1="195.0" x2="330.0" y2="175.0" stroke="#7c3aed" stroke-width="2"/>
+  <text x="285.4" y="199.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">O</text>
+</svg>
 
 Vai trò: **nhiên liệu chính** của tế bào.
 
@@ -70,13 +81,21 @@ Sản phẩm năng lượng: **ATP** (adenosine triphosphate, ~ 30 phân tử AT
 
 **Triglyceride** = ester của **glycerol** (3 nhóm OH) + 3 **acid béo (fatty acid)**.
 
-\`\`\`
-    CH₂-O-CO-R₁
-    |
-    CH-O-CO-R₂        (3 acid béo R₁, R₂, R₃)
-    |
-    CH₂-O-CO-R₃
-\`\`\`
+<svg viewBox="0 0 330 215" style="max-width:330px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Triglyceride: khung glycerol 3 carbon (CH₂–CH–CH₂), mỗi carbon ester hoá với một acid béo R₁, R₂, R₃">
+  <defs></defs>
+  <line x1="90.0" y1="78.0" x2="90.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.0" y1="130.0" x2="90.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="118.0" y1="50.0" x2="142.0" y2="50.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="110.0" y1="110.0" x2="142.0" y2="110.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="118.0" y1="170.0" x2="142.0" y2="170.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="90.0" y="55.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₂</text>
+  <text x="90.0" y="115.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">CH</text>
+  <text x="90.0" y="175.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₂</text>
+  <text x="170.0" y="55.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">O–CO–R₁</text>
+  <text x="170.0" y="115.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">O–CO–R₂</text>
+  <text x="170.0" y="175.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">O–CO–R₃</text>
+  <text x="165.0" y="207.0" fill="#475569" font-size="11" text-anchor="middle">glycerol (trái) + 3 acid béo (phải) qua liên kết ester</text>
+</svg>
 
 ### 2.2. Phân biệt acid béo
 
@@ -104,13 +123,19 @@ Sản phẩm năng lượng: **ATP** (adenosine triphosphate, ~ 30 phân tử AT
 ### 3.1. Amino acid — monomer
 
 Mỗi amino acid có cấu trúc chung:
-\`\`\`
-       H
-       |
-   H₂N-C-COOH
-       |
-       R    (nhóm bên — đặc trưng từng amino acid)
-\`\`\`
+<svg viewBox="0 0 340 195" style="max-width:340px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Amino acid tổng quát: carbon α gắn H, nhóm amin H₂N, nhóm acid COOH và nhóm bên R">
+  <defs></defs>
+  <line x1="150.0" y1="77.0" x2="150.0" y2="53.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="132.0" y1="95.0" x2="86.0" y2="95.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="168.0" y1="95.0" x2="224.0" y2="95.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="113.0" x2="150.0" y2="137.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="100.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="40.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="60.0" y="100.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">H₂N</text>
+  <text x="250.0" y="100.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">COOH</text>
+  <text x="150.0" y="160.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">R</text>
+  <text x="170.0" y="187.0" fill="#475569" font-size="11" text-anchor="middle">R = nhóm bên, đặc trưng từng amino acid (20 loại)</text>
+</svg>
 
 Có **20 amino acid chuẩn** trong protein. Khác nhau ở nhóm R: hidrophilic (ưa nước), hydrophobic (kỵ nước), acidic (R có $-\\text{COOH}$), basic (R có $-\\text{NH}_2$).
 

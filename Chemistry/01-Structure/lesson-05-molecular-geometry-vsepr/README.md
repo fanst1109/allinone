@@ -87,13 +87,17 @@ Cl—Be—Cl
 
 **Phân tử minh họa**: $\text{BF}_3$, $\text{AlCl}_3$, $\text{BCl}_3$, formaldehyde ($\text{HCHO}$).
 
-```
-       F
-       |
-       B            120°
-      / \\
-     F   F
-```
+<svg viewBox="0 0 300 185" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="BF₃ tam giác phẳng: B ở tâm, 3 F cách nhau 120°">
+  <defs></defs>
+  <line x1="150.0" y1="86.0" x2="150.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="138.4" y1="107.8" x2="101.6" y2="132.2" stroke="#1a202c" stroke-width="2"/>
+  <line x1="161.6" y1="107.8" x2="198.4" y2="132.2" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="105.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">B</text>
+  <text x="150.0" y="35.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="90.0" y="145.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="210.0" y="145.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="150.0" y="177.0" fill="#475569" font-size="11" text-anchor="middle">tam giác phẳng, góc F–B–F = 120°</text>
+</svg>
 
 ### 2.3. SN = 4 → Tetrahedral ($109{,}5^\circ$)
 
@@ -101,13 +105,19 @@ Cl—Be—Cl
 
 **Phân tử minh họa**: $\text{CH}_4$, $\text{NH}_4^+$, $\text{SiH}_4$, $\text{CCl}_4$.
 
-```
-        H
-        |
-        C
-       /|\\
-      H H H        109.5°
-```
+<svg viewBox="0 0 300 190" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CH₄ tứ diện: C ở tâm, 4 H hướng về 4 đỉnh tứ diện, góc 109,5° (hình chiếu 2D)">
+  <defs></defs>
+  <line x1="150.0" y1="81.0" x2="150.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="139.2" y1="103.9" x2="105.8" y2="131.1" stroke="#1a202c" stroke-width="2"/>
+  <line x1="160.8" y1="103.9" x2="194.2" y2="131.1" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="109.0" x2="150.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="100.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="95.0" y="145.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="205.0" y="145.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="182.0" fill="#475569" font-size="11" text-anchor="middle">tứ diện, góc H–C–H = 109,5°</text>
+</svg>
 
 (Hình tứ diện đều — 4 H ở 4 đỉnh, C ở tâm.)
 
@@ -117,13 +127,21 @@ Cl—Be—Cl
 
 **Phân tử minh họa**: $\text{PCl}_5$, $\text{PF}_5$, $\text{AsF}_5$.
 
-```
-       Cl (axial)
-       |
-   Cl—P—Cl  (equatorial, góc 120°)
-       |  \\
-       Cl   Cl
-```
+<svg viewBox="0 0 300 205" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="PCl₅ lưỡng tháp tam giác: 2 Cl trục (trên, dưới, 180°) và 3 Cl xích đạo cách nhau 120°">
+  <defs></defs>
+  <line x1="150.0" y1="86.0" x2="150.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="114.0" x2="150.0" y2="156.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="100.0" x2="84.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="163.1" y1="95.0" x2="201.9" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="162.7" y1="105.9" x2="202.3" y2="124.1" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="105.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">P</text>
+  <text x="150.0" y="35.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">Cl</text>
+  <text x="150.0" y="175.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">Cl</text>
+  <text x="70.0" y="105.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">Cl</text>
+  <text x="215.0" y="80.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">Cl</text>
+  <text x="215.0" y="135.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">Cl</text>
+  <text x="150.0" y="197.0" fill="#475569" font-size="11" text-anchor="middle">axial (trục) ⟂ mặt phẳng 3 Cl equatorial (120°)</text>
+</svg>
 
 ### 2.5. SN = 6 → Octahedral ($90^\circ$)
 
@@ -131,14 +149,23 @@ Cl—Be—Cl
 
 **Phân tử minh họa**: $\text{SF}_6$, $\text{SeF}_6$, $\text{PCl}_6^-$.
 
-```
-        F
-        |
-    F—S—F
-       /|\\        90° giữa mỗi cặp lân cận
-      F | F
-        F
-```
+<svg viewBox="0 0 300 205" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="SF₆ bát diện: S ở tâm, 6 F đối xứng, góc giữa hai F kề nhau 90°">
+  <defs></defs>
+  <line x1="150.0" y1="86.0" x2="150.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="114.0" x2="150.0" y2="156.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="100.0" x2="84.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="100.0" x2="216.0" y2="100.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="139.1" y1="91.3" x2="110.9" y2="68.7" stroke="#1a202c" stroke-width="2"/>
+  <line x1="160.9" y1="108.7" x2="189.1" y2="131.3" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="105.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">S</text>
+  <text x="150.0" y="35.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="150.0" y="175.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="70.0" y="105.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="230.0" y="105.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="100.0" y="65.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="200.0" y="145.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">F</text>
+  <text x="150.0" y="197.0" fill="#475569" font-size="11" text-anchor="middle">bát diện đều, mọi góc F–S–F kề = 90°</text>
+</svg>
 
 ### 📝 Tóm tắt mục 2
 

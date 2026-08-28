@@ -171,15 +171,67 @@ $$1s < 2s < 2p < 3s < 3p < 4s < 3d < 4p < 5s < 4d < 5p < 6s < 4f < 5d < 6p < 7s 
 
 **Mẹo nhớ**: vẽ sơ đồ Madelung (zig-zag):
 
-```
-1s
-2s   2p
-3s   3p   3d
-4s   4p   4d   4f
-5s   5p   5d   5f
-6s   6p   6d
-7s   7p
-```
+<svg viewBox="0 0 680 330" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ Aufbau: bảng phân lớp 1s tới 7p xếp theo hàng, đường chéo nét đứt đỏ nối thứ tự điền electron 1s 2s 2p 3s 3p 4s 3d 4p 5s 4d 5p 6s 4f 5d 6p 7s 5f 6d 7p">
+  <defs></defs>
+  <rect x="38.0" y="26.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="45.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1s</text>
+  <rect x="38.0" y="66.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2s</text>
+  <rect x="118.0" y="66.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2p</text>
+  <rect x="38.0" y="106.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="125.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3s</text>
+  <rect x="118.0" y="106.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="125.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3p</text>
+  <rect x="198.0" y="106.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="220.0" y="125.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3d</text>
+  <rect x="38.0" y="146.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="165.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4s</text>
+  <rect x="118.0" y="146.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="165.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4p</text>
+  <rect x="198.0" y="146.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="220.0" y="165.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4d</text>
+  <rect x="278.0" y="146.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="300.0" y="165.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4f</text>
+  <rect x="38.0" y="186.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="205.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5s</text>
+  <rect x="118.0" y="186.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="205.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5p</text>
+  <rect x="198.0" y="186.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="220.0" y="205.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5d</text>
+  <rect x="278.0" y="186.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="300.0" y="205.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5f</text>
+  <rect x="38.0" y="226.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="245.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6s</text>
+  <rect x="118.0" y="226.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="245.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6p</text>
+  <rect x="198.0" y="226.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="220.0" y="245.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6d</text>
+  <rect x="38.0" y="266.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="285.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7s</text>
+  <rect x="118.0" y="266.0" width="44.0" height="28.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="285.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7p</text>
+  <line x1="60.0" y1="40.0" x2="60.0" y2="80.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="60.0" y1="80.0" x2="140.0" y2="80.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="140.0" y1="80.0" x2="60.0" y2="120.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="60.0" y1="120.0" x2="140.0" y2="120.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="140.0" y1="120.0" x2="60.0" y2="160.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="60.0" y1="160.0" x2="220.0" y2="120.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="220.0" y1="120.0" x2="140.0" y2="160.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="140.0" y1="160.0" x2="60.0" y2="200.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="60.0" y1="200.0" x2="220.0" y2="160.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="220.0" y1="160.0" x2="140.0" y2="200.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="140.0" y1="200.0" x2="60.0" y2="240.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="60.0" y1="240.0" x2="300.0" y2="160.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="300.0" y1="160.0" x2="220.0" y2="200.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="220.0" y1="200.0" x2="140.0" y2="240.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="140.0" y1="240.0" x2="60.0" y2="280.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="60.0" y1="280.0" x2="300.0" y2="200.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="300.0" y1="200.0" x2="220.0" y2="240.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="220.0" y1="240.0" x2="140.0" y2="280.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="330.0" y="110.0" fill="#475569" font-size="10" text-anchor="start">thứ tự điền (mũi tên chéo): 1s 2s 2p 3s 3p 4s 3d 4p 5s 4d 5p 6s 4f 5d 6p 7s 5f 6d 7p</text>
+  <text x="330.0" y="128.0" fill="#475569" font-size="10" text-anchor="start">đọc theo đường chéo từ trên-phải xuống dưới-trái</text>
+</svg>
 
 Đọc theo các đường chéo từ trên xuống — đó là thứ tự năng lượng. Để ý: **4s điền trước 3d** (vì 4s năng lượng thấp hơn 3d), nhưng sau khi điền xong **viết lại theo thứ tự lớp** thì 3d trước 4s.
 

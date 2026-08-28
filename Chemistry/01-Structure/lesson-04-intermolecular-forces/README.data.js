@@ -167,13 +167,31 @@ Mỗi phân tử nước có:
 
 → Mỗi $\\text{H}_2\\text{O}$ có thể tạo **4 liên kết hydrogen** đồng thời (2 cho + 2 nhận). Đây là lý do nước có **cấu trúc 3D phức tạp** trong cả lỏng và rắn (đá).
 
-\`\`\`
-       H    H
-        \\\\  /
-         O—H ··· O
-        / \\\\    / \\\\
-       H   ···H   H
-\`\`\`
+<svg viewBox="0 0 460 320" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mạng liên kết hydro giữa ba phân tử nước: H của phân tử này hút O của phân tử kia (nét đứt), tạo mạng">
+  <defs></defs>
+  <line x1="139.1" y1="91.3" x2="110.9" y2="68.7" stroke="#1a202c" stroke-width="2"/>
+  <line x1="160.9" y1="91.3" x2="189.1" y2="68.7" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="114.0" x2="150.0" y2="156.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="139.1" y1="248.7" x2="110.9" y2="271.3" stroke="#1a202c" stroke-width="2"/>
+  <line x1="160.9" y1="248.7" x2="189.1" y2="271.3" stroke="#1a202c" stroke-width="2"/>
+  <line x1="340.9" y1="161.3" x2="369.1" y2="138.7" stroke="#1a202c" stroke-width="2"/>
+  <line x1="340.9" y1="178.7" x2="369.1" y2="201.3" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="105.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="100.0" y="65.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="200.0" y="65.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="175.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="245.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="100.0" y="285.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="200.0" y="285.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="330.0" y="175.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">O</text>
+  <text x="380.0" y="135.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="380.0" y="215.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="230.0" y="312.0" fill="#475569" font-size="11" text-anchor="middle">nét đứt = liên kết hydro (H···O), yếu hơn liên kết cộng hoá trị nhưng nhiều</text>
+  <line x1="150.0" y1="184.0" x2="150.0" y2="226.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <line x1="214.0" y1="66.0" x2="316.0" y2="160.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <text x="275.0" y="100.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">H···O</text>
+  <text x="170.0" y="205.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">H···O</text>
+</svg>
 
 ### 4.3. Hệ quả thực tế — vì sao nước "bất thường"
 

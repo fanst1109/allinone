@@ -48,12 +48,27 @@ Nhắc lại spec dự án (nhất quán L82 design, L83 implement) — **URL Sh
 
 Kiến trúc đã có sau L83:
 
-```
-Client ──HTTP──> [URL Shortener service]
-                   ├─ Postgres   (source of truth: code -> URL, click count)
-                   ├─ Redis      (cache: code -> URL, giảm tải DB)
-                   └─ Click queue (async worker ghi click, KHÔNG chặn redirect)
-```
+<svg viewBox="0 0 820 166" style="max-width:820px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hệ thống deploy: Client gọi URL Shortener service; service dùng Postgres (source of truth), Redis (cache) và Click queue (worker async)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="60.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="82.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="108.0" y1="78.0" x2="176.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="142.0" y="71.0" fill="#475569" font-size="10" text-anchor="middle">HTTP</text>
+  <rect x="178.0" y="60.0" width="190.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="273.0" y="81.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">URL Shortener service</text>
+  <path d="M 368.0,78.0 L 400.0,78.0 L 400.0,34.0 L 428.0,34.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="430.0" y="16.0" width="110.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="485.0" y="37.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Postgres</text>
+  <text x="548.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">source of truth: code → URL, click count</text>
+  <path d="M 368.0,78.0 L 400.0,78.0 L 400.0,80.0 L 428.0,80.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="430.0" y="62.0" width="110.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="485.0" y="83.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Redis</text>
+  <text x="548.0" y="84.0" fill="#475569" font-size="10" text-anchor="start">cache: code → URL, giảm tải DB</text>
+  <path d="M 368.0,78.0 L 400.0,78.0 L 400.0,126.0 L 428.0,126.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="430.0" y="108.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="485.0" y="129.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Click queue</text>
+  <text x="548.0" y="130.0" fill="#475569" font-size="10" text-anchor="start">async worker ghi click, KHÔNG chặn redirect</text>
+</svg>
 
 Điểm mấu chốt cho L84: redirect là **đường nóng read-heavy** — phải nhanh (p99 < 50ms), chịu được 1000+ req/s, và **không bao giờ để việc ghi click làm chậm việc redirect**. Click được đẩy vào queue, worker xử lý sau.
 

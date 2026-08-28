@@ -390,42 +390,49 @@ CREATE TABLE click_daily (
 
 ## 7. Architecture diagram
 
-\`\`\`
-                  ┌──────────┐
-                  │  Client  │  (browser / curl / app)
-                  └────┬─────┘
-                       │ HTTP
-              ┌────────▼─────────┐
-              │   API Gateway /   │  (ingress, TLS, rate limit)
-              │   Load Balancer   │
-              └────────┬─────────┘
-                       │
-        ┌──────────────▼───────────────┐
-        │     URL Shortener Service      │  (stateless, scale ngang)
-        │  ┌──────────────────────────┐ │
-        │  │  Adapter (HTTP handler)   │ │   ← clean arch (L79)
-        │  ├──────────────────────────┤ │
-        │  │  Usecase (shorten/redirect│ │
-        │  │           /stats)         │ │
-        │  ├──────────────────────────┤ │
-        │  │  Domain (URL, Click)      │ │
-        │  └──────────────────────────┘ │
-        └───┬───────────┬───────────┬───┘
-            │           │           │
-   read/write│   cache  │     emit  │ click event
-            │           │           │
-     ┌──────▼────┐ ┌────▼────┐ ┌────▼─────┐
-     │ Postgres  │ │  Redis  │ │  Queue   │
-     │ urls,     │ │ code→url│ │ (NATS/   │
-     │ clicks    │ │ ratelmt │ │  Kafka)  │
-     └──────▲────┘ └─────────┘ └────┬─────┘
-            │                       │ consume
-            │   aggregate (UPSERT)  │
-            │                  ┌────▼──────────┐
-            └──────────────────┤ Analytics      │
-                               │ Worker         │
-                               └────────────────┘
-\`\`\`
+<svg viewBox="0 0 600 500" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc URL Shortener: Client → API Gateway → service theo clean architecture (Adapter, Usecase, Domain) → Postgres, Redis, Queue; Analytics Worker consume queue rồi UPSERT vào Postgres">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="230.0" y="14.0" width="120.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="36.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <text x="360.0" y="36.0" fill="#475569" font-size="10" text-anchor="start">(browser / curl / app)</text>
+  <line x1="290.0" y1="52.0" x2="290.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="298.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">HTTP</text>
+  <rect x="180.0" y="82.0" width="220.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="100.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">API Gateway / Load Balancer</text>
+  <text x="290.0" y="115.3" fill="#475569" font-size="10" text-anchor="middle">ingress, TLS, rate limit</text>
+  <line x1="290.0" y1="128.0" x2="290.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="110.0" y="152.0" width="360.0" height="150.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="290.0" y="170.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">URL Shortener Service</text>
+  <text x="290.0" y="184.0" fill="#475569" font-size="10" text-anchor="middle">(stateless, scale ngang)</text>
+  <rect x="130.0" y="194.0" width="320.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="212.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Adapter (HTTP handler)</text>
+  <rect x="130.0" y="228.0" width="320.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="246.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Usecase (shorten / redirect / stats)</text>
+  <rect x="130.0" y="262.0" width="320.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="280.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Domain (URL, Click)</text>
+  <text x="480.0" y="214.0" fill="#475569" font-size="10" text-anchor="start">← clean arch (L79)</text>
+  <path d="M 290.0,302.0 L 290.0,322.0 L 110.0,322.0 L 110.0,352.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="118.0" y="340.0" fill="#475569" font-size="9" text-anchor="start">read/write</text>
+  <path d="M 290.0,302.0 L 290.0,322.0 L 290.0,322.0 L 290.0,352.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="298.0" y="340.0" fill="#475569" font-size="9" text-anchor="start">cache</text>
+  <path d="M 290.0,302.0 L 290.0,322.0 L 470.0,322.0 L 470.0,352.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="478.0" y="340.0" fill="#475569" font-size="9" text-anchor="start">emit click event</text>
+  <rect x="40.0" y="354.0" width="140.0" height="54.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="110.0" y="377.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Postgres</text>
+  <text x="110.0" y="392.4" fill="#475569" font-size="10" text-anchor="middle">urls, clicks</text>
+  <rect x="220.0" y="354.0" width="140.0" height="54.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="377.4" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Redis</text>
+  <text x="290.0" y="392.4" fill="#475569" font-size="10" text-anchor="middle">code→url, ratelimit</text>
+  <rect x="400.0" y="354.0" width="140.0" height="54.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="470.0" y="377.4" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Queue</text>
+  <text x="470.0" y="392.4" fill="#475569" font-size="10" text-anchor="middle">NATS / Kafka</text>
+  <line x1="470.0" y1="408.0" x2="470.0" y2="440.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="478.0" y="428.0" fill="#475569" font-size="9" text-anchor="start">consume</text>
+  <rect x="380.0" y="442.0" width="180.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="470.0" y="465.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Analytics Worker</text>
+  <path d="M 380.0,462.0 L 110.0,462.0 L 110.0,410.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="240.0" y="456.0" fill="#15803d" font-size="9" text-anchor="middle">aggregate (UPSERT)</text>
+</svg>
 
 Luồng chính:
 - **Write (shorten)**: Client → Service → Postgres (+ optional pre-warm Redis).
@@ -527,11 +534,23 @@ shorten(url):
 
 Luồng (xem [Lesson 64](../lesson-64-message-queue-nats-kafka/README.md), [Lesson 65](../lesson-65-event-driven-architecture/README.md)):
 
-\`\`\`
-redirect handler ──publish──> [ Queue ] ──consume──> Analytics Worker
-   (ClickEvent: code, ts,                              UPSERT click_daily
-    referrer, ua, ip)                                  SET count = count + 1
-\`\`\`
+<svg viewBox="0 0 738 104" style="max-width:738px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Redirect handler publish ClickEvent vào Queue; Analytics Worker consume rồi UPSERT vào click_daily">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="14.0" y="14.0" width="190.0" height="76.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="109.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">redirect handler</text>
+  <text x="109.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">ClickEvent: code, ts,</text>
+  <text x="109.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">referrer, ua, ip</text>
+  <line x1="206.0" y1="52.0" x2="272.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="239.0" y="45.0" fill="#475569" font-size="9" text-anchor="middle">publish</text>
+  <rect x="274.0" y="28.0" width="190.0" height="48.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="369.0" y="55.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Queue</text>
+  <line x1="466.0" y1="52.0" x2="532.0" y2="52.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="499.0" y="45.0" fill="#475569" font-size="9" text-anchor="middle">consume</text>
+  <rect x="534.0" y="14.0" width="190.0" height="76.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="629.0" y="40.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Analytics Worker</text>
+  <text x="629.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">UPSERT click_daily</text>
+  <text x="629.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">SET count = count + 1</text>
+</svg>
 
 \`ClickEvent\` = \`{code, clicked_at, referrer, user_agent, ip}\`.
 

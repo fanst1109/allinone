@@ -82,14 +82,31 @@ Metrics có ưu thế: **rẻ để lưu lâu dài** (chỉ là dãy số), **nh
 
 > 💡 **Trực giác.** Thay vì mỗi service tự "gửi báo cáo" tới server trung tâm (push), Prometheus **chủ động đi gõ cửa từng service và hỏi: "Số liệu hiện tại của anh là gì?"** (pull). Mỗi service chỉ cần mở một endpoint HTTP `/metrics` trả về văn bản số liệu. Prometheus **scrape** (cào) endpoint đó theo chu kỳ (mặc định 15s).
 
-```
-                  scrape mỗi 15s
-  Prometheus  ───── GET /metrics ─────▶  Service A  (:8080/metrics)
-      │       ───── GET /metrics ─────▶  Service B  (:8081/metrics)
-      │       ───── GET /metrics ─────▶  Service C  (:8082/metrics)
-      ▼
-  TSDB (lưu chuỗi thời gian)
-```
+<svg viewBox="0 0 560 200" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Prometheus pull model: mỗi 15s scrape GET /metrics từ Service A, B, C rồi lưu vào TSDB">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="60.0" width="120.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="76.0" y="86.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Prometheus</text>
+  <path d="M 136.0,82.0 L 170.0,82.0 L 170.0,36.0 L 318.0,36.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="244.0" y="30.0" fill="#475569" font-size="9" text-anchor="middle">GET /metrics</text>
+  <rect x="320.0" y="18.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="375.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Service A</text>
+  <text x="438.0" y="40.0" fill="#475569" font-size="10" text-anchor="start">:8080/metrics</text>
+  <path d="M 136.0,82.0 L 170.0,82.0 L 170.0,82.0 L 318.0,82.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="244.0" y="76.0" fill="#475569" font-size="9" text-anchor="middle">GET /metrics</text>
+  <rect x="320.0" y="64.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="375.0" y="86.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Service B</text>
+  <text x="438.0" y="86.0" fill="#475569" font-size="10" text-anchor="start">:8081/metrics</text>
+  <path d="M 136.0,82.0 L 170.0,82.0 L 170.0,128.0 L 318.0,128.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="244.0" y="122.0" fill="#475569" font-size="9" text-anchor="middle">GET /metrics</text>
+  <rect x="320.0" y="110.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="375.0" y="132.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Service C</text>
+  <text x="438.0" y="132.0" fill="#475569" font-size="10" text-anchor="start">:8082/metrics</text>
+  <text x="76.0" y="40.0" fill="#b45309" font-size="10" text-anchor="middle" font-style="italic">scrape mỗi 15s</text>
+  <line x1="76.0" y1="106.0" x2="76.0" y2="140.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="142.0" width="190.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="111.0" y="158.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">TSDB</text>
+  <text x="111.0" y="173.3" fill="#475569" font-size="10" text-anchor="middle">lưu chuỗi thời gian</text>
+</svg>
 
 **Vì sao pull?**
 

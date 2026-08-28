@@ -112,12 +112,29 @@ solutions/
 
 **Quy tắc phụ thuộc (dependency rule):** mũi tên import luôn trỏ **vào trong**.
 
-```
-adapter/http ──┐
-adapter/memory ─┼──► usecase ──► domain
-adapter/analytics┘                  ▲
-cmd/server ───────────────────────────┘ (chỉ composition root biết tất cả)
-```
+<svg viewBox="0 0 520 212" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị phụ thuộc: adapter/http, adapter/memory, adapter/analytics → usecase → domain; cmd/server (composition root) nối tất cả">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="130.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="81.0" y="35.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">adapter/http</text>
+  <rect x="16.0" y="60.0" width="130.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="81.0" y="79.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">adapter/memory</text>
+  <rect x="16.0" y="104.0" width="130.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="81.0" y="123.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">adapter/analytics</text>
+  <path d="M 146.0,32.0 L 180.0,32.0 L 180.0,76.0 L 218.0,76.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 146.0,76.0 L 218.0,76.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 146.0,120.0 L 180.0,120.0 L 180.0,76.0 L 218.0,76.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="220.0" y="60.0" width="110.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="275.0" y="80.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">usecase</text>
+  <line x1="332.0" y1="76.0" x2="370.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="372.0" y="60.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="427.0" y="80.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">domain</text>
+  <rect x="16.0" y="160.0" width="130.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="81.0" y="179.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">cmd/server</text>
+  <path d="M 146.0,176.0 L 427.0,176.0 L 427.0,94.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <path d="M 275.0,176.0 L 275.0,94.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <path d="M 81.0,160.0 L 81.0,138.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="160.0" y="196.0" fill="#475569" font-size="10" text-anchor="start">cmd/server = composition root, nơi duy nhất biết tất cả package</text>
+</svg>
 
 `domain` không import bất cứ thứ gì của ta. `usecase` chỉ import `domain` và `pkg/base62`. `adapter/*` import `usecase` + `domain`. **`cmd/server` là nơi DUY NHẤT biết về implementation cụ thể** — đó là nơi quyết định "dùng in-memory hay Postgres".
 
@@ -359,21 +376,35 @@ Composition root: tạo adapter in-memory → start worker goroutine → wire us
 
 Luồng đọc của `Resolve`:
 
-```
-GET /{code}
-   │
-   ▼
-[1] cache.GetURL(code) ──hit──► trả original (NHANH, ~µs)
-   │ miss
-   ▼
-[2] repo.FindByCode(code) ──not found──► 404
-   │ found
-   ▼
-[3] cache.SetURL(code, original, TTL)   ← POPULATE
-   │
-   ▼
-   trả original
-```
+<svg viewBox="0 0 540 352" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng redirect cache-aside: cache hit trả ngay; miss thì tra repo, không có trả 404, có thì populate cache rồi trả">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="120.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="76.0" y="38.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">GET /{code}</text>
+  <line x1="76.0" y1="54.0" x2="76.0" y2="82.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="84.0" width="220.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="126.0" y="107.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">[1] cache.GetURL(code)</text>
+  <line x1="238.0" y1="104.0" x2="318.0" y2="104.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="278.0" y="97.0" fill="#15803d" font-size="10" text-anchor="middle">hit</text>
+  <rect x="320.0" y="86.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="420.0" y="100.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">trả original</text>
+  <text x="420.0" y="115.3" fill="#475569" font-size="10" text-anchor="middle">NHANH, ~µs</text>
+  <line x1="76.0" y1="126.0" x2="76.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="84.0" y="144.0" fill="#dc2626" font-size="10" text-anchor="start">miss</text>
+  <rect x="16.0" y="156.0" width="220.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="126.0" y="179.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">[2] repo.FindByCode(code)</text>
+  <line x1="238.0" y1="176.0" x2="318.0" y2="176.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="278.0" y="169.0" fill="#dc2626" font-size="10" text-anchor="middle">not found</text>
+  <rect x="320.0" y="158.0" width="100.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="370.0" y="180.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">404</text>
+  <line x1="76.0" y1="198.0" x2="76.0" y2="226.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="84.0" y="216.0" fill="#15803d" font-size="10" text-anchor="start">found</text>
+  <rect x="16.0" y="228.0" width="260.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="146.0" y="251.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">[3] cache.SetURL(code, original, TTL)</text>
+  <text x="284.0" y="252.0" fill="#475569" font-size="10" text-anchor="start">← POPULATE</text>
+  <line x1="76.0" y1="270.0" x2="76.0" y2="298.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="300.0" width="160.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="96.0" y="321.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">trả original</text>
+</svg>
 
 Walk-through bằng số cụ thể với code `abc1234` → `https://go.dev`:
 
@@ -426,17 +457,30 @@ Giả sử 100 URL "hot" chiếm 90% traffic, cache hit rate đạt 90%. DB roun
 
 Đường redirect **emit** một `Click` event vào queue rồi trả ngay. Một **worker goroutine** tiêu thụ và aggregate ở background. Redirect **không bao giờ chờ** việc ghi thống kê.
 
-```
-       REDIRECT (hot path)                 BACKGROUND (worker)
-       ┌──────────────────┐                ┌─────────────────────┐
-GET ──►│ Resolve()        │                │ for c := range chan │
-/code  │  tra URL (cache) │                │   apply(c):         │
-       │  emitClick() ────┼──► [ channel ]─┼──►  total++         │
-       │  return 302      │     (buffer)   │     byDay[d]++      │
-       └──────────────────┘                │     byRef[r]++      │
-         ↑ KHÔNG chờ worker                │     uniqueIPs[ip]   │
-                                           └─────────────────────┘
-```
+<svg viewBox="0 0 720 176" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Redirect hot path: Resolve() tra URL, emitClick() đẩy vào channel có buffer rồi return 302 không chờ; worker nền đọc channel và cập nhật tổng hợp">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="150.0" y="22.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">REDIRECT (hot path)</text>
+  <text x="560.0" y="22.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">BACKGROUND (worker)</text>
+  <rect x="70.0" y="30.0" width="200.0" height="110.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="170.0" y="50.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Resolve()</text>
+  <text x="170.0" y="68.0" fill="#475569" font-size="10" text-anchor="middle">tra URL (cache)</text>
+  <text x="170.0" y="86.0" fill="#475569" font-size="10" text-anchor="middle">emitClick()</text>
+  <text x="170.0" y="104.0" fill="#475569" font-size="10" text-anchor="middle">return 302</text>
+  <text x="16.0" y="64.0" fill="#475569" font-size="10" text-anchor="middle">GET</text>
+  <text x="16.0" y="78.0" fill="#475569" font-size="10" text-anchor="middle">/code</text>
+  <line x1="34.0" y1="70.0" x2="68.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="320.0" y="72.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="375.0" y="91.0" fill="#475569" font-size="10" text-anchor="middle">channel (buffer)</text>
+  <line x1="272.0" y1="86.0" x2="318.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="432.0" y1="86.0" x2="478.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="480.0" y="30.0" width="220.0" height="120.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="590.0" y="50.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">for c := range chan</text>
+  <text x="590.0" y="68.0" fill="#475569" font-size="10" text-anchor="middle">apply(c):</text>
+  <text x="590.0" y="84.0" fill="#475569" font-size="10" text-anchor="middle">total++</text>
+  <text x="590.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">byDay[d]++ · byRef[r]++</text>
+  <text x="590.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">uniqueIPs[ip]</text>
+  <text x="170.0" y="160.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">↑ KHÔNG chờ worker</text>
+</svg>
 
 **Vì sao non-blocking quan trọng?** Giả sử aggregate phải ghi vào Postgres analytics (5ms/lần). Nếu redirect chờ → mỗi redirect +5ms. Với 10k redirect/s, đó là thảm họa. Tách async → redirect chỉ tốn ~1µs để đẩy vào channel.
 

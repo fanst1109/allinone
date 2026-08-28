@@ -295,18 +295,29 @@ Giờ ở handler tầng sâu nhất, chỉ cần \`FromContext(ctx).Info(...)\`
 
 Đây là phần "đắt giá" nhất của bài. Trong hệ phân tán, một request từ user đi qua nhiều service (\`gateway → orders → payment\`). Để **nối** log của cả chuỗi lại, ta gán cho request **một ID duy nhất** ngay tại **edge** (service đầu tiên nhận), rồi **propagate** nó xuống mọi service kế tiếp qua HTTP header.
 
-\`\`\`
-[Client] --POST /checkout-->  [Gateway]            sinh request_id = "req-abc123"
-                                  | log {request_id:"req-abc123", svc:"gateway", ...}
-                                  | gọi orders, kèm header X-Request-ID: req-abc123
-                                  v
-                              [Orders]              đọc header → dùng lại request_id
-                                  | log {request_id:"req-abc123", svc:"orders", ...}
-                                  | gọi payment, kèm header X-Request-ID: req-abc123
-                                  v
-                              [Payment]             đọc header → dùng lại request_id
-                                    log {request_id:"req-abc123", svc:"payment", ...}
-\`\`\`
+<svg viewBox="0 0 640 236" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lan truyền request_id: Gateway sinh req-abc123, truyền qua header X-Request-ID xuống Orders rồi Payment; mọi log cùng request_id">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="38.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="108.0" y1="34.0" x2="196.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="152.0" y="27.0" fill="#475569" font-size="9" text-anchor="middle">POST /checkout</text>
+  <rect x="198.0" y="16.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="253.0" y="38.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Gateway</text>
+  <text x="318.0" y="30.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">sinh request_id = "req-abc123"</text>
+  <text x="318.0" y="44.0" fill="#475569" font-size="9" text-anchor="start">log {request_id:"req-abc123", svc:"gateway", …}</text>
+  <line x1="253.0" y1="54.0" x2="253.0" y2="96.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="262.0" y="78.0" fill="#475569" font-size="10" text-anchor="start">gọi orders, kèm header X-Request-ID: req-abc123</text>
+  <rect x="198.0" y="98.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="253.0" y="120.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Orders</text>
+  <text x="318.0" y="112.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">đọc header → dùng lại request_id</text>
+  <text x="318.0" y="126.0" fill="#475569" font-size="9" text-anchor="start">log {request_id:"req-abc123", svc:"orders", …}</text>
+  <line x1="253.0" y1="136.0" x2="253.0" y2="178.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="262.0" y="160.0" fill="#475569" font-size="10" text-anchor="start">gọi payment, kèm header X-Request-ID: req-abc123</text>
+  <rect x="198.0" y="180.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="253.0" y="202.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Payment</text>
+  <text x="318.0" y="194.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">đọc header → dùng lại request_id</text>
+  <text x="318.0" y="208.0" fill="#475569" font-size="9" text-anchor="start">log {request_id:"req-abc123", svc:"payment", …}</text>
+</svg>
 
 Khi điều tra: \`{env="prod"} | json | request_id="req-abc123"\` → ra **đúng** mọi dòng log của request đó, xuyên cả 3 service, theo thứ tự thời gian.
 

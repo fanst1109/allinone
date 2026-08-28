@@ -107,13 +107,40 @@ Reproducible nghĩa là: cùng commit hash → cùng artifact (cùng binary, cù
 
 Một pipeline production điển hình cho dịch vụ Go gồm các stage nối tiếp. **Stage trước fail → dừng luôn**, không phí công chạy stage sau.
 
-```
-┌──────────┐   ┌──────┐   ┌───────┐   ┌──────┐   ┌────────────┐   ┌────────────┐   ┌──────┐   ┌────────┐
-│ Checkout │──▶│ Lint │──▶│ Build │──▶│ Test │──▶│ Vuln scan  │──▶│ Build image│──▶│ Push │──▶│ Deploy │
-└──────────┘   └──────┘   └───────┘   └──────┘   └────────────┘   └────────────┘   └──────┘   └────────┘
-   git fetch  golangci    go build   go test     govulncheck      docker build   registry   k8s/argo
-                                       -race      + trivy
-```
+<svg viewBox="0 0 910 92" style="max-width:910px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline CI/CD 8 bước: Checkout → Lint → Build → Test → Vuln scan → Build image → Push → Deploy">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="14.0" y="20.0" width="86.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="57.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Checkout</text>
+  <text x="57.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">git fetch</text>
+  <line x1="102.0" y1="38.0" x2="124.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="126.0" y="20.0" width="82.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="167.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Lint</text>
+  <text x="167.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">golangci</text>
+  <line x1="210.0" y1="38.0" x2="232.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="234.0" y="20.0" width="82.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="275.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Build</text>
+  <text x="275.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">go build</text>
+  <line x1="318.0" y1="38.0" x2="340.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="342.0" y="20.0" width="82.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="383.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Test</text>
+  <text x="383.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">go test -race</text>
+  <line x1="426.0" y1="38.0" x2="448.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="450.0" y="20.0" width="94.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="497.0" y="41.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Vuln scan</text>
+  <text x="497.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">govulncheck + trivy</text>
+  <line x1="546.0" y1="38.0" x2="568.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="570.0" y="20.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="625.0" y="41.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Build image</text>
+  <text x="625.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">docker build</text>
+  <line x1="682.0" y1="38.0" x2="704.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="706.0" y="20.0" width="82.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="747.0" y="41.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Push</text>
+  <text x="747.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">registry</text>
+  <line x1="790.0" y1="38.0" x2="812.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="814.0" y="20.0" width="82.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="855.0" y="41.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Deploy</text>
+  <text x="855.0" y="74.0" fill="#475569" font-size="9" text-anchor="middle">k8s/argo</text>
+</svg>
 
 Mô tả từng stage và lệnh thật:
 
@@ -647,12 +674,22 @@ Bốn nguyên tắc GitOps:
 
 Luồng GitOps điển hình:
 
-```
-CI build image → push registry → CI sửa tag image trong repo-config (commit)
-                                          │
-                                          ▼
-              ArgoCD/Flux phát hiện repo-config đổi → sync vào cluster
-```
+<svg viewBox="0 0 700 174" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="GitOps: CI build và push image, commit tag mới vào repo-config; ArgoCD/Flux phát hiện thay đổi và sync vào cluster">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="150.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="91.0" y="44.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CI build image</text>
+  <line x1="168.0" y1="40.0" x2="206.0" y2="40.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="208.0" y="20.0" width="130.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="273.0" y="44.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">push registry</text>
+  <line x1="340.0" y1="40.0" x2="378.0" y2="40.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="380.0" y="20.0" width="220.0" height="52.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="490.0" y="42.4" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">CI sửa tag image</text>
+  <text x="490.0" y="57.4" fill="#475569" font-size="10" text-anchor="middle">trong repo-config (commit)</text>
+  <line x1="490.0" y1="74.0" x2="490.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="300.0" y="112.0" width="380.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="490.0" y="130.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">ArgoCD/Flux phát hiện repo-config đổi</text>
+  <text x="490.0" y="145.3" fill="#475569" font-size="10" text-anchor="middle">→ sync vào cluster</text>
+</svg>
 
 - **ArgoCD** — UI mạnh, phổ biến, app-of-apps pattern.
 - **Flux** — gọn, GitOps Toolkit, hợp CLI-first.

@@ -99,11 +99,21 @@ Ba khái niệm này hay bị lẫn. Cách phân biệt: **SLI là số đo, SLO
 
 **(c) Ví dụ số.** AWS S3 SLA: < 99.9% → credit 10%; < 99.0% → credit 25%; < 95.0% → credit 100%.
 
-```
-Chặt hơn  SLO (99.95%)  ──vùng đệm──►  SLA (99.9%)  Lỏng hơn
-          (đội tự đặt)                  (cam kết khách)
-          vi phạm trước → cảnh báo nội bộ, chưa mất tiền
-```
+<svg viewBox="0 0 660 148" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="SLO 99.95% chặt hơn SLA 99.9%: vùng đệm giữa hai mốc cho phép cảnh báo nội bộ trước khi vi phạm cam kết với khách">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="60.0" y="50.0" width="300.0" height="26.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <rect x="360.0" y="50.0" width="200.0" height="26.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <line x1="360.0" y1="38.0" x2="360.0" y2="90.0" stroke="#15803d" stroke-width="2.5"/>
+  <text x="360.0" y="30.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">SLO (99.95%)</text>
+  <text x="360.0" y="104.0" fill="#475569" font-size="10" text-anchor="middle">(đội tự đặt)</text>
+  <line x1="560.0" y1="38.0" x2="560.0" y2="90.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="560.0" y="30.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">SLA (99.9%)</text>
+  <text x="560.0" y="104.0" fill="#475569" font-size="10" text-anchor="middle">(cam kết khách)</text>
+  <text x="460.0" y="68.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">vùng đệm</text>
+  <text x="40.0" y="68.0" fill="#475569" font-size="10" text-anchor="end">Chặt hơn</text>
+  <text x="580.0" y="68.0" fill="#475569" font-size="10" text-anchor="start">Lỏng hơn</text>
+  <text x="310.0" y="132.0" fill="#475569" font-size="10" text-anchor="middle">vi phạm SLO trước → cảnh báo nội bộ, chưa mất tiền; chạm SLA mới vi phạm cam kết</text>
+</svg>
 
 ### 2.4 Walk-through: 99.9% nghĩa là bao nhiêu downtime?
 
@@ -371,15 +381,22 @@ Khi incident lớn (SEV1/SEV2), hỗn loạn nếu ai cũng làm mọi thứ. M�
 - **Circuit breaker:** ngắt gọi tới dependency đang hỏng để không kéo sập cả hệ thống (xem [Lesson 52](../lesson-52-rate-limiting-circuit-breaker/)).
 - **Rate limit / shed load:** chặn bớt traffic để phần còn lại sống.
 
-```
-Incident bắt đầu (deploy v2.3 gây 500 hàng loạt)
-   │
-   ├─► MITIGATE (2 phút):  rollback về v2.2  → user hết bị 500  ✅
-   │                        (CHƯA biết v2.3 sai chỗ nào — không sao)
-   │
-   └─► RESOLVE (sau, bình tĩnh): điều tra v2.3, tìm bug nil-pointer,
-                                  viết test, deploy v2.4 đã fix.
-```
+<svg viewBox="0 0 610 180" style="max-width:610px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tách MITIGATE và RESOLVE: rollback v2.2 trong 2 phút để cầm máu, sau đó mới điều tra bug v2.3 và deploy v2.4">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="60.0" width="200.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="116.0" y="78.3" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Incident bắt đầu</text>
+  <text x="116.0" y="93.3" fill="#475569" font-size="10" text-anchor="middle">deploy v2.3 gây 500 hàng loạt</text>
+  <path d="M 216.0,82.0 L 250.0,82.0 L 250.0,40.0 L 288.0,40.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 250.0,82.0 L 250.0,126.0 L 288.0,126.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="290.0" y="16.0" width="300.0" height="48.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="36.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">MITIGATE (2 phút)</text>
+  <text x="440.0" y="51.4" fill="#475569" font-size="10" text-anchor="middle">rollback về v2.2 → user hết bị 500 ✓</text>
+  <text x="440.0" y="80.0" fill="#475569" font-size="9" text-anchor="middle">(CHƯA biết v2.3 sai chỗ nào — không sao)</text>
+  <rect x="290.0" y="102.0" width="300.0" height="48.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="440.0" y="122.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">RESOLVE (sau, bình tĩnh)</text>
+  <text x="440.0" y="137.3" fill="#475569" font-size="10" text-anchor="middle">điều tra v2.3, tìm bug nil-pointer,</text>
+  <text x="440.0" y="164.0" fill="#475569" font-size="9" text-anchor="middle">viết test, deploy v2.4 đã fix</text>
+</svg>
 
 ⚠ **Lỗi thường gặp.** Vừa thấy incident là lao vào *debug root cause* trong khi user vẫn đang chịu lỗi. Mỗi phút debug = thêm phút user đau + đốt error budget. **Cầm máu trước (rollback), điều tra sau.** Trừ khi rollback *không khả thi* (vd: migration DB không đảo ngược) thì mới bắt buộc fix forward — nhưng đó là ngoại lệ.
 
@@ -409,21 +426,43 @@ Incident bắt đầu (deploy v2.3 gây 500 hàng loạt)
 
 **(b) Vì sao blameless là điều kiện sống còn.** Chuỗi nhân quả:
 
-```
-Có blame (đổ lỗi)
-   → người sợ bị phạt
-   → che giấu sai sót, không khai báo đầy đủ
-   → postmortem thiếu sự thật
-   → KHÔNG học được nguyên nhân thật
-   → lỗi LẶP LẠI
-
-Blameless (không đổ lỗi)
-   → người an tâm kể đúng những gì đã xảy ra
-   → postmortem có đủ sự thật
-   → tìm ra lỗ hổng hệ thống/process
-   → sửa hệ thống
-   → lỗi KHÔNG lặp lại
-```
+<svg viewBox="0 0 652 350" style="max-width:652px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai chuỗi hệ quả: văn hóa đổ lỗi dẫn tới che giấu và lỗi lặp lại; blameless dẫn tới sự thật đầy đủ, sửa hệ thống, lỗi không lặp lại">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="14.0" width="300.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="166.0" y="33.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Có blame (đổ lỗi)</text>
+  <line x1="166.0" y1="48.0" x2="166.0" y2="70.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="16.0" y="72.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="166.0" y="91.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">người sợ bị phạt</text>
+  <line x1="166.0" y1="106.0" x2="166.0" y2="128.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="16.0" y="130.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="166.0" y="149.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">che giấu sai sót, không khai báo đầy đủ</text>
+  <line x1="166.0" y1="164.0" x2="166.0" y2="186.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="16.0" y="188.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="166.0" y="207.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">postmortem thiếu sự thật</text>
+  <line x1="166.0" y1="222.0" x2="166.0" y2="244.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="16.0" y="246.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="166.0" y="265.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">KHÔNG học được nguyên nhân thật</text>
+  <line x1="166.0" y1="280.0" x2="166.0" y2="302.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="16.0" y="304.0" width="300.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="166.0" y="323.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">lỗi LẶP LẠI</text>
+  <rect x="336.0" y="14.0" width="300.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="486.0" y="33.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Blameless (không đổ lỗi)</text>
+  <line x1="486.0" y1="48.0" x2="486.0" y2="70.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="336.0" y="72.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="486.0" y="91.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">người an tâm kể đúng những gì đã xảy ra</text>
+  <line x1="486.0" y1="106.0" x2="486.0" y2="128.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="336.0" y="130.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="486.0" y="149.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">postmortem có đủ sự thật</text>
+  <line x1="486.0" y1="164.0" x2="486.0" y2="186.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="336.0" y="188.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="486.0" y="207.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">tìm ra lỗ hổng hệ thống/process</text>
+  <line x1="486.0" y1="222.0" x2="486.0" y2="244.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="336.0" y="246.0" width="300.0" height="32.0" rx="8" fill="#ffffff" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="486.0" y="265.7" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">sửa hệ thống</text>
+  <line x1="486.0" y1="280.0" x2="486.0" y2="302.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="336.0" y="304.0" width="300.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="486.0" y="323.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">lỗi KHÔNG lặp lại</text>
+</svg>
 
 Tư duy cốt lõi: **"Nếu một người gõ nhầm lệnh xóa được cả production DB, thì lỗi nằm ở HỆ THỐNG cho phép điều đó (không có confirm, không có backup, không phân quyền), không phải ở người gõ."** Bất kỳ ai cũng có thể gõ nhầm; sửa con người không scale, sửa hệ thống thì có.
 

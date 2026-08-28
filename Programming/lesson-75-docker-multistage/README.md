@@ -86,15 +86,40 @@ Vì không phải boot một kernel mới (như VM phải làm), container chỉ
 
 Image **không** phải một khối liền. Nó là **chồng các lớp (layer)**, mỗi layer là kết quả của một instruction trong Dockerfile (`FROM`, `COPY`, `RUN`...). Mỗi layer chỉ ghi lại *phần thay đổi* so với layer dưới.
 
-```
-Dockerfile                          Layer sinh ra
-─────────────────────────────────   ───────────────────────────
-FROM golang:1.22          ──────►    [Layer 0] base image ~800MB
-COPY go.mod go.sum ./     ──────►    [Layer 1] +2 file nhỏ
-RUN go mod download       ──────►    [Layer 2] +cache dependency
-COPY . .                  ──────►    [Layer 3] +toàn bộ source
-RUN go build -o server    ──────►    [Layer 4] +binary
-```
+<svg viewBox="0 0 590 260" style="max-width:590px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mỗi lệnh Dockerfile sinh một layer: FROM base 800MB, COPY go.mod, RUN go mod download (cache), COPY source, RUN go build">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="22.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Dockerfile</text>
+  <text x="330.0" y="22.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Layer sinh ra</text>
+  <rect x="16.0" y="32.0" width="230.0" height="32.0" rx="6" fill="#0f172a" fill-opacity="1" stroke="#0f172a" stroke-width="1"/>
+  <text x="26" y="53" fill="#e2e8f0" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">FROM golang:1.22</text>
+  <line x1="250.0" y1="48.0" x2="322.0" y2="48.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="326.0" y="32.0" width="240.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="446.0" y="51.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[Layer 0] base image ~800MB</text>
+  <rect x="16.0" y="76.0" width="230.0" height="32.0" rx="6" fill="#0f172a" fill-opacity="1" stroke="#0f172a" stroke-width="1"/>
+  <text x="26" y="97" fill="#e2e8f0" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">COPY go.mod go.sum ./</text>
+  <line x1="250.0" y1="92.0" x2="322.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="326.0" y="76.0" width="240.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="446.0" y="95.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[Layer 1] +2 file nhỏ</text>
+  <rect x="16.0" y="120.0" width="230.0" height="32.0" rx="6" fill="#0f172a" fill-opacity="1" stroke="#0f172a" stroke-width="1"/>
+  <text x="26" y="141" fill="#e2e8f0" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">RUN go mod download</text>
+  <line x1="250.0" y1="136.0" x2="322.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="326.0" y="120.0" width="240.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="446.0" y="139.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[Layer 2] +cache dependency</text>
+  <rect x="16.0" y="164.0" width="230.0" height="32.0" rx="6" fill="#0f172a" fill-opacity="1" stroke="#0f172a" stroke-width="1"/>
+  <text x="26" y="185" fill="#e2e8f0" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">COPY . .</text>
+  <line x1="250.0" y1="180.0" x2="322.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="326.0" y="164.0" width="240.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="446.0" y="183.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[Layer 3] +toàn bộ source</text>
+  <rect x="16.0" y="208.0" width="230.0" height="32.0" rx="6" fill="#0f172a" fill-opacity="1" stroke="#0f172a" stroke-width="1"/>
+  <text x="26" y="229" fill="#e2e8f0" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">RUN go build -o server</text>
+  <line x1="250.0" y1="224.0" x2="322.0" y2="224.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="326.0" y="208.0" width="240.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="446.0" y="227.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">[Layer 4] +binary</text>
+  <line x1="446.0" y1="65.0" x2="446.0" y2="75.0" stroke="#15803d" stroke-width="1.2" stroke-dasharray="2 2"/>
+  <line x1="446.0" y1="109.0" x2="446.0" y2="119.0" stroke="#15803d" stroke-width="1.2" stroke-dasharray="2 2"/>
+  <line x1="446.0" y1="153.0" x2="446.0" y2="163.0" stroke="#15803d" stroke-width="1.2" stroke-dasharray="2 2"/>
+  <line x1="446.0" y1="197.0" x2="446.0" y2="207.0" stroke="#15803d" stroke-width="1.2" stroke-dasharray="2 2"/>
+</svg>
 
 Hai tính chất quan trọng của layer:
 

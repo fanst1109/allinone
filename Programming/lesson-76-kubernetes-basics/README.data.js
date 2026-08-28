@@ -78,26 +78,48 @@ K8s không phải "chạy lệnh này". Bạn mô tả **trạng thái mong mu�
 
 💡 **Trực giác.** Một cluster K8s như một công ty: **control plane** là ban quản lý (ra quyết định, ghi sổ), **worker node** là công nhân (thực sự chạy container). Bạn nói chuyện với ban quản lý qua một cửa duy nhất — API server.
 
-\`\`\`
-┌─────────────────── CONTROL PLANE (não bộ) ────────────────────┐
-│                                                                │
-│   ┌────────────┐   ┌──────┐   ┌───────────┐  ┌──────────────┐ │
-│   │ API server │◄─►│ etcd │   │ scheduler │  │  controller  │ │
-│   │ (cửa duy   │   │ (sổ  │   │ (xếp pod  │  │   manager    │ │
-│   │  nhất)     │   │ cái) │   │ vào node) │  │ (reconcile)  │ │
-│   └─────▲──────┘   └──────┘   └───────────┘  └──────────────┘ │
-└─────────┼──────────────────────────────────────────────────── ┘
-          │ (kubelet trên mỗi node nói chuyện với API server)
-   ┌──────┴────────────┐         ┌───────────────────┐
-   │   WORKER NODE 1   │         │   WORKER NODE 2    │
-   │ ┌──────┐ ┌──────┐ │         │ ┌──────┐ ┌──────┐  │
-   │ │kubelet│ │kube- │ │        │ │kubelet│ │kube- │  │
-   │ │       │ │proxy │ │        │ │       │ │proxy │  │
-   │ └──────┘ └──────┘ │         │ └──────┘ └──────┘  │
-   │ [container runtime]│        │ [container runtime] │
-   │   Pod  Pod  Pod    │        │    Pod   Pod        │
-   └────────────────────┘        └─────────────────────┘
-\`\`\`
+<svg viewBox="0 0 632 344" style="max-width:632px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc Kubernetes: control plane gồm API server, etcd, scheduler, controller manager; worker node chạy kubelet, kube-proxy, container runtime và Pod">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="600.0" height="120.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="316.0" y="22.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">CONTROL PLANE (não bộ)</text>
+  <rect x="30.0" y="52.0" width="130.0" height="76.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="86.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">API server</text>
+  <text x="95.0" y="101.3" fill="#475569" font-size="10" text-anchor="middle">(cửa duy nhất)</text>
+  <rect x="196.0" y="52.0" width="90.0" height="76.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="241.0" y="86.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">etcd</text>
+  <text x="241.0" y="101.3" fill="#475569" font-size="10" text-anchor="middle">(sổ cái)</text>
+  <rect x="316.0" y="52.0" width="130.0" height="76.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="381.0" y="86.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">scheduler</text>
+  <text x="381.0" y="101.3" fill="#475569" font-size="10" text-anchor="middle">(xếp pod vào node)</text>
+  <rect x="466.0" y="52.0" width="136.0" height="76.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="534.0" y="86.3" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">controller manager</text>
+  <text x="534.0" y="101.3" fill="#475569" font-size="10" text-anchor="middle">(reconcile)</text>
+  <line x1="162.0" y1="90.0" x2="194.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="194.0" y1="84.0" x2="162.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 95.0,128.0 L 95.0,140.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="95.0" y1="150.0" x2="95.0" y2="196.0" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="104.0" y="176.0" fill="#475569" font-size="10" text-anchor="start">kubelet trên mỗi node nói chuyện với API server</text>
+  <path d="M 95.0,196.0 L 160.0,196.0 L 160.0,210.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 95.0,196.0 L 460.0,196.0 L 460.0,210.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="40.0" y="212.0" width="240.0" height="116.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="160.0" y="230.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">WORKER NODE 1</text>
+  <rect x="54.0" y="240.0" width="100.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="104.0" y="259.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">kubelet</text>
+  <rect x="166.0" y="240.0" width="100.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="216.0" y="259.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">kube-proxy</text>
+  <rect x="54.0" y="280.0" width="212.0" height="18.0" rx="4" fill="#e2e8f0" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <text x="160.0" y="293.0" fill="#475569" font-size="9" text-anchor="middle">[container runtime]</text>
+  <text x="160.0" y="318.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Pod   Pod   Pod</text>
+  <rect x="340.0" y="212.0" width="240.0" height="116.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="460.0" y="230.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">WORKER NODE 2</text>
+  <rect x="354.0" y="240.0" width="100.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="404.0" y="259.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">kubelet</text>
+  <rect x="466.0" y="240.0" width="100.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="516.0" y="259.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">kube-proxy</text>
+  <rect x="354.0" y="280.0" width="212.0" height="18.0" rx="4" fill="#e2e8f0" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <text x="460.0" y="293.0" fill="#475569" font-size="9" text-anchor="middle">[container runtime]</text>
+  <text x="460.0" y="318.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Pod   Pod</text>
+</svg>
 
 ### 2.1 Control plane — các thành phần
 
@@ -272,13 +294,25 @@ Namespace chia cluster thành các "ngăn" logic: \`dev\`, \`staging\`, \`prod\`
 
 Pod đi qua các **phase**:
 
-\`\`\`
- Pending ──► Running ──► Succeeded   (container chạy xong, exit 0 — dùng cho Job)
-    │           │
-    │           └──────► Failed      (container exit != 0 và không restart nữa)
-    │
-    └─► (chờ schedule + pull image + start container)
-\`\`\`
+<svg viewBox="0 0 700 150" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng đời Pod: Pending → Running → Succeeded (exit 0) hoặc Failed (exit khác 0, không restart)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="110.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="71.0" y="62.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Pending</text>
+  <line x1="128.0" y1="58.0" x2="198.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="200.0" y="40.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="255.0" y="62.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Running</text>
+  <line x1="312.0" y1="58.0" x2="382.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="384.0" y="40.0" width="110.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="439.0" y="62.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Succeeded</text>
+  <text x="500.0" y="54.0" fill="#475569" font-size="10" text-anchor="start">container chạy xong, exit 0</text>
+  <text x="500.0" y="67.0" fill="#475569" font-size="10" text-anchor="start">(dùng cho Job)</text>
+  <path d="M 255.0,76.0 L 255.0,122.0 L 382.0,122.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="384.0" y="104.0" width="110.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="439.0" y="126.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Failed</text>
+  <text x="500.0" y="118.0" fill="#475569" font-size="10" text-anchor="start">exit != 0 và không restart nữa</text>
+  <text x="71.0" y="96.0" fill="#475569" font-size="9" text-anchor="middle">chờ schedule + pull image</text>
+  <text x="71.0" y="108.0" fill="#475569" font-size="9" text-anchor="middle">+ start container</text>
+</svg>
 
 - **Pending** — đã nhận nhưng container chưa chạy (đang chờ schedule, pull image, mount volume).
 - **Running** — ít nhất một container đang chạy.

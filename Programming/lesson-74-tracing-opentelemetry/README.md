@@ -31,11 +31,29 @@ Sau bài này bạn có thể:
 
 Trong một hệ thống monolith, debug khá đơn giản: một request vào, chạy hết trong một process, stack trace cho bạn biết mọi thứ. Nhưng khi tách thành microservice:
 
-```
-[Client] → API Gateway → Order Service → Payment Service → Bank API
-                              ↓
-                        Inventory Service → DB
-```
+<svg viewBox="0 0 732 140" style="max-width:732px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Một request đi qua Client → API Gateway → Order Service → Payment Service → Bank API, Order Service còn gọi Inventory Service → DB">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="14.0" y="14.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="69.0" y="37.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="126.0" y1="34.0" x2="156.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="158.0" y="14.0" width="110.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="213.0" y="37.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">API Gateway</text>
+  <line x1="270.0" y1="34.0" x2="300.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="302.0" y="14.0" width="112.7" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="358.3" y="37.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Order Service</text>
+  <line x1="416.7" y1="34.0" x2="446.7" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="448.7" y="14.0" width="126.3" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="511.8" y="37.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Payment Service</text>
+  <line x1="577.0" y1="34.0" x2="607.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="609.0" y="14.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="664.0" y="37.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Bank API</text>
+  <line x1="358.3" y1="56.0" x2="358.3" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="278.3" y="88.0" width="160.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="358.3" y="109.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Inventory Service</text>
+  <line x1="440.3" y1="106.0" x2="478.3" y2="106.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="480.3" y="88.0" width="60.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="510.3" y="109.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">DB</text>
+</svg>
 
 Một request `POST /checkout` có thể chạm 5 service, 2 database, 1 message queue. Khi nó **chậm 3 giây**, câu hỏi đặt ra: *chậm ở đâu?*
 
@@ -329,21 +347,29 @@ span.SetAttributes(attribute.String("region", region))
 
 Đường đi của một span từ code đến màn hình:
 
-```
-[App code]
-   │  tracer.Start / span.End  (API)
-   ▼
-[SDK: SpanProcessor]  ── BatchSpanProcessor gom span thành lô
-   │
-   ▼
-[Exporter]  ── đổi sang OTLP / Jaeger / Zipkin format
-   │   (OTLP = OpenTelemetry Protocol, chuẩn truyền của OTel)
-   ▼
-[Collector] (tùy chọn)  ── nhận, xử lý (batch, filter, tail-sampling), route
-   │
-   ▼
-[Backend / UI]  ── Jaeger · Grafana Tempo · Zipkin · Datadog · ...
-```
+<svg viewBox="0 0 520 430" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline OpenTelemetry: App code → SDK SpanProcessor → Exporter (OTLP) → Collector → Backend/UI">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="340.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">App code</text>
+  <text x="260.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">tracer.Start / span.End (API)</text>
+  <line x1="260.0" y1="74.0" x2="260.0" y2="98.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="100.0" width="340.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="125.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">SDK: SpanProcessor</text>
+  <text x="260.0" y="141.2" fill="#475569" font-size="11" text-anchor="middle">BatchSpanProcessor gom span thành lô</text>
+  <line x1="260.0" y1="160.0" x2="260.0" y2="184.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="186.0" width="340.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="211.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Exporter</text>
+  <text x="260.0" y="227.2" fill="#475569" font-size="11" text-anchor="middle">đổi sang OTLP / Jaeger / Zipkin format</text>
+  <line x1="260.0" y1="246.0" x2="260.0" y2="270.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="272.0" width="340.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="260.0" y="297.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Collector (tùy chọn)</text>
+  <text x="260.0" y="313.2" fill="#475569" font-size="11" text-anchor="middle">nhận, xử lý (batch, filter, tail-sampling), route</text>
+  <line x1="260.0" y1="332.0" x2="260.0" y2="356.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="358.0" width="340.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="260.0" y="383.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Backend / UI</text>
+  <text x="260.0" y="399.2" fill="#475569" font-size="11" text-anchor="middle">Jaeger · Grafana Tempo · Zipkin · Datadog · …</text>
+  <text x="260.0" y="999.0" fill="#475569" font-size="1" text-anchor="start"></text>
+</svg>
 
 - **SpanProcessor** trong SDK quyết định khi nào đẩy span ra exporter. `BatchSpanProcessor` (production) gom lô để giảm I/O; `SimpleSpanProcessor` đẩy ngay (chỉ để debug).
 - **Exporter** serialize span. OTLP là format gốc của OTel, được mọi backend hiện đại nhận.
@@ -427,16 +453,38 @@ func handleCheckout(w http.ResponseWriter, r *http.Request) {
 
 Backend hiển thị trace dạng **waterfall** (thác nước): trục ngang là thời gian, mỗi span là một thanh, span con thụt vào dưới cha.
 
-```
-0ms                                                          2400ms
-│
-██████████████████████████████████████████████████████████████  POST /checkout (2400ms)
-  ███                                                            validate order (120ms)
-     ██████████████████████████████████████████████████         charge payment (1900ms)
-        ████████████████████████████████████████████████        └ POST bank-api (1850ms) ⚠
-                                                  ████████        reserve stock (300ms)
-                                                   ██████         └ UPDATE inventory (250ms)
-```
+<svg viewBox="0 0 760 252" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trace waterfall: POST /checkout 2400ms gồm validate 120ms, charge payment 1900ms (POST bank-api 1850ms là nút thắt), reserve stock 300ms">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="140.0" y1="26.0" x2="140.0" y2="212.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="700.0" y1="26.0" x2="700.0" y2="212.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="140.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0ms</text>
+  <text x="700.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">2400ms</text>
+  <line x1="280.0" y1="26.0" x2="280.0" y2="212.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="280.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">600ms</text>
+  <line x1="420.0" y1="26.0" x2="420.0" y2="212.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="420.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">1200ms</text>
+  <line x1="560.0" y1="26.0" x2="560.0" y2="212.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="560.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">1800ms</text>
+  <rect x="140.0" y="32.0" width="560.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="132.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">POST /checkout</text>
+  <text x="144.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="start" font-weight="700">2400ms</text>
+  <rect x="147.0" y="62.0" width="28.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="132.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">validate order</text>
+  <text x="179.0" y="76.0" fill="#15803d" font-size="9" text-anchor="start">120ms</text>
+  <rect x="168.0" y="92.0" width="443.3" height="20.0" rx="3" fill="#7c3aed" fill-opacity="0.85" stroke="#7c3aed" stroke-width="0"/>
+  <text x="132.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">charge payment</text>
+  <text x="172.0" y="106.0" fill="#ffffff" font-size="9" text-anchor="start" font-weight="700">1900ms</text>
+  <rect x="179.7" y="122.0" width="431.7" height="20.0" rx="3" fill="#dc2626" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="132.0" y="136.0" fill="#475569" font-size="10" text-anchor="end">└ POST bank-api</text>
+  <text x="183.7" y="136.0" fill="#ffffff" font-size="9" text-anchor="start" font-weight="700">1850ms ⚠</text>
+  <rect x="611.3" y="152.0" width="70.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="132.0" y="166.0" fill="#475569" font-size="10" text-anchor="end">reserve stock</text>
+  <text x="615.3" y="166.0" fill="#ffffff" font-size="9" text-anchor="start" font-weight="700">300ms</text>
+  <rect x="618.3" y="182.0" width="58.3" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="132.0" y="196.0" fill="#475569" font-size="10" text-anchor="end">└ UPDATE inventory</text>
+  <text x="680.7" y="196.0" fill="#b45309" font-size="9" text-anchor="start">250ms</text>
+  <text x="380.0" y="236.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">charge payment chiếm 1900/2400ms — POST bank-api (1850ms) là nút thắt</text>
+</svg>
 
 Cách đọc:
 

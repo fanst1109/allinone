@@ -253,27 +253,34 @@ Mỗi decoder layer gồm **3 sub-layers**:
 
 ### 5.3. Tổng quan Architecture
 
-\`\`\`
-Input Tokens → Embedding + Positional Encoding
-                    ↓
-             [Encoder × 6]
-              ┌─────────────────┐
-              │ Multi-Head Attn │ ← tất cả tokens nhìn nhau
-              │ + Residual + LN │
-              │ FFN             │
-              │ + Residual + LN │
-              └─────────────────┘
-                    ↓ encoder output
-             [Decoder × 6]
-              ┌──────────────────────────┐
-              │ Masked Self-Attn + R+LN  │ ← chỉ nhìn quá khứ
-              │ Cross-Attn (K,V=encoder) │ ← kết nối encoder
-              │ + Residual + LN          │
-              │ FFN + Residual + LN      │
-              └──────────────────────────┘
-                    ↓
-             Linear + Softmax → Output Probabilities
-\`\`\`
+<svg viewBox="0 0 640 442" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc Transformer: Embedding + Positional Encoding → Encoder×6 (Multi-Head Attn, FFN) → Decoder×6 (Masked Self-Attn, Cross-Attn, FFN) → Linear + Softmax">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="150.0" y="14.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="35.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Input Tokens → Embedding + Positional Encoding</text>
+  <line x1="300.0" y1="52.0" x2="300.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="130.0" y="76.0" width="340.0" height="110.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="94.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Encoder × 6</text>
+  <rect x="150.0" y="104.0" width="300.0" height="28.0" rx="4" fill="#ffffff" fill-opacity="1" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="300.0" y="122.0" fill="#7c3aed" font-size="10" text-anchor="middle">Multi-Head Attn + Residual + LN</text>
+  <text x="480.0" y="122.0" fill="#475569" font-size="9" text-anchor="start">← tất cả tokens nhìn nhau</text>
+  <rect x="150.0" y="140.0" width="300.0" height="28.0" rx="4" fill="#ffffff" fill-opacity="1" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="300.0" y="158.0" fill="#7c3aed" font-size="10" text-anchor="middle">FFN + Residual + LN</text>
+  <line x1="300.0" y1="188.0" x2="300.0" y2="214.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="308.0" y="205.0" fill="#475569" font-size="9" text-anchor="start">encoder output</text>
+  <rect x="130.0" y="216.0" width="340.0" height="146.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="234.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Decoder × 6</text>
+  <rect x="150.0" y="244.0" width="300.0" height="28.0" rx="4" fill="#ffffff" fill-opacity="1" stroke="#b45309" stroke-width="1.2"/>
+  <text x="300.0" y="262.0" fill="#b45309" font-size="10" text-anchor="middle">Masked Self-Attn + Residual + LN</text>
+  <text x="480.0" y="262.0" fill="#475569" font-size="9" text-anchor="start">← chỉ nhìn quá khứ</text>
+  <rect x="150.0" y="280.0" width="300.0" height="28.0" rx="4" fill="#ffffff" fill-opacity="1" stroke="#b45309" stroke-width="1.2"/>
+  <text x="300.0" y="298.0" fill="#b45309" font-size="10" text-anchor="middle">Cross-Attn (K,V = encoder) + Res + LN</text>
+  <text x="480.0" y="298.0" fill="#475569" font-size="9" text-anchor="start">← kết nối encoder</text>
+  <rect x="150.0" y="316.0" width="300.0" height="28.0" rx="4" fill="#ffffff" fill-opacity="1" stroke="#b45309" stroke-width="1.2"/>
+  <text x="300.0" y="334.0" fill="#b45309" font-size="10" text-anchor="middle">FFN + Residual + LN</text>
+  <line x1="300.0" y1="364.0" x2="300.0" y2="388.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="130.0" y="390.0" width="340.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="411.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Linear + Softmax → Output Probabilities</text>
+</svg>
 
 ---
 

@@ -678,12 +678,20 @@ R² = 1 - 0.1667 / 4.667 = 1 - 0.0357 = 0.9643
 
 ### 9.1. Sơ đồ
 
-\`\`\`
-        x⁽¹⁾ ──┐
-        x⁽²⁾ ──┼──[ w·x + b ]── ŷ
-        x⁽³⁾ ──┘
-              (1 neuron, linear activation, no hidden layer)
-\`\`\`
+<svg viewBox="0 0 420 126" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Linear regression nhìn như 1 neuron: ba đầu vào x(1), x(2), x(3) gộp qua w·x + b ra ŷ, không hidden layer">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="28.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">x⁽1⁾</text>
+  <path d="M 60.0,24.0 L 120.0,24.0 L 120.0,60.0 L 158.0,60.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="40.0" y="64.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">x⁽2⁾</text>
+  <path d="M 60.0,60.0 L 120.0,60.0 L 120.0,60.0 L 158.0,60.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="40.0" y="100.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">x⁽3⁾</text>
+  <path d="M 60.0,96.0 L 120.0,96.0 L 120.0,60.0 L 158.0,60.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="160.0" y="38.0" width="130.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="225.0" y="64.5" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">w·x + b</text>
+  <line x1="292.0" y1="60.0" x2="350.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="366.0" y="65.0" fill="#15803d" font-size="15" text-anchor="middle" font-weight="700">ŷ</text>
+  <text x="230.0" y="112.0" fill="#475569" font-size="10" text-anchor="middle" font-style="italic">1 neuron, linear activation, no hidden layer</text>
+</svg>
 
 Mỗi feature đi vào một neuron duy nhất với trọng số riêng. Output $= \\sum_j w_j \\cdot x_j + b$. Không có activation phi tuyến.
 

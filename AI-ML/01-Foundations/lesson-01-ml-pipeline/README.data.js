@@ -60,11 +60,25 @@ Vấn đề:
 
 Ta KHÔNG viết luật. Ta đưa cho máy **một đống email đã gán nhãn** (10.000 cái spam, 10.000 cái không spam), và bảo: *"tự tìm pattern phân biệt đi"*. Máy điều chỉnh **tham số** cho tới khi nó phân loại đúng phần lớn email mẫu. Khi gặp email mới, nó áp dụng những pattern đó để đoán.
 
-\`\`\`
-data (email + nhãn)  →  [thuật toán học]  →  model f_θ
-                                                 ↓
-                            email mới  →  f_θ(email mới)  →  spam? / không?
-\`\`\`
+<svg viewBox="0 0 600 156" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Học máy: dữ liệu có nhãn đi qua thuật toán học tạo model f_θ; email mới đưa vào f_θ để dự đoán spam hay không">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="150.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="91.0" y="36.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">data</text>
+  <text x="91.0" y="51.4" fill="#475569" font-size="10" text-anchor="middle">email + nhãn</text>
+  <line x1="168.0" y1="40.0" x2="226.0" y2="40.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="228.0" y="20.0" width="140.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="298.0" y="43.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">thuật toán học</text>
+  <line x1="370.0" y1="40.0" x2="428.0" y2="40.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="430.0" y="20.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="485.0" y="43.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">model f_θ</text>
+  <line x1="485.0" y1="62.0" x2="485.0" y2="96.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="98.0" width="120.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="76.0" y="121.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">email mới</text>
+  <line x1="138.0" y1="118.0" x2="426.0" y2="118.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="282.0" y="111.0" fill="#475569" font-size="10" text-anchor="middle">f_θ(email mới)</text>
+  <rect x="428.0" y="98.0" width="150.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="503.0" y="121.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">spam? / không?</text>
+</svg>
 
 > **💡 Trực giác.** ML giống dạy trẻ con nhận mặt mèo: bạn không liệt kê "mèo có 4 chân, có ria…". Bạn chỉ vào 50 con mèo và 50 con không-mèo, đứa trẻ tự rút ra. ML cũng vậy — chỉ máy "rút ra" bằng số (gradient descent) thay vì rút ra bằng trực giác.
 
@@ -102,14 +116,28 @@ Bài này tập trung vào **supervised**, vì pipeline 6 bước rõ ràng nh�
 
 Mọi pipeline ML đều có dạng:
 
-\`\`\`
-┌─────────┐   ┌──────────┐   ┌────────┐   ┌──────┐   ┌────────┐   ┌──────────┐
-│ 1. Data │ → │ 2. Feature│ → │ 3. Model│ → │4. Loss│ → │ 5. Train│ → │6. Evaluate│
-└─────────┘   └──────────┘   └────────┘   └──────┘   └────────┘   └──────────┘
-                                                          │              │
-                                                          └──────────────┘
-                                                           (lặp tới khi tốt)
-\`\`\`
+<svg viewBox="0 0 740 118" style="max-width:740px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline ML 6 bước: Data → Feature → Model → Loss → Train → Evaluate, vòng lặp Evaluate quay về Train tới khi tốt">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="84.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="58.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1. Data</text>
+  <line x1="102.0" y1="38.0" x2="126.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="128.0" y="20.0" width="107.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="181.5" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">2. Feature</text>
+  <line x1="237.0" y1="38.0" x2="261.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="263.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="308.0" y="41.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">3. Model</text>
+  <line x1="355.0" y1="38.0" x2="379.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="381.0" y="20.0" width="84.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="423.0" y="41.9" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">4. Loss</text>
+  <line x1="467.0" y1="38.0" x2="491.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="493.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="538.0" y="41.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">5. Train</text>
+  <line x1="585.0" y1="38.0" x2="609.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="611.0" y="20.0" width="115.5" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="668.8" y="41.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">6. Evaluate</text>
+  <path d="M 668.8,58.0 L 668.8,90.0 L 538.0,90.0 L 538.0,58.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="603.4" y="104.0" fill="#b45309" font-size="10" text-anchor="middle" font-style="italic">lặp tới khi tốt</text>
+</svg>
 
 | Bước | Câu hỏi | Output |
 |------|---------|--------|

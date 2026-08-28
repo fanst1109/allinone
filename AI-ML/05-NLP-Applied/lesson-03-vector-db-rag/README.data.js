@@ -441,28 +441,42 @@ Một LLM "trần" (vanilla, không retrieval) có 4 vấn đề:
 
 ### 7.2 Pipeline 4 bước
 
-\`\`\`
-[INDEX TIME]
-docs → chunks → embeddings → vector DB
-
-[QUERY TIME]
-user query
-   │
-   ▼
-1. Embed query
-   │
-   ▼
-2. Retrieve top-k chunks (vector DB search)
-   │
-   ▼
-3. Augment: chèn chunks vào prompt template
-   │
-   ▼
-4. Generate: LLM đọc prompt + sinh câu trả lời
-   │
-   ▼
-final answer
-\`\`\`
+<svg viewBox="0 0 580 494" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="RAG: index time docs → chunks → embeddings → vector DB; query time embed query → retrieve top-k → augment prompt → generate → answer">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="24.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">INDEX TIME</text>
+  <rect x="14.0" y="32.0" width="100.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="64.0" y="52.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">docs</text>
+  <line x1="116.0" y1="49.0" x2="142.0" y2="49.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="144.0" y="32.0" width="100.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="194.0" y="52.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">chunks</text>
+  <line x1="246.0" y1="49.0" x2="272.0" y2="49.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="274.0" y="32.0" width="100.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="324.0" y="52.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">embeddings</text>
+  <line x1="376.0" y1="49.0" x2="402.0" y2="49.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="404.0" y="32.0" width="100.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="454.0" y="52.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">vector DB</text>
+  <text x="16.0" y="100.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">QUERY TIME</text>
+  <rect x="140.0" y="108.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="129.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">user query</text>
+  <line x1="290.0" y1="146.0" x2="290.0" y2="166.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="140.0" y="168.0" width="300.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="189.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">1. Embed query</text>
+  <line x1="290.0" y1="206.0" x2="290.0" y2="226.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="140.0" y="228.0" width="300.0" height="48.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="248.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">2. Retrieve top-k chunks</text>
+  <text x="290.0" y="263.4" fill="#475569" font-size="10" text-anchor="middle">vector DB search</text>
+  <line x1="290.0" y1="278.0" x2="290.0" y2="298.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="140.0" y="300.0" width="300.0" height="48.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="320.4" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">3. Augment</text>
+  <text x="290.0" y="335.4" fill="#475569" font-size="10" text-anchor="middle">chèn chunks vào prompt template</text>
+  <line x1="290.0" y1="350.0" x2="290.0" y2="370.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="140.0" y="372.0" width="300.0" height="48.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="392.4" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">4. Generate</text>
+  <text x="290.0" y="407.4" fill="#475569" font-size="10" text-anchor="middle">LLM đọc prompt + sinh câu trả lời</text>
+  <line x1="290.0" y1="422.0" x2="290.0" y2="442.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="140.0" y="444.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="465.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">final answer</text>
+</svg>
 
 ### 7.3 Walk-through một query cụ thể
 

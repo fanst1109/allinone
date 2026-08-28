@@ -86,11 +86,25 @@ Bây giờ $(0,0)$ và $(1,1)$ khác nhau ở $x_3$ (0 vs 1). Một mặt phẳn
 
 Đặt 1 lớp trung gian (**hidden layer**) gồm vài neuron. Mỗi neuron là một $\\sigma(w \\cdot x + b)$ — chính là một logistic regression mini. Output của lớp này là **feature mới**, phi tuyến (do $\\sigma$). Sau đó tầng output dùng các feature mới này để phân loại.
 
-\`\`\`
-x ──┬─→ neuron 1: σ(w₁·x + b₁) ──┐
-    ├─→ neuron 2: σ(w₂·x + b₂) ──┼─→ output: σ(w_out · [n₁, n₂, n₃] + b_out)
-    └─→ neuron 3: σ(w₃·x + b₃) ──┘
-\`\`\`
+<svg viewBox="0 0 620 176" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Một hidden layer 3 neuron: x vào từng neuron σ(wᵢ·x + bᵢ), ba đầu ra gộp vào output σ(w_out·[n₁,n₂,n₃] + b_out)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="30.0" y="80.0" fill="#1d4ed8" font-size="15" text-anchor="middle" font-weight="700">x</text>
+  <path d="M 42.0,76.0 L 70.0,76.0 L 70.0,48.0 L 98.0,48.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="30.0" width="190.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="195.0" y="51.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">neuron 1: σ(w₁·x + b₁)</text>
+  <path d="M 290.0,48.0 L 320.0,48.0 L 320.0,76.0 L 348.0,76.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 42.0,76.0 L 70.0,76.0 L 70.0,94.0 L 98.0,94.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="76.0" width="190.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="195.0" y="97.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">neuron 2: σ(w₂·x + b₂)</text>
+  <path d="M 290.0,94.0 L 320.0,94.0 L 320.0,76.0 L 348.0,76.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 42.0,76.0 L 70.0,76.0 L 70.0,140.0 L 98.0,140.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="122.0" width="190.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="195.0" y="143.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">neuron 3: σ(w₃·x + b₃)</text>
+  <path d="M 290.0,140.0 L 320.0,140.0 L 320.0,76.0 L 348.0,76.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="350.0" y="54.0" width="250.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="475.0" y="72.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">output</text>
+  <text x="475.0" y="87.3" fill="#475569" font-size="10" text-anchor="middle">σ(w_out · [n₁, n₂, n₃] + b_out)</text>
+</svg>
 
 Đây chính là **neural network 1-hidden-layer**.
 
@@ -133,18 +147,28 @@ Lý thuyết: 1 hidden layer đủ rộng có thể xấp xỉ mọi hàm liên 
 
 ### 2.1. Sơ đồ tổng quát
 
-\`\`\`
-INPUT      HIDDEN                       OUTPUT
- (d chiều)  (H neuron)                   (1 hoặc K chiều)
-
- x₁  ────┐
-         ├──→  σ(W₁·x + b₁) = h ──┐
- x₂  ────┤                          ├──→  W₂·h + b₂ = ŷ
-         │                          │
- ...     │                          │
-         │                          │
- x_d ────┘                          ┘
-\`\`\`
+<svg viewBox="0 0 640 190" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ tổng quát MLP: input x₁…x_d → hidden h = σ(W₁·x + b₁) → output ŷ = W₂·h + b₂">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="70.0" y="22.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">INPUT (d chiều)</text>
+  <text x="290.0" y="22.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">HIDDEN (H neuron)</text>
+  <text x="510.0" y="22.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">OUTPUT (1 hoặc K chiều)</text>
+  <text x="60.0" y="49.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">x₁</text>
+  <line x1="76.0" y1="44.0" x2="110.0" y2="44.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="110.0" y1="44.0" x2="110.0" y2="95.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="60.0" y="83.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">x₂</text>
+  <line x1="76.0" y1="78.0" x2="110.0" y2="78.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="110.0" y1="78.0" x2="110.0" y2="95.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="60.0" y="117.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">…</text>
+  <text x="60.0" y="151.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">x_d</text>
+  <line x1="76.0" y1="146.0" x2="110.0" y2="146.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="95.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="110.0" y1="95.0" x2="178.0" y2="95.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="180.0" y="72.0" width="220.0" height="46.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="99.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">σ(W₁·x + b₁) = h</text>
+  <line x1="402.0" y1="95.0" x2="470.0" y2="95.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="472.0" y="72.0" width="150.0" height="46.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="547.0" y="99.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">W₂·h + b₂ = ŷ</text>
+</svg>
 
 Trong đó:
 - $x \\in \\mathbb{R}^d$ — input vector.

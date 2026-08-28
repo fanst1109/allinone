@@ -613,11 +613,28 @@ display(top_k)
 
 Stable Diffusion 1.x dùng **CLIP text encoder** làm condition cho diffusion U-Net:
 
-```
-prompt "a cat astronaut" → CLIP text encoder → text embedding
-                                    ↓ (cross-attention condition)
-random noise → U-Net (denoise theo text embedding) → image
-```
+<svg viewBox="0 0 630 150" style="max-width:630px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stable Diffusion: prompt qua CLIP text encoder thành text embedding, làm condition cross-attention cho U-Net khử nhiễu từ noise ra ảnh">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="170.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="101.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">prompt "a cat astronaut"</text>
+  <line x1="188.0" y1="38.0" x2="236.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="238.0" y="20.0" width="150.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="313.0" y="41.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">CLIP text encoder</text>
+  <line x1="390.0" y1="38.0" x2="438.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="440.0" y="20.0" width="140.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="510.0" y="41.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">text embedding</text>
+  <line x1="510.0" y1="58.0" x2="510.0" y2="96.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="518.0" y="80.0" fill="#475569" font-size="10" text-anchor="start">cross-attention condition</text>
+  <rect x="16.0" y="98.0" width="130.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="81.0" y="119.8" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">random noise</text>
+  <line x1="148.0" y1="116.0" x2="236.0" y2="116.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="238.0" y="98.0" width="230.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="353.0" y="112.3" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">U-Net</text>
+  <text x="353.0" y="127.3" fill="#475569" font-size="10" text-anchor="middle">denoise theo text embedding</text>
+  <line x1="470.0" y1="116.0" x2="528.0" y2="116.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="530.0" y="98.0" width="80.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="570.0" y="119.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">image</text>
+</svg>
 
 CLIP đóng vai trò "phiên dịch" prompt sang ngôn ngữ mà diffusion model hiểu được trong không gian latent.
 

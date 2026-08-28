@@ -212,10 +212,41 @@ struct C {
 ```
 
 Layout:
-```
-Offset: 0    1    2    3    4    5    6    7    8    9   10   11
-Field:  [a] [PAD][PAD][PAD][ b           ][c2][PAD][PAD][PAD]
-```
+<svg viewBox="0 0 560 112" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục struct 12 byte: a (1 byte) tại 0, 3 byte đệm, b (4 byte) tại 4, c2 (1 byte) tại 8, 3 byte đệm cuối">
+  <defs></defs>
+  <text x="30.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="71.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">1</text>
+  <text x="113.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">2</text>
+  <text x="155.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">3</text>
+  <text x="196.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">4</text>
+  <text x="238.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">5</text>
+  <text x="280.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">6</text>
+  <text x="321.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">7</text>
+  <text x="363.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">8</text>
+  <text x="405.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">9</text>
+  <text x="446.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">10</text>
+  <text x="488.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">11</text>
+  <text x="530.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">12</text>
+  <rect x="30.0" y="36.0" width="41.7" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="50.8" y="60.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">a</text>
+  <rect x="71.7" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="92.5" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="113.3" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="134.2" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="155.0" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="175.8" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="196.7" y="36.0" width="166.7" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="280.0" y="60.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">b (4 byte)</text>
+  <rect x="363.3" y="36.0" width="41.7" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="384.2" y="60.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">c2</text>
+  <rect x="405.0" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="425.8" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="446.7" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="467.5" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="488.3" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="509.2" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <text x="280.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">offset (byte) ở trên; PAD = byte đệm để căn chỉnh (alignment)</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên**:
 - *"Tại sao có padding cuối cùng (trailing padding)?"* — Để khi tạo array `struct C arr[2]`, `arr[1].b` vẫn aligned. Nếu không có trailing padding, `arr[1]` bắt đầu ở offset 9 → `arr[1].b` ở offset 13, không chia hết cho 4.
@@ -333,10 +364,39 @@ struct S {
 ```
 
 Layout:
-```
-Offset: 0   1   2   3   4   5   6   7   8   9  10  11
-        [a][PAD][b     ][c               ][d][PAD][PAD][PAD]
-```
+<svg viewBox="0 0 560 112" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục struct 12 byte sau sắp xếp: a tại 0, 1 đệm, b (2 byte) tại 2, c (4 byte) tại 4, d tại 8, 3 đệm">
+  <defs></defs>
+  <text x="30.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="71.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">1</text>
+  <text x="113.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">2</text>
+  <text x="155.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">3</text>
+  <text x="196.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">4</text>
+  <text x="238.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">5</text>
+  <text x="280.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">6</text>
+  <text x="321.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">7</text>
+  <text x="363.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">8</text>
+  <text x="405.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">9</text>
+  <text x="446.7" y="28.0" fill="#475569" font-size="10" text-anchor="middle">10</text>
+  <text x="488.3" y="28.0" fill="#475569" font-size="10" text-anchor="middle">11</text>
+  <text x="530.0" y="28.0" fill="#475569" font-size="10" text-anchor="middle">12</text>
+  <rect x="30.0" y="36.0" width="41.7" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="50.8" y="60.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">a</text>
+  <rect x="71.7" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="92.5" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="113.3" y="36.0" width="83.3" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="155.0" y="60.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">b (2)</text>
+  <rect x="196.7" y="36.0" width="166.7" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="280.0" y="60.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">c (4 byte)</text>
+  <rect x="363.3" y="36.0" width="41.7" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="384.2" y="60.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">d</text>
+  <rect x="405.0" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="425.8" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="446.7" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="467.5" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <rect x="488.3" y="36.0" width="41.7" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="509.2" y="60.0" fill="#94a3b8" font-size="9" text-anchor="middle" font-weight="700">PAD</text>
+  <text x="280.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">offset (byte) ở trên; PAD = byte đệm để căn chỉnh (alignment)</text>
+</svg>
 
 `sizeof(S) = 12`
 

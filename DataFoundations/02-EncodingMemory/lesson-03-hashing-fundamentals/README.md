@@ -73,12 +73,34 @@ Cả ba key đều về bucket 1 — worst case, vì tất cả đều ≡ 1 (mo
 
 ### 3.1. Separate Chaining (mỗi bucket là linked list)
 
-```
-Bucket[0]: → null
-Bucket[1]: → [22] → [15] → [8] → null
-Bucket[2]: → null
-...
-```
+<svg viewBox="0 0 520 188" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng hash chaining m = 7: bucket[1] chứa chuỗi 22 → 15 → 8 (cả ba có h = 1), các bucket khác rỗng (∅)">
+  <defs><marker id="bk" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="20.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="39.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Bucket[0]</text>
+  <line x1="132.0" y1="34.0" x2="150.0" y2="34.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="39.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="60.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="79.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Bucket[1]</text>
+  <line x1="132.0" y1="74.0" x2="150.0" y2="74.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="152.0" y="60.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="174.0" y="79.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">22</text>
+  <line x1="198.0" y1="74.0" x2="214.0" y2="74.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="216.0" y="60.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="238.0" y="79.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">15</text>
+  <line x1="262.0" y1="74.0" x2="278.0" y2="74.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="280.0" y="60.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="302.0" y="79.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <line x1="326.0" y1="74.0" x2="342.0" y2="74.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="346.0" y="79.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="100.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="119.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Bucket[2]</text>
+  <line x1="132.0" y1="114.0" x2="150.0" y2="114.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="119.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="140.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="159.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="132.0" y1="154.0" x2="150.0" y2="154.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="159.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+</svg>
 
 - **Insert**: tính `h(k)`, thêm vào đầu linked list của bucket đó. O(1).
 - **Lookup**: tính `h(k)`, duyệt linked list tìm key khớp.
@@ -101,10 +123,36 @@ h(8)  = 1 → slot[1] có 22 → slot[2] có 15 → thử slot[3] trống → l�
 ```
 
 Bảng:
-```
-Index: [0][ 1 ][ 2 ][ 3 ][4][5][6]
-Value: [  ][22 ][15 ][ 8 ][ ][ ][ ]
-```
+<svg viewBox="0 0 420 115" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Open addressing (linear probing) m = 7: 22 ở slot 1, 15 dò sang slot 2, 8 dò sang slot 3; các slot còn lại trống">
+  <defs></defs>
+  <text x="30.0" y="52.0" fill="#475569" font-size="11" text-anchor="end">index</text>
+  <rect x="40.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="64.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700"></text>
+  <text x="64.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <rect x="88.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="112.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">22</text>
+  <text x="112.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <rect x="136.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">15</text>
+  <text x="160.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <rect x="184.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="208.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">8</text>
+  <text x="208.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <rect x="232.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="256.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700"></text>
+  <text x="256.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <rect x="280.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="304.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700"></text>
+  <text x="304.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <rect x="328.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="352.0" y="58.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700"></text>
+  <text x="352.0" y="28.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <text x="30.0" y="30.0" fill="#475569" font-size="12" text-anchor="start"></text>
+  <rect x="88.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="1.5"/>
+  <rect x="136.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="1.5"/>
+  <rect x="184.0" y="36.0" width="48.0" height="34.0" rx="0" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="1.5"/>
+  <text x="208.0" y="100.0" fill="#475569" font-size="11" text-anchor="middle">22 → slot 1 · 15 (h=1, đụng) → dò tới slot 2 · 8 (h=1, đụng 2 lần) → slot 3</text>
+</svg>
 
 ⚠ **Primary clustering**: linear probing tạo cụm (cluster) dài → probe sequence tăng theo cụm. Với α cao, insert/lookup chậm hơn nhiều.
 
@@ -271,15 +319,52 @@ m := make(map[string]int)
 - h(5) = 5, h(27) = 6, h(13) = 6, h(6) = 6, h(48) = 6
 
 **(a) Separate chaining**:
-```
-bucket[0]: → (trống)
-bucket[1]: → (trống)
-bucket[2]: → (trống)
-bucket[3]: → (trống)
-bucket[4]: → (trống)
-bucket[5]: → [5]
-bucket[6]: → [48] → [6] → [13] → [27]   (4 collision!)
-```
+<svg viewBox="0 0 520 308" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng hash 7 bucket: bucket[5] chứa 5, bucket[6] chứa chuỗi 48 → 6 → 13 → 27 (4 va chạm), bucket 0–4 rỗng">
+  <defs><marker id="bk" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="20.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="39.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[0]</text>
+  <line x1="132.0" y1="34.0" x2="150.0" y2="34.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="39.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="60.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="79.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[1]</text>
+  <line x1="132.0" y1="74.0" x2="150.0" y2="74.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="79.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="100.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="119.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[2]</text>
+  <line x1="132.0" y1="114.0" x2="150.0" y2="114.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="119.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="140.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="159.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[3]</text>
+  <line x1="132.0" y1="154.0" x2="150.0" y2="154.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="159.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="180.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="199.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[4]</text>
+  <line x1="132.0" y1="194.0" x2="150.0" y2="194.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="154.0" y="199.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="220.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="239.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[5]</text>
+  <line x1="132.0" y1="234.0" x2="150.0" y2="234.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="152.0" y="220.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="174.0" y="239.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <line x1="198.0" y1="234.0" x2="214.0" y2="234.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="218.0" y="239.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+  <rect x="20.0" y="260.0" width="110.0" height="28.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="75.0" y="279.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bucket[6]</text>
+  <line x1="132.0" y1="274.0" x2="150.0" y2="274.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="152.0" y="260.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="174.0" y="279.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">48</text>
+  <line x1="198.0" y1="274.0" x2="214.0" y2="274.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="216.0" y="260.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="238.0" y="279.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <line x1="262.0" y1="274.0" x2="278.0" y2="274.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="280.0" y="260.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="302.0" y="279.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <line x1="326.0" y1="274.0" x2="342.0" y2="274.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <rect x="344.0" y="260.0" width="44.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="366.0" y="279.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">27</text>
+  <line x1="390.0" y1="274.0" x2="406.0" y2="274.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#bk)"/>
+  <text x="410.0" y="279.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">∅</text>
+</svg>
 
 **(b) Linear probing** (insert theo thứ tự 5, 27, 13, 6, 48):
 ```

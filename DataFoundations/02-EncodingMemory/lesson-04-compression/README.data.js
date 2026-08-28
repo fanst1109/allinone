@@ -250,29 +250,74 @@ Tập mới: \`[CB]=25, [FED]=30, A=45\`.
 **Bước 4** — hai nhỏ nhất: \`[CB]=25\` và \`[FED]=30\`. Gộp → nút \`[CBFED]=55\`.
 Tập mới: \`[CBFED]=55, A=45\`.
 
-\`\`\`
-        [CBFED]=55
-        /         \\
-    [CB]=25      [FED]=30
-    /    \\        /     \\
-  C=12  B=13  [FE]=14   D=16
-                /   \\
-              F=5   E=9
-\`\`\`
+<svg viewBox="0 0 1180 202" style="max-width:1180px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây Huffman con [CBFED] = 55: [CB] = 25 (C 12, B 13) và [FED] = 30 ([FE] = 14 gồm F 5, E 9; D 16)">
+  <defs></defs>
+  <line x1="470.0" y1="40.0" x2="230.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="230.0" y1="94.0" x2="110.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="90.0" y="120.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">C=12</text>
+  <line x1="230.0" y1="94.0" x2="350.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="330.0" y="120.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">B=13</text>
+  <rect x="199.5" y="66.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[CB]=25</text>
+  <line x1="470.0" y1="40.0" x2="950.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="950.0" y1="94.0" x2="710.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="710.0" y1="148.0" x2="590.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="573.5" y="174.0" width="33.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="590.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">F=5</text>
+  <line x1="710.0" y1="148.0" x2="830.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="813.5" y="174.0" width="33.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="830.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E=9</text>
+  <rect x="679.5" y="120.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="710.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[FE]=14</text>
+  <line x1="950.0" y1="94.0" x2="1070.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1050.0" y="120.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="1070.0" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D=16</text>
+  <rect x="916.0" y="66.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="950.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[FED]=30</text>
+  <rect x="429.0" y="12.0" width="82.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="470.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[CBFED]=55</text>
+</svg>
 
 **Bước 5** — hai nhỏ nhất (cũng là hai cuối): \`A=45\` và \`[CBFED]=55\`. Gộp → **gốc** \`[ALL]=100\`.
 
-\`\`\`
-              ROOT=100
-            /          \\
-          A=45      [CBFED]=55
-                    /         \\
-                [CB]=25      [FED]=30
-                /    \\        /     \\
-              C=12  B=13  [FE]=14   D=16
-                            /   \\
-                          F=5   E=9
-\`\`\`
+<svg viewBox="0 0 1420 282" style="max-width:1420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây Huffman hoàn chỉnh: ROOT = 100 với A = 45 bên trái và [CBFED] = 55 bên phải; lá C, B, F, E, D">
+  <defs></defs>
+  <line x1="230.0" y1="40.0" x2="110.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="90.0" y="66.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="84.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">A=45</text>
+  <line x1="230.0" y1="40.0" x2="710.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="710.0" y1="94.0" x2="470.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="470.0" y1="148.0" x2="350.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="330.0" y="174.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">C=12</text>
+  <line x1="470.0" y1="148.0" x2="590.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="570.0" y="174.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="590.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">B=13</text>
+  <rect x="439.5" y="120.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="470.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[CB]=25</text>
+  <line x1="710.0" y1="94.0" x2="1190.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="1190.0" y1="148.0" x2="950.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="950.0" y1="202.0" x2="830.0" y2="228.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="813.5" y="228.0" width="33.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="830.0" y="246.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">F=5</text>
+  <line x1="950.0" y1="202.0" x2="1070.0" y2="228.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1053.5" y="228.0" width="33.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="1070.0" y="246.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">E=9</text>
+  <rect x="919.5" y="174.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="950.0" y="192.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[FE]=14</text>
+  <line x1="1190.0" y1="148.0" x2="1310.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1290.0" y="174.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="1310.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">D=16</text>
+  <rect x="1156.0" y="120.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="1190.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[FED]=30</text>
+  <rect x="669.0" y="66.0" width="82.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="710.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[CBFED]=55</text>
+  <rect x="196.0" y="12.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">ROOT=100</text>
+  <text x="710.0" y="276.0" fill="#475569" font-size="11" text-anchor="middle">A tần số cao nhất nằm nông nhất → mã 1 bit; F, E sâu nhất → mã dài nhất</text>
+</svg>
 
 **Gán bit**: đi xuống **trái = 0**, **phải = 1**. Đọc đường đi từ gốc tới mỗi lá:
 
@@ -487,15 +532,35 @@ Tập ban đầu (tăng dần): \`a=10, b=15, d=16, e=29, c=30\`.
 **Bước 4**: hai cuối \`[dab]=41\`, \`[ec]=59\` → **gốc** \`[ALL]=100\`.
 
 Cây:
-\`\`\`
-            ROOT=100
-          /          \\
-      [dab]=41      [ec]=59
-      /     \\        /    \\
-    d=16  [ab]=25  e=29   c=30
-          /    \\
-        a=10  b=15
-\`\`\`
+<svg viewBox="0 0 1180 202" style="max-width:1180px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây Huffman bài tập: ROOT 100 → [dab] 41 (d 16, [ab] 25 → a 10, b 15) và [ec] 59 (e 29, c 30)">
+  <defs></defs>
+  <line x1="710.0" y1="40.0" x2="230.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="230.0" y1="94.0" x2="110.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="90.0" y="120.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">d=16</text>
+  <line x1="230.0" y1="94.0" x2="470.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="470.0" y1="148.0" x2="350.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="330.0" y="174.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a=10</text>
+  <line x1="470.0" y1="148.0" x2="590.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="570.0" y="174.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="590.0" y="192.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">b=15</text>
+  <rect x="439.5" y="120.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="470.0" y="138.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[ab]=25</text>
+  <rect x="196.0" y="66.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="230.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[dab]=41</text>
+  <line x1="710.0" y1="40.0" x2="950.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="950.0" y1="94.0" x2="830.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="810.0" y="120.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="830.0" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">e=29</text>
+  <line x1="950.0" y1="94.0" x2="1070.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="1050.0" y="120.0" width="40.0" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="1070.0" y="138.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">c=30</text>
+  <rect x="919.5" y="66.0" width="61.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="950.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">[ec]=59</text>
+  <rect x="676.0" y="12.0" width="68.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="710.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">ROOT=100</text>
+</svg>
 
 Gán bit (trái 0, phải 1):
 

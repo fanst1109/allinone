@@ -476,14 +476,23 @@ $a^2b$: $1 + 3 = 4$ → $4a^2b$. $ab^2$: $-2 + 1 = -1$ → $-ab^2$. Kết quả:
 
 Hình dung một hình chữ nhật cạnh $a$ và cạnh $b + c$. Diện tích = $a \cdot (b + c)$. Bây giờ chia hình chữ nhật thành hai phần theo chiều rộng:
 
-```
-       b           c
-    ┌─────┬───────────┐
-  a │  ab │    ac     │
-    └─────┴───────────┘
-
-    Tổng diện tích = ab + ac
-```
+<svg viewBox="0 0 380 215" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình chữ nhật cao a, rộng b + c chia thành hai phần diện tích ab và ac: a(b + c) = ab + ac">
+  <defs><marker id="d1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475569"/></marker></defs>
+  <rect x="60.0" y="60.0" width="60.0" height="90.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="120.0" y="60.0" width="170.0" height="90.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="90.0" y="110.0" fill="#1d4ed8" font-size="16" text-anchor="middle" font-weight="700">a·b</text>
+  <text x="205.0" y="110.0" fill="#15803d" font-size="16" text-anchor="middle" font-weight="700">a·c</text>
+  <line x1="60.0" y1="44.0" x2="120.0" y2="44.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d1)"/>
+  <line x1="120.0" y1="44.0" x2="60.0" y2="44.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d1)"/>
+  <text x="90.0" y="38.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <line x1="120.0" y1="44.0" x2="290.0" y2="44.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d1)"/>
+  <line x1="290.0" y1="44.0" x2="120.0" y2="44.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d1)"/>
+  <text x="205.0" y="38.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">c</text>
+  <line x1="44.0" y1="60.0" x2="44.0" y2="150.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d1)"/>
+  <line x1="44.0" y1="150.0" x2="44.0" y2="60.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d1)"/>
+  <text x="34.0" y="109.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a</text>
+  <text x="175.0" y="184.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">Tổng diện tích = a·(b + c) = ab + ac</text>
+</svg>
 
 Cả hai cách tính phải ra cùng kết quả → $a(b + c) = ab + ac$. Đây không phải "quy tắc trời ơi" — nó là cách đếm diện tích bằng hai góc nhìn khác nhau.
 
@@ -510,11 +519,23 @@ x(x + 3) &= x \cdot x + x \cdot 3 = x^2 + 3x \\[4pt]
 
 **Nhân hai biểu thức trong ngoặc**: phân phối hai lần (FOIL = First, Outer, Inner, Last):
 
-```
-(a + b)(c + d) = a·c + a·d + b·c + b·d
-                  ↑      ↑      ↑      ↑
-                First  Outer  Inner  Last
-```
+<svg viewBox="0 0 600 165" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quy tắc FOIL: (a + b)(c + d) = a·c (First) + a·d (Outer) + b·c (Inner) + b·d (Last), mũi tên cong nối các cặp">
+  <defs><marker id="foil" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475569"/></marker></defs>
+  <text x="40.0" y="70.0" fill="#1a202c" font-size="18" text-anchor="start" font-weight="700">(a + b)(c + d)  =  a·c + a·d + b·c + b·d</text>
+  <line x1="300.0" y1="78.0" x2="300.0" y2="100.0" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#foil)"/>
+  <text x="300.0" y="116.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">First: a·c</text>
+  <line x1="372.0" y1="78.0" x2="372.0" y2="100.0" stroke="#15803d" stroke-width="1.5" marker-end="url(#foil)"/>
+  <text x="372.0" y="116.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Outer: a·d</text>
+  <line x1="444.0" y1="78.0" x2="444.0" y2="100.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#foil)"/>
+  <text x="444.0" y="116.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Inner: b·c</text>
+  <line x1="520.0" y1="78.0" x2="520.0" y2="100.0" stroke="#dc2626" stroke-width="1.5" marker-end="url(#foil)"/>
+  <text x="520.0" y="116.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Last: b·d</text>
+  <path d="M 52,52 Q 118,10 184,52" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>
+  <path d="M 52,52 Q 145,-6 238,52" fill="none" stroke="#15803d" stroke-width="1.5"/>
+  <path d="M 120,84 Q 152,120 184,84" fill="none" stroke="#b45309" stroke-width="1.5"/>
+  <path d="M 120,84 Q 179,140 238,84" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="300.0" y="150.0" fill="#475569" font-size="12" text-anchor="middle">FOIL: nhân từng số hạng của ngoặc trước với từng số hạng của ngoặc sau — 4 tích</text>
+</svg>
 
 Walk-through $(2x + 3)(x - 4)$:
 
@@ -649,18 +670,30 @@ $$\begin{aligned}
 
 Vẽ hình vuông có cạnh $a + b$. Chia cạnh thành đoạn $a$ và đoạn $b$. Hình vuông được chia thành 4 phần:
 
-```
-        a              b
-   ┌──────────┬────────────────┐
-   │          │                │
- a │   a²     │      ab        │
-   │          │                │
-   ├──────────┼────────────────┤
-   │          │                │
- b │   ab     │      b²        │
-   │          │                │
-   └──────────┴────────────────┘
-```
+<svg viewBox="0 0 440 310" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình vuông cạnh a + b chia thành a², ab, ab, b²: (a + b)² = a² + 2ab + b²">
+  <defs><marker id="d2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475569"/></marker></defs>
+  <rect x="70.0" y="50.0" width="130.0" height="130.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="135.0" y="120.0" fill="#1d4ed8" font-size="15" text-anchor="middle" font-weight="700">a²</text>
+  <rect x="200.0" y="50.0" width="80.0" height="130.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="240.0" y="120.0" fill="#15803d" font-size="15" text-anchor="middle" font-weight="700">ab</text>
+  <rect x="70.0" y="180.0" width="130.0" height="80.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="135.0" y="225.0" fill="#15803d" font-size="15" text-anchor="middle" font-weight="700">ab</text>
+  <rect x="200.0" y="180.0" width="80.0" height="80.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="240.0" y="225.0" fill="#dc2626" font-size="15" text-anchor="middle" font-weight="700">b²</text>
+  <line x1="70.0" y1="34.0" x2="200.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <line x1="200.0" y1="34.0" x2="70.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <text x="135.0" y="28.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a</text>
+  <line x1="200.0" y1="34.0" x2="280.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <line x1="280.0" y1="34.0" x2="200.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <text x="240.0" y="28.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <line x1="54.0" y1="50.0" x2="54.0" y2="180.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <line x1="54.0" y1="180.0" x2="54.0" y2="50.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <text x="42.0" y="119.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a</text>
+  <line x1="54.0" y1="180.0" x2="54.0" y2="260.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <line x1="54.0" y1="260.0" x2="54.0" y2="180.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d2)"/>
+  <text x="42.0" y="224.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <text x="175.0" y="290.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">(a + b)² = a² + 2ab + b²</text>
+</svg>
 
 - Hình vuông lớn cạnh $a+b$ → diện tích $(a+b)^2$.
 - Tổng 4 ô: $a^2 + ab + ab + b^2 = a^2 + 2ab + b^2$.
@@ -676,20 +709,30 @@ Vẽ hình vuông cạnh $a$. Bên trong, lấy đi một hình vuông cạnh $b
 
 Xét hình vuông cạnh $a$. Cắt ra hình vuông $(a-b)$ ở một góc:
 
-```
-       (a−b)           b
-   ┌──────────┬──────────────┐
-   │          │              │
-(a−b)│ (a−b)² │  (a−b)b      │ ← hình vuông (a−b)² + chữ nhật (a−b)b
-   │          │              │
-   ├──────────┼──────────────┤
-   │          │              │
-  b │ b(a−b)  │      b²      │ ← chữ nhật b(a−b) + hình vuông b²
-   │          │              │
-   └──────────┴──────────────┘
-
-Tổng = a² (hình vuông lớn)
-```
+<svg viewBox="0 0 440 310" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình vuông cạnh a chia theo a − b và b: (a − b)² + 2(a − b)b + b² = a²">
+  <defs><marker id="d3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475569"/></marker></defs>
+  <rect x="70.0" y="50.0" width="140.0" height="140.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="140.0" y="125.0" fill="#1d4ed8" font-size="15" text-anchor="middle" font-weight="700">(a − b)²</text>
+  <rect x="210.0" y="50.0" width="70.0" height="140.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="245.0" y="125.0" fill="#15803d" font-size="15" text-anchor="middle" font-weight="700">(a − b)b</text>
+  <rect x="70.0" y="190.0" width="140.0" height="70.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="140.0" y="230.0" fill="#15803d" font-size="15" text-anchor="middle" font-weight="700">b(a − b)</text>
+  <rect x="210.0" y="190.0" width="70.0" height="70.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="245.0" y="230.0" fill="#dc2626" font-size="15" text-anchor="middle" font-weight="700">b²</text>
+  <line x1="70.0" y1="34.0" x2="210.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <line x1="210.0" y1="34.0" x2="70.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <text x="140.0" y="28.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a − b</text>
+  <line x1="210.0" y1="34.0" x2="280.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <line x1="280.0" y1="34.0" x2="210.0" y2="34.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <text x="245.0" y="28.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <line x1="54.0" y1="50.0" x2="54.0" y2="190.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <line x1="54.0" y1="190.0" x2="54.0" y2="50.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <text x="42.0" y="124.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a − b</text>
+  <line x1="54.0" y1="190.0" x2="54.0" y2="260.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <line x1="54.0" y1="260.0" x2="54.0" y2="190.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d3)"/>
+  <text x="42.0" y="229.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <text x="175.0" y="290.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">Tổng = a² ⟹ (a − b)² = a² − 2ab + b²</text>
+</svg>
 
 Suy ra $(a-b)^2 = a^2 - 2b(a-b) - b^2 = a^2 - 2ab + 2b^2 - b^2 = a^2 - 2ab + b^2$. ✓
 
@@ -699,17 +742,37 @@ Suy ra $(a-b)^2 = a^2 - 2b(a-b) - b^2 = a^2 - 2ab + 2b^2 - b^2 = a^2 - 2ab + b^2
 
 Vẽ hình vuông cạnh $a$, cắt ra hình vuông nhỏ cạnh $b$ ở góc → còn lại diện tích $a^2 - b^2$ (hình chữ L). Chia hình chữ L này thành 2 chữ nhật và ghép lại thành 1 chữ nhật $(a+b) \times (a-b)$:
 
-```
-Trước khi ghép:               Sau khi ghép (xoay miếng dưới):
-   a
-┌──────────┐                  ┌─────────┬───────┐
-│          │ a−b              │         │       │
-│  ┌───────┤                  │   a−b   │       │
-│  │ b·(a−b)│                 │ (a−b)·a │ (a−b)b│  → tổng cạnh = a+b
-│  │       │ b                ├─────────┴───────┤
-└──┴───────┘                  
-   a−b  b
-```
+<svg viewBox="0 0 620 245" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình vuông a² khoét góc b² rồi cắt miếng dưới xoay lên ghép thành hình chữ nhật (a + b) × (a − b): a² − b² = (a + b)(a − b)">
+  <defs><marker id="d4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475569"/></marker></defs>
+  <text x="130.0" y="14.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Trước khi ghép: a² − b²</text>
+  <rect x="40.0" y="40.0" width="150.0" height="150.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="130.0" y="130.0" width="60.0" height="60.0" rx="0" fill="#f8fafc" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="160.0" y="165.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">b²</text>
+  <text x="85.0" y="120.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">a² − b²</text>
+  <line x1="40.0" y1="26.0" x2="190.0" y2="26.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <line x1="190.0" y1="26.0" x2="40.0" y2="26.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <text x="115.0" y="20.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a</text>
+  <line x1="204.0" y1="40.0" x2="204.0" y2="130.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <line x1="204.0" y1="130.0" x2="204.0" y2="40.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <text x="234.0" y="89.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a − b</text>
+  <line x1="204.0" y1="130.0" x2="204.0" y2="190.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <line x1="204.0" y1="190.0" x2="204.0" y2="130.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <text x="218.0" y="164.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <line x1="255.0" y1="110.0" x2="300.0" y2="110.0" stroke="#475569" stroke-width="2" marker-end="url(#d4)"/>
+  <text x="277.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">xoay miếng dưới</text>
+  <text x="435.0" y="14.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau khi ghép: (a + b)(a − b)</text>
+  <rect x="330.0" y="40.0" width="150.0" height="90.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="480.0" y="40.0" width="60.0" height="90.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="405.0" y="90.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">(a − b)·a</text>
+  <text x="510.0" y="90.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">(a−b)b</text>
+  <line x1="330.0" y1="26.0" x2="540.0" y2="26.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <line x1="540.0" y1="26.0" x2="330.0" y2="26.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <text x="435.0" y="20.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a + b</text>
+  <line x1="554.0" y1="40.0" x2="554.0" y2="130.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <line x1="554.0" y1="130.0" x2="554.0" y2="40.0" stroke="#475569" stroke-width="1.5" marker-end="url(#d4)"/>
+  <text x="584.0" y="89.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a − b</text>
+  <text x="300.0" y="228.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">a² − b² = (a + b)(a − b)</text>
+</svg>
 
 Diện tích bảo toàn → $a^2 - b^2 = (a+b)(a-b)$.
 

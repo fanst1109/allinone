@@ -148,22 +148,69 @@ $$\begin{cases} 2x + 3y = 12 & (\text{đường thẳng } L_1) \\ x - y = 1 & (\
 
 Hai đường có **hệ số góc khác nhau** ($L_1$: hệ số góc $-2/3$, $L_2$: hệ số góc $1$). Chúng cắt nhau tại đúng 1 điểm — chính là $(3, 2)$.
 
-**ASCII grid** (trục y dọc, trục x ngang, mỗi ô = 1 đơn vị):
+**Đồ thị** (trục y dọc, trục x ngang, mỗi ô = 1 đơn vị):
 
-```
-       y
-       ↑
-     5 │ L₁
-     4 │  ●               (0,4) thuộc L₁
-     3 │   ╲
-     2 │    ╲   ●         giao điểm (3,2)
-     1 │     ╲ ╱  L₂
-     0 ┼──────╳──●─────→ x  (6,0) thuộc L₁
-    −1 │   L₂╱ ╲          (1,0) thuộc L₂
-    −2 │    ╱   ╲
-       └──┼──┼──┼──┼──┼──┼──
-          1  2  3  4  5  6
-```
+<svg viewBox="0 0 460 290" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai đường L₁: y = −2x/3 + 4 và L₂: y = x − 1 cắt nhau tại đúng một điểm (3, 2)">
+  <defs><marker id="g1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="265.0" x2="110.0" y2="25.0"/>
+<line x1="160.0" y1="265.0" x2="160.0" y2="25.0"/>
+<line x1="210.0" y1="265.0" x2="210.0" y2="25.0"/>
+<line x1="260.0" y1="265.0" x2="260.0" y2="25.0"/>
+<line x1="310.0" y1="265.0" x2="310.0" y2="25.0"/>
+<line x1="360.0" y1="265.0" x2="360.0" y2="25.0"/>
+<line x1="20.0" y1="250.0" x2="400.0" y2="250.0"/>
+<line x1="20.0" y1="220.0" x2="400.0" y2="220.0"/>
+<line x1="20.0" y1="160.0" x2="400.0" y2="160.0"/>
+<line x1="20.0" y1="130.0" x2="400.0" y2="130.0"/>
+<line x1="20.0" y1="100.0" x2="400.0" y2="100.0"/>
+<line x1="20.0" y1="70.0" x2="400.0" y2="70.0"/>
+<line x1="20.0" y1="40.0" x2="400.0" y2="40.0"/>
+</g>
+  <line x1="14.0" y1="190.0" x2="422.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#g1)"/>
+  <line x1="60.0" y1="271.0" x2="60.0" y2="3.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="414.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="13.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="186.0" x2="110.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="160.0" y1="186.0" x2="160.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="210.0" y1="186.0" x2="210.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="260.0" y1="186.0" x2="260.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="310.0" y1="186.0" x2="310.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="310.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="360.0" y1="186.0" x2="360.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="360.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <line x1="56.0" y1="250.0" x2="64.0" y2="250.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="254.0" fill="#475569" font-size="11" text-anchor="end">−2</text>
+  <line x1="56.0" y1="220.0" x2="64.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="224.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="56.0" y1="160.0" x2="64.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="164.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="130.0" x2="64.0" y2="130.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="134.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="104.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="70.0" x2="64.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="56.0" y1="40.0" x2="64.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <path d="M 30.0,58.0 L 66.0,72.4 L 102.0,86.8 L 138.0,101.2 L 174.0,115.6 L 210.0,130.0 L 246.0,144.4 L 282.0,158.8 L 318.0,173.2 L 354.0,187.6 L 390.0,202.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="38.0" y="48.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">L₁</text>
+  <path d="M 30.0,238.0 L 66.0,216.4 L 102.0,194.8 L 138.0,173.2 L 174.0,151.6 L 210.0,130.0 L 246.0,108.4 L 282.0,86.8 L 318.0,65.2 L 354.0,43.6 L 390.0,22.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="348.0" y="44.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">L₂</text>
+  <circle cx="60.0" cy="70.0" r="5" fill="#1d4ed8"/>
+  <text x="70.0" y="64.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">(0,4) ∈ L₁</text>
+  <circle cx="360.0" cy="190.0" r="5" fill="#1d4ed8"/>
+  <text x="330.0" y="178.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">(6,0) ∈ L₁</text>
+  <circle cx="110.0" cy="190.0" r="5" fill="#15803d"/>
+  <text x="118.0" y="212.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">(1,0) ∈ L₂</text>
+  <circle cx="210.0" cy="130.0" r="5" fill="#dc2626"/>
+  <text x="220.0" y="122.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">giao điểm (3, 2)</text>
+  <text x="230.0" y="272.0" fill="#475569" font-size="12" text-anchor="middle">hai đường cắt nhau → hệ có 1 nghiệm duy nhất</text>
+</svg>
 
 - $L_1: 2x + 3y = 12$ (dốc xuống, hệ số góc $-2/3$) đi qua $(6, 0)$ và $(0, 4)$.
 - $L_2: x - y = 1$ (dốc lên, hệ số góc $+1$) đi qua $(1, 0)$ và $(0, -1)$.
@@ -180,20 +227,56 @@ $$\begin{cases} 2x + 3y = 6 \\ 4x + 6y = 12 \end{cases}$$
 
 Phương trình thứ hai chỉ là phương trình thứ nhất **nhân 2** ở cả hai vế. Cùng tập điểm. Mọi $(x, y)$ thỏa $2x + 3y = 6$ đều là nghiệm — vô số.
 
-**ASCII grid** (chỉ vẽ được 1 đường vì 2 đường đè khít lên nhau):
+**Đồ thị** (hai đường đè khít lên nhau nên chỉ thấy một đường):
 
-```
-       y
-       ↑
-     3 │
-     2 │ ●  ←── (0, 2) thuộc CẢ L₁ lẫn L₂
-     1 │  ╲╲   ●  ←── (1.5, 1) cũng thuộc cả 2
-     0 ┼───╲╲──●──→ x  ← (3, 0) thuộc cả L₁ và L₂
-    −1 │    ╲╲
-    −2 │     ╲╲
-       └──┼──┼──┼──┼──┼──
-          1  2  3  4  5
-```
+<svg viewBox="0 0 460 290" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai phương trình cho cùng một đường thẳng y = −2x/3 + 2 (L₁ trùng L₂): mọi điểm (0,2), (1.5,1), (3,0) thuộc cả hai">
+  <defs><marker id="g2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="265.0" x2="110.0" y2="85.0"/>
+<line x1="160.0" y1="265.0" x2="160.0" y2="85.0"/>
+<line x1="210.0" y1="265.0" x2="210.0" y2="85.0"/>
+<line x1="260.0" y1="265.0" x2="260.0" y2="85.0"/>
+<line x1="310.0" y1="265.0" x2="310.0" y2="85.0"/>
+<line x1="20.0" y1="250.0" x2="350.0" y2="250.0"/>
+<line x1="20.0" y1="220.0" x2="350.0" y2="220.0"/>
+<line x1="20.0" y1="160.0" x2="350.0" y2="160.0"/>
+<line x1="20.0" y1="130.0" x2="350.0" y2="130.0"/>
+<line x1="20.0" y1="100.0" x2="350.0" y2="100.0"/>
+</g>
+  <line x1="14.0" y1="190.0" x2="372.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#g2)"/>
+  <line x1="60.0" y1="271.0" x2="60.0" y2="63.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#g2)"/>
+  <text x="364.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="73.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="186.0" x2="110.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="160.0" y1="186.0" x2="160.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="210.0" y1="186.0" x2="210.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="260.0" y1="186.0" x2="260.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="310.0" y1="186.0" x2="310.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="310.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="56.0" y1="250.0" x2="64.0" y2="250.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="254.0" fill="#475569" font-size="11" text-anchor="end">−2</text>
+  <line x1="56.0" y1="220.0" x2="64.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="224.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="56.0" y1="160.0" x2="64.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="164.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="130.0" x2="64.0" y2="130.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="134.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="104.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <path d="M 30.0,118.0 L 61.0,130.4 L 92.0,142.8 L 123.0,155.2 L 154.0,167.6 L 185.0,180.0 L 216.0,192.4 L 247.0,204.8 L 278.0,217.2 L 309.0,229.6 L 340.0,242.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="258.0" y="224.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">L₁ ≡ L₂ (trùng khít)</text>
+  <circle cx="60.0" cy="130.0" r="5" fill="#dc2626"/>
+  <text x="70.0" y="124.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">(0, 2) thuộc CẢ hai</text>
+  <circle cx="135.0" cy="160.0" r="5" fill="#dc2626"/>
+  <text x="145.0" y="154.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">(1.5, 1) cũng thuộc cả hai</text>
+  <circle cx="210.0" cy="190.0" r="5" fill="#dc2626"/>
+  <text x="170.0" y="178.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">(3, 0) thuộc cả hai</text>
+  <text x="230.0" y="272.0" fill="#475569" font-size="12" text-anchor="middle">hai đường trùng nhau → vô số nghiệm</text>
+</svg>
 
 Mọi điểm trên đường này (như $(3, 0), (0, 2), (1.5, 1), (-3, 4), \ldots$) đều là nghiệm. Có vô số.
 
@@ -205,21 +288,63 @@ $$\begin{cases} 2x + 3y = 6 \\ 4x + 6y = 10 \end{cases}$$
 
 Vế trái thứ hai bằng $2 \times$ vế trái thứ nhất, nhưng vế phải thì $10 \neq 2 \cdot 6 = 12$. Hai đường thẳng có **cùng hướng** (song song) nhưng **không trùng** → không có giao điểm.
 
-**ASCII grid**:
+**Đồ thị**:
 
-```
-       y
-       ↑
-     3 │
-   5/3 │      ●  ←── L₂ qua (0, 5/3) ≈ (0, 1.67)
-     2 │ ●╲    ╲       ← L₁ qua (0, 2)
-     1 │  ╲╲    ╲╲
-     0 ┼───╲╲────╲●──→ x  ← L₂ qua (2.5, 0); L₁ qua (3, 0)
-    −1 │    ╲╲    ╲
-    −2 │     ╲╲    ╲
-       └──┼──┼──┼──┼──┼──┼──
-          1  2  3  4  5  6
-```
+<svg viewBox="0 0 460 290" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai đường song song L₁: y = −2x/3 + 2 và L₂: y = −2x/3 + 5/3 không bao giờ cắt nhau">
+  <defs><marker id="g3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="265.0" x2="110.0" y2="85.0"/>
+<line x1="160.0" y1="265.0" x2="160.0" y2="85.0"/>
+<line x1="210.0" y1="265.0" x2="210.0" y2="85.0"/>
+<line x1="260.0" y1="265.0" x2="260.0" y2="85.0"/>
+<line x1="310.0" y1="265.0" x2="310.0" y2="85.0"/>
+<line x1="360.0" y1="265.0" x2="360.0" y2="85.0"/>
+<line x1="20.0" y1="250.0" x2="400.0" y2="250.0"/>
+<line x1="20.0" y1="220.0" x2="400.0" y2="220.0"/>
+<line x1="20.0" y1="160.0" x2="400.0" y2="160.0"/>
+<line x1="20.0" y1="130.0" x2="400.0" y2="130.0"/>
+<line x1="20.0" y1="100.0" x2="400.0" y2="100.0"/>
+</g>
+  <line x1="14.0" y1="190.0" x2="422.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#g3)"/>
+  <line x1="60.0" y1="271.0" x2="60.0" y2="63.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#g3)"/>
+  <text x="414.0" y="206.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="73.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="186.0" x2="110.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="160.0" y1="186.0" x2="160.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="210.0" y1="186.0" x2="210.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="260.0" y1="186.0" x2="260.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="310.0" y1="186.0" x2="310.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="310.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="360.0" y1="186.0" x2="360.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="360.0" y="206.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <line x1="56.0" y1="250.0" x2="64.0" y2="250.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="254.0" fill="#475569" font-size="11" text-anchor="end">−2</text>
+  <line x1="56.0" y1="220.0" x2="64.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="224.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="56.0" y1="160.0" x2="64.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="164.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="130.0" x2="64.0" y2="130.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="134.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="100.0" x2="64.0" y2="100.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="104.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <path d="M 30.0,118.0 L 66.0,132.4 L 102.0,146.8 L 138.0,161.2 L 174.0,175.6 L 210.0,190.0 L 246.0,204.4 L 282.0,218.8 L 318.0,233.2 L 354.0,247.6 L 390.0,262.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="348.0" y="234.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">L₁</text>
+  <path d="M 30.0,128.0 L 66.0,142.4 L 102.0,156.8 L 138.0,171.2 L 174.0,185.6 L 210.0,200.0 L 246.0,214.4 L 282.0,228.8 L 318.0,243.2 L 354.0,257.6 L 390.0,272.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="348.0" y="270.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">L₂</text>
+  <circle cx="60.0" cy="130.0" r="5" fill="#1d4ed8"/>
+  <text x="70.0" y="122.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">L₁ qua (0, 2)</text>
+  <circle cx="60.0" cy="140.0" r="5" fill="#15803d"/>
+  <text x="70.0" y="156.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">L₂ qua (0, 5/3)</text>
+  <circle cx="210.0" cy="190.0" r="5" fill="#1d4ed8"/>
+  <text x="218.0" y="182.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">L₁ qua (3,0)</text>
+  <circle cx="185.0" cy="190.0" r="5" fill="#15803d"/>
+  <text x="85.0" y="210.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">L₂ qua (2.5,0)</text>
+  <text x="230.0" y="272.0" fill="#475569" font-size="12" text-anchor="middle">hai đường song song (cùng slope, khác intercept) → vô nghiệm</text>
+</svg>
 
 Hai đường **cùng hệ số góc $-2/3$** (vì tỉ số $2/4 = 3/6 = 1/2$) nhưng cắt trục $Ox$ ở 2 điểm khác nhau ($x = 3$ cho $L_1$, $x = 2.5$ cho $L_2$) — luôn cách nhau, không bao giờ gặp.
 
@@ -783,13 +908,33 @@ Thường **vô nghiệm**. Hiếm khi tồn tại điểm chung của quá nhi�
 
 ### Tóm tắt sơ đồ phân loại
 
-```
-Sau khử Gauss → ma trận bậc thang
-├── Có hàng [0...0 | k≠0]?  → VÔ NGHIỆM
-└── Không có:
-    ├── rank = n (số ẩn)?    → 1 NGHIỆM DUY NHẤT
-    └── rank < n?            → VÔ SỐ NGHIỆM (n − rank biến tự do)
-```
+<svg viewBox="0 0 650 305" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây quyết định sau khử Gauss: có hàng [0…0 | k≠0] → vô nghiệm; nếu không, rank = n → 1 nghiệm duy nhất, rank &lt; n → vô số nghiệm">
+  <defs><marker id="dt" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <rect x="160.0" y="14.0" width="280.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="300.0" y="37.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sau khử Gauss → ma trận bậc thang</text>
+  <line x1="300.0" y1="50.0" x2="150.0" y2="84.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <line x1="300.0" y1="50.0" x2="450.0" y2="84.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <rect x="40.0" y="86.0" width="220.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="111.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Có hàng [0 … 0 | k ≠ 0]?</text>
+  <rect x="340.0" y="86.0" width="220.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="450.0" y="111.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Không có hàng như vậy</text>
+  <line x1="150.0" y1="126.0" x2="150.0" y2="156.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <rect x="60.0" y="158.0" width="180.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="150.0" y="183.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">VÔ NGHIỆM</text>
+  <line x1="450.0" y1="126.0" x2="380.0" y2="156.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <line x1="450.0" y1="126.0" x2="520.0" y2="156.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <rect x="300.0" y="158.0" width="160.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">rank = n (số ẩn)</text>
+  <rect x="470.0" y="158.0" width="120.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="530.0" y="183.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">rank &lt; n</text>
+  <line x1="380.0" y1="198.0" x2="380.0" y2="226.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <line x1="530.0" y1="198.0" x2="530.0" y2="226.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dt)"/>
+  <rect x="290.0" y="228.0" width="180.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="380.0" y="255.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">1 NGHIỆM DUY NHẤT</text>
+  <rect x="480.0" y="228.0" width="150.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="555.0" y="255.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">VÔ SỐ NGHIỆM</text>
+  <text x="555.0" y="292.0" fill="#b45309" font-size="11" text-anchor="middle">(n − rank biến tự do)</text>
+</svg>
 
 $\text{rank}$ = số hàng khác $0$ sau khử = số phương trình "độc lập tuyến tính". Sẽ học định nghĩa chặt ở Tầng 4.
 

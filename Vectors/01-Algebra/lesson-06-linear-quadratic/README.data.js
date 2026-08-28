@@ -77,27 +77,56 @@ $a$ đo "tốc độ thay đổi" của $y$ theo $x$:
 - $a = -0.5 \\to$ x tăng 1, y giảm 0.5.
 - $a = 0.001 \\to$ x tăng 1, y gần như không đổi (đường gần ngang).
 
-### ASCII diagram cho \`y = 2x + 1\`
+### Đồ thị \`y = 2x + 1\`
 
 Khi $x$ tăng từ 0 lên 1 ($\\Delta x = 1$), $y$ tăng từ 1 lên 3 ($\\Delta y = 2$). Slope $a = 2/1 = 2$:
 
-\`\`\`
-   y
-   ↑
- 5 |                    • (2, 5)
-   |                 ╱
- 4 |              ╱
-   |           ╱  ┐
- 3 |        • (1, 3)  │
-   |     ╱   │        │ rise = 2 (bước cao, đi lên 2)
- 2 |  ╱      │        │
-   |╱        │        │
- 1 +• (0, 1) ┘────────┘
-   |     ←── run = 1 ──→ (bước ngang, đi sang 1)
-   |
-   +─────────────────────→ x
-   0   1   2   3
-\`\`\`
+<svg viewBox="0 0 400 290" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị y = 2x + 1 qua (0,1), (1,3), (2,5); bước ngang run = 1 ứng với bước cao rise = 2 nên slope = 2">
+  <defs><marker id="sl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="slg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="slr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="120.0" y1="230.0" x2="120.0" y2="21.2"/>
+<line x1="180.0" y1="230.0" x2="180.0" y2="21.2"/>
+<line x1="240.0" y1="230.0" x2="240.0" y2="21.2"/>
+<line x1="60.0" y1="194.0" x2="276.0" y2="194.0"/>
+<line x1="60.0" y1="158.0" x2="276.0" y2="158.0"/>
+<line x1="60.0" y1="122.0" x2="276.0" y2="122.0"/>
+<line x1="60.0" y1="86.0" x2="276.0" y2="86.0"/>
+<line x1="60.0" y1="50.0" x2="276.0" y2="50.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="298.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sl)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="-0.8" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sl)"/>
+  <text x="290.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="9.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="120.0" y1="226.0" x2="120.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="120.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="180.0" y1="226.0" x2="180.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="180.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="240.0" y1="226.0" x2="240.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="56.0" y1="194.0" x2="64.0" y2="194.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="198.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="158.0" x2="64.0" y2="158.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="162.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="122.0" x2="64.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="86.0" x2="64.0" y2="86.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="90.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="56.0" y1="50.0" x2="64.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <path d="M 60.0,194.0 L 73.8,177.4 L 87.6,160.9 L 101.4,144.3 L 115.2,127.8 L 129.0,111.2 L 142.8,94.6 L 156.6,78.1 L 170.4,61.5 L 184.2,45.0 L 198.0,28.4" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="206.0" y="32.4" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">y = 2x + 1</text>
+  <circle cx="60.0" cy="194.0" r="5" fill="#1d4ed8"/>
+  <text x="52.0" y="186.0" fill="#475569" font-size="11" text-anchor="end">(0, 1)</text>
+  <circle cx="120.0" cy="122.0" r="5" fill="#1d4ed8"/>
+  <text x="130.0" y="136.0" fill="#475569" font-size="11" text-anchor="start">(1, 3)</text>
+  <circle cx="180.0" cy="50.0" r="5" fill="#1d4ed8"/>
+  <text x="190.0" y="64.0" fill="#475569" font-size="11" text-anchor="start">(2, 5)</text>
+  <line x1="60.0" y1="194.0" x2="120.0" y2="194.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#slg)"/>
+  <text x="90.0" y="224.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">run = 1 (sang 1)</text>
+  <line x1="120.0" y1="194.0" x2="120.0" y2="122.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#slr)"/>
+  <text x="128.0" y="162.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">rise = 2 (lên 2)</text>
+  <text x="200.0" y="272.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">slope = rise / run = 2 / 1 = 2 · y-intercept = 1 (điểm (0,1))</text>
+</svg>
 
 Đọc: từ điểm $(0, 1)$ sang $(1, 3)$, ta đi **ngang 1 ô và lên cao 2 ô** $\\to$ slope $= 2/1 = 2$. Đi tiếp từ $(1, 3)$ sang $(2, 5)$ cũng đi ngang 1, lên cao 2 — tỷ số luôn bằng 2 ở mọi cặp điểm liền kề. Đó là tính chất xác định của đường thẳng: slope **không đổi**.
 
@@ -277,25 +306,54 @@ Cho 3 điểm $(1, 2), (2, 3.5), (3, 5.5)$. Bạn nhìn vào và "đoán bằng 
 
 Mục tiêu: tìm $(a, b)$ sao cho **tổng bình phương sai lệch** giữa giá trị thực $y_i$ và giá trị dự đoán $a \\cdot x_i + b$ là **nhỏ nhất**.
 
-\`\`\`
-ASCII — 3 điểm và một đường thẳng thử nghiệm (y = 1.5x + 0.5):
-
-  y
-  ↑
-6 |
-  |                       • (3, 5.5)
-5 |                    ╱
-  |                 ╱  ↕ sai lệch = 5.5 − (1.5·3 + 0.5) = 0.5
-4 |              ╱
-  |           • (2, 3.5)
-3 |        ╱  ↕ sai lệch = 3.5 − (1.5·2 + 0.5) = 0
-  |     ╱
-2 |  • (1, 2)
-  |╱     ↕ sai lệch = 2 − (1.5·1 + 0.5) = 0
-1 |
-  +────────────────────→ x
-  0   1   2   3
-\`\`\`
+<svg viewBox="0 0 420 265" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba điểm (1,2), (2,3.5), (3,5.5) và đường thử y = 1.5x + 0.5: sai lệch 0, 0 và 0.5 tại điểm thứ ba">
+  <defs><marker id="fit" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="140.0" y1="230.0" x2="140.0" y2="22.0"/>
+<line x1="220.0" y1="230.0" x2="220.0" y2="22.0"/>
+<line x1="300.0" y1="230.0" x2="300.0" y2="22.0"/>
+<line x1="60.0" y1="198.0" x2="364.0" y2="198.0"/>
+<line x1="60.0" y1="166.0" x2="364.0" y2="166.0"/>
+<line x1="60.0" y1="134.0" x2="364.0" y2="134.0"/>
+<line x1="60.0" y1="102.0" x2="364.0" y2="102.0"/>
+<line x1="60.0" y1="70.0" x2="364.0" y2="70.0"/>
+<line x1="60.0" y1="38.0" x2="364.0" y2="38.0"/>
+</g>
+  <line x1="54.0" y1="230.0" x2="386.0" y2="230.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fit)"/>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="0.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fit)"/>
+  <text x="378.0" y="246.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="10.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="140.0" y1="226.0" x2="140.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="220.0" y1="226.0" x2="220.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="220.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="300.0" y1="226.0" x2="300.0" y2="234.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300.0" y="246.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="56.0" y1="198.0" x2="64.0" y2="198.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="202.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="166.0" x2="64.0" y2="166.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="170.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="134.0" x2="64.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="138.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="102.0" x2="64.0" y2="102.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="106.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="56.0" y1="70.0" x2="64.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <line x1="56.0" y1="38.0" x2="64.0" y2="38.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="42.0" fill="#475569" font-size="11" text-anchor="end">6</text>
+  <path d="M 60.0,214.0 L 88.8,196.7 L 117.6,179.4 L 146.4,162.2 L 175.2,144.9 L 204.0,127.6 L 232.8,110.3 L 261.6,93.0 L 290.4,75.8 L 319.2,58.5 L 348.0,41.2" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="344.0" y="31.2" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">y = 1.5x + 0.5 (thử)</text>
+  <circle cx="140.0" cy="166.0" r="5" fill="#1a202c"/>
+  <text x="132.0" y="158.0" fill="#475569" font-size="11" text-anchor="end">(1, 2)</text>
+  <text x="150.0" y="180.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">sai lệch = 0</text>
+  <circle cx="220.0" cy="118.0" r="5" fill="#1a202c"/>
+  <text x="212.0" y="110.0" fill="#475569" font-size="11" text-anchor="end">(2, 3.5)</text>
+  <text x="230.0" y="132.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">sai lệch = 0</text>
+  <circle cx="300.0" cy="54.0" r="5" fill="#1a202c"/>
+  <text x="292.0" y="46.0" fill="#475569" font-size="11" text-anchor="end">(3, 5.5)</text>
+  <line x1="300.0" y1="70.0" x2="300.0" y2="54.0" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="310.0" y="66.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">sai lệch = 0.5</text>
+</svg>
 
 Mỗi đường thẳng $(a, b)$ cho một bộ 3 sai lệch khác nhau. Cần một **thước đo duy nhất** để so sánh: bình phương từng sai lệch rồi cộng lại (bình phương để: (1) sai âm và dương không triệt tiêu, (2) phạt nặng các sai lệch lớn).
 
@@ -441,21 +499,75 @@ So sánh ở $x = 2$:
 
 Hình dung đồ thị $y = x^2$: nó là một cái "thung lũng" hình chữ U. Đứng ở đáy thung lũng, mọi hướng đều đi lên — đó là **điểm thấp nhất**. Ngược lại, $y = -x^2$ là một "ngọn đồi" hình chữ U lộn ngược — đỉnh đồi là **điểm cao nhất**.
 
-\`\`\`
-ASCII — y = x² (a > 0)            ASCII — y = -x² (a < 0)
-
-    y                                  y
-  9 |•           •                   0 |        •
-    | \\         /                      | \\     / \\     /
-  4 |  •       •                    -1 |  \\   /   \\   /
-    |   \\     /                        |   • •     • •
-  1 |    • • •                      -4 |    •       •
-    |     ↑                            |     ↓
-  0 +─────•─────→ x                 -9 |•           •
-        đỉnh (0,0)                     +─────•─────→ x
-        = MIN                              đỉnh (0,0)
-                                           = MAX
-\`\`\`
+<svg viewBox="0 0 600 235" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai parabol: y = x² mở lên với đỉnh (0,0) là cực tiểu; y = −x² mở xuống với đỉnh (0,0) là cực đại">
+  <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="pb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="120.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">y = x² (a &gt; 0)</text>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="36.0" y1="160.0" x2="36.0" y2="50.0"/>
+<line x1="204.0" y1="160.0" x2="204.0" y2="50.0"/>
+<line x1="19.2" y1="140.0" x2="220.8" y2="140.0"/>
+<line x1="19.2" y1="110.0" x2="220.8" y2="110.0"/>
+<line x1="19.2" y1="60.0" x2="220.8" y2="60.0"/>
+</g>
+  <line x1="13.2" y1="150.0" x2="242.8" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pa)"/>
+  <line x1="120.0" y1="166.0" x2="120.0" y2="28.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pa)"/>
+  <text x="234.8" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="128.0" y="38.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="36.0" y1="146.0" x2="36.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="36.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−3</text>
+  <line x1="204.0" y1="146.0" x2="204.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="204.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="116.0" y1="140.0" x2="124.0" y2="140.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="113.0" y="144.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="116.0" y1="110.0" x2="124.0" y2="110.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="113.0" y="114.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="116.0" y1="60.0" x2="124.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="113.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">9</text>
+  <path d="M 33.2,53.9 L 36.1,60.2 L 39.0,66.3 L 41.9,72.2 L 44.8,77.8 L 47.7,83.3 L 50.6,88.5 L 53.5,93.5 L 56.3,98.3 L 59.2,102.9 L 62.1,107.3 L 65.0,111.5 L 67.9,115.4 L 70.8,119.1 L 73.7,122.7 L 76.6,126.0 L 79.5,129.1 L 82.4,132.0 L 85.3,134.6 L 88.2,137.1 L 91.1,139.3 L 94.0,141.4 L 96.9,143.2 L 99.7,144.8 L 102.6,146.2 L 105.5,147.3 L 108.4,148.3 L 111.3,149.0 L 114.2,149.6 L 117.1,149.9 L 120.0,150.0 L 122.9,149.9 L 125.8,149.6 L 128.7,149.0 L 131.6,148.3 L 134.5,147.3 L 137.4,146.2 L 140.3,144.8 L 143.1,143.2 L 146.0,141.4 L 148.9,139.3 L 151.8,137.1 L 154.7,134.6 L 157.6,132.0 L 160.5,129.1 L 163.4,126.0 L 166.3,122.7 L 169.2,119.1 L 172.1,115.4 L 175.0,111.5 L 177.9,107.3 L 180.8,102.9 L 183.7,98.3 L 186.5,93.5 L 189.4,88.5 L 192.3,83.3 L 195.2,77.8 L 198.1,72.2 L 201.0,66.3 L 203.9,60.2 L 206.8,53.9" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="36.0" cy="60.0" r="4" fill="#1d4ed8"/>
+  <circle cx="64.0" cy="110.0" r="4" fill="#1d4ed8"/>
+  <circle cx="92.0" cy="140.0" r="4" fill="#1d4ed8"/>
+  <circle cx="120.0" cy="150.0" r="4" fill="#1d4ed8"/>
+  <circle cx="148.0" cy="140.0" r="4" fill="#1d4ed8"/>
+  <circle cx="176.0" cy="110.0" r="4" fill="#1d4ed8"/>
+  <circle cx="204.0" cy="60.0" r="4" fill="#1d4ed8"/>
+  <circle cx="120.0" cy="150.0" r="6" fill="#dc2626"/>
+  <text x="130.0" y="182.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">đỉnh (0,0) = MIN</text>
+  <text x="120.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">mở lên, đỉnh là điểm thấp nhất</text>
+  <text x="420.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">y = −x² (a &lt; 0)</text>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="336.0" y1="250.0" x2="336.0" y2="140.0"/>
+<line x1="504.0" y1="250.0" x2="504.0" y2="140.0"/>
+<line x1="319.2" y1="160.0" x2="520.8" y2="160.0"/>
+<line x1="319.2" y1="190.0" x2="520.8" y2="190.0"/>
+<line x1="319.2" y1="240.0" x2="520.8" y2="240.0"/>
+</g>
+  <line x1="313.2" y1="150.0" x2="542.8" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pb)"/>
+  <line x1="420.0" y1="256.0" x2="420.0" y2="118.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pb)"/>
+  <text x="534.8" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="428.0" y="128.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="336.0" y1="146.0" x2="336.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="336.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−3</text>
+  <line x1="504.0" y1="146.0" x2="504.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="504.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="416.0" y1="160.0" x2="424.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="413.0" y="164.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="416.0" y1="190.0" x2="424.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="413.0" y="194.0" fill="#475569" font-size="11" text-anchor="end">−4</text>
+  <line x1="416.0" y1="240.0" x2="424.0" y2="240.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="413.0" y="244.0" fill="#475569" font-size="11" text-anchor="end">−9</text>
+  <path d="M 333.2,246.1 L 336.1,239.8 L 339.0,233.7 L 341.9,227.8 L 344.8,222.2 L 347.7,216.7 L 350.6,211.5 L 353.5,206.5 L 356.3,201.7 L 359.2,197.1 L 362.1,192.7 L 365.0,188.5 L 367.9,184.6 L 370.8,180.9 L 373.7,177.3 L 376.6,174.0 L 379.5,170.9 L 382.4,168.0 L 385.3,165.4 L 388.2,162.9 L 391.1,160.7 L 394.0,158.6 L 396.9,156.8 L 399.7,155.2 L 402.6,153.8 L 405.5,152.7 L 408.4,151.7 L 411.3,151.0 L 414.2,150.4 L 417.1,150.1 L 420.0,150.0 L 422.9,150.1 L 425.8,150.4 L 428.7,151.0 L 431.6,151.7 L 434.5,152.7 L 437.4,153.8 L 440.3,155.2 L 443.1,156.8 L 446.0,158.6 L 448.9,160.7 L 451.8,162.9 L 454.7,165.4 L 457.6,168.0 L 460.5,170.9 L 463.4,174.0 L 466.3,177.3 L 469.2,180.9 L 472.1,184.6 L 475.0,188.5 L 477.9,192.7 L 480.8,197.1 L 483.7,201.7 L 486.5,206.5 L 489.4,211.5 L 492.3,216.7 L 495.2,222.2 L 498.1,227.8 L 501.0,233.7 L 503.9,239.8 L 506.8,246.1" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="336.0" cy="240.0" r="4" fill="#15803d"/>
+  <circle cx="364.0" cy="190.0" r="4" fill="#15803d"/>
+  <circle cx="392.0" cy="160.0" r="4" fill="#15803d"/>
+  <circle cx="420.0" cy="150.0" r="4" fill="#15803d"/>
+  <circle cx="448.0" cy="160.0" r="4" fill="#15803d"/>
+  <circle cx="476.0" cy="190.0" r="4" fill="#15803d"/>
+  <circle cx="504.0" cy="240.0" r="4" fill="#15803d"/>
+  <circle cx="420.0" cy="150.0" r="6" fill="#dc2626"/>
+  <text x="430.0" y="142.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">đỉnh (0,0) = MAX</text>
+  <text x="420.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">mở xuống, đỉnh là điểm cao nhất</text>
+</svg>
 
 - Với $a > 0$: parabol mở lên $\\to$ đỉnh là điểm **thấp nhất** (min).
 - Với $a < 0$: parabol mở xuống $\\to$ đỉnh là điểm **cao nhất** (max).
@@ -575,20 +687,47 @@ Bảng giá trị $y = x^2 - 5x + 6$ với $x \\in [-1, 5]$:
 |----|----|----|----|----|------|----|----|----|
 | y  | 12 |  6 |  2 |  0 | -0.25|  0 |  2 |  6 |
 
-\`\`\`
-   y
-   ↑
-12 |•                          •
-   |
- 6 |   •                   •
-   |
- 2 |       •           •
-   |
- 0 +───────────•───•──────────→ x  ← trục Ox
-   |          x₂=2 x₁=3
--1 |              •  ← đỉnh (2.5, -0.25)
-   |
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Parabol y = x² − 5x + 6 cắt trục Ox tại hai nghiệm x = 2 và x = 3, đỉnh (2.5, −0.25) nằm dưới trục">
+  <defs><marker id="qa" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="251.0" y1="171.0" x2="251.0" y2="-25.0"/>
+<line x1="302.0" y1="171.0" x2="302.0" y2="-25.0"/>
+<line x1="353.0" y1="171.0" x2="353.0" y2="-25.0"/>
+<line x1="404.0" y1="171.0" x2="404.0" y2="-25.0"/>
+<line x1="455.0" y1="171.0" x2="455.0" y2="-25.0"/>
+<line x1="169.4" y1="122.0" x2="485.6" y2="122.0"/>
+<line x1="169.4" y1="66.0" x2="485.6" y2="66.0"/>
+<line x1="169.4" y1="-18.0" x2="485.6" y2="-18.0"/>
+</g>
+  <line x1="163.4" y1="150.0" x2="507.6" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qa)"/>
+  <line x1="200.0" y1="177.0" x2="200.0" y2="-47.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qa)"/>
+  <text x="499.6" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-37.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="251.0" y1="146.0" x2="251.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="251.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="302.0" y1="146.0" x2="302.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="302.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="353.0" y1="146.0" x2="353.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="353.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="404.0" y1="146.0" x2="404.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="404.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="455.0" y1="146.0" x2="455.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="455.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="196.0" y1="122.0" x2="204.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="196.0" y1="66.0" x2="204.0" y2="66.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="70.0" fill="#475569" font-size="11" text-anchor="end">6</text>
+  <line x1="196.0" y1="-18.0" x2="204.0" y2="-18.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="-14.0" fill="#475569" font-size="11" text-anchor="end">12</text>
+  <path d="M 174.5,27.5 L 178.3,33.7 L 182.2,39.8 L 186.0,45.7 L 189.8,51.4 L 193.6,57.0 L 197.4,62.5 L 201.3,67.7 L 205.1,72.9 L 208.9,77.8 L 212.8,82.6 L 216.6,87.3 L 220.4,91.8 L 224.2,96.1 L 228.1,100.3 L 231.9,104.3 L 235.7,108.1 L 239.5,111.8 L 243.3,115.4 L 247.2,118.8 L 251.0,122.0 L 254.8,125.1 L 258.6,128.0 L 262.5,130.7 L 266.3,133.3 L 270.1,135.8 L 273.9,138.1 L 277.8,140.2 L 281.6,142.2 L 285.4,144.0 L 289.2,145.6 L 293.1,147.1 L 296.9,148.5 L 300.7,149.6 L 304.6,150.7 L 308.4,151.5 L 312.2,152.2 L 316.0,152.8 L 319.9,153.2 L 323.7,153.4 L 327.5,153.5 L 331.3,153.4 L 335.1,153.2 L 339.0,152.8 L 342.8,152.2 L 346.6,151.5 L 350.5,150.7 L 354.3,149.6 L 358.1,148.5 L 361.9,147.1 L 365.8,145.6 L 369.6,144.0 L 373.4,142.2 L 377.2,140.2 L 381.0,138.1 L 384.9,135.8 L 388.7,133.3 L 392.5,130.7 L 396.4,128.0 L 400.2,125.1 L 404.0,122.0 L 407.8,118.8 L 411.6,115.4 L 415.5,111.8 L 419.3,108.1 L 423.1,104.3 L 427.0,100.3 L 430.8,96.1 L 434.6,91.8 L 438.4,87.3 L 442.2,82.6 L 446.1,77.8 L 449.9,72.9 L 453.7,67.7 L 457.6,62.5 L 461.4,57.0 L 465.2,51.4 L 469.0,45.7 L 472.8,39.8 L 476.7,33.7 L 480.5,27.5" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="302.0" cy="150.0" r="6" fill="#dc2626"/>
+  <circle cx="353.0" cy="150.0" r="6" fill="#dc2626"/>
+  <text x="296.0" y="140.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">x₂ = 2</text>
+  <text x="359.0" y="140.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">x₁ = 3</text>
+  <circle cx="327.5" cy="153.5" r="5" fill="#15803d"/>
+  <text x="327.5" y="171.5" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">đỉnh (2.5, −0.25)</text>
+  <text x="200.0" y="285.0" fill="#475569" font-size="12" text-anchor="middle">Δ &gt; 0: cắt Ox tại 2 điểm → 2 nghiệm phân biệt</text>
+</svg>
 
 Đỉnh dưới Ox → parabol "đào hố" qua Ox 2 lần.
 
@@ -608,18 +747,43 @@ Bảng $y = x^2 - 4x + 4 = (x - 2)^2$ với $x \\in [-1, 5]$:
 |----|----|----|----|----|----|----|----|
 | y  |  9 |  4 |  1 |  0 |  1 |  4 |  9 |
 
-\`\`\`
-   y
-   ↑
- 9 |•                           •
-   |
- 4 |    •                   •
-   |
- 1 |       •           •
-   |
- 0 +────────────•──────────→ x
-              đỉnh (2,0) — chạm 1 điểm
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Parabol y = (x − 2)² = x² − 4x + 4 chạm trục Ox tại đúng một điểm: đỉnh (2, 0)">
+  <defs><marker id="qb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="156.0" y1="177.0" x2="156.0" y2="-21.0"/>
+<line x1="244.0" y1="177.0" x2="244.0" y2="-21.0"/>
+<line x1="288.0" y1="177.0" x2="288.0" y2="-21.0"/>
+<line x1="332.0" y1="177.0" x2="332.0" y2="-21.0"/>
+<line x1="420.0" y1="177.0" x2="420.0" y2="-21.0"/>
+<line x1="129.6" y1="132.0" x2="446.4" y2="132.0"/>
+<line x1="129.6" y1="78.0" x2="446.4" y2="78.0"/>
+<line x1="129.6" y1="-12.0" x2="446.4" y2="-12.0"/>
+</g>
+  <line x1="123.6" y1="150.0" x2="468.4" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qb)"/>
+  <line x1="200.0" y1="183.0" x2="200.0" y2="-43.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qb)"/>
+  <text x="460.4" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-33.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="156.0" y1="146.0" x2="156.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="156.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="244.0" y1="146.0" x2="244.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="244.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="288.0" y1="146.0" x2="288.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="288.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="332.0" y1="146.0" x2="332.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="332.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="420.0" y1="146.0" x2="420.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="420.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="196.0" y1="132.0" x2="204.0" y2="132.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="136.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="78.0" x2="204.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="82.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="196.0" y1="-12.0" x2="204.0" y2="-12.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="-8.0" fill="#475569" font-size="11" text-anchor="end">9</text>
+  <path d="M 134.0,-70.5 L 137.8,-59.6 L 141.7,-49.0 L 145.6,-38.7 L 149.4,-28.6 L 153.2,-18.8 L 157.1,-9.3 L 160.9,-0.1 L 164.8,8.9 L 168.7,17.6 L 172.5,26.0 L 176.3,34.1 L 180.2,42.0 L 184.1,49.5 L 187.9,56.8 L 191.8,63.9 L 195.6,70.6 L 199.4,77.1 L 203.3,83.3 L 207.2,89.2 L 211.0,94.9 L 214.8,100.2 L 218.7,105.3 L 222.6,110.2 L 226.4,114.7 L 230.2,119.0 L 234.1,123.0 L 237.9,126.7 L 241.8,130.2 L 245.7,133.3 L 249.5,136.2 L 253.3,138.8 L 257.2,141.2 L 261.1,143.2 L 264.9,145.0 L 268.8,146.6 L 272.6,147.8 L 276.4,148.8 L 280.3,149.4 L 284.1,149.9 L 288.0,150.0 L 291.9,149.9 L 295.7,149.4 L 299.6,148.8 L 303.4,147.8 L 307.2,146.6 L 311.1,145.0 L 314.9,143.2 L 318.8,141.2 L 322.6,138.8 L 326.5,136.2 L 330.4,133.3 L 334.2,130.2 L 338.1,126.7 L 341.9,123.0 L 345.8,119.0 L 349.6,114.7 L 353.4,110.2 L 357.3,105.3 L 361.1,100.2 L 365.0,94.9 L 368.9,89.2 L 372.7,83.3 L 376.6,77.1 L 380.4,70.6 L 384.2,63.9 L 388.1,56.8 L 391.9,49.5 L 395.8,42.0 L 399.6,34.1 L 403.5,26.0 L 407.4,17.6 L 411.2,8.9 L 415.1,-0.1 L 418.9,-9.3 L 422.8,-18.8 L 426.6,-28.6 L 430.4,-38.7 L 434.3,-49.0 L 438.1,-59.6 L 442.0,-70.5" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="288.0" cy="150.0" r="6" fill="#dc2626"/>
+  <text x="288.0" y="186.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">đỉnh (2, 0) — chạm 1 điểm</text>
+  <text x="200.0" y="285.0" fill="#475569" font-size="12" text-anchor="middle">Δ = 0: đỉnh nằm trên Ox → nghiệm kép x = 2</text>
+</svg>
 
 **(3) Δ < 0 — parabol lơ lửng trên Ox.** Giải $x^2 + x + 1 = 0$:
 
@@ -636,17 +800,41 @@ Bảng $y = x^2 + x + 1$ với $x \\in [-3, 2]$:
 |----|----|----|----|----|----|----|----|
 | y  |  7 |  3 |  1 |0.75|  1 |  3 |  7 |
 
-\`\`\`
-   y
-   ↑
- 7 |•                       •
-   |
- 3 |    •               •
-   |
- 1 |        •   •    •
-   |          •  ← đỉnh (-0.5, 0.75)
- 0 +────────────────────→ x  ← parabol KHÔNG chạm trục này
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Parabol y = x² + x + 1 không chạm trục Ox, đỉnh (−0.5, 0.75) nằm trên trục">
+  <defs><marker id="qc" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="88.0" y1="183.0" x2="88.0" y2="-15.0"/>
+<line x1="144.0" y1="183.0" x2="144.0" y2="-15.0"/>
+<line x1="256.0" y1="183.0" x2="256.0" y2="-15.0"/>
+<line x1="312.0" y1="183.0" x2="312.0" y2="-15.0"/>
+<line x1="26.4" y1="128.0" x2="345.6" y2="128.0"/>
+<line x1="26.4" y1="84.0" x2="345.6" y2="84.0"/>
+<line x1="26.4" y1="-4.0" x2="345.6" y2="-4.0"/>
+</g>
+  <line x1="20.4" y1="150.0" x2="367.6" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qc)"/>
+  <line x1="200.0" y1="189.0" x2="200.0" y2="-37.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qc)"/>
+  <text x="359.6" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-27.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="88.0" y1="146.0" x2="88.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="88.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="144.0" y1="146.0" x2="144.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="144.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="256.0" y1="146.0" x2="256.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="256.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="312.0" y1="146.0" x2="312.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="312.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="196.0" y1="128.0" x2="204.0" y2="128.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="132.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="84.0" x2="204.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="88.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="196.0" y1="-4.0" x2="204.0" y2="-4.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="0.0" fill="#475569" font-size="11" text-anchor="end">7</text>
+  <path d="M 32.0,-4.0 L 35.8,3.5 L 39.7,10.7 L 43.5,17.8 L 47.4,24.6 L 51.2,31.2 L 55.1,37.6 L 59.0,43.8 L 62.8,49.8 L 66.7,55.6 L 70.5,61.2 L 74.4,66.6 L 78.2,71.8 L 82.0,76.7 L 85.9,81.5 L 89.8,86.0 L 93.6,90.4 L 97.5,94.5 L 101.3,98.4 L 105.1,102.1 L 109.0,105.7 L 112.9,109.0 L 116.7,112.0 L 120.5,114.9 L 124.4,117.6 L 128.2,120.1 L 132.1,122.3 L 135.9,124.4 L 139.8,126.2 L 143.6,127.9 L 147.5,129.3 L 151.4,130.5 L 155.2,131.5 L 159.0,132.3 L 162.9,132.9 L 166.8,133.3 L 170.6,133.5 L 174.5,133.5 L 178.3,133.2 L 182.2,132.8 L 186.0,132.1 L 189.8,131.3 L 193.7,130.2 L 197.5,128.9 L 201.4,127.4 L 205.2,125.7 L 209.1,123.8 L 213.0,121.7 L 216.8,119.4 L 220.7,116.9 L 224.5,114.2 L 228.3,111.2 L 232.2,108.1 L 236.0,104.7 L 239.9,101.2 L 243.8,97.4 L 247.6,93.4 L 251.5,89.2 L 255.3,84.8 L 259.2,80.2 L 263.0,75.4 L 266.8,70.4 L 270.7,65.2 L 274.5,59.7 L 278.4,54.1 L 282.2,48.2 L 286.1,42.2 L 290.0,35.9 L 293.8,29.4 L 297.7,22.7 L 301.5,15.9 L 305.3,8.8 L 309.2,1.4 L 313.0,-6.1 L 316.9,-13.8 L 320.8,-21.7 L 324.6,-29.9 L 328.5,-38.2 L 332.3,-46.8 L 336.2,-55.5 L 340.0,-64.5" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="172.0" cy="133.5" r="6" fill="#15803d"/>
+  <text x="182.0" y="137.5" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">đỉnh (−0.5, 0.75)</text>
+  <text x="267.2" y="169.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">parabol KHÔNG chạm trục Ox</text>
+  <text x="200.0" y="285.0" fill="#475569" font-size="12" text-anchor="middle">Δ &lt; 0: đỉnh nằm trên Ox, mở lên → vô nghiệm thực</text>
+</svg>
 
 Đỉnh trên Ox → cả parabol nằm trên Ox → không có nghiệm thực.
 

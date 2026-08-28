@@ -31,20 +31,37 @@ Hãy coi một **hàm số** như một **chiếc máy** có:
 
 Máy này có **một quy tắc** biến $x$ thành $f(x)$. Quy tắc đó là "chính bản thân" hàm số.
 
-\`\`\`
-   x  ──►  [ f ]  ──►  f(x)
- input              output
-\`\`\`
+<svg viewBox="0 0 392 100" style="max-width:392px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hàm như cái máy: đưa input x vào máy f, ra output f(x)">
+  <defs><marker id="f1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="66.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x (input)</text>
+  <line x1="116.0" y1="50.0" x2="152.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f1)"/>
+  <rect x="160.0" y="30.0" width="40.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">f</text>
+  <line x1="204.0" y1="50.0" x2="240.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f1)"/>
+  <text x="310.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">f(x) (output)</text>
+</svg>
 
 ### 💡 Trực giác: máy bán nước tự động
 
 Hãy hình dung **máy bán nước tự động** ở siêu thị:
 
-\`\`\`
-   10.000đ ──► [ Máy bán nước ] ──► 1 chai nước suối
-   15.000đ ──► [ Máy bán nước ] ──► 1 chai trà xanh
-   20.000đ ──► [ Máy bán nước ] ──► 1 chai sữa
-\`\`\`
+<svg viewBox="0 0 520 180" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy bán nước như một hàm: mỗi số tiền vào cho đúng một loại nước ra">
+  <defs><marker id="f2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="90.0" y="45.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">10.000đ</text>
+  <line x1="100.0" y1="40.0" x2="150.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f2)"/>
+  <line x1="300.0" y1="40.0" x2="350.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f2)"/>
+  <text x="360.0" y="45.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">1 chai nước suối</text>
+  <text x="90.0" y="97.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">15.000đ</text>
+  <line x1="100.0" y1="92.0" x2="150.0" y2="92.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f2)"/>
+  <line x1="300.0" y1="92.0" x2="350.0" y2="92.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f2)"/>
+  <text x="360.0" y="97.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">1 chai trà xanh</text>
+  <text x="90.0" y="149.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">20.000đ</text>
+  <line x1="100.0" y1="144.0" x2="150.0" y2="144.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f2)"/>
+  <line x1="300.0" y1="144.0" x2="350.0" y2="144.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f2)"/>
+  <text x="360.0" y="149.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700">1 chai sữa</text>
+  <rect x="152.0" y="20.0" width="146.0" height="144.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="225.0" y="97.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Máy bán nước</text>
+</svg>
 
 Bạn nhét tờ tiền vào (input), máy trả ra đúng một sản phẩm (output). **Đặc tính quan trọng**: nhét cùng một mệnh giá **hai lần khác nhau**, máy luôn trả ra **cùng một sản phẩm**. Nếu lần này nhét 10.000đ ra chai nước, lần khác nhét 10.000đ ra chai trà — đó là máy **hỏng**, không phải máy hoạt động đúng. Hàm số cũng vậy: cùng input $\\to$ cùng output, **luôn luôn**.
 
@@ -52,13 +69,12 @@ Còn chiều ngược lại thì không bắt buộc: hai mệnh giá khác nhau
 
 **Mở rộng analogy**: nghĩ về *bảng giá* dán trên máy. Bảng giá đó **chính là hàm số**:
 
-\`\`\`
-Bảng giá (= quy tắc của hàm):
-  10.000đ  →  Nước suối
-  12.000đ  →  Nước suối     ← nhiều input, cùng output: OK
-  15.000đ  →  Trà xanh
-  20.000đ  →  Sữa
-\`\`\`
+| Input (tiền) | → | Output (nước) | Ghi chú |
+|---|:-:|---|---|
+| 10.000đ | → | Nước suối | |
+| 12.000đ | → | Nước suối | nhiều input, cùng output: OK |
+| 15.000đ | → | Trà xanh | |
+| 20.000đ | → | Sữa | |
 
 Khi mua, bạn nhìn bảng giá để biết "với mệnh giá này tôi nhận được gì". Bảng giá quyết định một cách dứt khoát — không bao giờ có chuyện "tùy hôm" mà 10.000đ ra nước suối hay sữa. **Quy tắc xác định, ổn định, không phụ thuộc thời điểm**. Đây cũng là tính chất sống còn của hàm số trong toán.
 
@@ -236,9 +252,20 @@ Khi đi sâu hơn, bạn sẽ gặp các phép toán **trên hàm** chứ không
 
 **Composition** ($g \\circ f$) = xếp hai máy nối tiếp nhau:
 
-\`\`\`
-   x ──► [ Máy f ] ──► f(x) ──► [ Máy g ] ──► g(f(x))
-\`\`\`
+<svg viewBox="0 0 520 100" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hợp hàm: x qua máy f ra f(x), rồi qua máy g ra g(f(x))">
+  <defs><marker id="f3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="40.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <line x1="64.0" y1="50.0" x2="100.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f3)"/>
+  <rect x="108.0" y="30.0" width="60.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="138.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Máy f</text>
+  <line x1="172.0" y1="50.0" x2="208.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f3)"/>
+  <text x="242.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">f(x)</text>
+  <line x1="272.0" y1="50.0" x2="308.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f3)"/>
+  <rect x="316.0" y="30.0" width="60.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="346.0" y="55.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Máy g</text>
+  <line x1="380.0" y1="50.0" x2="416.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f3)"/>
+  <text x="462.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">g(f(x))</text>
+</svg>
 
 Output của máy $f$ đi thẳng vào input của máy $g$. Hàm "tổng hợp" này — đặt tên $g \\circ f$ — tự nó cũng là một hàm. Lưu ý: **thứ tự đọc ngược chiều viết** — $g \\circ f$ đọc *"g sau khi f"*, tức là $f$ chạy **trước**. Sẽ làm chi tiết ở mục 6.
 
@@ -246,11 +273,23 @@ Output của máy $f$ đi thẳng vào input của máy $g$. Hàm "tổng hợp"
 
 **Hàm ngược** ($f^{-1}$) = bóp một nút "rewind" trên máy:
 
-\`\`\`
-   x ──► [ Máy f ] ──► y       (chiều thuận)
-
-   y ──► [ Máy f⁻¹ ] ──► x     (chiều ngược)
-\`\`\`
+<svg viewBox="0 0 460 145" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hàm ngược: f đưa x sang y theo chiều thuận, f⁻¹ đưa y về x theo chiều ngược">
+  <defs><marker id="f4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="40.0" y="45.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <line x1="56.0" y1="40.0" x2="100.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f4)"/>
+  <rect x="104.0" y="20.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="159.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Máy f</text>
+  <line x1="218.0" y1="40.0" x2="262.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f4)"/>
+  <text x="280.0" y="45.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">y</text>
+  <text x="330.0" y="45.0" fill="#475569" font-size="12" text-anchor="start">(chiều thuận)</text>
+  <text x="40.0" y="115.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">y</text>
+  <line x1="56.0" y1="110.0" x2="100.0" y2="110.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f4)"/>
+  <rect x="104.0" y="90.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="159.0" y="115.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Máy f⁻¹</text>
+  <line x1="218.0" y1="110.0" x2="262.0" y2="110.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f4)"/>
+  <text x="280.0" y="115.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <text x="330.0" y="115.0" fill="#475569" font-size="12" text-anchor="start">(chiều ngược)</text>
+</svg>
 
 Nếu $f$ "đưa 3 thành 7" thì $f^{-1}$ "đưa 7 trở lại thành 3". Tức là **đảo input và output**. Sẽ làm chi tiết ở mục 7.
 
@@ -531,16 +570,44 @@ Tính một bảng giá trị:
 
 Chấm 5 điểm $(-2, 4)$, $(-1, 1)$, $(0, 0)$, $(1, 1)$, $(2, 4)$ lên mặt phẳng, rồi nối lại bằng đường cong mượt → ra **parabol** mở lên trên.
 
-\`\`\`
-   y
-   |
- 4 *           *
-   |
- 1   *       *
-   |
-   *___________  x
-  -2 -1  0  1  2
-\`\`\`
+<svg viewBox="0 0 400 260" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Năm điểm của y = x² tại x = −2, −1, 0, 1, 2: (−2,4), (−1,1), (0,0), (1,1), (2,4)">
+  <defs><marker id="q1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="q1r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="80.0" y1="224.0" x2="80.0" y2="75.6"/>
+<line x1="140.0" y1="224.0" x2="140.0" y2="75.6"/>
+<line x1="260.0" y1="224.0" x2="260.0" y2="75.6"/>
+<line x1="320.0" y1="224.0" x2="320.0" y2="75.6"/>
+<line x1="32.0" y1="182.0" x2="368.0" y2="182.0"/>
+<line x1="32.0" y1="98.0" x2="368.0" y2="98.0"/>
+</g>
+  <line x1="26.0" y1="210.0" x2="390.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q1)"/>
+  <line x1="200.0" y1="230.0" x2="200.0" y2="53.6" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q1)"/>
+  <text x="382.0" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="63.6" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="80.0" y1="206.0" x2="80.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="140.0" y1="206.0" x2="140.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="260.0" y1="206.0" x2="260.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="320.0" y1="206.0" x2="320.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="196.0" y1="182.0" x2="204.0" y2="182.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="186.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="98.0" x2="204.0" y2="98.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="102.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <path d="M 38.0,5.9 L 42.1,16.0 L 46.1,25.8 L 50.2,35.3 L 54.2,44.7 L 58.2,53.7 L 62.3,62.5 L 66.4,71.1 L 70.4,79.4 L 74.5,87.4 L 78.5,95.2 L 82.6,102.7 L 86.6,110.0 L 90.7,117.0 L 94.7,123.8 L 98.8,130.3 L 102.8,136.5 L 106.9,142.5 L 110.9,148.3 L 115.0,153.7 L 119.0,159.0 L 123.1,163.9 L 127.1,168.7 L 131.2,173.1 L 135.2,177.3 L 139.2,181.3 L 143.3,185.0 L 147.3,188.4 L 151.4,191.6 L 155.5,194.6 L 159.5,197.2 L 163.6,199.7 L 167.6,201.8 L 171.7,203.7 L 175.7,205.4 L 179.8,206.8 L 183.8,208.0 L 187.8,208.9 L 191.9,209.5 L 195.9,209.9 L 200.0,210.0 L 204.0,209.9 L 208.1,209.5 L 212.2,208.9 L 216.2,208.0 L 220.2,206.8 L 224.3,205.4 L 228.4,203.7 L 232.4,201.8 L 236.4,199.7 L 240.5,197.2 L 244.6,194.6 L 248.6,191.6 L 252.7,188.4 L 256.7,185.0 L 260.8,181.3 L 264.8,177.3 L 268.8,173.1 L 272.9,168.7 L 276.9,163.9 L 281.0,159.0 L 285.1,153.7 L 289.1,148.3 L 293.1,142.5 L 297.2,136.5 L 301.2,130.3 L 305.3,123.8 L 309.3,117.0 L 313.4,110.0 L 317.4,102.7 L 321.5,95.2 L 325.5,87.4 L 329.6,79.4 L 333.7,71.1 L 337.7,62.5 L 341.8,53.7 L 345.8,44.7 L 349.9,35.3 L 353.9,25.8 L 357.9,16.0 L 362.0,5.9" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="4 3"/>
+  <circle cx="80.0" cy="98.0" r="5" fill="#1d4ed8"/>
+  <text x="88.0" y="92.0" fill="#475569" font-size="10" text-anchor="start">(-2, 4)</text>
+  <circle cx="140.0" cy="182.0" r="5" fill="#1d4ed8"/>
+  <text x="148.0" y="176.0" fill="#475569" font-size="10" text-anchor="start">(-1, 1)</text>
+  <circle cx="200.0" cy="210.0" r="5" fill="#1d4ed8"/>
+  <text x="208.0" y="204.0" fill="#475569" font-size="10" text-anchor="start">(0, 0)</text>
+  <circle cx="260.0" cy="182.0" r="5" fill="#1d4ed8"/>
+  <text x="268.0" y="176.0" fill="#475569" font-size="10" text-anchor="start">(1, 1)</text>
+  <circle cx="320.0" cy="98.0" r="5" fill="#1d4ed8"/>
+  <text x="328.0" y="92.0" fill="#475569" font-size="10" text-anchor="start">(2, 4)</text>
+</svg>
 
 ### 3.2. Vertical Line Test (phép thử đường thẳng đứng)
 
@@ -550,42 +617,82 @@ Vì sao? Đường thẳng đứng $x = a$ đi qua tất cả các điểm có h
 
 #### ✅ Trường hợp QUA test: y = x² (parabol)
 
-\`\`\`
-        y
-        |
-      4 *     |       *
-        |     |
-        |     |
-      1   *   |   *
-        |   * | *
-      0 ----------*------ x
-       -2 -1  0  1  2
-              ↑
-        đường x=1, cắt
-        đồ thị ở ĐÚNG 1 điểm (1, 1)
-\`\`\`
+<svg viewBox="0 0 400 260" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiểm tra đường thẳng đứng: đường x = 1 cắt đồ thị y = x² tại đúng một điểm (1,1) → là hàm số">
+  <defs><marker id="q2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="q2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="80.0" y1="224.0" x2="80.0" y2="75.6"/>
+<line x1="140.0" y1="224.0" x2="140.0" y2="75.6"/>
+<line x1="260.0" y1="224.0" x2="260.0" y2="75.6"/>
+<line x1="320.0" y1="224.0" x2="320.0" y2="75.6"/>
+<line x1="32.0" y1="182.0" x2="368.0" y2="182.0"/>
+<line x1="32.0" y1="98.0" x2="368.0" y2="98.0"/>
+</g>
+  <line x1="26.0" y1="210.0" x2="390.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q2)"/>
+  <line x1="200.0" y1="230.0" x2="200.0" y2="53.6" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q2)"/>
+  <text x="382.0" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="63.6" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="80.0" y1="206.0" x2="80.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="140.0" y1="206.0" x2="140.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="260.0" y1="206.0" x2="260.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="320.0" y1="206.0" x2="320.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="196.0" y1="182.0" x2="204.0" y2="182.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="186.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="98.0" x2="204.0" y2="98.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="102.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <path d="M 38.0,5.9 L 42.1,16.0 L 46.1,25.8 L 50.2,35.3 L 54.2,44.7 L 58.2,53.7 L 62.3,62.5 L 66.4,71.1 L 70.4,79.4 L 74.5,87.4 L 78.5,95.2 L 82.6,102.7 L 86.6,110.0 L 90.7,117.0 L 94.7,123.8 L 98.8,130.3 L 102.8,136.5 L 106.9,142.5 L 110.9,148.3 L 115.0,153.7 L 119.0,159.0 L 123.1,163.9 L 127.1,168.7 L 131.2,173.1 L 135.2,177.3 L 139.2,181.3 L 143.3,185.0 L 147.3,188.4 L 151.4,191.6 L 155.5,194.6 L 159.5,197.2 L 163.6,199.7 L 167.6,201.8 L 171.7,203.7 L 175.7,205.4 L 179.8,206.8 L 183.8,208.0 L 187.8,208.9 L 191.9,209.5 L 195.9,209.9 L 200.0,210.0 L 204.0,209.9 L 208.1,209.5 L 212.2,208.9 L 216.2,208.0 L 220.2,206.8 L 224.3,205.4 L 228.4,203.7 L 232.4,201.8 L 236.4,199.7 L 240.5,197.2 L 244.6,194.6 L 248.6,191.6 L 252.7,188.4 L 256.7,185.0 L 260.8,181.3 L 264.8,177.3 L 268.8,173.1 L 272.9,168.7 L 276.9,163.9 L 281.0,159.0 L 285.1,153.7 L 289.1,148.3 L 293.1,142.5 L 297.2,136.5 L 301.2,130.3 L 305.3,123.8 L 309.3,117.0 L 313.4,110.0 L 317.4,102.7 L 321.5,95.2 L 325.5,87.4 L 329.6,79.4 L 333.7,71.1 L 337.7,62.5 L 341.8,53.7 L 345.8,44.7 L 349.9,35.3 L 353.9,25.8 L 357.9,16.0 L 362.0,5.9" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="4 3"/>
+  <circle cx="80.0" cy="98.0" r="5" fill="#1d4ed8"/>
+  <text x="88.0" y="92.0" fill="#475569" font-size="10" text-anchor="start">(-2, 4)</text>
+  <circle cx="140.0" cy="182.0" r="5" fill="#1d4ed8"/>
+  <text x="148.0" y="176.0" fill="#475569" font-size="10" text-anchor="start">(-1, 1)</text>
+  <circle cx="200.0" cy="210.0" r="5" fill="#1d4ed8"/>
+  <text x="208.0" y="204.0" fill="#475569" font-size="10" text-anchor="start">(0, 0)</text>
+  <circle cx="260.0" cy="182.0" r="5" fill="#1d4ed8"/>
+  <text x="268.0" y="176.0" fill="#475569" font-size="10" text-anchor="start">(1, 1)</text>
+  <circle cx="320.0" cy="98.0" r="5" fill="#1d4ed8"/>
+  <text x="328.0" y="92.0" fill="#475569" font-size="10" text-anchor="start">(2, 4)</text>
+  <line x1="260.0" y1="221.2" x2="260.0" y2="81.2" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="266.0" y="85.2" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">x = 1</text>
+  <circle cx="260.0" cy="182.0" r="7" fill="#dc2626"/>
+  <text x="38.0" y="78.4" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">cắt ĐÚNG 1 điểm (1, 1) → hàm số ✓</text>
+</svg>
 
 Vẽ đường thẳng đứng tại **bất kỳ** x nào (vd $x = 1$): nó cắt parabol tại đúng một điểm $(1, 1)$. Thử ở $x = -2$: cắt tại $(-2, 4)$ — vẫn 1 điểm. **Mọi** đường thẳng đứng đều cắt $\\leq 1$ điểm → **là hàm số**.
 
 #### ❌ Trường hợp KHÔNG QUA test: đường tròn x² + y² = 1
 
-\`\`\`
-          y
-          |
-        1 *
-       *  |   *
-      *   |    *
-     *    |     *
-   ─*─────|──────*── x
-     *    |     *
-      *   |    *
-       *  |   *
-        −1*
-          |
-          ↑
-    đường x=0, cắt đồ thị ở
-    HAI điểm: (0, 1) và (0, −1)
-\`\`\`
+<svg viewBox="0 0 400 280" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn x² + y² = 1 thất bại kiểm tra đường thẳng đứng: đường x = 0 cắt tại hai điểm (0,1) và (0,−1)">
+  <defs><marker id="q3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="275.0" x2="110.0" y2="5.0"/>
+<line x1="290.0" y1="275.0" x2="290.0" y2="5.0"/>
+<line x1="65.0" y1="230.0" x2="335.0" y2="230.0"/>
+<line x1="65.0" y1="50.0" x2="335.0" y2="50.0"/>
+</g>
+  <line x1="59.0" y1="140.0" x2="357.0" y2="140.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q3)"/>
+  <line x1="200.0" y1="281.0" x2="200.0" y2="-17.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q3)"/>
+  <text x="349.0" y="156.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-7.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="136.0" x2="110.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="290.0" y1="136.0" x2="290.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="290.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="196.0" y1="230.0" x2="204.0" y2="230.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="234.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="196.0" y1="50.0" x2="204.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="200.0" cy="140.0" r="90" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="200.0" y1="270.5" x2="200.0" y2="9.5" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <circle cx="200.0" cy="50.0" r="7" fill="#dc2626"/>
+  <circle cx="200.0" cy="230.0" r="7" fill="#dc2626"/>
+  <text x="210.0" y="44.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(0, 1)</text>
+  <text x="210.0" y="246.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(0, −1)</text>
+  <text x="294.5" y="72.5" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">x² + y² = 1</text>
+  <text x="200.0" y="262.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">đường x = 0 cắt đường tròn tại HAI điểm → KHÔNG phải hàm số ✗</text>
+</svg>
 
 Đường tròn đơn vị: tại $x = 0$, ta thấy cả $y = 1$ (đỉnh trên) và $y = -1$ (đỉnh dưới). Một đường thẳng đứng cắt đồ thị **2 lần** → vi phạm định nghĩa → **không phải hàm số** (theo y).
 
@@ -627,17 +734,47 @@ $$f(x) = x^2 + 1$$
 
 Parabol đỉnh $(0, 1)$, mở lên trên:
 
-\`\`\`
-  y
-  |
-5 *         *
-  |
-2  *       *
-  |
-1    *
-  +─────────── x
-   -2 -1 0 1 2
-\`\`\`
+<svg viewBox="0 0 400 260" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Năm điểm của y = x² + 1 tại x = −2..2: (−2,5), (−1,2), (0,1), (1,2), (2,5)">
+  <defs><marker id="q4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="q4r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="80.0" y1="221.5" x2="80.0" y2="76.6"/>
+<line x1="140.0" y1="221.5" x2="140.0" y2="76.6"/>
+<line x1="260.0" y1="221.5" x2="260.0" y2="76.6"/>
+<line x1="320.0" y1="221.5" x2="320.0" y2="76.6"/>
+<line x1="32.0" y1="187.0" x2="368.0" y2="187.0"/>
+<line x1="32.0" y1="164.0" x2="368.0" y2="164.0"/>
+<line x1="32.0" y1="95.0" x2="368.0" y2="95.0"/>
+</g>
+  <line x1="26.0" y1="210.0" x2="390.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q4)"/>
+  <line x1="200.0" y1="227.5" x2="200.0" y2="54.6" stroke="#1a202c" stroke-width="1.5" marker-end="url(#q4)"/>
+  <text x="382.0" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="64.6" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="80.0" y1="206.0" x2="80.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="140.0" y1="206.0" x2="140.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="260.0" y1="206.0" x2="260.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="320.0" y1="206.0" x2="320.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="196.0" y1="187.0" x2="204.0" y2="187.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="191.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="164.0" x2="204.0" y2="164.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="168.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="196.0" y1="95.0" x2="204.0" y2="95.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="99.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <path d="M 38.0,19.3 L 42.1,27.6 L 46.1,35.7 L 50.2,43.5 L 54.2,51.2 L 58.2,58.6 L 62.3,65.9 L 66.4,72.9 L 70.4,79.7 L 74.5,86.3 L 78.5,92.7 L 82.6,98.9 L 86.6,104.8 L 90.7,110.6 L 94.7,116.2 L 98.8,121.5 L 102.8,126.6 L 106.9,131.6 L 110.9,136.3 L 115.0,140.8 L 119.0,145.1 L 123.1,149.2 L 127.1,153.0 L 131.2,156.7 L 135.2,160.2 L 139.2,163.4 L 143.3,166.5 L 147.3,169.3 L 151.4,171.9 L 155.5,174.3 L 159.5,176.5 L 163.6,178.5 L 167.6,180.3 L 171.7,181.9 L 175.7,183.2 L 179.8,184.4 L 183.8,185.3 L 187.8,186.1 L 191.9,186.6 L 195.9,186.9 L 200.0,187.0 L 204.0,186.9 L 208.1,186.6 L 212.2,186.1 L 216.2,185.3 L 220.2,184.4 L 224.3,183.2 L 228.4,181.9 L 232.4,180.3 L 236.4,178.5 L 240.5,176.5 L 244.6,174.3 L 248.6,171.9 L 252.7,169.3 L 256.7,166.5 L 260.8,163.4 L 264.8,160.2 L 268.8,156.7 L 272.9,153.0 L 276.9,149.2 L 281.0,145.1 L 285.1,140.8 L 289.1,136.3 L 293.1,131.6 L 297.2,126.6 L 301.2,121.5 L 305.3,116.2 L 309.3,110.6 L 313.4,104.8 L 317.4,98.9 L 321.5,92.7 L 325.5,86.3 L 329.6,79.7 L 333.7,72.9 L 337.7,65.9 L 341.8,58.6 L 345.8,51.2 L 349.9,43.5 L 353.9,35.7 L 357.9,27.6 L 362.0,19.3" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="4 3"/>
+  <circle cx="80.0" cy="95.0" r="5" fill="#1d4ed8"/>
+  <text x="88.0" y="89.0" fill="#475569" font-size="10" text-anchor="start">(-2, 5)</text>
+  <circle cx="140.0" cy="164.0" r="5" fill="#1d4ed8"/>
+  <text x="148.0" y="158.0" fill="#475569" font-size="10" text-anchor="start">(-1, 2)</text>
+  <circle cx="200.0" cy="187.0" r="5" fill="#1d4ed8"/>
+  <text x="208.0" y="181.0" fill="#475569" font-size="10" text-anchor="start">(0, 1)</text>
+  <circle cx="260.0" cy="164.0" r="5" fill="#1d4ed8"/>
+  <text x="268.0" y="158.0" fill="#475569" font-size="10" text-anchor="start">(1, 2)</text>
+  <circle cx="320.0" cy="95.0" r="5" fill="#1d4ed8"/>
+  <text x="328.0" y="89.0" fill="#475569" font-size="10" text-anchor="start">(2, 5)</text>
+</svg>
 
 ### 4.4. Mô tả bằng lời
 
@@ -701,9 +838,20 @@ $$f(x) = |x|$$
 
 Hai hàm có thể nối với nhau như hai máy nối tiếp.
 
-\`\`\`
-   x ──► [ f ] ──► f(x) ──► [ g ] ──► g(f(x))
-\`\`\`
+<svg viewBox="0 0 480 100" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hợp hàm g∘f: x → f → f(x) → g → g(f(x))">
+  <defs><marker id="f5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="40.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <line x1="64.0" y1="50.0" x2="100.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f5)"/>
+  <rect x="108.0" y="30.0" width="40.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="128.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">f</text>
+  <line x1="152.0" y1="50.0" x2="188.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f5)"/>
+  <text x="222.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">f(x)</text>
+  <line x1="252.0" y1="50.0" x2="288.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f5)"/>
+  <rect x="296.0" y="30.0" width="40.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="316.0" y="55.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">g</text>
+  <line x1="340.0" y1="50.0" x2="376.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f5)"/>
+  <text x="422.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">g(f(x))</text>
+</svg>
 
 Ký hiệu: $(g \\circ f)(x) = g(f(x))$, đọc là *"g hợp f"*. Hàm $f$ chạy trước, kết quả của $f$ được đưa vào $g$.
 
@@ -713,20 +861,21 @@ Cho $f(x) = 2x + 1$ và $g(x) = x^2$. Tính $(g \\circ f)(3)$:
 
 **Cách 1: Tính theo từng máy**
 
-\`\`\`
-Input: 3
-  │
-  ▼
-[ Máy f ] : 2·3 + 1 = 7         (Bước 1)
-  │
-  ▼
-[ Máy g ] : 7² = 49             (Bước 2)
-  │
-  ▼
-Output: 49
-
-⟹ (g ∘ f)(3) = 49
-\`\`\`
+<svg viewBox="0 0 460 280" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi tính (g∘f)(3): input 3 → f cho 2·3 + 1 = 7 → g cho 7² = 49 → output 49">
+  <defs><marker id="f6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="16.0" width="300.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="230.0" y="39.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">Input: 3</text>
+  <line x1="230.0" y1="52.0" x2="230.0" y2="70.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f6)"/>
+  <rect x="80.0" y="74.0" width="300.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="97.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Máy f: 2·3 + 1 = 7   (Bước 1)</text>
+  <line x1="230.0" y1="110.0" x2="230.0" y2="128.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f6)"/>
+  <rect x="80.0" y="132.0" width="300.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="230.0" y="155.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Máy g: 7² = 49   (Bước 2)</text>
+  <line x1="230.0" y1="168.0" x2="230.0" y2="186.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f6)"/>
+  <rect x="80.0" y="190.0" width="300.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="230.0" y="213.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">Output: 49</text>
+  <text x="230.0" y="262.0" fill="#1a202c" font-size="14" text-anchor="middle" font-weight="700">⟹ (g ∘ f)(3) = g(f(3)) = 49</text>
+</svg>
 
 **Cách 2: Lập công thức \`(g ∘ f)(x)\` rồi thay x = 3**
 
@@ -797,9 +946,25 @@ Chiều ngược: $(g \\circ f)(x) = g(\\sqrt{x}) = \\sqrt{x} - 1$, domain $x \\
 
 Ba hàm xếp thành chuỗi cũng tương tự — chạy từ trong ra ngoài:
 
-\`\`\`
-x ──► f ──► f(x) ──► g ──► g(f(x)) ──► h ──► h(g(f(x)))
-\`\`\`
+<svg viewBox="0 0 716 100" style="max-width:716px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hợp ba hàm: x → f → f(x) → g → g(f(x)) → h → h(g(f(x)))">
+  <defs><marker id="f7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="40.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <line x1="64.0" y1="50.0" x2="100.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f7)"/>
+  <rect x="108.0" y="30.0" width="40.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="128.0" y="55.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">f</text>
+  <line x1="152.0" y1="50.0" x2="188.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f7)"/>
+  <text x="222.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">f(x)</text>
+  <line x1="252.0" y1="50.0" x2="288.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f7)"/>
+  <rect x="296.0" y="30.0" width="40.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="316.0" y="55.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">g</text>
+  <line x1="340.0" y1="50.0" x2="376.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f7)"/>
+  <text x="422.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">g(f(x))</text>
+  <line x1="464.0" y1="50.0" x2="500.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f7)"/>
+  <rect x="508.0" y="30.0" width="40.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="528.0" y="55.0" fill="#7c3aed" font-size="13" text-anchor="middle" font-weight="700">h</text>
+  <line x1="552.0" y1="50.0" x2="588.0" y2="50.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f7)"/>
+  <text x="646.0" y="55.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">h(g(f(x)))</text>
+</svg>
 
 Ví dụ: $f(x) = x + 1$, $g(x) = 2x$, $h(x) = x^2$. Tính $(h \\circ g \\circ f)(3)$:
 - $f(3) = 4$.
@@ -852,9 +1017,21 @@ Trong đó $W_i$ là ma trận, $b_i$ là vector, $\\text{activation}$ là một
 
 Nếu $f$ là máy "biến x thành y", thì **hàm ngược** $f^{-1}$ là máy "biến y trở lại x". Nó **đảo ngược** hành động của $f$.
 
-\`\`\`
-   x ──► [ f ] ──► y        y ──► [ f⁻¹ ] ──► x
-\`\`\`
+<svg viewBox="0 0 560 80" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="f đưa x sang y; f⁻¹ đưa y trở lại x">
+  <defs><marker id="f8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="40.0" y="45.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <line x1="56.0" y1="40.0" x2="100.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f8)"/>
+  <rect x="104.0" y="20.0" width="70.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="139.0" y="45.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">f</text>
+  <line x1="178.0" y1="40.0" x2="222.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f8)"/>
+  <text x="240.0" y="45.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">y</text>
+  <text x="320.0" y="45.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">y</text>
+  <line x1="336.0" y1="40.0" x2="380.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f8)"/>
+  <rect x="384.0" y="20.0" width="70.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="419.0" y="45.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">f⁻¹</text>
+  <line x1="458.0" y1="40.0" x2="502.0" y2="40.0" stroke="#1a202c" stroke-width="2" marker-end="url(#f8)"/>
+  <text x="520.0" y="45.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+</svg>
 
 Ký hiệu $f^{-1}$ (đọc là "f ngược") — **không phải** $1/f$. Đây là quy ước dễ gây nhầm.
 
@@ -954,34 +1131,64 @@ Tức là chạy qua máy $f$ rồi qua máy $g$ thì trở lại điểm xuất
 
 Lý do: điểm $(a, b)$ thuộc đồ thị $f \\iff b = f(a) \\iff a = f^{-1}(b) \\iff (b, a)$ thuộc đồ thị $f^{-1}$. Mà $(a, b)$ và $(b, a)$ đối xứng nhau qua $y = x$.
 
-#### ASCII minh họa: f(x) = 2x + 1 và f⁻¹(x) = (x − 1)/2
+#### Minh họa: f(x) = 2x + 1 và f⁻¹(x) = (x − 1)/2
 
-\`\`\`
-              y
-              |        y = 2x + 1
-              |       /  (đồ thị f)
-            5 +      /
-              |     /
-            3 +    /        y = x
-              |   /      /  (trục đối xứng)
-            1 +  /    /
-              | /  /
-   ───────────+ /─────────────── x
-             /| 1   3    5
-            / |    /
-           /  |  /   y = (x − 1)/2
-          /   |/      (đồ thị f⁻¹)
-         /  / +
-        / /   |
-      −1     |
-              |
-
-  Một số điểm tương ứng:
-    f:  (0, 1)   ↔   f⁻¹: (1, 0)
-    f:  (1, 3)   ↔   f⁻¹: (3, 1)
-    f:  (2, 5)   ↔   f⁻¹: (5, 2)
-    f:  (3, 7)   ↔   f⁻¹: (7, 3)
-\`\`\`
+<svg viewBox="0 0 480 305" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị f(x) = 2x + 1 và f⁻¹(x) = (x − 1)/2 đối xứng nhau qua đường y = x; các điểm (a,b) của f ứng với (b,a) của f⁻¹">
+  <defs><marker id="inv" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="226.0" y1="265.0" x2="226.0" y2="5.0"/>
+<line x1="278.0" y1="265.0" x2="278.0" y2="5.0"/>
+<line x1="330.0" y1="265.0" x2="330.0" y2="5.0"/>
+<line x1="382.0" y1="265.0" x2="382.0" y2="5.0"/>
+<line x1="135.0" y1="174.0" x2="395.0" y2="174.0"/>
+<line x1="135.0" y1="122.0" x2="395.0" y2="122.0"/>
+<line x1="135.0" y1="70.0" x2="395.0" y2="70.0"/>
+<line x1="135.0" y1="18.0" x2="395.0" y2="18.0"/>
+</g>
+  <line x1="129.0" y1="200.0" x2="417.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#inv)"/>
+  <line x1="200.0" y1="271.0" x2="200.0" y2="-17.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#inv)"/>
+  <text x="409.0" y="216.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="-7.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="226.0" y1="196.0" x2="226.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="226.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="278.0" y1="196.0" x2="278.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="278.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="330.0" y1="196.0" x2="330.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="382.0" y1="196.0" x2="382.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="382.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">7</text>
+  <line x1="196.0" y1="174.0" x2="204.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="178.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="122.0" x2="204.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="196.0" y1="70.0" x2="204.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <line x1="196.0" y1="18.0" x2="204.0" y2="18.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="22.0" fill="#475569" font-size="11" text-anchor="end">7</text>
+  <path d="M 140.2,259.8 L 165.2,234.8 L 190.1,209.9 L 215.1,184.9 L 240.0,160.0 L 265.0,135.0 L 290.0,110.0 L 314.9,85.1 L 339.9,60.1 L 364.8,35.2 L 389.8,10.2" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <text x="379.6" y="42.4" fill="#94a3b8" font-size="11" text-anchor="start" font-weight="700">y = x (trục đối xứng)</text>
+  <path d="M 155.8,262.4 L 168.3,237.4 L 180.8,212.5 L 193.2,187.5 L 205.7,162.6 L 218.2,137.6 L 230.7,112.6 L 243.2,87.7 L 255.6,62.7 L 268.1,37.8 L 280.6,12.8" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="274.6" y="6.8" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">y = 2x + 1 (f)</text>
+  <path d="M 140.2,242.9 L 165.2,230.4 L 190.1,217.9 L 215.1,205.5 L 240.0,193.0 L 265.0,180.5 L 290.0,168.0 L 314.9,155.5 L 339.9,143.1 L 364.8,130.6 L 389.8,118.1" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="395.8" y="122.1" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">y = (x − 1)/2 (f⁻¹)</text>
+  <circle cx="200.0" cy="174.0" r="4" fill="#1d4ed8"/>
+  <circle cx="226.0" cy="200.0" r="4" fill="#dc2626"/>
+  <line x1="200.0" y1="174.0" x2="226.0" y2="200.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="226.0" cy="122.0" r="4" fill="#1d4ed8"/>
+  <circle cx="278.0" cy="174.0" r="4" fill="#dc2626"/>
+  <line x1="226.0" y1="122.0" x2="278.0" y2="174.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="252.0" cy="70.0" r="4" fill="#1d4ed8"/>
+  <circle cx="330.0" cy="148.0" r="4" fill="#dc2626"/>
+  <line x1="252.0" y1="70.0" x2="330.0" y2="148.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="278.0" cy="18.0" r="4" fill="#1d4ed8"/>
+  <circle cx="382.0" cy="122.0" r="4" fill="#dc2626"/>
+  <line x1="278.0" y1="18.0" x2="382.0" y2="122.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="192.0" y="168.0" fill="#1d4ed8" font-size="10" text-anchor="end">(0,1)</text>
+  <text x="230.0" y="228.0" fill="#dc2626" font-size="10" text-anchor="start">(1,0)</text>
+  <text x="244.0" y="66.0" fill="#1d4ed8" font-size="10" text-anchor="end">(2,5)</text>
+  <text x="336.0" y="162.0" fill="#dc2626" font-size="10" text-anchor="start">(5,2)</text>
+  <text x="230.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">f: (0,1), (1,3), (2,5), (3,7)  ↔  f⁻¹: (1,0), (3,1), (5,2), (7,3) — đối xứng qua y = x</text>
+</svg>
 
 Mỗi cặp điểm $(a, b)$ của $f$ và $(b, a)$ của $f^{-1}$ đối xứng qua đường $y = x$ (đường chéo). Lật tờ giấy theo đường chéo này, đồ thị $f$ trùng đồ thị $f^{-1}$.
 
@@ -1091,15 +1298,37 @@ Bốn activation thường gặp nhất:
 Thêm Softplus (ít gặp): $\\text{softplus}(x) = \\ln(1 + e^x)$ — luôn dương, mịn, xấp xỉ ReLU.
 
 **Đồ thị thô**:
-\`\`\`
-ReLU:        Sigmoid:        Tanh:          GeLU:
-   ╱            ▔▔             ▔             ╱
-  ╱            ╱              ╱              ╱ 
- ╱            ╱              ╱              ╱
-─────       ╱            ─────             ─
-            ▁▁              ╱             ╲╱
-                          ▁▁                
-\`\`\`
+<svg viewBox="0 0 600 230" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn hàm kích hoạt vẽ từ −4 đến 4: ReLU gấp khúc tại 0, Sigmoid chữ S từ 0 lên 1, Tanh chữ S từ −1 lên 1, GeLU trơn gần ReLU">
+  <defs><marker id="act0" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="act150" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="act300" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="act450" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="70.0" y="14.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">ReLU</text>
+  <line x1="8.0" y1="125.0" x2="148.0" y2="125.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act0)"/>
+  <line x1="70.0" y1="187.0" x2="70.0" y2="19.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act0)"/>
+  <text x="140.0" y="141.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="78.0" y="29.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <path d="M 14.0,125.0 L 15.4,125.0 L 16.8,125.0 L 18.2,125.0 L 19.6,125.0 L 21.0,125.0 L 22.4,125.0 L 23.8,125.0 L 25.2,125.0 L 26.6,125.0 L 28.0,125.0 L 29.4,125.0 L 30.8,125.0 L 32.2,125.0 L 33.6,125.0 L 35.0,125.0 L 36.4,125.0 L 37.8,125.0 L 39.2,125.0 L 40.6,125.0 L 42.0,125.0 L 43.4,125.0 L 44.8,125.0 L 46.2,125.0 L 47.6,125.0 L 49.0,125.0 L 50.4,125.0 L 51.8,125.0 L 53.2,125.0 L 54.6,125.0 L 56.0,125.0 L 57.4,125.0 L 58.8,125.0 L 60.2,125.0 L 61.6,125.0 L 63.0,125.0 L 64.4,125.0 L 65.8,125.0 L 67.2,125.0 L 68.6,125.0 L 70.0,125.0 L 71.4,122.2 L 72.8,119.4 L 74.2,116.6 L 75.6,113.8 L 77.0,111.0 L 78.4,108.2 L 79.8,105.4 L 81.2,102.6 L 82.6,99.8 L 84.0,97.0 L 85.4,94.2 L 86.8,91.4 L 88.2,88.6 L 89.6,85.8 L 91.0,83.0 L 92.4,80.2 L 93.8,77.4 L 95.2,74.6 L 96.6,71.8 L 98.0,69.0 L 99.4,66.2 L 100.8,63.4 L 102.2,60.6 L 103.6,57.8 L 105.0,55.0 L 106.4,52.2 L 107.8,49.4 L 109.2,46.6 L 110.6,43.8 L 112.0,41.0 L 113.4,38.2 L 114.8,35.4 L 116.2,32.6 L 117.6,29.8 L 119.0,27.0 L 120.4,24.2 L 121.8,21.4 L 123.2,18.6 L 124.6,15.8 L 126.0,13.0" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="220.0" y="14.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Sigmoid</text>
+  <line x1="158.0" y1="125.0" x2="298.0" y2="125.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act150)"/>
+  <line x1="220.0" y1="187.0" x2="220.0" y2="19.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act150)"/>
+  <text x="290.0" y="141.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="228.0" y="29.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <path d="M 164.0,124.5 L 165.4,124.4 L 166.8,124.4 L 168.2,124.3 L 169.6,124.3 L 171.0,124.2 L 172.4,124.1 L 173.8,124.0 L 175.2,123.9 L 176.6,123.8 L 178.0,123.7 L 179.4,123.5 L 180.8,123.4 L 182.2,123.2 L 183.6,123.1 L 185.0,122.9 L 186.4,122.7 L 187.8,122.4 L 189.2,122.2 L 190.6,121.9 L 192.0,121.7 L 193.4,121.4 L 194.8,121.0 L 196.2,120.7 L 197.6,120.3 L 199.0,119.9 L 200.4,119.5 L 201.8,119.0 L 203.2,118.5 L 204.6,118.0 L 206.0,117.5 L 207.4,116.9 L 208.8,116.3 L 210.2,115.7 L 211.6,115.1 L 213.0,114.4 L 214.4,113.8 L 215.8,113.1 L 217.2,112.4 L 218.6,111.7 L 220.0,111.0 L 221.4,110.3 L 222.8,109.6 L 224.2,108.9 L 225.6,108.2 L 227.0,107.6 L 228.4,106.9 L 229.8,106.3 L 231.2,105.7 L 232.6,105.1 L 234.0,104.5 L 235.4,104.0 L 236.8,103.5 L 238.2,103.0 L 239.6,102.5 L 241.0,102.1 L 242.4,101.7 L 243.8,101.3 L 245.2,101.0 L 246.6,100.6 L 248.0,100.3 L 249.4,100.1 L 250.8,99.8 L 252.2,99.6 L 253.6,99.3 L 255.0,99.1 L 256.4,98.9 L 257.8,98.8 L 259.2,98.6 L 260.6,98.5 L 262.0,98.3 L 263.4,98.2 L 264.8,98.1 L 266.2,98.0 L 267.6,97.9 L 269.0,97.8 L 270.4,97.7 L 271.8,97.7 L 273.2,97.6 L 274.6,97.6 L 276.0,97.5" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="370.0" y="14.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Tanh</text>
+  <line x1="308.0" y1="125.0" x2="448.0" y2="125.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act300)"/>
+  <line x1="370.0" y1="187.0" x2="370.0" y2="19.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act300)"/>
+  <text x="440.0" y="141.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="378.0" y="29.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <path d="M 314.0,153.0 L 315.4,153.0 L 316.8,153.0 L 318.2,153.0 L 319.6,153.0 L 321.0,152.9 L 322.4,152.9 L 323.8,152.9 L 325.2,152.9 L 326.6,152.9 L 328.0,152.9 L 329.4,152.8 L 330.8,152.8 L 332.2,152.7 L 333.6,152.7 L 335.0,152.6 L 336.4,152.5 L 337.8,152.4 L 339.2,152.3 L 340.6,152.2 L 342.0,152.0 L 343.4,151.8 L 344.8,151.5 L 346.2,151.2 L 347.6,150.8 L 349.0,150.3 L 350.4,149.8 L 351.8,149.1 L 353.2,148.3 L 354.6,147.4 L 356.0,146.3 L 357.4,145.1 L 358.8,143.6 L 360.2,141.9 L 361.6,140.0 L 363.0,137.9 L 364.4,135.6 L 365.8,133.2 L 367.2,130.5 L 368.6,127.8 L 370.0,125.0 L 371.4,122.2 L 372.8,119.5 L 374.2,116.8 L 375.6,114.4 L 377.0,112.1 L 378.4,110.0 L 379.8,108.1 L 381.2,106.4 L 382.6,104.9 L 384.0,103.7 L 385.4,102.6 L 386.8,101.7 L 388.2,100.9 L 389.6,100.2 L 391.0,99.7 L 392.4,99.2 L 393.8,98.8 L 395.2,98.5 L 396.6,98.2 L 398.0,98.0 L 399.4,97.8 L 400.8,97.7 L 402.2,97.6 L 403.6,97.5 L 405.0,97.4 L 406.4,97.3 L 407.8,97.3 L 409.2,97.2 L 410.6,97.2 L 412.0,97.1 L 413.4,97.1 L 414.8,97.1 L 416.2,97.1 L 417.6,97.1 L 419.0,97.1 L 420.4,97.0 L 421.8,97.0 L 423.2,97.0 L 424.6,97.0 L 426.0,97.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="520.0" y="14.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">GeLU</text>
+  <line x1="458.0" y1="125.0" x2="598.0" y2="125.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act450)"/>
+  <line x1="520.0" y1="187.0" x2="520.0" y2="19.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#act450)"/>
+  <text x="590.0" y="141.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <text x="528.0" y="29.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
+  <path d="M 464.0,125.0 L 465.4,125.0 L 466.8,125.0 L 468.2,125.0 L 469.6,125.0 L 471.0,125.0 L 472.4,125.0 L 473.8,125.0 L 475.2,125.1 L 476.6,125.1 L 478.0,125.1 L 479.4,125.2 L 480.8,125.2 L 482.2,125.3 L 483.6,125.3 L 485.0,125.4 L 486.4,125.6 L 487.8,125.7 L 489.2,125.9 L 490.6,126.1 L 492.0,126.3 L 493.4,126.5 L 494.8,126.8 L 496.2,127.1 L 497.6,127.5 L 499.0,127.8 L 500.4,128.2 L 501.8,128.5 L 503.2,128.9 L 504.6,129.2 L 506.0,129.4 L 507.4,129.6 L 508.8,129.7 L 510.2,129.7 L 511.6,129.6 L 513.0,129.3 L 514.4,128.9 L 515.8,128.2 L 517.2,127.4 L 518.6,126.3 L 520.0,125.0 L 521.4,123.5 L 522.8,121.8 L 524.2,119.8 L 525.6,117.7 L 527.0,115.3 L 528.4,112.8 L 529.8,110.1 L 531.2,107.3 L 532.6,104.4 L 534.0,101.4 L 535.4,98.4 L 536.8,95.3 L 538.2,92.1 L 539.6,89.0 L 541.0,85.8 L 542.4,82.7 L 543.8,79.5 L 545.2,76.4 L 546.6,73.3 L 548.0,70.3 L 549.4,67.3 L 550.8,64.3 L 552.2,61.3 L 553.6,58.4 L 555.0,55.4 L 556.4,52.5 L 557.8,49.7 L 559.2,46.8 L 560.6,44.0 L 562.0,41.1 L 563.4,38.3 L 564.8,35.5 L 566.2,32.6 L 567.6,29.8 L 569.0,27.0 L 570.4,24.2 L 571.8,21.4 L 573.2,18.6 L 574.6,15.8 L 576.0,13.0" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="70.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">max(0, x)</text>
+  <text x="220.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">1/(1 + e⁻ˣ) ∈ (0,1)</text>
+  <text x="370.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">∈ (−1, 1), qua gốc</text>
+  <text x="520.0" y="215.0" fill="#475569" font-size="11" text-anchor="middle">x·Φ(x), trơn quanh 0</text>
+</svg>
 
 (ReLU: hình "khúc gãy" tại 0. Sigmoid: chữ S, từ 0 đến 1. Tanh: chữ S, từ −1 đến 1. GeLU: gần ReLU nhưng có "khúc cua" mịn ở 0, hơi âm trước khi về 0.)
 

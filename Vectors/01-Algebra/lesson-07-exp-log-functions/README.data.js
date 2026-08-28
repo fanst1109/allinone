@@ -414,32 +414,44 @@ Tương tự: cây cân bằng (AVL, Red-Black, B-tree) lưu $n$ phần tử có
 - $x^2$ vs $x^3$ chênh nhiều ở $x$ lớn, nhưng cả hai vẫn là *tép riu* so với $2^x$.
 - $2^x$ và $e^x$ cùng họ exp, vẫn cách nhau $\\approx 10^{133}$ lần ở $x = 1000$.
 
-**ASCII bar chart so sánh tại x = 20** — minh họa trực quan độ chênh khổng lồ. Scale: mỗi ký tự \`█\` đại diện ~1 đơn vị cho cột nhỏ, và scale động cho cột lớn.
+**So sánh tại x = 20** — minh họa trực quan độ chênh khổng lồ (thanh vẽ theo thang log₁₀ vì các giá trị lệch nhau hàng triệu lần):
 
-\`\`\`
-Tại x = 20:
-
-log₂(20) ≈ 4.3
-█████    (4.3 đơn vị)
-
-20
-████████████████████   (20 đơn vị)
-
-20·log₂(20) ≈ 86.4
-█ scale ×4 → █████████████████████   (86.4 → ~22 ký tự, mỗi ký tự = 4)
-
-20² = 400
-█ scale ×20 → ████████████████████   (400 → 20 ký tự, mỗi ký tự = 20)
-
-20³ = 8 000
-█ scale ×400 → ████████████████████   (8 000 → 20 ký tự, mỗi ký tự = 400)
-
-2^20 ≈ 1 048 576 (~10⁶)
-█ scale ×52 429 → ████████████████████   (10⁶ → 20 ký tự, mỗi ký tự = 52 429)
-
-e^20 ≈ 485 165 195 (~4.85·10⁸)
-█ scale ×24 258 260 → ████████████████████   (4.85·10⁸ → 20 ký tự)
-\`\`\`
+<svg viewBox="0 0 660 320" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cột so sánh tại x = 20 trên thang log: log₂(20) ≈ 4.3, 20, 20·log₂20 ≈ 86, 20² = 400, 20³ = 8000, 2²⁰ ≈ 10⁶, e²⁰ ≈ 4.85·10⁸">
+  <defs></defs>
+  <text x="300.0" y="20.0" fill="#475569" font-size="12" text-anchor="middle">Cùng x = 20 — giá trị các hàm (thang log₁₀ trên trục ngang)</text>
+  <text x="120.0" y="56.0" fill="#1d4ed8" font-size="13" text-anchor="end" font-weight="700">log₂(20)</text>
+  <rect x="130.0" y="40.0" width="32.9" height="22.0" rx="4" fill="#1d4ed8" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="170.9" y="56.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">4.3</text>
+  <text x="120.0" y="90.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700">20</text>
+  <rect x="130.0" y="74.0" width="67.7" height="22.0" rx="4" fill="#15803d" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="205.7" y="90.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">20</text>
+  <text x="120.0" y="124.0" fill="#0891b2" font-size="13" text-anchor="end" font-weight="700">20·log₂(20)</text>
+  <rect x="130.0" y="108.0" width="100.7" height="22.0" rx="4" fill="#0891b2" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="238.7" y="124.0" fill="#0891b2" font-size="12" text-anchor="start" font-weight="700">86.4</text>
+  <text x="120.0" y="158.0" fill="#b45309" font-size="13" text-anchor="end" font-weight="700">20²</text>
+  <rect x="130.0" y="142.0" width="135.3" height="22.0" rx="4" fill="#b45309" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="273.3" y="158.0" fill="#b45309" font-size="12" text-anchor="start" font-weight="700">400</text>
+  <text x="120.0" y="192.0" fill="#dc2626" font-size="13" text-anchor="end" font-weight="700">20³</text>
+  <rect x="130.0" y="176.0" width="203.0" height="22.0" rx="4" fill="#dc2626" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="341.0" y="192.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">8 000</text>
+  <text x="120.0" y="226.0" fill="#7c3aed" font-size="13" text-anchor="end" font-weight="700">2²⁰</text>
+  <rect x="130.0" y="210.0" width="313.1" height="22.0" rx="4" fill="#7c3aed" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="451.1" y="226.0" fill="#7c3aed" font-size="12" text-anchor="start" font-weight="700">≈ 1 048 576 (~10⁶)</text>
+  <text x="120.0" y="260.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">e²⁰</text>
+  <rect x="130.0" y="244.0" width="451.7" height="22.0" rx="4" fill="#1a202c" fill-opacity="0.8" stroke="none" stroke-width="0"/>
+  <text x="589.7" y="260.0" fill="#1a202c" font-size="12" text-anchor="start" font-weight="700">≈ 4.85·10⁸</text>
+  <line x1="130.0" y1="282.0" x2="130.0" y2="290.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="130.0" y="304.0" fill="#475569" font-size="10" text-anchor="middle">10^0</text>
+  <line x1="234.0" y1="282.0" x2="234.0" y2="290.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="234.0" y="304.0" fill="#475569" font-size="10" text-anchor="middle">10^2</text>
+  <line x1="338.0" y1="282.0" x2="338.0" y2="290.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="338.0" y="304.0" fill="#475569" font-size="10" text-anchor="middle">10^4</text>
+  <line x1="442.0" y1="282.0" x2="442.0" y2="290.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="442.0" y="304.0" fill="#475569" font-size="10" text-anchor="middle">10^6</text>
+  <line x1="546.0" y1="282.0" x2="546.0" y2="290.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="546.0" y="304.0" fill="#475569" font-size="10" text-anchor="middle">10^8</text>
+  <line x1="130.0" y1="282.0" x2="598.0" y2="282.0" stroke="#94a3b8" stroke-width="1"/>
+</svg>
 
 Nếu cố vẽ tất cả ở **cùng scale tuyến tính**, các cột bé hơn $e^{20}$ bị bóp về 0 — đây chính là lý do phải vẽ ở **log scale** (mục B.5 ngay sau). Ở log scale, mỗi bar có chiều dài tỷ lệ với $\\log$ của giá trị → các cột trở thành bậc thang đều, dễ so sánh.
 
@@ -468,21 +480,54 @@ Cụ thể: vẽ thu nhập 5 người \`{1k, 10k, 100k, 1M, 1B}\` ở linear sc
 
 **Minh họa cụ thể** — vẽ thu nhập 5 người ở hai scale:
 
-\`\`\`
-Linear scale (mỗi ký tự = 50M):
-1k       | (lùn tịt — không thấy)
-10k      | (vẫn lùn — không thấy)
-100k     | (vẫn không thấy)
-1M       | ▏ (chỉ 1/50 đơn vị, gần như mất)
-1B       | ████████████████████ (20 đơn vị = 1B)
-
-Log scale (mỗi ký tự = 1 bậc 10):
-1k       | ███ (10³)
-10k      | ████ (10⁴)
-100k     | █████ (10⁵)
-1M       | ██████ (10⁶)
-1B       | █████████ (10⁹)
-\`\`\`
+<svg viewBox="0 0 640 215" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cùng dữ liệu 1k…1B: thang tuyến tính chỉ thấy cột 1B, thang log cho mỗi bậc 10 một ô nên thấy hết 5 giá trị">
+  <defs></defs>
+  <text x="140.0" y="20.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Linear scale (1B = toàn thanh)</text>
+  <text x="470.0" y="20.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Log scale (mỗi bậc 10 = 1 ô)</text>
+  <text x="50.0" y="51.0" fill="#475569" font-size="12" text-anchor="end">1k</text>
+  <rect x="60.0" y="36.0" width="200.0" height="20.0" rx="3" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="60.0" y="36.0" width="1.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="266.0" y="51.0" fill="#dc2626" font-size="10" text-anchor="start">không thấy</text>
+  <text x="380.0" y="51.0" fill="#475569" font-size="12" text-anchor="end">1k</text>
+  <rect x="390.0" y="36.0" width="72.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="468.0" y="51.0" fill="#15803d" font-size="11" text-anchor="start">10^3</text>
+  <text x="50.0" y="81.0" fill="#475569" font-size="12" text-anchor="end">10k</text>
+  <rect x="60.0" y="66.0" width="200.0" height="20.0" rx="3" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="60.0" y="66.0" width="1.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="266.0" y="81.0" fill="#dc2626" font-size="10" text-anchor="start">không thấy</text>
+  <text x="380.0" y="81.0" fill="#475569" font-size="12" text-anchor="end">10k</text>
+  <rect x="390.0" y="66.0" width="96.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="492.0" y="81.0" fill="#15803d" font-size="11" text-anchor="start">10^4</text>
+  <text x="50.0" y="111.0" fill="#475569" font-size="12" text-anchor="end">100k</text>
+  <rect x="60.0" y="96.0" width="200.0" height="20.0" rx="3" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="60.0" y="96.0" width="1.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="266.0" y="111.0" fill="#dc2626" font-size="10" text-anchor="start">không thấy</text>
+  <text x="380.0" y="111.0" fill="#475569" font-size="12" text-anchor="end">100k</text>
+  <rect x="390.0" y="96.0" width="120.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="516.0" y="111.0" fill="#15803d" font-size="11" text-anchor="start">10^5</text>
+  <text x="50.0" y="141.0" fill="#475569" font-size="12" text-anchor="end">1M</text>
+  <rect x="60.0" y="126.0" width="200.0" height="20.0" rx="3" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="60.0" y="126.0" width="1.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="266.0" y="141.0" fill="#dc2626" font-size="10" text-anchor="start">không thấy</text>
+  <text x="380.0" y="141.0" fill="#475569" font-size="12" text-anchor="end">1M</text>
+  <rect x="390.0" y="126.0" width="144.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="540.0" y="141.0" fill="#15803d" font-size="11" text-anchor="start">10^6</text>
+  <text x="50.0" y="171.0" fill="#475569" font-size="12" text-anchor="end">1B</text>
+  <rect x="60.0" y="156.0" width="200.0" height="20.0" rx="3" fill="none" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="60.0" y="156.0" width="200.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="266.0" y="171.0" fill="#475569" font-size="10" text-anchor="start">20 đơn vị</text>
+  <text x="380.0" y="171.0" fill="#475569" font-size="12" text-anchor="end">1B</text>
+  <rect x="390.0" y="156.0" width="216.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="none" stroke-width="0"/>
+  <text x="612.0" y="171.0" fill="#15803d" font-size="11" text-anchor="start">10^9</text>
+  <line x1="390.0" y1="188.0" x2="390.0" y2="194.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="390.0" y="206.0" fill="#475569" font-size="9" text-anchor="middle">10^0</text>
+  <line x1="462.0" y1="188.0" x2="462.0" y2="194.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="462.0" y="206.0" fill="#475569" font-size="9" text-anchor="middle">10^3</text>
+  <line x1="534.0" y1="188.0" x2="534.0" y2="194.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="534.0" y="206.0" fill="#475569" font-size="9" text-anchor="middle">10^6</text>
+  <line x1="606.0" y1="188.0" x2="606.0" y2="194.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="606.0" y="206.0" fill="#475569" font-size="9" text-anchor="middle">10^9</text>
+</svg>
 
 Ở linear scale, bốn cột đầu *biến mất* — đẩy cả phân phối về một điểm gần 0. Ở log scale, các cột thành bậc thang đều nhau — dễ so sánh ngay rằng "thu nhập gấp 10 lần" giữa các tầng.
 
@@ -630,23 +675,61 @@ Tính bằng số cho 5 điểm tiêu biểu:
 | 2 | 0.1353 | 1.1353 | **0.88080** |
 | 5 | 0.00674 | 1.00674 | **0.99331** |
 
-Vẽ ASCII đồ thị sigmoid (trục y từ 0 đến 1, mỗi \`█\` ≈ 0.05):
+Đồ thị sigmoid (trục y từ 0 đến 1, các điểm nguyên x = −5..5 đánh dấu):
 
-\`\`\`
-   x  |  σ(x)    | bar (0 ────────────────── 1)
-  ----|----------|------------------------------
-  -5  | 0.0067   | ▏                           |
-  -4  | 0.0180   | ▎                           |
-  -3  | 0.0474   | █                           |
-  -2  | 0.1192   | ██▍                         |
-  -1  | 0.2689   | █████▍                      |
-   0  | 0.5000   | ██████████                  |
-   1  | 0.7311   | ██████████████▌             |
-   2  | 0.8808   | █████████████████▌          |
-   3  | 0.9526   | ███████████████████         |
-   4  | 0.9820   | ███████████████████▋        |
-   5  | 0.9933   | ███████████████████▊        |
-\`\`\`
+<svg viewBox="0 0 560 275" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị sigmoid σ(x) từ −5 đến 5 với các điểm nguyên: đi từ ≈0 lên ≈1, qua (0, 0.5), tiệm cận hai đường y = 0 và y = 1">
+  <defs><marker id="sg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="50.0" y1="231.0" x2="50.0" y2="31.0"/>
+<line x1="130.0" y1="231.0" x2="130.0" y2="31.0"/>
+<line x1="210.0" y1="231.0" x2="210.0" y2="31.0"/>
+<line x1="290.0" y1="231.0" x2="290.0" y2="31.0"/>
+<line x1="370.0" y1="231.0" x2="370.0" y2="31.0"/>
+<line x1="450.0" y1="231.0" x2="450.0" y2="31.0"/>
+<line x1="30.0" y1="135.0" x2="470.0" y2="135.0"/>
+<line x1="30.0" y1="55.0" x2="470.0" y2="55.0"/>
+</g>
+  <line x1="24.0" y1="215.0" x2="492.0" y2="215.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sg)"/>
+  <line x1="250.0" y1="237.0" x2="250.0" y2="9.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sg)"/>
+  <text x="484.0" y="231.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="258.0" y="19.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">σ(x)</text>
+  <line x1="50.0" y1="211.0" x2="50.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="50.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">−5</text>
+  <line x1="130.0" y1="211.0" x2="130.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="130.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">−3</text>
+  <line x1="210.0" y1="211.0" x2="210.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="290.0" y1="211.0" x2="290.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="290.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="370.0" y1="211.0" x2="370.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="370.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="450.0" y1="211.0" x2="450.0" y2="219.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="450.0" y="231.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="246.0" y1="135.0" x2="254.0" y2="135.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="243.0" y="139.0" fill="#475569" font-size="11" text-anchor="end">0.5</text>
+  <line x1="246.0" y1="55.0" x2="254.0" y2="55.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="243.0" y="59.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="30.0" y1="55.0" x2="470.0" y2="55.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="30.0" y1="215.0" x2="470.0" y2="215.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>
+  <path d="M 34.0,214.3 L 37.6,214.2 L 41.2,214.1 L 44.8,214.1 L 48.4,214.0 L 52.0,213.9 L 55.6,213.8 L 59.2,213.7 L 62.8,213.5 L 66.4,213.4 L 70.0,213.2 L 73.6,213.1 L 77.2,212.9 L 80.8,212.7 L 84.4,212.5 L 88.0,212.3 L 91.6,212.0 L 95.2,211.7 L 98.8,211.4 L 102.4,211.1 L 106.0,210.7 L 109.6,210.4 L 113.2,209.9 L 116.8,209.5 L 120.4,209.0 L 124.0,208.4 L 127.6,207.8 L 131.2,207.2 L 134.8,206.5 L 138.4,205.7 L 142.0,204.9 L 145.6,204.0 L 149.2,203.1 L 152.8,202.1 L 156.4,200.9 L 160.0,199.7 L 163.6,198.5 L 167.2,197.1 L 170.8,195.6 L 174.4,194.0 L 178.0,192.3 L 181.6,190.5 L 185.2,188.6 L 188.8,186.5 L 192.4,184.4 L 196.0,182.1 L 199.6,179.6 L 203.2,177.1 L 206.8,174.4 L 210.4,171.7 L 214.0,168.8 L 217.6,165.7 L 221.2,162.6 L 224.8,159.4 L 228.4,156.1 L 232.0,152.7 L 235.6,149.2 L 239.2,145.7 L 242.8,142.2 L 246.4,138.6 L 250.0,135.0 L 253.6,131.4 L 257.2,127.8 L 260.8,124.3 L 264.4,120.8 L 268.0,117.3 L 271.6,113.9 L 275.2,110.6 L 278.8,107.4 L 282.4,104.3 L 286.0,101.2 L 289.6,98.3 L 293.2,95.6 L 296.8,92.9 L 300.4,90.4 L 304.0,87.9 L 307.6,85.6 L 311.2,83.5 L 314.8,81.4 L 318.4,79.5 L 322.0,77.7 L 325.6,76.0 L 329.2,74.4 L 332.8,72.9 L 336.4,71.5 L 340.0,70.3 L 343.6,69.1 L 347.2,67.9 L 350.8,66.9 L 354.4,66.0 L 358.0,65.1 L 361.6,64.3 L 365.2,63.5 L 368.8,62.8 L 372.4,62.2 L 376.0,61.6 L 379.6,61.0 L 383.2,60.5 L 386.8,60.1 L 390.4,59.6 L 394.0,59.3 L 397.6,58.9 L 401.2,58.6 L 404.8,58.3 L 408.4,58.0 L 412.0,57.7 L 415.6,57.5 L 419.2,57.3 L 422.8,57.1 L 426.4,56.9 L 430.0,56.8 L 433.6,56.6 L 437.2,56.5 L 440.8,56.3 L 444.4,56.2 L 448.0,56.1 L 451.6,56.0 L 455.2,55.9 L 458.8,55.9 L 462.4,55.8 L 466.0,55.7" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="250.0" cy="135.0" r="5" fill="#dc2626"/>
+  <text x="260.0" y="129.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">(0, 0.5): tâm đối xứng</text>
+  <circle cx="50.0" cy="213.9" r="3" fill="#1d4ed8"/>
+  <circle cx="90.0" cy="212.1" r="3" fill="#1d4ed8"/>
+  <circle cx="130.0" cy="207.4" r="3" fill="#1d4ed8"/>
+  <circle cx="170.0" cy="195.9" r="3" fill="#1d4ed8"/>
+  <circle cx="210.0" cy="172.0" r="3" fill="#1d4ed8"/>
+  <circle cx="250.0" cy="135.0" r="3" fill="#1d4ed8"/>
+  <circle cx="290.0" cy="98.0" r="3" fill="#1d4ed8"/>
+  <circle cx="330.0" cy="74.1" r="3" fill="#1d4ed8"/>
+  <circle cx="370.0" cy="62.6" r="3" fill="#1d4ed8"/>
+  <circle cx="410.0" cy="57.9" r="3" fill="#1d4ed8"/>
+  <circle cx="450.0" cy="56.1" r="3" fill="#1d4ed8"/>
+  <text x="370.0" y="50.2" fill="#475569" font-size="10" text-anchor="middle">σ(4) = 0.982, σ(5) = 0.993 → tiến 1</text>
+  <text x="38.0" y="167.0" fill="#475569" font-size="10" text-anchor="start">σ(−4) = 0.018, σ(−5) = 0.007 → tiến 0</text>
+  <text x="34.0" y="49.0" fill="#94a3b8" font-size="10" text-anchor="start">tiệm cận y = 1</text>
+  <text x="280.0" y="262.0" fill="#475569" font-size="11" text-anchor="middle">σ(x) = 1/(1 + e⁻ˣ): chữ S, đối xứng qua (0, 0.5), độ dốc lớn nhất tại 0</text>
+</svg>
 
 **Vì sao gọi là "S-shape"?**
 

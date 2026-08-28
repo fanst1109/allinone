@@ -583,26 +583,54 @@ Hoặc dùng $\ln$: $\log_2(1000) = \ln(1000)/\ln(2) \approx 6.9078/0.6931 \appr
 
 → Đáp số $\approx 9.97$. Trực giác: cần $2$ nhân với chính nó ~10 lần (chính xác 9.97) để vượt 1000.
 
-#### ASCII đồ thị: log₂(x) tăng cực chậm so với x tuyến tính
+#### Đồ thị: log₂(x) tăng cực chậm so với x tuyến tính
 
-```
-y
-↑
-20│                                                    · linear y = x/50
-  │                                            ·
-  │                                    ·
-15│                            ·
-  │                    ·
-  │              ·
-10│        ·                                        ━━━ log_2(x) (đoạn cuối)
-  │    ·                                  ━━━━━━━━━
-  │  ·                       ━━━━━━━━━━━━
- 5│ ·              ━━━━━━━━━━
-  │·       ━━━━━━━
-  │  ━━━━━━
- 0└─━━━────┬────────┬────────┬────────┬────────┬───────→ x
-  1       64       256     1024     16K    1 triệu
-```
+<svg viewBox="0 0 580 300" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị log₂(x) so với x/50 trên trục x thang log: log₂ tăng đều 1 đơn vị mỗi lần x gấp đôi, x/50 vọt ra khỏi khung ngay sau x ≈ 1024">
+  <defs><marker id="lg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="240.0" x2="60.0" y2="42.0"/>
+<line x1="204.0" y1="240.0" x2="204.0" y2="42.0"/>
+<line x1="252.0" y1="240.0" x2="252.0" y2="42.0"/>
+<line x1="300.0" y1="240.0" x2="300.0" y2="42.0"/>
+<line x1="396.0" y1="240.0" x2="396.0" y2="42.0"/>
+<line x1="540.0" y1="240.0" x2="540.0" y2="42.0"/>
+<line x1="60.0" y1="195.0" x2="564.0" y2="195.0"/>
+<line x1="60.0" y1="150.0" x2="564.0" y2="150.0"/>
+<line x1="60.0" y1="105.0" x2="564.0" y2="105.0"/>
+<line x1="60.0" y1="60.0" x2="564.0" y2="60.0"/>
+</g>
+  <line x1="54.0" y1="240.0" x2="586.0" y2="240.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#lg)"/>
+  <line x1="60.0" y1="246.0" x2="60.0" y2="20.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#lg)"/>
+  <text x="578.0" y="256.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x (thang log₂)</text>
+  <text x="68.0" y="30.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="60.0" y1="236.0" x2="60.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="204.0" y1="236.0" x2="204.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="204.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">64</text>
+  <line x1="252.0" y1="236.0" x2="252.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="252.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">256</text>
+  <line x1="300.0" y1="236.0" x2="300.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">1024</text>
+  <line x1="396.0" y1="236.0" x2="396.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="396.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">16K</text>
+  <line x1="540.0" y1="236.0" x2="540.0" y2="244.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="540.0" y="256.0" fill="#475569" font-size="11" text-anchor="middle">1 triệu</text>
+  <line x1="56.0" y1="195.0" x2="64.0" y2="195.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="199.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <line x1="56.0" y1="150.0" x2="64.0" y2="150.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="154.0" fill="#475569" font-size="11" text-anchor="end">10</text>
+  <line x1="56.0" y1="105.0" x2="64.0" y2="105.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="109.0" fill="#475569" font-size="11" text-anchor="end">15</text>
+  <line x1="56.0" y1="60.0" x2="64.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">20</text>
+  <path d="M 60.0,240.0 L 84.0,231.0 L 108.0,222.0 L 132.0,213.0 L 156.0,204.0 L 180.0,195.0 L 204.0,186.0 L 228.0,177.0 L 252.0,168.0 L 276.0,159.0 L 300.0,150.0 L 324.0,141.0 L 348.0,132.0 L 372.0,123.0 L 396.0,114.0 L 420.0,105.0 L 444.0,96.0 L 468.0,87.0 L 492.0,78.0 L 516.0,69.0 L 540.0,60.0" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linejoin="round"/>
+  <text x="532.0" y="52.0" fill="#1d4ed8" font-size="12" text-anchor="end" font-weight="700">y = log₂(x): mỗi lần x GẤP ĐÔI, y chỉ +1</text>
+  <path d="M 60.0,239.8 L 64.0,239.8 L 68.1,239.8 L 72.1,239.7 L 76.2,239.7 L 80.2,239.7 L 84.2,239.6 L 88.3,239.6 L 92.3,239.5 L 96.4,239.5 L 100.4,239.4 L 104.4,239.4 L 108.5,239.3 L 112.5,239.2 L 116.6,239.1 L 120.6,239.0 L 124.6,238.8 L 128.7,238.7 L 132.7,238.5 L 136.8,238.3 L 140.8,238.1 L 144.8,237.9 L 148.9,237.7 L 152.9,237.4 L 157.0,237.0 L 161.0,236.7 L 165.0,236.3 L 169.1,235.8 L 173.1,235.3 L 177.2,234.7 L 181.2,234.0 L 185.2,233.3 L 189.3,232.5 L 193.3,231.5 L 197.4,230.5 L 201.4,229.3 L 205.4,228.0 L 209.5,226.5 L 213.5,224.8 L 217.6,223.0 L 221.6,220.8 L 225.6,218.5 L 229.7,215.8 L 233.7,212.8 L 237.8,209.5 L 241.8,205.7 L 245.8,201.4 L 249.9,196.7 L 253.9,191.3 L 258.0,185.3 L 262.0,178.5 L 266.0,170.9 L 270.1,162.3 L 274.1,152.7 L 278.2,141.9 L 282.2,129.8 L 286.2,116.1 L 290.3,100.8 L 294.3,83.6 L 298.4,64.2 L 302.4,42.5" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round"/>
+  <text x="273.6" y="123.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">y = x/50 (tuyến tính)</text>
+  <text x="212.0" y="232.5" fill="#475569" font-size="10" text-anchor="start">x = 64: x/50 ≈ 1.3, log₂ = 6</text>
+  <text x="404.0" y="128.0" fill="#475569" font-size="10" text-anchor="start">x = 16K: log₂ = 14, x/50 = 328 (vượt khung)</text>
+  <text x="290.0" y="285.0" fill="#475569" font-size="11" text-anchor="middle">trục x giãn theo log₂ để nhìn được: log₂(x) lên đều 1 bậc mỗi lần x nhân đôi — cực chậm so với x</text>
+</svg>
 
 - Khi $x = 1$ → $\log_2(x) = 0$.
 - Khi $x = 1024$ → $\log_2(x) = 10$ (chỉ mới $10$ sau khi $x$ đã đi cả ngàn đơn vị).

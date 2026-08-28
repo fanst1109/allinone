@@ -235,37 +235,77 @@ Tưởng tượng phương trình là một **cái cân hai đĩa**. Vế trái 
 
 Cụ thể với $2x + 3 = 7$: trên đĩa trái có 2 hộp bí ẩn (mỗi hộp nặng $x$ kg, chưa biết) cộng với 3 kg quả táo; đĩa phải có 7 kg quả táo. Cân thăng bằng → tổng trọng lượng hai bên bằng nhau.
 
-```
-   ┌──────────────┐         ┌──────────────┐
-   │  [x][x]  🍎🍎🍎 │         │  🍎🍎🍎🍎🍎🍎🍎  │
-   │   2 hộp + 3kg │         │      7 kg      │
-   └──────┬───────┘         └──────┬───────┘
-          │                        │
-          └────────────┬───────────┘
-                       △
-                  ━━━━━━━━━━━  (thăng bằng)
-                       ▲
-                    [trục cân]
-```
+<svg viewBox="0 0 420 215" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cân thăng bằng: đĩa trái 2 hộp x và 3 quả táo, đĩa phải 7 quả táo — mô hình phương trình 2x + 3 = 7">
+  <defs></defs>
+  <polygon points="188,180 232,180 210,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="150.0" x2="360.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="70.0" y1="150.0" x2="70.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="350.0" y1="150.0" x2="350.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 70,142 L 150,142 L 140,130 L 80,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 270,142 L 350,142 L 340,130 L 280,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="74.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="87.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="104.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="117.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="143" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="164" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="185" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="283" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="298.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×7</text>
+  <text x="210.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">2x + 3 = 7 (thăng bằng)</text>
+</svg>
 
 **Để cân vẫn thăng bằng**, mọi thao tác phải **làm đồng thời cho cả hai đĩa**:
 
 - Nếu **bỏ 3 kg táo ra khỏi đĩa trái** → phải **bỏ 3 kg táo ra khỏi đĩa phải** (đây chính là "trừ 3 cả 2 vế"). Sau thao tác: trái còn 2 hộp, phải còn 4 kg → $2x = 4$.
 - Nếu **chia đôi đĩa trái** (chỉ giữ 1 hộp) → phải **chia đôi đĩa phải** (chỉ giữ 2 kg). Sau thao tác: $x = 2$.
 
-```
-Trước:                       Sau khi tháo 3 quả táo mỗi đĩa:
-   [x][x] 🍎🍎🍎 | 🍎🍎🍎🍎🍎🍎🍎       [x][x]    |   🍎🍎🍎🍎
-   ━━━━━━━━━△━━━━━━━━━━━           ━━━━━━△━━━━━━
-            ▲                            ▲
-        2x + 3 = 7                     2x = 4
-
-Sau khi chia đôi mỗi đĩa:
-       [x]      |   🍎🍎
-   ━━━━━━━△━━━━━━━
-              ▲
-            x = 2   ← nghiệm
-```
+<svg viewBox="0 0 840 435" style="max-width:840px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba bước giải 2x + 3 = 7 bằng cân: tháo 3 táo mỗi đĩa được 2x = 4, chia đôi mỗi đĩa được x = 2">
+  <defs></defs>
+  <polygon points="188,180 232,180 210,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="150.0" x2="360.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="70.0" y1="150.0" x2="70.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="350.0" y1="150.0" x2="350.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 70,142 L 150,142 L 140,130 L 80,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 270,142 L 350,142 L 340,130 L 280,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="74.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="87.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="104.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="117.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="143" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="164" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="185" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <circle cx="283" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="298.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×7</text>
+  <text x="210.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">2x + 3 = 7</text>
+  <text x="210.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Trước</text>
+  <polygon points="608,180 652,180 630,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="480.0" y1="150.0" x2="780.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="490.0" y1="150.0" x2="490.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="770.0" y1="150.0" x2="770.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 490,142 L 570,142 L 560,130 L 500,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 690,142 L 770,142 L 760,130 L 700,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="494.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="507.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="524.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="537.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="703" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="718.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×4</text>
+  <text x="630.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">2x = 4</text>
+  <text x="630.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Tháo 3 táo mỗi đĩa</text>
+  <polygon points="398,390 442,390 420,360" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="270.0" y1="360.0" x2="570.0" y2="360.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="280.0" y1="360.0" x2="280.0" y2="352.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="560.0" y1="360.0" x2="560.0" y2="352.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 280,352 L 360,352 L 350,340 L 290,340 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 480,352 L 560,352 L 550,340 L 490,340 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="284.0" y="308.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="297.0" y="328.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="493" cy="329" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="508.0" y="334.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×2</text>
+  <text x="420.0" y="412.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">x = 2 ← nghiệm</text>
+  <text x="420.0" y="232.0" fill="#475569" font-size="12" text-anchor="middle">Chia đôi mỗi đĩa</text>
+</svg>
 
 Đây chính là lý do toán học của Quy tắc 1 & 2. Nếu bạn chỉ làm với một đĩa, cân sẽ lệch — phương trình mới **không còn tương đương** với phương trình gốc.
 
@@ -273,23 +313,73 @@ Sau khi chia đôi mỗi đĩa:
 
 **Ví dụ A — chỉ cần một thao tác:** $x + 7 = 12$
 
-```
-[x] 🍎×7  |  🍎×12         Tháo 7 quả táo khỏi mỗi đĩa
-━━━━━△━━━━━━━━━━━     →    [x]       |  🍎×5
-                            ━━━━△━━━━━━━
-                            → x = 5
-```
+<svg viewBox="0 0 840 225" style="max-width:840px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giải x + 7 = 12: tháo 7 quả táo khỏi mỗi đĩa còn x = 5">
+  <defs></defs>
+  <polygon points="188,180 232,180 210,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="150.0" x2="360.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="70.0" y1="150.0" x2="70.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="350.0" y1="150.0" x2="350.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 70,142 L 150,142 L 140,130 L 80,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 270,142 L 350,142 L 340,130 L 280,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="74.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="87.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="113" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="128.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×7</text>
+  <circle cx="283" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="298.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×12</text>
+  <text x="210.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">x + 7 = 12</text>
+  <text x="210.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Trước</text>
+  <polygon points="608,180 652,180 630,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="480.0" y1="150.0" x2="780.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="490.0" y1="150.0" x2="490.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="770.0" y1="150.0" x2="770.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 490,142 L 570,142 L 560,130 L 500,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 690,142 L 770,142 L 760,130 L 700,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="494.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="507.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="703" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="718.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×5</text>
+  <text x="630.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">x = 5</text>
+  <text x="630.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Tháo 7 táo khỏi mỗi đĩa</text>
+</svg>
 
 Kiểm tra: $5 + 7 = 12$ ✓.
 
 **Ví dụ B — chỉ nhân/chia:** $4x = 20$
 
-```
-[x][x][x][x]  |  🍎×20       Chia đôi 4 lần (hay chia 4):
-━━━━━━━━△━━━━━━━━━━     →    [x]   |  🍎×5
-                              ━━━△━━━━━
-                              → x = 5
-```
+<svg viewBox="0 0 840 225" style="max-width:840px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giải 4x = 20: chia đều mỗi đĩa thành 4 phần còn x = 5">
+  <defs></defs>
+  <polygon points="188,180 232,180 210,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="150.0" x2="360.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="70.0" y1="150.0" x2="70.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="350.0" y1="150.0" x2="350.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 70,142 L 150,142 L 140,130 L 80,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 270,142 L 350,142 L 340,130 L 280,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="74.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="87.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="104.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="117.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="134.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="147.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="164.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="177.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="283" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="298.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×20</text>
+  <text x="210.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">4x = 20</text>
+  <text x="210.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Trước</text>
+  <polygon points="608,180 652,180 630,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="480.0" y1="150.0" x2="780.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="490.0" y1="150.0" x2="490.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="770.0" y1="150.0" x2="770.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 490,142 L 570,142 L 560,130 L 500,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 690,142 L 770,142 L 760,130 L 700,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="494.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="507.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="703" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="718.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×5</text>
+  <text x="630.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">x = 5</text>
+  <text x="630.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Chia 4 mỗi đĩa</text>
+</svg>
 
 Hoặc nhân $\dfrac{1}{4}$ cả 2 vế: $\dfrac{1}{4} \cdot 4x = \dfrac{1}{4} \cdot 20$ → $x = 5$.
 
@@ -297,11 +387,51 @@ Hoặc nhân $\dfrac{1}{4}$ cả 2 vế: $\dfrac{1}{4} \cdot 4x = \dfrac{1}{4} \
 
 Trước hết "thêm 5 quả táo cả 2 đĩa" (bù vào chỗ đang trừ):
 
-```
-[x][x] (nợ 5🍎) | 🍎×9    +5 cả 2 đĩa:    [x][x] | 🍎×14    chia 2:    [x] | 🍎×7
-━━━━━━━━━△━━━━━━━━━       ━━━━━━━━△━━━━━━━━━━              ━━━━△━━━━━━━
-                                                                 → x = 7
-```
+<svg viewBox="0 0 840 435" style="max-width:840px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giải 2x − 5 = 9: thêm 5 táo cả hai đĩa được 2x = 14, chia 2 được x = 7">
+  <defs></defs>
+  <polygon points="188,180 232,180 210,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="150.0" x2="360.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="70.0" y1="150.0" x2="70.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="350.0" y1="150.0" x2="350.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 70,142 L 150,142 L 140,130 L 80,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 270,142 L 350,142 L 340,130 L 280,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="74.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="87.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="104.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="117.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="143" cy="119" r="9" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="158.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">nợ 5</text>
+  <circle cx="283" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="298.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×9</text>
+  <text x="210.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">2x − 5 = 9</text>
+  <text x="210.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Trước (nợ 5 táo)</text>
+  <polygon points="608,180 652,180 630,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="480.0" y1="150.0" x2="780.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="490.0" y1="150.0" x2="490.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="770.0" y1="150.0" x2="770.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 490,142 L 570,142 L 560,130 L 500,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 690,142 L 770,142 L 760,130 L 700,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="494.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="507.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="524.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="537.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="703" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="718.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×14</text>
+  <text x="630.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">2x = 14</text>
+  <text x="630.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">+5 táo cả 2 đĩa</text>
+  <polygon points="398,390 442,390 420,360" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="270.0" y1="360.0" x2="570.0" y2="360.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="280.0" y1="360.0" x2="280.0" y2="352.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="560.0" y1="360.0" x2="560.0" y2="352.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 280,352 L 360,352 L 350,340 L 290,340 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 480,352 L 560,352 L 550,340 L 490,340 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="284.0" y="308.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="297.0" y="328.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="493" cy="329" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="508.0" y="334.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×7</text>
+  <text x="420.0" y="412.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">x = 7</text>
+  <text x="420.0" y="232.0" fill="#475569" font-size="12" text-anchor="middle">Chia 2</text>
+</svg>
 
 Kiểm tra: $2 \cdot 7 - 5 = 14 - 5 = 9$ ✓.
 
@@ -309,12 +439,53 @@ Kiểm tra: $2 \cdot 7 - 5 = 14 - 5 = 9$ ✓.
 
 Đĩa trái có 3 hộp, đĩa phải có 1 hộp + 8 kg táo. Thao tác: **"tháo 1 hộp khỏi mỗi đĩa"** (trừ $x$ cả 2 vế) — vì 1 hộp ở trái và 1 hộp ở phải nặng bằng nhau, nên cân vẫn thăng bằng:
 
-```
-[x][x][x]  | [x] 🍎×8       tháo 1 hộp mỗi đĩa:
-━━━━━━━△━━━━━━━━━━━       →   [x][x]   | 🍎×8        chia 2:   [x] | 🍎×4
-                              ━━━━△━━━━━━━            ━━━△━━━━━━━
-                                                          → x = 4
-```
+<svg viewBox="0 0 840 435" style="max-width:840px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giải 3x = x + 8: tháo 1 hộp x mỗi đĩa được 2x = 8, chia 2 được x = 4">
+  <defs></defs>
+  <polygon points="188,180 232,180 210,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60.0" y1="150.0" x2="360.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="70.0" y1="150.0" x2="70.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="350.0" y1="150.0" x2="350.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 70,142 L 150,142 L 140,130 L 80,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 270,142 L 350,142 L 340,130 L 280,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="74.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="87.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="104.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="117.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="134.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="147.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="274.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="287.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="313" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="328.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×8</text>
+  <text x="210.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">3x = x + 8</text>
+  <text x="210.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Trước</text>
+  <polygon points="608,180 652,180 630,150" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="480.0" y1="150.0" x2="780.0" y2="150.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="490.0" y1="150.0" x2="490.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="770.0" y1="150.0" x2="770.0" y2="142.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 490,142 L 570,142 L 560,130 L 500,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 690,142 L 770,142 L 760,130 L 700,130 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="494.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="507.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <rect x="524.0" y="98.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="537.0" y="118.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="703" cy="119" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="718.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×8</text>
+  <text x="630.0" y="202.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">2x = 8</text>
+  <text x="630.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle">Tháo 1 hộp mỗi đĩa</text>
+  <polygon points="398,390 442,390 420,360" fill="#e2e8f0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="270.0" y1="360.0" x2="570.0" y2="360.0" stroke="#1a202c" stroke-width="4"/>
+  <line x1="280.0" y1="360.0" x2="280.0" y2="352.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="560.0" y1="360.0" x2="560.0" y2="352.0" stroke="#1a202c" stroke-width="2"/>
+  <path d="M 280,352 L 360,352 L 350,340 L 290,340 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <path d="M 480,352 L 560,352 L 550,340 L 490,340 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <rect x="284.0" y="308.0" width="26.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="297.0" y="328.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">x</text>
+  <circle cx="493" cy="329" r="9" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="508.0" y="334.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">×4</text>
+  <text x="420.0" y="412.0" fill="#1a202c" font-size="15" text-anchor="middle" font-weight="700">x = 4</text>
+  <text x="420.0" y="232.0" fill="#475569" font-size="12" text-anchor="middle">Chia 2</text>
+</svg>
 
 Đây là điểm tinh tế: **không chỉ "số" mới tháo được, mà cả "hộp" ($x$) cũng tháo được**, miễn là tháo đồng đều 2 đĩa. Vì cùng một thứ ở 2 đĩa nặng như nhau → cân không lệch.
 
@@ -927,14 +1098,26 @@ So với chọn $a = 1.5$ (gần đó): $L(1.5) = 14 \cdot 2.25 - 46 \cdot 1.5 +
 
 **Kết luận.** Đường thẳng fit tốt nhất là $y = 1.643 \cdot x$. Quá trình:
 
-```
-3 điểm dữ liệu
-  → định nghĩa loss MSE (hàm bậc 2 theo a)
-  → lấy đạo hàm theo a (ra biểu thức bậc 1)
-  → đặt = 0 (ra phương trình bậc 1)
-  → giải bằng quy tắc cân (Mục 3-4)
-  → nghiệm closed-form
-```
+<svg viewBox="0 0 600 300" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng từ 3 điểm dữ liệu → loss MSE → đạo hàm → đặt bằng 0 → giải phương trình bậc 1 → nghiệm closed-form">
+  <defs><marker id="fl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="120.0" y="16.0" width="360.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="300.0" y="37.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">3 điểm dữ liệu</text>
+  <line x1="300.0" y1="48.0" x2="300.0" y2="60.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fl)"/>
+  <rect x="120.0" y="62.0" width="360.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="83.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">định nghĩa loss MSE (hàm bậc 2 theo a)</text>
+  <line x1="300.0" y1="94.0" x2="300.0" y2="106.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fl)"/>
+  <rect x="120.0" y="108.0" width="360.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="129.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">lấy đạo hàm theo a (biểu thức bậc 1)</text>
+  <line x1="300.0" y1="140.0" x2="300.0" y2="152.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fl)"/>
+  <rect x="120.0" y="154.0" width="360.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="175.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">đặt = 0 (phương trình bậc 1)</text>
+  <line x1="300.0" y1="186.0" x2="300.0" y2="198.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fl)"/>
+  <rect x="120.0" y="200.0" width="360.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="221.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">giải bằng quy tắc cân (Mục 3–4)</text>
+  <line x1="300.0" y1="232.0" x2="300.0" y2="244.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#fl)"/>
+  <rect x="120.0" y="246.0" width="360.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="267.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">nghiệm closed-form</text>
+</svg>
 
 → **Toàn bộ kỹ thuật của Mục 3-4 ở trên** (quy tắc cân, chuyển vế) chính là công cụ dùng trong bước cuối cùng để giải ra $a$. Bạn vừa làm ML mà không biết :).
 

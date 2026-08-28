@@ -59,14 +59,34 @@ Tầng liên kết dữ liệu (Layer 2 trong OSI, hoặc "Network Interface Lay
 
 Một khung Ethernet chuẩn (IEEE 802.3) có cấu trúc sau (tính từ đầu đến cuối):
 
-\`\`\`
-+----------+------+------+-----------+---------+-------+-----+
-| Preamble | SFD  | MAC  | MAC       | Ether-  |       | FCS |
-| 7 byte   | 1 B  | Đích | Nguồn     | Type    | Payload     |
-|          |      | 6 B  | 6 B       | 2 B     | 46–1500 B   | 4 B |
-+----------+------+------+-----------+---------+-------+-----+
- <── Thường không tính vào "frame" trong thực tế ──>  <── Frame thực ──>
-\`\`\`
+<svg viewBox="0 0 572 120" style="max-width:572px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc khung Ethernet: Preamble 7B, SFD 1B, MAC đích 6B, MAC nguồn 6B, EtherType 2B, Payload 46–1500B, FCS 4B">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="70.0" height="44.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="51.0" y="47.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Preamble</text>
+  <text x="51.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">7 byte</text>
+  <rect x="86.0" y="30.0" width="40.0" height="44.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="106.0" y="47.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">SFD</text>
+  <text x="106.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">1 B</text>
+  <rect x="126.0" y="30.0" width="80.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="166.0" y="47.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">MAC đích</text>
+  <text x="166.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">6 B</text>
+  <rect x="206.0" y="30.0" width="80.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="246.0" y="47.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">MAC nguồn</text>
+  <text x="246.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">6 B</text>
+  <rect x="286.0" y="30.0" width="70.0" height="44.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="321.0" y="47.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">EtherType</text>
+  <text x="321.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">2 B</text>
+  <rect x="356.0" y="30.0" width="150.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="431.0" y="47.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Payload</text>
+  <text x="431.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">46–1500 B</text>
+  <rect x="506.0" y="30.0" width="50.0" height="44.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="531.0" y="47.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">FCS</text>
+  <text x="531.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">4 B</text>
+  <path d="M 16,86 L 16,94 L 126,94 L 126,86" fill="none" stroke="#475569" stroke-width="1.2"/>
+  <text x="16.0" y="108.0" fill="#475569" font-size="9" text-anchor="start">không tính vào "frame" thực tế</text>
+  <path d="M 128,86 L 128,94 L 556,94 L 556,86" fill="none" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="342.0" y="108.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Frame thực (64–1518 byte)</text>
+</svg>
 
 Lưu ý: Preamble và SFD thường được xử lý ở tầng vật lý, không tính vào kích thước frame khi người ta nói "Ethernet frame". Frame thực sự gồm: MAC đích + MAC nguồn + EtherType + Payload + FCS = tối thiểu **64 byte**, tối đa **1518 byte**.
 
@@ -142,14 +162,28 @@ AA-BB-CC-DD-EE-FF
 
 Cấu trúc 48 bit chia thành 2 phần:
 
-\`\`\`
-+──────────────────────+──────────────────────+
-|   OUI (24 bit cao)   |  NIC ID (24 bit thấp)|
-|  Mã nhà sản xuất     |  Số serial thiết bị  |
-|   3 byte đầu         |   3 byte sau         |
-+──────────────────────+──────────────────────+
-  byte 1   byte 2   byte 3   byte 4   byte 5   byte 6
-\`\`\`
+<svg viewBox="0 0 520 110" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Địa chỉ MAC 6 byte: 3 byte đầu là OUI (nhà sản xuất), 3 byte sau là NIC ID (serial thiết bị)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="30.0" width="240.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="140.0" y="47.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">OUI (24 bit cao)</text>
+  <text x="140.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">Mã nhà sản xuất — 3 byte đầu</text>
+  <rect x="260.0" y="30.0" width="240.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="380.0" y="47.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">NIC ID (24 bit thấp)</text>
+  <text x="380.0" y="62.0" fill="#475569" font-size="9" text-anchor="middle">Số serial thiết bị — 3 byte sau</text>
+  <line x1="20.0" y1="74.0" x2="20.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="60.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">byte 1</text>
+  <line x1="100.0" y1="74.0" x2="100.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="140.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">byte 2</text>
+  <line x1="180.0" y1="74.0" x2="180.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="220.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">byte 3</text>
+  <line x1="260.0" y1="74.0" x2="260.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="300.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">byte 4</text>
+  <line x1="340.0" y1="74.0" x2="340.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="380.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">byte 5</text>
+  <line x1="420.0" y1="74.0" x2="420.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="460.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">byte 6</text>
+  <line x1="500.0" y1="74.0" x2="500.0" y2="84.0" stroke="#94a3b8" stroke-width="1"/>
+</svg>
 
 **OUI (Organizationally Unique Identifier)**: IEEE cấp cho mỗi nhà sản xuất. Ví dụ:
 - \`00:1A:2B\` → có thể tra ra nhà sản xuất cụ thể (dùng \`https://maclookup.app\`)

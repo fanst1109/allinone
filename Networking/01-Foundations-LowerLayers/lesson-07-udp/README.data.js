@@ -32,15 +32,28 @@ IP chuyển gói tin từ **máy này sang máy kia** (host-to-host). Nhưng tr�
 
 ### 1.2. Giao tiếp tiến-trình-tới-tiến-trình
 
-\`\`\`
-Máy A                                    Máy B
-┌─────────────────────┐                  ┌─────────────────────┐
-│  Firefox (port 54321) │ ───────────────▶ │  Nginx  (port  80)  │
-│  game.exe (port 55000)│                  │  DNS    (port  53)  │
-│  discord  (port 56789)│                  │  SSH    (port  22)  │
-└─────────────────────┘                  └─────────────────────┘
-      IP: 10.0.0.5                              IP: 203.0.113.10
-\`\`\`
+<svg viewBox="0 0 620 172" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai máy nhiều tiến trình: Firefox port 54321 trên máy A gửi tới Nginx port 80 trên máy B; port phân biệt tiến trình">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="220.0" height="110.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="126.0" y="22.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Máy A — IP 10.0.0.5</text>
+  <rect x="384.0" y="30.0" width="220.0" height="110.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="494.0" y="22.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Máy B — IP 203.0.113.10</text>
+  <rect x="28.0" y="40.0" width="196.0" height="26.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="126.0" y="56.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Firefox (port 54321)</text>
+  <rect x="396.0" y="40.0" width="196.0" height="26.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="494.0" y="56.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Nginx (port 80)</text>
+  <rect x="28.0" y="72.0" width="196.0" height="26.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="126.0" y="88.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">game.exe (port 55000)</text>
+  <rect x="396.0" y="72.0" width="196.0" height="26.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="494.0" y="88.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">DNS (port 53)</text>
+  <rect x="28.0" y="104.0" width="196.0" height="26.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="126.0" y="120.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">discord (port 56789)</text>
+  <rect x="396.0" y="104.0" width="196.0" height="26.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="494.0" y="120.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">SSH (port 22)</text>
+  <line x1="238.0" y1="53.0" x2="382.0" y2="53.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="310.0" y="47.0" fill="#475569" font-size="9" text-anchor="middle">src 54321 → dst 80</text>
+  <text x="310.0" y="158.0" fill="#475569" font-size="10" text-anchor="middle">IP xác định máy, port xác định tiến trình trên máy đó</text>
+</svg>
 
 Khi Firefox trên máy A gửi request HTTP đến Nginx trên máy B:
 - IP đảm bảo gói đi từ \`10.0.0.5\` → \`203.0.113.10\` (host-to-host).
@@ -154,17 +167,26 @@ Khi response về, hướng ngược lại: src=1.1.1.1:53, dst=172.16.0.10:5012
 
 **UDP (User Datagram Protocol)** — giao thức tầng giao vận đơn giản nhất, định nghĩa trong RFC 768 (1980). Header chỉ gồm **8 byte cố định**, payload đi thẳng sau đó.
 
-\`\`\`
- 0               1               2               3
- 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-├───────────────────────┬───────────────────────┤
-│   Source Port (16 b)  │  Destination Port (16b)│   Bytes 0–3
-├───────────────────────┼───────────────────────┤
-│     Length (16 b)     │    Checksum (16 b)     │   Bytes 4–7
-├───────────────────────────────────────────────┤
-│                  Data (payload)               │   Bytes 8–N
-└───────────────────────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 500 150" style="max-width:500px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="UDP header 8 byte: Source Port, Destination Port, Length, Checksum (mỗi 16 bit), sau đó là Data">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="56.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">bit 0</text>
+  <text x="216.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">15</text>
+  <text x="232.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">16</text>
+  <text x="392.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">31</text>
+  <rect x="56.0" y="24.0" width="176.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="144.0" y="46.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Source Port (16 bit)</text>
+  <rect x="232.0" y="24.0" width="176.0" height="36.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="320.0" y="46.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Destination Port (16 bit)</text>
+  <text x="416.0" y="46.0" fill="#475569" font-size="10" text-anchor="start">Bytes 0–3</text>
+  <rect x="56.0" y="64.0" width="176.0" height="36.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="144.0" y="86.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Length (16 bit)</text>
+  <rect x="232.0" y="64.0" width="176.0" height="36.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="320.0" y="86.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Checksum (16 bit)</text>
+  <text x="416.0" y="86.0" fill="#475569" font-size="10" text-anchor="start">Bytes 4–7</text>
+  <rect x="56.0" y="104.0" width="352.0" height="36.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="232.0" y="126.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Data (payload)</text>
+  <text x="416.0" y="126.0" fill="#475569" font-size="10" text-anchor="start">Bytes 8–N</text>
+</svg>
 
 ### 3.2. Giải thích từng trường
 
@@ -378,18 +400,30 @@ Cuộc gọi thoại: 50 gói/giây, mỗi gói 20ms audio. Mất 1 gói → im 
 
 ### 6.2. Ví dụ cụ thể — 3 tiến trình cùng host
 
-\`\`\`
-Host 192.168.1.5 đang chạy:
-  ┌─────────────────────────────────────────────────────┐
-  │ Tiến trình A: game.exe     → lắng nghe port 55001  │
-  │ Tiến trình B: discord.exe  → lắng nghe port 3478   │
-  │ Tiến trình C: browser      → ephemeral src 54320   │
-  └─────────────────────────────────────────────────────┘
-  
-Gói đến từ game-server:  dst_port=55001 → tầng GV chuyển cho A
-Gói đến từ Discord:      dst_port=3478  → tầng GV chuyển cho B
-Response DNS về:         dst_port=54320 → tầng GV chuyển cho C
-\`\`\`
+<svg viewBox="0 0 620 174" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Demultiplexing UDP: gói tới có dst_port 55001, 3478, 54320 được chuyển cho đúng tiến trình A, B, C">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="330.0" height="110.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="181.0" y="22.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Host 192.168.1.5</text>
+  <rect x="28.0" y="40.0" width="306.0" height="26.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="181.0" y="56.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Tiến trình A: game.exe — port 55001</text>
+  <rect x="28.0" y="72.0" width="306.0" height="26.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="181.0" y="88.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Tiến trình B: discord.exe — port 3478</text>
+  <rect x="28.0" y="104.0" width="306.0" height="26.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="181.0" y="120.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Tiến trình C: browser — ephemeral 54320</text>
+  <rect x="430.0" y="40.0" width="170.0" height="26.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="515.0" y="56.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">gói từ game-server</text>
+  <line x1="428.0" y1="53.0" x2="348.0" y2="53.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="388.0" y="49.0" fill="#475569" font-size="8" text-anchor="middle">dst_port=55001</text>
+  <rect x="430.0" y="72.0" width="170.0" height="26.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="515.0" y="88.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">gói từ Discord</text>
+  <line x1="428.0" y1="85.0" x2="348.0" y2="85.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="388.0" y="81.0" fill="#475569" font-size="8" text-anchor="middle">dst_port=3478</text>
+  <rect x="430.0" y="104.0" width="170.0" height="26.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="515.0" y="120.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">response DNS về</text>
+  <line x1="428.0" y1="117.0" x2="348.0" y2="117.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="388.0" y="113.0" fill="#475569" font-size="8" text-anchor="middle">dst_port=54320</text>
+  <text x="310.0" y="160.0" fill="#475569" font-size="10" text-anchor="middle">tầng giao vận nhìn dst_port → chuyển đúng tiến trình (demultiplexing)</text>
+</svg>
 
 Cùng một địa chỉ IP \`192.168.1.5\`, ba luồng dữ liệu hoàn toàn độc lập — phân biệt nhau chỉ bởi port.
 

@@ -191,13 +191,24 @@ Client gửi:
 
 TCP đóng kết nối theo chiều **nửa song công (half-duplex)**: mỗi bên phải gửi FIN riêng. Vì vậy cần 4 bước:
 
-```
-Client → Server:  FIN, SEQ=X          (client xong, không gửi thêm)
-Server → Client:  ACK=X+1             (server nhận FIN của client)
-  [server có thể gửi thêm dữ liệu tại đây nếu cần]
-Server → Client:  FIN, SEQ=Y          (server cũng xong)
-Client → Server:  ACK=Y+1             (client nhận FIN của server)
-```
+<svg viewBox="0 0 520 280" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đóng kết nối TCP 4 bước: Client FIN, Server ACK, Server FIN, Client ACK">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="380.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="440.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="440.0" y1="44.0" x2="440.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="436.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">FIN, SEQ=X — client xong, không gửi thêm</text>
+  <line x1="437.0" y1="110.0" x2="84.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="104.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ACK=X+1 — server nhận FIN của client</text>
+  <text x="430.0" y="150.0" fill="#475569" font-size="10" text-anchor="end">server có thể gửi thêm dữ liệu</text>
+  <line x1="437.0" y1="190.0" x2="84.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">FIN, SEQ=Y — server cũng xong</text>
+  <line x1="83.0" y1="230.0" x2="436.0" y2="230.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="224.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ACK=Y+1 — client nhận FIN của server</text>
+</svg>
 
 **Vì sao 4 bước không phải 3?** Bước 2 (ACK) và bước 3 (FIN) của server thường không gộp được vì server có thể vẫn còn dữ liệu cần gửi sau khi nhận FIN của client (half-close).
 
@@ -246,26 +257,38 @@ TCP có 2 cơ chế phát hiện mất gói:
 
 **Kịch bản**: gửi 3 segment, segment 2 bị mất trên đường.
 
-```
-Thời gian →
-
-Sender          Mạng         Receiver
-─────────       ─────        ─────────
-Gửi SEQ=101 ─────────────→  Nhận 101, gửi ACK=601
-Gửi SEQ=601 ────✗ MẤT       (không nhận được)
-Gửi SEQ=1101 ────────────→  Nhận 1101, nhưng thiếu 601-1100!
-                              Gửi ACK=601 (dup ACK #1)
-(Sender nhận dup ACK #1)
-Gửi SEQ=1601 ────────────→  Nhận 1601, vẫn thiếu 601-1100
-                              Gửi ACK=601 (dup ACK #2)
-(Sender nhận dup ACK #2)
-(Tiếp tục gửi window...)
-                              Gửi ACK=601 (dup ACK #3)
-(Sender nhận dup ACK #3) → FAST RETRANSMIT!
-Phát lại SEQ=601 ──────→   Nhận 601-1100
-                              Bây giờ có đủ 101–...
-                              Gửi ACK=... (cumulative ACK)
-```
+<svg viewBox="0 0 560 472" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Fast retransmit: segment 601 mất, receiver gửi 3 dup ACK=601, sender phát lại 601 ngay không chờ timeout">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Sender</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="440.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Receiver</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="440.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SEQ=101</text>
+  <line x1="477.0" y1="104.0" x2="84.0" y2="104.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="98.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ACK=601</text>
+  <line x1="83.0" y1="138.0" x2="476.0" y2="138.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="280.0" y="132.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">SEQ=601 — MẤT ✗</text>
+  <line x1="83.0" y1="172.0" x2="476.0" y2="172.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="166.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SEQ=1101 — thiếu 601-1100!</text>
+  <line x1="477.0" y1="206.0" x2="84.0" y2="206.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="280.0" y="200.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">ACK=601 (dup ACK #1)</text>
+  <line x1="83.0" y1="240.0" x2="476.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="234.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SEQ=1601 — vẫn thiếu</text>
+  <line x1="477.0" y1="274.0" x2="84.0" y2="274.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="280.0" y="268.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">ACK=601 (dup ACK #2)</text>
+  <line x1="83.0" y1="308.0" x2="476.0" y2="308.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="302.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">tiếp tục gửi window…</text>
+  <line x1="477.0" y1="342.0" x2="84.0" y2="342.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="280.0" y="336.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">ACK=601 (dup ACK #3) → FAST RETRANSMIT</text>
+  <line x1="83.0" y1="376.0" x2="476.0" y2="376.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="370.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Phát lại SEQ=601 — nhận 601-1100</text>
+  <line x1="477.0" y1="410.0" x2="84.0" y2="410.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="404.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ACK cumulative (đủ 101–…)</text>
+  <text x="280.0" y="466.0" fill="#475569" font-size="11" text-anchor="middle">đỏ nét đứt: mất/dup ACK · xanh: nhận đủ</text>
+</svg>
 
 **Kết quả**: Receiver buffer các segment đến sau (1101, 1601...) trong khi chờ segment 601. Khi 601 đến, receiver xác nhận tất cả bằng một ACK dồn (cumulative ACK).
 

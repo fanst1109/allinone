@@ -314,12 +314,32 @@ Lệnh `traceroute` tận dụng TTL: gửi gói với TTL=1 (R1 trả ICMP), r�
 
 ### 5.1. Sơ đồ mạng
 
-```
-[Host A]──────[Router R1]──────[Router R2]──────[Host B]
-  .10              .1  .1          .1  .1            .20
-  LAN-A              Link-AB         LAN-B
-192.168.1.0/24    10.0.12.0/30    192.168.2.0/24
-```
+<svg viewBox="0 0 680 112" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Topology: Host A .10 trên LAN-A 192.168.1.0/24 — R1 — Link-AB 10.0.12.0/30 — R2 — Host B .20 trên LAN-B 192.168.2.0/24">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="90.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="56.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Host A</text>
+  <text x="61.0" y="71.3" fill="#475569" font-size="10" text-anchor="middle">.10</text>
+  <rect x="196.0" y="40.0" width="100.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="246.0" y="63.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Router R1</text>
+  <rect x="396.0" y="40.0" width="100.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="446.0" y="63.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Router R2</text>
+  <rect x="576.0" y="40.0" width="90.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="621.0" y="56.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Host B</text>
+  <text x="621.0" y="71.3" fill="#475569" font-size="10" text-anchor="middle">.20</text>
+  <line x1="106.0" y1="60.0" x2="196.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="296.0" y1="60.0" x2="396.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="496.0" y1="60.0" x2="576.0" y2="60.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="151.0" y="32.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">LAN-A</text>
+  <text x="151.0" y="100.0" fill="#15803d" font-size="10" text-anchor="middle">192.168.1.0/24</text>
+  <text x="346.0" y="32.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">Link-AB</text>
+  <text x="346.0" y="100.0" fill="#15803d" font-size="10" text-anchor="middle">10.0.12.0/30</text>
+  <text x="536.0" y="32.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">LAN-B</text>
+  <text x="536.0" y="100.0" fill="#15803d" font-size="10" text-anchor="middle">192.168.2.0/24</text>
+  <text x="190.0" y="74.0" fill="#475569" font-size="9" text-anchor="end">.1</text>
+  <text x="302.0" y="74.0" fill="#475569" font-size="9" text-anchor="start">.1</text>
+  <text x="390.0" y="74.0" fill="#475569" font-size="9" text-anchor="end">.2</text>
+  <text x="502.0" y="74.0" fill="#475569" font-size="9" text-anchor="start">.1</text>
+</svg>
 
 Thông tin cụ thể:
 

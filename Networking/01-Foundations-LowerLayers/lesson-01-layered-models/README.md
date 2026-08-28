@@ -243,17 +243,41 @@ Tầng 1 — Link / Network Access              ← Gộp OSI 1+2
 
 ### 3.3. Ánh xạ OSI ↔ TCP/IP
 
-```
-OSI (7 lớp)              TCP/IP (4 lớp)
-─────────────────────    ─────────────────────
-7. Application       ─┐
-6. Presentation      ─┼── 4. Application
-5. Session           ─┘
-4. Transport         ──── 3. Transport
-3. Network           ──── 2. Internet
-2. Data Link         ─┐
-1. Physical          ─┴── 1. Link (Network Access)
-```
+<svg viewBox="0 0 570 306" style="max-width:570px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ánh xạ OSI 7 lớp sang TCP/IP 4 lớp: Application gộp 5-6-7, Transport = 4, Internet = 3, Link gộp 1-2">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">OSI (7 lớp)</text>
+  <text x="430.0" y="22.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">TCP/IP (4 lớp)</text>
+  <rect x="20.0" y="32.0" width="200.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="120.0" y="51.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">7. Application</text>
+  <rect x="20.0" y="70.0" width="200.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="120.0" y="89.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">6. Presentation</text>
+  <rect x="20.0" y="108.0" width="200.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="120.0" y="127.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">5. Session</text>
+  <rect x="20.0" y="146.0" width="200.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="165.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">4. Transport</text>
+  <rect x="20.0" y="184.0" width="200.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="120.0" y="203.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">3. Network</text>
+  <rect x="20.0" y="222.0" width="200.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="120.0" y="241.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">2. Data Link</text>
+  <rect x="20.0" y="260.0" width="200.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="120.0" y="279.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">1. Physical</text>
+  <rect x="330.0" y="32.0" width="220.0" height="108.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="440.0" y="89.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">4. Application</text>
+  <path d="M 222.0,48.0 L 260.0,48.0 L 260.0,124.0 L 222.0,124.0" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round"/>
+  <line x1="260.0" y1="86.0" x2="328.0" y2="86.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="330.0" y="146.0" width="220.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="440.0" y="165.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">3. Transport</text>
+  <line x1="222.0" y1="162.0" x2="260.0" y2="162.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="260.0" y1="162.0" x2="328.0" y2="162.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="330.0" y="184.0" width="220.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="203.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">2. Internet</text>
+  <line x1="222.0" y1="200.0" x2="260.0" y2="200.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="260.0" y1="200.0" x2="328.0" y2="200.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="330.0" y="222.0" width="220.0" height="70.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="440.0" y="260.9" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">1. Link (Network Access)</text>
+  <path d="M 222.0,238.0 L 260.0,238.0 L 260.0,276.0 L 222.0,276.0" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round"/>
+  <line x1="260.0" y1="257.0" x2="328.0" y2="257.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

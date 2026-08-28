@@ -349,7 +349,8 @@ Khi **dòng vào = dòng ra**, bể ở trạng thái cân bằng. Khi không c�
   <line x1="250.0" y1="58.0" x2="105.0" y2="148.0" stroke="#15803d" stroke-width="2.2" marker-end="url(#cbg)"/>
   <text x="120.0" y="80.0" fill="#15803d" font-size="10" text-anchor="end" font-weight="700">quang hợp ~120 Gt/năm</text>
   <line x1="125.0" y1="148.0" x2="270.0" y2="58.0" stroke="#b45309" stroke-width="2.2" marker-end="url(#cbo)"/>
-  <text x="225.0" y="132.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">hô hấp + phân giải ~120 Gt/năm</text>
+  <text x="205.0" y="118.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">hô hấp + phân giải</text>
+  <text x="205.0" y="131.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">~120 Gt/năm</text>
   <line x1="500.0" y1="148.0" x2="380.0" y2="58.0" stroke="#dc2626" stroke-width="2.2" marker-end="url(#cbr)"/>
   <text x="470.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">đốt nhiên liệu ~10 Gt/năm</text>
   <line x1="115.0" y1="194.0" x2="220.0" y2="268.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>

@@ -144,14 +144,20 @@ Kết luận:    Mọi cá heo là động vật có vú. (A) ← Kết luận �
 
 ### 3.1. Bố cục sơ đồ Venn 3 vòng
 
-```
-         [ S ]
-        /     \
-   [S∩M]     [S∩P]
-  /   [S∩M∩P]   \
-[ M ]       [ P ]
-   \  [M∩P] /
-```
+<svg viewBox="0 0 440 320" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Venn 3 tập cho tam đoạn luận: S (chủ từ), P (vị từ), M (trung từ) chồng nhau tạo 7 vùng, tâm là S∩M∩P">
+  <defs></defs>
+  <circle cx="165" cy="120" r="90" fill="#1d4ed8" fill-opacity="0.18" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="275" cy="120" r="90" fill="#15803d" fill-opacity="0.18" stroke="#15803d" stroke-width="2"/>
+  <circle cx="220" cy="205" r="90" fill="#7c3aed" fill-opacity="0.18" stroke="#7c3aed" stroke-width="2"/>
+  <text x="85.0" y="62.0" fill="#1d4ed8" font-size="14" text-anchor="start" font-weight="700">S (chủ từ)</text>
+  <text x="355.0" y="62.0" fill="#15803d" font-size="14" text-anchor="end" font-weight="700">P (vị từ)</text>
+  <text x="220.0" y="283.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">M (trung từ)</text>
+  <text x="220.0" y="98.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">S∩P</text>
+  <text x="162.0" y="184.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">S∩M</text>
+  <text x="278.0" y="184.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">M∩P</text>
+  <text x="220.0" y="156.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">S∩M∩P</text>
+  <text x="220.0" y="306.0" fill="#475569" font-size="11" text-anchor="middle">3 vòng S, P, M tạo 7 vùng — tô/gạch vùng theo tiền đề để kiểm tra tam đoạn luận</text>
+</svg>
 
 Ba vòng S, P, M tạo ra **8 vùng**:
 1. Chỉ S (không M, không P)

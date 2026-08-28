@@ -174,12 +174,18 @@ Ba kiểu sơ đồ lập luận cơ bản:
 
 Mỗi tiền đề **tự nó** đã ủng hộ kết luận — không cần tiền đề kia để làm điều đó. Loại bỏ một tiền đề, các tiền đề còn lại vẫn ủng hộ kết luận (dù ở mức độ thấp hơn).
 
-```
-T1 ──────┐
-         ├──→ KL
-T2 ──────┘
-(Mỗi T tự ủng hộ KL)
-```
+<svg viewBox="0 0 420 165" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lập luận hội tụ: T1 và T2 mỗi cái có mũi tên riêng tới KL">
+  <defs><marker id="ag" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="20.0" width="80.0" height="32.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="41.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T1</text>
+  <rect x="20.0" y="100.0" width="80.0" height="32.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="121.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T2</text>
+  <rect x="300.0" y="60.0" width="90.0" height="32.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="345.0" y="81.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">KL</text>
+  <line x1="100.0" y1="36.0" x2="298.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ag)"/>
+  <line x1="100.0" y1="116.0" x2="298.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ag)"/>
+  <text x="200.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">HỘI TỤ: mỗi T tự ủng hộ KL — bỏ một T, KL vẫn còn chỗ dựa</text>
+</svg>
 
 **Ví dụ:**
 ```
@@ -195,12 +201,20 @@ Ngay cả khi phản bác T2 ("Tôi đánh răng kỹ nên răng không vàng"),
 
 Các tiền đề **phải kết hợp với nhau** để ủng hộ kết luận. Tách riêng từng tiền đề, chúng không đủ sức ủng hộ kết luận một mình.
 
-```
-T1 ──┐
-     ├──→ KL
-T2 ──┘
-(Cần cả T1 lẫn T2 mới ra được KL)
-```
+<svg viewBox="0 0 420 165" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lập luận liên kết: T1 và T2 hợp lại thành một mũi tên chung tới KL">
+  <defs><marker id="ag" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="20.0" width="80.0" height="32.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="41.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T1</text>
+  <rect x="20.0" y="100.0" width="80.0" height="32.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="121.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T2</text>
+  <rect x="300.0" y="60.0" width="90.0" height="32.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="345.0" y="81.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">KL</text>
+  <line x1="100.0" y1="36.0" x2="170.0" y2="76.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="100.0" y1="116.0" x2="170.0" y2="76.0" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="170.0" cy="76.0" r="4" fill="#1a202c"/>
+  <line x1="170.0" y1="76.0" x2="298.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ag)"/>
+  <text x="200.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">LIÊN KẾT: cần CẢ T1 lẫn T2 mới ra được KL — mất một T, lập luận sụp</text>
+</svg>
 
 **Ví dụ:**
 ```

@@ -122,10 +122,28 @@ Lý thuyết chức năng (Hugo Riemann, cuối thế kỷ 19) chia mọi hợp 
 
 Đây là trình tự **tự nhiên nhất** và phổ biến nhất trong âm nhạc tông điệu:
 
-\`\`\`
-T ──→ S ──→ D ──→ T
-(ổn định) (rời đi) (căng) (về nhà)
-\`\`\`
+<svg viewBox="0 0 520 110" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng chức năng hoà âm: T (ổn định) → S (rời đi) → D (căng) → T (về nhà)">
+  <defs><marker id="ts" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="30.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="80.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <line x1="132.0" y1="36.0" x2="153.0" y2="36.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="155.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="205.0" y="41.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">S</text>
+  <line x1="257.0" y1="36.0" x2="278.0" y2="36.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="280.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="330.0" y="41.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">D</text>
+  <line x1="382.0" y1="36.0" x2="403.0" y2="36.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="405.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="455.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <rect x="30.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="80.0" y="85.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">ổn định</text>
+  <rect x="155.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="205.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">rời đi</text>
+  <rect x="280.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="330.0" y="85.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">căng</text>
+  <rect x="405.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="455.0" y="85.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">về nhà</text>
+</svg>
 
 **Ví dụ số cụ thể — C trưởng:**
 
@@ -142,11 +160,36 @@ Tiến trình I–IV–V–I là **vòng blues cơ bản, vòng folk cơ bản, 
 
 **Biến thể 1: ii thay IV (ii–V–I)**
 
-\`\`\`
-T ──→ S ──→ D ──→ T
-I        ii       V       I
-C major  D minor  G major  C major
-\`\`\`
+<svg viewBox="0 0 520 154" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng T → S → D → T ứng với bậc I → ii → V → I, trong C trưởng là C major → D minor → G major → C major">
+  <defs><marker id="ts" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="30.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="80.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <line x1="132.0" y1="36.0" x2="153.0" y2="36.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="155.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="205.0" y="41.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">S</text>
+  <line x1="257.0" y1="36.0" x2="278.0" y2="36.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="280.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="330.0" y="41.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">D</text>
+  <line x1="382.0" y1="36.0" x2="403.0" y2="36.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="405.0" y="20.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="455.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <rect x="30.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="80.0" y="85.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">I</text>
+  <rect x="155.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="205.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">ii</text>
+  <rect x="280.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="330.0" y="85.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V</text>
+  <rect x="405.0" y="64.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="455.0" y="85.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">I</text>
+  <rect x="30.0" y="108.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="80.0" y="129.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">C major</text>
+  <rect x="155.0" y="108.0" width="100.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="205.0" y="129.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">D minor</text>
+  <rect x="280.0" y="108.0" width="100.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="330.0" y="129.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">G major</text>
+  <rect x="405.0" y="108.0" width="100.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="455.0" y="129.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">C major</text>
+</svg>
 
 ii–V–I là tiến trình **đặc trưng của nhạc jazz** — "cadence jazz" điển hình. ii (D minor) nghe "mượt" hơn IV khi đứng trước V.
 
@@ -219,10 +262,24 @@ Hai hợp âm Tonic liên tiếp (I→vi) ở đầu tạo cảm giác "dạo đ
 
 Trong kết lừa (deceptive cadence), V **không giải về I mà giải về vi**:
 
-\`\`\`
-Chờ đợi:  V ──→ I     (D → T)     ← không xảy ra
-Thực tế:  V ──→ vi    (D → T thay thế)  ← tai "lừa"
-\`\`\`
+<svg viewBox="0 0 560 145" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kết lừa: tai chờ V → I nhưng thực tế V → vi (hợp âm bậc 6 thay cho tonic)">
+  <defs><marker id="ts" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="tsx" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker></defs>
+  <text x="30.0" y="42.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Chờ đợi:</text>
+  <rect x="120.0" y="26.0" width="80.0" height="30.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="160.0" y="46.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V (D)</text>
+  <line x1="202.0" y1="41.0" x2="258.0" y2="41.0" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#tsx)"/>
+  <rect x="260.0" y="26.0" width="80.0" height="30.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="46.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">I (T)</text>
+  <text x="350.0" y="46.0" fill="#475569" font-size="11" text-anchor="start">← không xảy ra</text>
+  <text x="30.0" y="92.0" fill="#475569" font-size="12" text-anchor="start" font-weight="700">Thực tế:</text>
+  <rect x="120.0" y="76.0" width="80.0" height="30.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="160.0" y="96.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">V (D)</text>
+  <line x1="202.0" y1="91.0" x2="258.0" y2="91.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ts)"/>
+  <rect x="260.0" y="76.0" width="80.0" height="30.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="300.0" y="96.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">vi</text>
+  <text x="350.0" y="96.0" fill="#475569" font-size="11" text-anchor="start">← T thay thế — tai bị 'lừa'</text>
+  <text x="280.0" y="130.0" fill="#475569" font-size="11" text-anchor="middle">kết lừa (deceptive cadence): V → vi thay cho V → I</text>
+</svg>
 
 **Tại sao vi vẫn là T?** vi và I chia sẻ hai trong ba nốt:
 - I (C trưởng): **C – E – G**

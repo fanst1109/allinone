@@ -240,21 +240,35 @@ Thay vì chỉ dựa vào sức mạnh quân sự, Nguyễn Trãi dùng thư t�
 
 🗺 **Bản đồ tiến quân Lam Sơn:**
 
-```
-Lam Sơn (Thanh Hóa, 1418)
-        ↓ 1424
-    Nghệ An (mở rộng địa bàn)
-        ↓ 1425
-    Tân Bình – Thuận Hóa (kiểm soát miền Trung)
-        ↓ 1426
-    Tiến ra Bắc — vây Đông Quan
-        ↓ 11/1426
-    Tốt Động – Chúc Động (đánh tan quân Minh ra cứu)
-        ↓ 10/1427
-    Chi Lăng – Xương Giang (diệt viện binh Liễu Thăng)
-        ↓ 12/1427
-    Toàn thắng — Quân Minh rút về
-```
+<svg viewBox="0 0 600 468" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tiến trình khởi nghĩa Lam Sơn 1418–1427: Thanh Hóa → Nghệ An → Tân Bình–Thuận Hóa → vây Đông Quan → Tốt Động–Chúc Động → Chi Lăng–Xương Giang → toàn thắng">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="60.0" y="14.0" width="480.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="36.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Lam Sơn (Thanh Hóa, 1418)</text>
+  <line x1="300.0" y1="50.0" x2="300.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="312.0" y="69.0" fill="#475569" font-size="10" text-anchor="start">1424</text>
+  <rect x="60.0" y="82.0" width="480.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Nghệ An (mở rộng địa bàn)</text>
+  <line x1="300.0" y1="118.0" x2="300.0" y2="148.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="312.0" y="137.0" fill="#475569" font-size="10" text-anchor="start">1425</text>
+  <rect x="60.0" y="150.0" width="480.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Tân Bình – Thuận Hóa (kiểm soát miền Trung)</text>
+  <line x1="300.0" y1="186.0" x2="300.0" y2="216.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="312.0" y="205.0" fill="#475569" font-size="10" text-anchor="start">1426</text>
+  <rect x="60.0" y="218.0" width="480.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="240.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Tiến ra Bắc — vây Đông Quan</text>
+  <line x1="300.0" y1="254.0" x2="300.0" y2="284.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="312.0" y="273.0" fill="#475569" font-size="10" text-anchor="start">11/1426</text>
+  <rect x="60.0" y="286.0" width="480.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="300.0" y="308.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Tốt Động – Chúc Động (đánh tan quân Minh ra cứu)</text>
+  <line x1="300.0" y1="322.0" x2="300.0" y2="352.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="312.0" y="341.0" fill="#475569" font-size="10" text-anchor="start">10/1427</text>
+  <rect x="60.0" y="354.0" width="480.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="300.0" y="376.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Chi Lăng – Xương Giang (diệt viện binh Liễu Thăng)</text>
+  <line x1="300.0" y1="390.0" x2="300.0" y2="420.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="312.0" y="409.0" fill="#475569" font-size="10" text-anchor="start">12/1427</text>
+  <rect x="60.0" y="422.0" width="480.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="444.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Toàn thắng — Quân Minh rút về</text>
+</svg>
 
 ### 5.1 Trận Chi Lăng – Xương Giang (1427)
 
@@ -310,23 +324,32 @@ Liễu Thăng bị giết ở ải Chi Lăng → quân viện binh mất chủ t
 
 🔗 **Nhân – quả toàn bộ giai đoạn 1400–1428:**
 
-```
-Nhà Trần suy yếu → Hồ Quý Ly lên nắm quyền
-    ↓
-Cải cách tiến bộ nhưng mất lòng dân → Nhà Hồ dễ bị tấn công
-    ↓
-Quân Minh xâm lược, nhà Hồ thất bại nhanh
-    ↓
-20 năm Minh thuộc, đồng hóa hà khắc
-    ↓
-Mâu thuẫn dân tộc đủ sâu → Lê Lợi dựng cờ Lam Sơn
-    ↓
-"Đại nghĩa thắng hung tàn" — huy động được toàn dân
-    ↓
-Chi Lăng – Xương Giang 1427: toàn thắng
-    ↓
-Lập nhà Lê sơ, Bình Ngô đại cáo
-```
+<svg viewBox="0 0 620 452" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi nhân quả: Trần suy yếu → Hồ Quý Ly → Minh xâm lược → 20 năm Minh thuộc → Lam Sơn → toàn thắng 1427 → nhà Lê sơ">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="50.0" y="14.0" width="520.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="310.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Nhà Trần suy yếu → Hồ Quý Ly lên nắm quyền</text>
+  <line x1="310.0" y1="50.0" x2="310.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="70.0" width="520.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="310.0" y="92.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Cải cách tiến bộ nhưng mất lòng dân → Nhà Hồ dễ bị tấn công</text>
+  <line x1="310.0" y1="106.0" x2="310.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="126.0" width="520.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="148.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Quân Minh xâm lược, nhà Hồ thất bại nhanh</text>
+  <line x1="310.0" y1="162.0" x2="310.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="182.0" width="520.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="204.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">20 năm Minh thuộc, đồng hóa hà khắc</text>
+  <line x1="310.0" y1="218.0" x2="310.0" y2="236.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="238.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="260.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Mâu thuẫn dân tộc đủ sâu → Lê Lợi dựng cờ Lam Sơn</text>
+  <line x1="310.0" y1="274.0" x2="310.0" y2="292.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="294.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="316.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">"Đại nghĩa thắng hung tàn" — huy động được toàn dân</text>
+  <line x1="310.0" y1="330.0" x2="310.0" y2="348.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="350.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="372.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Chi Lăng – Xương Giang 1427: toàn thắng</text>
+  <line x1="310.0" y1="386.0" x2="310.0" y2="404.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="406.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="428.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Lập nhà Lê sơ, Bình Ngô đại cáo</text>
+</svg>
 
 **Ý nghĩa cụ thể:**
 

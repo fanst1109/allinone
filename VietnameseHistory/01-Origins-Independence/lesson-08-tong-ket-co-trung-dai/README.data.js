@@ -200,23 +200,40 @@ Có hai lý do: (1) Bãi cọc được đóng kín đáo và ngập dưới nư
 
 🔗 **Bản đồ khái niệm Tầng 1**
 
-\`\`\`
-[L01 Tiền sử Đông Sơn]
-        ↓ văn hóa lúa nước + công cụ đồng/sắt
-[L02 Văn Lang – Âu Lạc]
-        ↓ nhà nước đầu tiên bị thôn tính 179 TCN
-[Bắc thuộc 111 TCN – 905] ←────────────────────────┐
-        ↓ kháng cự liên tục (L03–L04)               │
-[L03 Hai Bà Trưng 40]     [L04 Bà Triệu, Lý Bí...]  │
-        ↓ mỗi lần thất bại → tích lũy kinh nghiệm    │
-[L05 Họ Khúc 905 – tự chủ thực tế]                  │
-        ↓ nền tảng hành chính                         │
-[L06 Ngô Quyền 938 – độc lập]                        │
-        ↓ loạn 12 sứ quân                             │
-[L07 Đinh Bộ Lĩnh 968 – thống nhất, kháng Tống 981] ─┘
-        ↓
-[TẦNG 2 – Nhà Lý: kỷ nguyên quân chủ độc lập rực rỡ]
-\`\`\`
+<svg viewBox="0 0 740 524" style="max-width:740px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ tổng kết Tầng 1: Đông Sơn → Văn Lang–Âu Lạc → Bắc thuộc (kháng cự Hai Bà Trưng, Bà Triệu, Lý Bí) → họ Khúc → Ngô Quyền → Đinh Bộ Lĩnh → sang Tầng 2 nhà Lý">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="70.0" y="14.0" width="500.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">L01 Tiền sử Đông Sơn</text>
+  <line x1="320.0" y1="50.0" x2="320.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="69.0" fill="#475569" font-size="10" text-anchor="start">văn hóa lúa nước + công cụ đồng/sắt</text>
+  <rect x="70.0" y="82.0" width="500.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">L02 Văn Lang – Âu Lạc</text>
+  <line x1="320.0" y1="118.0" x2="320.0" y2="148.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="137.0" fill="#475569" font-size="10" text-anchor="start">nhà nước đầu tiên bị thôn tính 179 TCN</text>
+  <rect x="70.0" y="150.0" width="500.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="172.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Bắc thuộc 111 TCN – 905</text>
+  <line x1="320.0" y1="186.0" x2="320.0" y2="216.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="205.0" fill="#475569" font-size="10" text-anchor="start">kháng cự liên tục (L03–L04)</text>
+  <rect x="70.0" y="218.0" width="500.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="240.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">L03 Hai Bà Trưng 40 · L04 Bà Triệu, Lý Bí…</text>
+  <line x1="320.0" y1="254.0" x2="320.0" y2="284.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="273.0" fill="#475569" font-size="10" text-anchor="start">mỗi lần thất bại → tích lũy kinh nghiệm</text>
+  <rect x="70.0" y="286.0" width="500.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="308.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">L05 Họ Khúc 905 – tự chủ thực tế</text>
+  <line x1="320.0" y1="322.0" x2="320.0" y2="352.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="341.0" fill="#475569" font-size="10" text-anchor="start">nền tảng hành chính</text>
+  <rect x="70.0" y="354.0" width="500.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="376.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">L06 Ngô Quyền 938 – độc lập</text>
+  <line x1="320.0" y1="390.0" x2="320.0" y2="420.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="409.0" fill="#475569" font-size="10" text-anchor="start">loạn 12 sứ quân</text>
+  <rect x="70.0" y="422.0" width="500.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="444.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">L07 Đinh Bộ Lĩnh 968 – thống nhất, kháng Tống 981</text>
+  <line x1="320.0" y1="458.0" x2="320.0" y2="476.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="478.0" width="500.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="320.0" y="500.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">TẦNG 2 – Nhà Lý: kỷ nguyên quân chủ độc lập rực rỡ</text>
+  <path d="M 570,416 L 610,416 L 610,150 L 572,150" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#vf)"/>
+  <text x="612.0" y="262.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">chấm dứt Bắc thuộc</text>
+</svg>
 
 Mỗi bài trong Tầng 1 không thể đứng độc lập — mỗi sự kiện vừa là kết quả của sự kiện trước vừa là nguyên nhân của sự kiện sau. Đây là điểm mà bài tổng kết này muốn khắc sâu: lịch sử không phải danh sách ngày tháng mà là chuỗi nhân – quả có logic nội tại.
 

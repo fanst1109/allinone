@@ -180,17 +180,24 @@ Trước khi có Đổi mới chính thức, nhiều địa phương và cơ s�
 
 🔗 **Chuỗi nhân – quả dẫn tới Đổi mới:**
 
-```
-Mô hình bao cấp → Sản xuất trì trệ, thiếu hàng hóa
-       ↓
-Khủng hoảng kinh tế (lạm phát cao, thu nhập giảm)
-       ↓
-"Phá rào" tự phát ở cơ sở → Thực tiễn chứng minh cơ chế thị trường hiệu quả hơn
-       ↓
-Áp lực cải cách từ thực tiễn + thất bại của cải cách 1985
-       ↓
-Đại hội VI (12/1986) — Khởi xướng Đổi mới
-```
+<svg viewBox="0 0 620 298" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi dẫn tới Đổi mới: bao cấp → khủng hoảng → phá rào → áp lực cải cách → Đại hội VI 1986">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="50.0" y="14.0" width="520.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="36.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Mô hình bao cấp → sản xuất trì trệ, thiếu hàng hóa</text>
+  <line x1="310.0" y1="50.0" x2="310.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="70.0" width="520.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="92.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Khủng hoảng kinh tế (lạm phát cao, thu nhập giảm)</text>
+  <line x1="310.0" y1="106.0" x2="310.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="126.0" width="580.0" height="48.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="310.0" y="145.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">"Phá rào" tự phát ở cơ sở → thực tiễn chứng minh cơ chế thị</text>
+  <text x="310.0" y="162.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">trường hiệu quả hơn</text>
+  <line x1="310.0" y1="176.0" x2="310.0" y2="194.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="196.0" width="520.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="310.0" y="218.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Áp lực cải cách từ thực tiễn + thất bại của cải cách 1985</text>
+  <line x1="310.0" y1="232.0" x2="310.0" y2="250.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="252.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="274.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Đại hội VI (12/1986) — Khởi xướng Đổi mới</text>
+</svg>
 
 ⚠ **Lưu ý:** Đổi mới không phải là từ bỏ vai trò lãnh đạo của Đảng Cộng sản hay chuyển sang kinh tế thị trường tự do hoàn toàn. Đổi mới là chuyển sang "kinh tế thị trường định hướng xã hội chủ nghĩa" — giữ vai trò chủ đạo của nhà nước và doanh nghiệp nhà nước, nhưng thừa nhận kinh tế tư nhân và cơ chế thị trường. Nội dung và thành tựu của Đổi mới sẽ được phân tích kỹ trong [Lesson 08 — Đổi mới và hội nhập](../lesson-08-doi-moi-hoi-nhap/).
 
@@ -265,24 +272,40 @@ Hệ quả: Việt Nam phụ thuộc gần như hoàn toàn vào viện trợ c�
 
 ### Câu 4 — Sơ đồ nhân – quả
 
-```
-[Mô hình bao cấp] → Giá kép, thiếu động lực sản xuất
-        ↓
-[Sản xuất trì trệ] → Thiếu hàng hóa, lạm phát
-        ↓
-[Đời sống khó khăn] ← cộng hưởng ← [Cấm vận + chi phí chiến tranh biên giới]
-        ↓
-["Phá rào" tự phát] → Khoán hộ, giá thỏa thuận ở địa phương
-        ↓                             ↓
-[Thực tiễn chứng minh]         [Tranh luận nội bộ Đảng]
-      cơ chế thị trường hiệu quả hơn
-        ↓
-[Cải cách giá–lương–tiền 1985 thất bại] → Lạm phát đột biến
-        ↓
-[Áp lực cải cách cấp bách]
-        ↓
-[Đại hội VI — 12/1986: Khởi xướng Đổi mới]
-```
+<svg viewBox="0 0 640 432" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ nhân quả Đổi mới: bao cấp → trì trệ → đời sống khó khăn (cộng hưởng cấm vận, chiến tranh biên giới) → phá rào → thực tiễn + tranh luận nội bộ → cải cách 1985 thất bại → áp lực → Đại hội VI 1986">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="60.0" y="14.0" width="300.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="210.0" y="34.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Mô hình bao cấp → giá kép, thiếu động lực</text>
+  <line x1="210.0" y1="46.0" x2="210.0" y2="64.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="66.0" width="300.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="210.0" y="86.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Sản xuất trì trệ → thiếu hàng hóa, lạm phát</text>
+  <line x1="210.0" y1="98.0" x2="210.0" y2="116.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="118.0" width="300.0" height="32.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="210.0" y="138.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Đời sống khó khăn</text>
+  <rect x="400.0" y="118.0" width="220.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="510.0" y="138.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Cấm vận + chiến tranh biên giới</text>
+  <line x1="398.0" y1="134.0" x2="364.0" y2="134.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="380.0" y="126.0" fill="#475569" font-size="9" text-anchor="middle">cộng hưởng</text>
+  <line x1="210.0" y1="150.0" x2="210.0" y2="168.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="170.0" width="300.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="210.0" y="190.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">"Phá rào" tự phát: khoán hộ, giá thỏa thuận</text>
+  <line x1="150.0" y1="202.0" x2="150.0" y2="220.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <line x1="300.0" y1="202.0" x2="440.0" y2="220.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="30.0" y="222.0" width="260.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="242.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Thực tiễn: thị trường hiệu quả hơn</text>
+  <rect x="360.0" y="222.0" width="240.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="480.0" y="242.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Tranh luận nội bộ Đảng</text>
+  <line x1="160.0" y1="254.0" x2="210.0" y2="272.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <line x1="480.0" y1="254.0" x2="210.0" y2="272.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="30.0" y="274.0" width="360.0" height="36.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="210.0" y="296.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Cải cách giá–lương–tiền 1985 thất bại → lạm phát đột biến</text>
+  <line x1="210.0" y1="310.0" x2="210.0" y2="328.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="330.0" width="300.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="210.0" y="350.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Áp lực cải cách cấp bách</text>
+  <line x1="210.0" y1="362.0" x2="210.0" y2="380.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="40.0" y="382.0" width="340.0" height="36.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="210.0" y="404.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Đại hội VI — 12/1986: Khởi xướng Đổi mới</text>
+</svg>
 
 **Điểm quan trọng:** Đây không phải mối quan hệ tuyến tính đơn giản. "Phá rào" ở cơ sở cung cấp bằng chứng thực tiễn (bottom-up), trong khi áp lực từ khủng hoảng kinh tế tạo ra sức ép từ trên xuống (top-down) — cả hai kết hợp tạo ra điều kiện cho Đổi mới.
 

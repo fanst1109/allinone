@@ -144,10 +144,48 @@ Hai dòng cuối là trường hợp đặc biệt — E♯ và F là cùng mộ
 
 **12 nửa cung trong một octave (C4→C5):**
 
-\`\`\`
-C  C♯/D♭  D  D♯/E♭  E  F  F♯/G♭  G  G♯/A♭  A  A♯/B♭  B  C
-|  1        |  1        | 0.5 |  1        |  1        |  1        | 0.5 |
-\`\`\`
+<svg viewBox="0 0 640 165" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hàng 13 phím từ C tới C: phím trắng C D E F G A B C, phím đen C♯/D♭ D♯/E♭ F♯/G♭ G♯/A♭ A♯/B♭; giữa E–F và B–C không có phím đen">
+  <defs></defs>
+  <rect x="20.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="42.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">C</text>
+  <rect x="66.0" y="30.0" width="44.0" height="40.0" rx="3" fill="#1a202c" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="88.0" y="56.0" fill="white" font-size="9" text-anchor="middle" font-weight="700">C♯/D♭</text>
+  <rect x="112.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="134.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">D</text>
+  <rect x="158.0" y="30.0" width="44.0" height="40.0" rx="3" fill="#1a202c" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="180.0" y="56.0" fill="white" font-size="9" text-anchor="middle" font-weight="700">D♯/E♭</text>
+  <rect x="204.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="226.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">E</text>
+  <rect x="250.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="272.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">F</text>
+  <rect x="296.0" y="30.0" width="44.0" height="40.0" rx="3" fill="#1a202c" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="318.0" y="56.0" fill="white" font-size="9" text-anchor="middle" font-weight="700">F♯/G♭</text>
+  <rect x="342.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="364.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">G</text>
+  <rect x="388.0" y="30.0" width="44.0" height="40.0" rx="3" fill="#1a202c" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="410.0" y="56.0" fill="white" font-size="9" text-anchor="middle" font-weight="700">G♯/A♭</text>
+  <rect x="434.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="456.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <rect x="480.0" y="30.0" width="44.0" height="40.0" rx="3" fill="#1a202c" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="502.0" y="56.0" fill="white" font-size="9" text-anchor="middle" font-weight="700">A♯/B♭</text>
+  <rect x="526.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="548.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <rect x="572.0" y="30.0" width="44.0" height="60.0" rx="3" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="594.0" y="110.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">C</text>
+  <text x="65.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="111.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="157.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="203.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="249.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">½</text>
+  <text x="295.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="341.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="387.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="433.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="479.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="525.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <text x="571.0" y="132.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">½</text>
+  <text x="320.0" y="154.0" fill="#475569" font-size="10" text-anchor="middle">số dưới = khoảng cách nửa cung tới nốt kế: các phím kề nhau cách ½ cung; E–F và B–C không có phím đen giữa</text>
+</svg>
 
 *(Số bên dưới: khoảng cách theo nguyên cung — 0.5 = nửa cung, 1 = nguyên cung)*
 

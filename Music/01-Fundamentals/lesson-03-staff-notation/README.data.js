@@ -170,23 +170,49 @@ Ghi nhớ: **"All Cows Eat Grass"** (A-C-E-G).
 
 Bố cục từ trên xuống:
 
-\`\`\`
-   ┌─────────── Khuông khóa Sol (treble) ───────────┐
-   │  Dòng 5: F5                                     │
-   │  Dòng 4: D5                                     │
-   │  Dòng 3: B4                                     │
-   │  Dòng 2: G4  ← nốt neo khóa Sol                │
-   │  Dòng 1: E4                                     │
-   └─────────────────────────────────────────────────┘
-        C4 ← dòng kẻ phụ giữa hai khuông (đô giữa)
-   ┌─────────── Khuông khóa Fa (bass) ──────────────┐
-   │  Dòng 5: A3                                     │
-   │  Dòng 4: F3  ← nốt neo khóa Fa                 │
-   │  Dòng 3: D3                                     │
-   │  Dòng 2: B2                                     │
-   │  Dòng 1: G2                                     │
-   └─────────────────────────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 640 260" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai khuông nhạc: khóa Sol với 5 dòng E4 G4 B4 D5 F5 (nốt neo G4 ở dòng 2); C4 đô giữa trên dòng kẻ phụ; khóa Fa với 5 dòng G2 B2 D3 F3 A3 (nốt neo F3 ở dòng 4)">
+  <defs></defs>
+  <text x="60.0" y="26.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">Khuông khóa Sol (treble) 𝄞</text>
+  <line x1="60.0" y1="40.0" x2="520.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="44.0" fill="#475569" font-size="9" text-anchor="end">Dòng 5</text>
+  <text x="540.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="start">F5</text>
+  <line x1="60.0" y1="54.0" x2="520.0" y2="54.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="58.0" fill="#475569" font-size="9" text-anchor="end">Dòng 4</text>
+  <text x="540.0" y="58.0" fill="#1d4ed8" font-size="11" text-anchor="start">D5</text>
+  <line x1="60.0" y1="68.0" x2="520.0" y2="68.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="72.0" fill="#475569" font-size="9" text-anchor="end">Dòng 3</text>
+  <text x="540.0" y="72.0" fill="#1d4ed8" font-size="11" text-anchor="start">B4</text>
+  <line x1="60.0" y1="82.0" x2="520.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="86.0" fill="#475569" font-size="9" text-anchor="end">Dòng 2</text>
+  <text x="540.0" y="86.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">G4</text>
+  <ellipse cx="200" cy="82" rx="9" ry="6" fill="#dc2626"/>
+  <text x="215.0" y="76.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">← nốt neo</text>
+  <line x1="60.0" y1="96.0" x2="520.0" y2="96.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="100.0" fill="#475569" font-size="9" text-anchor="end">Dòng 1</text>
+  <text x="540.0" y="100.0" fill="#1d4ed8" font-size="11" text-anchor="start">E4</text>
+  <line x1="190.0" y1="120.0" x2="210.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <ellipse cx="200" cy="120" rx="9" ry="6" fill="#15803d"/>
+  <text x="215.0" y="124.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">C4 — đô giữa (dòng kẻ phụ giữa hai khuông)</text>
+  <text x="60.0" y="146.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">Khuông khóa Fa (bass) 𝄢</text>
+  <line x1="60.0" y1="160.0" x2="520.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="164.0" fill="#475569" font-size="9" text-anchor="end">Dòng 5</text>
+  <text x="540.0" y="164.0" fill="#1d4ed8" font-size="11" text-anchor="start">A3</text>
+  <line x1="60.0" y1="174.0" x2="520.0" y2="174.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="178.0" fill="#475569" font-size="9" text-anchor="end">Dòng 4</text>
+  <text x="540.0" y="178.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">F3</text>
+  <ellipse cx="200" cy="174" rx="9" ry="6" fill="#dc2626"/>
+  <text x="215.0" y="168.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">← nốt neo</text>
+  <line x1="60.0" y1="188.0" x2="520.0" y2="188.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="192.0" fill="#475569" font-size="9" text-anchor="end">Dòng 3</text>
+  <text x="540.0" y="192.0" fill="#1d4ed8" font-size="11" text-anchor="start">D3</text>
+  <line x1="60.0" y1="202.0" x2="520.0" y2="202.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="206.0" fill="#475569" font-size="9" text-anchor="end">Dòng 2</text>
+  <text x="540.0" y="206.0" fill="#1d4ed8" font-size="11" text-anchor="start">B2</text>
+  <line x1="60.0" y1="216.0" x2="520.0" y2="216.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="52.0" y="220.0" fill="#475569" font-size="9" text-anchor="end">Dòng 1</text>
+  <text x="540.0" y="220.0" fill="#1d4ed8" font-size="11" text-anchor="start">G2</text>
+  <text x="300.0" y="245.0" fill="#475569" font-size="10" text-anchor="middle">treble: E-G-B-D-F (dòng 1→5), neo G4 dòng 2 · bass: G-B-D-F-A, neo F3 dòng 4 · C4 nằm giữa hai khuông</text>
+</svg>
 
 Đây là lý do C4 gọi là "đô **giữa**" — nó nằm ngay giữa grand staff, trên ledger line nối hai khuông.
 

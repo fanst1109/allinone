@@ -434,23 +434,38 @@ Thứ tự thời gian đúng:
 
 Sơ đồ nhân–quả:
 
-\`\`\`
-Chiến tranh Ba Tư (490–479)
-    ↓ Athens chiến thắng, nổi lên thành cường quốc biển
-Athens lập Liên minh Delos (478) → dần biến thành bá quyền
-    ↓ Sparta lo ngại Athens quá mạnh
-Chiến tranh Peloponnese bắt đầu (431)
-    ↓ Dịch bệnh (429) + Viễn chinh Sicily thất bại (413)
-Athens suy yếu nghiêm trọng
-    ↓ Thất bại Aegospotami (405) → Athens đầu hàng (404)
-Sparta thắng nhưng cũng kiệt sức
-    ↓ Thebes thắng Sparta tại Leuctra (371)
-Tất cả polis đều suy yếu
-    ↓ Macedonia (Philip II từ 359) bành trướng
-Trận Chaeronea (338): Macedonia thống trị Hy Lạp
-    ↓
-Alexander Đại đế tiếp quản (336) → chinh phục Ba Tư
-\`\`\`
+<svg viewBox="0 0 640 524" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi sự kiện từ Chiến tranh Ba Tư 490 tới Alexander 336: Delos → Peloponnese → Athens đầu hàng 404 → Leuctra 371 → Chaeronea 338">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="70.0" y="14.0" width="500.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Chiến tranh Ba Tư (490–479)</text>
+  <line x1="320.0" y1="50.0" x2="320.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="69.0" fill="#475569" font-size="10" text-anchor="start">Athens chiến thắng, nổi lên thành cường quốc biển</text>
+  <rect x="70.0" y="82.0" width="500.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Athens lập Liên minh Delos (478) → dần biến thành bá quyền</text>
+  <line x1="320.0" y1="118.0" x2="320.0" y2="148.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="137.0" fill="#475569" font-size="10" text-anchor="start">Sparta lo ngại Athens quá mạnh</text>
+  <rect x="70.0" y="150.0" width="500.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="172.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Chiến tranh Peloponnese bắt đầu (431)</text>
+  <line x1="320.0" y1="186.0" x2="320.0" y2="216.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="205.0" fill="#475569" font-size="10" text-anchor="start">dịch bệnh (429) + viễn chinh Sicily thất bại (413)</text>
+  <rect x="70.0" y="218.0" width="500.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="240.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Athens suy yếu nghiêm trọng</text>
+  <line x1="320.0" y1="254.0" x2="320.0" y2="284.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="273.0" fill="#475569" font-size="10" text-anchor="start">thất bại Aegospotami (405) → Athens đầu hàng (404)</text>
+  <rect x="70.0" y="286.0" width="500.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="308.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Sparta thắng nhưng cũng kiệt sức</text>
+  <line x1="320.0" y1="322.0" x2="320.0" y2="352.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="341.0" fill="#475569" font-size="10" text-anchor="start">Thebes thắng Sparta tại Leuctra (371)</text>
+  <rect x="70.0" y="354.0" width="500.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="376.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Tất cả polis đều suy yếu</text>
+  <line x1="320.0" y1="390.0" x2="320.0" y2="420.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="409.0" fill="#475569" font-size="10" text-anchor="start">Macedonia (Philip II từ 359) bành trướng</text>
+  <rect x="70.0" y="422.0" width="500.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="320.0" y="444.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Trận Chaeronea (338): Macedonia thống trị Hy Lạp</text>
+  <line x1="320.0" y1="458.0" x2="320.0" y2="476.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="478.0" width="500.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="500.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Alexander Đại đế tiếp quản (336) → chinh phục Ba Tư</text>
+</svg>
 
 ---
 

@@ -133,13 +133,24 @@ Theo Đại Việt sử ký toàn thư và các sử liệu truyền thống, Kh
 
 Hệ thống cũ của nhà Đường phân chia An Nam theo đơn vị Trung Hoa, phục vụ mục đích cai trị và thu thuế của đô hộ. Khúc Hạo lập hệ thống mới:
 
-```
-Cả nước
-└── Lộ (路) — đơn vị lớn nhất, tương đương tỉnh
-    └── Phủ (府) / Châu (州) — đơn vị trung gian
-        └── Giáp (甲) — đơn vị cơ sở nông thôn
-            └── Xã (社) — làng xã, đơn vị hành chính nhỏ nhất
-```
+<svg viewBox="0 0 560 320" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấp hành chính thời họ Khúc: Cả nước → Lộ → Phủ/Châu → Giáp → Xã">
+  <defs></defs>
+  <line x1="150.0" y1="52.0" x2="150.0" y2="72.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="150.0" y1="104.0" x2="150.0" y2="124.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="150.0" y1="156.0" x2="150.0" y2="176.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="150.0" y1="208.0" x2="150.0" y2="228.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="122.0" y="228.0" width="56.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="150.0" y="248.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Xã (社)</text>
+  <rect x="115.0" y="176.0" width="70.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="150.0" y="196.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Giáp (甲)</text>
+  <rect x="80.0" y="124.0" width="140.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="150.0" y="144.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Phủ (府) / Châu (州)</text>
+  <rect x="122.0" y="72.0" width="56.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="150.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Lộ (路)</text>
+  <rect x="118.5" y="20.0" width="63.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="150.0" y="40.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Cả nước</text>
+  <text x="280.0" y="312.0" fill="#475569" font-size="11" text-anchor="middle">Lộ ≈ tỉnh · Phủ/Châu trung gian · Giáp cơ sở nông thôn · Xã làng xã nhỏ nhất</text>
+</svg>
 
 Ý nghĩa: hệ thống này lấy **xã** (làng) làm đơn vị cơ sở — phù hợp với cấu trúc xã hội Việt (người Việt vốn sống tập trung theo làng xã, không phải theo hành chính Hán áp đặt). Đây là bước đặt nền cho hệ thống hành chính lấy làng làm gốc, kéo dài suốt lịch sử phong kiến Việt Nam sau này.
 
@@ -220,21 +231,31 @@ Vì sao hành động này dẫn đến thảm họa cho chính Kiều Công Ti�
 
 🔗 **Nhân – quả — Chuỗi từ tự chủ đến Bạch Đằng**:
 
-```
-905: Khúc Thừa Dụ nắm quyền — tự chủ trên thực tế
-        ↓
-907–917: Khúc Hạo cải cách hành chính — nền móng quản lý Việt
-        ↓
-923: Nam Hán chiếm lại — tự chủ bị gián đoạn
-        ↓
-931: Dương Đình Nghệ đánh đuổi Nam Hán — phục hồi tự chủ
-        ↓
-937: Kiều Công Tiễn phản bội, cầu viện Nam Hán — khủng hoảng
-        ↓
-938: Ngô Quyền đánh Bạch Đằng, tiêu diệt quân Nam Hán
-        ↓
-939: Ngô Quyền xưng vương — ĐỘC LẬP THỰC SỰ
-```
+<svg viewBox="0 0 620 424" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dòng thời gian 905–939: từ tự chủ họ Khúc, gián đoạn 923, phục hồi 931, khủng hoảng 937, chiến thắng Bạch Đằng 938 tới Ngô Quyền xưng vương 939">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="50.0" y="14.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="36.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">905: Khúc Thừa Dụ nắm quyền — tự chủ trên thực tế</text>
+  <line x1="310.0" y1="50.0" x2="310.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="70.0" width="580.0" height="48.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="89.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">907–917: Khúc Hạo cải cách hành chính — nền móng quản lý</text>
+  <text x="310.0" y="106.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Việt</text>
+  <line x1="310.0" y1="120.0" x2="310.0" y2="138.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="140.0" width="520.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="162.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">923: Nam Hán chiếm lại — tự chủ bị gián đoạn</text>
+  <line x1="310.0" y1="176.0" x2="310.0" y2="194.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="196.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="218.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">931: Dương Đình Nghệ đánh đuổi Nam Hán — phục hồi tự chủ</text>
+  <line x1="310.0" y1="232.0" x2="310.0" y2="250.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="252.0" width="580.0" height="48.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="310.0" y="271.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">937: Kiều Công Tiễn phản bội, cầu viện Nam Hán — khủng</text>
+  <text x="310.0" y="288.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">hoảng</text>
+  <line x1="310.0" y1="302.0" x2="310.0" y2="320.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="322.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="344.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">938: Ngô Quyền đánh Bạch Đằng, tiêu diệt quân Nam Hán</text>
+  <line x1="310.0" y1="358.0" x2="310.0" y2="376.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="378.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="400.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">939: Ngô Quyền xưng vương — ĐỘC LẬP THỰC SỰ</text>
+</svg>
 
 ❓ **Câu hỏi thường gặp**:
 
@@ -383,23 +404,36 @@ D. Vì nhân dân An Nam đã đồng loạt nổi dậy ủng hộ ông.
 
 **Sơ đồ nhân – quả: Kiều Công Tiễn và kết quả ngược mong đợi**
 
-```
-Kiều Công Tiễn giết Dương Đình Nghệ (937)
-    ↓ [Nguyên nhân trực tiếp]
-Mất lòng toàn bộ tướng lĩnh và dân chúng
-    ↓ [Hệ quả 1]
-Kiều Công Tiễn lo sợ bị tấn công trả thù
-    ↓ [Hệ quả 2]
-Cầu viện Nam Hán (mong bảo vệ quyền lực)
-    ↓ [Hệ quả 3 — ngược mong đợi]
-Ngô Quyền có thêm LÝ DO CHÍNH ĐÁNG và ĐỐI THỦ LỚN HƠN
-    ↓
-Ngô Quyền giết Kiều Công Tiễn TRƯỚC khi Nam Hán đến kịp
-    ↓
-Quân Nam Hán vào Bạch Đằng — bị Ngô Quyền phục kích tiêu diệt (938)
-    ↓
-Ngô Quyền xưng vương (939) — Độc lập thực sự
-```
+<svg viewBox="0 0 640 500" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi nhân quả 937–939: vụ ám sát Dương Đình Nghệ → mất lòng → cầu viện Nam Hán → Ngô Quyền diệt Kiều Công Tiễn → Bạch Đằng 938 → xưng vương 939">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="50.0" y="14.0" width="540.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Kiều Công Tiễn giết Dương Đình Nghệ (937)</text>
+  <line x1="320.0" y1="50.0" x2="320.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="69.0" fill="#475569" font-size="10" text-anchor="start">nguyên nhân trực tiếp</text>
+  <rect x="50.0" y="82.0" width="540.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="104.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Mất lòng toàn bộ tướng lĩnh và dân chúng</text>
+  <line x1="320.0" y1="118.0" x2="320.0" y2="148.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="137.0" fill="#475569" font-size="10" text-anchor="start">hệ quả 1</text>
+  <rect x="50.0" y="150.0" width="540.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="172.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Kiều Công Tiễn lo sợ bị tấn công trả thù</text>
+  <line x1="320.0" y1="186.0" x2="320.0" y2="216.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="205.0" fill="#475569" font-size="10" text-anchor="start">hệ quả 2</text>
+  <rect x="50.0" y="218.0" width="540.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="240.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Cầu viện Nam Hán (mong bảo vệ quyền lực)</text>
+  <line x1="320.0" y1="254.0" x2="320.0" y2="284.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="332.0" y="273.0" fill="#475569" font-size="10" text-anchor="start">hệ quả 3 — ngược mong đợi</text>
+  <rect x="50.0" y="286.0" width="540.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="308.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Ngô Quyền có thêm LÝ DO CHÍNH ĐÁNG và ĐỐI THỦ LỚN HƠN</text>
+  <line x1="320.0" y1="322.0" x2="320.0" y2="340.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="342.0" width="540.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="364.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Ngô Quyền giết Kiều Công Tiễn TRƯỚC khi Nam Hán đến kịp</text>
+  <line x1="320.0" y1="378.0" x2="320.0" y2="396.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="398.0" width="540.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="420.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Quân Nam Hán vào Bạch Đằng — bị phục kích tiêu diệt (938)</text>
+  <line x1="320.0" y1="434.0" x2="320.0" y2="452.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="454.0" width="540.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="476.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Ngô Quyền xưng vương (939) — Độc lập thực sự</text>
+</svg>
 
 **Tại sao ngược mong đợi**: Kiều Công Tiễn tính toán rằng quân Nam Hán sẽ bảo vệ ông. Nhưng thực tế: (1) quân Nam Hán đến chậm — Ngô Quyền hành động nhanh hơn; (2) việc cầu viện biến cuộc nội chiến Việt thành cuộc chiến chống ngoại xâm, khiến Ngô Quyền có thêm sự ủng hộ và danh nghĩa chính đáng hơn; (3) trận Bạch Đằng — chiến thắng vang dội của Ngô Quyền — không thể xảy ra nếu không có quân Nam Hán do Kiều Công Tiễn "mời" vào. Kiều Công Tiễn vô tình tạo ra kẻ thù chung, giúp Ngô Quyền thống nhất dư luận và lực lượng.
 

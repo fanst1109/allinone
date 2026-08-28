@@ -52,20 +52,30 @@ Năm 930, quân Nam Hán (một trong mười vương triều thời Ngũ đại
 
 🔗 **Chuỗi nhân – quả**
 
-```
-Dương Đình Nghệ bị ám sát (937)
-        ↓
-Kiều Công Tiễn nắm quyền → cầu viện Nam Hán để cầu thêm hậu thuẫn
-        ↓
-Ngô Quyền (con rể Dương Đình Nghệ) — căm phẫn vì thủ lĩnh bị giết
-        ↓
-Ngô Quyền kéo quân từ Ái Châu ra Bắc, diệt Kiều Công Tiễn TRƯỚC
-        khi quân Nam Hán kịp vào can thiệp
-        ↓
-Quân Nam Hán (do Lưu Hoằng Tháo chỉ huy) vẫn tiến theo đường biển
-        ↓
-Trận Bạch Đằng 938 (xem Mục 2 & 3)
-```
+<svg viewBox="0 0 640 396" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bối cảnh dẫn tới Bạch Đằng 938: ám sát 937 → Kiều Công Tiễn cầu viện → Ngô Quyền diệt Kiều Công Tiễn → Nam Hán tiến theo đường biển → trận Bạch Đằng">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="50.0" y="14.0" width="540.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Dương Đình Nghệ bị ám sát (937)</text>
+  <line x1="320.0" y1="50.0" x2="320.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="70.0" width="600.0" height="48.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="89.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Kiều Công Tiễn nắm quyền → cầu viện Nam Hán để có thêm hậu</text>
+  <text x="320.0" y="106.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">thuẫn</text>
+  <line x1="320.0" y1="120.0" x2="320.0" y2="138.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="140.0" width="600.0" height="48.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="159.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Ngô Quyền (con rể Dương Đình Nghệ) — căm phẫn vì thủ lĩnh</text>
+  <text x="320.0" y="176.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">bị giết</text>
+  <line x1="320.0" y1="190.0" x2="320.0" y2="208.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="210.0" width="600.0" height="48.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="229.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Ngô Quyền kéo quân từ Ái Châu ra Bắc, diệt Kiều Công Tiễn</text>
+  <text x="320.0" y="246.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">TRƯỚC khi quân Nam Hán kịp can thiệp</text>
+  <line x1="320.0" y1="260.0" x2="320.0" y2="278.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="20.0" y="280.0" width="600.0" height="48.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="299.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Quân Nam Hán (Lưu Hoằng Tháo chỉ huy) vẫn tiến theo đường</text>
+  <text x="320.0" y="316.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">biển</text>
+  <line x1="320.0" y1="330.0" x2="320.0" y2="348.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="50.0" y="350.0" width="540.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="372.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Trận Bạch Đằng 938 (xem Mục 2 &amp; 3)</text>
+</svg>
 
 ❓ **Câu hỏi thường gặp về bối cảnh**
 

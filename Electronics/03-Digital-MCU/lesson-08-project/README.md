@@ -131,8 +131,8 @@ Thiết kế hệ điều khiển nhiệt độ lồng ấp gà (hoặc phòng n
   <text x="134.0" y="76.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">5V</text>
   <line x1="130.0" y1="160.0" x2="160.0" y2="160.0" stroke="#1a202c" stroke-width="2"/>
   <text x="134.0" y="156.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D9</text>
-  <line x1="130.0" y1="230.0" x2="160.0" y2="230.0" stroke="#1a202c" stroke-width="2"/>
-  <text x="134.0" y="226.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D7</text>
+  <line x1="130.0" y1="252.0" x2="160.0" y2="252.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="134.0" y="248.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D7</text>
   <line x1="130.0" y1="280.0" x2="160.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
   <text x="134.0" y="276.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">D6</text>
   <line x1="130.0" y1="320.0" x2="160.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
@@ -191,11 +191,11 @@ Thiết kế hệ điều khiển nhiệt độ lồng ấp gà (hoặc phòng n
   <line x1="296.0" y1="224.0" x2="304.0" y2="224.0" stroke="#1a202c" stroke-width="2"/>
   <text x="300.0" y="238.0" fill="#475569" font-size="10" text-anchor="middle">GND</text>
   <text x="400.0" y="150.0" fill="#475569" font-size="9" text-anchor="start">1N4007 flyback ∥ quạt</text>
-  <line x1="160.0" y1="230.0" x2="330.0" y2="230.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
-  <rect x="330.0" y="216.0" width="100.0" height="28.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
-  <text x="380.0" y="234.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Relay IN</text>
-  <line x1="430.0" y1="230.0" x2="450.0" y2="230.0" stroke="#1a202c" stroke-width="2"/>
-  <text x="454.0" y="234.0" fill="#dc2626" font-size="9" text-anchor="start">COM/NO → đèn sưởi 220 V AC</text>
+  <line x1="160.0" y1="252.0" x2="330.0" y2="252.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#arw)"/>
+  <rect x="330.0" y="238.0" width="100.0" height="28.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="380.0" y="256.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Relay IN</text>
+  <line x1="430.0" y1="252.0" x2="450.0" y2="252.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="454.0" y="256.0" fill="#dc2626" font-size="9" text-anchor="start">COM/NO → đèn sưởi 220 V AC</text>
   <line x1="160.0" y1="280.0" x2="190.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
   <rect x="190.0" y="273.0" width="44.0" height="14.0" rx="0" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
   <text x="212.0" y="268.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">150 Ω</text>
@@ -206,7 +206,7 @@ Thiết kế hệ điều khiển nhiệt độ lồng ấp gà (hoặc phòng n
   <text x="280.0" y="264.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
   <line x1="282.0" y1="266.0" x2="292.0" y2="254.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
   <line x1="290.0" y1="268.0" x2="300.0" y2="256.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
-  <text x="310.0" y="284.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">LED đỏ</text>
+  <text x="312.0" y="270.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">LED đỏ</text>
   <line x1="302.0" y1="280.0" x2="380.0" y2="280.0" stroke="#1a202c" stroke-width="2"/>
   <line x1="380.0" y1="280.0" x2="380.0" y2="290.0" stroke="#1a202c" stroke-width="2"/>
   <line x1="366.0" y1="290.0" x2="394.0" y2="290.0" stroke="#1a202c" stroke-width="2"/>
@@ -223,7 +223,7 @@ Thiết kế hệ điều khiển nhiệt độ lồng ấp gà (hoặc phòng n
   <text x="280.0" y="304.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700"></text>
   <line x1="282.0" y1="306.0" x2="292.0" y2="294.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
   <line x1="290.0" y1="308.0" x2="300.0" y2="296.0" stroke="#b45309" stroke-width="1.5" marker-end="url(#ledm)"/>
-  <text x="310.0" y="324.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">LED xanh</text>
+  <text x="312.0" y="310.0" fill="#dc2626" font-size="9" text-anchor="start" font-weight="700">LED xanh</text>
   <line x1="302.0" y1="320.0" x2="380.0" y2="320.0" stroke="#1a202c" stroke-width="2"/>
   <line x1="380.0" y1="320.0" x2="380.0" y2="330.0" stroke="#1a202c" stroke-width="2"/>
   <line x1="366.0" y1="330.0" x2="394.0" y2="330.0" stroke="#1a202c" stroke-width="2"/>

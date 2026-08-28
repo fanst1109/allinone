@@ -82,19 +82,19 @@ Khi ta "biết B xảy ra", không gian mẫu $\Omega$ co lại còn B. Trong kh
 
 Hình ảnh: trong sơ đồ Venn, B là một "vùng đảo". $P(A \mid B)$ là tỷ lệ diện tích $A \cap B$ so với diện tích $B$:
 
-```
-   Ω
- ┌──────────────────────┐
- │           ┌────────┐ │
- │     ┌─────┼───┐    │ │
- │     │  A  │ A∩B │  B │ │
- │     │     │   │    │ │
- │     └─────┼───┘    │ │
- │           └────────┘ │
- └──────────────────────┘
-
-P(A|B) = (diện tích A∩B) / (diện tích B)
-```
+<svg viewBox="0 0 480 300" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Venn xác suất có điều kiện: trong không gian Ω, P(A|B) là tỉ số diện tích A∩B trên diện tích B">
+  <defs></defs>
+  <rect x="30.0" y="30.0" width="420.0" height="220.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <text x="44.0" y="52.0" fill="#1a202c" font-size="16" text-anchor="start" font-weight="700">Ω</text>
+  <defs><clipPath id="pA"><circle cx="190" cy="140" r="85"/></clipPath></defs>
+  <circle cx="190" cy="140" r="85" fill="#1d4ed8" fill-opacity="0.25" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="290" cy="140" r="85" fill="#15803d" fill-opacity="0.25" stroke="#15803d" stroke-width="2"/>
+  <circle cx="290" cy="140" r="85" fill="#dc2626" fill-opacity="0.7" clip-path="url(#pA)"/>
+  <text x="140.0" y="140.0" fill="#1d4ed8" font-size="18" text-anchor="middle" font-weight="700">A</text>
+  <text x="340.0" y="140.0" fill="#15803d" font-size="18" text-anchor="middle" font-weight="700">B</text>
+  <text x="240.0" y="144.0" fill="white" font-size="14" text-anchor="middle" font-weight="700">A∩B</text>
+  <text x="240.0" y="282.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">P(A | B) = (diện tích A∩B) / (diện tích B) — 'đã biết ở trong B, phần nào thuộc A?'</text>
+</svg>
 
 $$P(A \mid B) = \frac{\text{diện tích } A \cap B}{\text{diện tích } B}$$
 
@@ -1056,22 +1056,23 @@ Bình luận: NCC 3 chỉ làm 20% sản lượng nhưng đóng góp 43,5% lỗi
 
 ### 15.1. Sơ đồ tổng quát
 
-```
-P(A) — prior
-    │
-    │  thấy data B
-    ▼
-P(A | B) — posterior
-    │
-    │  công thức Bayes
-    │  P(A|B) = P(B|A)·P(A)/P(B)
-    │  với   P(B) = Σ P(B|Aᵢ)·P(Aᵢ)   (total probability)
-    ▼
-ML / AI:
-    - Naive Bayes (spam, sentiment)
-    - MLE → cross-entropy (Lesson 07-08)
-    - MAP, regularization, Bayesian DL
-```
+<svg viewBox="0 0 580 280" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng Bayes: prior P(A) → thấy dữ liệu B → posterior P(A|B) theo công thức Bayes; ứng dụng Naive Bayes, MLE, MAP">
+  <defs><marker id="by" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="160.0" y="16.0" width="260.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="41.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P(A) — prior (niềm tin ban đầu)</text>
+  <line x1="290.0" y1="56.0" x2="290.0" y2="84.0" stroke="#1a202c" stroke-width="2" marker-end="url(#by)"/>
+  <text x="300.0" y="74.0" fill="#475569" font-size="12" text-anchor="start">thấy dữ liệu B</text>
+  <rect x="160.0" y="86.0" width="260.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="111.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">P(A | B) — posterior</text>
+  <line x1="290.0" y1="126.0" x2="290.0" y2="164.0" stroke="#1a202c" stroke-width="2" marker-end="url(#by)"/>
+  <text x="300.0" y="140.0" fill="#475569" font-size="11" text-anchor="start">công thức Bayes: P(A|B) = P(B|A)·P(A) / P(B)</text>
+  <text x="300.0" y="156.0" fill="#475569" font-size="11" text-anchor="start">P(B) = Σ P(B|Aᵢ)·P(Aᵢ)  (total probability)</text>
+  <rect x="60.0" y="166.0" width="460.0" height="100.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="186.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Ứng dụng ML / AI</text>
+  <text x="290.0" y="208.0" fill="#15803d" font-size="11" text-anchor="middle">• Naive Bayes (spam, sentiment)</text>
+  <text x="290.0" y="225.0" fill="#15803d" font-size="11" text-anchor="middle">• MLE → cross-entropy (Lesson 07–08)</text>
+  <text x="290.0" y="242.0" fill="#15803d" font-size="11" text-anchor="middle">• MAP, regularization, Bayesian DL</text>
+</svg>
 
 ### 15.2. Mối liên hệ với các lesson khác
 

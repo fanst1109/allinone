@@ -46,8 +46,9 @@ Tương tự, $y = \\cos x$ ghi lại **tọa độ hoành** (chiều ngang) c�
 
 Bên trái là đường tròn đơn vị, bên phải là đồ thị $y = \\sin x$. Bốn vị trí đặc biệt được đánh dấu $A$, $B$, $C$, $D$ ứng với $\\theta = 0, \\frac{\\pi}{2}, \\pi, \\frac{3\\pi}{2}$:
 
-<svg viewBox="0 0 640 292" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn đơn vị bên trái với các điểm A(0°), B(90°), C(180°), D(270°) nối bằng nét đứt tới vị trí tương ứng trên đồ thị y = sin x bên phải">
+<svg viewBox="0 0 660 292" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn đơn vị bên trái với các điểm A(0°), B(90°), C(180°), D(270°) nối bằng nét đứt tới vị trí tương ứng trên đồ thị y = sin x bên phải">
   <defs><marker id="w1a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="w1b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(20,0)">
   <line x1="0.0" y1="150.0" x2="236.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#w1a)"/>
   <line x1="110.0" y1="260.0" x2="110.0" y2="24.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#w1a)"/>
   <text x="228.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic"></text>
@@ -101,6 +102,7 @@ Bên trái là đường tròn đơn vị, bên phải là đồ thị $y = \\si
   <text x="465.3" y="248.0" fill="#7c3aed" font-size="13" text-anchor="start" font-weight="700">D</text>
   <line x1="110.0" y1="230.0" x2="457.3" y2="230.0" stroke="#7c3aed" stroke-width="0.8" stroke-dasharray="3 3"/>
   <text x="320.0" y="276.0" fill="#475569" font-size="11" text-anchor="middle">A (θ=0): sin = 0 · B (π/2): sin = 1 đỉnh · C (π): sin = 0 · D (3π/2): sin = −1 đáy · 2π: về A, lặp lại</text>
+  </g>
 </svg>
 
 Đọc lại theo hành trình: từ A, điểm trên đường tròn quay ngược chiều kim đồng hồ. Tọa độ tung $\\sin\\theta$ đi từ $0$ (A) lên $1$ (B), trở về $0$ (C), xuống $-1$ (D), rồi lại về $0$ (A). Đó là **một chu kỳ** đầy đủ — và đồ thị bên phải cho thấy đúng hành trình đó vẽ ra một "ngọn sóng".

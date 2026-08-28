@@ -103,7 +103,7 @@ Chi tiết hơn:
   <circle cx="40.0" cy="130.0" r="4" fill="#1a202c"/>
   <path d="M 76.0,130.0 A 36,36 0 0 0 4.0,130.0" fill="none" stroke="#dc2626" stroke-width="2"/>
   <text x="40.0" y="84.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">180°</text>
-  <path d="M 439.0,130.0 A 44,44 0 1 0 439.0,130.1" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="395" cy="130" r="44" fill="none" stroke="#dc2626" stroke-width="2"/>
   </g>
   <text x="395.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc trọn vòng (360°)</text>
   <circle cx="395" cy="130" r="60" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>

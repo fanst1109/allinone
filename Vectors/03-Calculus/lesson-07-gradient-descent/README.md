@@ -441,12 +441,82 @@ Không ai biết $L$ chính xác cho NN. Thực hành:
 
 Loss vs số bước, với 4 giá trị η khác nhau (cho $f = x^2$, $x_0 = 5$):
 
-```
-η=0.01: ----------------------------------- (giảm chậm, gần như tuyến tính)
-η=0.1:  ____\__________________________ (giảm nhanh đầu, dần phẳng)
-η=0.5:  \_________________________________ (1 bước về 0)
-η=1.1:  /\/\/\___ →∞ (phân kỳ, đi lên cao dần)
-```
+<svg viewBox="0 0 520 275" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Giá trị hàm f(xₜ) theo bước với 4 học suất trên f = x²: η = 0.01 giảm chậm, 0.1 nhanh rồi phẳng, 0.5 về 0 sau 1 bước, 1.1 phân kỳ">
+  <defs><marker id="c7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="190.0" y1="210.0" x2="190.0" y2="37.5"/>
+<line x1="320.0" y1="210.0" x2="320.0" y2="37.5"/>
+<line x1="450.0" y1="210.0" x2="450.0" y2="37.5"/>
+<line x1="60.0" y1="135.0" x2="463.0" y2="135.0"/>
+<line x1="60.0" y1="60.0" x2="463.0" y2="60.0"/>
+</g>
+  <line x1="54.0" y1="210.0" x2="485.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c7)"/>
+  <line x1="60.0" y1="216.0" x2="60.0" y2="15.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c7)"/>
+  <text x="477.0" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">bước t</text>
+  <text x="68.0" y="25.5" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">f(xₜ) / f(x₀)</text>
+  <line x1="190.0" y1="206.0" x2="190.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="190.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="320.0" y1="206.0" x2="320.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">10</text>
+  <line x1="450.0" y1="206.0" x2="450.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="450.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">15</text>
+  <line x1="56.0" y1="135.0" x2="64.0" y2="135.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="139.0" fill="#475569" font-size="11" text-anchor="end">0.5</text>
+  <line x1="56.0" y1="60.0" x2="64.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <path d="M 60.0,60.0 L 86.0,65.9 L 112.0,71.6 L 138.0,77.1 L 164.0,82.4 L 190.0,87.4 L 216.0,92.3 L 242.0,97.0 L 268.0,101.4 L 294.0,105.7 L 320.0,109.9 L 346.0,113.8 L 372.0,117.6 L 398.0,121.3 L 424.0,124.8 L 450.0,128.2" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="6 4"/>
+  <circle cx="60.0" cy="60.0" r="3" fill="#94a3b8"/>
+  <circle cx="86.0" cy="65.9" r="3" fill="#94a3b8"/>
+  <circle cx="112.0" cy="71.6" r="3" fill="#94a3b8"/>
+  <circle cx="138.0" cy="77.1" r="3" fill="#94a3b8"/>
+  <circle cx="164.0" cy="82.4" r="3" fill="#94a3b8"/>
+  <circle cx="190.0" cy="87.4" r="3" fill="#94a3b8"/>
+  <circle cx="216.0" cy="92.3" r="3" fill="#94a3b8"/>
+  <circle cx="242.0" cy="97.0" r="3" fill="#94a3b8"/>
+  <circle cx="268.0" cy="101.4" r="3" fill="#94a3b8"/>
+  <circle cx="294.0" cy="105.7" r="3" fill="#94a3b8"/>
+  <circle cx="320.0" cy="109.9" r="3" fill="#94a3b8"/>
+  <circle cx="346.0" cy="113.8" r="3" fill="#94a3b8"/>
+  <path d="M 60.0,60.0 L 86.0,114.0 L 112.0,148.6 L 138.0,170.7 L 164.0,184.8 L 190.0,193.9 L 216.0,199.7 L 242.0,203.4 L 268.0,205.8 L 294.0,207.3 L 320.0,208.3 L 346.0,208.9 L 372.0,209.3 L 398.0,209.5 L 424.0,209.7 L 450.0,209.8" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="60.0" cy="60.0" r="3" fill="#1d4ed8"/>
+  <circle cx="86.0" cy="114.0" r="3" fill="#1d4ed8"/>
+  <circle cx="112.0" cy="148.6" r="3" fill="#1d4ed8"/>
+  <circle cx="138.0" cy="170.7" r="3" fill="#1d4ed8"/>
+  <circle cx="164.0" cy="184.8" r="3" fill="#1d4ed8"/>
+  <circle cx="190.0" cy="193.9" r="3" fill="#1d4ed8"/>
+  <circle cx="216.0" cy="199.7" r="3" fill="#1d4ed8"/>
+  <circle cx="242.0" cy="203.4" r="3" fill="#1d4ed8"/>
+  <circle cx="268.0" cy="205.8" r="3" fill="#1d4ed8"/>
+  <circle cx="294.0" cy="207.3" r="3" fill="#1d4ed8"/>
+  <circle cx="320.0" cy="208.3" r="3" fill="#1d4ed8"/>
+  <circle cx="346.0" cy="208.9" r="3" fill="#1d4ed8"/>
+  <path d="M 60.0,60.0 L 86.0,210.0 L 112.0,210.0 L 138.0,210.0 L 164.0,210.0 L 190.0,210.0 L 216.0,210.0 L 242.0,210.0 L 268.0,210.0 L 294.0,210.0 L 320.0,210.0 L 346.0,210.0 L 372.0,210.0 L 398.0,210.0 L 424.0,210.0 L 450.0,210.0" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="60.0" cy="60.0" r="3" fill="#15803d"/>
+  <circle cx="86.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="112.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="138.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="164.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="190.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="216.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="242.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="268.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="294.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="320.0" cy="210.0" r="3" fill="#15803d"/>
+  <circle cx="346.0" cy="210.0" r="3" fill="#15803d"/>
+  <path d="M 60.0,60.0 L 86.0,39.0" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="3 3"/>
+  <circle cx="60.0" cy="60.0" r="3" fill="#dc2626"/>
+  <circle cx="86.0" cy="39.0" r="3" fill="#dc2626"/>
+  <rect x="300.0" y="30.0" width="180.0" height="84.0" rx="8" fill="white" fill-opacity="1" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="310.0" y1="46.0" x2="336.0" y2="46.0" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="344.0" y="50.0" fill="#94a3b8" font-size="11" text-anchor="start">η = 0.01: chậm, gần tuyến tính</text>
+  <line x1="310.0" y1="65.0" x2="336.0" y2="65.0" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="344.0" y="69.0" fill="#1d4ed8" font-size="11" text-anchor="start">η = 0.1: nhanh đầu, dần phẳng</text>
+  <line x1="310.0" y1="84.0" x2="336.0" y2="84.0" stroke="#15803d" stroke-width="2.5"/>
+  <text x="344.0" y="88.0" fill="#15803d" font-size="11" text-anchor="start">η = 0.5: về 0 sau 1 bước</text>
+  <line x1="310.0" y1="103.0" x2="336.0" y2="103.0" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="3 3"/>
+  <text x="344.0" y="107.0" fill="#dc2626" font-size="11" text-anchor="start">η = 1.1: phân kỳ → ∞</text>
+  <text x="260.0" y="258.0" fill="#475569" font-size="11" text-anchor="middle">f(x) = x², x₀ = 1, bước x ← x − η·2x: học suất quyết định tốc độ hội tụ hay phân kỳ</text>
+</svg>
 
 Visualization (xem `visualization.html`) cho phép kéo slider $\eta$ để thấy trực quan.
 

@@ -565,29 +565,49 @@ Với HNSW, truy vấn 1M document chỉ mất **~5ms** (so với ~5s nếu naiv
 
 Đây là kiến trúc **phổ biến nhất** trong các ứng dụng LLM hiện nay (ChatGPT cho doanh nghiệp, Cursor, Notion AI, ...). Pipeline:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ INDEXING (offline, chạy 1 lần khi build dataset)          │
-│                                                             │
-│  documents → chunking → embedding → vector DB              │
-│  ("Tài liệu sản phẩm A...") → ["Tài liệu...", "sản phẩm…"] │
-│                              → [(0.1, 0.3, ...), ...]      │
-│                              → lưu vào Qdrant / Pinecone   │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│ QUERY (online, mỗi khi user hỏi)                          │
-│                                                             │
-│  ❶ user_query: "Sản phẩm A có cài đặt ngoài trời được không?" │
-│  ❷ query_embedding = embed(query)  → vector 1536D          │
-│  ❸ retrieve = vector_db.top_k(query_embedding, k=5)        │
-│      → 5 chunk text liên quan nhất (theo cos sim)          │
-│  ❹ prompt = "Dựa vào tài liệu sau, trả lời:\n" + chunks    │
-│      + "\nCâu hỏi: " + user_query                          │
-│  ❺ answer = LLM(prompt)  ← GPT/Claude/Llama đọc context    │
-│      đã được retrieve và trả lời                           │
-└─────────────────────────────────────────────────────────────┘
-```
+<svg viewBox="0 0 700 355" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc RAG: giai đoạn indexing (documents → chunking → embedding → vector DB) và giai đoạn query 5 bước (query → embed → top-k → prompt → LLM)">
+  <defs><marker id="rg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="30.0" y="20.0" width="640.0" height="116.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="350.0" y="83.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">INDEXING (offline, chạy 1 lần khi build dataset)</text>
+  <rect x="60.0" y="60.0" width="120.0" height="54.0" rx="8" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="84.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">documents</text>
+  <text x="120.0" y="99.5" fill="#475569" font-size="11" text-anchor="middle">tài liệu gốc</text>
+  <line x1="184.0" y1="87.0" x2="210.0" y2="87.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="215.0" y="60.0" width="120.0" height="54.0" rx="8" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="275.0" y="84.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">chunking</text>
+  <text x="275.0" y="99.5" fill="#475569" font-size="11" text-anchor="middle">cắt đoạn</text>
+  <line x1="339.0" y1="87.0" x2="365.0" y2="87.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="370.0" y="60.0" width="120.0" height="54.0" rx="8" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="430.0" y="84.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">embedding</text>
+  <text x="430.0" y="99.5" fill="#475569" font-size="11" text-anchor="middle">→ vector</text>
+  <line x1="494.0" y1="87.0" x2="520.0" y2="87.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="525.0" y="60.0" width="120.0" height="54.0" rx="8" fill="white" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="585.0" y="84.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">vector DB</text>
+  <text x="585.0" y="99.5" fill="#475569" font-size="11" text-anchor="middle">Qdrant / Pinecone</text>
+  <rect x="30.0" y="156.0" width="640.0" height="190.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="350.0" y="256.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">QUERY (online, mỗi khi user hỏi)</text>
+  <rect x="42.0" y="196.0" width="112.0" height="60.0" rx="8" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="98.0" y="223.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">❶ user_query</text>
+  <text x="98.0" y="238.5" fill="#475569" font-size="9" text-anchor="middle">câu hỏi người dùng</text>
+  <line x1="156.0" y1="226.0" x2="166.0" y2="226.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="168.0" y="196.0" width="112.0" height="60.0" rx="8" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="224.0" y="223.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">❷ embed(query)</text>
+  <text x="224.0" y="238.5" fill="#475569" font-size="9" text-anchor="middle">vector 1536D</text>
+  <line x1="282.0" y1="226.0" x2="292.0" y2="226.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="294.0" y="196.0" width="112.0" height="60.0" rx="8" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="350.0" y="223.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">❸ top_k(k=5)</text>
+  <text x="350.0" y="238.5" fill="#475569" font-size="9" text-anchor="middle">5 chunk gần nhất</text>
+  <line x1="408.0" y1="226.0" x2="418.0" y2="226.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="420.0" y="196.0" width="112.0" height="60.0" rx="8" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="476.0" y="223.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">❹ prompt = ctx + hỏi</text>
+  <text x="476.0" y="238.5" fill="#475569" font-size="9" text-anchor="middle">ghép context</text>
+  <line x1="534.0" y1="226.0" x2="544.0" y2="226.0" stroke="#1a202c" stroke-width="2" marker-end="url(#rg)"/>
+  <rect x="546.0" y="196.0" width="112.0" height="60.0" rx="8" fill="white" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="602.0" y="223.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">❺ LLM(prompt)</text>
+  <text x="602.0" y="238.5" fill="#475569" font-size="9" text-anchor="middle">đọc context → trả lời</text>
+  <line x1="350.0" y1="136.0" x2="350.0" y2="154.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="350.0" y="336.0" fill="#475569" font-size="11" text-anchor="middle">vector DB dùng chung: lưu ở indexing, truy vấn ở query</text>
+</svg>
 
 **Cốt lõi của bước ❸** chính là **cosine similarity** — đó là toàn bộ lý do bài học này quan trọng.
 

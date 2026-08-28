@@ -48,16 +48,42 @@ Sau bài này, bạn sẽ:
 
 **Quy ước quan trọng:** trong linear algebra, ta luôn **đặt điểm đầu của vector tại gốc tọa độ $O = (0, 0, \ldots, 0)$**. Khi đó mũi tên được xác định hoàn toàn bởi **điểm cuối**.
 
-```
-        y
-        ↑
-       3│      ●  ← điểm cuối (3, 2)
-       2│     ╱
-       1│   ╱
-        │ ╱  ← vector v
-   ─────O──┼──┼──┼──┼──► x
-        │  1  2  3  4
-```
+<svg viewBox="0 0 420 270" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vector v = (3, 2) vẽ từ gốc O tới điểm (3, 2)">
+  <defs><marker id="v1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="v1b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="v1g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="v1r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="104.0" y1="210.0" x2="104.0" y2="51.6"/>
+<line x1="148.0" y1="210.0" x2="148.0" y2="51.6"/>
+<line x1="192.0" y1="210.0" x2="192.0" y2="51.6"/>
+<line x1="236.0" y1="210.0" x2="236.0" y2="51.6"/>
+<line x1="60.0" y1="166.0" x2="262.4" y2="166.0"/>
+<line x1="60.0" y1="122.0" x2="262.4" y2="122.0"/>
+<line x1="60.0" y1="78.0" x2="262.4" y2="78.0"/>
+</g>
+  <line x1="54.0" y1="210.0" x2="284.4" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v1)"/>
+  <line x1="60.0" y1="216.0" x2="60.0" y2="29.6" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v1)"/>
+  <text x="276.4" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="39.6" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="104.0" y1="206.0" x2="104.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="104.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="148.0" y1="206.0" x2="148.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="192.0" y1="206.0" x2="192.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="192.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="236.0" y1="206.0" x2="236.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="236.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="56.0" y1="166.0" x2="64.0" y2="166.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="170.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="122.0" x2="64.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="78.0" x2="64.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="82.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="60.0" y1="210.0" x2="192.0" y2="122.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#v1b)"/>
+  <circle cx="192.0" cy="122.0" r="5" fill="#1d4ed8"/>
+  <text x="202.0" y="116.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">điểm cuối (3, 2)</text>
+  <text x="113.6" y="155.0" fill="#1d4ed8" font-size="14" text-anchor="end" font-weight="700" font-style="italic">v</text>
+  <text x="52.0" y="226.0" fill="#475569" font-size="12" text-anchor="end">O</text>
+  <text x="210.0" y="260.0" fill="#475569" font-size="11" text-anchor="middle">vector = mũi tên từ gốc: hướng + độ dài</text>
+</svg>
 
 Vector $\mathbf{v} = (3, 2)$ trong $\mathbb{R}^2$ là mũi tên từ $O = (0, 0)$ tới điểm $(3, 2)$.
 
@@ -87,14 +113,43 @@ $$\mathbf{v} = (3, 2) \neq \mathbf{u} = (2, 3)$$
 
 Trong $\mathbb{R}^2$, $(3, 2)$ chỉ về điểm khác $(2, 3)$:
 
-```
-        y
-       3│   ●(2,3)
-       2│        ●(3,2)
-       1│
-   ─────O──┼──┼──┼──► x
-           1  2  3
-```
+<svg viewBox="0 0 420 270" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai điểm (2, 3) và (3, 2) khác nhau: thứ tự tọa độ quan trọng">
+  <defs><marker id="v2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="v2b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="v2g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="v2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="104.0" y1="210.0" x2="104.0" y2="42.8"/>
+<line x1="148.0" y1="210.0" x2="148.0" y2="42.8"/>
+<line x1="192.0" y1="210.0" x2="192.0" y2="42.8"/>
+<line x1="236.0" y1="210.0" x2="236.0" y2="42.8"/>
+<line x1="60.0" y1="166.0" x2="262.4" y2="166.0"/>
+<line x1="60.0" y1="122.0" x2="262.4" y2="122.0"/>
+<line x1="60.0" y1="78.0" x2="262.4" y2="78.0"/>
+</g>
+  <line x1="54.0" y1="210.0" x2="284.4" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v2)"/>
+  <line x1="60.0" y1="216.0" x2="60.0" y2="20.8" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v2)"/>
+  <text x="276.4" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="30.8" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="104.0" y1="206.0" x2="104.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="104.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="148.0" y1="206.0" x2="148.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="192.0" y1="206.0" x2="192.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="192.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="236.0" y1="206.0" x2="236.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="236.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="56.0" y1="166.0" x2="64.0" y2="166.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="170.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="122.0" x2="64.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="78.0" x2="64.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="82.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <circle cx="148.0" cy="78.0" r="6" fill="#dc2626"/>
+  <text x="158.0" y="74.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">(2, 3)</text>
+  <circle cx="192.0" cy="122.0" r="6" fill="#1d4ed8"/>
+  <text x="202.0" y="126.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">(3, 2)</text>
+  <line x1="148.0" y1="78.0" x2="148.0" y2="210.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="192.0" y1="122.0" x2="192.0" y2="210.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="210.0" y="260.0" fill="#475569" font-size="11" text-anchor="middle">(2,3) ≠ (3,2): x trước, y sau</text>
+</svg>
 
 > **💡 Trực giác:** Vector = "địa chỉ" của một điểm trong không gian. Đổi thứ tự số nhà và tên đường = ra địa chỉ khác.
 
@@ -225,17 +280,65 @@ $$\mathbf{u} + \mathbf{v} = (u_1 + v_1, \ u_2 + v_2, \ \ldots, \ u_n + v_n)$$
 2. Vẽ vector $\mathbf{v}$ bắt đầu từ **đầu** (head) của $\mathbf{u}$.
 3. Vector $\mathbf{u} + \mathbf{v}$ là mũi tên từ **gốc** của $\mathbf{u}$ đến **đầu** của $\mathbf{v}$.
 
-```
-                ●(7, 5)
-              ╱│        ← v đặt tại đầu u
-            ╱  │
-          ╱    │ (v = (4, 3))
-        ●(3, 2)
-       ╱│       ← u
-     ╱  │ (u = (3, 2))
-   ╱    │
-  O─────┴──────► x
-```
+<svg viewBox="0 0 480 300" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cộng vector nối đuôi: u = (3, 2) từ O, đặt v = (4, 3) tại đầu u, tổng u + v = (7, 5)">
+  <defs><marker id="v3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="v3b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="v3g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="v3r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="104.0" y1="210.0" x2="104.0" y2="-45.2"/>
+<line x1="148.0" y1="210.0" x2="148.0" y2="-45.2"/>
+<line x1="192.0" y1="210.0" x2="192.0" y2="-45.2"/>
+<line x1="236.0" y1="210.0" x2="236.0" y2="-45.2"/>
+<line x1="280.0" y1="210.0" x2="280.0" y2="-45.2"/>
+<line x1="324.0" y1="210.0" x2="324.0" y2="-45.2"/>
+<line x1="368.0" y1="210.0" x2="368.0" y2="-45.2"/>
+<line x1="412.0" y1="210.0" x2="412.0" y2="-45.2"/>
+<line x1="60.0" y1="166.0" x2="429.6" y2="166.0"/>
+<line x1="60.0" y1="122.0" x2="429.6" y2="122.0"/>
+<line x1="60.0" y1="78.0" x2="429.6" y2="78.0"/>
+<line x1="60.0" y1="34.0" x2="429.6" y2="34.0"/>
+<line x1="60.0" y1="-10.0" x2="429.6" y2="-10.0"/>
+</g>
+  <line x1="54.0" y1="210.0" x2="451.6" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v3)"/>
+  <line x1="60.0" y1="216.0" x2="60.0" y2="-67.2" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v3)"/>
+  <text x="443.6" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="-57.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="104.0" y1="206.0" x2="104.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="104.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="148.0" y1="206.0" x2="148.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="192.0" y1="206.0" x2="192.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="192.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="236.0" y1="206.0" x2="236.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="236.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="280.0" y1="206.0" x2="280.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="280.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="324.0" y1="206.0" x2="324.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="324.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <line x1="368.0" y1="206.0" x2="368.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="368.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">7</text>
+  <line x1="412.0" y1="206.0" x2="412.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="412.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">8</text>
+  <line x1="56.0" y1="166.0" x2="64.0" y2="166.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="170.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="122.0" x2="64.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="78.0" x2="64.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="82.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="34.0" x2="64.0" y2="34.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="38.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <line x1="56.0" y1="-10.0" x2="64.0" y2="-10.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="-6.0" fill="#475569" font-size="11" text-anchor="end">5</text>
+  <line x1="60.0" y1="210.0" x2="192.0" y2="122.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#v3b)"/>
+  <line x1="192.0" y1="122.0" x2="368.0" y2="-10.0" stroke="#15803d" stroke-width="3" marker-end="url(#v3g)"/>
+  <line x1="60.0" y1="210.0" x2="368.0" y2="-10.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#v3r)"/>
+  <circle cx="192.0" cy="122.0" r="5" fill="#1d4ed8"/>
+  <circle cx="368.0" cy="-10.0" r="5" fill="#dc2626"/>
+  <text x="198.0" y="140.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">(3, 2)</text>
+  <text x="376.0" y="-14.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(7, 5) = u + v</text>
+  <text x="126.0" y="188.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">u = (3, 2)</text>
+  <text x="288.0" y="72.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">v = (4, 3) đặt tại đầu u</text>
+  <text x="208.0" y="51.6" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">u + v</text>
+  <text x="240.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">đuôi v nối đầu u → mũi tên từ O tới đầu v là tổng</text>
+</svg>
 
 **Quy tắc hình bình hành (parallelogram):** Vẽ $\mathbf{u}$ và $\mathbf{v}$ đều từ $O$. Dựng hình bình hành có $\mathbf{u}, \mathbf{v}$ là hai cạnh kề. Đường chéo từ $O$ chính là $\mathbf{u} + \mathbf{v}$.
 
@@ -316,20 +419,60 @@ $c \cdot \mathbf{v}$ là một vector **cùng phương** với $\mathbf{v}$ (cù
 - Nếu $0 < |c| < 1$: thu nhỏ vector (ngắn hơn).
 - Nếu $|c| = 1$ và $c = 1$: giữ nguyên $\mathbf{v}$. Nếu $c = -1$: đảo ngược thành $-\mathbf{v}$.
 
-```
-       2v ●
-         ╱
-        ╱
-        v●          ← v
-       ╱
-      ╱
-     O●─────────► x
-      ╲
-       ╲
-       -v●          ← -v: cùng phương, ngược hướng
-         ╲
-       -2v●
-```
+<svg viewBox="0 0 420 385" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhân vector với số: 2v cùng hướng dài gấp đôi, −v ngược hướng, −2v ngược hướng dài gấp đôi">
+  <defs><marker id="v4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="v4b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="v4g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="v4r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="68.8" y1="350.8" x2="68.8" y2="69.2"/>
+<line x1="112.8" y1="350.8" x2="112.8" y2="69.2"/>
+<line x1="156.8" y1="350.8" x2="156.8" y2="69.2"/>
+<line x1="244.8" y1="350.8" x2="244.8" y2="69.2"/>
+<line x1="288.8" y1="350.8" x2="288.8" y2="69.2"/>
+<line x1="332.8" y1="350.8" x2="332.8" y2="69.2"/>
+<line x1="60.0" y1="342.0" x2="341.6" y2="342.0"/>
+<line x1="60.0" y1="298.0" x2="341.6" y2="298.0"/>
+<line x1="60.0" y1="254.0" x2="341.6" y2="254.0"/>
+<line x1="60.0" y1="166.0" x2="341.6" y2="166.0"/>
+<line x1="60.0" y1="122.0" x2="341.6" y2="122.0"/>
+<line x1="60.0" y1="78.0" x2="341.6" y2="78.0"/>
+</g>
+  <line x1="54.0" y1="210.0" x2="363.6" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v4)"/>
+  <line x1="200.8" y1="356.8" x2="200.8" y2="47.2" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v4)"/>
+  <text x="355.6" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.8" y="57.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="68.8" y1="206.0" x2="68.8" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="68.8" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−3</text>
+  <line x1="112.8" y1="206.0" x2="112.8" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="112.8" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="156.8" y1="206.0" x2="156.8" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="156.8" y="226.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="244.8" y1="206.0" x2="244.8" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="244.8" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="288.8" y1="206.0" x2="288.8" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="288.8" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="332.8" y1="206.0" x2="332.8" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="332.8" y="226.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="196.8" y1="342.0" x2="204.8" y2="342.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.8" y="346.0" fill="#475569" font-size="11" text-anchor="end">−3</text>
+  <line x1="196.8" y1="298.0" x2="204.8" y2="298.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.8" y="302.0" fill="#475569" font-size="11" text-anchor="end">−2</text>
+  <line x1="196.8" y1="254.0" x2="204.8" y2="254.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.8" y="258.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="196.8" y1="166.0" x2="204.8" y2="166.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.8" y="170.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.8" y1="122.0" x2="204.8" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.8" y="126.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="196.8" y1="78.0" x2="204.8" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.8" y="82.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="200.8" y1="210.0" x2="306.4" y2="78.0" stroke="#94a3b8" stroke-width="2" marker-end="url(#v4)"/>
+  <line x1="200.8" y1="210.0" x2="95.2" y2="342.0" stroke="#94a3b8" stroke-width="2" marker-end="url(#v4)"/>
+  <line x1="200.8" y1="210.0" x2="253.6" y2="144.0" stroke="#1d4ed8" stroke-width="3.5" marker-end="url(#v4b)"/>
+  <line x1="200.8" y1="210.0" x2="148.0" y2="276.0" stroke="#dc2626" stroke-width="3.5" marker-end="url(#v4r)"/>
+  <text x="263.6" y="144.0" fill="#1d4ed8" font-size="14" text-anchor="start" font-weight="700" font-style="italic">v</text>
+  <text x="316.4" y="78.0" fill="#94a3b8" font-size="13" text-anchor="start" font-weight="700">2v</text>
+  <text x="138.0" y="280.0" fill="#dc2626" font-size="14" text-anchor="end" font-weight="700">−v</text>
+  <text x="85.2" y="346.0" fill="#94a3b8" font-size="13" text-anchor="end" font-weight="700">−2v</text>
+  <text x="210.0" y="374.0" fill="#475569" font-size="11" text-anchor="middle">cùng phương (một đường thẳng); dấu âm đổi hướng, |k| kéo giãn</text>
+</svg>
 
 > **💡 Trực giác:** Scalar multiplication = "kéo căng" hoặc "rút ngắn" mũi tên, có thể kèm "lật ngược".
 
@@ -537,18 +680,57 @@ Trong hình bình hành với cạnh $\mathbf{u}$, $\mathbf{v}$ đặt tại g�
 - Đường chéo $O \to$ (đầu xa) = $\mathbf{u} + \mathbf{v}$.
 - Đường chéo khác (nối **đầu của $\mathbf{v}$** tới **đầu của $\mathbf{u}$**) = $\mathbf{u} - \mathbf{v}$.
 
-```
-                   ●(u₁+v₁, u₂+v₂) = u+v
-                  ╱ ╲
-                 ╱   ╲
-              v ╱     ╲ u
-               ╱       ╲
-        u-v   ╱         ╲
-       ●─────●(v)        ●(u)
-                ╲       ╱
-                  ╲   ╱
-                    O
-```
+<svg viewBox="0 0 440 290" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hình bình hành dựng trên u và v: đường chéo dài từ O là u + v, đường chéo kia nối ngọn v tới ngọn u là u − v">
+  <defs><marker id="v5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="v5b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="v5g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="v5r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="104.0" y1="210.0" x2="104.0" y2="-1.2"/>
+<line x1="148.0" y1="210.0" x2="148.0" y2="-1.2"/>
+<line x1="192.0" y1="210.0" x2="192.0" y2="-1.2"/>
+<line x1="236.0" y1="210.0" x2="236.0" y2="-1.2"/>
+<line x1="280.0" y1="210.0" x2="280.0" y2="-1.2"/>
+<line x1="324.0" y1="210.0" x2="324.0" y2="-1.2"/>
+<line x1="60.0" y1="166.0" x2="341.6" y2="166.0"/>
+<line x1="60.0" y1="122.0" x2="341.6" y2="122.0"/>
+<line x1="60.0" y1="78.0" x2="341.6" y2="78.0"/>
+<line x1="60.0" y1="34.0" x2="341.6" y2="34.0"/>
+</g>
+  <line x1="54.0" y1="210.0" x2="363.6" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v5)"/>
+  <line x1="60.0" y1="216.0" x2="60.0" y2="-23.2" stroke="#1a202c" stroke-width="1.5" marker-end="url(#v5)"/>
+  <text x="355.6" y="226.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="-13.2" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="104.0" y1="206.0" x2="104.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="104.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="148.0" y1="206.0" x2="148.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="148.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="192.0" y1="206.0" x2="192.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="192.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="236.0" y1="206.0" x2="236.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="236.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="280.0" y1="206.0" x2="280.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="280.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">5</text>
+  <line x1="324.0" y1="206.0" x2="324.0" y2="214.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="324.0" y="226.0" fill="#475569" font-size="11" text-anchor="middle">6</text>
+  <line x1="56.0" y1="166.0" x2="64.0" y2="166.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="170.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="122.0" x2="64.0" y2="122.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="126.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="78.0" x2="64.0" y2="78.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="82.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="34.0" x2="64.0" y2="34.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="38.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <path d="M 60.0,210.0 L 236.0,166.0 L 302.0,34.0 L 126.0,78.0 Z" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="0" fill-opacity="0.12" stroke-linejoin="round"/>
+  <line x1="60.0" y1="210.0" x2="236.0" y2="166.0" stroke="#1d4ed8" stroke-width="3" marker-end="url(#v5b)"/>
+  <line x1="60.0" y1="210.0" x2="126.0" y2="78.0" stroke="#15803d" stroke-width="3" marker-end="url(#v5g)"/>
+  <line x1="236.0" y1="166.0" x2="302.0" y2="34.0" stroke="#15803d" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="126.0" y1="78.0" x2="302.0" y2="34.0" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="60.0" y1="210.0" x2="302.0" y2="34.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#v5r)"/>
+  <line x1="126.0" y1="78.0" x2="236.0" y2="166.0" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#v5)"/>
+  <text x="244.0" y="180.0" fill="#1d4ed8" font-size="14" text-anchor="start" font-weight="700" font-style="italic">u</text>
+  <text x="118.0" y="72.0" fill="#15803d" font-size="14" text-anchor="end" font-weight="700" font-style="italic">v</text>
+  <text x="310.0" y="30.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">u + v</text>
+  <text x="193.6" y="102.8" fill="#7c3aed" font-size="13" text-anchor="start" font-weight="700">u − v</text>
+  <text x="220.0" y="280.0" fill="#475569" font-size="11" text-anchor="middle">u + v: chéo chính · u − v: từ ngọn v tới ngọn u</text>
+</svg>
 
 **Giải thích:** Mũi tên từ $\mathbf{v}$ đến $\mathbf{u}$ chính là vector cần cộng vào $\mathbf{v}$ để được $\mathbf{u}$. Tức $\mathbf{v} + (\mathbf{u} - \mathbf{v}) = \mathbf{u}$. ✓
 

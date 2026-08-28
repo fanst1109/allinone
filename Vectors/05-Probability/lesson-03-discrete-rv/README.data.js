@@ -189,16 +189,51 @@ Tổng = 0.3 + 0.4 + 0.4 = 1.1 ≠ 1 → KHÔNG hợp lệ. Hoặc \`q(0) = 0.5,
 
 Cách vẽ PMF rời rạc: với mỗi x trong support, vẽ **một thanh dọc** cao bằng p(x) tại điểm x. Giữa các điểm — KHÔNG có gì (xác suất bằng 0). Đây là khác biệt rất rõ với PDF của RV liên tục (đường cong trơn).
 
-\`\`\`
-p(x)
- |
-0.4 |        █
-0.3 |        █     █
-0.2 |  █     █     █     █
-0.1 |  █     █     █     █
- 0  +--+-----+-----+-----+-----> x
-    0  1     2     3     4
-\`\`\`
+<svg viewBox="0 0 480 262" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hàm khối xác suất PMF: cột tại x = 1, 2, 3, 4 cao 0.2, 0.4, 0.3, 0.1">
+  <defs><marker id="pm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="200.0" x2="60.0" y2="32.0"/>
+<line x1="140.0" y1="200.0" x2="140.0" y2="32.0"/>
+<line x1="220.0" y1="200.0" x2="220.0" y2="32.0"/>
+<line x1="300.0" y1="200.0" x2="300.0" y2="32.0"/>
+<line x1="380.0" y1="200.0" x2="380.0" y2="32.0"/>
+<line x1="20.0" y1="165.0" x2="428.0" y2="165.0"/>
+<line x1="20.0" y1="130.0" x2="428.0" y2="130.0"/>
+<line x1="20.0" y1="95.0" x2="428.0" y2="95.0"/>
+<line x1="20.0" y1="60.0" x2="428.0" y2="60.0"/>
+</g>
+  <line x1="14.0" y1="200.0" x2="450.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pm)"/>
+  <line x1="60.0" y1="206.0" x2="60.0" y2="10.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pm)"/>
+  <text x="442.0" y="216.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="20.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">p(x)</text>
+  <line x1="60.0" y1="196.0" x2="60.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <line x1="140.0" y1="196.0" x2="140.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="220.0" y1="196.0" x2="220.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="220.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="300.0" y1="196.0" x2="300.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="380.0" y1="196.0" x2="380.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="380.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">4</text>
+  <line x1="56.0" y1="165.0" x2="64.0" y2="165.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="169.0" fill="#475569" font-size="11" text-anchor="end">0.1</text>
+  <line x1="56.0" y1="130.0" x2="64.0" y2="130.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="134.0" fill="#475569" font-size="11" text-anchor="end">0.2</text>
+  <line x1="56.0" y1="95.0" x2="64.0" y2="95.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="99.0" fill="#475569" font-size="11" text-anchor="end">0.3</text>
+  <line x1="56.0" y1="60.0" x2="64.0" y2="60.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="64.0" fill="#475569" font-size="11" text-anchor="end">0.4</text>
+  <rect x="124.0" y="130.0" width="32.0" height="70.0" rx="3" fill="#1d4ed8" fill-opacity="0.75" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="140.0" y="122.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0.2</text>
+  <rect x="204.0" y="60.0" width="32.0" height="140.0" rx="3" fill="#1d4ed8" fill-opacity="0.75" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="220.0" y="52.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0.4</text>
+  <rect x="284.0" y="95.0" width="32.0" height="105.0" rx="3" fill="#1d4ed8" fill-opacity="0.75" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="300.0" y="87.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0.3</text>
+  <rect x="364.0" y="165.0" width="32.0" height="35.0" rx="3" fill="#1d4ed8" fill-opacity="0.75" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="380.0" y="157.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0.1</text>
+  <text x="240.0" y="248.0" fill="#475569" font-size="11" text-anchor="middle">PMF: p(1)=0.2, p(2)=0.4, p(3)=0.3, p(4)=0.1 — tổng = 1</text>
+</svg>
 
 ### 3.5. ❓ Câu hỏi tự nhiên
 
@@ -638,18 +673,50 @@ CDF:
 
 Vẽ:
 
-\`\`\`
-F(x)
- 1.0 +-----------●━━━━━━━
-     |           |
- 0.75|     ●━━━━━╋
-     |     |
- 0.25|━━━━━╋
-     |     |
- 0.0 ●━━━━━
-     +-----+-----+-----+--→ x
-     -1    0     1     2
-\`\`\`
+<svg viewBox="0 0 480 262" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hàm phân phối tích lũy CDF bậc thang: 0 dưới x = 0, nhảy lên 0.25 tại 0, 0.75 tại 1, 1.0 tại 2">
+  <defs><marker id="cd" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="30.0" y1="200.0" x2="30.0" y2="27.5"/>
+<line x1="120.0" y1="200.0" x2="120.0" y2="27.5"/>
+<line x1="210.0" y1="200.0" x2="210.0" y2="27.5"/>
+<line x1="300.0" y1="200.0" x2="300.0" y2="27.5"/>
+<line x1="-24.0" y1="162.5" x2="354.0" y2="162.5"/>
+<line x1="-24.0" y1="87.5" x2="354.0" y2="87.5"/>
+<line x1="-24.0" y1="50.0" x2="354.0" y2="50.0"/>
+</g>
+  <line x1="-30.0" y1="200.0" x2="376.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#cd)"/>
+  <line x1="120.0" y1="206.0" x2="120.0" y2="5.5" stroke="#1a202c" stroke-width="1.5" marker-end="url(#cd)"/>
+  <text x="368.0" y="216.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="128.0" y="15.5" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">F(x)</text>
+  <line x1="30.0" y1="196.0" x2="30.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="30.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="120.0" y1="196.0" x2="120.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="120.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">0</text>
+  <line x1="210.0" y1="196.0" x2="210.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="210.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="300.0" y1="196.0" x2="300.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="116.0" y1="162.5" x2="124.0" y2="162.5" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="113.0" y="166.5" fill="#475569" font-size="11" text-anchor="end">0.25</text>
+  <line x1="116.0" y1="87.5" x2="124.0" y2="87.5" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="113.0" y="91.5" fill="#475569" font-size="11" text-anchor="end">0.75</text>
+  <line x1="116.0" y1="50.0" x2="124.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="113.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">1.0</text>
+  <line x1="-24.0" y1="200.0" x2="120.0" y2="200.0" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="120.0" y1="162.5" x2="210.0" y2="162.5" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="210.0" y1="87.5" x2="300.0" y2="87.5" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="300.0" y1="50.0" x2="354.0" y2="50.0" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="120.0" cy="162.5" r="5" fill="#1d4ed8"/>
+  <circle cx="120.0" cy="200.0" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="120.0" y1="200.0" x2="120.0" y2="162.5" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="210.0" cy="87.5" r="5" fill="#1d4ed8"/>
+  <circle cx="210.0" cy="162.5" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="210.0" y1="162.5" x2="210.0" y2="87.5" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="300.0" cy="50.0" r="5" fill="#1d4ed8"/>
+  <circle cx="300.0" cy="87.5" r="5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="300.0" y1="87.5" x2="300.0" y2="50.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="240.0" y="248.0" fill="#475569" font-size="11" text-anchor="middle">CDF bậc thang: nhảy tại x = 0, 1, 2 với bước = p(x); ● lấy giá trị trên, ○ không lấy</text>
+</svg>
 
 (● = mép kín, ━ = đoạn liên tục, ╋ = giao điểm)
 
@@ -735,10 +802,23 @@ F(3) = (1 + 5 + 10 + 10) / 32 = 26/32 = 0.8125.
 
 Ba phân phối này không phải 3 thực thể độc lập — chúng nằm trên **một chuỗi**:
 
-\`\`\`
-Bernoulli   →   Binomial   →   Poisson
-1 phép thử      n phép thử      n → ∞, p → 0, np = λ
-\`\`\`
+<svg viewBox="0 0 610 105" style="max-width:610px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi phân phối rời rạc: Bernoulli (1 phép thử) → Binomial (n phép thử) → Poisson (n → ∞, p → 0, np = λ)">
+  <defs><marker id="ch" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="30.0" width="150.0" height="60.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="95.0" y="57.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Bernoulli</text>
+  <text x="95.0" y="72.5" fill="#475569" font-size="11" text-anchor="middle">1 phép thử</text>
+  <line x1="172.0" y1="60.0" x2="228.0" y2="60.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ch)"/>
+  <text x="200.0" y="50.0" fill="#475569" font-size="10" text-anchor="middle">lặp n lần</text>
+  <rect x="230.0" y="30.0" width="150.0" height="60.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="305.0" y="57.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Binomial</text>
+  <text x="305.0" y="72.5" fill="#475569" font-size="11" text-anchor="middle">n phép thử</text>
+  <line x1="382.0" y1="60.0" x2="438.0" y2="60.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ch)"/>
+  <text x="410.0" y="44.0" fill="#475569" font-size="10" text-anchor="middle">n → ∞, p → 0</text>
+  <text x="410.0" y="76.0" fill="#475569" font-size="10" text-anchor="middle">np = λ</text>
+  <rect x="440.0" y="30.0" width="150.0" height="60.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="515.0" y="57.5" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Poisson</text>
+  <text x="515.0" y="72.5" fill="#475569" font-size="11" text-anchor="middle">λ = np cố định</text>
+</svg>
 
 - Bernoulli(p) = Bin(1, p).
 - Binomial(n, p) = tổng n Bernoulli(p) độc lập.

@@ -296,12 +296,24 @@ Khi đó:
 
 **Quy tắc nhớ kích thước** (cực kỳ quan trọng — sẽ dùng suốt đời):
 
-\`\`\`
-A : m × k          
-B :     k × n     ←  hai k phải trùng (sờ vào nhau)
-─────────────
-AB: m     × n     ←  lấy ngoài
-\`\`\`
+<svg viewBox="0 0 550 155" style="max-width:550px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kích thước phép nhân ma trận: A (m × k) nhân B (k × n) cho AB (m × n); k giữa phải trùng, kết quả lấy m và n ngoài">
+  <defs></defs>
+  <rect x="40.0" y="40.0" width="130.0" height="60.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="105.0" y="67.5" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <text x="105.0" y="82.5" fill="#475569" font-size="11" text-anchor="middle">m × k</text>
+  <text x="185.0" y="76.0" fill="#1a202c" font-size="22" text-anchor="middle" font-weight="700">·</text>
+  <rect x="200.0" y="40.0" width="130.0" height="60.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="265.0" y="67.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">B</text>
+  <text x="265.0" y="82.5" fill="#475569" font-size="11" text-anchor="middle">k × n</text>
+  <text x="345.0" y="76.0" fill="#1a202c" font-size="22" text-anchor="middle" font-weight="700">=</text>
+  <rect x="360.0" y="40.0" width="150.0" height="60.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="435.0" y="67.5" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">AB</text>
+  <text x="435.0" y="82.5" fill="#475569" font-size="11" text-anchor="middle">m × n</text>
+  <path d="M 150,104 L 150,118 L 222,118 L 222,104" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="186.0" y="138.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">hai k phải TRÙNG (sờ vào nhau)</text>
+  <path d="M 62,32 L 62,20 L 308,20 L 308,32" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="186.0" y="14.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">lấy NGOÀI: m × n</text>
+</svg>
 
 Ví dụ:
 - $(2 \\times 3) \\cdot (3 \\times 4) = (2 \\times 4)$ ✓ — chiều giữa khớp (3=3), kết quả $2 \\times 4$.
@@ -416,18 +428,27 @@ $$AB = \\begin{bmatrix} -3 & -3 & -3 \\\\ 14 & 19 & 24 \\end{bmatrix}$$
 
 Khi tính $(AB)_{ij}$:
 
-\`\`\`
-       cột j của B
-         ↓
-        [ b_1j ]
-        [ b_2j ]
-        [  ... ]
-        [ b_kj ]
-
-hàng i của A → [ a_i1  a_i2  ...  a_ik ]   
-
-(AB)_ij = a_i1·b_1j + a_i2·b_2j + ... + a_ik·b_kj
-\`\`\`
+<svg viewBox="0 0 590 245" style="max-width:590px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phần tử (AB)_ij bằng tích vô hướng của hàng i của A với cột j của B">
+  <defs><marker id="mm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="120.0" y="30.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">hàng i của A</text>
+  <rect x="40.0" y="44.0" width="220.0" height="34.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="65.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">a_i1</text>
+  <text x="122.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">a_i2</text>
+  <text x="179.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">…</text>
+  <text x="236.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">a_ik</text>
+  <text x="360.0" y="30.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">cột j của B</text>
+  <rect x="330.0" y="44.0" width="60.0" height="150.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="360.0" y="68.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">b_1j</text>
+  <text x="360.0" y="104.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">b_2j</text>
+  <text x="360.0" y="140.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">…</text>
+  <text x="360.0" y="176.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">b_kj</text>
+  <line x1="262.0" y1="61.0" x2="326.0" y2="61.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="294.0" y="52.0" fill="#475569" font-size="9" text-anchor="middle">nhân đôi một</text>
+  <rect x="430.0" y="44.0" width="120.0" height="34.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="490.0" y="66.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">(AB)_ij</text>
+  <line x1="392.0" y1="61.0" x2="428.0" y2="61.0" stroke="#1a202c" stroke-width="2" marker-end="url(#mm)"/>
+  <text x="295.0" y="225.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">(AB)_ij = a_i1·b_1j + a_i2·b_2j + … + a_ik·b_kj  — tích vô hướng của hàng i (A) với cột j (B)</text>
+</svg>
 
 **Trick để không nhầm**: chỉ số $i$ đến **từ A** (hàng), chỉ số $j$ đến **từ B** (cột). Chỉ số "biến mất" là chiều $k$ — chiều khớp ở giữa.
 

@@ -39,17 +39,24 @@ Cho đến Lesson 05, mọi hàm đều có dạng $y = f(x)$ — một biến �
 
 Với mỗi cặp $(x, y)$ ta tính một số $z = x^2 + y^2$. Vẽ điểm $(x, y, z)$ trong không gian 3D thì được một MẶT (surface):
 
-```
-                 z
-                 │     ___,---'''---,___
-                 │  ,-'                 '-,
-                 │,'                       ',
-                 ┼─────────────────────────────►  x
-                /│
-               / │
-              y  │
-                 ▼
-```
+<svg viewBox="0 0 480 340" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mặt z = x² + y² dạng chén trong không gian 3 chiều: các vòng tròn đồng tâm ở độ cao z = 20, 60, 120 rộng dần lên trên">
+  <defs><marker id="c1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="240.0" y1="260.0" x2="240.0" y2="40.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c1)"/>
+  <text x="248.0" y="40.0" fill="#1a202c" font-size="13" text-anchor="start">z</text>
+  <line x1="200.0" y1="220.0" x2="460.0" y2="220.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c1)"/>
+  <text x="466.0" y="226.0" fill="#1a202c" font-size="13" text-anchor="start">x</text>
+  <line x1="270.0" y1="205.0" x2="90.0" y2="295.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c1)"/>
+  <text x="80.0" y="308.0" fill="#1a202c" font-size="13" text-anchor="start">y</text>
+  <ellipse cx="240" cy="180" rx="40" ry="14" fill="#93c5fd" fill-opacity="0.25" stroke="#93c5fd" stroke-width="1.5"/>
+  <ellipse cx="240" cy="140" rx="80" ry="28" fill="#60a5fa" fill-opacity="0.25" stroke="#60a5fa" stroke-width="1.5"/>
+  <ellipse cx="240" cy="80" rx="120" ry="42" fill="#1d4ed8" fill-opacity="0.25" stroke="#1d4ed8" stroke-width="1.5"/>
+  <path d="M 120,80 Q 180,240 240,205" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M 360,80 Q 300,240 240,205" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <circle cx="240.0" cy="205.0" r="5" fill="#dc2626"/>
+  <text x="250.0" y="202.0" fill="#dc2626" font-size="11" text-anchor="start">đáy chén: (0,0,0)</text>
+  <text x="370.0" y="75.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">z = x² + y²</text>
+  <text x="240.0" y="328.0" fill="#475569" font-size="11" text-anchor="middle">mặt cong hình chén: cắt ngang ở độ cao z cho vòng tròn bán kính √z</text>
+</svg>
 
 Hình dạng: như một cái **bát** mở miệng lên. Tại $(0, 0)$ đáy bát, $z = 0$. Càng xa gốc theo bất kỳ hướng nào, $z$ càng lớn.
 
@@ -61,16 +68,58 @@ Hình dạng: như một cái **bát** mở miệng lên. Tại $(0, 0)$ đáy b
 
 Các đường này gọi là **đường mức (contour / level curve)** — giống đường đồng mức trên bản đồ địa hình. Bản đồ 2D với contour cho ta hình dung mặt 3D mà không cần vẽ 3D:
 
-```
-y
-3│     . . . . .
-2│  ,-'         '-,
-1│ /     ___       \    contour z=1 (vòng tròn nhỏ nhất)
-0├─┤ ( · ) ├─┼──►x       contour z=4 (vòng giữa)
--1│ \   '''       /     contour z=9 (vòng ngoài)
--2│  '-,         ,-'
--3│     ' ' ' ' '
-```
+<svg viewBox="0 0 480 310" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bản đồ contour của z = x² + y²: ba vòng tròn đồng tâm bán kính 1, 2, 3 ứng với z = 1, 4, 9">
+  <defs><marker id="c2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="80.0" y1="286.0" x2="80.0" y2="14.0"/>
+<line x1="120.0" y1="286.0" x2="120.0" y2="14.0"/>
+<line x1="160.0" y1="286.0" x2="160.0" y2="14.0"/>
+<line x1="240.0" y1="286.0" x2="240.0" y2="14.0"/>
+<line x1="280.0" y1="286.0" x2="280.0" y2="14.0"/>
+<line x1="320.0" y1="286.0" x2="320.0" y2="14.0"/>
+<line x1="56.0" y1="270.0" x2="344.0" y2="270.0"/>
+<line x1="56.0" y1="230.0" x2="344.0" y2="230.0"/>
+<line x1="56.0" y1="190.0" x2="344.0" y2="190.0"/>
+<line x1="56.0" y1="110.0" x2="344.0" y2="110.0"/>
+<line x1="56.0" y1="70.0" x2="344.0" y2="70.0"/>
+<line x1="56.0" y1="30.0" x2="344.0" y2="30.0"/>
+</g>
+  <line x1="50.0" y1="150.0" x2="366.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c2)"/>
+  <line x1="200.0" y1="292.0" x2="200.0" y2="-8.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c2)"/>
+  <text x="358.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="2.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="80.0" y1="146.0" x2="80.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−3</text>
+  <line x1="120.0" y1="146.0" x2="120.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="120.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="160.0" y1="146.0" x2="160.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="160.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="240.0" y1="146.0" x2="240.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="280.0" y1="146.0" x2="280.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="280.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="320.0" y1="146.0" x2="320.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="196.0" y1="270.0" x2="204.0" y2="270.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="274.0" fill="#475569" font-size="11" text-anchor="end">−3</text>
+  <line x1="196.0" y1="230.0" x2="204.0" y2="230.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="234.0" fill="#475569" font-size="11" text-anchor="end">−2</text>
+  <line x1="196.0" y1="190.0" x2="204.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="194.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="196.0" y1="110.0" x2="204.0" y2="110.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="114.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="196.0" y1="70.0" x2="204.0" y2="70.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="74.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="196.0" y1="30.0" x2="204.0" y2="30.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="34.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <circle cx="200.0" cy="150.0" r="40" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="167.7" y="117.7" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">z = 1</text>
+  <circle cx="200.0" cy="150.0" r="80" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="139.4" y="89.4" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">z = 4</text>
+  <circle cx="200.0" cy="150.0" r="120" fill="none" stroke="#7c3aed" stroke-width="2"/>
+  <text x="111.2" y="61.2" fill="#7c3aed" font-size="11" text-anchor="end" font-weight="700">z = 9</text>
+  <text x="200.0" y="296.0" fill="#475569" font-size="11" text-anchor="middle">contour (đường mức) của z = x² + y²: vòng tròn bán kính 1, 2, 3 — càng xa gốc z càng lớn</text>
+</svg>
 
 > **💡 Trực giác:** Đồ thị $f(x, y) = x^2 + y^2$ là một địa hình hình bát. Tại đáy $(0,0)$ cao độ 0, càng đi ra càng lên cao. Đường mức = đường đồng mức bản đồ.
 
@@ -78,12 +127,34 @@ y
 
 Đây là một mặt **lượn sóng**, có đỉnh và hố xen kẽ giống lưới trứng:
 
-```
-peak  hố   peak  hố
-  ⌒    ⌣    ⌒    ⌣
-  ⌣    ⌒    ⌣    ⌒
-peak  hố   peak  hố
-```
+<svg viewBox="0 0 420 205" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mặt dạng hộp trứng: các đỉnh (peak) và hố xen kẽ theo ô bàn cờ">
+  <defs></defs>
+  <ellipse cx="60" cy="40" rx="34" ry="22" fill="#dc2626" fill-opacity="0.35" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="60" cy="40" rx="16" ry="10" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="60.0" y="82.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">peak (⌒)</text>
+  <ellipse cx="60" cy="120" rx="34" ry="22" fill="#1d4ed8" fill-opacity="0.35" stroke="#1d4ed8" stroke-width="1.5"/>
+  <ellipse cx="60" cy="120" rx="16" ry="10" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="60.0" y="162.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">hố (⌣)</text>
+  <ellipse cx="160" cy="40" rx="34" ry="22" fill="#1d4ed8" fill-opacity="0.35" stroke="#1d4ed8" stroke-width="1.5"/>
+  <ellipse cx="160" cy="40" rx="16" ry="10" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="160.0" y="82.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">hố (⌣)</text>
+  <ellipse cx="160" cy="120" rx="34" ry="22" fill="#dc2626" fill-opacity="0.35" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="160" cy="120" rx="16" ry="10" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="160.0" y="162.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">peak (⌒)</text>
+  <ellipse cx="260" cy="40" rx="34" ry="22" fill="#dc2626" fill-opacity="0.35" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="260" cy="40" rx="16" ry="10" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="260.0" y="82.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">peak (⌒)</text>
+  <ellipse cx="260" cy="120" rx="34" ry="22" fill="#1d4ed8" fill-opacity="0.35" stroke="#1d4ed8" stroke-width="1.5"/>
+  <ellipse cx="260" cy="120" rx="16" ry="10" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="162.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">hố (⌣)</text>
+  <ellipse cx="360" cy="40" rx="34" ry="22" fill="#1d4ed8" fill-opacity="0.35" stroke="#1d4ed8" stroke-width="1.5"/>
+  <ellipse cx="360" cy="40" rx="16" ry="10" fill="none" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="360.0" y="82.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">hố (⌣)</text>
+  <ellipse cx="360" cy="120" rx="34" ry="22" fill="#dc2626" fill-opacity="0.35" stroke="#dc2626" stroke-width="1.5"/>
+  <ellipse cx="360" cy="120" rx="16" ry="10" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="360.0" y="162.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">peak (⌒)</text>
+  <text x="210.0" y="190.0" fill="#475569" font-size="11" text-anchor="middle">trứng-hộp (egg-crate): đỉnh và hố xen kẽ như bàn cờ — vd z = sin x · sin y</text>
+</svg>
 
 - Tại $(\pi/2, 0)$: $\sin(\pi/2) \cdot \cos(0) = 1 \cdot 1 = 1$ → đỉnh.
 - Tại $(\pi/2, \pi)$: $\sin(\pi/2) \cdot \cos(\pi) = 1 \cdot (-1) = -1$ → hố.
@@ -264,18 +335,24 @@ Tại điểm $(a, b)$ trên mặt $z = f(x, y)$:
 
 Mỗi đạo hàm riêng = slope của **một slice** của mặt 3D.
 
-```
-   z                      Cắt bằng plane y = b:
-   │      mặt 3D           Thu được đường cong z = f(x, b)
-   │     /                  ↓ slope của đường này tại x=a
-   │    /     plane y=b    = ∂f/∂x (a, b)
-   │   ─────────
-   │        \
-   │         \
-   ┼──(a,b)──────── x
-  /
- / y
-```
+<svg viewBox="0 0 580 305" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đạo hàm riêng ∂f/∂x tại (a, b): cắt mặt bằng mặt phẳng y = b thu được đường cong z = f(x, b); độ dốc của đường này tại x = a">
+  <defs><marker id="c4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="200.0" y1="240.0" x2="200.0" y2="40.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c4)"/>
+  <text x="208.0" y="42.0" fill="#1a202c" font-size="13" text-anchor="start">z</text>
+  <line x1="180.0" y1="210.0" x2="430.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c4)"/>
+  <text x="436.0" y="215.0" fill="#1a202c" font-size="13" text-anchor="start">x</text>
+  <line x1="216.0" y1="200.0" x2="90.0" y2="280.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c4)"/>
+  <text x="78.0" y="292.0" fill="#1a202c" font-size="13" text-anchor="start">y</text>
+  <polygon points="170,225 400,225 400,60 170,60" fill="#dcfce7" fill-opacity="0.5" stroke="#15803d" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="350.0" y="74.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">mặt phẳng y = b</text>
+  <path d="M 180,90 Q 280,250 390,80" fill="none" stroke="#dc2626" stroke-width="3"/>
+  <text x="260.0" y="150.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">đường cong z = f(x, b)</text>
+  <circle cx="285.0" cy="212.0" r="5" fill="#b45309"/>
+  <text x="285.0" y="230.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">(a, b)</text>
+  <line x1="240.0" y1="212.0" x2="330.0" y2="212.0" stroke="#b45309" stroke-width="2.5"/>
+  <text x="336.0" y="216.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">tiếp tuyến tại x = a: slope = ∂f/∂x (a, b)</text>
+  <text x="290.0" y="292.0" fill="#475569" font-size="10" text-anchor="middle">cắt mặt 3D bằng mặt phẳng y = b → đường cong 1 biến z = f(x, b); đạo hàm của nó tại a là đạo hàm riêng theo x</text>
+</svg>
 
 ### 5.1. Ví dụ cụ thể: `f(x, y) = x² + y²` tại `(2, 3)`
 
@@ -350,17 +427,40 @@ Ký hiệu $\nabla$ đọc là **"nabla"** hoặc **"del"**. Hình dạng tam gi
 
 **Ví dụ:** $f(x, y) = x^2 + y^2$, đường mức $f = 1$ là vòng tròn bán kính 1. Tại điểm $(1, 0)$ trên vòng tròn, tiếp tuyến là hướng $(0, 1)$ (chiều Bắc). Gradient $\nabla f(1, 0) = (2, 0)$ — chỉ chiều Đông. Đông $\perp$ Bắc ✓.
 
-```
- y
- │      ___
- │   ,-'   '-,
- │  /  f=1   \
- │ |     →    |   ← gradient (2,0) tại (1,0)
- │  \         /
- │   '-,___,-'
- │
- ┼─────────────► x
-```
+<svg viewBox="0 0 400 280" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường mức f = 1 của x² + y² và vector gradient (2, 0) tại điểm (1, 0), vuông góc với vòng tròn, hướng ra ngoài">
+  <defs><marker id="c5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="c5r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="80.0" y1="260.0" x2="80.0" y2="20.0"/>
+<line x1="140.0" y1="260.0" x2="140.0" y2="20.0"/>
+<line x1="260.0" y1="260.0" x2="260.0" y2="20.0"/>
+<line x1="320.0" y1="260.0" x2="320.0" y2="20.0"/>
+<line x1="56.0" y1="200.0" x2="344.0" y2="200.0"/>
+<line x1="56.0" y1="80.0" x2="344.0" y2="80.0"/>
+</g>
+  <line x1="50.0" y1="140.0" x2="366.0" y2="140.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c5)"/>
+  <line x1="200.0" y1="266.0" x2="200.0" y2="-2.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c5)"/>
+  <text x="358.0" y="156.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="208.0" y="8.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="80.0" y1="136.0" x2="80.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">−2</text>
+  <line x1="140.0" y1="136.0" x2="140.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="140.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="260.0" y1="136.0" x2="260.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="260.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="320.0" y1="136.0" x2="320.0" y2="144.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="320.0" y="156.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="196.0" y1="200.0" x2="204.0" y2="200.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="204.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="196.0" y1="80.0" x2="204.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="193.0" y="84.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="200.0" cy="140.0" r="60" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="170.0" y="89.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">f = 1</text>
+  <line x1="260.0" y1="140.0" x2="302.0" y2="140.0" stroke="#dc2626" stroke-width="3" marker-end="url(#c5r)"/>
+  <circle cx="260.0" cy="140.0" r="5" fill="#dc2626"/>
+  <text x="308.0" y="132.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">∇f(1,0) = (2, 0)</text>
+  <text x="260.0" y="160.0" fill="#475569" font-size="11" text-anchor="middle">(1, 0)</text>
+  <text x="200.0" y="265.0" fill="#475569" font-size="11" text-anchor="middle">gradient vuông góc với đường mức và chỉ hướng f tăng nhanh nhất (ra ngoài)</text>
+</svg>
 
 ### 7.3. Tính chất 3 — Độ lớn `|∇f|` là tốc độ thay đổi cực đại
 
@@ -388,17 +488,51 @@ Theo hướng khác (không phải hướng gradient), tốc độ sẽ nhỏ h�
 - $|\nabla f| = \sqrt{4 + 16} = \sqrt{20} \approx 4.47$.
 - Hướng tăng nhanh nhất: vector $(2, 4)$ — chỉ về Đông-Bắc với góc $\arctan(4/2) = \arctan(2) \approx 63.4°$ trên trục x.
 
-**Vẽ contour ASCII xung quanh `(1, 2)`:**
+**Vẽ contour xung quanh `(1, 2)`:**
 
-```
- y
-4│                  f=20
-3│      f=16
-2│   . . • . . . .   ← điểm (1,2), f=5
-1│      f=4
-0├──────────────► x
-   0  1  2  3
-```
+<svg viewBox="0 0 420 270" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường mức của f = x² + y² quanh điểm (1, 2) với f = 4, 5, 16, 20 và gradient (2, 4) tại đó">
+  <defs><marker id="c6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="c6r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="120.0" y1="212.0" x2="120.0" y2="24.0"/>
+<line x1="180.0" y1="212.0" x2="180.0" y2="24.0"/>
+<line x1="240.0" y1="212.0" x2="240.0" y2="24.0"/>
+<line x1="42.0" y1="160.0" x2="276.0" y2="160.0"/>
+<line x1="42.0" y1="120.0" x2="276.0" y2="120.0"/>
+<line x1="42.0" y1="80.0" x2="276.0" y2="80.0"/>
+<line x1="42.0" y1="40.0" x2="276.0" y2="40.0"/>
+</g>
+  <line x1="36.0" y1="200.0" x2="298.0" y2="200.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c6)"/>
+  <line x1="60.0" y1="218.0" x2="60.0" y2="2.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#c6)"/>
+  <text x="290.0" y="216.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="68.0" y="12.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="120.0" y1="196.0" x2="120.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="120.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="180.0" y1="196.0" x2="180.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="180.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">2</text>
+  <line x1="240.0" y1="196.0" x2="240.0" y2="204.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="216.0" fill="#475569" font-size="11" text-anchor="middle">3</text>
+  <line x1="56.0" y1="160.0" x2="64.0" y2="160.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="164.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <line x1="56.0" y1="120.0" x2="64.0" y2="120.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="124.0" fill="#475569" font-size="11" text-anchor="end">2</text>
+  <line x1="56.0" y1="80.0" x2="64.0" y2="80.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="84.0" fill="#475569" font-size="11" text-anchor="end">3</text>
+  <line x1="56.0" y1="40.0" x2="64.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="53.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">4</text>
+  <path d="M 180.0,200.0 L 180.0,197.9 L 179.8,195.8 L 179.6,193.7 L 179.3,191.6 L 179.0,189.6 L 178.5,187.5 L 178.0,185.4 L 177.4,183.4 L 176.7,181.3 L 175.9,179.3 L 175.1,177.3 L 174.1,175.3 L 173.1,173.3 L 172.0,171.3 L 170.9,169.4 L 169.6,167.5 L 168.3,165.6 L 166.9,163.7 L 165.5,161.8 L 163.9,160.0 L 162.3,158.2 L 160.6,156.4 L 158.9,154.7 L 157.1,153.0 L 155.2,151.3 L 153.3,149.7 L 151.2,148.0 L 149.2,146.5 L 147.0,144.9 L 144.9,143.4 L 142.6,142.0 L 140.3,140.5 L 137.9,139.2 L 135.5,137.8 L 133.1,136.5 L 130.5,135.3 L 128.0,134.1 L 125.4,132.9 L 122.7,131.8 L 120.0,130.7 L 117.3,129.7 L 114.5,128.7 L 111.7,127.8 L 108.8,126.9 L 105.9,126.1 L 103.0,125.3 L 100.1,124.6 L 97.1,123.9 L 94.1,123.3 L 91.1,122.7 L 88.0,122.2 L 84.9,121.7 L 81.9,121.3 L 78.8,121.0 L 75.7,120.7 L 72.5,120.4 L 69.4,120.2 L 66.3,120.1 L 63.1,120.0 L 60.0,120.0" fill="none" stroke="#15803d" stroke-width="2" stroke-linejoin="round"/>
+  <text x="73.0" y="116.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">f = 4</text>
+  <path d="M 194.2,200.0 L 194.1,197.7 L 194.0,195.3 L 193.8,193.0 L 193.4,190.7 L 193.0,188.3 L 192.5,186.0 L 191.9,183.7 L 191.2,181.4 L 190.5,179.1 L 189.6,176.9 L 188.6,174.6 L 187.6,172.4 L 186.5,170.1 L 185.3,167.9 L 184.0,165.8 L 182.6,163.6 L 181.1,161.5 L 179.5,159.4 L 177.9,157.3 L 176.2,155.3 L 174.4,153.3 L 172.5,151.3 L 170.6,149.3 L 168.5,147.4 L 166.4,145.6 L 164.3,143.7 L 162.0,141.9 L 159.7,140.2 L 157.3,138.4 L 154.9,136.8 L 152.4,135.1 L 149.8,133.5 L 147.1,132.0 L 144.4,130.5 L 141.7,129.0 L 138.9,127.6 L 136.0,126.3 L 133.1,125.0 L 130.1,123.7 L 127.1,122.5 L 124.0,121.4 L 120.9,120.3 L 117.8,119.3 L 114.6,118.3 L 111.3,117.4 L 108.1,116.5 L 104.8,115.7 L 101.5,114.9 L 98.1,114.2 L 94.7,113.6 L 91.3,113.0 L 87.9,112.5 L 84.4,112.1 L 81.0,111.7 L 77.5,111.3 L 74.0,111.0 L 70.5,110.8 L 67.0,110.7 L 63.5,110.6 L 60.0,110.6" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="5 3"/>
+  <text x="166.6" y="141.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">f = 5</text>
+  <path d="M 267.8,120.0 L 264.6,116.4 L 261.3,112.9 L 257.8,109.4 L 254.2,106.0 L 250.4,102.6 L 246.5,99.3 L 242.5,96.1 L 238.4,92.9 L 234.1,89.9 L 229.7,86.9 L 225.2,83.9 L 220.6,81.1 L 215.9,78.3 L 211.0,75.7 L 206.1,73.1 L 201.1,70.6 L 195.9,68.1 L 190.7,65.8 L 185.4,63.6 L 180.0,61.4 L 174.5,59.4 L 169.0,57.4 L 163.3,55.6 L 157.6,53.8 L 151.8,52.2 L 146.0,50.6 L 140.1,49.2 L 134.2,47.8 L 128.2,46.6 L 122.1,45.5 L 116.0,44.4 L 109.9,43.5 L 103.7,42.7 L 97.5,42.0 L 91.3,41.4 L 85.1,40.9 L 78.8,40.5 L 72.6,40.2 L 66.3,40.1 L 60.0,40.0" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/>
+  <text x="73.0" y="36.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">f = 16</text>
+  <path d="M 268.5,87.4 L 264.0,83.8 L 259.4,80.3 L 254.6,76.9 L 249.7,73.5 L 244.7,70.2 L 239.5,67.1 L 234.3,64.0 L 228.9,61.0 L 223.3,58.1 L 217.7,55.3 L 212.0,52.6 L 206.1,50.0 L 200.2,47.5 L 194.2,45.1 L 188.0,42.8 L 181.8,40.6 L 175.5,38.5 L 169.1,36.6 L 162.7,34.7 L 156.2,33.0 L 149.6,31.4 L 142.9,29.9 L 136.2,28.5" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linejoin="round"/>
+  <text x="73.0" y="17.1" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">f = 20</text>
+  <circle cx="120.0" cy="120.0" r="6" fill="#dc2626"/>
+  <text x="130.0" y="124.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(1, 2): f = 5</text>
+  <line x1="120.0" y1="120.0" x2="150.0" y2="80.0" stroke="#dc2626" stroke-width="2.5" marker-end="url(#c6r)"/>
+  <text x="156.0" y="76.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">∇f = (2, 4)</text>
+  <text x="200.0" y="255.0" fill="#475569" font-size="11" text-anchor="middle">quanh (1,2): đường mức f = 4, 5, 16, 20; gradient (2,4) ⊥ đường mức f = 5</text>
+</svg>
 
 Tại $(1, 2)$, gradient $(2, 4)$ chỉ hướng ra ngoài (về phía contour có f lớn hơn), vuông góc với contour $f=5$ đi qua.
 

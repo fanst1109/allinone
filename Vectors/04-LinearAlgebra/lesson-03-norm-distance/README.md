@@ -560,20 +560,29 @@ $\lVert v \rVert_2 = 1 \iff \sqrt{v_1^2 + v_2^2} = 1 \iff v_1^2 + v_2^2 = 1$.
 
 Đây là phương trình đường tròn tâm gốc, bán kính 1.
 
-```
-       L2: x² + y² = 1
-              .
-          .   |   .
-        .     |     .
-       .      |      .
-      .       |       .
-      .-------+-------.
-      .       |       .
-       .      |      .
-        .     |     .
-          .   |   .
-              .
-```
+<svg viewBox="0 0 300 275" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quả cầu đơn vị chuẩn L2: đường tròn x² + y² = 1">
+  <defs><marker id="n1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="256.0" x2="60.0" y2="4.0"/>
+<line x1="240.0" y1="256.0" x2="240.0" y2="4.0"/>
+<line x1="24.0" y1="220.0" x2="276.0" y2="220.0"/>
+<line x1="24.0" y1="40.0" x2="276.0" y2="40.0"/>
+</g>
+  <line x1="18.0" y1="130.0" x2="298.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n1)"/>
+  <line x1="150.0" y1="262.0" x2="150.0" y2="-18.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n1)"/>
+  <text x="290.0" y="146.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="158.0" y="-8.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="60.0" y1="126.0" x2="60.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="240.0" y1="126.0" x2="240.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="146.0" y1="220.0" x2="154.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="143.0" y="224.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="146.0" y1="40.0" x2="154.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="143.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="150" cy="130" r="90" fill="#1d4ed8" fill-opacity="0.15" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="150.0" y="258.0" fill="#475569" font-size="11" text-anchor="middle">L2: x² + y² = 1 — đường tròn</text>
+</svg>
 
 ### 8.3. Unit ball của L1: hình thoi (diamond)
 
@@ -581,20 +590,29 @@ $\lVert v \rVert_1 = 1 \iff \lvert v_1 \rvert + \lvert v_2 \rvert = 1$.
 
 Đây là phương trình hình thoi với 4 đỉnh $(1, 0)$, $(0, 1)$, $(-1, 0)$, $(0, -1)$.
 
-```
-       L1: |x| + |y| = 1
-              .
-             /|\
-            / | \
-           /  |  \
-          /   |   \
-        .-----+-----.
-          \   |   /
-           \  |  /
-            \ | /
-             \|/
-              .
-```
+<svg viewBox="0 0 300 275" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quả cầu đơn vị chuẩn L1: hình thoi |x| + |y| = 1">
+  <defs><marker id="n2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="256.0" x2="60.0" y2="4.0"/>
+<line x1="240.0" y1="256.0" x2="240.0" y2="4.0"/>
+<line x1="24.0" y1="220.0" x2="276.0" y2="220.0"/>
+<line x1="24.0" y1="40.0" x2="276.0" y2="40.0"/>
+</g>
+  <line x1="18.0" y1="130.0" x2="298.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n2)"/>
+  <line x1="150.0" y1="262.0" x2="150.0" y2="-18.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n2)"/>
+  <text x="290.0" y="146.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="158.0" y="-8.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="60.0" y1="126.0" x2="60.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="240.0" y1="126.0" x2="240.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="146.0" y1="220.0" x2="154.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="143.0" y="224.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="146.0" y1="40.0" x2="154.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="143.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <path d="M 240.0,130.0 L 150.0,40.0 L 60.0,130.0 L 150.0,220.0 Z" fill="#15803d" stroke="#15803d" stroke-width="2.5" fill-opacity="0.15" stroke-linejoin="round"/>
+  <text x="150.0" y="258.0" fill="#475569" font-size="11" text-anchor="middle">L1: |x| + |y| = 1 — hình thoi</text>
+</svg>
 
 Cạnh hình thoi: từ $(1, 0)$ đến $(0, 1)$ — phương trình $x + y = 1$ với $x, y \ge 0$.
 
@@ -604,41 +622,62 @@ $\lVert v \rVert_\infty = 1 \iff \max(\lvert v_1 \rvert, \lvert v_2 \rvert) = 1$
 
 Đây là hình vuông từ $(-1, -1)$ đến $(1, 1)$.
 
-```
-       L∞: max(|x|, |y|) = 1
-       .---------------.
-       |       |       |
-       |       |       |
-       |       |       |
-       .-------+-------.
-       |       |       |
-       |       |       |
-       |       |       |
-       .---------------.
-```
+<svg viewBox="0 0 300 275" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quả cầu đơn vị chuẩn L∞: hình vuông max(|x|, |y|) = 1">
+  <defs><marker id="n3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="60.0" y1="256.0" x2="60.0" y2="4.0"/>
+<line x1="240.0" y1="256.0" x2="240.0" y2="4.0"/>
+<line x1="24.0" y1="220.0" x2="276.0" y2="220.0"/>
+<line x1="24.0" y1="40.0" x2="276.0" y2="40.0"/>
+</g>
+  <line x1="18.0" y1="130.0" x2="298.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n3)"/>
+  <line x1="150.0" y1="262.0" x2="150.0" y2="-18.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n3)"/>
+  <text x="290.0" y="146.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="158.0" y="-8.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="60.0" y1="126.0" x2="60.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="240.0" y1="126.0" x2="240.0" y2="134.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="240.0" y="146.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="146.0" y1="220.0" x2="154.0" y2="220.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="143.0" y="224.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="146.0" y1="40.0" x2="154.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="143.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <rect x="60.0" y="40.0" width="180.0" height="180.0" rx="0" fill="#dc2626" fill-opacity="0.15" stroke="#dc2626" stroke-width="2.5"/>
+  <text x="150.0" y="258.0" fill="#475569" font-size="11" text-anchor="middle">L∞: max(|x|, |y|) = 1 — hình vuông</text>
+</svg>
 
 ### 8.5. Quan hệ "lồng nhau"
 
 So sánh 3 unit ball trên cùng hệ trục:
 
-```
-            L∞ (vuông lớn nhất)
-         .---------------.
-         |               |
-         |   L2 (tròn)   |
-         |  .---------.  |
-         |  | L1 thoi |  |
-         |  |  /\     |  |
-         |  | /  \    |  |
-         |  |/    \   |  |
-         |  +------+  |  |
-         |  |\    /   |  |
-         |  | \  /    |  |
-         |  |  \/     |  |
-         |  '---------'  |
-         |               |
-         '---------------'
-```
+<svg viewBox="0 0 360 305" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba quả cầu đơn vị lồng nhau: hình thoi L1 trong đường tròn L2 trong hình vuông L∞">
+  <defs><marker id="n4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="70.0" y1="300.0" x2="70.0" y2="0.0"/>
+<line x1="270.0" y1="300.0" x2="270.0" y2="0.0"/>
+<line x1="20.0" y1="250.0" x2="320.0" y2="250.0"/>
+<line x1="20.0" y1="50.0" x2="320.0" y2="50.0"/>
+</g>
+  <line x1="14.0" y1="150.0" x2="342.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n4)"/>
+  <line x1="170.0" y1="306.0" x2="170.0" y2="-22.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#n4)"/>
+  <text x="334.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="178.0" y="-12.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="70.0" y1="146.0" x2="70.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="70.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="270.0" y1="146.0" x2="270.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="270.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="166.0" y1="250.0" x2="174.0" y2="250.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="163.0" y="254.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="166.0" y1="50.0" x2="174.0" y2="50.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="163.0" y="54.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <rect x="70.0" y="50.0" width="200.0" height="200.0" rx="0" fill="#dc2626" fill-opacity="0.08" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="170" cy="150" r="100" fill="#1d4ed8" fill-opacity="0.12" stroke="#1d4ed8" stroke-width="2.5"/>
+  <path d="M 270.0,150.0 L 170.0,50.0 L 70.0,150.0 L 170.0,250.0 Z" fill="#15803d" stroke="#15803d" stroke-width="2.5" fill-opacity="0.2" stroke-linejoin="round"/>
+  <text x="25.0" y="42.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">L∞ (vuông, lớn nhất)</text>
+  <text x="246.0" y="68.0" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">L2 (tròn)</text>
+  <text x="206.0" y="115.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">L1 (thoi, nhỏ nhất)</text>
+  <text x="170.0" y="292.0" fill="#475569" font-size="11" text-anchor="middle">cùng 'bán kính 1': L1 ⊂ L2 ⊂ L∞ — ‖x‖∞ ≤ ‖x‖₂ ≤ ‖x‖₁</text>
+</svg>
 
 (Lồng từ trong ra ngoài: L1 ⊂ L2 ⊂ L∞.)
 

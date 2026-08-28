@@ -906,22 +906,35 @@ $$P(\text{flush}) = \frac{5148}{2\ 598\ 960} \approx 0{,}001981 \approx \frac{1}
 
 ### 14.1. Sơ đồ tổng quát
 
-```
-Thí nghiệm ngẫu nhiên
-        │
-        ▼
-   Không gian mẫu Ω = {mọi outcome}
-        │
-        ▼
-   Biến cố A ⊆ Ω
-        │
-        ▼
-   P(A) ∈ [0, 1]   với 3 tiên đề Kolmogorov
-        │
-        ├── Cổ điển:     P(A) = |A|/|Ω|   (cần đếm tổ hợp)
-        ├── Frequentist: P(A) ≈ m/n khi n → ∞ (luật số lớn)
-        └── Bayesian:    cập nhật niềm tin với dữ liệu  → Lesson 02
-```
+<svg viewBox="0 0 600 318" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng: thí nghiệm ngẫu nhiên → không gian mẫu Ω → biến cố A → xác suất P(A) theo 3 tiên đề; ba cách gán: cổ điển, frequentist, Bayesian">
+  <defs><marker id="pr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="130.0" y="16.0" width="340.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="2"/>
+  <text x="300.0" y="39.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">Thí nghiệm ngẫu nhiên</text>
+  <line x1="300.0" y1="52.0" x2="300.0" y2="70.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pr)"/>
+  <rect x="130.0" y="72.0" width="340.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="95.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Không gian mẫu Ω = {mọi outcome}</text>
+  <line x1="300.0" y1="108.0" x2="300.0" y2="126.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pr)"/>
+  <rect x="130.0" y="128.0" width="340.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="151.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Biến cố A ⊆ Ω</text>
+  <line x1="300.0" y1="164.0" x2="300.0" y2="182.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pr)"/>
+  <rect x="130.0" y="184.0" width="340.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="207.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">P(A) ∈ [0, 1] — 3 tiên đề Kolmogorov</text>
+  <line x1="300.0" y1="220.0" x2="300.0" y2="236.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#pr)"/>
+  <line x1="300.0" y1="236.0" x2="110.0" y2="236.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="300.0" y1="236.0" x2="490.0" y2="236.0" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="110.0" y1="236.0" x2="110.0" y2="250.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#pr)"/>
+  <rect x="25.0" y="252.0" width="170.0" height="50.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="110.0" y="274.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Cổ điển</text>
+  <text x="110.0" y="289.5" fill="#475569" font-size="11" text-anchor="middle">P(A) = |A|/|Ω| (đếm tổ hợp)</text>
+  <line x1="300.0" y1="236.0" x2="300.0" y2="250.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#pr)"/>
+  <rect x="215.0" y="252.0" width="170.0" height="50.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="274.5" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Frequentist</text>
+  <text x="300.0" y="289.5" fill="#475569" font-size="11" text-anchor="middle">P(A) ≈ m/n khi n → ∞</text>
+  <line x1="490.0" y1="236.0" x2="490.0" y2="250.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#pr)"/>
+  <rect x="405.0" y="252.0" width="170.0" height="50.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="490.0" y="274.5" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Bayesian</text>
+  <text x="490.0" y="289.5" fill="#475569" font-size="11" text-anchor="middle">cập nhật niềm tin → Lesson 02</text>
+</svg>
 
 ### 14.2. Những thứ sẽ học sâu hơn ở các lesson sau
 

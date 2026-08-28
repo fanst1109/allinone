@@ -84,14 +84,40 @@ Giả sử client muốn nhận message mới của room "general":
 4. Nếu đợi 30s vẫn không có event → trả `{messages: [], lastID: 42}` (timeout).
 5. Client nhận response → lưu lastID mới → ngay lập tức gọi GET tiếp.
 
-```
-Client:   GET /poll?since=42 ──────────────────► (server hold 8s)
-                                                  ◄── 200 OK {msgs:[...], lastID:45}
-Client:   GET /poll?since=45 ──────────────────► (server hold 30s, timeout)
-                                                  ◄── 200 OK {msgs:[], lastID:45}
-Client:   GET /poll?since=45 ──────────────────► (server hold 2s)
-                                                  ◄── 200 OK {msgs:[...], lastID:46}
-```
+<svg viewBox="0 0 560 458" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Long polling: client gửi GET /poll?since=N, server giữ kết nối tới khi có tin hoặc timeout rồi trả 200 kèm lastID; client lập tức poll lại">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="426.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="426.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /poll?since=42</text>
+  <line x1="480.0" y1="102.0" x2="440.0" y2="102.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="102.0" x2="440.0" y2="118.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="118.0" x2="478.0" y2="118.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="432.0" y="113.0" fill="#1a202c" font-size="10" text-anchor="end">hold 8 s (có tin mới)</text>
+  <line x1="477.0" y1="150.0" x2="84.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK {msgs: […], lastID: 45}</text>
+  <line x1="83.0" y1="190.0" x2="476.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /poll?since=45</text>
+  <line x1="480.0" y1="222.0" x2="440.0" y2="222.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="222.0" x2="440.0" y2="238.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="238.0" x2="478.0" y2="238.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="432.0" y="233.0" fill="#1a202c" font-size="10" text-anchor="end">hold 30 s → timeout</text>
+  <line x1="477.0" y1="270.0" x2="84.0" y2="270.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="264.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK {msgs: [], lastID: 45}</text>
+  <line x1="83.0" y1="310.0" x2="476.0" y2="310.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="304.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /poll?since=45</text>
+  <line x1="480.0" y1="342.0" x2="440.0" y2="342.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="342.0" x2="440.0" y2="358.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="440.0" y1="358.0" x2="478.0" y2="358.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="432.0" y="353.0" fill="#1a202c" font-size="10" text-anchor="end">hold 2 s</text>
+  <line x1="477.0" y1="390.0" x2="84.0" y2="390.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="384.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK {msgs: […], lastID: 46}</text>
+  <text x="280.0" y="452.0" fill="#475569" font-size="11" text-anchor="middle">server 'giữ' request thay vì trả rỗng ngay → giảm số vòng lặp rỗng</text>
+</svg>
 
 ### 2.2 Code skeleton (stdlib, không lib)
 
@@ -643,17 +669,36 @@ func writeSSE(w io.Writer, id, evType, data string) {
 
 ## 9. Khi nào chọn cái nào — quyết định cây
 
-```
-Bạn cần CLIENT gửi data lên server (qua channel này)?
-├── CÓ
-│   └── → WebSocket (chat, game, collab editor, trading)
-└── KHÔNG
-    └── Bạn cần broadcast cho NHIỀU client?
-        ├── CÓ + browser-only client
-        │   └── → SSE (notification, dashboard, news feed, stock price)
-        └── CÓ + cần qua firewall khắt khe / legacy client
-            └── → Long polling
-```
+<svg viewBox="0 0 620 264" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây chọn realtime: cần client gửi data → WebSocket; không → broadcast nhiều client: browser-only → SSE, firewall/legacy → long polling">
+  <defs></defs>
+  <line x1="260.0" y1="52.0" x2="110.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="177.0" y="68.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">CÓ</text>
+  <line x1="110.0" y1="116.0" x2="110.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="-16.0" y="148.0" width="252.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="168.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">chat, game, collab editor, trading</text>
+  <rect x="64.5" y="84.0" width="91.0" height="32.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="110.0" y="104.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">→ WebSocket</text>
+  <line x1="260.0" y1="52.0" x2="410.0" y2="84.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="343.0" y="68.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">KHÔNG</text>
+  <line x1="410.0" y1="116.0" x2="310.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="352.0" y="132.0" fill="#475569" font-size="11" text-anchor="end" font-weight="700">CÓ, browser-only</text>
+  <line x1="310.0" y1="180.0" x2="310.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="184.0" y="212.0" width="252.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="232.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">notification, dashboard, news feed</text>
+  <rect x="285.5" y="148.0" width="49.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="168.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">→ SSE</text>
+  <line x1="410.0" y1="116.0" x2="510.0" y2="148.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="468.0" y="132.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">CÓ, legacy/firewall</text>
+  <line x1="510.0" y1="180.0" x2="510.0" y2="212.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="398.0" y="212.0" width="224.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="510.0" y="232.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">qua firewall khắt khe / legacy</text>
+  <rect x="454.0" y="148.0" width="112.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="510.0" y="168.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">→ Long polling</text>
+  <rect x="294.5" y="84.0" width="231.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="410.0" y="104.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Cần broadcast cho NHIỀU client?</text>
+  <rect x="144.5" y="20.0" width="231.0" height="32.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="260.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Cần CLIENT gửi data lên server?</text>
+</svg>
 
 Ví dụ thực tế:
 

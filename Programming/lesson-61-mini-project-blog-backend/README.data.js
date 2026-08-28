@@ -121,18 +121,44 @@ internal/
 
 ### 3.1 Sơ đồ phụ thuộc (dependency direction)
 
-\`\`\`
-            handler ──► service ──► (interfaces)
-                                      │
-              ┌───────────────┬───────┴────────┬──────────────┐
-              ▼               ▼                ▼              ▼
-      storage.Repository  cache.Cache   search.Index   migration.Migrator
-              │               │                │
-        MemoryRepository  MemoryCache    InvertedIndex
-              └───────────────┴────────────────┘
-                          │
-                  internal/model (entity)
-\`\`\`
+<svg viewBox="0 0 640 290" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc blog backend: handler → service → 4 interface (Repository, Cache, Index, Migrator) → implementation in-memory; tất cả phụ thuộc internal/model">
+  <defs><marker id="dp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="40.0" y="20.0" width="110.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="95.0" y="41.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">handler</text>
+  <line x1="152.0" y1="37.0" x2="198.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dp)"/>
+  <rect x="200.0" y="20.0" width="110.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="255.0" y="41.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">service</text>
+  <line x1="312.0" y1="37.0" x2="358.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dp)"/>
+  <rect x="360.0" y="20.0" width="140.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="430.0" y="41.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">(interfaces)</text>
+  <line x1="430.0" y1="54.0" x2="100.0" y2="88.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="30.0" y="90.0" width="140.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="100.0" y="110.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">storage.Repository</text>
+  <line x1="100.0" y1="122.0" x2="100.0" y2="146.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="30.0" y="148.0" width="140.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="100.0" y="168.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">MemoryRepository</text>
+  <line x1="100.0" y1="180.0" x2="320.0" y2="214.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="430.0" y1="54.0" x2="250.0" y2="88.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="180.0" y="90.0" width="140.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="250.0" y="110.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">cache.Cache</text>
+  <line x1="250.0" y1="122.0" x2="250.0" y2="146.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="180.0" y="148.0" width="140.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="250.0" y="168.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">MemoryCache</text>
+  <line x1="250.0" y1="180.0" x2="320.0" y2="214.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="430.0" y1="54.0" x2="400.0" y2="88.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="330.0" y="90.0" width="140.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="400.0" y="110.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">search.Index</text>
+  <line x1="400.0" y1="122.0" x2="400.0" y2="146.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="330.0" y="148.0" width="140.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="400.0" y="168.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">InvertedIndex</text>
+  <line x1="400.0" y1="180.0" x2="320.0" y2="214.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="430.0" y1="54.0" x2="550.0" y2="88.0" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#dp)"/>
+  <rect x="480.0" y="90.0" width="140.0" height="32.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="550.0" y="110.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">migration.Migrator</text>
+  <rect x="220.0" y="216.0" width="200.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="237.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">internal/model (entity)</text>
+  <text x="320.0" y="278.0" fill="#475569" font-size="10" text-anchor="middle">handler → service → 4 interface; implementation in-memory mô phỏng Postgres / Redis / Elasticsearch; mọi tầng dùng chung model</text>
+</svg>
 
 > 💡 **Trực giác về hướng phụ thuộc.** Mũi tên luôn chỉ từ "cụ thể" về "trừu
 > tượng": \`service\` phụ thuộc *interface* chứ không phụ thuộc *MemoryRepository*.

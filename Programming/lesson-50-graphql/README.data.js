@@ -649,17 +649,31 @@ GraphQL resolver **rời rạc** — mỗi field một function. Resolver \`User
 
 ### 10.1 Cơ chế 3 bước
 
-\`\`\`
-Resolver gọi:  loader.Load(ctx, "userId-1")  ─┐
-                loader.Load(ctx, "userId-2")  ├─► collect 1 tick
-                loader.Load(ctx, "userId-3")  ─┘
-                                              ▼
-                Batch fn: fetchUsers([1,2,3])  → DB: SELECT * WHERE id IN (1,2,3)
-                                              ▼
-                Trả về 3 user theo đúng thứ tự
-                                              ▼
-                Cache trong loader cho request hiện tại
-\`\`\`
+<svg viewBox="0 0 600 310" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="DataLoader: ba lời gọi loader.Load trong cùng tick được gom lại, batch fn chạy một SELECT … IN (1,2,3), trả về đúng thứ tự và cache theo request">
+  <defs><marker id="dl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="20.0" width="230.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="135.0" y="38.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">loader.Load(ctx, "userId-1")</text>
+  <line x1="252.0" y1="34.0" x2="318.0" y2="68.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#dl)"/>
+  <rect x="20.0" y="56.0" width="230.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="135.0" y="74.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">loader.Load(ctx, "userId-2")</text>
+  <line x1="252.0" y1="70.0" x2="318.0" y2="68.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#dl)"/>
+  <rect x="20.0" y="92.0" width="230.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="135.0" y="110.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">loader.Load(ctx, "userId-3")</text>
+  <line x1="252.0" y1="106.0" x2="318.0" y2="68.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#dl)"/>
+  <rect x="320.0" y="50.0" width="120.0" height="36.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="380.0" y="72.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">collect 1 tick</text>
+  <line x1="380.0" y1="86.0" x2="380.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="240.0" y="112.0" width="280.0" height="40.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="380.0" y="129.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Batch fn: fetchUsers([1,2,3])</text>
+  <text x="380.0" y="143.0" fill="#475569" font-size="10" text-anchor="middle">SELECT * FROM users WHERE id IN (1,2,3)</text>
+  <line x1="380.0" y1="152.0" x2="380.0" y2="176.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="240.0" y="178.0" width="280.0" height="32.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="380.0" y="198.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">trả 3 user đúng thứ tự</text>
+  <line x1="380.0" y1="210.0" x2="380.0" y2="234.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="240.0" y="236.0" width="280.0" height="32.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="380.0" y="256.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">cache trong loader cho request hiện tại</text>
+  <text x="300.0" y="296.0" fill="#475569" font-size="11" text-anchor="middle">DataLoader gom N lời gọi Load trong 1 tick thành 1 truy vấn batch → hết N+1</text>
+</svg>
 
 ### 10.2 Implementation skeleton (Go pseudo)
 

@@ -296,19 +296,29 @@ log.Fatal(srv.ListenAndServe())
 
 > 💡 **Trực giác.** Một request đi qua **6 bước** trong Go runtime. Hiểu được thứ tự này = debug được hầu hết bug.
 
-```
-[1] listener.Accept()  ──┐
-                          ▼
-[2] go conn.serve(ctx)   (mỗi conn 1 goroutine)
-        ▼
-[3] parse request line + headers
-        ▼
-[4] dispatch: mux.ServeHTTP(w, r) → handler.ServeHTTP(w, r)
-        ▼
-[5] handler: w.Header().Set(...) → w.WriteHeader(status) → w.Write(body)
-        ▼
-[6] flush response, decide keep-alive vs close, goroutine quay lại bước [3] nếu keep-alive
-```
+<svg viewBox="0 0 720 354" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng đời một kết nối trong net/http: Accept → goroutine serve → parse → dispatch mux → handler ghi header/body → flush và keep-alive quay lại parse">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="60.0" y="14.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[1] listener.Accept()</text>
+  <line x1="320.0" y1="50.0" x2="320.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="70.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[2] go conn.serve(ctx) — mỗi conn 1 goroutine</text>
+  <line x1="320.0" y1="106.0" x2="320.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="126.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="148.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[3] parse request line + headers</text>
+  <line x1="320.0" y1="162.0" x2="320.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="182.0" width="520.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="204.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[4] dispatch: mux.ServeHTTP(w, r) → handler.ServeHTTP(w, r)</text>
+  <line x1="320.0" y1="218.0" x2="320.0" y2="236.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="30.0" y="238.0" width="580.0" height="48.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="257.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">[5] handler: w.Header().Set → w.WriteHeader(status) →</text>
+  <text x="320.0" y="274.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">w.Write(body)</text>
+  <line x1="320.0" y1="288.0" x2="320.0" y2="306.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="308.0" width="520.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="330.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[6] flush response; keep-alive? → quay lại [3], không → close</text>
+  <path d="M 590,314 L 620,314 L 620,140 L 592,140" fill="none" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#vf)"/>
+  <text x="624.0" y="227.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">keep-alive</text>
+</svg>
 
 Ví dụ số cụ thể: server `:8080`, mux có route `GET /users/{id}`, client gửi `GET /users/42`.
 
@@ -730,11 +740,26 @@ http.ListenAndServe(":8080", handler)
 
 Thứ tự execution khi request đến:
 
-```
-Logger.before  →  Recover.before  →  RequestID.before  →  actualHandler  →
-                                                                          ↓
-              ←  Recover.after   ←  RequestID.after   ←  Logger.after  ←
-```
+<svg viewBox="0 0 640 165" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi middleware kiểu củ hành: request đi vào qua Logger, Recover, RequestID tới handler; response đi ra ngược lại qua RequestID, Recover, Logger">
+  <defs><marker id="mw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="mwg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <rect x="20.0" y="60.0" width="130.0" height="36.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="85.0" y="82.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Logger</text>
+  <rect x="170.0" y="60.0" width="130.0" height="36.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="235.0" y="82.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Recover</text>
+  <rect x="320.0" y="60.0" width="130.0" height="36.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="385.0" y="82.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">RequestID</text>
+  <rect x="470.0" y="60.0" width="130.0" height="36.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="535.0" y="82.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">actualHandler</text>
+  <line x1="152.0" y1="70.0" x2="168.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mw)"/>
+  <line x1="168.0" y1="86.0" x2="152.0" y2="86.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#mwg)"/>
+  <line x1="302.0" y1="70.0" x2="318.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mw)"/>
+  <line x1="318.0" y1="86.0" x2="302.0" y2="86.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#mwg)"/>
+  <line x1="452.0" y1="70.0" x2="468.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#mw)"/>
+  <line x1="468.0" y1="86.0" x2="452.0" y2="86.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#mwg)"/>
+  <text x="20.0" y="44.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">→ before (vào)</text>
+  <text x="20.0" y="120.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">← after (ra)</text>
+  <text x="320.0" y="150.0" fill="#475569" font-size="10" text-anchor="middle">middleware lồng nhau như củ hành: Logger.before → Recover.before → RequestID.before → handler → RequestID.after → Recover.after → Logger.after</text>
+</svg>
 
 Logger ngoài cùng → đo được **toàn bộ** thời gian (kể cả Recover/RequestID). Đặt Recover sát handler → bắt được panic của handler.
 

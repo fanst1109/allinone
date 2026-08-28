@@ -139,36 +139,31 @@ Tất cả là **AEAD** (Authenticated Encryption with Associated Data) — mã 
 
 Đây là sơ đồ TLS 1.3 đã đơn giản hoá (bỏ chi tiết extension, chỉ giữ flow chính):
 
-```
-                       Client                          Server
-                       ------                          ------
-  RTT 1 (gửi đi)   →   ClientHello                  →
-                       - random_c (32 byte)
-                       - cipher_suites_list
-                       - key_share (EC point client)
-                       - server_name = "bank.com" (SNI)
-
-  RTT 1 (về)       ←   ServerHello + ...            ←
-                       - random_s (32 byte)
-                       - cipher_chosen
-                       - key_share (EC point server)
-                       - {Certificate}    (đã mã hoá)
-                       - {CertVerify}     (ký random_c||random_s bằng priv key)
-                       - {Finished}       (MAC handshake transcript)
-
-         (tại điểm này cả 2 bên đã tính được session_key)
-
-  Client verify:
-   - chain certificate hợp lệ?
-   - tên trong cert = "bank.com"?
-   - chữ ký CertVerify đúng với public key trong cert?
-   - Finished MAC khớp?
-
-  RTT 2 (gửi đi)   →   {Finished}                   →
-                       (rồi luôn application data)
-
-         Application data mã hoá session_key (AES-GCM…) từ đây trở đi
-```
+<svg viewBox="0 0 640 378" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bắt tay TLS 1.3 một RTT: ClientHello mang key_share và SNI; ServerHello kèm chứng chỉ, CertVerify, Finished đã mã hoá; client xác minh rồi gửi Finished và dữ liệu">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="556.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ClientHello: random_c, cipher_suites, key_share, SNI = bank.com</text>
+  <text x="320.0" y="110.0" fill="#475569" font-size="10" text-anchor="middle">RTT 1 — gửi đi</text>
+  <line x1="557.0" y1="150.0" x2="84.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">ServerHello: random_s, cipher_chosen, key_share</text>
+  <line x1="557.0" y1="190.0" x2="84.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">{Certificate} {CertVerify} {Finished} — đã mã hoá</text>
+  <line x1="80.0" y1="222.0" x2="120.0" y2="222.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="120.0" y1="222.0" x2="120.0" y2="238.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="120.0" y1="238.0" x2="82.0" y2="238.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="128.0" y="233.0" fill="#1a202c" font-size="10" text-anchor="start">verify chain, ký, MAC → dẫn xuất khoá phiên</text>
+  <line x1="83.0" y1="270.0" x2="556.0" y2="270.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="264.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{Finished} + Application Data (mã hoá)</text>
+  <line x1="557.0" y1="310.0" x2="84.0" y2="310.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="304.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Application Data (mã hoá)</text>
+  <text x="320.0" y="372.0" fill="#475569" font-size="11" text-anchor="middle">1 RTT: khoá phiên = ECDHE(key_share_c, key_share_s); chứng chỉ chứng minh danh tính server</text>
+</svg>
 
 ### 3.1 Walk-through bằng số
 
@@ -297,17 +292,20 @@ Wildcard `*.bank.com` match `api.bank.com` nhưng **không** match `api.dev.bank
 
 Trust hoạt động theo chuỗi:
 
-```
-[Leaf cert: bank.com]
-      │ signed by
-      ▼
-[Intermediate: GlobalSign RSA OV SSL CA 2018]
-      │ signed by
-      ▼
-[Root: GlobalSign Root CA - R3]
-      │
-      └─── ĐÃ ĐƯỢC OS/BROWSER tin sẵn (built-in trust store)
-```
+<svg viewBox="0 0 620 210" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi chứng chỉ: leaf bank.com được ký bởi intermediate GlobalSign, intermediate được ký bởi root GlobalSign R3 có sẵn trong trust store">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="60.0" y="14.0" width="500.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="36.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Leaf cert: bank.com</text>
+  <line x1="310.0" y1="50.0" x2="310.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="322.0" y="69.0" fill="#475569" font-size="10" text-anchor="start">signed by</text>
+  <rect x="60.0" y="82.0" width="500.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Intermediate: GlobalSign RSA OV SSL CA 2018</text>
+  <line x1="310.0" y1="118.0" x2="310.0" y2="148.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="322.0" y="137.0" fill="#475569" font-size="10" text-anchor="start">signed by</text>
+  <rect x="30.0" y="150.0" width="560.0" height="48.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="310.0" y="169.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Root: GlobalSign Root CA – R3 — đã có sẵn trong trust store</text>
+  <text x="310.0" y="186.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">của OS/browser</text>
+</svg>
 
 Khi handshake, server gửi `leaf + intermediate(s)` (KHÔNG gửi root — client đã có sẵn). Client xác minh:
 

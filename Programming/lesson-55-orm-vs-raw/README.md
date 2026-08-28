@@ -31,11 +31,32 @@ Sau bài này, bạn sẽ:
 
 Trong Go, "spectrum" đó cụ thể là 6 nấc, xếp từ **nhiều control nhất** đến **nhiều magic nhất**:
 
-```
-control ◄──────────────────────────────────────────────► tiện/magic
- database/sql   sqlx     sqlc     pgx        ent        GORM
-   (raw)      (wrapper)  (codegen) (driver)  (graph ORM) (full ORM)
-```
+<svg viewBox="0 0 620 165" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục control ↔ tiện lợi: database/sql (raw), sqlx, sqlc, pgx, ent, GORM — từ kiểm soát hoàn toàn tới full ORM">
+  <defs><marker id="sp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="40.0" y1="70.0" x2="580.0" y2="70.0" stroke="#1a202c" stroke-width="2" marker-end="url(#sp)"/>
+  <line x1="580.0" y1="70.0" x2="40.0" y2="70.0" stroke="#1a202c" stroke-width="2" marker-end="url(#sp)"/>
+  <text x="40.0" y="50.0" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">control</text>
+  <text x="580.0" y="50.0" fill="#7c3aed" font-size="13" text-anchor="end" font-weight="700">tiện / magic</text>
+  <circle cx="70.0" cy="70.0" r="5" fill="#1d4ed8"/>
+  <text x="70.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">database/sql</text>
+  <text x="70.0" y="114.0" fill="#475569" font-size="10" text-anchor="middle">raw</text>
+  <circle cx="162.0" cy="70.0" r="5" fill="#1d4ed8"/>
+  <text x="162.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">sqlx</text>
+  <text x="162.0" y="114.0" fill="#475569" font-size="10" text-anchor="middle">wrapper</text>
+  <circle cx="254.0" cy="70.0" r="5" fill="#1d4ed8"/>
+  <text x="254.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">sqlc</text>
+  <text x="254.0" y="114.0" fill="#475569" font-size="10" text-anchor="middle">codegen</text>
+  <circle cx="346.0" cy="70.0" r="5" fill="#7c3aed"/>
+  <text x="346.0" y="98.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">pgx</text>
+  <text x="346.0" y="114.0" fill="#475569" font-size="10" text-anchor="middle">driver</text>
+  <circle cx="438.0" cy="70.0" r="5" fill="#7c3aed"/>
+  <text x="438.0" y="98.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">ent</text>
+  <text x="438.0" y="114.0" fill="#475569" font-size="10" text-anchor="middle">graph ORM</text>
+  <circle cx="530.0" cy="70.0" r="5" fill="#7c3aed"/>
+  <text x="530.0" y="98.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">GORM</text>
+  <text x="530.0" y="114.0" fill="#475569" font-size="10" text-anchor="middle">full ORM</text>
+  <text x="310.0" y="150.0" fill="#475569" font-size="11" text-anchor="middle">càng sang phải càng ít code tay nhưng càng nhiều 'phép thuật' và khó kiểm soát SQL</text>
+</svg>
 
 | # | Công cụ | Mô tả 1 câu | Bạn viết gì | Thư viện sinh/làm gì |
 |---|---------|-------------|-------------|----------------------|

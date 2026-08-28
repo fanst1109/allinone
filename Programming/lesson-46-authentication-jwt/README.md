@@ -59,15 +59,35 @@ Hai khái niệm thường bị gộp làm một, nhưng tách bạch sẽ khi�
 
 ### 2.1 Flow
 
-```
-1. Client POST /login với username + password.
-2. Server verify password (bcrypt compare) → tạo session ID ngẫu nhiên 32 byte.
-3. Server lưu vào store: { "sess_abc123": {userID: 7, expires: ...} }.
-4. Server trả Set-Cookie: session=sess_abc123; HttpOnly; Secure; SameSite=Lax.
-5. Mỗi request tiếp theo, browser tự gửi Cookie: session=sess_abc123.
-6. Server đọc cookie → lookup store → biết userID = 7.
-7. Logout: server xóa entry trong store, browser xóa cookie.
-```
+<svg viewBox="0 0 680 378" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Luồng session cookie: login → server tạo session ID lưu store → Set-Cookie → mỗi request browser gửi cookie → server lookup store → logout xoá entry">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Browser</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="280.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="340.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="340.0" y1="44.0" x2="340.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="540.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="600.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Session store</text>
+  <line x1="600.0" y1="44.0" x2="600.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="336.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">1. POST /login {username, password}</text>
+  <line x1="340.0" y1="102.0" x2="380.0" y2="102.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="380.0" y1="102.0" x2="380.0" y2="118.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="380.0" y1="118.0" x2="342.0" y2="118.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#sq)"/>
+  <text x="388.0" y="113.0" fill="#1a202c" font-size="10" text-anchor="start">2. bcrypt compare → tạo session ID 32 byte</text>
+  <line x1="343.0" y1="150.0" x2="596.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="470.0" y="144.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">3. lưu sess_abc123 → {userID: 7, expires}</text>
+  <line x1="337.0" y1="190.0" x2="84.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">4. Set-Cookie: session=sess_abc123; HttpOnly; Secure</text>
+  <line x1="83.0" y1="230.0" x2="336.0" y2="230.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="224.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">5. request kế: Cookie: session=sess_abc123</text>
+  <line x1="343.0" y1="270.0" x2="596.0" y2="270.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="470.0" y="264.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">6. lookup sess_abc123 → userID = 7</text>
+  <line x1="343.0" y1="310.0" x2="596.0" y2="310.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="470.0" y="304.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">7. logout: xoá entry (browser xoá cookie)</text>
+  <text x="340.0" y="372.0" fill="#475569" font-size="11" text-anchor="middle">trạng thái nằm ở server (store); cookie chỉ là chìa khoá tra cứu</text>
+</svg>
 
 ### 2.2 Session store
 
@@ -367,22 +387,37 @@ Giải pháp: **dual token**.
 
 ### 8.1 Flow
 
-```
-[Login]
-POST /login {user, pass} → server verify → trả về:
-   { "access": "<JWT 15min>", "refresh": "rt_a1b2c3..." }
-   (refresh lưu vào DB: { token: rt_a1b2c3, userID: 7, expires: now+30d })
-
-[Bình thường]
-GET /api/me  Authorization: Bearer <access>
-   → server verify JWT → trả data.
-
-[Access hết hạn]
-GET /api/me → 401
-client → POST /refresh { refresh: "rt_a1b2c3..." }
-   → server lookup DB → ok → invalidate rt_a1b2c3 → tạo rt_d4e5f6 (rotation)
-   → trả về { access: <JWT mới>, refresh: "rt_d4e5f6" }
-```
+<svg viewBox="0 0 700 458" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Access + refresh token: login trả JWT 15 phút và refresh token lưu DB; khi 401, client gọi /refresh, server xoay refresh token và cấp JWT mới">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="426.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="290.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="350.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="350.0" y1="44.0" x2="350.0" y2="426.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="560.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="620.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">DB (refresh tokens)</text>
+  <line x1="620.0" y1="44.0" x2="620.0" y2="426.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="346.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="215.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">[Login] POST /login {user, pass}</text>
+  <line x1="353.0" y1="110.0" x2="616.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="485.0" y="104.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">lưu rt_a1b2c3 → {userID 7, expires +30d}</text>
+  <line x1="347.0" y1="150.0" x2="84.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="215.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">{access: JWT 15 min, refresh: rt_a1b2c3}</text>
+  <line x1="83.0" y1="190.0" x2="346.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="215.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">[Bình thường] GET /api/me  Bearer &lt;access&gt;</text>
+  <line x1="347.0" y1="230.0" x2="84.0" y2="230.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="215.0" y="224.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">verify JWT → data</text>
+  <line x1="83.0" y1="270.0" x2="346.0" y2="270.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="215.0" y="264.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">[Hết hạn] GET /api/me → 401</text>
+  <line x1="83.0" y1="310.0" x2="346.0" y2="310.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="215.0" y="304.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /refresh {refresh: rt_a1b2c3}</text>
+  <line x1="353.0" y1="350.0" x2="616.0" y2="350.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="485.0" y="344.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">lookup ok → invalidate rt_a1b2c3, tạo rt_d4e5f6 (rotation)</text>
+  <line x1="347.0" y1="390.0" x2="84.0" y2="390.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="215.0" y="384.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">{access: JWT mới, refresh: rt_d4e5f6}</text>
+  <text x="350.0" y="452.0" fill="#475569" font-size="11" text-anchor="middle">refresh token rotation: mỗi lần dùng là đổi token mới, token cũ vô hiệu</text>
+</svg>
 
 ### 8.2 Refresh token rotation
 

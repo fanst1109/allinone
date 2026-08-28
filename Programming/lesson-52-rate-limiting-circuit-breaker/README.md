@@ -64,13 +64,25 @@ Trước khi chọn thuật toán, phải xác định **key** dùng để đế
 
 **Trong thực tế dùng đồng thời nhiều layer:**
 
-```
-Request
-  → [Layer 1] Per-IP rate limit ở Nginx/CDN (chống bot thô)
-  → [Layer 2] Per-API-key ở API Gateway (theo plan giá)
-  → [Layer 3] Per-user + per-endpoint ở Application (logic nghiệp vụ)
-  → [Layer 4] Global circuit breaker ở downstream caller (protect DB)
-```
+<svg viewBox="0 0 640 312" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn tầng rate limit từ ngoài vào: per-IP ở CDN, per-API-key ở gateway, per-user/endpoint ở app, circuit breaker bảo vệ DB">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="60.0" y="14.0" width="520.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Request</text>
+  <line x1="320.0" y1="50.0" x2="320.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="70.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Layer 1] Per-IP rate limit ở Nginx/CDN — chống bot thô</text>
+  <line x1="320.0" y1="106.0" x2="320.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="60.0" y="126.0" width="520.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="148.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Layer 2] Per-API-key ở API Gateway — theo plan giá</text>
+  <line x1="320.0" y1="162.0" x2="320.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="30.0" y="182.0" width="580.0" height="48.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="201.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[Layer 3] Per-user + per-endpoint ở Application — logic</text>
+  <text x="320.0" y="218.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">nghiệp vụ</text>
+  <line x1="320.0" y1="232.0" x2="320.0" y2="250.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="30.0" y="252.0" width="580.0" height="48.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="271.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[Layer 4] Global circuit breaker ở downstream caller —</text>
+  <text x="320.0" y="288.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">protect DB</text>
+</svg>
 
 > ⚠ **Pitfall — per-IP và NAT.** Văn phòng có 200 nhân viên ngồi sau 1 IP công cộng. Nếu API limit `100 req/min/IP` → cả văn phòng chỉ được 100/phút. Một dev test API là người khác bị block. **Fix:** ở layer Application luôn ưu tiên **per-user**, per-IP chỉ dùng ở edge cho traffic chưa auth.
 
@@ -408,20 +420,31 @@ X-RateLimit-Reset: 1716800460
 
 ### 6.1 Ba state
 
-```
-        ┌─────────┐    consec_fail >= 5    ┌──────┐
-        │ CLOSED  │ ────────────────────▶ │ OPEN │
-        │ (cho   │                        │(reject│
-        │ qua)   │ ◀──────────────────── │ ngay)│
-        └─────────┘   success in half-open └──────┘
-              ▲          │                    │
-              │          │ fail in half-open  │ sau cooldown 10s
-              │          ▼                    ▼
-              │      ┌───────────┐       ┌───────────┐
-              └──────│ HALF-OPEN │ ◀──── │ HALF-OPEN │
-        success     │ (1 probe) │       │  trigger   │
-                    └───────────┘       └───────────┘
-```
+<svg viewBox="0 0 640 275" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái circuit breaker: CLOSED → OPEN sau 5 lỗi liên tiếp; OPEN → HALF-OPEN sau cooldown 10 s; probe thành công → CLOSED, thất bại → OPEN">
+  <defs><marker id="c2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="c2r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="c2g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker></defs>
+  <rect x="30.0" y="70.0" width="130.0" height="60.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="95.0" y="97.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">CLOSED</text>
+  <text x="95.0" y="111.0" fill="#475569" font-size="11" text-anchor="middle">cho qua</text>
+  <rect x="270.0" y="70.0" width="120.0" height="60.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="330.0" y="97.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">OPEN</text>
+  <text x="330.0" y="111.0" fill="#475569" font-size="11" text-anchor="middle">reject ngay</text>
+  <rect x="470.0" y="60.0" width="150.0" height="40.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="545.0" y="77.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">HALF-OPEN</text>
+  <text x="545.0" y="91.0" fill="#475569" font-size="11" text-anchor="middle">trigger</text>
+  <rect x="470.0" y="140.0" width="150.0" height="40.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="545.0" y="157.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">HALF-OPEN</text>
+  <text x="545.0" y="171.0" fill="#475569" font-size="11" text-anchor="middle">1 probe</text>
+  <line x1="162.0" y1="90.0" x2="268.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#c2)"/>
+  <text x="215.0" y="80.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">consec_fail ≥ 5</text>
+  <line x1="392.0" y1="90.0" x2="468.0" y2="82.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#c2)"/>
+  <text x="430.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">sau cooldown 10 s</text>
+  <line x1="545.0" y1="100.0" x2="545.0" y2="138.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#c2)"/>
+  <line x1="468.0" y1="160.0" x2="392.0" y2="110.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#c2r)"/>
+  <text x="440.0" y="128.0" fill="#dc2626" font-size="9" text-anchor="middle" font-weight="700">probe fail → OPEN</text>
+  <path d="M 470,175 Q 300,230 95,132" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#c2g)"/>
+  <text x="300.0" y="222.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">probe success → CLOSED</text>
+  <text x="325.0" y="260.0" fill="#475569" font-size="11" text-anchor="middle">biến thể circuit breaker với cooldown 10 s và 1 request thăm dò (probe)</text>
+</svg>
 
 | State | Hành vi | Khi nào chuyển |
 |-------|---------|----------------|
@@ -609,20 +632,35 @@ func (d *DepClient) Call(ctx context.Context, fn func() error) error {
 
 Một service production thực tế kết hợp **rate limit (input) + circuit breaker (output) + bulkhead (resource)**:
 
-```
-Inbound:
-  HTTP request
-    → [Per-IP rate limit]     ← chống bot
-    → [Per-user rate limit]   ← fair share
-    → [Per-endpoint limit]    ← protect expensive endpoint
-    → handler
-        → [Bulkhead pool]     ← isolation per dep
-            → [Circuit breaker per dep]   ← fail fast nếu dep sập
-                → [Context timeout]       ← bound mỗi call
-                    → downstream call
-
-Outbound: ngược lại — caller bảo vệ mình khỏi downstream
-```
+<svg viewBox="0 0 600 508" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi bảo vệ inbound → outbound: 3 tầng rate limit → handler → bulkhead → circuit breaker → context timeout → downstream">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="70.0" y="14.0" width="460.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="300.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">HTTP request (inbound)</text>
+  <line x1="300.0" y1="50.0" x2="300.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="70.0" width="460.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Per-IP rate limit] — chống bot</text>
+  <line x1="300.0" y1="106.0" x2="300.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="126.0" width="460.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="148.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Per-user rate limit] — fair share</text>
+  <line x1="300.0" y1="162.0" x2="300.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="182.0" width="460.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="204.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Per-endpoint limit] — bảo vệ endpoint đắt</text>
+  <line x1="300.0" y1="218.0" x2="300.0" y2="236.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="238.0" width="460.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="260.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">handler</text>
+  <line x1="300.0" y1="274.0" x2="300.0" y2="292.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="294.0" width="460.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="300.0" y="316.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">[Bulkhead pool] — cô lập theo dependency</text>
+  <line x1="300.0" y1="330.0" x2="300.0" y2="348.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="350.0" width="460.0" height="34.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="300.0" y="372.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[Circuit breaker per dep] — fail fast khi dep sập</text>
+  <line x1="300.0" y1="386.0" x2="300.0" y2="404.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="406.0" width="460.0" height="34.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="300.0" y="428.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">[Context timeout] — giới hạn mỗi call</text>
+  <line x1="300.0" y1="442.0" x2="300.0" y2="460.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="462.0" width="460.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="300.0" y="484.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">downstream call (outbound)</text>
+</svg>
 
 Không có pattern nào "đủ một mình". **Defense in depth** mới là production-grade.
 

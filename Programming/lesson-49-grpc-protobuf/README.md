@@ -808,11 +808,28 @@ Generate ra một file `*_gw.go` chứa HTTP handler — nhận `GET /v1/users/4
 
 Kiến trúc:
 
-```
-Browser ─HTTP/JSON─> gRPC-Gateway ─gRPC─> Server
-External API ─HTTP/JSON─> gRPC-Gateway ─gRPC─> Server
-Internal service ───────gRPC─────────────────> Server
-```
+<svg viewBox="0 0 640 205" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="gRPC-Gateway: browser và external API nói HTTP/JSON tới gateway, gateway chuyển thành gRPC tới server; internal service gọi gRPC trực tiếp">
+  <defs><marker id="gw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="20.0" width="120.0" height="36.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="42.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Browser</text>
+  <rect x="20.0" y="76.0" width="120.0" height="36.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="98.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">External API</text>
+  <rect x="20.0" y="132.0" width="140.0" height="36.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="90.0" y="154.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Internal service</text>
+  <line x1="142.0" y1="38.0" x2="258.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#gw)"/>
+  <text x="200.0" y="36.0" fill="#475569" font-size="10" text-anchor="middle">HTTP/JSON</text>
+  <line x1="142.0" y1="94.0" x2="258.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#gw)"/>
+  <text x="200.0" y="98.0" fill="#475569" font-size="10" text-anchor="middle">HTTP/JSON</text>
+  <rect x="260.0" y="48.0" width="150.0" height="36.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="335.0" y="70.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">gRPC-Gateway</text>
+  <line x1="412.0" y1="66.0" x2="498.0" y2="66.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#gw)"/>
+  <text x="455.0" y="58.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">gRPC</text>
+  <line x1="162.0" y1="150.0" x2="498.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#gw)"/>
+  <text x="330.0" y="140.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">gRPC trực tiếp</text>
+  <rect x="500.0" y="48.0" width="110.0" height="36.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="555.0" y="70.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <text x="320.0" y="190.0" fill="#475569" font-size="11" text-anchor="middle">gateway dịch HTTP/JSON ↔ gRPC cho client bên ngoài; service nội bộ gọi gRPC thẳng</text>
+</svg>
 
 Lợi: **một** source of truth (`.proto`), hai protocol expose.
 

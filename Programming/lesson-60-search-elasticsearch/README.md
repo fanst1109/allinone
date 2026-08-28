@@ -198,13 +198,23 @@ PUT /products
 
 ### 5.1 Walk-through: "The Running Dogs"
 
-```
-"The Running Dogs"
-  → tokenize:   ["The", "Running", "Dogs"]
-  → lowercase:  ["the", "running", "dogs"]
-  → stop word:  ["running", "dogs"]        (bỏ "the")
-  → stemming:   ["run", "dog"]
-```
+<svg viewBox="0 0 560 284" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline analyzer: tokenize → lowercase → bỏ stop word → stemming, biến 'The Running Dogs' thành [run, dog]">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="70.0" y="14.0" width="420.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="280.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">"The Running Dogs"</text>
+  <line x1="280.0" y1="50.0" x2="280.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="70.0" width="420.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="280.0" y="92.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">tokenize → ["The", "Running", "Dogs"]</text>
+  <line x1="280.0" y1="106.0" x2="280.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="126.0" width="420.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="280.0" y="148.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">lowercase → ["the", "running", "dogs"]</text>
+  <line x1="280.0" y1="162.0" x2="280.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="182.0" width="420.0" height="34.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="280.0" y="204.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">stop word → ["running", "dogs"] (bỏ "the")</text>
+  <line x1="280.0" y1="218.0" x2="280.0" y2="236.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <rect x="70.0" y="238.0" width="420.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="280.0" y="260.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">stemming → ["run", "dog"]</text>
+</svg>
 
 Kết quả lưu vào inverted index là `["run", "dog"]`. Khi user search `"dogs are running"`:
 

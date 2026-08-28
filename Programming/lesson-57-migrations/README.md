@@ -66,18 +66,23 @@ Với migration, bốn thay đổi trên là bốn file `000001..000004` trong g
 
 Database lưu **version hiện tại** của nó (đã chạy tới migration số mấy) trong một bảng đặc biệt. Khi bạn gọi `migrate up`, tool nhìn version hiện tại, tìm các migration **chưa chạy**, và chạy phần `up` của chúng theo đúng thứ tự tăng dần.
 
-```
-Version 0 (trống)
-  │  001_create_users.up.sql   →  CREATE TABLE users
-  ▼
-Version 1
-  │  002_add_email.up.sql      →  ALTER TABLE users ADD email
-  ▼
-Version 2
-  │  003_create_posts.up.sql   →  CREATE TABLE posts
-  ▼
-Version 3  ← database đang ở đây
-```
+<svg viewBox="0 0 620 264" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi migration: version 0 → 1 (create users) → 2 (add email) → 3 (create posts); DB hiện ở version 3">
+  <defs><marker id="vf" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="130.0" y="14.0" width="360.0" height="34.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.8"/>
+  <text x="310.0" y="36.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">Version 0 (trống)</text>
+  <line x1="310.0" y1="50.0" x2="310.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="322.0" y="69.0" fill="#475569" font-size="10" text-anchor="start">001_create_users.up.sql → CREATE TABLE users</text>
+  <rect x="130.0" y="82.0" width="360.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="104.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Version 1</text>
+  <line x1="310.0" y1="118.0" x2="310.0" y2="148.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="322.0" y="137.0" fill="#475569" font-size="10" text-anchor="start">002_add_email.up.sql → ALTER TABLE users ADD email</text>
+  <rect x="130.0" y="150.0" width="360.0" height="34.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="310.0" y="172.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Version 2</text>
+  <line x1="310.0" y1="186.0" x2="310.0" y2="216.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#vf)"/>
+  <text x="322.0" y="205.0" fill="#475569" font-size="10" text-anchor="start">003_create_posts.up.sql → CREATE TABLE posts</text>
+  <rect x="130.0" y="218.0" width="360.0" height="34.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="240.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Version 3 ← database đang ở đây</text>
+</svg>
 
 Gọi `migrate down 1` → chạy `003_create_posts.down.sql` (`DROP TABLE posts`) → quay về Version 2.
 

@@ -77,22 +77,52 @@ C có cấu hình `1s² 2s² 2p²` → 4 electron ngoài cùng → tạo đượ
 ### 2.3. Cấu trúc & hình ảnh
 
 **Methane ($\text{CH}_4$)**:
-```
-        H
-        |
-    H — C — H        tetrahedral, 109.5°
-        |
-        H
-```
+<svg viewBox="0 0 300 190" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Metan CH₄: carbon trung tâm liên kết 4 hydro; hình chiếu phẳng của cấu trúc tứ diện, góc 109,5°">
+  <defs></defs>
+  <line x1="150.0" y1="76.0" x2="150.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="104.0" x2="150.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.0" y1="90.0" x2="104.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="164.0" y1="90.0" x2="196.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="90.0" y="95.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="210.0" y="95.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="182.0" fill="#475569" font-size="11" text-anchor="middle">thực tế: tứ diện đều, góc H–C–H = 109,5° (hình chiếu 2D)</text>
+</svg>
 
 **Butane ($\text{C}_4\text{H}_{10}$)**:
-```
-    H H H H
-    | | | |
-H − C−C−C−C − H
-    | | | |
-    H H H H
-```
+<svg viewBox="0 0 360 180" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Butan C₄H₁₀ mạch thẳng: 4 carbon nối tiếp, mỗi C gắn đủ H (2 H ở C giữa, 3 H ở C đầu)">
+  <defs></defs>
+  <line x1="70.0" y1="76.0" x2="70.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="70.0" y1="104.0" x2="70.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="84.0" y1="90.0" x2="126.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="76.0" x2="140.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="140.0" y1="104.0" x2="140.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="154.0" y1="90.0" x2="196.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="210.0" y1="76.0" x2="210.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="210.0" y1="104.0" x2="210.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="224.0" y1="90.0" x2="266.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="280.0" y1="76.0" x2="280.0" y2="44.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="280.0" y1="104.0" x2="280.0" y2="136.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="24.0" y1="90.0" x2="56.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="294.0" y1="90.0" x2="326.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="70.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="70.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="70.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="140.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="140.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="140.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="210.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="210.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="210.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="280.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="280.0" y="35.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="280.0" y="155.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="10.0" y="95.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="340.0" y="95.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="180.0" y="172.0" fill="#475569" font-size="11" text-anchor="middle">C₄H₁₀ — 4 C nối thẳng hàng</text>
+</svg>
 
 ### 2.4. Phản ứng đặc trưng — Đốt cháy
 
@@ -115,13 +145,17 @@ Cùng công thức phân tử, khác cấu trúc → khác chất.
 (a) **n-Butane** (mạch thẳng): $\text{CH}_3{-}\text{CH}_2{-}\text{CH}_2{-}\text{CH}_3$. T_sôi −1°C.
 
 (b) **Isobutane** (mạch nhánh): 
-```
-      CH₃
-       |
-CH₃ − CH
-       |
-      CH₃
-```
+<svg viewBox="0 0 300 190" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Isobutan (2-metylpropan): một CH ở giữa gắn 3 nhóm CH₃ — đồng phân mạch nhánh của butan">
+  <defs></defs>
+  <line x1="150.0" y1="72.0" x2="150.0" y2="48.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="108.0" x2="150.0" y2="132.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="132.0" y1="90.0" x2="88.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">CH</text>
+  <text x="150.0" y="35.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="150.0" y="155.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="70.0" y="95.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="150.0" y="182.0" fill="#475569" font-size="11" text-anchor="middle">cùng C₄H₁₀ với butan nhưng phân nhánh → điểm sôi thấp hơn</text>
+</svg>
 T_sôi −12°C (thấp hơn vì gọn hơn, lực London yếu hơn).
 
 **$\text{C}_5\text{H}_{12}$** có 3 đồng phân: n-pentane (T_sôi 36°C), isopentane (28°C), neopentane (10°C).
@@ -241,15 +275,40 @@ $$\text{H}_2\text{C}{=}\text{CH}_2 + \text{H}_2 \rightarrow \text{CH}_3{-}\text{
 
 Cấu trúc đặc biệt: 6 C tạo vòng 6 cạnh, mỗi C có 1 H. Trên giấy hay vẽ với 3 nối đôi xen kẽ, nhưng thực tế là **6 electron π delocalized** trên toàn vòng — tất cả liên kết C-C bằng nhau, có "1.5 liên kết" tương đương.
 
-```
-       H
-        \\
-    H — C═C — H
-        |   |
-    H — C═C — H        (vẽ minh họa; thực tế delocalized)
-        /
-       H
-```
+<svg viewBox="0 0 460 220" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Benzen C₆H₆: vòng lục giác 6 carbon, xen kẽ 3 liên kết đôi và 3 liên kết đơn (cấu trúc Kekulé), mỗi C gắn 1 H">
+  <defs></defs>
+  <g transform="translate(80,0)">
+  <line x1="150.0" y1="31.0" x2="150.0" y2="21.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.2" y1="65.5" x2="81.6" y2="60.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="90.2" y1="134.5" x2="81.6" y2="139.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="169.0" x2="150.0" y2="179.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="209.8" y1="134.5" x2="218.4" y2="139.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="209.8" y1="65.5" x2="218.4" y2="60.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="139.6" y1="55.0" x2="116.2" y2="68.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="136.1" y1="49.0" x2="112.7" y2="62.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="102.4" y1="86.5" x2="102.4" y2="113.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="116.2" y1="131.5" x2="139.6" y2="145.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="112.7" y1="137.5" x2="136.1" y2="151.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="162.1" y1="148.0" x2="185.5" y2="134.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="194.1" y1="113.5" x2="194.1" y2="86.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="201.1" y1="113.5" x2="201.1" y2="86.5" stroke="#1a202c" stroke-width="2"/>
+  <line x1="185.5" y1="65.5" x2="162.1" y2="52.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="50.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="12.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="102.4" y="77.5" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="69.5" y="58.5" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="102.4" y="132.5" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="69.5" y="151.5" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="160.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="198.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="197.6" y="132.5" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="230.5" y="151.5" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="197.6" y="77.5" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="230.5" y="58.5" fill="#475569" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <text x="150.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">vẽ Kekulé để minh họa; thực tế 6 electron π delocalized đều trên vòng</text>
+  <circle cx="150" cy="100" r="39" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4 4"/>
+  </g>
+</svg>
 
 Ký hiệu hình vẽ: vòng 6 cạnh có **vòng tròn ở giữa** (biểu thị electron π delocalized).
 
@@ -336,13 +395,19 @@ Benzene và một số hợp chất thơm là **carcinogen** (gây ung thư). Ti
 1. **n-pentane**: $\text{CH}_3{-}\text{CH}_2{-}\text{CH}_2{-}\text{CH}_2{-}\text{CH}_3$ (mạch thẳng).
 2. **Isopentane (2-methylbutane)**: $\text{CH}_3{-}\text{CH}(\text{CH}_3){-}\text{CH}_2{-}\text{CH}_3$.
 3. **Neopentane (2,2-dimethylpropane)**: 
-```
-        CH₃
-         |
-   CH₃ − C − CH₃
-         |
-        CH₃
-```
+<svg viewBox="0 0 300 190" style="max-width:300px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Neopentan (2,2-đimetylpropan): carbon trung tâm gắn 4 nhóm CH₃ — carbon bậc 4">
+  <defs></defs>
+  <line x1="150.0" y1="72.0" x2="150.0" y2="48.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="150.0" y1="108.0" x2="150.0" y2="132.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="132.0" y1="90.0" x2="88.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="168.0" y1="90.0" x2="212.0" y2="90.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="150.0" y="95.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">C</text>
+  <text x="150.0" y="35.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="150.0" y="155.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="70.0" y="95.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="230.0" y="95.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">CH₃</text>
+  <text x="150.0" y="182.0" fill="#475569" font-size="11" text-anchor="middle">C₅H₁₂ phân nhánh tối đa; C trung tâm không còn H</text>
+</svg>
 
 **Bài 3**: $2\text{C}_8\text{H}_{18} + 25\text{O}_2 \rightarrow 16\text{CO}_2 + 18\text{H}_2\text{O}$. Phản ứng tỏa nhiệt lớn — nguyên lý của động cơ xăng.
 

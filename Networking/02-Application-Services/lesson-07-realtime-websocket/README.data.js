@@ -60,11 +60,30 @@ Tính overhead với 10.000 client hỏi mỗi 2 giây, 90% lần trả lời l�
 
 **Cách hoạt động**: Client gửi HTTP request mỗi N giây, nhận response ngay lập tức (dù có dữ liệu mới hay không), rồi đợi N giây và hỏi lại.
 
-\`\`\`
-Client ──GET /updates──► Server ──200 OK (rỗng)──► Client [chờ 2s]
-Client ──GET /updates──► Server ──200 OK (rỗng)──► Client [chờ 2s]
-Client ──GET /updates──► Server ──200 OK (tin nhắn mới!)──► Client [chờ 2s]
-\`\`\`
+<svg viewBox="0 0 480 332" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Short polling: client hỏi GET /updates mỗi 2 giây, hai lần đầu rỗng, lần ba có tin nhắn">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="318.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="340.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="400.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="400.0" y1="44.0" x2="400.0" y2="318.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="396.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="240.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /updates</text>
+  <line x1="397.0" y1="98.0" x2="84.0" y2="98.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="240.0" y="92.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">200 OK (rỗng)</text>
+  <text x="90.0" y="126.0" fill="#475569" font-size="10" text-anchor="start">chờ 2s</text>
+  <line x1="83.0" y1="154.0" x2="396.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="240.0" y="148.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /updates</text>
+  <line x1="397.0" y1="182.0" x2="84.0" y2="182.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="240.0" y="176.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">200 OK (rỗng)</text>
+  <text x="90.0" y="210.0" fill="#475569" font-size="10" text-anchor="start">chờ 2s</text>
+  <line x1="83.0" y1="238.0" x2="396.0" y2="238.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="240.0" y="232.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /updates</text>
+  <line x1="397.0" y1="266.0" x2="84.0" y2="266.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="240.0" y="260.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK (tin nhắn mới!)</text>
+  <text x="90.0" y="294.0" fill="#475569" font-size="10" text-anchor="start">chờ 2s</text>
+</svg>
 
 - Ưu điểm: đơn giản, dễ implement, server không giữ kết nối.
 - Nhược điểm: overhead cao, độ trễ lớn (trung bình N/2 giây).
@@ -73,12 +92,23 @@ Client ──GET /updates──► Server ──200 OK (tin nhắn mới!)──
 
 **Cách hoạt động**: Client gửi request, server **giữ kết nối mở** cho đến khi có dữ liệu mới hoặc timeout (thường 30–60 giây). Khi có dữ liệu, server gửi response và client lập tức gửi request mới.
 
-\`\`\`
-Client ──GET /updates──► Server [giữ kết nối...]
-                                  [28 giây sau — có dữ liệu mới]
-Client ◄──200 OK (tin nhắn mới)── Server
-Client ──GET /updates──► Server [giữ kết nối...]  ← ngay lập tức
-\`\`\`
+<svg viewBox="0 0 520 280" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Long polling: server giữ request mở đến khi có dữ liệu (28 giây) rồi trả lời, client lập tức gửi request mới">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="380.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="440.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="440.0" y1="44.0" x2="440.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="436.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /updates</text>
+  <text x="430.0" y="110.0" fill="#475569" font-size="10" text-anchor="end">giữ kết nối… 28 giây sau có dữ liệu mới</text>
+  <line x1="437.0" y1="150.0" x2="84.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK (tin nhắn mới)</text>
+  <line x1="83.0" y1="190.0" x2="436.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /updates — ngay lập tức</text>
+  <text x="430.0" y="230.0" fill="#475569" font-size="10" text-anchor="end">giữ kết nối…</text>
+</svg>
 
 💡 **Hình dung**: như gọi điện đến tổng đài và nhân viên bảo "anh chờ máy, em kiểm tra". Bạn không phải gác máy gọi lại — nhân viên vẫn "ở trên đường dây" cho đến khi có thông tin.
 
@@ -89,13 +119,25 @@ Client ──GET /updates──► Server [giữ kết nối...]  ← ngay lập
 
 **Cách hoạt động**: Client gửi **một** HTTP GET request. Server giữ kết nối mở và **stream** liên tục các sự kiện xuống client theo định dạng \`text/event-stream\`. Client không gửi thêm gì — chỉ lắng nghe.
 
-\`\`\`
-Client ──GET /events──► Server
-Client ◄──200 OK (Content-Type: text/event-stream)── Server
-Client ◄──data: {"price": 123.45}\\n\\n── Server  [1 giây sau]
-Client ◄──data: {"price": 124.10}\\n\\n── Server  [2 giây sau]
-Client ◄──data: {"price": 122.80}\\n\\n── Server  [3 giây sau]
-\`\`\`
+<svg viewBox="0 0 560 280" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Server-Sent Events: một request GET /events, server đẩy liên tục các dòng data một chiều">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /events</text>
+  <line x1="477.0" y1="110.0" x2="84.0" y2="110.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK (Content-Type: text/event-stream)</text>
+  <line x1="477.0" y1="150.0" x2="84.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="144.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">data: {"price": 123.45} — 1 giây sau</text>
+  <line x1="477.0" y1="190.0" x2="84.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">data: {"price": 124.10} — 2 giây sau</text>
+  <line x1="477.0" y1="230.0" x2="84.0" y2="230.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="224.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">data: {"price": 122.80} — 3 giây sau</text>
+</svg>
 
 - Ưu điểm: đơn giản (native browser API \`EventSource\`), HTTP/2 có thể ghép kênh nhiều SSE stream, tự động kết nối lại (\`retry:\`), một chiều rõ ràng.
 - Nhược điểm: **chỉ một chiều** — server gửi, client không gửi ngược qua cùng kênh. Client muốn gửi dữ liệu phải dùng HTTP request riêng. Không phù hợp cho ứng dụng tương tác hai chiều thực sự.
@@ -105,15 +147,28 @@ Client ◄──data: {"price": 122.80}\\n\\n── Server  [3 giây sau]
 
 **Cách hoạt động**: Client khởi tạo **nâng cấp** từ HTTP lên WebSocket. Sau khi nâng cấp thành công (101 Switching Protocols), cả hai bên có thể **gửi bất kỳ lúc nào** trên cùng một kết nối TCP — **song công hoàn toàn (full-duplex)**.
 
-\`\`\`
-Client ──HTTP GET /ws (Upgrade: websocket)──► Server
-Client ◄──101 Switching Protocols──────────── Server
-Client ←────────── [kênh song công bền vững] ──────────► Server
-Client ──"Xin chào"──────────────────────────────────── Server
-Server ──"Chào bạn!"──────────────────────────────────► Client
-Client ──"Giá BTC?"──────────────────────────────────── Server
-Server ──"$67,230"────────────────────────────────────► Client
-\`\`\`
+<svg viewBox="0 0 520 360" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="WebSocket: upgrade từ HTTP bằng 101 Switching Protocols rồi hai bên gửi tin nhắn tự do hai chiều">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="380.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="440.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="440.0" y1="44.0" x2="440.0" y2="346.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="436.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">HTTP GET /ws (Upgrade: websocket)</text>
+  <line x1="437.0" y1="110.0" x2="84.0" y2="110.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">101 Switching Protocols</text>
+  <text x="90.0" y="150.0" fill="#475569" font-size="10" text-anchor="start">kênh song công bền vững mở</text>
+  <line x1="83.0" y1="190.0" x2="436.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">"Xin chào"</text>
+  <line x1="437.0" y1="230.0" x2="84.0" y2="230.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="224.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">"Chào bạn!"</text>
+  <line x1="83.0" y1="270.0" x2="436.0" y2="270.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="264.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">"Giá BTC?"</text>
+  <line x1="437.0" y1="310.0" x2="84.0" y2="310.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="260.0" y="304.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">"$67,230"</text>
+</svg>
 
 - Ưu điểm: song công thực sự (cả hai chiều), độ trễ cực thấp (không overhead header HTTP mỗi tin nhắn), một kết nối TCP bền vững.
 - Nhược điểm: phức tạp hơn implement (cần xử lý kết nối bị đứt, heartbeat, scale); không phải mọi proxy/firewall đều hỗ trợ; HTTP/2 không "nâng cấp" được thành WebSocket (phải dùng HTTP/1.1 cho handshake).
@@ -217,17 +272,28 @@ Sau 101, kết nối TCP này không còn chạy HTTP. Cả hai bên giao tiếp
 
 WebSocket cần **hai tầng bắt tay** để thiết lập:
 
-\`\`\`
-Tầng 1 — TCP three-way handshake (kết nối transport):
-  Client ──SYN──────────────► Server
-  Client ◄──SYN-ACK───────── Server
-  Client ──ACK──────────────► Server
-
-Tầng 2 — WebSocket upgrade handshake (kết nối application):
-  Client ──HTTP GET + Upgrade──► Server     (~1 RTT)
-  Client ◄──101 + Accept──────── Server
-  [kênh WebSocket mở]
-\`\`\`
+<svg viewBox="0 0 560 320" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai handshake nối tiếp: TCP SYN/SYN-ACK/ACK rồi WebSocket HTTP Upgrade và 101">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="306.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="306.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">Tầng 1 — TCP three-way handshake (transport)</text>
+  <line x1="83.0" y1="100.0" x2="476.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="94.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SYN</text>
+  <line x1="477.0" y1="130.0" x2="84.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="124.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">SYN-ACK</text>
+  <line x1="83.0" y1="160.0" x2="476.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="154.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ACK</text>
+  <text x="90.0" y="190.0" fill="#475569" font-size="10" text-anchor="start">Tầng 2 — WebSocket upgrade handshake (application), ~1 RTT</text>
+  <line x1="83.0" y1="220.0" x2="476.0" y2="220.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="214.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">HTTP GET + Upgrade</text>
+  <line x1="477.0" y1="250.0" x2="84.0" y2="250.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="244.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">101 + Sec-WebSocket-Accept</text>
+  <text x="90.0" y="280.0" fill="#475569" font-size="10" text-anchor="start">kênh WebSocket mở</text>
+</svg>
 
 Chi phí thiết lập: khoảng **1.5 RTT** (TCP) + **1 RTT** (WebSocket upgrade) = **2.5 RTT** từ khi bắt đầu đến khi gửi được tin nhắn đầu tiên. Với \`wss://\` (TLS): thêm **1-2 RTT** nữa → **3.5–4.5 RTT** tổng cộng. Sau đó, mỗi tin nhắn chỉ tốn **0 RTT** overhead — gửi ngay, không cần handshake lại.
 
@@ -277,11 +343,20 @@ WebSocket tiết kiệm **95% overhead** so với HTTP polling cho mỗi tin nh�
 
 Kết nối TCP "idle" (không có dữ liệu) có thể bị firewall hoặc NAT gateway cắt sau vài phút. WebSocket có cơ chế heartbeat tích hợp:
 
-\`\`\`
-Server ──Ping (opcode 0x9, payload "server-check")──► Client
-Client ◄──Pong (opcode 0xA, cùng payload)───────────── Client→Server
-[Nếu không nhận Pong sau timeout → server đóng kết nối]
-\`\`\`
+<svg viewBox="0 0 560 200" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Heartbeat WebSocket: server gửi Ping opcode 0x9, client trả Pong opcode 0xA cùng payload; không Pong thì server đóng">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="186.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="186.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="477.0" y1="70.0" x2="84.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">Ping (opcode 0x9, payload "server-check")</text>
+  <line x1="83.0" y1="110.0" x2="476.0" y2="110.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="104.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Pong (opcode 0xA, cùng payload)</text>
+  <text x="470.0" y="150.0" fill="#475569" font-size="10" text-anchor="end">không nhận Pong sau timeout → đóng kết nối</text>
+</svg>
 
 - Thông thường server gửi Ping mỗi **30–60 giây**.
 - Nếu client không trả lời Pong trong thời gian chờ → server giả định kết nối đứt và đóng.
@@ -335,14 +410,36 @@ Khác với "cắt mạng đột ngột": graceful close đảm bảo dữ liệ
 
 **Message broker** (như Redis Pub/Sub, Kafka, RabbitMQ) làm trung gian:
 
-\`\`\`
-Client A ──tin nhắn──► Server 1 ──publish──► [Redis Pub/Sub: channel "room-42"]
-                                                      │
-                                              subscribe│
-                                                      ▼
-Client B ◄──tin nhắn── Server 2 ◄──message── [Redis Pub/Sub]
-Client C ◄──tin nhắn── Server 3 ◄──message── [Redis Pub/Sub]
-\`\`\`
+<svg viewBox="0 0 560 196" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Scale WebSocket nhiều server: Client A gửi tới Server 1, publish lên Redis Pub/Sub room-42; Server 2 và 3 subscribe rồi chuyển cho Client B, C">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="42.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client A</text>
+  <line x1="108.0" y1="38.0" x2="168.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="138.0" y="32.0" fill="#475569" font-size="9" text-anchor="middle">tin nhắn</text>
+  <rect x="170.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="215.0" y="42.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Server 1</text>
+  <line x1="262.0" y1="38.0" x2="338.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="300.0" y="32.0" fill="#475569" font-size="9" text-anchor="middle">publish</text>
+  <rect x="340.0" y="14.0" width="200.0" height="48.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="440.0" y="34.4" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Redis Pub/Sub</text>
+  <text x="440.0" y="49.4" fill="#475569" font-size="10" text-anchor="middle">channel "room-42"</text>
+  <path d="M 440.0,62.0 L 440.0,118.0 L 262.0,118.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="350.0" y="112.0" fill="#dc2626" font-size="9" text-anchor="middle">subscribe → message</text>
+  <rect x="170.0" y="100.0" width="90.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="215.0" y="122.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Server 2</text>
+  <line x1="168.0" y1="118.0" x2="108.0" y2="118.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="138.0" y="112.0" fill="#475569" font-size="9" text-anchor="middle">tin nhắn</text>
+  <rect x="16.0" y="100.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="122.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client B</text>
+  <path d="M 440.0,62.0 L 440.0,164.0 L 262.0,164.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="350.0" y="158.0" fill="#dc2626" font-size="9" text-anchor="middle">subscribe → message</text>
+  <rect x="170.0" y="146.0" width="90.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="215.0" y="168.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Server 3</text>
+  <line x1="168.0" y1="164.0" x2="108.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="138.0" y="158.0" fill="#475569" font-size="9" text-anchor="middle">tin nhắn</text>
+  <rect x="16.0" y="146.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="168.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client C</text>
+</svg>
 
 - Mỗi server WebSocket **subscribe** vào channel tương ứng với các phòng mà clients của nó đang ở.
 - Khi nhận tin từ một client, server **publish** lên broker.

@@ -143,18 +143,54 @@ Socket không chỉ dùng cho TCP; UDP cũng có socket:
 
 Quá trình thiết lập và đóng kết nối TCP thông qua socket diễn ra qua các lời gọi hệ thống (system call):
 
-\`\`\`
-PHÍA SERVER                         PHÍA CLIENT
-──────────────────────────────────  ──────────────────────────────────
-socket()  ← tạo socket              socket()  ← tạo socket
-bind()    ← gán địa chỉ:port
-listen()  ← bắt đầu lắng nghe
-                                     connect() ← khởi tạo bắt tay 3 bước
-accept()  ← chấp nhận kết nối ◄────────────────────────────────────
-           (trả về socket mới)
-send()/recv() ◄──────────────────► send()/recv()
-close()   ← đóng socket             close()   ← đóng socket
-\`\`\`
+<svg viewBox="0 0 560 314" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trình tự API socket TCP: server socket-bind-listen-accept, client socket-connect; connect kích hoạt bắt tay 3 bước; send/recv hai chiều rồi close">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="22.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">PHÍA SERVER</text>
+  <text x="440.0" y="22.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">PHÍA CLIENT</text>
+  <rect x="20.0" y="32.0" width="200.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="46.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">socket()</text>
+  <text x="120.0" y="61.4" fill="#475569" font-size="10" text-anchor="middle">tạo socket</text>
+  <line x1="120.0" y1="70.0" x2="120.0" y2="76.0" stroke="#1a202c" stroke-width="1.2" marker-end="url(#ar)"/>
+  <rect x="340.0" y="32.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="46.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">socket()</text>
+  <text x="440.0" y="61.4" fill="#475569" font-size="10" text-anchor="middle">tạo socket</text>
+  <rect x="20.0" y="78.0" width="200.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="92.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">bind()</text>
+  <text x="120.0" y="107.3" fill="#475569" font-size="10" text-anchor="middle">gán địa chỉ:port</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="122.0" stroke="#1a202c" stroke-width="1.2" marker-end="url(#ar)"/>
+  <rect x="20.0" y="124.0" width="200.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="138.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">listen()</text>
+  <text x="120.0" y="153.3" fill="#475569" font-size="10" text-anchor="middle">bắt đầu lắng nghe</text>
+  <line x1="120.0" y1="162.0" x2="120.0" y2="168.0" stroke="#1a202c" stroke-width="1.2" marker-end="url(#ar)"/>
+  <rect x="20.0" y="170.0" width="200.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="184.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">accept()</text>
+  <text x="120.0" y="199.3" fill="#475569" font-size="10" text-anchor="middle">chấp nhận kết nối, trả socket mới</text>
+  <line x1="120.0" y1="208.0" x2="120.0" y2="214.0" stroke="#1a202c" stroke-width="1.2" marker-end="url(#ar)"/>
+  <rect x="340.0" y="170.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="184.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">connect()</text>
+  <text x="440.0" y="199.3" fill="#475569" font-size="10" text-anchor="middle">khởi tạo bắt tay 3 bước</text>
+  <rect x="20.0" y="216.0" width="200.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="230.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">send()/recv()</text>
+  <text x="120.0" y="245.3" fill="#475569" font-size="10" text-anchor="middle">trao đổi dữ liệu</text>
+  <line x1="120.0" y1="254.0" x2="120.0" y2="260.0" stroke="#1a202c" stroke-width="1.2" marker-end="url(#ar)"/>
+  <rect x="340.0" y="216.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="230.3" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">send()/recv()</text>
+  <text x="440.0" y="245.3" fill="#475569" font-size="10" text-anchor="middle">trao đổi dữ liệu</text>
+  <rect x="20.0" y="262.0" width="200.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="276.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">close()</text>
+  <text x="120.0" y="291.4" fill="#475569" font-size="10" text-anchor="middle">đóng socket</text>
+  <rect x="340.0" y="262.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="276.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">close()</text>
+  <text x="440.0" y="291.4" fill="#475569" font-size="10" text-anchor="middle">đóng socket</text>
+  <line x1="340.0" y1="188.0" x2="222.0" y2="188.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="281.0" y="182.0" fill="#475569" font-size="9" text-anchor="middle">SYN / SYN-ACK / ACK</text>
+  <line x1="222.0" y1="234.0" x2="338.0" y2="234.0" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arp)"/>
+  <line x1="338.0" y1="228.0" x2="222.0" y2="228.0" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arp)"/>
+  <text x="280.0" y="220.0" fill="#7c3aed" font-size="9" text-anchor="middle">dữ liệu 2 chiều</text>
+  <line x1="340.0" y1="50.0" x2="222.0" y2="50.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="340.0" y1="96.0" x2="222.0" y2="96.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="340.0" y1="142.0" x2="222.0" y2="142.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+</svg>
 
 ### 3.2 Phía Server — từng bước
 

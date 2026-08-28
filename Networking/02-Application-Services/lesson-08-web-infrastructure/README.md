@@ -62,12 +62,32 @@ Ngày 4/10/2021, Facebook (bao gồm Instagram, WhatsApp) sập toàn cầu tron
 
 **Load balancer (LB)** là thành phần nhận toàn bộ request từ client, rồi phân phối đến một trong nhiều server backend theo thuật toán nhất định.
 
-```
-Client A ─┐
-Client B ─┤─→ [Load Balancer] ─→ Backend Server 1
-Client C ─┤                   ─→ Backend Server 2
-Client D ─┘                   ─→ Backend Server 3
-```
+<svg viewBox="0 0 580 176" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Load balancer nhận request từ Client A, B, C, D rồi phân phối cho Backend Server 1, 2, 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="90.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="37.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Client A</text>
+  <path d="M 106.0,34.0 L 150.0,34.0 L 150.0,86.0 L 188.0,86.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="56.0" width="90.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="73.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Client B</text>
+  <path d="M 106.0,70.0 L 150.0,70.0 L 150.0,86.0 L 188.0,86.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="92.0" width="90.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="109.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Client C</text>
+  <path d="M 106.0,106.0 L 150.0,106.0 L 150.0,86.0 L 188.0,86.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="128.0" width="90.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="145.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Client D</text>
+  <path d="M 106.0,142.0 L 150.0,142.0 L 150.0,86.0 L 188.0,86.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="190.0" y="66.0" width="140.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="90.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Load Balancer</text>
+  <path d="M 330.0,86.0 L 370.0,86.0 L 370.0,54.0 L 408.0,54.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="410.0" y="38.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="485.0" y="57.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Backend Server 1</text>
+  <path d="M 330.0,86.0 L 370.0,86.0 L 370.0,94.0 L 408.0,94.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="410.0" y="78.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="485.0" y="97.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Backend Server 2</text>
+  <path d="M 330.0,86.0 L 370.0,86.0 L 370.0,134.0 L 408.0,134.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="410.0" y="118.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="485.0" y="137.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Backend Server 3</text>
+</svg>
 
 Lợi ích:
 - **Phân tán tải**: không server nào bị quá tải trong khi server khác rảnh.
@@ -269,12 +289,22 @@ Internet (clients) → [Reverse Proxy] → Backend servers nội bộ
 
 Khi reverse proxy làm TLS termination:
 
-```
-Client ──[HTTPS/TLS]──→ Nginx (reverse proxy) ──[HTTP cleartext]──→ Backend :8080
-                         ↑ xử lý TLS handshake
-                         ↑ giải mã, kiểm tra chứng chỉ
-                         ↑ chuyển tiếp cleartext nội bộ
-```
+<svg viewBox="0 0 600 146" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="TLS termination: Client nói HTTPS với Nginx reverse proxy, Nginx giải mã rồi chuyển HTTP cleartext tới Backend :8080">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="90.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="54.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="108.0" y1="50.0" x2="196.0" y2="50.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="152.0" y="43.0" fill="#15803d" font-size="10" text-anchor="middle">HTTPS / TLS</text>
+  <rect x="198.0" y="30.0" width="180.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="288.0" y="53.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Nginx (reverse proxy)</text>
+  <line x1="380.0" y1="50.0" x2="468.0" y2="50.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="424.0" y="43.0" fill="#b45309" font-size="10" text-anchor="middle">HTTP cleartext</text>
+  <rect x="470.0" y="30.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="525.0" y="53.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Backend :8080</text>
+  <text x="288.0" y="92.0" fill="#475569" font-size="10" text-anchor="middle">↑ xử lý TLS handshake</text>
+  <text x="288.0" y="107.0" fill="#475569" font-size="10" text-anchor="middle">↑ giải mã, kiểm tra chứng chỉ</text>
+  <text x="288.0" y="122.0" fill="#475569" font-size="10" text-anchor="middle">↑ chuyển tiếp cleartext nội bộ</text>
+</svg>
 
 **Lợi ích**: backend server không cần cài OpenSSL, không cần rotate certificate, code đơn giản hơn. TLS processing tập trung tại 1 chỗ.
 
@@ -435,11 +465,26 @@ Request #2 (xem giỏ):      → LB gửi đến Server B → cart trống!
 
 **Giải pháp — Stateless**: server không lưu state, lưu ở **nơi chia sẻ bên ngoài**.
 
-```
-Server A ─┐                    ┌─ Redis (session store)
-Server B ─┼─ đọc/ghi state ──→│
-Server C ─┘                    └─ PostgreSQL (database)
-```
+<svg viewBox="0 0 570 150" style="max-width:570px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Server stateless: Server A, B, C không giữ state cục bộ mà đọc/ghi chung Redis (session) và PostgreSQL (database)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="100.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="66.0" y="38.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Server A</text>
+  <path d="M 116.0,35.0 L 160.0,35.0 L 160.0,75.0 L 200.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <rect x="16.0" y="60.0" width="100.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="66.0" y="78.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Server B</text>
+  <path d="M 116.0,75.0 L 160.0,75.0 L 160.0,75.0 L 200.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <rect x="16.0" y="100.0" width="100.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="66.0" y="118.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Server C</text>
+  <path d="M 116.0,115.0 L 160.0,115.0 L 160.0,75.0 L 200.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="230.0" y="68.0" fill="#475569" font-size="10" text-anchor="middle">đọc/ghi state</text>
+  <line x1="200.0" y1="75.0" x2="300.0" y2="75.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 300.0,75.0 L 340.0,75.0 L 340.0,56.0 L 378.0,56.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="380.0" y="40.0" width="170.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="465.0" y="59.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Redis (session store)</text>
+  <path d="M 300.0,75.0 L 340.0,75.0 L 340.0,102.0 L 378.0,102.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="380.0" y="86.0" width="170.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="465.0" y="105.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">PostgreSQL (database)</text>
+</svg>
 
 Khi stateless, mọi server trong pool đều có thể xử lý mọi request từ bất kỳ user nào → LB hoàn toàn tự do phân phối.
 
@@ -514,26 +559,42 @@ Toàn bộ hành trình từ Lesson 01 đến Lesson 08 của Tầng 2:
 
 **Kiến trúc đầy đủ của một request từ user đến database**:
 
-```
-User browser
-    │  HTTPS request
-    ▼
-CDN Edge (cache hit → trả về ngay)
-    │  (cache miss)
-    ▼
-Load Balancer (L7, Nginx/ALB)
-  ├── TLS termination
-  ├── Route theo URL path
-    │
-    ├──→ Web Server Pool (nhiều instance, stateless)
-    │        │
-    │        ├──→ Redis (session, cache layer)
-    │        │
-    │        └──→ Database (PostgreSQL/MySQL)
-    │                 └── Read Replica (scale reads)
-    │
-    └──→ Static Asset Server / CDN Origin
-```
+<svg viewBox="0 0 570 410" style="max-width:570px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc web hoàn chỉnh: browser → CDN Edge → Load Balancer L7 → Web Server Pool (Redis, Database + Read Replica) hoặc Static Asset Server">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="200.0" y="14.0" width="140.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="270.0" y="36.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">User browser</text>
+  <line x1="270.0" y1="52.0" x2="270.0" y2="80.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="278.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">HTTPS request</text>
+  <rect x="160.0" y="82.0" width="220.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="270.0" y="98.3" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">CDN Edge</text>
+  <text x="270.0" y="113.3" fill="#475569" font-size="10" text-anchor="middle">cache hit → trả về ngay</text>
+  <line x1="270.0" y1="124.0" x2="270.0" y2="152.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="278.0" y="142.0" fill="#475569" font-size="10" text-anchor="start">cache miss</text>
+  <rect x="140.0" y="154.0" width="260.0" height="56.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="270.0" y="170.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Load Balancer (L7, Nginx/ALB)</text>
+  <text x="270.0" y="185.8" fill="#475569" font-size="10" text-anchor="middle">TLS termination</text>
+  <text x="270.0" y="200.8" fill="#475569" font-size="10" text-anchor="middle">route theo URL path</text>
+  <path d="M 270.0,210.0 L 270.0,232.0 L 150.0,232.0 L 150.0,254.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 270.0,232.0 L 430.0,232.0 L 430.0,254.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="30.0" y="256.0" width="240.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="150.0" y="274.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Web Server Pool</text>
+  <text x="150.0" y="289.4" fill="#475569" font-size="10" text-anchor="middle">nhiều instance, stateless</text>
+  <rect x="330.0" y="256.0" width="220.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="440.0" y="274.4" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Static Asset Server</text>
+  <text x="440.0" y="289.4" fill="#475569" font-size="10" text-anchor="middle">CDN Origin</text>
+  <path d="M 150.0,300.0 L 150.0,322.0 L 80.0,322.0 L 80.0,344.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,322.0 L 230.0,322.0 L 230.0,344.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="346.0" width="130.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="81.0" y="364.4" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Redis</text>
+  <text x="81.0" y="379.4" fill="#475569" font-size="10" text-anchor="middle">session, cache</text>
+  <rect x="166.0" y="346.0" width="140.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="236.0" y="364.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Database</text>
+  <text x="236.0" y="379.4" fill="#475569" font-size="10" text-anchor="middle">PostgreSQL/MySQL</text>
+  <line x1="306.0" y1="368.0" x2="346.0" y2="368.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="348.0" y="346.0" width="150.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="423.0" y="364.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Read Replica</text>
+  <text x="423.0" y="379.4" fill="#475569" font-size="10" text-anchor="middle">scale reads</text>
+</svg>
 
 Tiếp theo: [Tầng 3 — An ninh mạng](../../03-Advanced-Operations/lesson-01-network-security/) sẽ đi sâu vào bảo vệ kiến trúc này trước các mối đe dọa thực tế.
 

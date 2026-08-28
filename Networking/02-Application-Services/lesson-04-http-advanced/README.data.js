@@ -268,45 +268,35 @@ Cache-Control: max-age=86400, public
 
 **ETag (Entity Tag)** = "fingerprint" của nội dung response. Khi nội dung thay đổi, ETag thay đổi.
 
-\`\`\`
-Lần 1 — Cache miss (trình duyệt chưa có bản sao):
-
-Trình duyệt                       Server
-    |                                |
-    |-- GET /api/products ---------->|
-    |                                |-- Query DB, tìm 500 sản phẩm
-    |<-- 200 OK --------------------|
-    |   ETag: "v2025-05-30-abc"      |
-    |   Cache-Control: max-age=300   |
-    |   Content-Length: 48320        |
-    |   [body: 48320 byte JSON]      |
-    |                                |
-    [Trình duyệt lưu: response + ETag + thời điểm nhận]
-
-Lần 2 — Cache còn hạn (trong vòng 300 giây):
-    |-- (không gửi request gì cả)    |
-    [Dùng thẳng từ bộ nhớ — 0 byte mạng, < 1ms]
-
-Lần 3 — Cache hết hạn (sau 300 giây), revalidation:
-    |                                |
-    |-- GET /api/products ---------->|
-    |   If-None-Match: "v2025-05-30-abc"  (gửi ETag cũ)
-    |                                |
-    |                          [Server kiểm tra ETag hiện tại]
-    |                          [Nếu nội dung không đổi → 304]
-    |<-- 304 Not Modified -----------|
-    |   (không có body!)             |   ← tiết kiệm 48320 byte
-    |                                |
-    [Trình duyệt dùng lại bản sao cũ, cập nhật thời hạn cache]
-
-Lần 4 — Cache hết hạn, nội dung ĐÃ thay đổi:
-    |-- GET /api/products ---------->|
-    |   If-None-Match: "v2025-05-30-abc"
-    |                                |-- ETag mới = "v2025-05-31-xyz"
-    |<-- 200 OK --------------------|
-    |   ETag: "v2025-05-31-xyz"      |
-    |   [body: 51200 byte JSON mới]  |
-\`\`\`
+<svg viewBox="0 0 640 500" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn lần tải /api/products: cache miss 200 kèm ETag; còn hạn dùng cache; hết hạn revalidate được 304 không body; nội dung đổi nhận 200 với ETag mới">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Trình duyệt</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="486.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="486.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">Lần 1 — Cache miss</text>
+  <line x1="83.0" y1="100.0" x2="556.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="94.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /api/products</text>
+  <text x="550.0" y="130.0" fill="#475569" font-size="10" text-anchor="end">query DB, 500 sản phẩm</text>
+  <line x1="557.0" y1="160.0" x2="84.0" y2="160.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="154.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK · ETag "v2025-05-30-abc" · max-age=300 · 48320 byte</text>
+  <text x="90.0" y="190.0" fill="#475569" font-size="10" text-anchor="start">lưu response + ETag + thời điểm nhận</text>
+  <text x="90.0" y="220.0" fill="#475569" font-size="10" text-anchor="start">Lần 2 — cache còn hạn (&lt; 300s): KHÔNG gửi request, dùng bản sao — 0 byte mạng</text>
+  <text x="90.0" y="250.0" fill="#475569" font-size="10" text-anchor="start">Lần 3 — hết hạn, revalidation</text>
+  <line x1="83.0" y1="280.0" x2="556.0" y2="280.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="274.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /api/products · If-None-Match: "v2025-05-30-abc"</text>
+  <text x="550.0" y="310.0" fill="#475569" font-size="10" text-anchor="end">ETag hiện tại không đổi</text>
+  <line x1="557.0" y1="340.0" x2="84.0" y2="340.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="334.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">304 Not Modified — không body, tiết kiệm 48320 byte</text>
+  <text x="90.0" y="370.0" fill="#475569" font-size="10" text-anchor="start">Lần 4 — hết hạn, nội dung ĐÃ đổi</text>
+  <line x1="83.0" y1="400.0" x2="556.0" y2="400.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="394.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /api/products · If-None-Match: "v2025-05-30-abc"</text>
+  <text x="550.0" y="430.0" fill="#475569" font-size="10" text-anchor="end">ETag mới = "v2025-05-31-xyz"</text>
+  <line x1="557.0" y1="460.0" x2="84.0" y2="460.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="320.0" y="454.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">200 OK · ETag "v2025-05-31-xyz" · body 51200 byte mới</text>
+</svg>
 
 **Tính lợi ích**: Giả sử 10.000 user, mỗi user load \`/api/products\` 5 lần/ngày. Response 48 KB. Nếu 80% hit cache hoặc 304:
 - Không cache: 10.000 × 5 × 48 KB = 2.4 GB/ngày băng thông.
@@ -400,12 +390,30 @@ Content-Encoding: br
 
 Mỗi kết nối TCP chỉ xử lý 1 request-response tại một thời điểm. Để tải trang web (20–100 tài nguyên), trình duyệt phải mở 6–8 kết nối TCP song song (mỗi kết nối 3 lần TCP handshake, riêng HTTPS thêm TLS handshake). Nếu 1 response lớn bị chặn → cả connection đó nghẽn.
 
-\`\`\`
-HTTP/1.1 — tải 4 tài nguyên qua 2 connection:
-Connection 1: [Request A → Response A (200ms)] → [Request C → Response C (50ms)]
-Connection 2: [Request B → Response B (300ms)] → [Request D → Response D (100ms)]
-Tổng thời gian: max(200+50, 300+100) = 400ms
-\`\`\`
+<svg viewBox="0 0 640 130" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="HTTP/1.1 tải 4 tài nguyên qua 2 connection tuần tự: A rồi C, B rồi D, tổng 400ms">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">400ms</text>
+  <line x1="235.0" y1="24.0" x2="235.0" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="235.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">100</text>
+  <line x1="350.0" y1="24.0" x2="350.0" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="350.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">200</text>
+  <line x1="465.0" y1="24.0" x2="465.0" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="465.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">300</text>
+  <line x1="120.0" y1="24.0" x2="120.0" y2="88.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="24.0" x2="580.0" y2="88.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="112.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">Connection 1</text>
+  <rect x="120.0" y="32.0" width="230.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="235.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">A 200ms</text>
+  <rect x="350.0" y="32.0" width="57.5" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="378.8" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">C 50ms</text>
+  <text x="112.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">Connection 2</text>
+  <rect x="120.0" y="62.0" width="345.0" height="20.0" rx="3" fill="#7c3aed" fill-opacity="0.85" stroke="#7c3aed" stroke-width="0"/>
+  <text x="292.5" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">B 300ms</text>
+  <rect x="465.0" y="62.0" width="115.0" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="522.5" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">D 100ms</text>
+  <text x="320.0" y="110.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Tổng = max(200+50, 300+100) = 400ms</text>
+</svg>
 
 **Pipelining** (HTTP/1.1 extension): gửi nhiều request liên tiếp không đợi response — nhưng response phải trả lại đúng thứ tự gửi. Nếu request đầu chậm → tất cả sau đó phải đợi.
 
@@ -413,14 +421,32 @@ Tổng thời gian: max(200+50, 300+100) = 400ms
 
 **Multiplexing (đa hợp kênh)**: nhiều request-response chạy song song trên **1 kết nối TCP duy nhất**, thông qua cơ chế **stream**.
 
-\`\`\`
-HTTP/2 — tải 4 tài nguyên trên 1 connection:
-Stream 1: [→ Request A] ··· [← Response A 200ms]
-Stream 2:   [→ Request B] ········· [← Response B 300ms]
-Stream 3:     [→ Request C] · [← Response C 50ms]
-Stream 4:       [→ Request D] ·· [← Response D 100ms]
-Tất cả chạy song song — tổng ≈ 300ms (bottleneck là Response B)
-\`\`\`
+<svg viewBox="0 0 640 190" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="HTTP/2 tải 4 tài nguyên song song trên 1 connection (4 stream), tổng khoảng 300ms do B">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">400ms</text>
+  <line x1="235.0" y1="24.0" x2="235.0" y2="148.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="235.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">100</text>
+  <line x1="350.0" y1="24.0" x2="350.0" y2="148.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="350.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">200</text>
+  <line x1="465.0" y1="24.0" x2="465.0" y2="148.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="465.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">300</text>
+  <line x1="120.0" y1="24.0" x2="120.0" y2="148.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="24.0" x2="580.0" y2="148.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="112.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">Stream 1</text>
+  <rect x="120.0" y="32.0" width="230.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="235.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">A 200ms</text>
+  <text x="112.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">Stream 2</text>
+  <rect x="131.5" y="62.0" width="345.0" height="20.0" rx="3" fill="#7c3aed" fill-opacity="0.85" stroke="#7c3aed" stroke-width="0"/>
+  <text x="304.0" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">B 300ms</text>
+  <text x="112.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">Stream 3</text>
+  <rect x="143.0" y="92.0" width="57.5" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="171.8" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">C 50ms</text>
+  <text x="112.0" y="136.0" fill="#475569" font-size="10" text-anchor="end">Stream 4</text>
+  <rect x="154.5" y="122.0" width="115.0" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="212.0" y="136.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">D 100ms</text>
+  <text x="320.0" y="170.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Song song — tổng ≈ 300ms (bottleneck là Response B)</text>
+</svg>
 
 **Binary protocol**: HTTP/1.1 dùng text (người đọc được), HTTP/2 dùng **binary frame** — hiệu quả hơn để parse, ít lỗi hơn khi xử lý ký tự đặc biệt.
 

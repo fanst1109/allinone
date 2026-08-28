@@ -66,13 +66,28 @@ Có. Trên mọi hệ điều hành (Windows: `C:\Windows\System32\drivers\etc\h
 
 Hệ thống tên miền là một **cây ngược** — gốc ở trên, lá ở dưới. Bạn đọc từ phải sang trái khi phân tích:
 
-```
-www.example.com.
- │      │      │  └── (root) — dấu chấm cuối, thường ẩn
- │      │      └── TLD: .com
- │      └── domain: example
- └── subdomain: www
-```
+<svg viewBox="0 0 440 144" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân cấp tên miền www.example.com.: root, TLD .com, domain example, subdomain www">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="40.0" y="30.0" width="90.0" height="36.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="85.0" y="53.0" fill="#1d4ed8" font-size="14" text-anchor="middle" font-weight="700">www</text>
+  <line x1="85.0" y1="68.0" x2="85.0" y2="86.0" stroke="#1d4ed8" stroke-width="1.2"/>
+  <text x="85.0" y="100.0" fill="#1d4ed8" font-size="10" text-anchor="middle">subdomain</text>
+  <text x="134.0" y="53.0" fill="#475569" font-size="14" text-anchor="middle">.</text>
+  <rect x="140.0" y="30.0" width="90.0" height="36.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="185.0" y="53.0" fill="#15803d" font-size="14" text-anchor="middle" font-weight="700">example</text>
+  <line x1="185.0" y1="68.0" x2="185.0" y2="86.0" stroke="#15803d" stroke-width="1.2"/>
+  <text x="185.0" y="100.0" fill="#15803d" font-size="10" text-anchor="middle">domain</text>
+  <text x="234.0" y="53.0" fill="#475569" font-size="14" text-anchor="middle">.</text>
+  <rect x="240.0" y="30.0" width="90.0" height="36.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="285.0" y="53.0" fill="#7c3aed" font-size="14" text-anchor="middle" font-weight="700">com</text>
+  <line x1="285.0" y1="68.0" x2="285.0" y2="86.0" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="285.0" y="100.0" fill="#7c3aed" font-size="10" text-anchor="middle">TLD</text>
+  <rect x="330.0" y="30.0" width="30.0" height="36.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="345.0" y="53.0" fill="#dc2626" font-size="14" text-anchor="middle" font-weight="700">.</text>
+  <line x1="345.0" y1="68.0" x2="345.0" y2="86.0" stroke="#dc2626" stroke-width="1.2"/>
+  <text x="360.0" y="118.0" fill="#dc2626" font-size="10" text-anchor="end">root (dấu chấm cuối, thường ẩn)</text>
+  <text x="200.0" y="130.0" fill="#475569" font-size="10" text-anchor="middle">đọc từ PHẢI sang TRÁI: root → TLD → domain → subdomain</text>
+</svg>
 
 Mỗi nhãn (label) tối đa 63 ký tự. Tên đầy đủ (FQDN — Fully Qualified Domain Name) tối đa 253 ký tự.
 

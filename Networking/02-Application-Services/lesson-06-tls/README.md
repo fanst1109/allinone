@@ -250,19 +250,36 @@ Trong TLS handshake, thứ tự nào đúng?
 
 Trình duyệt không tin tất cả CA trực tiếp — chỉ tin một danh sách **root CA** được tích hợp sẵn (khoảng 100-150 root CA trong hệ điều hành / trình duyệt). Hệ thống cấp bậc:
 
-```
-Root CA (tự ký, private key cất offline)
-    └── Intermediate CA (ký bởi Root CA)
-            └── Leaf Certificate (ký bởi Intermediate CA)
-                    = chứng chỉ của server thực sự
-```
+<svg viewBox="0 0 520 184" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi tin cậy: Root CA tự ký, ký Intermediate CA, Intermediate ký Leaf Certificate của server">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="480.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="32.0" y="33.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">Root CA</text>
+  <text x="32.0" y="48.0" fill="#475569" font-size="10" text-anchor="start">tự ký, private key cất offline</text>
+  <line x1="80.0" y1="58.0" x2="80.0" y2="72.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="60.0" y="74.0" width="440.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="72.0" y="91.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">Intermediate CA</text>
+  <text x="72.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">ký bởi Root CA</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="100.0" y="132.0" width="400.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="112.0" y="149.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Leaf Certificate</text>
+  <text x="112.0" y="164.0" fill="#475569" font-size="10" text-anchor="start">ký bởi Intermediate CA — chứng chỉ của server thực sự</text>
+</svg>
 
 **Ví dụ thực tế** khi truy cập `https://github.com`:
-```
-DigiCert Global Root CA        ← root CA (trình duyệt tin)
-  └── DigiCert SHA2 High Assurance Server CA   ← intermediate
-        └── github.com         ← leaf (server gửi cho client)
-```
+<svg viewBox="0 0 560 184" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi chứng chỉ github.com: DigiCert Global Root CA → DigiCert SHA2 High Assurance Server CA → github.com">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="520.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="32.0" y="33.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">DigiCert Global Root CA</text>
+  <text x="32.0" y="48.0" fill="#475569" font-size="10" text-anchor="start">root CA — trình duyệt tin sẵn</text>
+  <line x1="80.0" y1="58.0" x2="80.0" y2="72.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="60.0" y="74.0" width="480.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="72.0" y="91.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">DigiCert SHA2 High Assurance Server CA</text>
+  <text x="72.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">intermediate</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="100.0" y="132.0" width="440.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="112.0" y="149.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">github.com</text>
+  <text x="112.0" y="164.0" fill="#475569" font-size="10" text-anchor="start">leaf — server gửi cho client</text>
+</svg>
 
 **Quá trình xác minh**:
 1. Client nhận leaf certificate của `github.com`.
@@ -317,12 +334,23 @@ Không nên. Dù trang có vẻ quen thuộc, chứng chỉ hết hạn nghĩa l
 ### 5.1. HTTPS = HTTP over TLS
 
 HTTPS không phải giao thức mới — đơn giản là:
-```
-HTTP (tầng ứng dụng)
-  └── TLS (mã hóa + xác thực)
-       └── TCP port 443
-            └── IP
-```
+<svg viewBox="0 0 400 242" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chồng giao thức HTTPS: HTTP chạy trên TLS, TLS trên TCP port 443, TCP trên IP">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="360.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="32.0" y="33.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">HTTP</text>
+  <text x="32.0" y="48.0" fill="#475569" font-size="10" text-anchor="start">tầng ứng dụng</text>
+  <line x1="80.0" y1="58.0" x2="80.0" y2="72.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="60.0" y="74.0" width="320.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="72.0" y="91.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">TLS</text>
+  <text x="72.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">mã hóa + xác thực</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="100.0" y="132.0" width="280.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="112.0" y="149.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">TCP</text>
+  <text x="112.0" y="164.0" fill="#475569" font-size="10" text-anchor="start">port 443</text>
+  <line x1="160.0" y1="174.0" x2="160.0" y2="188.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="140.0" y="190.0" width="240.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="152.0" y="207.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">IP</text>
+</svg>
 
 Mọi thứ của HTTP ([Lesson 03](../lesson-03-http-basics/)) vẫn giữ nguyên: phương thức GET/POST, status code 200/404/301, header `Content-Type`, v.v. TLS hoàn toàn trong suốt với HTTP — HTTP không "biết" đang chạy trên TLS.
 
@@ -471,21 +499,43 @@ Giải thích vì sao TLS 1.3 nhanh hơn TLS 1.2 về mặt số round-trips. V�
 **Bài 6 — TLS 1.2 vs 1.3**:
 
 TLS 1.2 full handshake (2-RTT):
-```
-Client → Server: ClientHello                        ── RTT 1 bắt đầu
-Client ← Server: ServerHello + Certificate + ServerHelloDone
-Client → Server: ClientKeyExchange + ChangeCipherSpec + Finished  ── RTT 1 kết thúc
-Client ← Server: ChangeCipherSpec + Finished        ── RTT 2 kết thúc
-[Dữ liệu HTTP bắt đầu ở đây]
-```
+<svg viewBox="0 0 560 298" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="TLS 1.2 handshake đầy đủ mất 2 RTT: ClientHello, ServerHello+Certificate, ClientKeyExchange+Finished, Finished">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="266.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ClientHello</text>
+  <line x1="477.0" y1="110.0" x2="84.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="104.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ServerHello + Certificate + ServerHelloDone</text>
+  <line x1="83.0" y1="150.0" x2="476.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="144.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ClientKeyExchange + ChangeCipherSpec + Finished</text>
+  <line x1="477.0" y1="190.0" x2="84.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ChangeCipherSpec + Finished</text>
+  <text x="90.0" y="230.0" fill="#475569" font-size="10" text-anchor="start">Dữ liệu HTTP bắt đầu ở đây — sau 2 RTT</text>
+  <text x="280.0" y="292.0" fill="#475569" font-size="11" text-anchor="middle">RTT 1: dòng 1–3 · RTT 2: dòng 4</text>
+</svg>
 
 TLS 1.3 (1-RTT):
-```
-Client → Server: ClientHello + KeyShare              ── RTT 1 bắt đầu
-Client ← Server: ServerHello + KeyShare + Certificate + Finished  ── RTT 1 kết thúc
-Client → Server: Finished
-[Dữ liệu HTTP bắt đầu ngay sau]
-```
+<svg viewBox="0 0 560 240" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="TLS 1.3 handshake chỉ 1 RTT: ClientHello+KeyShare, ServerHello+KeyShare+Certificate+Finished, Finished">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="226.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="226.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ClientHello + KeyShare</text>
+  <line x1="477.0" y1="110.0" x2="84.0" y2="110.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="104.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ServerHello + KeyShare + Certificate + Finished</text>
+  <line x1="83.0" y1="150.0" x2="476.0" y2="150.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="144.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Finished</text>
+  <text x="90.0" y="190.0" fill="#475569" font-size="10" text-anchor="start">Dữ liệu HTTP bắt đầu ngay sau — chỉ 1 RTT</text>
+</svg>
 
 TLS 1.3 nhanh hơn vì: client gửi key share (ECDHE public key) ngay trong ClientHello, server có thể tính shared secret ngay và gửi Finished trong cùng response — tiết kiệm 1 round-trip.
 

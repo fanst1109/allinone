@@ -77,27 +77,39 @@ $$x^2 + y^2 = 1$$
 
 Đây là phương trình đường tròn tâm $O$, bán kính $1$ (suy ra từ định lý Pythagoras: khoảng cách từ $O$ tới $(x, y)$ là $\\sqrt{x^2 + y^2} = 1$).
 
-ASCII vẽ:
+Hình vẽ:
 
-\`\`\`
-                  y
-                  ↑
-              · · · · ·                       
-          ·               ·                   
-        ·                   ·                 
-       ·         (0,1)       ·                
-      ·            ●          ·               
-      ·                       ·               
-      ·                       ·               
-(-1,0)●─────────● ●──────────●(1,0) → x       
-      ·         O=(0,0)      ·                
-      ·                       ·               
-      ·                       ·               
-       ·          ●          ·                
-        ·       (0,-1)      ·                 
-          ·               ·                   
-              · · · · ·                       
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn đơn vị tâm O bán kính 1 với bốn điểm (1,0), (0,1), (−1,0), (0,−1)">
+  <defs><marker id="u1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u1)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u1)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <circle cx="330.0" cy="150.0" r="5" fill="#dc2626"/>
+  <text x="338.0" y="142.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(1, 0)</text>
+  <circle cx="220.0" cy="40.0" r="5" fill="#dc2626"/>
+  <text x="228.0" y="32.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(0, 1)</text>
+  <circle cx="110.0" cy="150.0" r="5" fill="#dc2626"/>
+  <text x="102.0" y="142.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">(−1, 0)</text>
+  <circle cx="220.0" cy="260.0" r="5" fill="#dc2626"/>
+  <text x="228.0" y="278.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">(0, −1)</text>
+  <text x="214.0" y="166.0" fill="#475569" font-size="11" text-anchor="end">O = (0,0)</text>
+</svg>
 
 Bốn điểm "trục":
 
@@ -116,25 +128,38 @@ Bây giờ chọn một điểm $P$ bất kỳ trên đường tròn đơn vị.
 - Đo **ngược chiều kim đồng hồ** (counter-clockwise): từ $Ox+$ xoay lên trên là góc dương.
 - Đo cùng chiều kim đồng hồ: góc âm.
 
-\`\`\`
-                  y
-                  ↑
-              · · · · ·
-          ·     P=(x,y)
-        ·       ●           
-       ·       ╱·           
-      ·       ╱  ·          
-      ·      ╱    ·         
-      ·    OP     ·         
-      ·    ╱θ     ·         
-──────●───●─────────●─────→ x
-   (-1,0) O    Ox+ (1,0)    
-      ·      ╲    ·         
-       ·      ╲ ·           
-        ·              ·    
-          ·               · 
-              · · · · ·     
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điểm P = (x, y) trên đường tròn đơn vị, OP tạo góc θ với tia Ox dương">
+  <defs><marker id="u2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u2)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u2)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="220.0" y1="150.0" x2="304.3" y2="79.3" stroke="#1a202c" stroke-width="2.5"/>
+  <path d="M 260.0,150.0 A 40,40 0 0 0 250.6,124.3" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="266.0" y="140.0" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="263.5" y="89.0" fill="#475569" font-size="12" text-anchor="end" font-weight="700">OP = 1</text>
+  <circle cx="304.3" cy="79.3" r="5" fill="#dc2626"/>
+  <text x="314.3" y="73.3" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P = (x, y)</text>
+  <circle cx="330.0" cy="150.0" r="5" fill="#15803d"/>
+  <text x="338.0" y="168.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">(1, 0)</text>
+  <circle cx="110.0" cy="150.0" r="5" fill="#15803d"/>
+  <text x="102.0" y="168.0" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">(−1, 0)</text>
+</svg>
 
 Góc $\\theta$ ở đây là góc giữa $OP$ và $Ox+$.
 
@@ -246,24 +271,39 @@ Xét $0^\\circ < \\theta < 90^\\circ$ (tức $P$ nằm trong **góc tư thứ I*
 
 Vẽ hình chiếu của $P$ xuống trục $Ox$. Gọi điểm chiếu là $Q = (x_P, 0)$. Khi đó tam giác $OQP$ là tam giác vuông tại $Q$:
 
-\`\`\`
-            y
-            ↑
-            ·              
-        ·   P=(x_P, y_P)   
-            ●              
-       ·   ╱│              
-          ╱ │              
-         ╱  │              
-       OP   │ y_P (cạnh đối với θ)
-       ╱    │              
-      ╱     │              
-     ╱θ     │              
-────●───────●─────→ x      
-    O   x_P Q              
-    └───────┘              
-      cạnh kề              
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông OQP trong đường tròn đơn vị: cạnh kề x_P = cos θ, cạnh đối y_P = sin θ, huyền OP = 1">
+  <defs><marker id="u3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u3)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u3)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="220.0" y1="150.0" x2="304.3" y2="79.3" stroke="#1a202c" stroke-width="2.5"/>
+  <line x1="304.3" y1="79.3" x2="304.3" y2="150.0" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="220.0" y1="150.0" x2="304.3" y2="150.0" stroke="#b45309" stroke-width="2.5"/>
+  <path d="M 260.0,150.0 A 40,40 0 0 0 250.6,124.3" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="266.0" y="140.0" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <circle cx="304.3" cy="79.3" r="5" fill="#dc2626"/>
+  <text x="314.3" y="73.3" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P = (x_P, y_P)</text>
+  <text x="304.3" y="168.0" fill="#475569" font-size="12" text-anchor="middle">Q</text>
+  <text x="312.3" y="118.6" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">y_P = sin θ (đối)</text>
+  <text x="262.1" y="184.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">x_P = cos θ (kề)</text>
+  <text x="252.1" y="106.6" fill="#475569" font-size="11" text-anchor="end">1 (huyền)</text>
+</svg>
 
 Trong tam giác vuông $OQP$:
 
@@ -362,30 +402,80 @@ $$\\begin{aligned}
 
 ### 4.4. Vẽ đường tròn với 12 góc
 
-\`\`\`
-                       (0, 1)
-                  90°
-       (−1/2,√3/2)│(1/2,√3/2)
-        120°      │     60°
-    135°╲         │         ╱45°
-   (−√2/2,        │       (√2/2,
-      √2/2)       │        √2/2)
-  150°            │           30°
- (−√3/2,1/2)─────┼─────(√3/2,1/2)
- 180°            │           0°
- (−1,0)──────────●────────(1,0)──→ x
-                 │           360°
-  (−√3/2,-1/2)   │        (√3/2,-1/2)
-  210°           │           330°
-   (−√2/2,       │       (√2/2,
-     −√2/2)      │       −√2/2)
-    225°╲        │        ╱315°
-        240°     │     300°
-       (−1/2,    │     (1/2,
-        −√3/2)   │     −√3/2)
-                  270°
-                 (0,−1)
-\`\`\`
+<svg viewBox="0 0 680 440" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường tròn đơn vị với 16 góc đặc biệt từ 0° đến 330° và tọa độ (cos θ, sin θ) tương ứng">
+  <defs><marker id="u4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+</g>
+  <line x1="139.0" y1="220.0" x2="557.0" y2="220.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u4)"/>
+  <line x1="340.0" y1="421.0" x2="340.0" y2="3.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u4)"/>
+  <text x="549.0" y="236.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="348.0" y="13.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <circle cx="340" cy="220" r="150" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="340.0" y1="220.0" x2="490.0" y2="220.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="490.0" cy="220.0" r="4" fill="#dc2626"/>
+  <text x="503.0" y="224.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">0°</text>
+  <text x="503.0" y="237.0" fill="#475569" font-size="10" text-anchor="start">(1, 0)</text>
+  <line x1="340.0" y1="220.0" x2="469.9" y2="145.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="469.9" cy="145.0" r="4" fill="#dc2626"/>
+  <text x="482.9" y="139.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">30°</text>
+  <text x="482.9" y="152.0" fill="#475569" font-size="10" text-anchor="start">(√3/2, 1/2)</text>
+  <line x1="340.0" y1="220.0" x2="446.1" y2="113.9" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="446.1" cy="113.9" r="4" fill="#dc2626"/>
+  <text x="459.1" y="107.9" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">45°</text>
+  <text x="459.1" y="120.9" fill="#475569" font-size="10" text-anchor="start">(√2/2, √2/2)</text>
+  <line x1="340.0" y1="220.0" x2="415.0" y2="90.1" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="415.0" cy="90.1" r="4" fill="#dc2626"/>
+  <text x="428.0" y="84.1" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">60°</text>
+  <text x="428.0" y="97.1" fill="#475569" font-size="10" text-anchor="start">(1/2, √3/2)</text>
+  <line x1="340.0" y1="220.0" x2="340.0" y2="70.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="340.0" cy="70.0" r="4" fill="#dc2626"/>
+  <text x="340.0" y="64.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">90°</text>
+  <text x="340.0" y="77.0" fill="#475569" font-size="10" text-anchor="middle">(0, 1)</text>
+  <line x1="340.0" y1="220.0" x2="265.0" y2="90.1" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="265.0" cy="90.1" r="4" fill="#dc2626"/>
+  <text x="252.0" y="84.1" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">120°</text>
+  <text x="252.0" y="97.1" fill="#475569" font-size="10" text-anchor="end">(−1/2, √3/2)</text>
+  <line x1="340.0" y1="220.0" x2="233.9" y2="113.9" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="233.9" cy="113.9" r="4" fill="#dc2626"/>
+  <text x="220.9" y="107.9" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">135°</text>
+  <text x="220.9" y="120.9" fill="#475569" font-size="10" text-anchor="end">(−√2/2, √2/2)</text>
+  <line x1="340.0" y1="220.0" x2="210.1" y2="145.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="210.1" cy="145.0" r="4" fill="#dc2626"/>
+  <text x="197.1" y="139.0" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">150°</text>
+  <text x="197.1" y="152.0" fill="#475569" font-size="10" text-anchor="end">(−√3/2, 1/2)</text>
+  <line x1="340.0" y1="220.0" x2="190.0" y2="220.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="190.0" cy="220.0" r="4" fill="#dc2626"/>
+  <text x="177.0" y="224.0" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">180°</text>
+  <text x="177.0" y="237.0" fill="#475569" font-size="10" text-anchor="end">(−1, 0)</text>
+  <line x1="340.0" y1="220.0" x2="210.1" y2="295.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="210.1" cy="295.0" r="4" fill="#dc2626"/>
+  <text x="197.1" y="313.0" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">210°</text>
+  <text x="197.1" y="326.0" fill="#475569" font-size="10" text-anchor="end">(−√3/2, −1/2)</text>
+  <line x1="340.0" y1="220.0" x2="233.9" y2="326.1" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="233.9" cy="326.1" r="4" fill="#dc2626"/>
+  <text x="220.9" y="344.1" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">225°</text>
+  <text x="220.9" y="357.1" fill="#475569" font-size="10" text-anchor="end">(−√2/2, −√2/2)</text>
+  <line x1="340.0" y1="220.0" x2="265.0" y2="349.9" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="265.0" cy="349.9" r="4" fill="#dc2626"/>
+  <text x="252.0" y="367.9" fill="#dc2626" font-size="11" text-anchor="end" font-weight="700">240°</text>
+  <text x="252.0" y="380.9" fill="#475569" font-size="10" text-anchor="end">(−1/2, −√3/2)</text>
+  <line x1="340.0" y1="220.0" x2="340.0" y2="370.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="340.0" cy="370.0" r="4" fill="#dc2626"/>
+  <text x="340.0" y="388.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">270°</text>
+  <text x="340.0" y="401.0" fill="#475569" font-size="10" text-anchor="middle">(0, −1)</text>
+  <line x1="340.0" y1="220.0" x2="415.0" y2="349.9" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="415.0" cy="349.9" r="4" fill="#dc2626"/>
+  <text x="428.0" y="367.9" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">300°</text>
+  <text x="428.0" y="380.9" fill="#475569" font-size="10" text-anchor="start">(1/2, −√3/2)</text>
+  <line x1="340.0" y1="220.0" x2="446.1" y2="326.1" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="446.1" cy="326.1" r="4" fill="#dc2626"/>
+  <text x="459.1" y="344.1" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">315°</text>
+  <text x="459.1" y="357.1" fill="#475569" font-size="10" text-anchor="start">(√2/2, −√2/2)</text>
+  <line x1="340.0" y1="220.0" x2="469.9" y2="295.0" stroke="#94a3b8" stroke-width="0.8"/>
+  <circle cx="469.9" cy="295.0" r="4" fill="#dc2626"/>
+  <text x="482.9" y="313.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">330°</text>
+  <text x="482.9" y="326.0" fill="#475569" font-size="10" text-anchor="start">(√3/2, −1/2)</text>
+</svg>
 
 ### 4.5. Bốn ví dụ áp dụng
 
@@ -444,19 +534,37 @@ Tra bảng: $\\sin 120^\\circ = \\frac{\\sqrt{3}}{2}$. Hoặc dùng quy gọn �
 
 Hai trục \`Ox\` và \`Oy\` chia mặt phẳng thành **4 vùng**, gọi là **góc tư (quadrant)** I, II, III, IV — đánh số ngược chiều kim đồng hồ bắt đầu từ vùng trên-phải.
 
-\`\`\`
-            y
-            ↑
-            │
-     QII    │    QI
-   x<0,y>0  │  x>0,y>0
-            │
-────────────●────────────→ x
-            O
-   x<0,y<0  │  x>0,y<0
-     QIII   │    QIV
-            │
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn góc phần tư: QI (x&gt;0, y&gt;0), QII (x&lt;0, y&gt;0), QIII (x&lt;0, y&lt;0), QIV (x&gt;0, y&lt;0)">
+  <defs><marker id="u5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u5)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u5)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="286.0" y="67.5" fill="#1d4ed8" font-size="16" text-anchor="middle" font-weight="700">QI</text>
+  <text x="286.0" y="89.5" fill="#475569" font-size="11" text-anchor="middle">x &gt; 0, y &gt; 0</text>
+  <text x="154.0" y="67.5" fill="#1d4ed8" font-size="16" text-anchor="middle" font-weight="700">QII</text>
+  <text x="154.0" y="89.5" fill="#475569" font-size="11" text-anchor="middle">x &lt; 0, y &gt; 0</text>
+  <text x="154.0" y="221.5" fill="#1d4ed8" font-size="16" text-anchor="middle" font-weight="700">QIII</text>
+  <text x="154.0" y="243.5" fill="#475569" font-size="11" text-anchor="middle">x &lt; 0, y &lt; 0</text>
+  <text x="286.0" y="221.5" fill="#1d4ed8" font-size="16" text-anchor="middle" font-weight="700">QIV</text>
+  <text x="286.0" y="243.5" fill="#475569" font-size="11" text-anchor="middle">x &gt; 0, y &lt; 0</text>
+  <text x="214.0" y="166.0" fill="#475569" font-size="11" text-anchor="end">O</text>
+</svg>
 
 Tương ứng với góc $\\theta$:
 
@@ -482,19 +590,37 @@ Vì $\\cos\\theta = x_P$ và $\\sin\\theta = y_P$, dấu của $\\sin/\\cos$ ch�
 
 Một mnemonic phổ thông để nhớ dấu **dương** ở mỗi quadrant:
 
-\`\`\`
-        y
-        ↑
-        │
-   S    │    A
- (Sin+) │  (All+)        ← QI: tất cả sin, cos, tan đều dương
-        │                ← QII: chỉ Sin dương
-────────●────────→ x
-        │                ← QIII: chỉ Tan dương
-   T    │    C           ← QIV: chỉ Cos dương
- (Tan+) │  (Cos+)
-        │
-\`\`\`
+<svg viewBox="0 0 440 305" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mẹo ASTC: QI tất cả dương (All), QII chỉ Sin dương, QIII chỉ Tan dương, QIV chỉ Cos dương">
+  <defs><marker id="u6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u6)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u6)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="286.0" y="73.0" fill="#15803d" font-size="26" text-anchor="middle" font-weight="700">A</text>
+  <text x="286.0" y="97.2" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">All +: sin, cos, tan đều dương</text>
+  <text x="154.0" y="73.0" fill="#1d4ed8" font-size="26" text-anchor="middle" font-weight="700">S</text>
+  <text x="154.0" y="97.2" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Sin +</text>
+  <text x="154.0" y="216.0" fill="#b45309" font-size="26" text-anchor="middle" font-weight="700">T</text>
+  <text x="154.0" y="240.2" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">Tan +</text>
+  <text x="286.0" y="216.0" fill="#dc2626" font-size="26" text-anchor="middle" font-weight="700">C</text>
+  <text x="286.0" y="240.2" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Cos +</text>
+  <text x="220.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">mẹo ASTC: đọc từ QI ngược chiều kim đồng hồ A → S → T → C</text>
+</svg>
 
 Đọc theo thứ tự quadrant I → II → III → IV: **All - Students - Take - Calculus**. Mỗi chữ cái đầu = tên hàm dương ở quadrant đó.
 
@@ -585,23 +711,40 @@ Khi quá quen, bạn sẽ không cần mnemonic nữa — trực giác đường
 
 Góc $-\\theta$ đo theo chiều kim đồng hồ (xuống dưới), trong khi $\\theta$ đo ngược chiều (lên trên). Hai bán kính đối xứng nhau qua trục $Ox$:
 
-\`\`\`
-         y
-         ↑
-         │
-       P=(x,y)        ← góc θ
-       ●              
-       │╲             
-       │ ╲            
-       │  ╲           
-       │θ  ╲          
-─────●─┴────●─→ x     
-     │  -θ ╱          
-     │    ╱           
-     │   ╱            
-       ●              
-     P'=(x,-y)        ← góc -θ
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điểm P = (x, y) ở góc θ và P′ = (x, −y) ở góc −θ đối xứng qua trục Ox: cos(−θ) = cos θ, sin(−θ) = −sin θ">
+  <defs><marker id="u7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u7)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u7)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="220.0" y1="150.0" x2="310.1" y2="86.9" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="310.1" cy="86.9" r="5" fill="#dc2626"/>
+  <text x="320.1" y="80.9" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P = (x, y), góc θ</text>
+  <line x1="220.0" y1="150.0" x2="310.1" y2="213.1" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="310.1" cy="213.1" r="5" fill="#15803d"/>
+  <text x="320.1" y="231.1" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">P′ = (x, −y), góc −θ</text>
+  <path d="M 265.0,150.0 A 45,45 0 0 0 256.9,124.2" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 256.9,175.8 A 45,45 0 0 0 265.0,150.0" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="272.0" y="140.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="272.0" y="168.0" fill="#15803d" font-size="13" text-anchor="start" font-weight="700" font-style="italic">−θ</text>
+  <line x1="310.1" y1="86.9" x2="310.1" y2="213.1" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="220.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">đối xứng qua Ox: x giữ nguyên, y đổi dấu</text>
+</svg>
 
 $P$ và $P'$ có cùng tọa độ $x$ nhưng $y$ đối nhau. Nên:
 
@@ -620,19 +763,40 @@ $$\\begin{aligned}
 
 Góc $\\pi - \\theta$ = $180^\\circ - \\theta$ là **phản chiếu của $\\theta$ qua trục $Oy$**.
 
-\`\`\`
-         y
-         ↑
-         │
-  P'=(-x,y) │  P=(x,y)
-       ●    │    ●     
-        ╲   │   ╱      
-         ╲  │  ╱       
-          ╲ │ ╱        
-   π-θ     ╲│╱  θ      
-─────●──────●──────●─→ x
-            O             
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điểm P = (x, y) ở góc θ và P′ = (−x, y) ở góc π − θ đối xứng qua trục Oy: cos(π−θ) = −cos θ, sin(π−θ) = sin θ">
+  <defs><marker id="u8" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u8)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u8)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="220.0" y1="150.0" x2="310.1" y2="86.9" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="310.1" cy="86.9" r="5" fill="#dc2626"/>
+  <text x="320.1" y="80.9" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P = (x, y), góc θ</text>
+  <line x1="220.0" y1="150.0" x2="129.9" y2="86.9" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="129.9" cy="86.9" r="5" fill="#15803d"/>
+  <text x="119.9" y="80.9" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">P′ = (−x, y), góc π − θ</text>
+  <path d="M 265.0,150.0 A 45,45 0 0 0 256.9,124.2" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 278.0,150.0 A 58,58 0 0 0 172.5,116.7" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="272.0" y="140.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="210.0" y="86.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700" font-style="italic">π − θ</text>
+  <line x1="310.1" y1="86.9" x2="129.9" y2="86.9" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="220.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">đối xứng qua Oy: y giữ nguyên, x đổi dấu</text>
+</svg>
 
 $P'$ có cùng $y$ nhưng $x$ đối dấu. Nên:
 
@@ -649,21 +813,39 @@ $$\\begin{aligned}
 
 Góc $\\pi + \\theta$ = $180^\\circ + \\theta$ là **đối xứng qua gốc $O$** của góc $\\theta$ (quay thêm nửa vòng).
 
-\`\`\`
-         y
-         ↑
-         │
-       P=(x,y)         
-       ●               
-        ╲              
-         ╲             
-       θ  ╲            
-─────●─────●─────→ x   
-       π+θ ╲           
-            ╲          
-             ●         
-        P''=(-x,-y)    
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điểm P = (x, y) ở góc θ và P″ = (−x, −y) ở góc π + θ đối xứng qua gốc O: cos(π+θ) = −cos θ, sin(π+θ) = −sin θ">
+  <defs><marker id="u9" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u9)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u9)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="220.0" y1="150.0" x2="310.1" y2="86.9" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="310.1" cy="86.9" r="5" fill="#dc2626"/>
+  <text x="320.1" y="80.9" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P = (x, y), góc θ</text>
+  <line x1="220.0" y1="150.0" x2="129.9" y2="213.1" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="129.9" cy="213.1" r="5" fill="#15803d"/>
+  <text x="119.9" y="231.1" fill="#15803d" font-size="12" text-anchor="end" font-weight="700">P″ = (−x, −y), góc π + θ</text>
+  <path d="M 265.0,150.0 A 45,45 0 0 0 256.9,124.2" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 280.0,150.0 A 60,60 0 1 0 170.9,184.4" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="272.0" y="140.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="180.0" y="98.0" fill="#15803d" font-size="13" text-anchor="end" font-weight="700" font-style="italic">π + θ</text>
+  <text x="220.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">đối xứng qua gốc O: cả x và y đổi dấu (P, O, P″ thẳng hàng)</text>
+</svg>
 
 Cả $x$ và $y$ đối dấu:
 
@@ -1195,22 +1377,43 @@ $$\\tan\\theta = \\frac{\\sin\\theta}{\\cos\\theta} = \\frac{3/5}{-4/5} = -\\fra
 
 Vẽ:
 
-\`\`\`
-         y
-         ↑
-         │ y = x  (đường phân giác QI)
-         │  ╱
-       P'│ ╱   
-         ●     ← góc π/2 - θ
-        ╱│    
-       ╱ │    
-      ╱  │   P
-     ╱   │   ●  ← góc θ
-    ╱    │   │  
-   ╱     │   │  
-─────────●───●──→ x
-         O   x_P
-\`\`\`
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Điểm P ở góc θ và P′ ở góc π/2 − θ đối xứng qua đường phân giác y = x: cos(π/2−θ) = sin θ, sin(π/2−θ) = cos θ">
+  <defs><marker id="u10" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g stroke="#e2e8f0" stroke-width="1">
+<line x1="110.0" y1="293.0" x2="110.0" y2="7.0"/>
+<line x1="330.0" y1="293.0" x2="330.0" y2="7.0"/>
+<line x1="77.0" y1="260.0" x2="363.0" y2="260.0"/>
+<line x1="77.0" y1="40.0" x2="363.0" y2="40.0"/>
+</g>
+  <line x1="71.0" y1="150.0" x2="385.0" y2="150.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u10)"/>
+  <line x1="220.0" y1="299.0" x2="220.0" y2="-15.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#u10)"/>
+  <text x="377.0" y="166.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">x</text>
+  <text x="228.0" y="-5.0" fill="#1a202c" font-size="13" text-anchor="start" font-style="italic">y</text>
+  <line x1="110.0" y1="146.0" x2="110.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="110.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">−1</text>
+  <line x1="330.0" y1="146.0" x2="330.0" y2="154.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="330.0" y="166.0" fill="#475569" font-size="11" text-anchor="middle">1</text>
+  <line x1="216.0" y1="260.0" x2="224.0" y2="260.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="264.0" fill="#475569" font-size="11" text-anchor="end">−1</text>
+  <line x1="216.0" y1="40.0" x2="224.0" y2="40.0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="213.0" y="44.0" fill="#475569" font-size="11" text-anchor="end">1</text>
+  <circle cx="220" cy="150" r="110" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="220.0" y1="150.0" x2="310.1" y2="86.9" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="310.1" cy="86.9" r="5" fill="#dc2626"/>
+  <text x="320.1" y="90.9" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">P, góc θ</text>
+  <line x1="220.0" y1="150.0" x2="283.1" y2="59.9" stroke="#15803d" stroke-width="2.5"/>
+  <circle cx="283.1" cy="59.9" r="5" fill="#15803d"/>
+  <text x="291.1" y="51.9" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">P′, góc π/2 − θ</text>
+  <line x1="88.0" y1="282.0" x2="352.0" y2="18.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="342.5" y="12.0" fill="#94a3b8" font-size="12" text-anchor="end" font-weight="700">y = x</text>
+  <path d="M 265.0,150.0 A 45,45 0 0 0 256.9,124.2" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <path d="M 278.0,150.0 A 58,58 0 0 0 253.3,102.5" fill="none" stroke="#15803d" stroke-width="2"/>
+  <text x="272.0" y="140.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="242.6" y="71.2" fill="#15803d" font-size="13" text-anchor="start" font-weight="700" font-style="italic">π/2 − θ</text>
+  <line x1="310.1" y1="86.9" x2="283.1" y2="59.9" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="310.1" y="166.0" fill="#475569" font-size="11" text-anchor="middle">x_P</text>
+  <text x="220.0" y="290.0" fill="#475569" font-size="11" text-anchor="middle">đổi chỗ x ↔ y: (cos θ, sin θ) → (sin θ, cos θ)</text>
+</svg>
 
 **Quan sát**: hai góc $\\theta$ và $\\frac{\\pi}{2} - \\theta$ cộng lại bằng $\\frac{\\pi}{2}$ ($= 90^\\circ$). Hai bán kính $OP$ và $OP'$ đối xứng nhau qua đường phân giác $y = x$ của QI.
 

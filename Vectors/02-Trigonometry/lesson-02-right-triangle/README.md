@@ -39,19 +39,20 @@ Tam giác vuông (right triangle) là tam giác có **đúng một góc bằng $
 - Hai cạnh kề góc $90^\circ$ (kề vào nó từ hai phía) gọi là **hai cạnh góc vuông** (legs).
 - Hai góc nhọn (acute angles) còn lại có **tổng bằng $90^\circ$**. Lý do: tổng ba góc của một tam giác $= 180^\circ$, mà góc vuông đã "ăn" $90^\circ$, nên hai góc còn lại phải chia nhau $90^\circ$.
 
-```
-            B
-            |\
-            | \
-   cạnh kề  |  \   cạnh huyền
-  của góc A |   \      c
-    (b)     |    \
-            |     \
-            |______\  <- góc vuông (90°)
-            C   a   A
-                |
-       cạnh đối của góc A
-```
+<svg viewBox="0 0 420 290" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông tại C: cạnh huyền c = AB đối diện góc vuông; với góc A, cạnh kề là b = AC, cạnh đối là a = BC">
+  <defs><marker id="r1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="110.0,220.0 330.0,220.0 110.0,40.0" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 124.0,220.0 L 124.0,206.0 L 110.0,206.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="102.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">C</text>
+  <text x="338.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">A</text>
+  <text x="102.0" y="34.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">B</text>
+  <text x="220.0" y="246.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">cạnh đối của góc A: a</text>
+  <text x="100.0" y="134.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">cạnh kề của A: b</text>
+  <text x="232.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">cạnh huyền c</text>
+  <path d="M 299.0,194.7 A 40,40 0 0 0 290.0,220.0" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="278.0" y="208.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700" font-style="italic">A</text>
+  <text x="220.0" y="278.0" fill="#475569" font-size="11" text-anchor="middle">cạnh đối / kề luôn tính THEO góc đang xét (ở đây góc A)</text>
+</svg>
 
 Nhìn từ góc nhọn **A**:
 
@@ -88,23 +89,31 @@ $$a^2 + b^2 = c^2$$
 
 Có hàng trăm cách chứng minh Pythagoras. Cách dễ hình dung nhất:
 
-```
-   Ghép 4 tam giác vuông giống nhau vào trong 1 hình vuông cạnh (a+b):
-
-     ┌─────────────┐
-     │ \         / │     - Hình vuông lớn cạnh (a+b)  → diện tích (a+b)²
-     │  \   c   /  │     - Bên trong: hình vuông nhỏ cạnh c (xoay 45°)
-     │   \     /   │       → diện tích c²
-     │ T1 \   / T2 │     - 4 tam giác vuông, mỗi cái diện tích (a·b)/2
-     │     \ /     │       → tổng 4·(a·b)/2 = 2ab
-     │      X      │
-     │     / \     │     Vậy: (a+b)² = c² + 2ab
-     │    /   \    │           a² + 2ab + b² = c² + 2ab
-     │ T3/  c  \T4 │           a² + b² = c²    ✓
-     │  /       \  │
-     │ /         \ │
-     └─────────────┘
-```
+<svg viewBox="0 0 560 270" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chứng minh Pythagore: hình vuông cạnh a + b chứa hình vuông nghiêng cạnh c và 4 tam giác vuông bằng nhau; so diện tích cho a² + b² = c²">
+  <defs></defs>
+  <rect x="60.0" y="30.0" width="200.0" height="200.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="130,30 260,100 190,230 60,160" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <polygon points="60,30 130,30 60,160" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="83.3" y="77.3" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T1</text>
+  <polygon points="130,30 260,30 260,100" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="216.7" y="57.3" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T2</text>
+  <polygon points="260,100 260,230 190,230" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="236.7" y="190.7" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T3</text>
+  <polygon points="60,160 190,230 60,230" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="103.3" y="210.7" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">T4</text>
+  <text x="160.0" y="135.0" fill="#1d4ed8" font-size="20" text-anchor="middle" font-weight="700">c²</text>
+  <text x="95.0" y="22.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">a</text>
+  <text x="195.0" y="22.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">b</text>
+  <text x="52.0" y="99.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700" font-style="italic">b</text>
+  <text x="52.0" y="199.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700" font-style="italic">a</text>
+  <text x="119.0" y="75.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">c</text>
+  <text x="300.0" y="60.0" fill="#475569" font-size="12" text-anchor="start">Hình vuông lớn cạnh (a + b) → diện tích (a + b)²</text>
+  <text x="300.0" y="84.0" fill="#1d4ed8" font-size="12" text-anchor="start">Hình vuông nghiêng ở giữa cạnh c → c²</text>
+  <text x="300.0" y="108.0" fill="#15803d" font-size="12" text-anchor="start">4 tam giác vuông T1–T4, mỗi cái (a·b)/2 → 2ab</text>
+  <text x="300.0" y="144.0" fill="#1a202c" font-size="14" text-anchor="start" font-weight="700">(a + b)² = c² + 2ab</text>
+  <text x="300.0" y="168.0" fill="#1a202c" font-size="14" text-anchor="start" font-weight="700">a² + 2ab + b² = c² + 2ab</text>
+  <text x="300.0" y="196.0" fill="#dc2626" font-size="16" text-anchor="start" font-weight="700">⟹ a² + b² = c²  ✓</text>
+</svg>
 
 Hai vế triệt tiêu $2ab$ → ra ngay $a^2 + b^2 = c^2$. Không phải "dễ thấy", mà là khai triển trực tiếp.
 
@@ -178,18 +187,19 @@ Ba chữ cái cho mỗi hàm, rất dễ nhớ:
 
 **Ví dụ 1: tam giác 3-4-5**
 
-```
-            B
-            |\
-            | \
-        4   |  \  5
-            |   \
-            |____\
-            C  3  A   ← từ A nhìn ra:
-                          opp(A) = a = 4 (đối diện A là cạnh BC = 4)
-                          adj(A) = b = 3 (kề A, không phải huyền)
-                          hyp   = c = 5
-```
+<svg viewBox="0 0 400 240" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác 3-4-5 vuông tại C: BC = 4, CA = 3, AB = 5; nhìn từ góc A: cạnh đối = 4, cạnh kề = 3, huyền = 5">
+  <defs><marker id="r2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="90.0,200.0 300.0,200.0 90.0,60.0" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 104.0,200.0 L 104.0,186.0 L 90.0,186.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="82.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">C</text>
+  <text x="308.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">A</text>
+  <text x="82.0" y="54.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">B</text>
+  <text x="195.0" y="224.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">3 (kề A)</text>
+  <text x="80.0" y="134.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">4 (đối A)</text>
+  <text x="205.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">5</text>
+  <path d="M 266.7,177.8 A 40,40 0 0 0 260.0,200.0" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="270.0" y="190.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700" font-style="italic">A</text>
+</svg>
 
 Tính từ góc A:
 
@@ -221,14 +231,17 @@ Tại đây $\sin > \cos$ → $\theta > 45^\circ$. Verify: $\arctan\frac{15}{8} 
 
 **Ví dụ 4: tam giác $1$-$1$-$\sqrt{2}$ (vuông cân)**
 
-```
-            |\
-            | \
-        1   |  \  √2
-            |   \
-            |____\
-                1
-```
+<svg viewBox="0 0 400 240" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông cân cạnh góc vuông 1 và 1, cạnh huyền √2">
+  <defs><marker id="r3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="90.0,200.0 300.0,200.0 90.0,60.0" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 104.0,200.0 L 104.0,186.0 L 90.0,186.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="82.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700"></text>
+  <text x="308.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700"></text>
+  <text x="82.0" y="54.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700"></text>
+  <text x="195.0" y="224.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="80.0" y="134.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">1</text>
+  <text x="205.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">√2</text>
+</svg>
 
 Hai cạnh góc vuông bằng nhau → hai góc nhọn bằng nhau → mỗi góc $= 45^\circ$. Tính:
 
@@ -304,15 +317,21 @@ Tam giác vuông cân (hai cạnh góc vuông bằng nhau) → hai góc nhọn c
 
 $$\text{huyền}^2 = 1^2 + 1^2 = 2 \to \text{huyền} = \sqrt{2}$$
 
-```
-        45°
-         |\
-         | \
-       1 |  \ √2
-         |   \
-         |____\ 45°
-            1
-```
+<svg viewBox="0 0 400 240" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vuông cân 45°-45°-90°: hai cạnh 1, huyền √2, hai góc nhọn 45°">
+  <defs><marker id="r4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="90.0,200.0 300.0,200.0 90.0,60.0" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 104.0,200.0 L 104.0,186.0 L 90.0,186.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="82.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700"></text>
+  <text x="308.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700"></text>
+  <text x="82.0" y="54.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700"></text>
+  <text x="195.0" y="224.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="80.0" y="134.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">1</text>
+  <text x="205.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">√2</text>
+  <path d="M 274.5,174.5 A 36,36 0 0 0 264.0,200.0" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="268.0" y="190.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">45°</text>
+  <path d="M 90.0,96.0 A 36,36 0 0 0 115.5,85.5" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="112.0" y="92.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">45°</text>
+</svg>
 
 Từ định nghĩa SOH-CAH-TOA:
 
@@ -332,25 +351,24 @@ Vẽ tam giác đều cạnh 2. Mỗi góc trong $= 60^\circ$. Hạ đường ca
 - Có góc $90^\circ$ (do đường cao vuông góc đáy).
 - Suy ra góc thứ ba $= 180 - 60 - 90 = 30^\circ$.
 
-```
-           A   <- góc đỉnh A = 60°
-          /|\
-         / | \
-        /  |  \
-     2 /   |   \ 2
-      /    | h  \
-     /     |     \
-    /______|______\
-   B       D       C
-   <- 1 ->|<- 1 ->
-   
-   Tam giác ABD vuông tại D:
-     - góc B = 60°  (góc gốc)
-     - góc A_trong_ABD = 30° (góc A bị chia đôi)
-     - BD = 1 (đáy đã bị đường cao chia đôi từ 2 thành 1+1)
-     - AB = 2 (cạnh tam giác đều)
-     - AD = h (đường cao, cần tính)
-```
+<svg viewBox="0 0 460 290" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác đều ABC cạnh 2 với đường cao AD chia đáy thành 1 + 1 và chia góc A thành 30° + 30°; tam giác ABD vuông tại D">
+  <defs></defs>
+  <polygon points="230,40 80,220 380,220" fill="#dbeafe" fill-opacity="0.4" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="230.0" y1="40.0" x2="230.0" y2="220.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <path d="M 218,220 L 218,208 L 230,208" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="230.0" y="30.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">A (60°)</text>
+  <text x="72.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">B (60°)</text>
+  <text x="388.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">C (60°)</text>
+  <text x="230.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">D</text>
+  <text x="150.0" y="125.0" fill="#475569" font-size="14" text-anchor="end" font-weight="700" font-style="italic">2</text>
+  <text x="312.0" y="125.0" fill="#475569" font-size="14" text-anchor="start" font-weight="700" font-style="italic">2</text>
+  <text x="240.0" y="140.0" fill="#dc2626" font-size="14" text-anchor="start" font-weight="700" font-style="italic">h</text>
+  <text x="155.0" y="242.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">1</text>
+  <text x="305.0" y="242.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700" font-style="italic">1</text>
+  <path d="M 215.0,66.0 A 30,30 0 0 0 245.0,66.0" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="230.0" y="84.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">30° | 30°</text>
+  <text x="230.0" y="272.0" fill="#475569" font-size="11" text-anchor="middle">ABD vuông tại D: BD = 1, AB = 2, góc B = 60°, góc BAD = 30° → h = √(2² − 1²) = √3</text>
+</svg>
 
 Tìm $h$ bằng Pythagoras trong tam giác $ABD$:
 
@@ -363,16 +381,21 @@ h &= \sqrt{3}
 
 Vậy tam giác vuông $ABD$ có 3 cạnh: $1, \sqrt{3}, 2$. Đây gọi là **tam giác 30-60-90 đặc biệt**, tỉ lệ cạnh $1 : \sqrt{3} : 2$.
 
-```
-           A (góc 30°)
-           |\
-           | \
-       √3  |  \ 2  ← huyền
-           |   \
-           |____\ B (góc 60°)
-              1
-            (D ở đỉnh vuông)
-```
+<svg viewBox="0 0 380 260" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác 30-60-90: đỉnh vuông D, cạnh √3 dọc, cạnh 1 ngang, huyền 2; góc 30° ở đỉnh trên, 60° ở đáy">
+  <defs><marker id="r5" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="110.0,220.0 240.0,220.0 110.0,40.0" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 124.0,220.0 L 124.0,206.0 L 110.0,206.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="102.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">D (90°)</text>
+  <text x="248.0" y="238.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">B (60°)</text>
+  <text x="102.0" y="34.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">A (30°)</text>
+  <text x="175.0" y="246.0" fill="#475569" font-size="13" text-anchor="middle" font-weight="700">1</text>
+  <text x="100.0" y="134.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">√3</text>
+  <text x="187.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">2 (huyền)</text>
+  <path d="M 110.0,80.0 A 40,40 0 0 0 130.0,74.6" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="132.0" y="98.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">30°</text>
+  <path d="M 220.1,192.4 A 34,34 0 0 0 206.0,220.0" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="194.0" y="208.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">60°</text>
+</svg>
 
 Bây giờ đọc tỷ số từ **hai góc** khác nhau:
 
@@ -699,14 +722,14 @@ math.Atan2(y, x)       // 2 đối số (chú ý: y trước, x sau)
 
 `math.Atan2(y, x)` xử lý cả hai:
 
-```
-Atan2(1, 1)    → π/4 (45°)     — quadrant I
-Atan2(1, -1)   → 3π/4 (135°)   — quadrant II
-Atan2(-1, -1)  → -3π/4 (-135°) — quadrant III
-Atan2(-1, 1)   → -π/4 (-45°)   — quadrant IV
-Atan2(1, 0)    → π/2 (90°)     — trục Oy dương, không crash
-Atan2(0, 0)    → 0 (quy ước)
-```
+| Gọi | Kết quả | Góc | Quadrant / ghi chú |
+|---|---|---|---|
+| `Atan2(1, 1)` | π/4 | 45° | I |
+| `Atan2(1, -1)` | 3π/4 | 135° | II |
+| `Atan2(-1, -1)` | −3π/4 | −135° | III |
+| `Atan2(-1, 1)` | −π/4 | −45° | IV |
+| `Atan2(1, 0)` | π/2 | 90° | trục Oy dương — không crash |
+| `Atan2(0, 0)` | 0 | 0° | quy ước |
 
 `Atan2` trả về $\theta \in (-\pi, \pi]$ — đầy đủ toàn vòng tròn. Nó nhận **dấu của cả $x$ và $y$** để xác định quadrant.
 
@@ -758,16 +781,22 @@ Vì $\tan(\pm\frac{\pi}{2})$ **không xác định** (chia cho 0), nên $\arctan
 
 Bạn đứng cách tòa nhà $d = 50$m (khoảng cách nằm ngang đến chân tòa), ngước nhìn lên đỉnh, dùng dụng cụ đo được **góc nâng** (angle of elevation) $\theta = 35^\circ$ (góc giữa đường ngắm và mặt đất). Hỏi chiều cao tòa nhà $h$?
 
-```
-              ┌── đỉnh tòa
-              │
-              │ h
-              │
-   bạn -------+
-      \  θ
-       \
-        \---- d = 50m -----+
-```
+<svg viewBox="0 0 460 305" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đo chiều cao tòa nhà: đứng cách chân tòa d = 50 m, góc nâng θ tới đỉnh, h = d·tan θ">
+  <defs><marker id="t6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="40.0" y1="230.0" x2="420.0" y2="230.0" stroke="#94a3b8" stroke-width="3"/>
+  <rect x="330.0" y="60.0" width="60.0" height="170.0" rx="0" fill="#e2e8f0" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="360.0" y="50.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">đỉnh tòa</text>
+  <circle cx="80.0" cy="230.0" r="6" fill="#1a202c"/>
+  <text x="80.0" y="252.0" fill="#475569" font-size="12" text-anchor="middle">bạn</text>
+  <line x1="80.0" y1="230.0" x2="330.0" y2="60.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="80.0" y1="230.0" x2="330.0" y2="230.0" stroke="#15803d" stroke-width="2.5" marker-end="url(#t6)"/>
+  <text x="205.0" y="250.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">d = 50 m</text>
+  <line x1="330.0" y1="230.0" x2="330.0" y2="60.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#t6)"/>
+  <text x="318.0" y="150.0" fill="#1d4ed8" font-size="15" text-anchor="end" font-weight="700" font-style="italic">h</text>
+  <path d="M 130.0,230.0 A 50,50 0 0 0 121.3,201.9" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="140.0" y="222.0" fill="#b45309" font-size="14" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="230.0" y="290.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">tan θ = h / d  →  h = d · tan θ</text>
+</svg>
 
 $$\tan\theta = \frac{\text{đối}}{\text{kề}} = \frac{h}{d} \to h = d \cdot \tan\theta = 50 \cdot \tan 35^\circ \approx 50 \cdot 0.7002 \approx 35.01\text{m}$$
 
@@ -870,15 +899,17 @@ trả về hai cạnh góc vuông khi biết cạnh huyền và một góc nhọ
 
 Đặt tên tam giác:
 
-```
-            C
-            |\
-            | \
-        4   |  \  5
-            |   \
-            |____\
-            B  3  A
-```
+<svg viewBox="0 0 400 240" style="max-width:400px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác 3-4-5 vuông tại B: BC = 4, BA = 3, CA = 5">
+  <defs><marker id="r7" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <polygon points="90.0,200.0 300.0,200.0 90.0,60.0" fill="#dbeafe" fill-opacity="0.45" stroke="#1d4ed8" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 104.0,200.0 L 104.0,186.0 L 90.0,186.0" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="82.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">B</text>
+  <text x="308.0" y="218.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">A</text>
+  <text x="82.0" y="54.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">C</text>
+  <text x="195.0" y="224.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">3</text>
+  <text x="80.0" y="134.0" fill="#475569" font-size="13" text-anchor="end" font-weight="700">4</text>
+  <text x="205.0" y="124.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">5</text>
+</svg>
 
 ($B$ là góc vuông, cạnh đối diện B là cạnh huyền $c = 5$. Cạnh $a = BC = 4$ đối diện đỉnh A, cạnh $b = CA = 3$... thực ra ta đặt lại cho rõ.)
 
@@ -918,19 +949,22 @@ Kiểm chứng: $\alpha + \beta = 36.87 + 53.13 = 90.00^\circ$ ✓ (hai góc nh�
 
 Thang là cạnh huyền $c = 5$m, góc với mặt đất $\theta = 60^\circ$.
 
-```
-   |  tường
-   |
-   | h = opp
-   |
-   |          5m (thang)
-   |        /
-   |      /
-   |    /
-   |  /
-   |/ θ=60°
-   +─── d = adj ──── mặt đất
-```
+<svg viewBox="0 0 440 305" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thang dài 5 m tựa tường tạo góc 60° với mặt đất: chiều cao chạm tường h = 5·sin 60°, khoảng cách chân thang d = 5·cos 60°">
+  <defs></defs>
+  <line x1="120.0" y1="40.0" x2="120.0" y2="240.0" stroke="#1a202c" stroke-width="4"/>
+  <text x="112.0" y="32.0" fill="#475569" font-size="12" text-anchor="end">tường</text>
+  <line x1="60.0" y1="240.0" x2="380.0" y2="240.0" stroke="#94a3b8" stroke-width="3"/>
+  <text x="370.0" y="258.0" fill="#475569" font-size="12" text-anchor="end">mặt đất</text>
+  <line x1="120.0" y1="80.0" x2="300.0" y2="240.0" stroke="#b45309" stroke-width="4"/>
+  <text x="220.0" y="150.0" fill="#b45309" font-size="13" text-anchor="start" font-weight="700">thang 5 m</text>
+  <line x1="120.0" y1="240.0" x2="120.0" y2="80.0" stroke="#1d4ed8" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="108.0" y="165.0" fill="#1d4ed8" font-size="13" text-anchor="end" font-weight="700">h = opp</text>
+  <line x1="120.0" y1="240.0" x2="300.0" y2="240.0" stroke="#15803d" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text x="210.0" y="262.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">d = adj</text>
+  <path d="M 270.1,213.4 A 40,40 0 0 0 260.0,240.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="250.0" y="228.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">θ = 60°</text>
+  <text x="230.0" y="292.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">opp = 5·sin 60° ≈ 4.33 m · adj = 5·cos 60° = 2.5 m</text>
+</svg>
 
 **(a) Chiều cao $h$:** $h$ là cạnh **đối** của góc $60^\circ$ (cạnh đối diện đỉnh tạo bởi thang và mặt đất).
 

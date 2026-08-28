@@ -652,17 +652,26 @@ Trực giác hình học khớp: góc đối càng to thì cạnh đối càng d
 - Đỉnh $B = (a, 0)$ trên trục Ox (vì cạnh $a = CB$ có độ dài $a$, đặt nằm ngang).
 - Đỉnh $A$ ở vị trí có góc $C$ với cạnh $CB$, cách $C$ một khoảng $b$ (vì cạnh $b = CA$ có độ dài $b$).
 
-\`\`\`
-            A = (b cos C, b sin C)
-           /|
-          / |
-       b /  | b sin C
-        /   |
-       / C  |
-      /_____|________ B = (a, 0)
-     C    b cos C         x-axis
-     (0,0)
-\`\`\`
+<svg viewBox="0 0 460 280" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đặt C tại gốc, B trên trục x tại (a, 0), A = (b cos C, b sin C): tính AB bằng khoảng cách hai điểm cho định lý cosin">
+  <defs><marker id="cl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="70.0" y1="210.0" x2="410.0" y2="210.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#cl)"/>
+  <text x="418.0" y="214.0" fill="#475569" font-size="12" text-anchor="start">x</text>
+  <polygon points="70.0,210.0 370.0,210.0 193.1,52.4" fill="#dbeafe" fill-opacity="0.4" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="193.1" y1="52.4" x2="193.1" y2="210.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <path d="M 114.0,210.0 A 44,44 0 0 0 97.1,175.3" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="120.0" y="196.0" fill="#b45309" font-size="14" text-anchor="start" font-weight="700" font-style="italic">C</text>
+  <circle cx="70.0" cy="210.0" r="5" fill="#1a202c"/>
+  <text x="62.0" y="228.0" fill="#1a202c" font-size="12" text-anchor="end" font-weight="700">C = (0, 0)</text>
+  <circle cx="370.0" cy="210.0" r="5" fill="#1a202c"/>
+  <text x="370.0" y="232.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">B = (a, 0)</text>
+  <circle cx="193.1" cy="52.4" r="5" fill="#dc2626"/>
+  <text x="201.1" y="46.4" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">A = (b·cos C, b·sin C)</text>
+  <text x="121.6" y="125.2" fill="#475569" font-size="14" text-anchor="end" font-weight="700" font-style="italic">b</text>
+  <text x="201.1" y="135.2" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">b·sin C</text>
+  <text x="131.6" y="228.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">b·cos C</text>
+  <text x="289.6" y="131.2" fill="#475569" font-size="14" text-anchor="start" font-weight="700" font-style="italic">c</text>
+  <text x="220.0" y="262.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">c² = (a − b cos C)² + (b sin C)² = a² + b² − 2ab cos C</text>
+</svg>
 
 Tọa độ $A$ lấy theo định nghĩa cos/sin: đi từ $C$ góc $C$ với trục Ox, khoảng cách $b$ → $A = (b\\cos C, b\\sin C)$.
 
@@ -867,17 +876,23 @@ với $\\theta$ là góc giữa $\\mathbf{u}$ và $\\mathbf{v}$ (góc tạo bở
 - Cạnh $AB$ (từ ngọn $\\mathbf{v}$ tới ngọn $\\mathbf{u}$) độ dài $|\\mathbf{u} - \\mathbf{v}|$.
 - Góc tại $O$ giữa $OA$ và $OB$ là $\\theta$.
 
-\`\`\`
-       A (ngọn u)
-      /|
-     / |
-    /  |  |u-v|
-|u|/   |
-  /    |
- / θ   |
-O──────B (ngọn v)
-   |v|
-\`\`\`
+<svg viewBox="0 0 480 280" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tam giác vector OAB: u từ O tới A, v từ O tới B, cạnh BA là u − v; góc θ giữa u và v; định lý cosin cho công thức tích vô hướng">
+  <defs><marker id="vu" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="vv" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="vw" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <polygon points="70.0,210.0 330.0,210.0 201.9,21.6" fill="#dbeafe" fill-opacity="0.3" stroke="none"/>
+  <line x1="70.0" y1="210.0" x2="201.9" y2="21.6" stroke="#1d4ed8" stroke-width="3" marker-end="url(#vu)"/>
+  <line x1="70.0" y1="210.0" x2="330.0" y2="210.0" stroke="#15803d" stroke-width="3" marker-end="url(#vv)"/>
+  <line x1="330.0" y1="210.0" x2="201.9" y2="21.6" stroke="#dc2626" stroke-width="3" marker-end="url(#vw)"/>
+  <path d="M 114.0,210.0 A 44,44 0 0 0 95.2,174.0" fill="none" stroke="#b45309" stroke-width="2"/>
+  <text x="120.0" y="196.0" fill="#b45309" font-size="14" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <circle cx="70.0" cy="210.0" r="5" fill="#1a202c"/>
+  <text x="62.0" y="228.0" fill="#1a202c" font-size="13" text-anchor="end" font-weight="700">O</text>
+  <text x="209.9" y="15.6" fill="#1d4ed8" font-size="12" text-anchor="start" font-weight="700">A (ngọn u)</text>
+  <text x="330.0" y="232.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">B (ngọn v)</text>
+  <text x="124.0" y="115.8" fill="#1d4ed8" font-size="13" text-anchor="end" font-weight="700">u, độ dài |u|</text>
+  <text x="200.0" y="228.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">v, độ dài |v|</text>
+  <text x="276.0" y="115.8" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">u − v, độ dài |u − v|</text>
+  <text x="230.0" y="262.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">|u − v|² = |u|² + |v|² − 2|u||v| cos θ  ⟹  u·v = |u||v| cos θ</text>
+</svg>
 
 **Bước 1 — định lý cosin cho tam giác $OAB$** (cạnh đối góc $\\theta$ là $AB = |\\mathbf{u} - \\mathbf{v}|$):
 

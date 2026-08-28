@@ -37,16 +37,17 @@ Sau bài này bạn sẽ:
 
 Hình học cổ điển định nghĩa: **góc là hình tạo bởi hai tia chung gốc**.
 
-```
-       tia 2
-        /
-       /
-      /
-     /
-    /θ
-   ●─────── tia 1
-   gốc
-```
+<svg viewBox="0 0 380 200" style="max-width:380px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc θ tạo bởi hai tia chung gốc: tia 1 nằm ngang, tia 2 xoay lên một góc θ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="80.0" y1="160.0" x2="280.0" y2="160.0" stroke="#1a202c" stroke-width="2.5" marker-end="url(#ar)"/>
+  <line x1="80.0" y1="160.0" x2="233.2" y2="31.4" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar)"/>
+  <circle cx="80.0" cy="160.0" r="5" fill="#1a202c"/>
+  <path d="M 130.0,160.0 A 50,50 0 0 0 118.3,127.9" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="144.0" y="140.0" fill="#dc2626" font-size="16" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="290.0" y="178.0" fill="#1a202c" font-size="13" text-anchor="start" font-weight="700">tia 1 (tia gốc)</text>
+  <text x="241.2" y="31.4" fill="#1d4ed8" font-size="13" text-anchor="start" font-weight="700">tia 2</text>
+  <text x="74.0" y="182.0" fill="#475569" font-size="12" text-anchor="start">gốc (đỉnh góc)</text>
+</svg>
 
 - Hai tia gọi là **cạnh** của góc.
 - Điểm chung của hai tia gọi là **đỉnh** (vertex).
@@ -56,7 +57,7 @@ Hình học cổ điển định nghĩa: **góc là hình tạo bởi hai tia ch
 
 Trước khi vào đơn vị cụ thể, ta gọi tên các góc quen thuộc:
 
-| Loại góc | Mô tả | Hình minh hoạ ASCII |
+| Loại góc | Mô tả | Hình minh hoạ |
 |----------|-------|---------------------|
 | Góc nhọn (acute) | Mở vừa phải, < góc vuông | `\●____` (hai tia hơi tách) |
 | Góc vuông (right) | "Vuông góc" — hai tia vuông với nhau | `│●____` (hình chữ L) |
@@ -65,23 +66,48 @@ Trước khi vào đơn vị cụ thể, ta gọi tên các góc quen thuộc:
 | Góc đầy / trọn vòng (full) | Quay đúng 1 vòng, quay về vị trí ban đầu | (vòng tròn khép kín) |
 
 
-ASCII chi tiết hơn:
+Chi tiết hơn:
 
-```
-Góc nhọn (~30°-60°):     Góc vuông (90°):        Góc tù (~120°):
-       /                        │                         \
-      /                         │                          \
-     /                          │                           \
-    / θ                         │ 90°                      θ \
-   ●──────                      ●──────                    ────●
-```
+<svg viewBox="0 0 600 160" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba loại góc: nhọn (dưới 90°), vuông (đúng 90° có ô vuông), tù (trên 90°)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="95.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc nhọn (~30°–60°)</text>
+  <line x1="40.0" y1="130.0" x2="150.0" y2="130.0" stroke="#1a202c" stroke-width="2.5" marker-end="url(#ar)"/>
+  <line x1="40.0" y1="130.0" x2="117.8" y2="52.2" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar)"/>
+  <circle cx="40.0" cy="130.0" r="4" fill="#1a202c"/>
+  <path d="M 76.0,130.0 A 36,36 0 0 0 65.5,104.5" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="86.2" y="114.9" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">θ</text>
+  <text x="295.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc vuông (90°)</text>
+  <line x1="240.0" y1="130.0" x2="350.0" y2="130.0" stroke="#1a202c" stroke-width="2.5" marker-end="url(#ar)"/>
+  <line x1="240.0" y1="130.0" x2="240.0" y2="20.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar)"/>
+  <circle cx="240.0" cy="130.0" r="4" fill="#1a202c"/>
+  <path d="M 276.0,130.0 A 36,36 0 0 0 240.0,94.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <rect x="240" y="116" width="14" height="14" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="275.4" y="98.6" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">90°</text>
+  <text x="495.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc tù (~120°)</text>
+  <line x1="440.0" y1="130.0" x2="550.0" y2="130.0" stroke="#1a202c" stroke-width="2.5" marker-end="url(#ar)"/>
+  <line x1="440.0" y1="130.0" x2="376.9" y2="39.9" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar)"/>
+  <circle cx="440.0" cy="130.0" r="4" fill="#1a202c"/>
+  <path d="M 476.0,130.0 A 36,36 0 0 0 419.4,100.5" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="463.1" y="89.6" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">θ</text>
+</svg>
 
-```
-Góc bẹt (180°):                 Góc trọn vòng (360°):
-                                      ╱─────╲
-   ────────●────────                 │   ●   │   (tia quay đủ 1 vòng
-                                      ╲─────╱      về chính nó)
-```
+<svg viewBox="0 0 640 240" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Góc bẹt 180° hai tia đối nhau trên một đường thẳng; góc trọn vòng 360° tia quay đủ một vòng về vị trí cũ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <g transform="translate(90,0)">
+  <text x="95.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc bẹt (180°)</text>
+  <line x1="40.0" y1="130.0" x2="150.0" y2="130.0" stroke="#1a202c" stroke-width="2.5" marker-end="url(#ar)"/>
+  <line x1="40.0" y1="130.0" x2="-70.0" y2="130.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar)"/>
+  <circle cx="40.0" cy="130.0" r="4" fill="#1a202c"/>
+  <path d="M 76.0,130.0 A 36,36 0 0 0 4.0,130.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <text x="40.0" y="84.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">180°</text>
+  <path d="M 439.0,130.0 A 44,44 0 1 0 439.0,130.1" fill="none" stroke="#dc2626" stroke-width="2"/>
+  </g>
+  <text x="395.0" y="18.0" fill="#1a202c" font-size="13" text-anchor="middle" font-weight="700">Góc trọn vòng (360°)</text>
+  <circle cx="395" cy="130" r="60" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+  <line x1="395.0" y1="130.0" x2="455.0" y2="130.0" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ar)"/>
+  <circle cx="395.0" cy="130.0" r="4" fill="#1a202c"/>
+  <text x="395.0" y="220.0" fill="#475569" font-size="11" text-anchor="middle">tia quay đủ 1 vòng về chính nó</text>
+</svg>
 
 💡 **Trực giác**: nghĩ tới kim đồng hồ. Kim phút chỉ 12 → kim chỉ 3: góc vuông. Kim chỉ 12 → kim chỉ 6: góc bẹt. Kim chỉ 12 → quay đủ 1 vòng về 12: góc trọn vòng.
 
@@ -94,16 +120,20 @@ Quy ước toán học (sẽ dùng xuyên suốt mọi tầng sau):
 
 Vì sao "ngược kim đồng hồ" lại là dương? Đó là quy ước, nhưng phù hợp với hệ trục $Oxy$ quen thuộc: từ trục $Ox$ (đông) quay ngược kim đồng hồ lên trục $Oy$ (bắc) — đó là chiều "tăng góc".
 
-```
-      Oy (90°)
-       │
-       │  ↗  chiều +
-       │     (ngược kim đồng hồ)
-───────●──────── Ox (0°)
-       │
-       │  ↘  chiều −
-       │     (xuôi kim đồng hồ)
-```
+<svg viewBox="0 0 460 255" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quy ước dấu: góc quay ngược chiều kim đồng hồ từ Ox là dương, xuôi chiều kim đồng hồ là âm">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker></defs>
+  <line x1="40.0" y1="130.0" x2="360.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="200.0" y1="240.0" x2="200.0" y2="20.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="365.0" y="146.0" fill="#1a202c" font-size="12" text-anchor="start">Ox (0°)</text>
+  <text x="208.0" y="26.0" fill="#1a202c" font-size="12" text-anchor="start">Oy (90°)</text>
+  <circle cx="200.0" cy="130.0" r="5" fill="#1a202c"/>
+  <path d="M 270.0,130.0 A 70,70 0 0 0 235.0,69.4" fill="none" stroke="#15803d" stroke-width="2.5"/>
+  <line x1="235.0" y1="69.4" x2="230.7" y2="67.1" stroke="#15803d" stroke-width="2.5" marker-end="url(#arg)"/>
+  <text x="295.0" y="70.0" fill="#15803d" font-size="12" text-anchor="start" font-weight="700">chiều + (ngược kim đồng hồ)</text>
+  <path d="M 235.0,190.6 A 70,70 0 0 0 270.0,130.1" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+  <line x1="239.1" y1="188.0" x2="235.0" y2="190.6" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arr)"/>
+  <text x="295.0" y="200.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">chiều − (xuôi kim đồng hồ)</text>
+</svg>
 
 Ví dụ:
 
@@ -151,15 +181,21 @@ Sai. Góc âm hoàn toàn hợp lệ, chỉ đơn giản nghĩa là "quay ngư�
 
 💡 **Trực giác**: chia trọn 1 vòng quay thành **360 phần bằng nhau**, mỗi phần là $1^\circ$ (1 độ). Vì sao 360? Vì người Babylon cổ đại dùng **hệ cơ số 60** (sexagesimal) — tới giờ ta vẫn thừa hưởng: 60 giây = 1 phút, 60 phút = 1 giờ, $360^\circ$ = 1 vòng (gần với số ngày trong năm 365). Đây hoàn toàn là **lựa chọn lịch sử**, không phải toán học bắt buộc.
 
-```
-                    90° (¼ vòng)
-                       │
-                       │
-   180° (½ vòng) ──────●────── 0° = 360° (1 vòng)
-                       │
-                       │
-                    270° (¾ vòng)
-```
+<svg viewBox="0 0 460 275" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bốn mốc trên đường tròn: 0° = 360° bên phải, 90° trên, 180° bên trái, 270° dưới">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <circle cx="230" cy="140" r="95" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="110.0" y1="140.0" x2="360.0" y2="140.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="230.0" y1="260.0" x2="230.0" y2="20.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <circle cx="230.0" cy="140.0" r="4" fill="#1a202c"/>
+  <circle cx="325.0" cy="140.0" r="5" fill="#dc2626"/>
+  <text x="335.0" y="132.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">0° = 360° (1 vòng)</text>
+  <circle cx="230.0" cy="45.0" r="5" fill="#dc2626"/>
+  <text x="238.0" y="37.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">90° (¼ vòng)</text>
+  <circle cx="135.0" cy="140.0" r="5" fill="#dc2626"/>
+  <text x="125.0" y="132.0" fill="#dc2626" font-size="12" text-anchor="end" font-weight="700">180° (½ vòng)</text>
+  <circle cx="230.0" cy="235.0" r="5" fill="#dc2626"/>
+  <text x="238.0" y="255.0" fill="#dc2626" font-size="12" text-anchor="start" font-weight="700">270° (¾ vòng)</text>
+</svg>
 
 Các giá trị "phải nhớ":
 
@@ -251,15 +287,22 @@ Vì Go (và mọi thư viện toán) hiểu `30` là **30 radian**, không phả
 
 $$\theta = \frac{s}{r} \quad \text{(rad)}$$
 
-```
-            ●     ← cung dài s
-         ▲ ╱
-       s╱
-       ╱
-      ╱  θ
-     ●───────────●
-     tâm    r    điểm trên đường tròn
-```
+<svg viewBox="0 0 480 280" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cung dài s chắn góc θ trên đường tròn bán kính r: θ = s/r radian">
+  <defs></defs>
+  <line x1="80.0" y1="200.0" x2="270.0" y2="200.0" stroke="#1a202c" stroke-width="2.5"/>
+  <line x1="80.0" y1="200.0" x2="202.1" y2="54.5" stroke="#1a202c" stroke-width="2.5"/>
+  <path d="M 270.0,200.0 A 190,190 0 0 0 202.1,54.5" fill="none" stroke="#1d4ed8" stroke-width="3.5"/>
+  <path d="M 130.0,200.0 A 50,50 0 0 0 112.1,161.7" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="80.0" cy="200.0" r="5" fill="#1a202c"/>
+  <circle cx="270.0" cy="200.0" r="5" fill="#1d4ed8"/>
+  <circle cx="202.1" cy="54.5" r="5" fill="#1d4ed8"/>
+  <text x="144.0" y="178.0" fill="#dc2626" font-size="15" text-anchor="start" font-weight="700" font-style="italic">θ</text>
+  <text x="175.0" y="220.0" fill="#475569" font-size="14" text-anchor="middle" font-weight="700" font-style="italic">r</text>
+  <text x="266.2" y="119.7" fill="#1d4ed8" font-size="14" text-anchor="start" font-weight="700">cung dài s = r·θ</text>
+  <text x="74.0" y="222.0" fill="#475569" font-size="12" text-anchor="start">tâm</text>
+  <text x="270.0" y="222.0" fill="#475569" font-size="12" text-anchor="middle">điểm trên đường tròn</text>
+  <text x="240.0" y="262.0" fill="#475569" font-size="12" text-anchor="middle">θ (rad) = s / r  — góc đo bằng tỉ số cung trên bán kính</text>
+</svg>
 
 **Cụ thể bằng số**:
 
@@ -293,19 +336,21 @@ Từ $2\pi$ rad $= 360^\circ$:
 
 $$1 \text{ rad} = \frac{360^\circ}{2\pi} = \frac{180^\circ}{\pi} \approx 57.2958^\circ$$
 
-ASCII minh hoạ trên đường tròn đơn vị (bán kính 1):
+Minh hoạ trên đường tròn đơn vị (bán kính 1):
 
-```
-    Cung dài đúng 1 đơn vị (bằng bán kính)
-            ↓
-         ╱──●
-        ╱    ╲
-       │  1   ╲
-       │ rad   │   ← 1 rad ≈ 57.3°
-       │       │
-       ●───1───●
-       tâm     (bán kính = 1)
-```
+<svg viewBox="0 0 440 300" style="max-width:440px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Định nghĩa radian: trên đường tròn bán kính 1, cung dài đúng 1 chắn góc 1 rad ≈ 57.3°">
+  <defs></defs>
+  <circle cx="200" cy="150" r="110" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="200.0" y1="150.0" x2="310.0" y2="150.0" stroke="#1a202c" stroke-width="2.5"/>
+  <line x1="200.0" y1="150.0" x2="259.4" y2="57.4" stroke="#1a202c" stroke-width="2.5"/>
+  <path d="M 310.0,150.0 A 110,110 0 0 0 259.4,57.4" fill="none" stroke="#1d4ed8" stroke-width="4"/>
+  <path d="M 240.0,150.0 A 40,40 0 0 0 221.6,116.3" fill="none" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="200.0" cy="150.0" r="5" fill="#1a202c"/>
+  <text x="255.0" y="168.0" fill="#475569" font-size="12" text-anchor="middle" font-weight="700">bán kính = 1</text>
+  <text x="250.0" y="136.0" fill="#dc2626" font-size="13" text-anchor="start" font-weight="700">1 rad</text>
+  <text x="220" y="26" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">cung dài đúng 1 (bằng bán kính)</text>
+  <text x="200.0" y="282.0" fill="#475569" font-size="12" text-anchor="middle">1 rad ≈ 57.3° · cả vòng = 2π rad ≈ 6.28 lần bán kính</text>
+</svg>
 
 Hình dung: bạn lấy một sợi dây dài đúng bằng bán kính, đặt cong theo đường tròn — góc ở tâm quét bởi sợi dây đó là **1 rad** $\approx 57.3^\circ$. Có thể "đặt" được khoảng $2\pi \approx 6.28$ sợi dây như vậy mới đi trọn vòng.
 

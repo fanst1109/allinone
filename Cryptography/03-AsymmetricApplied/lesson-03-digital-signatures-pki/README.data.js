@@ -180,12 +180,23 @@ Mỗi certificate (X.509 format) chứa:
 
 Hệ thống tin tưởng hoạt động theo chuỗi:
 
-\`\`\`
-Root CA (tự ký — self-signed)
-  └── Intermediate CA (ký bởi Root CA)
-        └── Leaf Certificate (ký bởi Intermediate CA)
-              └── Website/Service
-\`\`\`
+<svg viewBox="0 0 520 242" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi PKI: Root CA tự ký, ký Intermediate CA; Intermediate ký Leaf Certificate cho website/service">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="480.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="32.0" y="33.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">Root CA</text>
+  <text x="32.0" y="48.0" fill="#475569" font-size="10" text-anchor="start">tự ký — self-signed</text>
+  <line x1="80.0" y1="58.0" x2="80.0" y2="72.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="60.0" y="74.0" width="440.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="72.0" y="91.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">Intermediate CA</text>
+  <text x="72.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">ký bởi Root CA</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="100.0" y="132.0" width="400.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="112.0" y="149.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Leaf Certificate</text>
+  <text x="112.0" y="164.0" fill="#475569" font-size="10" text-anchor="start">ký bởi Intermediate CA</text>
+  <line x1="160.0" y1="174.0" x2="160.0" y2="188.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="140.0" y="190.0" width="360.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="152.0" y="207.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Website / Service</text>
+</svg>
 
 - **Root CA**: CA gốc, certificate tự ký (self-signed). Được **preinstalled** trong OS/browser (Mozilla NSS, Windows Certificate Store, macOS Keychain). Có ~150 root CAs được tin tưởng mặc định.
 - **Intermediate CA**: CA trung gian, ký bởi root. Lý do tồn tại: root CA offline (air-gapped), nếu intermediate bị compromise chỉ cần revoke intermediate không cần đổi root.
@@ -198,12 +209,20 @@ Root CA (tự ký — self-signed)
 4. Root CA đã được preinstall → trusted.
 
 **Ví dụ thực tế: github.com** (2024):
-\`\`\`
-DigiCert Global Root CA (root, SHA-256, expires 2031)
-  └── DigiCert TLS RSA SHA256 2020 CA1 (intermediate)
-        └── github.com (leaf, RSA-2048, expires 6/2025)
-              SAN: github.com, www.github.com
-\`\`\`
+<svg viewBox="0 0 560 184" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi chứng chỉ github.com: DigiCert Global Root CA → DigiCert TLS RSA SHA256 2020 CA1 → github.com">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="520.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="32.0" y="33.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">DigiCert Global Root CA</text>
+  <text x="32.0" y="48.0" fill="#475569" font-size="10" text-anchor="start">root, SHA-256, expires 2031</text>
+  <line x1="80.0" y1="58.0" x2="80.0" y2="72.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="60.0" y="74.0" width="480.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="72.0" y="91.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">DigiCert TLS RSA SHA256 2020 CA1</text>
+  <text x="72.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">intermediate</text>
+  <line x1="120.0" y1="116.0" x2="120.0" y2="130.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="100.0" y="132.0" width="440.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="112.0" y="149.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">github.com</text>
+  <text x="112.0" y="164.0" fill="#475569" font-size="10" text-anchor="start">leaf, RSA-2048, expires 6/2025 · SAN: github.com, www.github.com</text>
+</svg>
 
 ### 5.4. Revocation — Thu hồi chứng chỉ
 

@@ -102,15 +102,28 @@ Cả hai ra $K = 2$. Eve thấy $A=8$, $B=19$, $p=23$, $g=5$ — phải giải D
 
 > ⚠ **DH không xác thực (unauthenticated)!** Mallory có thể chặn giữa Alice và Bob:
 
-\`\`\`
-Alice → Mallory: A_real = g^a mod p
-Mallory → Bob: A_fake = g^m mod p   (Mallory tự chọn m)
-Bob → Mallory: B_real = g^b mod p
-Mallory → Alice: B_fake = g^m mod p  (cùng m hoặc khác)
-
-Alice & Mallory share K1 = g^(am) mod p
-Mallory & Bob share K2 = g^(bm) mod p
-\`\`\`
+<svg viewBox="0 0 640 284" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="MITM trên Diffie-Hellman: Mallory chặn giữa, thay A và B bằng gᵐ; Alice chia khóa K1 với Mallory, Bob chia K2 với Mallory">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Alice</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="270.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="260.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="34.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Mallory</text>
+  <line x1="320.0" y1="44.0" x2="320.0" y2="270.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Bob</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="270.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="316.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="200.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">A_real = gᵃ mod p</text>
+  <line x1="323.0" y1="104.0" x2="556.0" y2="104.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="440.0" y="98.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">A_fake = gᵐ mod p (Mallory tự chọn m)</text>
+  <line x1="557.0" y1="138.0" x2="324.0" y2="138.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="440.0" y="132.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">B_real = gᵇ mod p</text>
+  <line x1="317.0" y1="172.0" x2="84.0" y2="172.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="200.0" y="166.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">B_fake = gᵐ mod p</text>
+  <text x="90.0" y="206.0" fill="#475569" font-size="10" text-anchor="start">Alice &amp; Mallory share K1 = g^(am) mod p</text>
+  <text x="550.0" y="240.0" fill="#475569" font-size="10" text-anchor="end">Mallory &amp; Bob share K2 = g^(bm) mod p</text>
+</svg>
 
 Alice và Bob nghĩ họ đang nói chuyện với nhau, nhưng thực ra đều qua Mallory.
 

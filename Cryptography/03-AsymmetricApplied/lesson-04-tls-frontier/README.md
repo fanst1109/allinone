@@ -37,25 +37,28 @@ Sau bài này bạn sẽ:
 
 ### 1.2. TLS 1.3 Handshake (1-RTT)
 
-```
-Client                                Server
-  |                                     |
-  |--- ClientHello ─────────────────►  |
-  |    cipher_suites, key_share         |
-  |    (ECDH public A = a·G)            |
-  |                                     |
-  |  ◄─────────────── ServerHello ─────|
-  |    chosen_suite, key_share          |
-  |    (ECDH public B = b·G)            |
-  |  ◄─────────────── {Certificate} ───|
-  |  ◄─────────────── {CertVerify} ────|   (sig trên transcript hash)
-  |  ◄─────────────── {Finished} ──────|   (HMAC trên handshake)
-  |                                     |
-  |--- Finished ─────────────────────► |
-  |    (HMAC trên handshake)            |
-  |                                     |
-  |=== Application Data (AEAD) ========|
-```
+<svg viewBox="0 0 640 304" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="TLS 1.3 handshake: ClientHello với key_share, ServerHello + Certificate + CertVerify + Finished (đã mã hóa), client Finished, rồi application data AEAD">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="290.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="290.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="556.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ClientHello — cipher_suites, key_share (ECDH A = a·G)</text>
+  <line x1="557.0" y1="102.0" x2="84.0" y2="102.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="96.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">ServerHello — chosen_suite, key_share (ECDH B = b·G)</text>
+  <line x1="557.0" y1="134.0" x2="84.0" y2="134.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="128.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{Certificate}</text>
+  <line x1="557.0" y1="166.0" x2="84.0" y2="166.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="160.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{CertVerify} — sig trên transcript hash</text>
+  <line x1="557.0" y1="198.0" x2="84.0" y2="198.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="192.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{Finished} — HMAC trên handshake</text>
+  <line x1="83.0" y1="230.0" x2="556.0" y2="230.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="224.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Finished — HMAC trên handshake</text>
+  <text x="90.0" y="262.0" fill="#475569" font-size="10" text-anchor="start">Application Data (AEAD) hai chiều</text>
+</svg>
 
 Dấu `{}` = đã mã hóa bằng handshake keys.
 

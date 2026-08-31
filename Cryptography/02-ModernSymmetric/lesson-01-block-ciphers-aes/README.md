@@ -57,16 +57,57 @@ AES được NIST công bố năm 2001, chọn từ thuật toán **Rijndael** (
 
 AES làm việc với **state**: một ma trận 4×4 byte (tổng 16 byte = 128 bit). Plaintext 16 byte được nạp vào state theo cột:
 
-```
-Plaintext: A T T A C K A T D A W N ! ! ! !
-           ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓
-State:
-  col 0    col 1    col 2    col 3
-[ A ][ C ][ A ][ W ]    (row 0)
-[ T ][ K ][ T ][ N ]    (row 1)
-[ T ][ A ][ D ][ ! ]    (row 2)
-[ A ][ T ][ A ][ ! ]    (row 3)
-```
+<svg viewBox="0 0 620 250" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="State AES 4×4: 16 byte ATTACKATDAWN!!!! đổ theo cột — ATTA cột 0, CKAT cột 1, DAWN cột 2, !!!! cột 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="20.0" y="26.0" fill="#475569" font-size="11" text-anchor="start">Plaintext: &quot;ATTACKATDAWN!!!!&quot; (16 byte) đổ vào state THEO CỘT:</text>
+  <rect x="60.0" y="44.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="84.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <rect x="60.0" y="84.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="84.0" y="106.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T</text>
+  <rect x="60.0" y="124.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="84.0" y="146.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T</text>
+  <rect x="60.0" y="164.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="84.0" y="186.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <rect x="114.0" y="44.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="138.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <rect x="114.0" y="84.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="138.0" y="106.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">K</text>
+  <rect x="114.0" y="124.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="138.0" y="146.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <rect x="114.0" y="164.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="138.0" y="186.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T</text>
+  <rect x="168.0" y="44.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="192.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">D</text>
+  <rect x="168.0" y="84.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="192.0" y="106.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <rect x="168.0" y="124.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="192.0" y="146.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">W</text>
+  <rect x="168.0" y="164.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="192.0" y="186.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">N</text>
+  <rect x="222.0" y="44.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="246.0" y="66.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">!</text>
+  <rect x="222.0" y="84.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="246.0" y="106.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">!</text>
+  <rect x="222.0" y="124.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="246.0" y="146.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">!</text>
+  <rect x="222.0" y="164.0" width="48.0" height="34.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="246.0" y="186.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">!</text>
+  <text x="84.0" y="222.0" fill="#475569" font-size="10" text-anchor="middle">col 0</text>
+  <text x="138.0" y="222.0" fill="#475569" font-size="10" text-anchor="middle">col 1</text>
+  <text x="192.0" y="222.0" fill="#475569" font-size="10" text-anchor="middle">col 2</text>
+  <text x="246.0" y="222.0" fill="#475569" font-size="10" text-anchor="middle">col 3</text>
+  <text x="300.0" y="66.0" fill="#475569" font-size="10" text-anchor="start">row 0</text>
+  <text x="300.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">row 1</text>
+  <text x="300.0" y="146.0" fill="#475569" font-size="10" text-anchor="start">row 2</text>
+  <text x="300.0" y="186.0" fill="#475569" font-size="10" text-anchor="start">row 3</text>
+  <line x1="120.0" y1="240.0" x2="120.0" y2="240.0" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="430.0" y="90.0" fill="#475569" font-size="10" text-anchor="start">byte 0→3 xuống cột 0,</text>
+  <text x="430.0" y="106.0" fill="#475569" font-size="10" text-anchor="start">byte 4→7 xuống cột 1, …</text>
+  <text x="430.0" y="130.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">A T T A → col 0</text>
+  <text x="430.0" y="146.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">C K A T → col 1</text>
+  <text x="430.0" y="162.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">D A W N → col 2</text>
+  <text x="430.0" y="178.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">! ! ! ! → col 3</text>
+</svg>
 
 Mỗi ô là 1 byte (8 bit). Toàn bộ 10 round của AES biến đổi ma trận 4×4 này.
 
@@ -108,19 +149,80 @@ Ví dụ: `SubBytes(0x53) = 0xed`. Cách tính thô (không cần biết khi dù
 
 **Là gì**: Dịch cyclic (rotate left) mỗi hàng của state:
 
-```
-Trước ShiftRows:
-  [a0  a4  a8  a12]   ← row 0: dịch 0 vị trí
-  [a1  a5  a9  a13]   ← row 1: dịch 1 vị trí sang trái
-  [a2  a6  a10 a14]   ← row 2: dịch 2 vị trí sang trái
-  [a3  a7  a11 a15]   ← row 3: dịch 3 vị trí sang trái
-
-Sau ShiftRows:
-  [a0  a4  a8  a12]   ← không đổi
-  [a5  a9  a13 a1 ]   ← dịch 1
-  [a10 a14 a2  a6 ]   ← dịch 2
-  [a15 a3  a7  a11]   ← dịch 3
-```
+<svg viewBox="0 0 730 200" style="max-width:730px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="ShiftRows: row 0 giữ nguyên, row 1 dịch trái 1, row 2 dịch trái 2, row 3 dịch trái 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="140.0" y="26.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Trước ShiftRows</text>
+  <text x="530.0" y="26.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Sau ShiftRows</text>
+  <rect x="28.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="53.0" y="61.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a0</text>
+  <rect x="84.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="109.0" y="61.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a4</text>
+  <rect x="140.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="165.0" y="61.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a8</text>
+  <rect x="196.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="221.0" y="61.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a12</text>
+  <rect x="28.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="53.0" y="99.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a1</text>
+  <rect x="84.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="109.0" y="99.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a5</text>
+  <rect x="140.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="165.0" y="99.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a9</text>
+  <rect x="196.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="221.0" y="99.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a13</text>
+  <rect x="28.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="53.0" y="137.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a2</text>
+  <rect x="84.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="109.0" y="137.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a6</text>
+  <rect x="140.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="165.0" y="137.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a10</text>
+  <rect x="196.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="221.0" y="137.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a14</text>
+  <rect x="28.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="53.0" y="175.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a3</text>
+  <rect x="84.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="109.0" y="175.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a7</text>
+  <rect x="140.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="165.0" y="175.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a11</text>
+  <rect x="196.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="221.0" y="175.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">a15</text>
+  <rect x="418.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="443.0" y="61.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a0</text>
+  <rect x="474.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="499.0" y="61.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a4</text>
+  <rect x="530.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="555.0" y="61.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a8</text>
+  <rect x="586.0" y="40.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="611.0" y="61.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a12</text>
+  <rect x="418.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="443.0" y="99.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a5</text>
+  <rect x="474.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="499.0" y="99.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a9</text>
+  <rect x="530.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="555.0" y="99.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a13</text>
+  <rect x="586.0" y="78.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="611.0" y="99.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a1</text>
+  <rect x="418.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="443.0" y="137.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a10</text>
+  <rect x="474.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="499.0" y="137.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a14</text>
+  <rect x="530.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="555.0" y="137.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a2</text>
+  <rect x="586.0" y="116.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="611.0" y="137.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a6</text>
+  <rect x="418.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="443.0" y="175.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a15</text>
+  <rect x="474.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="499.0" y="175.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a3</text>
+  <rect x="530.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="555.0" y="175.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a7</text>
+  <rect x="586.0" y="154.0" width="50.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="611.0" y="175.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">a11</text>
+  <line x1="262.0" y1="116.0" x2="412.0" y2="116.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="650.0" y="60.0" fill="#475569" font-size="10" text-anchor="start">dịch 0</text>
+  <text x="650.0" y="98.0" fill="#475569" font-size="10" text-anchor="start">dịch 1 trái</text>
+  <text x="650.0" y="136.0" fill="#475569" font-size="10" text-anchor="start">dịch 2 trái</text>
+  <text x="650.0" y="174.0" fill="#475569" font-size="10" text-anchor="start">dịch 3 trái</text>
+</svg>
 
 **Vì sao cần**: Sau ShiftRows, mỗi cột chứa byte từ 4 hàng khác nhau. Kết hợp với MixColumns tiếp theo, mỗi byte output phụ thuộc vào tất cả 16 byte input (sau đủ round).
 
@@ -185,29 +287,30 @@ $$\text{state}'[i][j] = \text{state}[i][j] \oplus \text{roundKey}[i][j]$$
 
 ## 4. Cấu trúc đầy đủ của AES-128
 
-```
-Plaintext (16 byte)
-    |
-    ↓  AddRoundKey (Round 0)
-    |  ← Round key 0 (= master key)
-    ↓
-    ┌── Round 1-9: ──────────────────────┐
-    │  SubBytes                           │
-    │  ShiftRows                          │
-    │  MixColumns                         │
-    │  AddRoundKey ← Round key i          │
-    └─────────────────────────────────────┘
-    ↓
-    ┌── Round 10 (final): ───────────────┐
-    │  SubBytes                           │
-    │  ShiftRows                          │
-    │  (MixColumns KHÔNG CÓ ở round cuối)│
-    │  AddRoundKey ← Round key 10         │
-    └─────────────────────────────────────┘
-    |
-    ↓
-Ciphertext (16 byte)
-```
+<svg viewBox="0 0 640 384" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="AES-128: AddRoundKey round 0, chín round SubBytes-ShiftRows-MixColumns-AddRoundKey, round 10 cuối không MixColumns, ra ciphertext">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="180.0" y="14.0" width="240.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="34.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Plaintext (16 byte)</text>
+  <line x1="300.0" y1="50.0" x2="300.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="308.0" y="64.0" fill="#475569" font-size="9" text-anchor="start">AddRoundKey (Round 0) ← Round key 0 (= master key)</text>
+  <rect x="150.0" y="74.0" width="300.0" height="112.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="92.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Round 1–9 (lặp 9 lần)</text>
+  <text x="300.0" y="110.0" fill="#475569" font-size="10" text-anchor="middle">SubBytes</text>
+  <text x="300.0" y="128.0" fill="#475569" font-size="10" text-anchor="middle">ShiftRows</text>
+  <text x="300.0" y="146.0" fill="#475569" font-size="10" text-anchor="middle">MixColumns</text>
+  <text x="300.0" y="164.0" fill="#475569" font-size="10" text-anchor="middle">AddRoundKey ← Round key i</text>
+  <line x1="300.0" y1="186.0" x2="300.0" y2="208.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="150.0" y="210.0" width="300.0" height="96.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="228.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Round 10 (final)</text>
+  <text x="300.0" y="246.0" fill="#475569" font-size="10" text-anchor="middle">SubBytes</text>
+  <text x="300.0" y="264.0" fill="#475569" font-size="10" text-anchor="middle">ShiftRows</text>
+  <text x="300.0" y="282.0" fill="#475569" font-size="10" text-anchor="middle">AddRoundKey ← Round key 10</text>
+  <text x="462.0" y="250.0" fill="#dc2626" font-size="10" text-anchor="start">← MixColumns KHÔNG CÓ</text>
+  <text x="462.0" y="264.0" fill="#dc2626" font-size="10" text-anchor="start">ở round cuối</text>
+  <line x1="300.0" y1="306.0" x2="300.0" y2="328.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="180.0" y="330.0" width="240.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="350.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Ciphertext (16 byte)</text>
+</svg>
 
 > ❓ **Câu hỏi**: Tại sao round cuối bỏ MixColumns? Vì MixColumns trong round cuối không tăng security (không có bước SubBytes sau nó để tạo non-linearity mới), nhưng làm decrypt phức tạp hơn. Bỏ đi giúp encrypt và decrypt có cấu trúc đối xứng.
 

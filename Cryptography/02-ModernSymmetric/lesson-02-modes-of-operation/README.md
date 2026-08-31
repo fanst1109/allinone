@@ -32,12 +32,34 @@ Sau bài này bạn sẽ:
 
 ### 2.1. Cơ chế
 
-```
-P_1  →  [E_K]  →  C_1
-P_2  →  [E_K]  →  C_2
-P_3  →  [E_K]  →  C_3
-...
-```
+<svg viewBox="0 0 420 196" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chế độ ECB: mỗi block P1, P2, P3 mã hóa độc lập qua E_K thành C1, C2, C3 — cùng plaintext cho cùng ciphertext">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="20.0" width="70.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="65.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">P_1</text>
+  <line x1="102.0" y1="37.0" x2="158.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="160.0" y="20.0" width="80.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="200.0" y="40.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">E_K</text>
+  <line x1="242.0" y1="37.0" x2="298.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="300.0" y="20.0" width="70.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="335.0" y="40.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">C_1</text>
+  <rect x="30.0" y="68.0" width="70.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="65.0" y="88.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">P_2</text>
+  <line x1="102.0" y1="85.0" x2="158.0" y2="85.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="160.0" y="68.0" width="80.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="200.0" y="88.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">E_K</text>
+  <line x1="242.0" y1="85.0" x2="298.0" y2="85.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="300.0" y="68.0" width="70.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="335.0" y="88.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">C_2</text>
+  <rect x="30.0" y="116.0" width="70.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="65.0" y="136.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">P_3</text>
+  <line x1="102.0" y1="133.0" x2="158.0" y2="133.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="160.0" y="116.0" width="80.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="200.0" y="136.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">E_K</text>
+  <line x1="242.0" y1="133.0" x2="298.0" y2="133.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="300.0" y="116.0" width="70.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="335.0" y="136.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">C_3</text>
+  <text x="200.0" y="178.0" fill="#475569" font-size="10" text-anchor="middle">⋮  mỗi block mã hóa ĐỘC LẬP với cùng khóa K</text>
+</svg>
 
 Mỗi block encrypt hoàn toàn độc lập. Key giống nhau cho tất cả block.
 

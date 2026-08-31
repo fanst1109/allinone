@@ -200,13 +200,24 @@ func (a *StripeAdapter) Charge(amount float64) error {
 
 **Pattern giải thế nào.** Mỗi tính năng phụ là một lớp **bọc** quanh đối tượng, *cùng interface*, làm thêm việc của mình rồi gọi tiếp lớp bên trong. Xếp chồng tùy ý:
 
-\`\`\`
-gzip( rateLimit( logging( handler ) ) )
- │        │          │         └ xử lý chính
- │        │          └ ghi log
- │        └ giới hạn tần suất
- └ nén response
-\`\`\`
+<svg viewBox="0 0 600 250" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Decorator lồng nhau: gzip bọc rateLimit bọc logging bọc handler — request đi từ ngoài vào, response đi từ trong ra">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="40.0" y="35.0" width="420.0" height="190.0" rx="10" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="52.0" y="52.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">gzip(</text>
+  <text x="448.0" y="215.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">)</text>
+  <text x="470.0" y="52.0" fill="#475569" font-size="10" text-anchor="start">← nén response</text>
+  <rect x="85.0" y="59.0" width="330.0" height="142.0" rx="10" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="97.0" y="76.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">rateLimit(</text>
+  <text x="403.0" y="191.0" fill="#7c3aed" font-size="11" text-anchor="end" font-weight="700">)</text>
+  <text x="425.0" y="76.0" fill="#475569" font-size="10" text-anchor="start">← giới hạn tần suất</text>
+  <rect x="130.0" y="83.0" width="240.0" height="94.0" rx="10" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="142.0" y="100.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">logging(</text>
+  <text x="358.0" y="167.0" fill="#b45309" font-size="11" text-anchor="end" font-weight="700">)</text>
+  <text x="380.0" y="100.0" fill="#475569" font-size="10" text-anchor="start">← ghi log</text>
+  <rect x="175.0" y="107.0" width="150.0" height="46.0" rx="10" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="335.0" y="124.0" fill="#475569" font-size="10" text-anchor="start">← xử lý chính</text>
+  <text x="250.0" y="134.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">handler</text>
+</svg>
 
 \`\`\`go
 func Logging(next http.Handler) http.Handler {

@@ -280,13 +280,31 @@ Lỗi?  → trỏ ngược về BLUE = rollback tức thì (vài giây)
 
 Đẩy bản mới cho **một tỷ lệ nhỏ người dùng trước** (vd 5%), theo dõi chỉ số (lỗi, độ trễ); nếu ổn thì **tăng dần** 5% → 25% → 50% → 100%. "Canary" lấy từ "chim hoàng yến trong mỏ than" — con chim phát hiện khí độc trước, cứu cả đội.
 
-\`\`\`
-Bước 1:   5% → v2  ·  95% → v1     (theo dõi 10 phút)
-Bước 2:  25% → v2  ·  75% → v1     (ổn → tăng tiếp)
-Bước 3:  50% → v2  ·  50% → v1
-Bước 4: 100% → v2                   (hoàn tất)
-Lỗi ở bước 1?  → kéo về 0%, chỉ 5% user bị ảnh hưởng trong 10 phút
-\`\`\`
+<svg viewBox="0 0 680 230" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Canary release 4 bước: 5%, 25%, 50%, 100% traffic sang v2; lỗi sớm chỉ ảnh hưởng 5% user">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="82.0" y="40.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">5%</text>
+  <rect x="90.0" y="20.0" width="21.0" height="28.0" rx="4" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <rect x="111.0" y="20.0" width="399.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="0.9" stroke="#1d4ed8" stroke-width="1"/>
+  <text x="310.5" y="38.0" fill="#1d4ed8" font-size="10" text-anchor="middle">v1 · 95%</text>
+  <text x="522.0" y="38.0" fill="#475569" font-size="10" text-anchor="start">Bước 1 — theo dõi 10 phút</text>
+  <text x="82.0" y="86.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">25%</text>
+  <rect x="90.0" y="66.0" width="105.0" height="28.0" rx="4" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <rect x="195.0" y="66.0" width="315.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="0.9" stroke="#1d4ed8" stroke-width="1"/>
+  <text x="352.5" y="84.0" fill="#1d4ed8" font-size="10" text-anchor="middle">v1 · 75%</text>
+  <text x="142.5" y="84.0" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="700">v2 · 25%</text>
+  <text x="522.0" y="84.0" fill="#475569" font-size="10" text-anchor="start">Bước 2 — ổn → tăng tiếp</text>
+  <text x="82.0" y="132.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">50%</text>
+  <rect x="90.0" y="112.0" width="210.0" height="28.0" rx="4" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <rect x="300.0" y="112.0" width="210.0" height="28.0" rx="4" fill="#dbeafe" fill-opacity="0.9" stroke="#1d4ed8" stroke-width="1"/>
+  <text x="405.0" y="130.0" fill="#1d4ed8" font-size="10" text-anchor="middle">v1 · 50%</text>
+  <text x="195.0" y="130.0" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="700">v2 · 50%</text>
+  <text x="522.0" y="130.0" fill="#475569" font-size="10" text-anchor="start">Bước 3</text>
+  <text x="82.0" y="178.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">100%</text>
+  <rect x="90.0" y="158.0" width="420.0" height="28.0" rx="4" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="300.0" y="176.0" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="700">v2 · 100%</text>
+  <text x="522.0" y="176.0" fill="#475569" font-size="10" text-anchor="start">Bước 4 — hoàn tất</text>
+  <text x="330.0" y="214.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Lỗi ở bước 1? → kéo về 0%, chỉ 5% user bị ảnh hưởng trong 10 phút</text>
+</svg>
 
 - **Giảm rủi ro thế nào:** lỗi (nếu có) chỉ chạm **5% người dùng trong thời gian ngắn**, không phải toàn bộ. Đây là cách an toàn nhất để bắt lỗi chỉ-lộ-trên-production.
 - **Giá phải trả:** phức tạp hơn — cần định tuyến theo phần trăm và **giám sát tốt** để biết khi nào nên tăng/dừng.

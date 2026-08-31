@@ -30,11 +30,19 @@ window.README_MD = `# Lesson 04 — Git workflow cho nhóm
 
 Giả sử nhóm 3 người (An, Bình, Chi) cùng làm trên một nhánh \`main\` duy nhất:
 
-\`\`\`
-An:   sửa file thanh-toan.go, code đang viết dở (chưa chạy được) → push lên main
-Bình: pull về → main giờ không build được → Bình bị kẹt, không làm tiếp được
-Chi:  pull về → cũng không build → cả nhóm dừng vì code dở của An
-\`\`\`
+<svg viewBox="0 0 580 232" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Push thẳng code dở lên main: An làm hỏng main, Bình và Chi pull về không build được, cả nhóm bị kẹt">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="420.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="39.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">An: sửa thanh-toan.go, code viết dở (chưa chạy được)</text>
+  <text x="290.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">→ push thẳng lên main</text>
+  <line x1="290.0" y1="74.0" x2="290.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="94.0" width="420.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="120.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Bình: pull về → main không build được → BỊ KẸT</text>
+  <line x1="290.0" y1="140.0" x2="290.0" y2="158.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="160.0" width="420.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="185.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Chi: pull về → cũng không build</text>
+  <text x="290.0" y="201.2" fill="#475569" font-size="11" text-anchor="middle">cả nhóm dừng vì code dở của An</text>
+</svg>
 
 Những hậu quả cụ thể:
 
@@ -63,16 +71,35 @@ Những hậu quả cụ thể:
 
 ### 2.1 Vòng đời một feature branch
 
-\`\`\`
-1. Tạo branch từ main:     git checkout main && git pull
-                           git checkout -b feature/gio-hang
-2. Làm việc & commit:      ...sửa code... git commit -m "feat: thêm giỏ hàng"
-3. Đẩy branch lên remote:  git push -u origin feature/gio-hang
-4. Mở Pull Request:        feature/gio-hang  →  main   (trên GitHub/GitLab)
-5. Đồng đội review:        bình luận, yêu cầu sửa → bạn commit thêm
-6. Được duyệt → Merge:     branch hợp nhất vào main
-7. Xóa branch:             git branch -d feature/gio-hang
-\`\`\`
+<svg viewBox="0 0 600 528" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảy bước feature branch: tạo branch từ main, commit, push, mở PR, review, merge rồi xóa branch">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="430.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. Tạo branch từ main</text>
+  <text x="300.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">git checkout main &amp;&amp; git pull · git checkout -b feature/gio-hang</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="90.0" width="430.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="115.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">2. Làm việc &amp; commit</text>
+  <text x="300.0" y="131.2" fill="#475569" font-size="11" text-anchor="middle">git commit -m &quot;feat: thêm giỏ hàng&quot;</text>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="166.0" width="430.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="191.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">3. Đẩy branch lên remote</text>
+  <text x="300.0" y="207.2" fill="#475569" font-size="11" text-anchor="middle">git push -u origin feature/gio-hang</text>
+  <line x1="300.0" y1="226.0" x2="300.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="242.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="267.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4. Mở Pull Request</text>
+  <text x="300.0" y="283.2" fill="#475569" font-size="11" text-anchor="middle">feature/gio-hang → main (GitHub/GitLab)</text>
+  <line x1="300.0" y1="302.0" x2="300.0" y2="316.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="318.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="343.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">5. Đồng đội review</text>
+  <text x="300.0" y="359.2" fill="#475569" font-size="11" text-anchor="middle">bình luận, yêu cầu sửa → commit thêm</text>
+  <line x1="300.0" y1="378.0" x2="300.0" y2="392.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="394.0" width="430.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="420.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">6. Được duyệt → Merge vào main</text>
+  <line x1="300.0" y1="440.0" x2="300.0" y2="454.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="456.0" width="430.0" height="58.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="300.0" y="481.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">7. Xóa branch</text>
+  <text x="300.0" y="497.2" fill="#475569" font-size="11" text-anchor="middle">git branch -d feature/gio-hang</text>
+</svg>
 
 ### 2.2 Sơ đồ branch
 

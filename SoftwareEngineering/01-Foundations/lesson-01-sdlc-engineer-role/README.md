@@ -81,12 +81,63 @@ Yêu cầu ──► Thiết kế ──► Hiện thực ──► Kiểm thử
 
 💡 **Trực giác.** Thay vì xây cả tòa nhà rồi mới cho xem, ta xây **một phòng hoàn chỉnh**, cho khách dùng thử, lấy phản hồi, rồi xây phòng tiếp. Mỗi vòng lặp (iteration) đi qua *tất cả* các giai đoạn SDLC nhưng cho **một lát cắt nhỏ** của hệ thống, và cho ra một bản chạy được.
 
-```
-Vòng 1: [YC→TK→Code→Test→Giao]  → bản v0.1 (đăng nhập)
-Vòng 2: [YC→TK→Code→Test→Giao]  → bản v0.2 (+ giỏ hàng)
-Vòng 3: [YC→TK→Code→Test→Giao]  → bản v0.3 (+ thanh toán)
-          ... mỗi vòng đều giao được thứ dùng được ...
-```
+<svg viewBox="0 0 700 206" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba vòng lặp phát triển: mỗi vòng YC → TK → Code → Test → Giao ra một bản dùng được (v0.1 đăng nhập, v0.2 giỏ hàng, v0.3 thanh toán)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="20.0" y="42.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Vòng 1</text>
+  <rect x="90.0" y="16.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="122.0" y="36.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">YC</text>
+  <line x1="156.0" y1="33.0" x2="172.0" y2="33.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="174.0" y="16.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="206.0" y="36.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">TK</text>
+  <line x1="240.0" y1="33.0" x2="256.0" y2="33.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="258.0" y="16.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="36.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Code</text>
+  <line x1="324.0" y1="33.0" x2="340.0" y2="33.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="342.0" y="16.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="374.0" y="36.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Test</text>
+  <line x1="408.0" y1="33.0" x2="424.0" y2="33.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="426.0" y="16.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="458.0" y="36.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Giao</text>
+  <line x1="494.0" y1="33.0" x2="520.0" y2="33.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="526.0" y="37.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">bản v0.1 (đăng nhập)</text>
+  <path d="M 90.0,56.0 L 70.0,56.0 L 70.0,84.0 L 88.0,84.0" fill="none" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar)"/>
+  <text x="20.0" y="96.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Vòng 2</text>
+  <rect x="90.0" y="70.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="122.0" y="90.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">YC</text>
+  <line x1="156.0" y1="87.0" x2="172.0" y2="87.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="174.0" y="70.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="206.0" y="90.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">TK</text>
+  <line x1="240.0" y1="87.0" x2="256.0" y2="87.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="258.0" y="70.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="90.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Code</text>
+  <line x1="324.0" y1="87.0" x2="340.0" y2="87.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="342.0" y="70.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="374.0" y="90.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Test</text>
+  <line x1="408.0" y1="87.0" x2="424.0" y2="87.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="426.0" y="70.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="458.0" y="90.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Giao</text>
+  <line x1="494.0" y1="87.0" x2="520.0" y2="87.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="526.0" y="91.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">bản v0.2 (+ giỏ hàng)</text>
+  <path d="M 90.0,110.0 L 70.0,110.0 L 70.0,138.0 L 88.0,138.0" fill="none" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar)"/>
+  <text x="20.0" y="150.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Vòng 3</text>
+  <rect x="90.0" y="124.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="122.0" y="144.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">YC</text>
+  <line x1="156.0" y1="141.0" x2="172.0" y2="141.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="174.0" y="124.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="206.0" y="144.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">TK</text>
+  <line x1="240.0" y1="141.0" x2="256.0" y2="141.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="258.0" y="124.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="144.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Code</text>
+  <line x1="324.0" y1="141.0" x2="340.0" y2="141.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="342.0" y="124.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="374.0" y="144.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Test</text>
+  <line x1="408.0" y1="141.0" x2="424.0" y2="141.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="426.0" y="124.0" width="64.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="458.0" y="144.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Giao</text>
+  <line x1="494.0" y1="141.0" x2="520.0" y2="141.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="526.0" y="145.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">bản v0.3 (+ thanh toán)</text>
+  <text x="340.0" y="190.0" fill="#475569" font-size="11" text-anchor="middle" font-style="italic">mỗi vòng đều giao được thứ dùng được</text>
+</svg>
 
 - **Iterative** (lặp): mỗi vòng *cải thiện* thứ đã có (làm tinh hơn).
 - **Incremental** (tăng dần): mỗi vòng *thêm* tính năng mới.

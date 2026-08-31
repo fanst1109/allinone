@@ -61,12 +61,17 @@ Từ điển lớn: thay vì mục lục 1 triệu dòng, dùng mục lục 2 c�
 
 **Áp dụng vào paging:** Chia page number thành 2 phần:
 
-\`\`\`
-Địa chỉ ảo 32-bit với page 4 KB:
-┌──────────────┬──────────────┬────────────┐
-│   p1 (10 bit)│   p2 (10 bit)│ offset (12 bit)│
-└──────────────┴──────────────┴────────────┘
-\`\`\`
+<svg viewBox="0 0 540 86" style="max-width:540px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Địa chỉ ảo 32-bit với page 4 KB chia ba: p1 10 bit, p2 10 bit, offset 12 bit">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="26.0" width="160.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="110.0" y="43.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">p1 (10 bit)</text>
+  <text x="110.0" y="58.0" fill="#475569" font-size="9" text-anchor="middle">tra outer table</text>
+  <rect x="190.0" y="26.0" width="160.0" height="44.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="270.0" y="43.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">p2 (10 bit)</text>
+  <text x="270.0" y="58.0" fill="#475569" font-size="9" text-anchor="middle">tra inner table</text>
+  <rect x="350.0" y="26.0" width="150.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="425.0" y="50.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">offset (12 bit)</text>
+</svg>
 
 - **Cấp 1 (outer page table)**: $2^{10} = 1024$ mục, mỗi mục trỏ đến một bảng trang cấp 2 (hoặc NULL nếu không dùng).
 - **Cấp 2 (inner page table)**: mỗi bảng $2^{10} = 1024$ mục, chứa frame number.

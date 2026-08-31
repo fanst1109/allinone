@@ -77,17 +77,18 @@ Ba nhiệm vụ chính của hypervisor:
 💡 **Trực giác:** Hypervisor type 1 là "siêu OS" — nó chạy **trực tiếp trên phần cứng**, không cần OS host bên dưới. Nó nhỏ và chuyên biệt: chỉ làm một việc là tạo và quản lý VM, không có GUI, không có browser, không có app thông thường.
 
 **Kiến trúc:**
-\`\`\`
-┌──────────────────────────────────────────┐
-│  VM-A          │  VM-B          │  VM-C   │
-│  Guest OS + App│  Guest OS + App│  App     │
-├──────────────────────────────────────────┤
-│         Hypervisor Type 1 (VMM)          │
-├──────────────────────────────────────────┤
-│              Phần cứng vật lý            │
-│         (CPU, RAM, NIC, Disk)            │
-└──────────────────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 560 164" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hypervisor Type 1: VM chạy trên VMM, VMM chạy thẳng trên phần cứng">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="300.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="180.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">VM-A · VM-B · VM-C</text>
+  <text x="340.0" y="40.0" fill="#475569" font-size="10" text-anchor="start">mỗi VM: Guest OS + App</text>
+  <rect x="30.0" y="62.0" width="300.0" height="40.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="180.0" y="86.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Hypervisor Type 1 (VMM)</text>
+  <text x="340.0" y="86.0" fill="#475569" font-size="10" text-anchor="start">chạy thẳng trên phần cứng</text>
+  <rect x="30.0" y="108.0" width="300.0" height="40.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="180.0" y="132.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Phần cứng vật lý</text>
+  <text x="340.0" y="132.0" fill="#475569" font-size="10" text-anchor="start">CPU, RAM, NIC, Disk</text>
+</svg>
 
 **Ví dụ thực tế:**
 - **VMware ESXi**: phổ biến nhất trong doanh nghiệp.
@@ -104,17 +105,19 @@ Ba nhiệm vụ chính của hypervisor:
 💡 **Trực giác:** Hypervisor type 2 là **một ứng dụng chạy trên OS host**. Bạn cài Windows hoặc macOS bình thường, rồi cài VirtualBox lên như cài bất kỳ app nào. VirtualBox là hypervisor type 2.
 
 **Kiến trúc:**
-\`\`\`
-┌──────────────────────────────────────────┐
-│  VM-A (Guest OS + App)                   │
-├──────────────────────────────────────────┤
-│  Hypervisor Type 2 (ứng dụng trên host)  │
-├──────────────────────────────────────────┤
-│  Host OS (Windows / macOS / Linux)       │
-├──────────────────────────────────────────┤
-│              Phần cứng vật lý            │
-└──────────────────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 560 210" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hypervisor Type 2: VM chạy trên hypervisor là một ứng dụng của Host OS, Host OS chạy trên phần cứng">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="16.0" width="300.0" height="40.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="180.0" y="40.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">VM-A (Guest OS + App)</text>
+  <rect x="30.0" y="62.0" width="300.0" height="40.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="180.0" y="86.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Hypervisor Type 2</text>
+  <text x="340.0" y="86.0" fill="#475569" font-size="10" text-anchor="start">ứng dụng chạy trên host OS</text>
+  <rect x="30.0" y="108.0" width="300.0" height="40.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="180.0" y="132.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Host OS</text>
+  <text x="340.0" y="132.0" fill="#475569" font-size="10" text-anchor="start">Windows / macOS / Linux</text>
+  <rect x="30.0" y="154.0" width="300.0" height="40.0" rx="6" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="180.0" y="178.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Phần cứng vật lý</text>
+</svg>
 
 **Ví dụ thực tế:**
 - **Oracle VirtualBox**: miễn phí, đa nền tảng — dùng phổ biến khi học OS, dev.

@@ -32,38 +32,66 @@ Mọi khái niệm đã học đều là câu trả lời cho một trong ba câ
 
 ### 1.2. Bản đồ kiến thức
 
-```
-┌──────────────────────────────────────────────────────┐
-│                    USER SPACE                         │
-│  [Process A]  [Process B]  [Process C]  [Thread...]  │
-└────────────────────────┬─────────────────────────────┘
-                         │ system calls
-┌────────────────────────▼─────────────────────────────┐
-│                    KERNEL                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────┐  │
-│  │  CPU Sched.  │  │  Mem Manager │  │  I/O Subs. │  │
-│  │  FCFS/SJF/   │  │  Virtual Mem │  │  VFS       │  │
-│  │  RR/Priority │  │  Paging      │  │  Block     │  │
-│  │  Real-time   │  │  Swap        │  │  Driver    │  │
-│  │  SMP/NUMA    │  │  TLB         │  │  Scheduler │  │
-│  └──────┬───────┘  └──────┬───────┘  └─────┬──────┘  │
-│         │                 │                │          │
-│  ┌──────▼─────────────────▼────────────────▼──────┐  │
-│  │           HAL (Hardware Abstraction Layer)      │  │
-│  └──────┬──────────────────┬──────────────┬───────┘  │
-└─────────┼──────────────────┼──────────────┼──────────┘
-          ▼                  ▼              ▼
-       [CPU cores]        [RAM/SWAP]    [Disk/NIC]
-```
+<svg viewBox="0 0 600 320" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc mini-OS: user space (process) gọi system call vào kernel gồm CPU Scheduler, Memory Manager, I/O Subsystem trên HAL, dưới là CPU, RAM/SWAP, Disk/NIC">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="560.0" height="50.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">USER SPACE</text>
+  <text x="300.0" y="52.0" fill="#475569" font-size="10" text-anchor="middle">[Process A]  [Process B]  [Process C]  [Thread…]</text>
+  <line x1="300.0" y1="68.0" x2="300.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="308.0" y="84.0" fill="#475569" font-size="10" text-anchor="start">system calls</text>
+  <rect x="20.0" y="94.0" width="560.0" height="196.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="112.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">KERNEL</text>
+  <rect x="40.0" y="124.0" width="166.0" height="54.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="123.0" y="154.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">CPU Sched.</text>
+  <text x="123.0" y="166.0" fill="#475569" font-size="8" text-anchor="middle">FCFS/SJF/RR/Priority · Real-time · SMP/NUMA</text>
+  <line x1="123.0" y1="180.0" x2="123.0" y2="208.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="220.0" y="124.0" width="166.0" height="54.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="303.0" y="154.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Mem Manager</text>
+  <text x="303.0" y="166.0" fill="#475569" font-size="8" text-anchor="middle">Virtual Mem · Paging · Swap · TLB</text>
+  <line x1="303.0" y1="180.0" x2="303.0" y2="208.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="400.0" y="124.0" width="166.0" height="54.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="483.0" y="154.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">I/O Subsystem</text>
+  <text x="483.0" y="166.0" fill="#475569" font-size="8" text-anchor="middle">VFS · Block · Driver · Scheduler</text>
+  <line x1="483.0" y1="180.0" x2="483.0" y2="208.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="40.0" y="210.0" width="526.0" height="36.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="303.0" y="232.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">HAL (Hardware Abstraction Layer)</text>
+  <line x1="123.0" y1="246.0" x2="123.0" y2="268.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="63.0" y="270.0" width="120.0" height="30.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="123.0" y="288.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">CPU cores</text>
+  <line x1="303.0" y1="246.0" x2="303.0" y2="268.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="243.0" y="270.0" width="120.0" height="30.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="303.0" y="288.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">RAM / SWAP</text>
+  <line x1="483.0" y1="246.0" x2="483.0" y2="268.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="423.0" y="270.0" width="120.0" height="30.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="483.0" y="288.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">Disk / NIC</text>
+</svg>
 
 ### 1.3. Vòng đời một process
 
-```
-fork() → CREATED → READY → RUNNING → WAITING → TERMINATED
-              ↑         ↑       |         |
-              |   preempted   I/O req  I/O done
-              |_____________________________|
-```
+<svg viewBox="0 0 740 180" style="max-width:740px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng đời process trong mini-scheduler: fork tạo CREATED → READY → RUNNING; RUNNING bị preempt về READY, chờ I/O sang WAITING rồi I/O done về READY; kết thúc TERMINATED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="50.0" width="100.0" height="34.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="66.0" y="70.8" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">CREATED</text>
+  <line x1="118.0" y1="67.0" x2="166.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="142.0" y="60.0" fill="#475569" font-size="9" text-anchor="middle">fork()</text>
+  <rect x="168.0" y="50.0" width="90.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="213.0" y="70.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">READY</text>
+  <line x1="260.0" y1="67.0" x2="318.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="320.0" y="50.0" width="100.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="370.0" y="70.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">RUNNING</text>
+  <line x1="422.0" y1="67.0" x2="480.0" y2="67.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="451.0" y="60.0" fill="#475569" font-size="9" text-anchor="middle">I/O req</text>
+  <rect x="482.0" y="50.0" width="100.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="532.0" y="70.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">WAITING</text>
+  <path d="M 370.0,84.0 L 370.0,120.0 L 213.0,120.0 L 213.0,86.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="292.0" y="134.0" fill="#b45309" font-size="10" text-anchor="middle">preempted</text>
+  <path d="M 532.0,84.0 L 532.0,150.0 L 230.0,150.0 L 230.0,88.0" fill="none" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#arb)"/>
+  <text x="380.0" y="164.0" fill="#1d4ed8" font-size="10" text-anchor="middle">I/O done</text>
+  <line x1="370.0" y1="48.0" x2="370.0" y2="26.0" stroke="#1a202c" stroke-width="1.8"/>
+  <path d="M 370.0,26.0 L 600.0,26.0 L 600.0,67.0 L 586.0,67.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <rect x="600.0" y="50.0" width="120.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="660.0" y="70.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">TERMINATED</text>
+</svg>
 
 **Giao thoa giữa các hệ con:**
 - CPU Scheduler quyết định READY → RUNNING.

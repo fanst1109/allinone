@@ -27,17 +27,40 @@ Nhà hàng 1 bếp trưởng: dù khách đông, chỉ có 1 người nấu — 
 
 **SMP (Symmetric Multi-Processing)** = hệ thống nhiều CPU/core dùng chung bộ nhớ vật lý, dùng chung bus.
 
-```
-            ┌────────────────────────────────┐
-            │         RAM (chia sẻ)          │
-            └─────────────┬──────────────────┘
-                          │  System Bus
-    ┌────────────┬─────────┴──────────┬───────────┐
-  [Core 0]    [Core 1]            [Core 2]      [Core 3]
-   L1/L2       L1/L2              L1/L2          L1/L2
-    cache       cache              cache          cache
-         └──────────┘L3 Cache (chia sẻ)└──────────┘
-```
+<svg viewBox="0 0 600 240" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc SMP 4 core: RAM chia sẻ qua System Bus, mỗi core có L1/L2 riêng, L3 cache chia sẻ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="150.0" y="16.0" width="300.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="37.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">RAM (chia sẻ)</text>
+  <line x1="300.0" y1="52.0" x2="300.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <text x="308.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">System Bus</text>
+  <line x1="80.0" y1="80.0" x2="520.0" y2="80.0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80.0" y1="80.0" x2="80.0" y2="100.0" stroke="#1a202c" stroke-width="1.6"/>
+  <rect x="30.0" y="102.0" width="100.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="122.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Core 0</text>
+  <rect x="30.0" y="142.0" width="100.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="80.0" y="160.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">L1/L2 cache</text>
+  <line x1="226.7" y1="80.0" x2="226.7" y2="100.0" stroke="#1a202c" stroke-width="1.6"/>
+  <rect x="176.7" y="102.0" width="100.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="226.7" y="122.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Core 1</text>
+  <rect x="176.7" y="142.0" width="100.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="226.7" y="160.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">L1/L2 cache</text>
+  <line x1="373.4" y1="80.0" x2="373.4" y2="100.0" stroke="#1a202c" stroke-width="1.6"/>
+  <rect x="323.4" y="102.0" width="100.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="373.4" y="122.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Core 2</text>
+  <rect x="323.4" y="142.0" width="100.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="373.4" y="160.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">L1/L2 cache</text>
+  <line x1="520.1" y1="80.0" x2="520.1" y2="100.0" stroke="#1a202c" stroke-width="1.6"/>
+  <rect x="470.1" y="102.0" width="100.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="520.1" y="122.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Core 3</text>
+  <rect x="470.1" y="142.0" width="100.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="520.1" y="160.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">L1/L2 cache</text>
+  <rect x="80.0" y="186.0" width="440.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="205.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">L3 Cache (chia sẻ)</text>
+  <line x1="80.0" y1="172.0" x2="80.0" y2="186.0" stroke="#94a3b8" stroke-width="1.4"/>
+  <line x1="226.7" y1="172.0" x2="226.7" y2="186.0" stroke="#94a3b8" stroke-width="1.4"/>
+  <line x1="373.4" y1="172.0" x2="373.4" y2="186.0" stroke="#94a3b8" stroke-width="1.4"/>
+  <line x1="520.1" y1="172.0" x2="520.1" y2="186.0" stroke="#94a3b8" stroke-width="1.4"/>
+</svg>
 
 **Vấn đề mới khi lên đa core:**
 1. **Ai chạy task nào trên core nào?** — cần thuật toán lập lịch đa core.
@@ -74,14 +97,34 @@ Nhà hàng 1 bếp trưởng: dù khách đông, chỉ có 1 người nấu — 
 
 **Thiết kế:** Tất cả task sẵn sàng (TASK_RUNNING) nằm trong một hàng đợi duy nhất. Mỗi core, khi rảnh, lấy task từ hàng đợi chung này.
 
-```
-┌──────────────────────────────────────┐
-│  Global Run Queue                    │
-│  [T1] [T2] [T3] [T4] [T5] [T6] [T7] │
-└──────────────────────────────────────┘
-       ↑           ↑           ↑
-   Core 0       Core 1      Core 2
-```
+<svg viewBox="0 0 600 150" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Global run queue: 7 task T1–T7 xếp chung một hàng đợi, Core 0, 1, 2 cùng lấy task từ đó">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="80.0" y="16.0" width="440.0" height="54.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="300.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Global Run Queue</text>
+  <rect x="100.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="125.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T1</text>
+  <rect x="158.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="183.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T2</text>
+  <rect x="216.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="241.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T3</text>
+  <rect x="274.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="299.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T4</text>
+  <rect x="332.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="357.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T5</text>
+  <rect x="390.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="415.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T6</text>
+  <rect x="448.0" y="40.0" width="50.0" height="24.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="473.0" y="55.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T7</text>
+  <line x1="160.0" y1="100.0" x2="160.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="115.0" y="102.0" width="90.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="160.0" y="121.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Core 0</text>
+  <line x1="300.0" y1="100.0" x2="300.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="255.0" y="102.0" width="90.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="121.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Core 1</text>
+  <line x1="440.0" y1="100.0" x2="440.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="395.0" y="102.0" width="90.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="121.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Core 2</text>
+</svg>
 
 **Ưu điểm:**
 - Cân bằng tải tự nhiên: core nào rảnh đều lấy task tiếp theo trong queue.

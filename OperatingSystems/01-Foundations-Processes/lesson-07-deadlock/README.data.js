@@ -118,11 +118,39 @@ Yêu cầu hiện tại:
 \`\`\`
 
 **Đồ thị:**
-\`\`\`
-P1 ──request──→ R2 ──assign──→ P2
-P2 ──request──→ R3 ──assign──→ P3
-P3 ──request──→ R1 ──assign──→ P1
-\`\`\`
+<svg viewBox="0 0 460 230" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chu trình deadlock: P1 request R2 assign P2, P2 request R3 assign P3, P3 request R1 assign P1">
+  <defs><marker id="dl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="102.0" y1="60.0" x2="206.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="116.1" y="63.0" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="143.6" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="252.0" y1="60.0" x2="356.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="269.6" y="63.0" width="48.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="293.6" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">assign</text>
+  <line x1="380.0" y1="82.0" x2="380.0" y2="146.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="341.5" y="99.6" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="369.0" y="111.6" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="358.0" y1="170.0" x2="254.0" y2="170.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="292.4" y="151.0" width="48.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="316.4" y="163.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">assign</text>
+  <line x1="208.0" y1="170.0" x2="104.0" y2="170.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="138.9" y="151.0" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="166.4" y="163.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="80.0" y1="148.0" x2="80.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="67.0" y="114.4" width="48.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="91.0" y="126.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">assign</text>
+  <circle cx="80.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P1</text>
+  <circle cx="230.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R2</text>
+  <circle cx="380.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P2</text>
+  <circle cx="380.0" cy="170.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="380.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R3</text>
+  <circle cx="230.0" cy="170.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P3</text>
+  <circle cx="80.0" cy="170.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="175.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R1</text>
+</svg>
 
 **Dò chu trình:** P1 → R2 → P2 → R3 → P3 → R1 → P1 — chu trình khép kín. Vì mỗi tài nguyên chỉ có 1 instance → **deadlock**.
 
@@ -130,11 +158,24 @@ P3 ──request──→ R1 ──assign──→ P1
 
 **Tình huống:** R1 có **2 instance**, P1 và P2 cùng giữ 1 instance, P3 yêu cầu 1 instance:
 
-\`\`\`
-R1[••] ──→ P1 (assign 1 instance)
-R1[••] ──→ P2 (assign 1 instance)
-P3 ──request──→ R1
-\`\`\`
+<svg viewBox="0 0 340 196" style="max-width:340px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="R1 có 2 instance cấp cho P1 và P2; P3 request R1 — có chu trình nhưng chưa chắc deadlock vì R1 nhiều instance">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="80.0" width="110.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="85.0" y="96.3" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">R1 [• •]</text>
+  <text x="85.0" y="111.3" fill="#475569" font-size="10" text-anchor="middle">2 instance</text>
+  <path d="M 140.0,100.0 L 170.0,100.0 L 170.0,38.0 L 198.0,38.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="168.0" y="28.0" fill="#475569" font-size="9" text-anchor="start">assign</text>
+  <rect x="200.0" y="20.0" width="70.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="235.0" y="42.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P1</text>
+  <path d="M 140.0,100.0 L 170.0,100.0 L 170.0,98.0 L 198.0,98.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="168.0" y="88.0" fill="#475569" font-size="9" text-anchor="start">assign</text>
+  <rect x="200.0" y="80.0" width="70.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="235.0" y="102.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P2</text>
+  <rect x="200.0" y="140.0" width="70.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="235.0" y="162.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">P3</text>
+  <line x1="198.0" y1="158.0" x2="144.0" y2="122.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="171.0" y="152.0" fill="#475569" font-size="9" text-anchor="middle">request</text>
+</svg>
 
 Có cạnh P3 → R1 tạo chu trình? Không — P3 yêu cầu R1 nhưng R1 có 2 instance và cả 2 đang bị dùng. Nếu P1 hoặc P2 giải phóng, P3 có thể tiến. Không deadlock nếu P1/P2 không chờ P3.
 
@@ -448,12 +489,45 @@ Cả 4 điều kiện đều thoả mãn.
 **Bài 2 — Dò chu trình RAG**
 
 **(a) RAG:**
-\`\`\`
-P1 ──hold──→ R1 ──←request── P3
-P1 ──request──→ R2 ──hold──→ P2
-P2 ──request──→ R3 ──hold──→ P3
-P4 ──request──→ R2
-\`\`\`
+<svg viewBox="0 0 640 240" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị: P1 hold R1, P3 request R1; P1 request R2, P2 hold R2; P2 request R3, P3 hold R3; P4 request R2">
+  <defs><marker id="dl" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="80.0" y1="82.0" x2="80.0" y2="156.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="52.0" y="103.6" width="34.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="69.0" y="115.6" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">hold</text>
+  <line x1="102.0" y1="180.0" x2="216.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="120.1" y="183.0" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="147.6" y="195.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="102.0" y1="60.0" x2="216.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="120.1" y="63.0" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="147.6" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="262.0" y1="60.0" x2="376.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="290.6" y="63.0" width="34.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="307.6" y="75.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">hold</text>
+  <line x1="400.0" y1="82.0" x2="400.0" y2="156.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="361.5" y="103.6" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="389.0" y="115.6" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="378.0" y1="180.0" x2="264.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="315.4" y="161.0" width="34.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="332.4" y="173.0" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">hold</text>
+  <line x1="538.9" y1="148.7" x2="263.0" y2="66.8" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dl)"/>
+  <rect x="404.2" y="97.4" width="55.0" height="15.0" rx="3" fill="#f8fafc" fill-opacity="1" stroke="none" stroke-width="0"/>
+  <text x="431.7" y="109.4" fill="#1a202c" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <circle cx="80.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P1</text>
+  <circle cx="240.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R2</text>
+  <circle cx="400.0" cy="60.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="400.0" y="65.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P2</text>
+  <circle cx="80.0" cy="180.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="80.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R1</text>
+  <circle cx="400.0" cy="180.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="400.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R3</text>
+  <circle cx="240.0" cy="180.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="185.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P3</text>
+  <circle cx="560.0" cy="155.0" r="20" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="560.0" y="160.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P4</text>
+  <text x="320.0" y="232.0" fill="#475569" font-size="11" text-anchor="middle">hold: R → P · request: P → R</text>
+</svg>
 
 Dạng danh sách cạnh:
 - R1 → P1, P1 → R2, R2 → P2, P2 → R3, R3 → P3, P3 → R1, P4 → R2.

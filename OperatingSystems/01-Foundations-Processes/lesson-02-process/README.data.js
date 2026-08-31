@@ -68,27 +68,34 @@ Mỗi tiến trình được OS cấp một "căn hộ ảo" riêng — không g
 
 Bố cục điển hình của không gian địa chỉ trên Linux x86-64 (địa chỉ tăng từ dưới lên):
 
-\`\`\`
-Địa chỉ cao  ──────────────────────────────────────
-             │  Kernel space (không truy cập được   │
-             │  từ user mode — địa chỉ từ 0x8000...) │
-             ──────────────────────────────────────
-             │  Stack   ↓  (tăng xuống dưới)        │  ← rsp trỏ đến đây
-             │  (biến cục bộ, địa chỉ trả về, args)│
-             ──────────────────────────────────────
-             │  [vùng trống — cho stack và heap      │
-             │   mở rộng, được OS cấp khi cần]      │
-             ──────────────────────────────────────
-             │  Heap    ↑  (tăng lên trên)           │  ← malloc/free quản lý
-             │  (bộ nhớ cấp phát động)              │
-             ──────────────────────────────────────
-             │  BSS segment                          │  ← biến global chưa khởi tạo
-             ──────────────────────────────────────
-             │  Data segment                         │  ← biến global đã khởi tạo
-             ──────────────────────────────────────
-             │  Text segment (code)                  │  ← lệnh máy (read-only)
-Địa chỉ thấp ──────────────────────────────────────
-\`\`\`
+<svg viewBox="0 0 620 306" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bố cục bộ nhớ tiến trình từ địa chỉ cao xuống thấp: Kernel space, Stack tăng xuống, vùng trống, Heap tăng lên, BSS, Data, Text">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="20.0" y="20.0" fill="#475569" font-size="10" text-anchor="start" font-weight="700">Địa chỉ cao</text>
+  <rect x="20.0" y="28.0" width="330.0" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="185.0" y="45.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">Kernel space</text>
+  <text x="185.0" y="59.0" fill="#475569" font-size="9" text-anchor="middle">không truy cập được từ user mode (địa chỉ từ 0x8000…)</text>
+  <rect x="20.0" y="68.0" width="330.0" height="40.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="185.0" y="85.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Stack ↓ (tăng xuống dưới)</text>
+  <text x="185.0" y="99.0" fill="#475569" font-size="9" text-anchor="middle">biến cục bộ, địa chỉ trả về, args</text>
+  <text x="358.0" y="92.0" fill="#475569" font-size="10" text-anchor="start">← rsp trỏ đến đây</text>
+  <rect x="20.0" y="108.0" width="330.0" height="40.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="185.0" y="125.0" fill="#475569" font-size="11" text-anchor="middle" font-weight="700">vùng trống</text>
+  <text x="185.0" y="139.0" fill="#475569" font-size="9" text-anchor="middle">cho stack và heap mở rộng, OS cấp khi cần</text>
+  <rect x="20.0" y="148.0" width="330.0" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="185.0" y="165.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Heap ↑ (tăng lên trên)</text>
+  <text x="185.0" y="179.0" fill="#475569" font-size="9" text-anchor="middle">bộ nhớ cấp phát động</text>
+  <text x="358.0" y="172.0" fill="#475569" font-size="10" text-anchor="start">← malloc/free quản lý</text>
+  <rect x="20.0" y="188.0" width="330.0" height="30.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="185.0" y="208.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">BSS segment</text>
+  <text x="358.0" y="207.0" fill="#475569" font-size="10" text-anchor="start">← biến global chưa khởi tạo</text>
+  <rect x="20.0" y="218.0" width="330.0" height="30.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="185.0" y="238.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Data segment</text>
+  <text x="358.0" y="237.0" fill="#475569" font-size="10" text-anchor="start">← biến global đã khởi tạo</text>
+  <rect x="20.0" y="248.0" width="330.0" height="30.0" rx="0" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="185.0" y="268.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Text segment (code)</text>
+  <text x="358.0" y="267.0" fill="#475569" font-size="10" text-anchor="start">← lệnh máy (read-only)</text>
+  <text x="20.0" y="294.0" fill="#475569" font-size="10" text-anchor="start" font-weight="700">Địa chỉ thấp</text>
+</svg>
 
 ### 2.2. Mỗi vùng chứa gì?
 
@@ -195,19 +202,31 @@ Khai báo \`int buffer[1024 * 1024];\` bên trong hàm \`main()\`. Nó nằm ở
 💡 **Trực giác — Analogy nhân viên văn phòng:**
 Một nhân viên có thể: đang được tuyển dụng (new), chờ bàn làm việc trống (ready), đang làm việc (running), chờ in tài liệu (waiting), hoặc đã rời công ty (terminated). OS quản lý tiến trình y hệt vậy.
 
-\`\`\`
-        fork()
-[new] ─────────→ [ready] ─── scheduler chọn ──→ [running]
-                    ↑                                │
-                    │   I/O hoàn thành /              │ preempt / yield
-                    │   event xảy ra                  │
-                    │                                 ↓
-                    └──────────────────────── [waiting]
-                                              (chờ I/O, sleep,
-                                               wait for child)
-                                                      
-[running] ─── exit() / lỗi ──→ [terminated/zombie]
-\`\`\`
+<svg viewBox="0 0 660 224" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Máy trạng thái process: new → (fork) ready → (scheduler) running; running bị preempt về ready hoặc chờ I/O sang waiting rồi về ready; exit sang terminated/zombie">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="60.0" width="80.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="56.0" y="81.8" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">new</text>
+  <line x1="98.0" y1="78.0" x2="196.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="147.0" y="71.0" fill="#475569" font-size="10" text-anchor="middle">fork()</text>
+  <rect x="198.0" y="60.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="243.0" y="81.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">ready</text>
+  <line x1="290.0" y1="78.0" x2="428.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="359.0" y="71.0" fill="#475569" font-size="10" text-anchor="middle">scheduler chọn</text>
+  <rect x="430.0" y="60.0" width="100.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="480.0" y="81.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">running</text>
+  <path d="M 480.0,98.0 L 480.0,150.0 L 370.0,150.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="490.0" y="128.0" fill="#b45309" font-size="10" text-anchor="start">preempt / yield</text>
+  <rect x="250.0" y="132.0" width="120.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="310.0" y="148.3" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">waiting</text>
+  <text x="310.0" y="163.3" fill="#475569" font-size="10" text-anchor="middle">chờ I/O, sleep, wait</text>
+  <path d="M 250.0,152.0 L 243.0,152.0 L 243.0,98.0" fill="none" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#arb)"/>
+  <text x="120.0" y="140.0" fill="#1d4ed8" font-size="9" text-anchor="start">I/O hoàn thành /</text>
+  <text x="120.0" y="152.0" fill="#1d4ed8" font-size="9" text-anchor="start">event xảy ra</text>
+  <path d="M 530.0,78.0 L 560.0,78.0 L 560.0,190.0 L 500.0,190.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="568.0" y="140.0" fill="#dc2626" font-size="10" text-anchor="start">exit() / lỗi</text>
+  <rect x="340.0" y="172.0" width="160.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="420.0" y="193.8" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">terminated / zombie</text>
+</svg>
 
 **Giải thích từng trạng thái:**
 

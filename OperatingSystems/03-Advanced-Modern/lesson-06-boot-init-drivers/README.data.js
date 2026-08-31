@@ -28,30 +28,32 @@ Sau bài này bạn sẽ:
 Khi bạn thức dậy, não bộ không "bật ngay" — bạn mở mắt (firmware kiểm tra phần cứng), nhớ lại mình đang ở đâu (bootloader tìm OS), rồi mới có thể suy nghĩ đầy đủ (kernel chạy), và cuối cùng mới tương tác với thế giới (user space). Boot sequence máy tính y hệt vậy: từng lớp kích hoạt lớp tiếp theo.
 
 **Chuỗi đầy đủ:**
-\`\`\`
-[Nhấn nút nguồn]
-      ↓
-[Firmware: BIOS / UEFI]
-  → POST (Power-On Self Test)
-  → Tìm thiết bị khởi động (boot device)
-      ↓
-[Bootloader: GRUB / systemd-boot]
-  → Nạp kernel image vào RAM
-  → Truyền tham số (cmdline, initrd)
-      ↓
-[Kernel initialization]
-  → Giải nén kernel
-  → Thiết lập bộ nhớ, CPU, MMU
-  → Nạp driver thiết yếu (initramfs)
-  → Mount root filesystem
-      ↓
-[init / systemd (PID 1)]
-  → Chạy các service theo thứ tự phụ thuộc
-  → Khởi động network, login manager
-      ↓
-[User space]
-  → Shell / Desktop Environment
-\`\`\`
+<svg viewBox="0 0 560 506" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trình tự boot: nhấn nguồn → BIOS/UEFI (POST) → GRUB nạp kernel → kernel init (initramfs, mount root) → systemd PID 1 → user space">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">Nhấn nút nguồn</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="82.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="84.0" width="380.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="109.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Firmware: BIOS / UEFI</text>
+  <text x="280.0" y="125.2" fill="#475569" font-size="11" text-anchor="middle">POST · tìm boot device</text>
+  <line x1="280.0" y1="144.0" x2="280.0" y2="166.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="168.0" width="380.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="193.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Bootloader: GRUB / systemd-boot</text>
+  <text x="280.0" y="209.2" fill="#475569" font-size="11" text-anchor="middle">nạp kernel image vào RAM, truyền cmdline + initrd</text>
+  <line x1="280.0" y1="228.0" x2="280.0" y2="250.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="252.0" width="380.0" height="72.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="276.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Kernel initialization</text>
+  <text x="280.0" y="292.2" fill="#475569" font-size="11" text-anchor="middle">giải nén, thiết lập bộ nhớ/CPU/MMU,</text>
+  <text x="280.0" y="308.2" fill="#475569" font-size="11" text-anchor="middle">nạp driver thiết yếu (initramfs), mount root FS</text>
+  <line x1="280.0" y1="326.0" x2="280.0" y2="348.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="350.0" width="380.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="375.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">init / systemd (PID 1)</text>
+  <text x="280.0" y="391.2" fill="#475569" font-size="11" text-anchor="middle">chạy service theo phụ thuộc, network, login</text>
+  <line x1="280.0" y1="410.0" x2="280.0" y2="432.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="434.0" width="380.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="459.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">User space</text>
+  <text x="280.0" y="475.2" fill="#475569" font-size="11" text-anchor="middle">Shell / Desktop Environment</text>
+</svg>
 
 ### 1.2. Firmware: BIOS và UEFI
 
@@ -283,19 +285,31 @@ module_exit(my_exit);
 
 ### 3.4. Luồng I/O từ user đến phần cứng
 
-\`\`\`
-User process gọi read("/dev/sda1")
-        ↓
-VFS (Virtual File System) — giao diện file chuẩn
-        ↓
-Block layer — scheduling I/O requests (CFQ, deadline, mq-deadline)
-        ↓
-Device driver (ata_piix, nvme, virtio-blk)
-        ↓
-Hardware controller (DMA transfer)
-        ↓
-Ngắt → ISR → copy vào page cache → wake process
-\`\`\`
+<svg viewBox="0 0 560 482" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đường đi I/O: user process read qua VFS, block layer, device driver, hardware controller (DMA); ngắt ISR copy vào page cache rồi đánh thức process">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="100.0" y="14.0" width="360.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">User process</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">read(&quot;/dev/sda1&quot;)</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="94.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="96.0" width="360.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="121.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">VFS (Virtual File System)</text>
+  <text x="280.0" y="137.2" fill="#475569" font-size="11" text-anchor="middle">giao diện file chuẩn</text>
+  <line x1="280.0" y1="156.0" x2="280.0" y2="176.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="178.0" width="360.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="203.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Block layer</text>
+  <text x="280.0" y="219.2" fill="#475569" font-size="11" text-anchor="middle">scheduling I/O (CFQ, deadline, mq-deadline)</text>
+  <line x1="280.0" y1="238.0" x2="280.0" y2="258.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="260.0" width="360.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="285.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Device driver</text>
+  <text x="280.0" y="301.2" fill="#475569" font-size="11" text-anchor="middle">ata_piix, nvme, virtio-blk</text>
+  <line x1="280.0" y1="320.0" x2="280.0" y2="340.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="342.0" width="360.0" height="58.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="280.0" y="367.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">Hardware controller</text>
+  <text x="280.0" y="383.2" fill="#475569" font-size="11" text-anchor="middle">DMA transfer</text>
+  <line x1="280.0" y1="402.0" x2="280.0" y2="422.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="424.0" width="360.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="450.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Ngắt → ISR → copy vào page cache → wake process</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc:**
 
@@ -377,33 +391,40 @@ Bạn cắm USB Wi-Fi vào laptop Linux. Liệt kê các bước xảy ra từ l
 
 ### Bài 3
 
-\`\`\`
-[Nhấn phím 'A']
-      ↓
-[Bộ điều khiển bàn phím — scan matrix phát tín hiệu điện]
-      ↓
-[Hardware interrupt (IRQ 1) gửi đến CPU qua APIC]
-      ↓
-[CPU: hoàn thành instruction hiện tại, lưu context lên stack]
-      ↓
-[Nhảy vào ISR (top half): kbd_interrupt()]
-  • Đọc scancode từ port 0x60 → 0x1E (phím 'A')
-  • Ghi vào keyboard buffer (ring buffer trong kernel)
-  • Schedule bottom half (softirq)
-  • Gửi EOI đến APIC
-      ↓
-[Bottom half: input_handle_event()]
-  • Chuyển scancode → keycode → ký tự 'A'
-  • Ghi vào terminal line discipline buffer
-      ↓
-[Kernel space: terminal emulator (tty driver)]
-  • Echo ký tự (nếu echo mode bật)
-  • Ghi vào read buffer của file descriptor
-      ↓
-[User space: shell/terminal process]
-  • \`read()\` syscall return với 'A'
-  • Terminal hiển thị 'A' trên màn hình
-\`\`\`
+<svg viewBox="0 0 560 646" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Từ nhấn phím A đến hiển thị: bộ điều khiển bàn phím → IRQ 1 qua APIC → CPU lưu context → ISR top half → bottom half → tty driver → shell read() và hiển thị">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="100.0" y="14.0" width="360.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">Nhấn phím 'A'</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="80.0" width="360.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="105.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Bộ điều khiển bàn phím</text>
+  <text x="280.0" y="121.2" fill="#475569" font-size="11" text-anchor="middle">scan matrix phát tín hiệu điện</text>
+  <line x1="280.0" y1="140.0" x2="280.0" y2="158.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="160.0" width="360.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="185.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Hardware interrupt (IRQ 1)</text>
+  <text x="280.0" y="201.2" fill="#475569" font-size="11" text-anchor="middle">gửi đến CPU qua APIC</text>
+  <line x1="280.0" y1="220.0" x2="280.0" y2="238.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="240.0" width="360.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="265.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">CPU</text>
+  <text x="280.0" y="281.2" fill="#475569" font-size="11" text-anchor="middle">xong instruction hiện tại, lưu context lên stack</text>
+  <line x1="280.0" y1="300.0" x2="280.0" y2="318.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="320.0" width="360.0" height="72.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="344.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">ISR (top half): kbd_interrupt()</text>
+  <text x="280.0" y="360.2" fill="#475569" font-size="11" text-anchor="middle">đọc scancode 0x1E, ghi ring buffer,</text>
+  <text x="280.0" y="376.2" fill="#475569" font-size="11" text-anchor="middle">schedule bottom half, gửi EOI</text>
+  <line x1="280.0" y1="394.0" x2="280.0" y2="412.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="414.0" width="360.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="439.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Bottom half: input_handle_event()</text>
+  <text x="280.0" y="455.2" fill="#475569" font-size="11" text-anchor="middle">scancode → keycode → 'A', ghi line discipline</text>
+  <line x1="280.0" y1="474.0" x2="280.0" y2="492.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="494.0" width="360.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="519.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">tty driver (kernel)</text>
+  <text x="280.0" y="535.2" fill="#475569" font-size="11" text-anchor="middle">echo ký tự, ghi read buffer của fd</text>
+  <line x1="280.0" y1="554.0" x2="280.0" y2="572.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="574.0" width="360.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="599.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">User space: shell/terminal</text>
+  <text x="280.0" y="615.2" fill="#475569" font-size="11" text-anchor="middle">read() trả về 'A', hiển thị lên màn hình</text>
+</svg>
 
 ---
 

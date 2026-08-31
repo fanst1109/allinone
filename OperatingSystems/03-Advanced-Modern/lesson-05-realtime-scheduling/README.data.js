@@ -142,15 +142,29 @@ $\\sum U_i = \\frac{1}{4} + \\frac{2}{6} + \\frac{3}{12} = 0.25 + 0.333 + 0.25 =
 
 **Vẽ timeline t=0..12 với RMS:**
 
-\`\`\`
-t:  0  1  2  3  4  5  6  7  8  9  10  11  12
-τ₁: [1][                ][1][  ][  ][1][             ]
-    ↑ chạy t=0-1        ↑ t=4-5    ↑ t=8-9
-τ₂: [   ][2  ][2][      ][  ][2][2][   ][   ]
-    ↑ t=1-3              ↑ t=5-7
-τ₃: [                    ][3][3][3]
-    ↑ t=9-12
-\`\`\`
+<svg viewBox="0 0 620 160" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lịch Rate Monotonic: τ₁ chạy tại t=0-1, 4-5, 8-9; τ₂ tại t=1-3, 5-7; τ₃ tại t=9-12">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="100.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="560.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">12</text>
+  <line x1="215.0" y1="24.0" x2="215.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="215.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">3</text>
+  <line x1="330.0" y1="24.0" x2="330.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="330.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">6</text>
+  <line x1="445.0" y1="24.0" x2="445.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="445.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">9</text>
+  <line x1="100.0" y1="24.0" x2="100.0" y2="118.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="560.0" y1="24.0" x2="560.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="92.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">τ₁ (P=4)</text>
+  <rect x="100.0" y="32.0" width="38.3" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <rect x="253.3" y="32.0" width="38.3" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <rect x="406.7" y="32.0" width="38.3" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="92.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">τ₂ (P=5)</text>
+  <rect x="138.3" y="62.0" width="76.7" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <rect x="291.7" y="62.0" width="76.7" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="92.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">τ₃ (P=12)</text>
+  <rect x="445.0" y="92.0" width="115.0" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="310.0" y="140.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">số nhỏ = chạy trước; τ₃ ưu tiên thấp nhất chỉ chạy khi CPU rảnh</text>
+</svg>
 
 Chi tiết từng đơn vị thời gian:
 - t=0: τ₁,τ₂,τ₃ đều kích hoạt. τ₁ (cao nhất) chạy → xong lúc t=1.

@@ -112,28 +112,52 @@ Nhà hàng B có 4 đầu bếp: mỗi người nấu 1 món độc lập, thự
 **Ví dụ số với 1 core và 4 core:**
 
 *Hệ thống 1 core, 2 thread A và B, mỗi thread 10ms:*
-```
-Timeline (1 core):
-t=0    t=5    t=10   t=15   t=20
-|--A---|--B---|--A---|--B---|
-         ↑ context switch mỗi 5ms
-
-→ CONCURRENT (đồng thời) nhưng KHÔNG PARALLEL
-→ Tổng thời gian: 20ms (A: 10ms + B: 10ms, xen kẽ nhau)
-→ Wallclock A bắt đầu t=0, kết thúc t=20 (nhưng chỉ dùng CPU 10ms)
-```
+<svg viewBox="0 0 560 130" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="1 core: A và B xen kẽ mỗi 5ms (context switch) — concurrent nhưng không parallel, tổng 20ms">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="90.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="500.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">20ms</text>
+  <line x1="192.5" y1="24.0" x2="192.5" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="192.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">5</text>
+  <line x1="295.0" y1="24.0" x2="295.0" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="295.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">10</text>
+  <line x1="397.5" y1="24.0" x2="397.5" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="397.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">15</text>
+  <line x1="90.0" y1="24.0" x2="90.0" y2="88.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="500.0" y1="24.0" x2="500.0" y2="88.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="82.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">A</text>
+  <rect x="90.0" y="32.0" width="102.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="141.2" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">A</text>
+  <rect x="295.0" y="32.0" width="102.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="346.2" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">A</text>
+  <text x="82.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">B</text>
+  <rect x="192.5" y="62.0" width="102.5" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="243.8" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">B</text>
+  <rect x="397.5" y="62.0" width="102.5" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="448.8" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">B</text>
+  <text x="280.0" y="110.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">CONCURRENT nhưng KHÔNG PARALLEL — tổng 20ms, mỗi task chỉ dùng CPU 10ms</text>
+</svg>
 
 *Hệ thống 2 core, 2 thread A và B:*
-```
-Timeline (2 core):
-t=0    t=5    t=10
-Core1: |----A----|
-Core2: |----B----|
-
-→ CONCURRENT VÀ PARALLEL
-→ Tổng thời gian: 10ms (giảm 2x)
-→ A và B thực sự chạy cùng lúc
-```
+<svg viewBox="0 0 560 130" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="2 core: A và B chạy thật sự cùng lúc trên 2 core, tổng 10ms — concurrent và parallel">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="90.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="500.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">20ms</text>
+  <line x1="192.5" y1="24.0" x2="192.5" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="192.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">5</text>
+  <line x1="295.0" y1="24.0" x2="295.0" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="295.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">10</text>
+  <line x1="397.5" y1="24.0" x2="397.5" y2="88.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="397.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">15</text>
+  <line x1="90.0" y1="24.0" x2="90.0" y2="88.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="500.0" y1="24.0" x2="500.0" y2="88.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="82.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">Core 1</text>
+  <rect x="90.0" y="32.0" width="205.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="192.5" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">A</text>
+  <text x="82.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">Core 2</text>
+  <rect x="90.0" y="62.0" width="205.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="192.5" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">B</text>
+  <text x="280.0" y="110.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">CONCURRENT VÀ PARALLEL — tổng 10ms (giảm 2x)</text>
+</svg>
 
 ### 2.2. Hệ quả thực tế
 

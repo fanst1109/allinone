@@ -55,12 +55,15 @@ Hãy tưởng tượng bạn có một cuốn sách dày 12 trang cần để l�
 
 Địa chỉ ảo (logical address) gồm 2 phần:
 
-```
-┌─────────────────────┬───────────────────┐
-│   Page Number (p)   │   Offset (d)      │
-│  (m - n) bit        │   (n) bit         │
-└─────────────────────┴───────────────────┘
-```
+<svg viewBox="0 0 480 86" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Địa chỉ ảo tách hai phần: Page Number (m−n bit) và Offset (n bit)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="26.0" width="260.0" height="44.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="160.0" y="43.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Page Number (p)</text>
+  <text x="160.0" y="58.0" fill="#475569" font-size="9" text-anchor="middle">(m − n) bit</text>
+  <rect x="290.0" y="26.0" width="160.0" height="44.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="370.0" y="43.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Offset (d)</text>
+  <text x="370.0" y="58.0" fill="#475569" font-size="9" text-anchor="middle">(n) bit</text>
+</svg>
 
 Nếu **kích thước trang $= 2^n$ byte** thì:
 - **$n$ bit thấp nhất** = offset (vị trí trong trang).

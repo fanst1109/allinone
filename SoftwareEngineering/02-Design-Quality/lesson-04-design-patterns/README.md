@@ -66,16 +66,29 @@
 
 **Pattern giải thế nào.** Đưa việc *quyết định tạo loại nào* vào một hàm/method "factory" trả về **interface chung**. Client chỉ phụ thuộc interface `Report`, không biết class cụ thể.
 
-```
-            ┌─────────────┐
-client ───► │  Report     │  (interface: Render())
-            └─────────────┘
-                  ▲   ▲   ▲
-        PDFReport─┘   │   └─HTMLReport
-                  CSVReport
-              ▲
-   NewReport(kind) ──► trả về một trong số đó
-```
+<svg viewBox="0 0 660 224" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Factory: client dùng interface Report (Render); PDFReport, CSVReport, HTMLReport implement nó; NewReport(kind) trả về một implementation">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="60.0" width="80.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="56.0" y="81.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">client</text>
+  <line x1="98.0" y1="78.0" x2="196.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="198.0" y="60.0" width="150.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="273.0" y="76.3" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Report</text>
+  <text x="273.0" y="91.3" fill="#475569" font-size="10" text-anchor="middle">interface: Render()</text>
+  <rect x="110.0" y="160.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="165.0" y="179.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">PDFReport</text>
+  <line x1="165.0" y1="158.0" x2="257.0" y2="104.0" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="240.0" y="160.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="295.0" y="179.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">CSVReport</text>
+  <line x1="295.0" y1="158.0" x2="265.0" y2="104.0" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="370.0" y="160.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="425.0" y="179.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">HTMLReport</text>
+  <line x1="425.0" y1="158.0" x2="273.0" y2="104.0" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="490.0" y="50.0" width="150.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="565.0" y="71.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">NewReport(kind)</text>
+  <text x="565.0" y="110.0" fill="#475569" font-size="10" text-anchor="middle">trả về một trong</text>
+  <text x="565.0" y="124.0" fill="#475569" font-size="10" text-anchor="middle">số các implementation</text>
+  <line x1="488.0" y1="80.0" x2="352.0" y2="86.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+</svg>
 
 ```go
 type Report interface { Render() []byte }
@@ -152,12 +165,21 @@ func GetPool() *Pool {
 
 **Pattern giải thế nào.** Viết một lớp **adapter** "bọc" thư viện và *trình bày* nó dưới interface mà code bạn mong đợi:
 
-```
-client ──► PaymentGateway (interface bạn định nghĩa)
-                  ▲
-          StripeAdapter ──► gọi stripe.CreateCharge(...)
-          (chuyển amount→cents, USD→"usd")
-```
+<svg viewBox="0 0 640 190" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Adapter: client gọi interface PaymentGateway; StripeAdapter implement nó, chuyển đổi đơn vị rồi gọi stripe.CreateCharge">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="80.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="56.0" y="61.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">client</text>
+  <line x1="98.0" y1="58.0" x2="176.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="178.0" y="40.0" width="220.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="288.0" y="56.4" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">PaymentGateway</text>
+  <text x="288.0" y="71.3" fill="#475569" font-size="10" text-anchor="middle">interface bạn định nghĩa</text>
+  <rect x="178.0" y="130.0" width="180.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="268.0" y="146.4" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">StripeAdapter</text>
+  <text x="268.0" y="160.9" fill="#475569" font-size="9" text-anchor="middle">amount→cents, USD→&quot;usd&quot;</text>
+  <line x1="288.0" y1="128.0" x2="288.0" y2="84.0" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="360.0" y1="150.0" x2="428.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="434.0" y="154.0" fill="#475569" font-size="10" text-anchor="start">gọi stripe.CreateCharge(…)</text>
+</svg>
 
 ```go
 type StripeAdapter struct{ client *stripe.Client }

@@ -59,15 +59,27 @@ window.README_MD = `# Lesson 03 — CI/CD (tích hợp & triển khai liên tụ
 
 **Pipeline = chuỗi stage.** CI được tổ chức thành các **stage** (giai đoạn) chạy lần lượt; một stage hỏng thì dừng cả chuỗi (fail fast — báo lỗi sớm để tiết kiệm thời gian):
 
-\`\`\`
-push / mở PR
-   │
-   ▼
-[ lint ] ─► [ build ] ─► [ test ] ─► [ (báo xanh) ]
-  kiểm tra   biên dịch    chạy unit    PR đủ điều kiện
-  style/cú    & đóng gói   + integration   merge
-  pháp        artifact     test
-\`\`\`
+<svg viewBox="0 0 770 112" style="max-width:770px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CI cơ bản: push hoặc mở PR chạy lint, build, test; xanh hết thì PR đủ điều kiện merge">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="120.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="76.0" y="61.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">push / mở PR</text>
+  <line x1="138.0" y1="58.0" x2="176.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="178.0" y="40.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="233.0" y="61.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">lint</text>
+  <text x="233.0" y="96.0" fill="#475569" font-size="9" text-anchor="middle">kiểm tra style/cú pháp</text>
+  <line x1="290.0" y1="58.0" x2="326.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="328.0" y="40.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="383.0" y="61.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">build</text>
+  <text x="383.0" y="96.0" fill="#475569" font-size="9" text-anchor="middle">biên dịch &amp; đóng gói artifact</text>
+  <line x1="440.0" y1="58.0" x2="476.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="478.0" y="40.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="533.0" y="61.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">test</text>
+  <text x="533.0" y="96.0" fill="#475569" font-size="9" text-anchor="middle">unit + integration</text>
+  <line x1="590.0" y1="58.0" x2="626.0" y2="58.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="628.0" y="40.0" width="120.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="688.0" y="61.9" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">báo xanh ✓</text>
+  <text x="688.0" y="96.0" fill="#475569" font-size="9" text-anchor="middle">PR đủ điều kiện merge</text>
+</svg>
 
 **Ví dụ pipeline pseudo-YAML (kiểu GitHub Actions).**
 
@@ -115,13 +127,37 @@ Tổng: lỗi bị bắt sau ~73 giây, *trước khi* lên nhánh chính. So v�
 
 Mẹo nhớ: cả hai viết tắt là **CD**, khác nhau đúng một chữ — *Deli**v**ery* có người duyệt; *Deplo**y**ment* thì không.
 
-\`\`\`
-Continuous DELIVERY:
-  push → [lint→build→test] → staging → ✋ (người duyệt) → production
-
-Continuous DEPLOYMENT:
-  push → [lint→build→test] → staging → (tự động, không hỏi) → production
-\`\`\`
+<svg viewBox="0 0 680 170" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Continuous Delivery cần người duyệt trước production; Continuous Deployment tự động lên production sau khi staging pass">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Continuous DELIVERY:</text>
+  <rect x="16.0" y="40.0" width="60.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="46.0" y="58.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">push</text>
+  <line x1="78.0" y1="55.0" x2="106.0" y2="55.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="108.0" y="40.0" width="140.0" height="30.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="178.0" y="58.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">lint→build→test</text>
+  <line x1="250.0" y1="55.0" x2="278.0" y2="55.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="280.0" y="40.0" width="80.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="320.0" y="58.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">staging</text>
+  <line x1="362.0" y1="55.0" x2="390.0" y2="55.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="392.0" y="40.0" width="130.0" height="30.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="457.0" y="58.5" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">✋ người duyệt</text>
+  <line x1="524.0" y1="55.0" x2="552.0" y2="55.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="554.0" y="40.0" width="100.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="604.0" y="58.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">production</text>
+  <text x="16.0" y="110.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Continuous DEPLOYMENT:</text>
+  <rect x="16.0" y="120.0" width="60.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="46.0" y="138.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">push</text>
+  <line x1="78.0" y1="135.0" x2="106.0" y2="135.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="108.0" y="120.0" width="140.0" height="30.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="178.0" y="138.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">lint→build→test</text>
+  <line x1="250.0" y1="135.0" x2="278.0" y2="135.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="280.0" y="120.0" width="80.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="320.0" y="138.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">staging</text>
+  <line x1="362.0" y1="135.0" x2="552.0" y2="135.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="457.0" y="128.0" fill="#15803d" font-size="10" text-anchor="middle">tự động, không hỏi</text>
+  <rect x="554.0" y="120.0" width="100.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="604.0" y="138.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">production</text>
+</svg>
 
 **Ví dụ số cụ thể.**
 
@@ -152,11 +188,38 @@ Continuous DEPLOYMENT:
 
 **Pipeline điển hình (chi tiết hơn mục 2):**
 
-\`\`\`
-[lint] → [build] → [unit test] → [integration test]
-   → [security scan] → [deploy staging] → [E2E/smoke test]
-   → 🚪 quality gate → [deploy production] → [smoke prod]
-\`\`\`
+<svg viewBox="0 0 720 202" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline đầy đủ: lint → build → unit test → integration test → security scan → deploy staging → E2E/smoke → quality gate → deploy production → smoke prod">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="70.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="51.0" y="40.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">lint</text>
+  <line x1="88.0" y1="37.0" x2="108.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="110.0" y="20.0" width="70.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="145.0" y="40.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">build</text>
+  <line x1="182.0" y1="37.0" x2="202.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="204.0" y="20.0" width="85.5" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="246.8" y="40.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">unit test</text>
+  <line x1="291.5" y1="37.0" x2="311.5" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="313.5" y="20.0" width="138.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="382.5" y="40.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">integration test</text>
+  <line x1="453.5" y1="37.0" x2="473.5" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="475.5" y="20.0" width="115.5" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="533.2" y="40.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">security scan</text>
+  <line x1="593.0" y1="37.0" x2="613.0" y2="37.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="84.0" width="123.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="77.5" y="104.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">deploy staging</text>
+  <line x1="141.0" y1="101.0" x2="161.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="163.0" y="84.0" width="123.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="224.5" y="104.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">E2E/smoke test</text>
+  <line x1="288.0" y1="101.0" x2="308.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="310.0" y="84.0" width="123.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="371.5" y="104.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">🚪 quality gate</text>
+  <line x1="435.0" y1="101.0" x2="455.0" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="457.0" y="84.0" width="145.5" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="529.8" y="104.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">deploy production</text>
+  <line x1="604.5" y1="101.0" x2="624.5" y2="101.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="148.0" width="93.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="62.5" y="168.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">smoke prod</text>
+</svg>
 
 | Stage | Làm gì | Cổng chất lượng ví dụ |
 |-------|--------|----------------------|

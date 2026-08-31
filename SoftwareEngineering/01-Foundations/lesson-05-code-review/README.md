@@ -62,19 +62,31 @@ Reviewer đọc và hỏi: *"Nếu `percent = 150` (lỗi nhập liệu) thì h�
 
 Vòng lặp chuẩn:
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│ 1. Author mở PR  ──►  branch feature → main, mô tả "làm gì/vì sao" │
-│ 2. Reviewer đọc diff  ──►  xem từng file thay đổi               │
-│ 3. Reviewer comment  ──►  hỏi, chỉ vấn đề, gợi ý (theo dòng)    │
-│ 4. Quyết định:                                                 │
-│       • Request changes  ──►  có vấn đề phải sửa               │
-│       • Comment          ──►  góp ý nhưng không chặn           │
-│       • Approve          ──►  ổn rồi, được merge               │
-│ 5. Nếu "request changes": author sửa → đẩy commit mới → quay lại 2 │
-│ 6. Khi đã Approve  ──►  merge vào main  ──►  xóa branch         │
-└──────────────────────────────────────────────────────────────┘
-```
+<svg viewBox="0 0 560 482" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quy trình code review: mở PR, reviewer đọc diff và comment, quyết định request changes (sửa rồi quay lại) hoặc approve rồi merge">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="105.0" y="14.0" width="350.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. Author mở PR</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">branch feature → main, mô tả &quot;làm gì / vì sao&quot;</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="94.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="105.0" y="96.0" width="350.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="121.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">2. Reviewer đọc diff</text>
+  <text x="280.0" y="137.2" fill="#475569" font-size="11" text-anchor="middle">xem từng file thay đổi</text>
+  <line x1="280.0" y1="156.0" x2="280.0" y2="176.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="105.0" y="178.0" width="350.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="203.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">3. Reviewer comment</text>
+  <text x="280.0" y="219.2" fill="#475569" font-size="11" text-anchor="middle">hỏi, chỉ vấn đề, gợi ý (theo dòng)</text>
+  <line x1="280.0" y1="238.0" x2="280.0" y2="258.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="105.0" y="260.0" width="350.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="285.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4. Quyết định</text>
+  <text x="280.0" y="301.2" fill="#475569" font-size="11" text-anchor="middle">Request changes / Comment / Approve</text>
+  <line x1="280.0" y1="320.0" x2="280.0" y2="340.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="105.0" y="342.0" width="350.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="367.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">5. Nếu request changes: author sửa</text>
+  <text x="280.0" y="383.2" fill="#475569" font-size="11" text-anchor="middle">đẩy commit mới → quay lại bước 2</text>
+  <line x1="280.0" y1="402.0" x2="280.0" y2="422.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="105.0" y="424.0" width="350.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="450.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">6. Approve → merge vào main → xóa branch</text>
+</svg>
 
 Ba trạng thái quyết định của reviewer (chuẩn GitHub/GitLab):
 

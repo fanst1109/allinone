@@ -54,21 +54,54 @@ Server listening on :8080                          # chạy giống hệt mọi 
 
 So sánh hai tầng kiến trúc:
 
-\`\`\`
-        MÁY ẢO (VM)                         CONTAINER
- ┌─────┬─────┬─────┐                 ┌─────┬─────┬─────┐
- │App A│App B│App C│                 │App A│App B│App C│
- ├─────┼─────┼─────┤                 ├─────┼─────┼─────┤
- │ Bin │ Bin │ Bin │                 │ Bin │ Bin │ Bin │   ← chỉ phần này
- ├─────┼─────┼─────┤                 └─────┴─────┴─────┘     đóng gói riêng
- │ OS  │ OS  │ OS  │  ← mỗi VM       ┌───────────────────┐
- ├─────┴─────┴─────┤    1 OS đầy đủ  │  Container Engine  │
- │   Hypervisor    │                 ├───────────────────┤
- ├─────────────────┤                 │   OS máy chủ       │ ← CHIA SẺ
- │   Phần cứng     │                 ├───────────────────┤   1 kernel
- └─────────────────┘                 │     Phần cứng      │
-                                     └───────────────────┘
-\`\`\`
+<svg viewBox="0 0 790 206" style="max-width:790px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="VM và container: VM đóng gói cả OS cho từng app trên hypervisor; container chỉ đóng gói app + bin, chia sẻ một kernel qua container engine">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="160.0" y="22.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">MÁY ẢO (VM)</text>
+  <rect x="40.0" y="32.0" width="76.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="78.0" y="49.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">App A</text>
+  <rect x="40.0" y="64.0" width="76.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="78.0" y="81.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Bin</text>
+  <rect x="40.0" y="96.0" width="76.0" height="28.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="78.0" y="113.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">OS</text>
+  <rect x="124.0" y="32.0" width="76.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="162.0" y="49.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">App B</text>
+  <rect x="124.0" y="64.0" width="76.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="162.0" y="81.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Bin</text>
+  <rect x="124.0" y="96.0" width="76.0" height="28.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="162.0" y="113.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">OS</text>
+  <rect x="208.0" y="32.0" width="76.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="246.0" y="49.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">App C</text>
+  <rect x="208.0" y="64.0" width="76.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="246.0" y="81.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Bin</text>
+  <rect x="208.0" y="96.0" width="76.0" height="28.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="246.0" y="113.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">OS</text>
+  <text x="300.0" y="84.0" fill="#475569" font-size="9" text-anchor="start">← mỗi VM 1 OS đầy đủ</text>
+  <rect x="40.0" y="128.0" width="244.0" height="28.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="162.0" y="145.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Hypervisor</text>
+  <rect x="40.0" y="160.0" width="244.0" height="28.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="162.0" y="177.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">Phần cứng</text>
+  <text x="560.0" y="22.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">CONTAINER</text>
+  <rect x="440.0" y="32.0" width="76.0" height="28.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="478.0" y="49.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">App A</text>
+  <rect x="440.0" y="64.0" width="76.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="478.0" y="81.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Bin</text>
+  <rect x="524.0" y="32.0" width="76.0" height="28.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="562.0" y="49.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">App B</text>
+  <rect x="524.0" y="64.0" width="76.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="562.0" y="81.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Bin</text>
+  <rect x="608.0" y="32.0" width="76.0" height="28.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="646.0" y="49.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">App C</text>
+  <rect x="608.0" y="64.0" width="76.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="646.0" y="81.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Bin</text>
+  <text x="700.0" y="52.0" fill="#475569" font-size="9" text-anchor="start">← chỉ phần này</text>
+  <text x="700.0" y="64.0" fill="#475569" font-size="9" text-anchor="start">đóng gói riêng</text>
+  <rect x="440.0" y="96.0" width="244.0" height="28.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="562.0" y="113.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">Container Engine</text>
+  <rect x="440.0" y="128.0" width="244.0" height="28.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="562.0" y="145.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">OS máy chủ — CHIA SẺ 1 kernel</text>
+  <rect x="440.0" y="160.0" width="244.0" height="28.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="562.0" y="177.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">Phần cứng</text>
+</svg>
 
 | Tiêu chí | Máy ảo (VM) | Container |
 |----------|-------------|-----------|

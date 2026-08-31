@@ -224,13 +224,23 @@ Quy trình chuẩn:
 4. **Commit** (hoặc lưu một mốc) khi test xanh.
 5. Lặp lại 2–4 cho tới khi code đủ sạch.
 
-\`\`\`
-[test xanh] → refactor nhỏ → [chạy test]
-                   ↑              │
-                   │   xanh? ─yes─┤→ commit → bước kế
-                   │              │
-                   └──── no ──────┘  (hoàn tác, thử cách khác)
-\`\`\`
+<svg viewBox="0 0 580 190" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng refactor an toàn: từ test xanh, refactor nhỏ, chạy test; xanh thì commit và sang bước kế, đỏ thì hoàn tác thử cách khác">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="50.0" width="110.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="71.0" y="71.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">test xanh</text>
+  <line x1="128.0" y1="68.0" x2="186.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="188.0" y="50.0" width="120.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="248.0" y="71.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">refactor nhỏ</text>
+  <line x1="310.0" y1="68.0" x2="368.0" y2="68.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="370.0" y="50.0" width="110.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="425.0" y="71.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">chạy test</text>
+  <path d="M 482.0,68.0 L 530.0,68.0 L 530.0,120.0 L 500.0,120.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="360.0" y="104.0" width="140.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="430.0" y="123.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">commit → bước kế</text>
+  <text x="536.0" y="96.0" fill="#475569" font-size="10" text-anchor="start">xanh?</text>
+  <path d="M 425.0,88.0 L 425.0,160.0 L 248.0,160.0 L 248.0,88.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="336.0" y="174.0" fill="#dc2626" font-size="10" text-anchor="middle">đỏ → hoàn tác, thử cách khác</text>
+</svg>
 
 > ⚠ **Lỗi thường gặp.** "Refactor một phát cả file rồi mới chạy test." Khi test đỏ, bạn **không biết** bước nào gây hỏng vì đã đổi 20 chỗ. Bước càng to → debug càng đau. Nguyên tắc vàng: **mỗi lần một thay đổi nhỏ, test ngay**.
 

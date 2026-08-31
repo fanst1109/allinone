@@ -100,16 +100,29 @@ Ngoài 4 giá trị còn có **12 nguyên tắc**, nhưng tinh thần gói trong
 
 Kanban (tiếng Nhật: "bảng hiệu") tập trung vào **luồng liên tục**, không chia sprint. Công cụ trung tâm là **bảng Kanban** với các cột thể hiện trạng thái công việc:
 
-```
-┌──────────┬───────────────┬──────────┐
-│  To Do   │  In Progress  │   Done   │
-│          │   (WIP ≤ 3)   │          │
-├──────────┼───────────────┼──────────┤
-│ [Thẻ E]  │ [Thẻ B]       │ [Thẻ A]  │
-│ [Thẻ F]  │ [Thẻ C]       │          │
-│ [Thẻ G]  │ [Thẻ D]       │          │
-└──────────┴───────────────┴──────────┘
-```
+<svg viewBox="0 0 600 200" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng Kanban 3 cột: To Do (thẻ E, F, G), In Progress WIP ≤ 3 (thẻ B, C, D), Done (thẻ A)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="176.0" height="170.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="108.0" y="36.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">To Do</text>
+  <rect x="38.0" y="48.0" width="140.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="108.0" y="67.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Thẻ E</text>
+  <rect x="38.0" y="90.0" width="140.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="108.0" y="109.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Thẻ F</text>
+  <rect x="38.0" y="132.0" width="140.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="108.0" y="151.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Thẻ G</text>
+  <rect x="210.0" y="16.0" width="176.0" height="170.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="298.0" y="36.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">In Progress (WIP ≤ 3)</text>
+  <rect x="228.0" y="48.0" width="140.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="298.0" y="67.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Thẻ B</text>
+  <rect x="228.0" y="90.0" width="140.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="298.0" y="109.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Thẻ C</text>
+  <rect x="228.0" y="132.0" width="140.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="298.0" y="151.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Thẻ D</text>
+  <rect x="400.0" y="16.0" width="176.0" height="170.0" rx="8" fill="#f8fafc" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="488.0" y="36.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Done</text>
+  <rect x="418.0" y="48.0" width="140.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="488.0" y="67.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Thẻ A</text>
+</svg>
 
 Mỗi **thẻ** (card) là một hạng mục công việc; nó *kéo* từ trái sang phải khi tiến triển. Giới hạn **WIP** ghi trên đầu cột: "In Progress ≤ 3" nghĩa là không được có quá 3 thẻ đang làm dở cùng lúc.
 
@@ -186,15 +199,40 @@ Giả sử mỗi việc cần **4 ngày-công** để hoàn thành, một ngư�
 
 **Burndown chart** = đồ thị *điểm còn lại* theo từng ngày trong sprint. Trục Y = điểm còn lại, trục X = ngày. Đường lý tưởng dốc thẳng từ tổng điểm về 0 ở ngày cuối. Đường thực tế cho biết nhóm đang nhanh hay chậm so với lý tưởng:
 
-```
-Điểm
- còn  21 ●╲                        (đường lý tưởng: ╲ thẳng về 0)
- lại     ╲ ●●                       (đường thực tế: ●)
-      ~10  ╲   ●●●                  → nằm TRÊN đường lý tưởng = đang TRỄ
-           ╲      ●●
-        0   ╲________●____________
-            D1  D3  D5  D7  D9  D10 (ngày)
-```
+<svg viewBox="0 0 580 214" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Burndown chart: đường lý tưởng thẳng từ 21 điểm về 0 ở ngày 10; đường thực tế nằm trên lý tưởng — nhóm đang trễ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="70.0" y1="30.0" x2="70.0" y2="180.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <line x1="70.0" y1="180.0" x2="540.0" y2="180.0" stroke="#1a202c" stroke-width="1.6" marker-end="url(#ar)"/>
+  <text x="30.0" y="36.0" fill="#475569" font-size="10" text-anchor="start">Điểm</text>
+  <text x="30.0" y="50.0" fill="#475569" font-size="10" text-anchor="start">còn lại</text>
+  <text x="536.0" y="196.0" fill="#475569" font-size="10" text-anchor="start">ngày</text>
+  <text x="62.0" y="34.0" fill="#475569" font-size="9" text-anchor="end">21</text>
+  <line x1="70.0" y1="30.0" x2="520.0" y2="30.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="62.0" y="112.6" fill="#475569" font-size="9" text-anchor="end">10</text>
+  <line x1="70.0" y1="108.6" x2="520.0" y2="108.6" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="62.0" y="184.0" fill="#475569" font-size="9" text-anchor="end">0</text>
+  <line x1="70.0" y1="180.0" x2="520.0" y2="180.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="70.0" y="196.0" fill="#475569" font-size="9" text-anchor="middle">D1</text>
+  <text x="170.0" y="196.0" fill="#475569" font-size="9" text-anchor="middle">D3</text>
+  <text x="270.0" y="196.0" fill="#475569" font-size="9" text-anchor="middle">D5</text>
+  <text x="370.0" y="196.0" fill="#475569" font-size="9" text-anchor="middle">D7</text>
+  <text x="470.0" y="196.0" fill="#475569" font-size="9" text-anchor="middle">D9</text>
+  <text x="520.0" y="196.0" fill="#475569" font-size="9" text-anchor="middle">D10</text>
+  <line x1="70.0" y1="30.0" x2="520.0" y2="180.0" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="330.0" y="115.7" fill="#94a3b8" font-size="10" text-anchor="start">đường lý tưởng</text>
+  <path d="M 70.0,30.0 L 120.0,44.3 L 170.0,47.9 L 220.0,65.7 L 270.0,72.9 L 320.0,80.0 L 370.0,94.3 L 420.0,101.4 L 470.0,108.6 L 520.0,122.9" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linejoin="round"/>
+  <circle cx="70.0" cy="30.0" r="3.5" fill="#dc2626"/>
+  <circle cx="120.0" cy="44.3" r="3.5" fill="#dc2626"/>
+  <circle cx="170.0" cy="47.9" r="3.5" fill="#dc2626"/>
+  <circle cx="220.0" cy="65.7" r="3.5" fill="#dc2626"/>
+  <circle cx="270.0" cy="72.9" r="3.5" fill="#dc2626"/>
+  <circle cx="320.0" cy="80.0" r="3.5" fill="#dc2626"/>
+  <circle cx="370.0" cy="94.3" r="3.5" fill="#dc2626"/>
+  <circle cx="420.0" cy="101.4" r="3.5" fill="#dc2626"/>
+  <circle cx="470.0" cy="108.6" r="3.5" fill="#dc2626"/>
+  <circle cx="520.0" cy="122.9" r="3.5" fill="#dc2626"/>
+  <text x="420.0" y="72.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">đường thực tế — nằm TRÊN lý tưởng = đang TRỄ</text>
+</svg>
 
 - Đường thực tế **nằm trên** đường lý tưởng → còn nhiều việc hơn dự kiến → *đang trễ*, cần điều chỉnh (cắt phạm vi, gỡ cản trở).
 - **Nằm dưới** → đang nhanh hơn, có thể kéo thêm việc.

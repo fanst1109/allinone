@@ -48,16 +48,21 @@
 
 Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng** xếp chồng, mỗi tầng một trách nhiệm, và **chỉ phụ thuộc xuống dưới**:
 
-```
-┌─────────────────────────────────────┐
-│  Presentation (UI / API controller)  │  ← nhận request, trả response
-├─────────────────────────────────────┤
-│  Business (logic nghiệp vụ, service)  │  ← quy tắc, tính toán
-├─────────────────────────────────────┤
-│  Data (repository, DB, ORM)           │  ← lưu / đọc dữ liệu
-└─────────────────────────────────────┘
-        Phụ thuộc chỉ chảy XUỐNG
-```
+<svg viewBox="0 0 520 254" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc 3 lớp: Presentation → Business → Data, phụ thuộc chỉ chảy xuống">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="340.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Presentation (UI / API controller)</text>
+  <text x="260.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">nhận request, trả response</text>
+  <line x1="260.0" y1="74.0" x2="260.0" y2="96.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="98.0" width="340.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="123.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Business (logic nghiệp vụ, service)</text>
+  <text x="260.0" y="139.2" fill="#475569" font-size="11" text-anchor="middle">quy tắc, tính toán</text>
+  <line x1="260.0" y1="158.0" x2="260.0" y2="180.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="182.0" width="340.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="260.0" y="207.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Data (repository, DB, ORM)</text>
+  <text x="260.0" y="223.2" fill="#475569" font-size="11" text-anchor="middle">lưu / đọc dữ liệu</text>
+  <text x="260.0" y="999.0" fill="#475569" font-size="1" text-anchor="start"></text>
+</svg>
 
 **Ví dụ tình huống — đặt một đơn hàng:**
 1. `OrderController` (presentation) nhận `POST /orders`, parse JSON.
@@ -91,17 +96,30 @@ Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng*
 - **Port (cổng):** một **interface** do lõi định nghĩa — mô tả *cái lõi cần* hoặc *cái lõi cung cấp*, bằng ngôn ngữ nghiệp vụ. Ví dụ: `OrderRepository` (lưu/đọc đơn), `PaymentGateway` (thu tiền).
 - **Adapter (bộ chuyển đổi):** một hiện thực cụ thể của port, sống ở *vòng ngoài*. Ví dụ: `PostgresOrderRepository`, `StripePaymentGateway`, `HttpOrderController`.
 
-```
-            ┌──────────────────────────────┐
-   HTTP  ──►│  Adapter   ┌────────────┐     │
-   (web)    │  (driving) │   LÕI       │     │
-            │            │  NGHIỆP VỤ  │ Port│──► Adapter ──► PostgreSQL
-   CLI   ──►│            │ (domain +   │(out)│   (driven)
-            │            │  use case)  │     │──► Adapter ──► Stripe
-            │            └────────────┘     │
-            └──────────────────────────────┘
-   Adapter ngoài phụ thuộc VÀO Port của lõi (mũi tên hướng vào trong)
-```
+<svg viewBox="0 0 760 236" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Kiến trúc hexagonal: HTTP và CLI đi qua adapter driving vào lõi nghiệp vụ; lõi mở Port ra adapter driven tới PostgreSQL và Stripe">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="150.0" y="30.0" width="300.0" height="170.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="50.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">Adapter (driving)</text>
+  <rect x="210.0" y="64.0" width="180.0" height="100.0" rx="10" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="105.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">LÕI NGHIỆP VỤ</text>
+  <text x="300.0" y="122.0" fill="#475569" font-size="10" text-anchor="middle">domain + use case</text>
+  <text x="420.0" y="74.0" fill="#7c3aed" font-size="9" text-anchor="middle">Port (out)</text>
+  <text x="60.0" y="88.0" fill="#475569" font-size="10" text-anchor="end">HTTP (web)</text>
+  <line x1="66.0" y1="84.0" x2="148.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="60.0" y="130.0" fill="#475569" font-size="10" text-anchor="end">CLI</text>
+  <line x1="66.0" y1="126.0" x2="148.0" y2="126.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <line x1="452.0" y1="90.0" x2="520.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="522.0" y="72.0" width="110.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="577.0" y="93.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Adapter (driven)</text>
+  <line x1="634.0" y1="90.0" x2="660.0" y2="90.0" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="662.0" y="94.0" fill="#15803d" font-size="10" text-anchor="start">PostgreSQL</text>
+  <line x1="452.0" y1="140.0" x2="520.0" y2="140.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="522.0" y="122.0" width="110.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="577.0" y="143.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Adapter (driven)</text>
+  <text x="662.0" y="144.0" fill="#15803d" font-size="10" text-anchor="start">Stripe</text>
+  <line x1="634.0" y1="140.0" x2="660.0" y2="140.0" stroke="#1a202c" stroke-width="1.8"/>
+  <text x="400.0" y="220.0" fill="#475569" font-size="10" text-anchor="middle">Adapter ngoài phụ thuộc VÀO Port của lõi (mũi tên hướng vào trong)</text>
+</svg>
 
 **Vì sao dễ test?** Lõi chỉ biết *interface* `PaymentGateway`, không biết Stripe. Khi viết unit test, ta cắm một **adapter giả** (`FakePaymentGateway` trả về "thành công" tức thì) thay cho Stripe thật. Test chạy **không cần mạng, không cần thẻ thật, mili-giây** mà vẫn kiểm tra đúng logic "đơn được đánh dấu đã-thanh-toán khi gateway trả OK".
 
@@ -147,19 +165,35 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 - **Monolith:** toàn bộ ứng dụng là **một đơn vị triển khai** (một tiến trình, một codebase, thường một database). Các module gọi nhau bằng *lời gọi hàm trong bộ nhớ*.
 - **Microservices:** hệ thống chia thành **nhiều service nhỏ, độc lập triển khai**, mỗi service một trách nhiệm nghiệp vụ và (lý tưởng) một database riêng. Giao tiếp qua **mạng** (HTTP/REST, gRPC, hoặc message queue).
 
-```
-   MONOLITH                          MICROSERVICES
- ┌───────────────┐          ┌────────┐  HTTP/  ┌────────┐
- │ ┌─────┐┌─────┐│          │ Order  │ ◄─────► │Payment │
- │ │Order││Pay  ││          │  svc   │  gRPC   │  svc   │
- │ └─────┘└─────┘│          └───┬────┘         └───┬────┘
- │ ┌─────┐┌─────┐│              │ DB-A             │ DB-B
- │ │User ││Ship ││          ┌───┴────┐         ┌───┴────┐
- │ └─────┘└─────┘│          │ User   │         │Shipping│
- │   1 database  │          │  svc   │         │  svc   │
- └───────────────┘          └────────┘         └────────┘
-  1 tiến trình, gọi hàm     N tiến trình, gọi qua mạng
-```
+<svg viewBox="0 0 680 200" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Monolith (1 tiến trình, 1 database, gọi hàm) so với microservices (Order, Payment, User, Shipping riêng, DB riêng, gọi HTTP/gRPC)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="130.0" y="22.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">MONOLITH</text>
+  <rect x="30.0" y="32.0" width="200.0" height="150.0" rx="10" fill="#f8fafc" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="48.0" y="44.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="88.0" y="64.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Order</text>
+  <rect x="138.0" y="44.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="178.0" y="64.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Pay</text>
+  <rect x="48.0" y="90.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="88.0" y="110.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">User</text>
+  <rect x="138.0" y="90.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="178.0" y="110.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Ship</text>
+  <text x="130.0" y="158.0" fill="#475569" font-size="9" text-anchor="middle">1 database · 1 tiến trình, gọi hàm</text>
+  <text x="480.0" y="22.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">MICROSERVICES</text>
+  <rect x="330.0" y="40.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="385.0" y="63.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Order svc</text>
+  <rect x="530.0" y="40.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="585.0" y="63.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Payment svc</text>
+  <rect x="330.0" y="120.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="385.0" y="143.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">User svc</text>
+  <rect x="530.0" y="120.0" width="110.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="585.0" y="143.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Shipping svc</text>
+  <line x1="442.0" y1="60.0" x2="528.0" y2="60.0" stroke="#7c3aed" stroke-width="1.6" marker-end="url(#arp)"/>
+  <line x1="528.0" y1="52.0" x2="442.0" y2="52.0" stroke="#7c3aed" stroke-width="1.6" marker-end="url(#arp)"/>
+  <text x="485.0" y="44.0" fill="#7c3aed" font-size="9" text-anchor="middle">HTTP/gRPC</text>
+  <text x="385.0" y="102.0" fill="#475569" font-size="9" text-anchor="middle">DB-A</text>
+  <text x="585.0" y="102.0" fill="#475569" font-size="9" text-anchor="middle">DB-B</text>
+  <text x="485.0" y="182.0" fill="#475569" font-size="9" text-anchor="middle">N tiến trình, gọi qua mạng</text>
+</svg>
 
 **Bảng so sánh:**
 
@@ -196,13 +230,33 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 - **Sự kiện (event):** một sự thật đã xảy ra trong quá khứ, vd `OrderPlaced`, `PaymentReceived`. Producer (bên phát) *không biết* consumer (bên nhận) là ai.
 - **Message queue / broker** (Kafka, RabbitMQ, SQS): trung gian lưu trữ và chuyển sự kiện, **tách rời** (decouple) producer khỏi consumer cả về *thời gian* lẫn *danh tính*.
 
-```
-                          ┌─► [Inventory svc]  (trừ kho)
- [Order svc] ──OrderPlaced──►│ MESSAGE   ┌─► [Email svc]  (gửi mail xác nhận)
-   (producer)              └─► QUEUE  ──►├─► [Analytics]  (ghi thống kê)
-                                          └─► [Shipping]   (tạo phiếu giao)
-        Producer phát 1 sự kiện → nhiều consumer xử lý độc lập, bất đồng bộ
-```
+<svg viewBox="0 0 660 232" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Event-driven: Order svc phát OrderPlaced vào message queue; Inventory, Email, Analytics, Shipping tiêu thụ độc lập">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="70.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="71.0" y="86.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Order svc</text>
+  <text x="71.0" y="101.3" fill="#475569" font-size="10" text-anchor="middle">(producer)</text>
+  <line x1="128.0" y1="90.0" x2="196.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="162.0" y="83.0" fill="#475569" font-size="9" text-anchor="middle">OrderPlaced</text>
+  <rect x="198.0" y="70.0" width="130.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="263.0" y="93.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">MESSAGE QUEUE</text>
+  <path d="M 328.0,90.0 L 360.0,90.0 L 360.0,32.0 L 388.0,32.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="16.0" width="120.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="35.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Inventory svc</text>
+  <text x="518.0" y="36.0" fill="#475569" font-size="10" text-anchor="start">trừ kho</text>
+  <path d="M 328.0,90.0 L 360.0,90.0 L 360.0,78.0 L 388.0,78.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="62.0" width="120.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="81.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Email svc</text>
+  <text x="518.0" y="82.0" fill="#475569" font-size="10" text-anchor="start">gửi mail xác nhận</text>
+  <path d="M 328.0,90.0 L 360.0,90.0 L 360.0,124.0 L 388.0,124.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="108.0" width="120.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="127.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Analytics</text>
+  <text x="518.0" y="128.0" fill="#475569" font-size="10" text-anchor="start">ghi thống kê</text>
+  <path d="M 328.0,90.0 L 360.0,90.0 L 360.0,170.0 L 388.0,170.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="154.0" width="120.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="450.0" y="173.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Shipping</text>
+  <text x="518.0" y="174.0" fill="#475569" font-size="10" text-anchor="start">tạo phiếu giao</text>
+  <text x="330.0" y="216.0" fill="#475569" font-size="10" text-anchor="middle">producer phát 1 sự kiện → nhiều consumer xử lý độc lập, bất đồng bộ</text>
+</svg>
 
 **Ví dụ tình huống.** Khách đặt hàng. Service Order chỉ làm *một việc*: lưu đơn + phát `OrderPlaced`. Bốn việc còn lại (trừ kho, gửi mail, ghi analytics, tạo phiếu giao) do bốn consumer tự xử lý khi rảnh. Thêm tính năng mới ("tích điểm thưởng") = thêm một consumer mới *nghe cùng sự kiện*, **không sửa Order service**.
 

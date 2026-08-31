@@ -54,13 +54,29 @@
 
 💡 **Trực giác.** Load balancer (LB — bộ cân bằng tải) là "người điều phối khách" ở cửa quán: client gửi request tới LB, LB chọn một trong N server phía sau để chuyển request tới. Người dùng chỉ thấy một địa chỉ duy nhất; phía sau có thể là 3 hay 300 máy.
 
-```
-                 ┌──────────┐
-   client ──►    │   Load   │ ──► server 1
-   client ──►    │ Balancer │ ──► server 2
-   client ──►    │          │ ──► server 3
-                 └──────────┘
-```
+<svg viewBox="0 0 520 140" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Load balancer: nhiều client gọi vào một LB, LB phân phối cho server 1, 2, 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="80.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="56.0" y="38.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">client</text>
+  <path d="M 96.0,35.0 L 140.0,35.0 L 140.0,75.0 L 178.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="60.0" width="80.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="56.0" y="78.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">client</text>
+  <path d="M 96.0,75.0 L 140.0,75.0 L 140.0,75.0 L 178.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="16.0" y="100.0" width="80.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="56.0" y="118.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">client</text>
+  <path d="M 96.0,115.0 L 140.0,115.0 L 140.0,75.0 L 178.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="180.0" y="55.0" width="130.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="245.0" y="78.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Load Balancer</text>
+  <path d="M 310.0,75.0 L 350.0,75.0 L 350.0,35.0 L 388.0,35.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="20.0" width="100.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="38.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">server 1</text>
+  <path d="M 310.0,75.0 L 350.0,75.0 L 350.0,75.0 L 388.0,75.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="60.0" width="100.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="78.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">server 2</text>
+  <path d="M 310.0,75.0 L 350.0,75.0 L 350.0,115.0 L 388.0,115.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="390.0" y="100.0" width="100.0" height="30.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="118.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">server 3</text>
+</svg>
 
 ### 2.1 Các thuật toán phân phối
 
@@ -155,11 +171,31 @@ Vài chiến lược cơ bản:
 
 Hầu hết hệ thống **đọc nhiều hơn ghi rất nhiều** (vd mạng xã hội: 1 bài đăng được đọc hàng nghìn lần). Giải pháp: một **primary** (master) nhận mọi lệnh ghi, rồi sao chép dữ liệu sang nhiều **read replica**; các lệnh đọc chia đều cho replica.
 
-```
-   ghi ──► [Primary] ──(replicate)──► [Replica 1] ◄── đọc
-                       ──(replicate)──► [Replica 2] ◄── đọc
-                       ──(replicate)──► [Replica 3] ◄── đọc
-```
+<svg viewBox="0 0 520 166" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Read replica: ghi vào Primary, Primary replicate sang Replica 1, 2, 3; đọc từ replica">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="30.0" y="44.0" fill="#475569" font-size="11" text-anchor="start">ghi</text>
+  <line x1="56.0" y1="40.0" x2="96.0" y2="40.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="98.0" y="22.0" width="110.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="153.0" y="43.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Primary</text>
+  <path d="M 208.0,40.0 L 250.0,40.0 L 250.0,32.0 L 288.0,32.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="268.0" y="24.0" fill="#475569" font-size="8" text-anchor="middle">replicate</text>
+  <rect x="290.0" y="16.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="345.0" y="35.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Replica 1</text>
+  <line x1="448.0" y1="32.0" x2="404.0" y2="32.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="452.0" y="36.0" fill="#475569" font-size="10" text-anchor="start">đọc</text>
+  <path d="M 208.0,40.0 L 250.0,40.0 L 250.0,78.0 L 288.0,78.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="268.0" y="70.0" fill="#475569" font-size="8" text-anchor="middle">replicate</text>
+  <rect x="290.0" y="62.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="345.0" y="81.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Replica 2</text>
+  <line x1="448.0" y1="78.0" x2="404.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="452.0" y="82.0" fill="#475569" font-size="10" text-anchor="start">đọc</text>
+  <path d="M 208.0,40.0 L 250.0,40.0 L 250.0,124.0 L 288.0,124.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="268.0" y="116.0" fill="#475569" font-size="8" text-anchor="middle">replicate</text>
+  <rect x="290.0" y="108.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="345.0" y="127.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Replica 3</text>
+  <line x1="448.0" y1="124.0" x2="404.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="452.0" y="128.0" fill="#475569" font-size="10" text-anchor="start">đọc</text>
+</svg>
 
 **Ví dụ số cụ thể.** Tỷ lệ đọc:ghi = 90:10. Một primary chịu được 1.000 thao tác/giây. Thêm 3 read replica → tải đọc chia 3, hệ thống phục vụ được tổng ~**3.700 thao tác/giây** (3 replica × ~900 đọc + primary lo ghi) — mà chỉ cần thêm máy đọc, không đổi logic ghi.
 
@@ -185,12 +221,28 @@ Read replica giúp **đọc** nhưng mọi lệnh **ghi** vẫn dồn vào một
 
 💡 **Trực giác.** Tưởng tượng quán cà phê: bạn gọi món, nhân viên ghi vào một **hàng đợi phiếu** rồi nói "xong, gọi tên khi có". Bạn không đứng đợi tại quầy chặn người sau — pha chế xử lý phiếu *bất đồng bộ*. Message queue (hàng đợi tin nhắn) làm đúng điều đó cho hệ thống: tách việc *nhận yêu cầu* khỏi việc *xử lý yêu cầu*.
 
-```
-   request ──► [API: ghi job vào queue] ──► trả "đã nhận" (nhanh)
-                          │
-                       [Queue] ──► [Worker 1] xử lý nền
-                                ──► [Worker 2] xử lý nền
-```
+<svg viewBox="0 0 620 186" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Async qua queue: API ghi job vào queue rồi trả &quot;đã nhận&quot; ngay; Worker 1, 2 xử lý nền">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="20.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="41.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">request</text>
+  <line x1="108.0" y1="38.0" x2="166.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="168.0" y="20.0" width="190.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="263.0" y="41.9" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">API: ghi job vào queue</text>
+  <line x1="360.0" y1="38.0" x2="418.0" y2="38.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="420.0" y="20.0" width="140.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="490.0" y="34.4" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả &quot;đã nhận&quot;</text>
+  <text x="490.0" y="48.9" fill="#475569" font-size="9" text-anchor="middle">(nhanh)</text>
+  <line x1="263.0" y1="58.0" x2="263.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="213.0" y="88.0" width="100.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="263.0" y="108.8" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Queue</text>
+  <path d="M 315.0,105.0 L 345.0,105.0 L 345.0,93.0 L 378.0,93.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="380.0" y="76.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="96.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Worker 1</text>
+  <path d="M 315.0,105.0 L 345.0,105.0 L 345.0,139.0 L 378.0,139.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="380.0" y="122.0" width="120.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="440.0" y="142.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">Worker 2</text>
+  <text x="440.0" y="172.0" fill="#475569" font-size="10" text-anchor="middle">xử lý nền</text>
+</svg>
 
 **Ví dụ số cụ thể (tách tải đỉnh).** Một trang bán vé concert: lúc mở bán có **đỉnh 50.000 request trong 10 giây** (5.000 QPS). Nếu mỗi request phải xử lý đồng bộ (ghi DB, gửi email, dựng QR) mất 200 ms thì DB sập. Thay vào đó:
 - API chỉ ghi mỗi yêu cầu vào queue (~2 ms/request) → chịu được đỉnh, trả "đang xử lý" ngay.
@@ -248,11 +300,25 @@ Bài kinh điển: thiết kế dịch vụ như bit.ly — nhận URL dài, tr�
 - Dung lượng: mỗi bản ghi ~500 byte × 100 triệu/tháng × 12 ≈ **~600 GB/năm**.
 
 **Bước 2 — Các thành phần.**
-```
-client ──► LB ──► service (stateless, nhiều bản) ──► cache (Redis) ──► DB
-                                                       │
-                                              (miss thì vào DB)
-```
+<svg viewBox="0 0 700 140" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi chuẩn: client → LB → service stateless nhiều bản → cache Redis → DB (cache miss mới chạm DB)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="80.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="56.0" y="60.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">client</text>
+  <line x1="98.0" y1="57.0" x2="136.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="138.0" y="40.0" width="60.0" height="34.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="168.0" y="60.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">LB</text>
+  <line x1="200.0" y1="57.0" x2="238.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="240.0" y="40.0" width="170.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="325.0" y="60.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">service (stateless, ×N)</text>
+  <line x1="412.0" y1="57.0" x2="450.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="452.0" y="40.0" width="120.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="512.0" y="60.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">cache (Redis)</text>
+  <line x1="574.0" y1="57.0" x2="612.0" y2="57.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="614.0" y="40.0" width="60.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="644.0" y="60.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">DB</text>
+  <path d="M 512.0,76.0 L 512.0,110.0 L 644.0,110.0 L 644.0,76.0" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+  <text x="578.0" y="124.0" fill="#475569" font-size="10" text-anchor="middle">miss thì vào DB</text>
+</svg>
 
 **Bước 3 — Nút thắt & cách giải.**
 - Đọc 4.000 QPS dồn vào DB → **nút thắt**. Giải: **cache** các URL hot (URL viral được mở hàng triệu lần). Với hit rate 90%, DB chỉ còn ~400 QPS → dễ thở. Thêm CDN/cache cho redirect càng tốt.

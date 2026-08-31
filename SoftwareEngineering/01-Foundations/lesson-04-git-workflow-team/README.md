@@ -71,19 +71,39 @@ Những hậu quả cụ thể:
 7. Xóa branch:             git branch -d feature/gio-hang
 ```
 
-### 2.2 Sơ đồ branch (ascii)
+### 2.2 Sơ đồ branch
 
 Hai người làm hai tính năng song song, không giẫm chân nhau:
 
-```
-                  feature/gio-hang
-                 ●────●────●  (An)
-                /           \
-   main  ●────●─────────────●────●   ← merge giỏ hàng rồi merge tìm kiếm
-                \                /
-                 ●────●────●────  (Bình)
-                  feature/tim-kiem
-```
+<svg viewBox="0 0 620 214" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai feature branch song song: An làm feature/gio-hang, Bình làm feature/tim-kiem, cả hai rẽ từ main rồi merge lại thành M1, M2">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="100.0" y1="110.0" x2="160.0" y2="110.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="160.0" y1="110.0" x2="200.0" y2="40.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="200.0" y1="40.0" x2="270.0" y2="40.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="270.0" y1="40.0" x2="340.0" y2="40.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="340.0" y1="40.0" x2="430.0" y2="110.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="160.0" y1="110.0" x2="220.0" y2="180.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="220.0" y1="180.0" x2="290.0" y2="180.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="290.0" y1="180.0" x2="360.0" y2="180.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="360.0" y1="180.0" x2="520.0" y2="110.0" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="430.0" y1="110.0" x2="520.0" y2="110.0" stroke="#1a202c" stroke-width="1.8"/>
+  <circle cx="200.0" cy="40.0" r="8" fill="#15803d"/>
+  <circle cx="270.0" cy="40.0" r="8" fill="#15803d"/>
+  <circle cx="340.0" cy="40.0" r="8" fill="#15803d"/>
+  <circle cx="100.0" cy="110.0" r="8" fill="#1d4ed8"/>
+  <circle cx="160.0" cy="110.0" r="8" fill="#1d4ed8"/>
+  <circle cx="430.0" cy="110.0" r="8" fill="#1d4ed8"/>
+  <circle cx="520.0" cy="110.0" r="8" fill="#1d4ed8"/>
+  <circle cx="220.0" cy="180.0" r="8" fill="#7c3aed"/>
+  <circle cx="290.0" cy="180.0" r="8" fill="#7c3aed"/>
+  <circle cx="360.0" cy="180.0" r="8" fill="#7c3aed"/>
+  <text x="360.0" y="26.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">feature/gio-hang (An)</text>
+  <text x="60.0" y="114.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">main</text>
+  <text x="380.0" y="196.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">feature/tim-kiem (Bình)</text>
+  <text x="430.0" y="92.0" fill="#475569" font-size="9" text-anchor="middle">M1</text>
+  <text x="520.0" y="92.0" fill="#475569" font-size="9" text-anchor="middle">M2</text>
+  <text x="475.0" y="134.0" fill="#475569" font-size="9" text-anchor="middle">merge giỏ hàng rồi merge tìm kiếm</text>
+</svg>
 
 - `main` luôn sạch; mỗi `●` rẽ nhánh là một commit cô lập trên branch riêng.
 - Hai branch tiến hành **song song**; chỉ hợp nhất vào `main` khi từng cái xong và được duyệt.
@@ -124,15 +144,54 @@ GitFlow định nghĩa các loại branch cố định:
 | **`release/*`** | Chuẩn bị phát hành: sửa lỗi cuối, đóng băng tính năng | Ngắn |
 | **`hotfix/*`** | Sửa lỗi khẩn cấp trên production, rẽ từ `main` | Rất ngắn |
 
-```
-main      ●───────────────●(v1.0)───────────●(v1.1)
-                         /        \         /
-release   .          ●──●          \   ●──●
-                    /                \ /
-develop   ●──●──●──●────●──●──●───────●────●──●
-              \  /        \  /
-feature        ●           ●   (mỗi tính năng rẽ ra & gộp lại develop)
-```
+<svg viewBox="0 0 660 260" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Gitflow: feature rẽ từ develop và gộp lại; release tách từ develop rồi merge vào main tạo v1.0, v1.1">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="50.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">main</text>
+  <text x="50.0" y="99.0" fill="#b45309" font-size="11" text-anchor="end" font-weight="700">release</text>
+  <text x="50.0" y="154.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">develop</text>
+  <text x="50.0" y="209.0" fill="#7c3aed" font-size="11" text-anchor="end" font-weight="700">feature</text>
+  <line x1="80.0" y1="40.0" x2="620.0" y2="40.0" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="80.0" y1="150.0" x2="620.0" y2="150.0" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="80.0" y1="40.0" x2="300.0" y2="40.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="300.0" y1="40.0" x2="540.0" y2="40.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="80.0" y1="150.0" x2="130.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="130.0" y1="150.0" x2="180.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="180.0" y1="150.0" x2="230.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="230.0" y1="150.0" x2="300.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="300.0" y1="150.0" x2="360.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="360.0" y1="150.0" x2="420.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="420.0" y1="150.0" x2="480.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="480.0" y1="150.0" x2="540.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="540.0" y1="150.0" x2="590.0" y2="150.0" stroke="#15803d" stroke-width="1.8"/>
+  <line x1="230.0" y1="150.0" x2="265.0" y2="95.0" stroke="#b45309" stroke-width="1.8"/>
+  <line x1="265.0" y1="95.0" x2="300.0" y2="40.0" stroke="#b45309" stroke-width="1.8"/>
+  <line x1="480.0" y1="150.0" x2="510.0" y2="95.0" stroke="#b45309" stroke-width="1.8"/>
+  <line x1="510.0" y1="95.0" x2="540.0" y2="40.0" stroke="#b45309" stroke-width="1.8"/>
+  <line x1="130.0" y1="150.0" x2="155.0" y2="205.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="155.0" y1="205.0" x2="180.0" y2="150.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="360.0" y1="150.0" x2="390.0" y2="205.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="390.0" y1="205.0" x2="420.0" y2="150.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <circle cx="80.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="300.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="540.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <text x="300.0" y="28.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">v1.0</text>
+  <text x="540.0" y="28.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">v1.1</text>
+  <circle cx="265.0" cy="95.0" r="7" fill="#b45309"/>
+  <circle cx="510.0" cy="95.0" r="7" fill="#b45309"/>
+  <circle cx="80.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="130.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="180.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="230.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="300.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="360.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="420.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="480.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="540.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="590.0" cy="150.0" r="7" fill="#15803d"/>
+  <circle cx="155.0" cy="205.0" r="7" fill="#7c3aed"/>
+  <circle cx="390.0" cy="205.0" r="7" fill="#7c3aed"/>
+  <text x="300.0" y="235.0" fill="#475569" font-size="10" text-anchor="middle">mỗi tính năng rẽ ra từ develop và gộp lại develop; release tách từ develop, merge vào main (gắn tag v1.0, v1.1)</text>
+</svg>
 
 - Luồng chính: `feature` → `develop` → (đến kỳ release) `release` → `main` (+ gắn tag version).
 - `hotfix` rẽ thẳng từ `main` để vá production gấp, rồi merge ngược về cả `main` và `develop`.
@@ -145,11 +204,34 @@ feature        ●           ●   (mỗi tính năng rẽ ra & gộp lại deve
 
 Trunk-Based giảm tối đa số branch: chỉ một nhánh chính (`main`, gọi là "trunk"), mọi người tạo **branch ngắn** (sống vài giờ tới 1-2 ngày) rồi merge vào `main` thật nhanh.
 
-```
-main  ●──●──●──●──●──●──●──●──●   ← merge liên tục, nhiều lần mỗi ngày
-       \    \      \    \
-        ●    ●      ●    ●         ← branch siêu ngắn: tạo sáng, merge chiều
-```
+<svg viewBox="0 0 660 140" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trunk-based development: main nhận merge liên tục nhiều lần mỗi ngày, các branch siêu ngắn tạo sáng merge chiều">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="50.0" y="44.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">main</text>
+  <line x1="80.0" y1="40.0" x2="600.0" y2="40.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <circle cx="80.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="142.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="204.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="266.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="328.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="390.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="452.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="514.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <circle cx="576.0" cy="40.0" r="7" fill="#1d4ed8"/>
+  <line x1="110.0" y1="40.0" x2="130.0" y2="90.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="130.0" y1="90.0" x2="162.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <circle cx="130.0" cy="90.0" r="7" fill="#15803d"/>
+  <line x1="230.0" y1="40.0" x2="250.0" y2="90.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="250.0" y1="90.0" x2="282.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <circle cx="250.0" cy="90.0" r="7" fill="#15803d"/>
+  <line x1="390.0" y1="40.0" x2="410.0" y2="90.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="410.0" y1="90.0" x2="442.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <circle cx="410.0" cy="90.0" r="7" fill="#15803d"/>
+  <line x1="510.0" y1="40.0" x2="530.0" y2="90.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="530.0" y1="90.0" x2="562.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <circle cx="530.0" cy="90.0" r="7" fill="#15803d"/>
+  <text x="340.0" y="20.0" fill="#1d4ed8" font-size="10" text-anchor="middle">merge liên tục, nhiều lần mỗi ngày</text>
+  <text x="340.0" y="120.0" fill="#15803d" font-size="10" text-anchor="middle">branch siêu ngắn: tạo sáng, merge chiều</text>
+</svg>
 
 - Branch chỉ tồn tại đủ để làm một thay đổi nhỏ + review nhanh, rồi merge ngay.
 - Vì merge thường xuyên, mọi người luôn làm trên code gần nhất → ít xung đột, xung đột nhỏ.
@@ -255,12 +337,41 @@ giaVAT := math.Round(giaGoc * 1.10)   // làm tròn
 
 ### 5.1 merge — giữ lịch sử nhánh
 
-```
-        A───B───C  feature
-       /         \
-●───●──────────────M  main   ← M là "merge commit" nối hai nhánh
-       D───E
-```
+<svg viewBox="0 0 580 190" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Merge commit: feature A-B-C và chuỗi D-E cùng đổ về commit M trên main">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="40.0" y="104.0" fill="#1d4ed8" font-size="10" text-anchor="end" font-weight="700">main</text>
+  <line x1="60.0" y1="100.0" x2="130.0" y2="100.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="130.0" y1="100.0" x2="200.0" y2="100.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="200.0" y1="100.0" x2="480.0" y2="100.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="130.0" y1="100.0" x2="200.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="200.0" y1="40.0" x2="270.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="270.0" y1="40.0" x2="340.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="340.0" y1="40.0" x2="410.0" y2="40.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="410.0" y1="40.0" x2="480.0" y2="100.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="130.0" y1="100.0" x2="200.0" y2="160.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="200.0" y1="160.0" x2="270.0" y2="160.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="270.0" y1="160.0" x2="340.0" y2="160.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="340.0" y1="160.0" x2="480.0" y2="100.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <circle cx="60.0" cy="100.0" r="7" fill="#1d4ed8"/>
+  <circle cx="130.0" cy="100.0" r="7" fill="#1d4ed8"/>
+  <circle cx="200.0" cy="100.0" r="7" fill="#1d4ed8"/>
+  <circle cx="480.0" cy="100.0" r="7" fill="#1d4ed8"/>
+  <circle cx="200.0" cy="40.0" r="7" fill="#15803d"/>
+  <text x="200.0" y="28.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="270.0" cy="40.0" r="7" fill="#15803d"/>
+  <text x="270.0" y="28.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="340.0" cy="40.0" r="7" fill="#15803d"/>
+  <text x="340.0" y="28.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="410.0" cy="40.0" r="7" fill="#15803d"/>
+  <circle cx="200.0" cy="160.0" r="7" fill="#7c3aed"/>
+  <text x="200.0" y="180.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="270.0" cy="160.0" r="7" fill="#7c3aed"/>
+  <text x="270.0" y="180.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">E</text>
+  <circle cx="340.0" cy="160.0" r="7" fill="#7c3aed"/>
+  <text x="480.0" y="84.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">M</text>
+  <text x="480.0" y="130.0" fill="#475569" font-size="10" text-anchor="middle">M là &quot;merge commit&quot; nối hai nhánh</text>
+  <text x="305.0" y="24.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">feature</text>
+</svg>
 
 - Tạo một **merge commit** (`M`) có *hai cha*. Lịch sử rẽ nhánh được giữ nguyên.
 - Lệnh: trên `main`, `git merge feature`.
@@ -269,14 +380,50 @@ giaVAT := math.Round(giaGoc * 1.10)   // làm tròn
 
 ### 5.2 rebase — làm phẳng lịch sử
 
-```
-trước:  ●───●───D───E        main
-              \
-               A───B───C      feature
-
-sau rebase feature lên main:
-        ●───●───D───E───A'──B'──C'   ← A,B,C được "chép lại" thành A',B',C' lên đỉnh main
-```
+<svg viewBox="0 0 580 246" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Rebase: trước — feature A-B-C rẽ từ main tại D; sau rebase — A', B', C' được chép lại nối thẳng sau E trên main">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="20.0" y="30.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">trước:</text>
+  <line x1="90.0" y1="50.0" x2="150.0" y2="50.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="150.0" y1="50.0" x2="210.0" y2="50.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="210.0" y1="50.0" x2="270.0" y2="50.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <circle cx="90.0" cy="50.0" r="7" fill="#1d4ed8"/>
+  <circle cx="150.0" cy="50.0" r="7" fill="#1d4ed8"/>
+  <circle cx="210.0" cy="50.0" r="7" fill="#1d4ed8"/>
+  <text x="210.0" y="38.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="270.0" cy="50.0" r="7" fill="#1d4ed8"/>
+  <text x="270.0" y="38.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">E</text>
+  <line x1="150.0" y1="50.0" x2="210.0" y2="110.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="210.0" y1="110.0" x2="280.0" y2="110.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="280.0" y1="110.0" x2="350.0" y2="110.0" stroke="#15803d" stroke-width="1.6"/>
+  <circle cx="210.0" cy="110.0" r="7" fill="#15803d"/>
+  <text x="210.0" y="130.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">A</text>
+  <circle cx="280.0" cy="110.0" r="7" fill="#15803d"/>
+  <text x="280.0" y="130.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="350.0" cy="110.0" r="7" fill="#15803d"/>
+  <text x="350.0" y="130.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">C</text>
+  <text x="300.0" y="44.0" fill="#1d4ed8" font-size="10" text-anchor="start">main</text>
+  <text x="400.0" y="114.0" fill="#15803d" font-size="10" text-anchor="start">feature</text>
+  <text x="20.0" y="170.0" fill="#475569" font-size="11" text-anchor="start" font-weight="700">sau rebase feature lên main:</text>
+  <line x1="90.0" y1="196.0" x2="150.0" y2="196.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="150.0" y1="196.0" x2="210.0" y2="196.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="210.0" y1="196.0" x2="270.0" y2="196.0" stroke="#1d4ed8" stroke-width="1.8"/>
+  <line x1="270.0" y1="196.0" x2="340.0" y2="196.0" stroke="#b45309" stroke-width="1.8"/>
+  <line x1="340.0" y1="196.0" x2="410.0" y2="196.0" stroke="#b45309" stroke-width="1.8"/>
+  <line x1="410.0" y1="196.0" x2="480.0" y2="196.0" stroke="#b45309" stroke-width="1.8"/>
+  <circle cx="90.0" cy="196.0" r="7" fill="#1d4ed8"/>
+  <circle cx="150.0" cy="196.0" r="7" fill="#1d4ed8"/>
+  <circle cx="210.0" cy="196.0" r="7" fill="#1d4ed8"/>
+  <text x="210.0" y="184.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="270.0" cy="196.0" r="7" fill="#1d4ed8"/>
+  <text x="270.0" y="184.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">E</text>
+  <circle cx="340.0" cy="196.0" r="7" fill="#b45309"/>
+  <text x="340.0" y="184.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">A'</text>
+  <circle cx="410.0" cy="196.0" r="7" fill="#b45309"/>
+  <text x="410.0" y="184.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">B'</text>
+  <circle cx="480.0" cy="196.0" r="7" fill="#b45309"/>
+  <text x="480.0" y="184.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">C'</text>
+  <text x="300.0" y="226.0" fill="#b45309" font-size="10" text-anchor="middle">A, B, C được &quot;chép lại&quot; thành A', B', C' lên đỉnh main</text>
+</svg>
 
 - Lệnh: trên `feature`, `git rebase main`.
 - Các commit `A,B,C` được *tạo lại* (hash mới: `A',B',C'`) như thể bạn vừa rẽ nhánh từ `E`. Không có merge commit → lịch sử thẳng tắp, dễ đọc.

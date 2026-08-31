@@ -162,36 +162,78 @@ Core 3 queue: (trống)
 
 Hệ thống 4 core, có 8 task với thời gian chạy còn lại:
 
-```
-Khởi đầu (phân phối ban đầu không đều):
-  Core 0: [T1:5ms] [T2:5ms] [T3:5ms]   → tổng 15ms còn
-  Core 1: [T4:5ms] [T5:5ms]             → tổng 10ms còn
-  Core 2: [T6:5ms] [T7:5ms] [T8:5ms]   → tổng 15ms còn
-  Core 3: (trống)                        → tổng 0ms
-
-Thời gian hoàn thành (KHÔNG có load balancing):
-  Core 0: 15ms (phải chờ hết 3 task)
-  Core 1: 10ms
-  Core 2: 15ms
-  Core 3: 0ms (nhàn rỗi suốt 15ms — lãng phí!)
-  → Makespan = 15ms (thời gian dài nhất)
-
-Với load balancing — sau khi phát hiện Core 3 rỗng:
-  Load balancer: steal T8 từ Core 2 về Core 3.
-  Core 0: [T1:5] [T2:5] [T3:5] → 15ms
-  Core 1: [T4:5] [T5:5]         → 10ms
-  Core 2: [T6:5] [T7:5]         → 10ms
-  Core 3: [T8:5]                 → 5ms
-  → Makespan = 15ms (không đổi vì Core 0 vẫn là bottleneck)
-  → Nhưng Core 3 không còn nhàn rỗi, throughput tổng tăng
-
-Tốt hơn (balanced từ đầu):
-  Core 0: [T1:5] [T2:5]   → 10ms
-  Core 1: [T3:5] [T4:5]   → 10ms
-  Core 2: [T5:5] [T6:5]   → 10ms
-  Core 3: [T7:5] [T8:5]   → 10ms
-  → Makespan = 10ms (giảm 33%!)
-```
+<svg viewBox="0 0 640 600" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba kịch bản 8 task trên 4 core: không cân bằng tải (Core 3 rảnh, makespan 15ms), steal T8 (throughput tăng), balanced từ đầu (makespan 10ms)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="16.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">Không load balancing — makespan 15ms</text>
+  <text x="110.0" y="42.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="42.0" fill="#475569" font-size="10" text-anchor="middle">15ms</text>
+  <line x1="227.5" y1="48.0" x2="227.5" y2="172.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="227.5" y="42.0" fill="#475569" font-size="9" text-anchor="middle">3.75</text>
+  <line x1="345.0" y1="48.0" x2="345.0" y2="172.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="345.0" y="42.0" fill="#475569" font-size="9" text-anchor="middle">7.5</text>
+  <line x1="462.5" y1="48.0" x2="462.5" y2="172.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="462.5" y="42.0" fill="#475569" font-size="9" text-anchor="middle">11.25</text>
+  <line x1="110.0" y1="48.0" x2="110.0" y2="172.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="48.0" x2="580.0" y2="172.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="70.0" fill="#475569" font-size="10" text-anchor="end">Core 0</text>
+  <rect x="110.0" y="56.0" width="470.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="345.0" y="70.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T1 T2 T3</text>
+  <text x="102.0" y="100.0" fill="#475569" font-size="10" text-anchor="end">Core 1</text>
+  <rect x="110.0" y="86.0" width="313.3" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="266.7" y="100.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T4 T5</text>
+  <text x="102.0" y="130.0" fill="#475569" font-size="10" text-anchor="end">Core 2</text>
+  <rect x="110.0" y="116.0" width="470.0" height="20.0" rx="3" fill="#7c3aed" fill-opacity="0.85" stroke="#7c3aed" stroke-width="0"/>
+  <text x="345.0" y="130.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T6 T7 T8</text>
+  <text x="102.0" y="160.0" fill="#475569" font-size="10" text-anchor="end">Core 3</text>
+  <rect x="110.0" y="146.0" width="0.3" height="20.0" rx="3" fill="#94a3b8" fill-opacity="0.85" stroke="#94a3b8" stroke-width="0"/>
+  <text x="114.3" y="160.0" fill="#94a3b8" font-size="9" text-anchor="start">idle 15ms — lãng phí!</text>
+  <text x="16.0" y="214.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">Steal T8 về Core 3 — makespan vẫn 15ms (Core 0 là bottleneck), nhưng throughput tăng</text>
+  <text x="110.0" y="240.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="240.0" fill="#475569" font-size="10" text-anchor="middle">15ms</text>
+  <line x1="227.5" y1="246.0" x2="227.5" y2="370.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="227.5" y="240.0" fill="#475569" font-size="9" text-anchor="middle">3.75</text>
+  <line x1="345.0" y1="246.0" x2="345.0" y2="370.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="345.0" y="240.0" fill="#475569" font-size="9" text-anchor="middle">7.5</text>
+  <line x1="462.5" y1="246.0" x2="462.5" y2="370.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="462.5" y="240.0" fill="#475569" font-size="9" text-anchor="middle">11.25</text>
+  <line x1="110.0" y1="246.0" x2="110.0" y2="370.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="246.0" x2="580.0" y2="370.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="268.0" fill="#475569" font-size="10" text-anchor="end">Core 0</text>
+  <rect x="110.0" y="254.0" width="470.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="345.0" y="268.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T1 T2 T3</text>
+  <text x="102.0" y="298.0" fill="#475569" font-size="10" text-anchor="end">Core 1</text>
+  <rect x="110.0" y="284.0" width="313.3" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="266.7" y="298.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T4 T5</text>
+  <text x="102.0" y="328.0" fill="#475569" font-size="10" text-anchor="end">Core 2</text>
+  <rect x="110.0" y="314.0" width="313.3" height="20.0" rx="3" fill="#7c3aed" fill-opacity="0.85" stroke="#7c3aed" stroke-width="0"/>
+  <text x="266.7" y="328.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T6 T7</text>
+  <text x="102.0" y="358.0" fill="#475569" font-size="10" text-anchor="end">Core 3</text>
+  <rect x="110.0" y="344.0" width="156.7" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="188.3" y="358.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T8</text>
+  <text x="16.0" y="412.0" fill="#1a202c" font-size="11" text-anchor="start" font-weight="700">Balanced từ đầu — makespan 10ms (giảm 33%)</text>
+  <text x="110.0" y="438.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="438.0" fill="#475569" font-size="10" text-anchor="middle">15ms</text>
+  <line x1="227.5" y1="444.0" x2="227.5" y2="568.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="227.5" y="438.0" fill="#475569" font-size="9" text-anchor="middle">3.75</text>
+  <line x1="345.0" y1="444.0" x2="345.0" y2="568.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="345.0" y="438.0" fill="#475569" font-size="9" text-anchor="middle">7.5</text>
+  <line x1="462.5" y1="444.0" x2="462.5" y2="568.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="462.5" y="438.0" fill="#475569" font-size="9" text-anchor="middle">11.25</text>
+  <line x1="110.0" y1="444.0" x2="110.0" y2="568.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="444.0" x2="580.0" y2="568.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="466.0" fill="#475569" font-size="10" text-anchor="end">Core 0</text>
+  <rect x="110.0" y="452.0" width="313.3" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="266.7" y="466.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T1 T2</text>
+  <text x="102.0" y="496.0" fill="#475569" font-size="10" text-anchor="end">Core 1</text>
+  <rect x="110.0" y="482.0" width="313.3" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="266.7" y="496.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T3 T4</text>
+  <text x="102.0" y="526.0" fill="#475569" font-size="10" text-anchor="end">Core 2</text>
+  <rect x="110.0" y="512.0" width="313.3" height="20.0" rx="3" fill="#7c3aed" fill-opacity="0.85" stroke="#7c3aed" stroke-width="0"/>
+  <text x="266.7" y="526.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T5 T6</text>
+  <text x="102.0" y="556.0" fill="#475569" font-size="10" text-anchor="end">Core 3</text>
+  <rect x="110.0" y="542.0" width="313.3" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="266.7" y="556.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">T7 T8</text>
+</svg>
 
 ⚠ **Lỗi thường gặp:** "Thêm core thì chương trình nhanh gấp đôi". Sai. Chỉ phần nào **song song** mới tăng tốc (Amdahl's Law: $\text{speedup} = \frac{1}{\text{serial} + \text{parallel}/N}$). Nếu 20% code là serial, tối đa speedup = 5x dù dùng bao nhiêu core.
 
@@ -339,36 +381,45 @@ Core 0 ghi: X = 10
 
 **Walk-through giao thức MESI:**
 
-```
-1. Khởi đầu:
-   Core 0: X → Invalid (chưa load)
-   Core 1: X → Invalid
-   RAM[X] = 5
-
-2. Core 0 đọc X:
-   Core 0 gửi Read request trên bus
-   RAM trả về X=5
-   Core 0: X=5, trạng thái = Exclusive (chỉ mình Core 0 có)
-
-3. Core 1 đọc X:
-   Core 1 gửi Read request
-   Core 0 nghe thấy trên bus → hạ trạng thái M/E → Shared
-   RAM (hoặc Core 0) trả X=5 về Core 1
-   Core 0: X=5, trạng thái = Shared
-   Core 1: X=5, trạng thái = Shared
-
-4. Core 0 muốn ghi X=10:
-   Core 0 gửi RFO (Request For Ownership/Invalidate) trên bus
-   Core 1 nghe thấy → set X → Invalid (invalidate)
-   Core 0: X=10, trạng thái = Modified
-   Core 1: X → Invalid (lần sau đọc X phải load lại)
-
-5. Core 1 đọc X (lần 2):
-   Core 0 phát hiện X đang Modified của mình
-   Core 0 ghi X=10 về RAM (writeback), hạ trạng thái M → Shared
-   Core 1 load X=10 từ RAM, trạng thái = Shared
-   → Core 1 đọc đúng giá trị mới!
-```
+<svg viewBox="0 0 722 184" style="max-width:722px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="MESI với biến X: Exclusive khi một mình đọc, Shared khi hai core đọc, Modified + invalidate khi ghi, writeback khi core khác đọc lại">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="690.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">Bước</text>
+  <text x="156.0" y="31.0" fill="#1d4ed8" font-size="9" text-anchor="start" font-weight="700">Hành động trên bus</text>
+  <text x="421.0" y="31.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">Core 0</text>
+  <text x="551.0" y="31.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">Core 1</text>
+  <text x="661.0" y="31.0" fill="#1d4ed8" font-size="9" text-anchor="middle" font-weight="700">RAM</text>
+  <rect x="16.0" y="40.0" width="690.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="9" text-anchor="start">1. Khởi đầu</text>
+  <text x="156.0" y="57.0" fill="#1f2937" font-size="9" text-anchor="start">—</text>
+  <text x="421.0" y="57.0" fill="#94a3b8" font-size="9" text-anchor="middle">Invalid</text>
+  <text x="551.0" y="57.0" fill="#94a3b8" font-size="9" text-anchor="middle">Invalid</text>
+  <text x="661.0" y="57.0" fill="#1f2937" font-size="9" text-anchor="middle">X=5</text>
+  <rect x="16.0" y="66.0" width="690.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="9" text-anchor="start">2. Core 0 đọc X</text>
+  <text x="156.0" y="83.0" fill="#1f2937" font-size="9" text-anchor="start">Read trên bus, RAM trả 5</text>
+  <text x="421.0" y="83.0" fill="#15803d" font-size="9" text-anchor="middle">Exclusive · X=5</text>
+  <text x="551.0" y="83.0" fill="#94a3b8" font-size="9" text-anchor="middle">Invalid</text>
+  <text x="661.0" y="83.0" fill="#1f2937" font-size="9" text-anchor="middle">X=5</text>
+  <rect x="16.0" y="92.0" width="690.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="9" text-anchor="start">3. Core 1 đọc X</text>
+  <text x="156.0" y="109.0" fill="#1f2937" font-size="9" text-anchor="start">Core 0 nghe bus → hạ Shared</text>
+  <text x="421.0" y="109.0" fill="#1d4ed8" font-size="9" text-anchor="middle">Shared · X=5</text>
+  <text x="551.0" y="109.0" fill="#1d4ed8" font-size="9" text-anchor="middle">Shared · X=5</text>
+  <text x="661.0" y="109.0" fill="#1f2937" font-size="9" text-anchor="middle">X=5</text>
+  <rect x="16.0" y="118.0" width="690.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="9" text-anchor="start">4. Core 0 ghi X=10</text>
+  <text x="156.0" y="135.0" fill="#1f2937" font-size="9" text-anchor="start">RFO / invalidate trên bus</text>
+  <text x="421.0" y="135.0" fill="#dc2626" font-size="9" text-anchor="middle">Modified · X=10</text>
+  <text x="551.0" y="135.0" fill="#94a3b8" font-size="9" text-anchor="middle">Invalid</text>
+  <text x="661.0" y="135.0" fill="#b45309" font-size="9" text-anchor="middle">X=5 (cũ)</text>
+  <rect x="16.0" y="144.0" width="690.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="9" text-anchor="start">5. Core 1 đọc lần 2</text>
+  <text x="156.0" y="161.0" fill="#1f2937" font-size="9" text-anchor="start">Core 0 writeback rồi hạ Shared</text>
+  <text x="421.0" y="161.0" fill="#1d4ed8" font-size="9" text-anchor="middle">Shared · X=10</text>
+  <text x="551.0" y="161.0" fill="#1d4ed8" font-size="9" text-anchor="middle">Shared · X=10</text>
+  <text x="661.0" y="161.0" fill="#15803d" font-size="9" text-anchor="middle">X=10</text>
+</svg>
 
 **Tại sao điều này liên quan đến migration cost:**
 
@@ -421,20 +472,35 @@ Socket 0 (Node 0):                    Socket 1 (Node 1):
 
 Process P chạy trên Core 2 (Node 0), cần đọc mảng A (1 GB):
 
-```
-Trường hợp 1 — A cấp phát trên Node 0 (local):
-  Core 2 → L1 miss → L2 miss → L3 miss → RAM Node 0
-  Latency mỗi access = ~67ns
-  1 GB / 64 bytes cache line = ~16.7 triệu accesses
-  → Total time: 16.7M × 67ns = ~1.12 giây
-
-Trường hợp 2 — A cấp phát trên Node 1 (remote):
-  Core 2 → L1 miss → L2 miss → L3 miss → QPI/UPI → RAM Node 1
-  Latency mỗi access = ~120ns
-  → Total time: 16.7M × 120ns = ~2.0 giây
-
-Chênh lệch: 2.0 / 1.12 = 1.78x — ứng dụng chạy chậm hơn 78%!
-```
+<svg viewBox="0 0 720 212" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="NUMA: đọc 1 GB từ RAM node local mất 1.12 s (67ns/access), từ node remote qua QPI/UPI mất 2.0 s (120ns) — chậm hơn 78%">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="26.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">Trường hợp 1 — cấp phát local (Node 0):</text>
+  <rect x="14.0" y="36.0" width="110.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="69.0" y="56.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Core 2</text>
+  <line x1="126.0" y1="53.0" x2="152.0" y2="53.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="154.0" y="36.0" width="134.7" height="34.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="221.3" y="56.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">L1 → L2 → L3 miss</text>
+  <line x1="290.7" y1="53.0" x2="316.7" y2="53.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="318.7" y="36.0" width="110.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="373.7" y="56.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">RAM Node 0</text>
+  <text x="520.0" y="57.0" fill="#15803d" font-size="10" text-anchor="start">~67ns/access → 16.7M × 67ns ≈ 1.12 s</text>
+  <text x="16.0" y="116.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">Trường hợp 2 — cấp phát remote (Node 1):</text>
+  <g transform="translate(0,126)">
+  <rect x="14.0" y="0.0" width="110.0" height="34.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="69.0" y="20.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Core 2</text>
+  <line x1="126.0" y1="17.0" x2="148.0" y2="17.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="150.0" y="0.0" width="134.7" height="34.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="217.3" y="20.7" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">L1 → L2 → L3 miss</text>
+  <line x1="286.7" y1="17.0" x2="308.7" y2="17.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="310.7" y="0.0" width="110.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="365.7" y="20.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">QPI/UPI</text>
+  <line x1="422.7" y1="17.0" x2="444.7" y2="17.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="446.7" y="0.0" width="110.0" height="34.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="501.7" y="20.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">RAM Node 1</text>
+  </g>
+  <text x="560.0" y="147.0" fill="#dc2626" font-size="10" text-anchor="start">~120ns → ≈ 2.0 s</text>
+  <text x="360.0" y="196.0" fill="#1f2937" font-size="11" text-anchor="middle" font-weight="700">Chênh lệch 2.0 / 1.12 = 1.78× — chậm hơn 78% chỉ vì đặt nhầm node</text>
+</svg>
 
 ### 5.3. Hệ thống NUMA trên Linux
 

@@ -177,19 +177,25 @@ Giả sử một đại sứ nước ngoài muốn ra lệnh trực tiếp cho c
 
 **Ví dụ cụ thể — Guest OS muốn tắt ngắt:**
 
-```
-Guest OS:      CLI   ; muốn tắt ngắt (lệnh đặc quyền)
-               ↓
-CPU nhận ra guest đang ở ring 3, không có quyền:
-               → Trap → chuyển sang hypervisor (ring 0)
-               ↓
-Hypervisor:   1. Ghi nhận: "VM-A muốn tắt ngắt"
-              2. Cập nhật trạng thái ảo: set vIF=0 (virtual Interrupt Flag)
-              3. KHÔNG tắt ngắt thật trên CPU vật lý
-              4. Trả quyền điều khiển lại Guest OS
-               ↓
-Guest OS nghĩ ngắt đã tắt, tiếp tục chạy bình thường.
-```
+<svg viewBox="0 0 580 356" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trap-and-emulate: guest chạy lệnh đặc quyền CLI ở ring 3 gây trap; hypervisor giả lập bằng vIF=0 rồi trả quyền cho guest">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="420.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Guest OS: lệnh CLI — muốn tắt ngắt (đặc quyền)</text>
+  <line x1="290.0" y1="60.0" x2="290.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="78.0" width="420.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="103.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">CPU: guest ở ring 3, không có quyền → TRAP</text>
+  <text x="290.0" y="119.2" fill="#475569" font-size="11" text-anchor="middle">chuyển sang hypervisor (ring 0)</text>
+  <line x1="290.0" y1="138.0" x2="290.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="156.0" width="420.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="181.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Hypervisor ghi nhận &quot;VM-A muốn tắt ngắt&quot;</text>
+  <text x="290.0" y="197.2" fill="#475569" font-size="11" text-anchor="middle">set vIF=0 (virtual Interrupt Flag) — KHÔNG tắt ngắt thật</text>
+  <line x1="290.0" y1="216.0" x2="290.0" y2="232.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="234.0" width="420.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="260.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Trả quyền điều khiển lại Guest OS</text>
+  <line x1="290.0" y1="280.0" x2="290.0" y2="296.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="298.0" width="420.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="324.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Guest OS nghĩ ngắt đã tắt, chạy tiếp bình thường</text>
+</svg>
 
 **Ví dụ cụ thể — Guest OS muốn đọc thời gian hệ thống:**
 
@@ -325,18 +331,42 @@ CPU tự động thực hiện **nested page walk** — tra 2 bảng trang liên
 
 Dịch GVA = `0x00007FFFFFFFFFFF`:
 
-```
-Bước 1: Guest OS page walk (GVA → GPA):
-  PML4[511] → PDP[511] → PD[511] → PT[511] → GPA = 0x1FFF000
-
-Bước 2: Hypervisor page walk (GPA → HPA):
-  GPA = 0x1FFF000
-  Nested PML4[0] → Nested PDP[0] → Nested PD[15] → Nested PT[511]
-  → HPA = 0x8C3F000
-
-Kết quả: tiến trình trong VM đọc địa chỉ GVA=0x7FFFFFFF
-         → CPU tự tính → truy cập RAM vật lý tại 0x8C3F000
-```
+<svg viewBox="0 0 700 210" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nested paging: guest walk 4 cấp ra GPA 0x1FFF000, hypervisor walk 4 cấp nữa ra HPA 0x8C3F000">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="28.0" fill="#1d4ed8" font-size="11" text-anchor="start" font-weight="700">Bước 1 — Guest page walk (GVA → GPA):</text>
+  <rect x="14.0" y="38.0" width="110.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="69.0" y="57.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">PML4[511]</text>
+  <line x1="126.0" y1="54.0" x2="148.0" y2="54.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="150.0" y="38.0" width="110.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="205.0" y="57.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">PDP[511]</text>
+  <line x1="262.0" y1="54.0" x2="284.0" y2="54.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="286.0" y="38.0" width="110.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="341.0" y="57.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">PD[511]</text>
+  <line x1="398.0" y1="54.0" x2="420.0" y2="54.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="422.0" y="38.0" width="110.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="477.0" y="57.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">PT[511]</text>
+  <line x1="534.0" y1="54.0" x2="556.0" y2="54.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="558.0" y="38.0" width="110.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="613.0" y="57.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">GPA 0x1FFF000</text>
+  <text x="16.0" y="116.0" fill="#b45309" font-size="11" text-anchor="start" font-weight="700">Bước 2 — Hypervisor page walk (GPA → HPA):</text>
+  <g transform="translate(0,126)">
+  <rect x="14.0" y="0.0" width="110.8" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="69.4" y="19.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">Nested PML4[0]</text>
+  <line x1="126.8" y1="16.0" x2="148.8" y2="16.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="150.8" y="0.0" width="110.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="205.8" y="19.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">Nested PDP[0]</text>
+  <line x1="262.8" y1="16.0" x2="284.8" y2="16.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="286.8" y="0.0" width="110.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="341.8" y="19.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">Nested PD[15]</text>
+  <line x1="398.8" y1="16.0" x2="420.8" y2="16.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="422.8" y="0.0" width="110.8" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="478.2" y="19.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">Nested PT[511]</text>
+  <line x1="535.6" y1="16.0" x2="557.6" y2="16.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="559.6" y="0.0" width="110.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="614.6" y="19.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">HPA 0x8C3F000</text>
+  </g>
+  <text x="340.0" y="196.0" fill="#475569" font-size="10" text-anchor="middle">tiến trình trong VM đọc GVA=0x7FFFFFFF → CPU tự đi 2 lượt walk → RAM vật lý 0x8C3F000</text>
+</svg>
 
 - **Ưu điểm:** Không cần shadow page table, không cần trap vào hypervisor cho mọi thay đổi bảng trang.
 - **Nhược điểm nhỏ:** Page walk chậm hơn chút ($4 \times 4 = 16$ bước tra bảng thay vì 4). TLB (Translation Lookaside Buffer) cache kết quả → hầu hết lần dịch tiếp theo chỉ tốn 1 bước tra TLB.

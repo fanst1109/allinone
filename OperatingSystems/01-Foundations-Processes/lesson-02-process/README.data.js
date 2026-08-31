@@ -43,12 +43,20 @@ Một **chương trình** giống như công thức nấu phở được in tron
 Mỗi tiến trình có một **PID (Process Identifier)** — số nguyên dương duy nhất trong hệ thống tại một thời điểm. Kernel dùng PID để theo dõi và quản lý tiến trình.
 
 Ví dụ cụ thể trên Linux:
-\`\`\`
-PID 1    → systemd (tiến trình đầu tiên, cha của mọi process)
-PID 2    → kthreadd (kernel thread manager)
-PID 1234 → bash (shell đang chạy)
-PID 1235 → ls -la /home  (con của bash, tạo bởi fork)
-\`\`\`
+<svg viewBox="0 0 430 188" style="max-width:430px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây tiến trình: PID 1 systemd là cha của mọi process; kthreadd PID 2; bash PID 1234 fork ra ls PID 1235">
+  <defs></defs>
+  <line x1="215.0" y1="47.0" x2="120.0" y2="79.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="57.0" y="79.0" width="126.0" height="30.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="120.0" y="98.0" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="700">PID 2 — kthreadd</text>
+  <line x1="215.0" y1="47.0" x2="310.0" y2="79.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="310.0" y1="109.0" x2="310.0" y2="141.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="222.5" y="141.0" width="175.0" height="30.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="310.0" y="160.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">PID 1235 — ls -la /home</text>
+  <rect x="250.5" y="79.0" width="119.0" height="30.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="310.0" y="98.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">PID 1234 — bash</text>
+  <rect x="155.5" y="17.0" width="119.0" height="30.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="215.0" y="36.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">PID 1 — systemd</text>
+</svg>
 
 Lệnh \`getpid()\` (syscall số 39) trả về PID của tiến trình hiện tại. \`getppid()\` trả về PID của tiến trình cha.
 
@@ -130,16 +138,39 @@ Bố cục điển hình của không gian địa chỉ trên Linux x86-64 (đ�
 - Tăng theo chiều xuống dưới (địa chỉ giảm). Mỗi lần gọi hàm, một **stack frame** mới được push.
 - Kích thước tối đa mặc định: 8 MB trên Linux (có thể thay đổi qua \`ulimit -s\`). Vượt quá → **stack overflow** → segfault.
 - Ví dụ walk-through (hàm đệ quy \`factorial(5)\`):
-  \`\`\`
-  Gọi factorial(5) → push frame: n=5, ret=...
-    Gọi factorial(4) → push frame: n=4, ret=...
-      Gọi factorial(3) → push frame: n=3, ret=...
-        Gọi factorial(2) → push frame: n=2, ret=...
-          Gọi factorial(1) → push frame: n=1, ret=...
-          Trả về 1 → pop frame n=1
-        Trả về 2 → pop frame n=2
-      ...
-  \`\`\`
+<svg viewBox="0 0 690 238" style="max-width:690px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đệ quy factorial(5): push frame n=5 xuống n=1 (base case trả 1), rồi pop ngược nhân dần lên 120">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="200.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120.0" y="35.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">gọi factorial(5) — push n=5</text>
+  <line x1="60.0" y1="50.0" x2="98.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="60.0" y="56.0" width="200.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="160.0" y="75.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">gọi factorial(4) — push n=4</text>
+  <line x1="100.0" y1="90.0" x2="138.0" y2="112.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="100.0" y="96.0" width="200.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="200.0" y="115.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">gọi factorial(3) — push n=3</text>
+  <line x1="140.0" y1="130.0" x2="178.0" y2="152.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="140.0" y="136.0" width="200.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="155.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">gọi factorial(2) — push n=2</text>
+  <line x1="180.0" y1="170.0" x2="218.0" y2="192.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="180.0" y="176.0" width="200.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="195.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">gọi factorial(1) — push n=1</text>
+  <rect x="420.0" y="176.0" width="190.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="515.0" y="195.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả về 1 — pop n=1</text>
+  <line x1="460.0" y1="174.0" x2="498.0" y2="152.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="380.0" y="136.0" width="190.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="475.0" y="155.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả về 2 — pop n=2</text>
+  <line x1="420.0" y1="134.0" x2="458.0" y2="112.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="340.0" y="96.0" width="190.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="435.0" y="115.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả về 6 — pop n=3</text>
+  <line x1="380.0" y1="94.0" x2="418.0" y2="72.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="300.0" y="56.0" width="190.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="395.0" y="75.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả về 24 — pop n=4</text>
+  <line x1="340.0" y1="54.0" x2="378.0" y2="32.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="260.0" y="16.0" width="190.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="355.0" y="35.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả về 120 — pop n=5</text>
+  <text x="240.0" y="222.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">PHÌNH: push 5 frame xuống base case</text>
+  <text x="500.0" y="222.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">XẸP: pop dần, nhân ngược lên</text>
+</svg>
   Mỗi frame chiếm ~32-64 byte. Đệ quy 1 triệu cấp → 32-64 MB stack → overflow.
 
 ⚠ **Lỗi thường gặp — Nhầm "địa chỉ ảo = địa chỉ RAM thật":** Các địa chỉ trong code C/Go (như \`&variable = 0xc000014090\`) là địa chỉ **ảo**. MMU (Memory Management Unit) trong CPU dịch địa chỉ ảo sang địa chỉ vật lý thật trong RAM mỗi khi truy cập. Hai tiến trình khác nhau có thể đều có biến ở địa chỉ ảo \`0x7fff1000\` nhưng thực ra chúng trỏ đến 2 vùng RAM hoàn toàn khác nhau.
@@ -347,19 +378,30 @@ PID=1235 sau exec: đang chạy ls (code, stack hoàn toàn mới)
 
 Mọi lần bạn gõ lệnh trong shell, pattern fork+exec được thực hiện:
 
-\`\`\`
-Shell (PID=1234) đang chạy
-  ↓ gõ "ls -la"
-  ↓ fork() → tạo PID=1235 (bản sao shell)
-  ↓ PID=1235: exec("/bin/ls", ["ls", "-la"])
-  ↓   → kernel xóa bỏ code của shell trong PID=1235
-  ↓   → nạp code của /bin/ls vào PID=1235
-  ↓   → /bin/ls bắt đầu chạy với PID=1235
-  ↓ Shell PID=1234: wait(1235) — chờ ls xong
-  ↓ ls PID=1235: in kết quả, exit(0)
-  ↓ Shell PID=1234: wait() trả về, nhận exit code=0
-  ↓ Shell in prompt "$"
-\`\`\`
+<svg viewBox="0 0 560 470" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Shell chạy ls -la: fork tạo PID 1235, exec thay code bằng /bin/ls, shell wait; ls exit(0), shell nhận exit code và in prompt">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Shell PID=1234 đang chạy — gõ &quot;ls -la&quot;</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="78.0" width="380.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="104.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">fork() → tạo PID=1235 (bản sao shell)</text>
+  <line x1="280.0" y1="124.0" x2="280.0" y2="140.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="142.0" width="380.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="167.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">PID=1235: exec(&quot;/bin/ls&quot;, [&quot;ls&quot;,&quot;-la&quot;])</text>
+  <text x="280.0" y="183.2" fill="#475569" font-size="11" text-anchor="middle">kernel xóa code shell, nạp /bin/ls vào PID=1235</text>
+  <line x1="280.0" y1="202.0" x2="280.0" y2="218.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="220.0" width="380.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="246.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">/bin/ls chạy với PID=1235</text>
+  <line x1="280.0" y1="266.0" x2="280.0" y2="282.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="284.0" width="380.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="310.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Shell: wait(1235) — chờ ls xong</text>
+  <line x1="280.0" y1="330.0" x2="280.0" y2="346.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="348.0" width="380.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="374.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">ls in kết quả, exit(0)</text>
+  <line x1="280.0" y1="394.0" x2="280.0" y2="410.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="412.0" width="380.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="438.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">wait() trả về exit code=0 → shell in prompt &quot;$&quot;</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên của người đọc:**
 
@@ -386,35 +428,34 @@ Shell (PID=1234) đang chạy
 
 **Giả sử:** Kernel quyết định dừng Process A (đang running) và chạy Process B.
 
-\`\`\`
-Process A đang running (CPU đang thực thi code của A)
-
-  Interrupt từ timer (mỗi 1-10 ms một lần)
-       ↓
-  CPU nhảy vào kernel interrupt handler (kernel mode)
-       ↓
-  Kernel lưu toàn bộ CPU registers của A vào PCB[A]:
-    PCB[A].rip = 0x401234  ← program counter của A
-    PCB[A].rsp = 0x7fff8000 ← stack pointer
-    PCB[A].rax = 42        ← giá trị trong rax
-    ... (tất cả thanh ghi khác)
-  PCB[A].state = READY
-       ↓
-  Scheduler chọn Process B để chạy tiếp
-       ↓
-  Kernel khôi phục CPU registers từ PCB[B]:
-    rip ← PCB[B].rip      ← quay lại đúng chỗ B đã dừng
-    rsp ← PCB[B].rsp
-    rax ← PCB[B].rax
-    ...
-  PCB[B].state = RUNNING
-       ↓
-  Kernel chuyển sang address space của B (thay page table)
-       ↓
-  Quay về user mode, CPU thực thi code tại rip của B
-  
-Process B đang running (tiếp tục từ chỗ B đã dừng)
-\`\`\`
+<svg viewBox="0 0 620 548" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Context switch: timer interrupt, kernel lưu registers của A vào PCB[A], scheduler chọn B, khôi phục PCB[B], thay page table, B chạy tiếp">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="95.0" y="14.0" width="430.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="40.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Process A đang running</text>
+  <line x1="310.0" y1="60.0" x2="310.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="78.0" width="430.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="310.0" y="104.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Interrupt từ timer (mỗi 1–10 ms)</text>
+  <line x1="310.0" y1="124.0" x2="310.0" y2="140.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="142.0" width="430.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="310.0" y="168.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">CPU nhảy vào kernel interrupt handler (kernel mode)</text>
+  <line x1="310.0" y1="188.0" x2="310.0" y2="204.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="206.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="310.0" y="231.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Lưu registers của A vào PCB[A]</text>
+  <text x="310.0" y="247.2" fill="#475569" font-size="11" text-anchor="middle">rip=0x401234 · rsp=0x7fff8000 · rax=42 · … → state=READY</text>
+  <line x1="310.0" y1="266.0" x2="310.0" y2="282.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="284.0" width="430.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="310.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Scheduler chọn Process B</text>
+  <line x1="310.0" y1="330.0" x2="310.0" y2="346.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="348.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="310.0" y="373.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Khôi phục registers từ PCB[B]</text>
+  <text x="310.0" y="389.2" fill="#475569" font-size="11" text-anchor="middle">rip/rsp/rax ← PCB[B] — quay lại đúng chỗ B dừng → state=RUNNING</text>
+  <line x1="310.0" y1="408.0" x2="310.0" y2="424.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="426.0" width="430.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="310.0" y="452.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Chuyển address space (thay page table)</text>
+  <line x1="310.0" y1="472.0" x2="310.0" y2="488.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="490.0" width="430.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="516.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Quay về user mode — Process B chạy tiếp từ chỗ đã dừng</text>
+</svg>
 
 ### 6.3. Chi phí Context Switch
 

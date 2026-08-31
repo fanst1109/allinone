@@ -102,17 +102,42 @@ Giải pháp bất đối xứng phá điều kiện **Circular Wait** (điều 
 
 **Tình huống:** 3 process (P1, P2, P3), 3 tài nguyên R1, R2, R3 (mỗi cái 1 instance):
 
-```
-Phân bổ hiện tại:
-  R1 → P1 (R1 đang cấp cho P1)
-  R2 → P2 (R2 đang cấp cho P2)
-  R3 → P3 (R3 đang cấp cho P3)
-
-Yêu cầu hiện tại:
-  P1 → R2 (P1 muốn R2)
-  P2 → R3 (P2 muốn R3)
-  P3 → R1 (P3 muốn R1)
-```
+<svg viewBox="0 0 490 206" style="max-width:490px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân bổ: R1→P1, R2→P2, R3→P3; yêu cầu: P1→R2, P2→R3, P3→R1 — tạo chu trình chờ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="24.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Phân bổ hiện tại (assign)</text>
+  <text x="360.0" y="24.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Yêu cầu hiện tại (request)</text>
+  <rect x="20.0" y="40.0" width="70.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="55.0" y="58.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">R1</text>
+  <line x1="92.0" y1="55.0" x2="148.0" y2="55.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="150.0" y="40.0" width="70.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="185.0" y="58.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">P1</text>
+  <rect x="270.0" y="40.0" width="70.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="305.0" y="58.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">P1</text>
+  <line x1="342.0" y1="55.0" x2="398.0" y2="55.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="400.0" y="40.0" width="70.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="435.0" y="58.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">R2</text>
+  <rect x="20.0" y="84.0" width="70.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="55.0" y="102.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">R2</text>
+  <line x1="92.0" y1="99.0" x2="148.0" y2="99.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="150.0" y="84.0" width="70.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="185.0" y="102.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">P2</text>
+  <rect x="270.0" y="84.0" width="70.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="305.0" y="102.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">P2</text>
+  <line x1="342.0" y1="99.0" x2="398.0" y2="99.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="400.0" y="84.0" width="70.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="435.0" y="102.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">R3</text>
+  <rect x="20.0" y="128.0" width="70.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="55.0" y="146.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">R3</text>
+  <line x1="92.0" y1="143.0" x2="148.0" y2="143.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="150.0" y="128.0" width="70.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="185.0" y="146.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">P3</text>
+  <rect x="270.0" y="128.0" width="70.0" height="30.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="305.0" y="146.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">P3</text>
+  <line x1="342.0" y1="143.0" x2="398.0" y2="143.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="400.0" y="128.0" width="70.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="435.0" y="146.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">R1</text>
+  <text x="245.0" y="190.0" fill="#475569" font-size="10" text-anchor="middle">P1 giữ R1 muốn R2, P2 giữ R2 muốn R3, P3 giữ R3 muốn R1 → chu trình</text>
+</svg>
 
 **Đồ thị:**
 <svg viewBox="0 0 460 230" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chu trình deadlock: P1 request R2 assign P2, P2 request R3 assign P3, P3 request R1 assign P1">
@@ -257,13 +282,30 @@ P4 [  4  3  1 ]   (4-0, 3-0, 3-2)
 
 **Available** $= \text{Total} - \sum(\text{Allocation})$:
 
-```
-Σ Allocation A = 0+2+3+2+0 = 7 → Available A = 10-7 = 3
-Σ Allocation B = 1+0+0+1+0 = 2 → Available B = 5-2  = 3
-Σ Allocation C = 0+0+2+1+2 = 5 → Available C = 7-5  = 2
-
-Available = [3, 3, 2]
-```
+<svg viewBox="0 0 472 150" style="max-width:472px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tính Available cho Banker: A = 10−7 = 3, B = 5−2 = 3, C = 7−5 = 2 → Available = [3, 3, 2]">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="440.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="61.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Resource</text>
+  <text x="191.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Σ Allocation</text>
+  <text x="316.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Total</text>
+  <text x="406.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Available</text>
+  <rect x="16.0" y="40.0" width="440.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">A</text>
+  <text x="191.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">0+2+3+2+0 = 7</text>
+  <text x="316.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">10</text>
+  <text x="406.0" y="57.0" fill="#15803d" font-size="10" text-anchor="middle">3</text>
+  <rect x="16.0" y="66.0" width="440.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">B</text>
+  <text x="191.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">1+0+0+1+0 = 2</text>
+  <text x="316.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">5</text>
+  <text x="406.0" y="83.0" fill="#15803d" font-size="10" text-anchor="middle">3</text>
+  <rect x="16.0" y="92.0" width="440.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">C</text>
+  <text x="191.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">0+0+2+1+2 = 5</text>
+  <text x="316.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">7</text>
+  <text x="406.0" y="109.0" fill="#15803d" font-size="10" text-anchor="middle">2</text>
+  <text x="236.0" y="136.0" fill="#475569" font-size="10" text-anchor="middle">Available = Total − Σ Allocation = [3, 3, 2]</text>
+</svg>
 
 ### 4.3. Tìm Safe Sequence — Từng bước
 

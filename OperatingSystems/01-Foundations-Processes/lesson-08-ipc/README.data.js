@@ -101,19 +101,27 @@ Kernel tạo pipe buffer (thường 64KB) trong RAM.
 
 **Bước 2 — Shell gọi \`fork()\` (hai lần, tạo 2 tiến trình con):**
 
-\`\`\`
-Child 1 (sẽ là ls):
-  - Đóng fd[0] (không cần đọc)
-  - Redirect stdout → fd[1]: dup2(fd[1], STDOUT_FILENO)
-  - Đóng fd[1] gốc
-  - execve("ls", ...)  → ls bây giờ ghi vào pipe
-
-Child 2 (sẽ là grep):
-  - Đóng fd[1] (không cần ghi)
-  - Redirect stdin ← fd[0]: dup2(fd[0], STDIN_FILENO)
-  - Đóng fd[0] gốc
-  - execve("grep", ".go", ...)  → grep đọc từ pipe
-\`\`\`
+<svg viewBox="0 0 690 200" style="max-width:690px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ghép ls | grep bằng pipe: Child 1 redirect stdout vào fd[1], Child 2 redirect stdin từ fd[0], hai đầu nối qua pipe">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="240.0" height="130.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="136.0" y="50.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Child 1 → ls</text>
+  <text x="30.0" y="72.0" fill="#1f2937" font-size="10" text-anchor="start">• đóng fd[0] (không đọc)</text>
+  <text x="30.0" y="92.0" fill="#1f2937" font-size="10" text-anchor="start">• dup2(fd[1], STDOUT) — stdout → pipe</text>
+  <text x="30.0" y="112.0" fill="#1f2937" font-size="10" text-anchor="start">• đóng fd[1] gốc</text>
+  <text x="30.0" y="132.0" fill="#1f2937" font-size="10" text-anchor="start">• execve(&quot;ls&quot;, …)</text>
+  <rect x="420.0" y="30.0" width="250.0" height="130.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="545.0" y="50.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Child 2 → grep</text>
+  <text x="434.0" y="72.0" fill="#1f2937" font-size="10" text-anchor="start">• đóng fd[1] (không ghi)</text>
+  <text x="434.0" y="92.0" fill="#1f2937" font-size="10" text-anchor="start">• dup2(fd[0], STDIN) — stdin ← pipe</text>
+  <text x="434.0" y="112.0" fill="#1f2937" font-size="10" text-anchor="start">• đóng fd[0] gốc</text>
+  <text x="434.0" y="132.0" fill="#1f2937" font-size="10" text-anchor="start">• execve(&quot;grep&quot;, &quot;.go&quot;, …)</text>
+  <rect x="288.0" y="80.0" width="100.0" height="34.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="338.0" y="93.4" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">PIPE</text>
+  <text x="338.0" y="107.9" fill="#475569" font-size="9" text-anchor="middle">fd[1] → fd[0]</text>
+  <line x1="258.0" y1="97.0" x2="286.0" y2="97.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <line x1="390.0" y1="97.0" x2="418.0" y2="97.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="345.0" y="186.0" fill="#475569" font-size="10" text-anchor="middle">ls ghi vào pipe, grep đọc từ pipe — như \`ls | grep .go\`</text>
+</svg>
 
 **Bước 3 — ls ghi, grep đọc:**
 
@@ -205,12 +213,21 @@ mq_receive(mq, buffer, buf_size, &priority);
 
 **Signal** là thông báo bất đồng bộ (asynchronous notification) gửi đến một process. Giống như interrupt nhưng ở cấp process.
 
-\`\`\`
-Process A gửi signal SIGTERM đến Process B:
-→ Kernel đặt signal vào "pending" của B
-→ Khi B được scheduler cấp CPU, trước khi thực thi lệnh tiếp theo,
-  kernel kiểm tra pending signal → gọi signal handler của B
-\`\`\`
+<svg viewBox="0 0 560 284" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Gửi signal: A gửi SIGTERM, kernel ghi vào pending của B; khi B được cấp CPU, kernel kiểm tra pending và gọi handler">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Process A: kill(B, SIGTERM)</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="78.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="80.0" width="380.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="106.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Kernel đặt SIGTERM vào pending của B</text>
+  <line x1="280.0" y1="126.0" x2="280.0" y2="144.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="146.0" width="380.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="171.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">B được scheduler cấp CPU</text>
+  <text x="280.0" y="187.2" fill="#475569" font-size="11" text-anchor="middle">trước khi thực thi lệnh tiếp theo, kernel kiểm tra pending</text>
+  <line x1="280.0" y1="206.0" x2="280.0" y2="224.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="226.0" width="380.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="252.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Gọi signal handler của B</text>
+</svg>
 
 **Một số signal phổ biến:**
 

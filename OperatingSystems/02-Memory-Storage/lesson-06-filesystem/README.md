@@ -74,13 +74,28 @@ Metadata điển hình bao gồm:
 
 Khi bạn gõ `cat /home/user/Documents/report.pdf`, OS thực hiện **path resolution (phân giải đường dẫn)**:
 
-```
-/ (root)        → đọc directory của root → tìm "home" → inode X
-/home           → đọc directory inode X → tìm "user" → inode Y
-/home/user      → đọc directory inode Y → tìm "Documents" → inode Z
-/home/user/Documents → đọc directory inode Z → tìm "report.pdf" → inode W
-/home/user/Documents/report.pdf → đọc data blocks của inode W
-```
+<svg viewBox="0 0 560 398" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phân giải đường dẫn /home/user/Documents/report.pdf: đi từ inode root qua từng directory tới inode W rồi đọc data block">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">/ (root)</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">directory root → tìm &quot;home&quot; → inode X</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="92.0" width="380.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="117.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">/home</text>
+  <text x="280.0" y="133.2" fill="#475569" font-size="11" text-anchor="middle">directory X → tìm &quot;user&quot; → inode Y</text>
+  <line x1="280.0" y1="152.0" x2="280.0" y2="168.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="170.0" width="380.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="195.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">/home/user</text>
+  <text x="280.0" y="211.2" fill="#475569" font-size="11" text-anchor="middle">directory Y → tìm &quot;Documents&quot; → inode Z</text>
+  <line x1="280.0" y1="230.0" x2="280.0" y2="246.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="248.0" width="380.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="273.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">/home/user/Documents</text>
+  <text x="280.0" y="289.2" fill="#475569" font-size="11" text-anchor="middle">directory Z → tìm &quot;report.pdf&quot; → inode W</text>
+  <line x1="280.0" y1="308.0" x2="280.0" y2="324.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="326.0" width="380.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="351.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">report.pdf</text>
+  <text x="280.0" y="367.2" fill="#475569" font-size="11" text-anchor="middle">đọc data blocks của inode W</text>
+</svg>
 
 ### 2.2. Cấu trúc cây
 
@@ -119,25 +134,32 @@ Không có inode mới nào được tạo. Hard link chỉ tạo thêm một en
 
 Cấu trúc inode điển hình (Unix/ext4):
 
-```
-Inode #1024
-├── mode: -rw-r--r-- (permissions)
-├── uid: 1000 (owner)
-├── gid: 1000 (group)
-├── size: 12288 bytes
-├── atime: 2026-05-31 09:00
-├── mtime: 2026-05-30 14:00
-├── ctime: 2026-05-30 14:00
-├── nlink: 1 (số hard link)
-├── direct[0]:  block 142
-├── direct[1]:  block 143
-├── direct[2]:  block 144
-├── direct[3]:  —
-│   ... (direct[0..11] — thường 12 con trỏ direct)
-├── single_indirect: block 200 (trỏ tới block chứa 256 con trỏ block)
-├── double_indirect: block 300 (trỏ tới block chứa 256 con trỏ single_indirect)
-└── triple_indirect: block 400 (trỏ tới block chứa 256 con trỏ double_indirect)
-```
+<svg viewBox="0 0 700 270" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc inode #1024: metadata (mode, uid, size, times, nlink), 12 con trỏ direct, cùng single/double/triple indirect trỏ các block con trỏ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="250.0" height="240.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="141.0" y="36.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Inode #1024</text>
+  <text x="30.0" y="58.0" fill="#1f2937" font-size="10" text-anchor="start">• mode: -rw-r--r--</text>
+  <text x="30.0" y="75.0" fill="#1f2937" font-size="10" text-anchor="start">• uid: 1000 · gid: 1000</text>
+  <text x="30.0" y="92.0" fill="#1f2937" font-size="10" text-anchor="start">• size: 12288 bytes</text>
+  <text x="30.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">• atime/mtime/ctime</text>
+  <text x="30.0" y="126.0" fill="#1f2937" font-size="10" text-anchor="start">• nlink: 1</text>
+  <text x="30.0" y="150.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">• direct[0..11]</text>
+  <line x1="268.0" y1="146.0" x2="306.0" y2="146.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="312.0" y="150.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">block 142, 143, 144, …</text>
+  <text x="410.0" y="150.0" fill="#475569" font-size="9" text-anchor="start">— 12 con trỏ thẳng tới data block</text>
+  <text x="30.0" y="176.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">• single_indirect</text>
+  <line x1="268.0" y1="172.0" x2="306.0" y2="172.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="312.0" y="176.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">block 200</text>
+  <text x="410.0" y="176.0" fill="#475569" font-size="9" text-anchor="start">— trỏ block chứa 256 con trỏ block</text>
+  <text x="30.0" y="202.0" fill="#7c3aed" font-size="10" text-anchor="start" font-weight="700">• double_indirect</text>
+  <line x1="268.0" y1="198.0" x2="306.0" y2="198.0" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arp)"/>
+  <text x="312.0" y="202.0" fill="#7c3aed" font-size="10" text-anchor="start" font-weight="700">block 300</text>
+  <text x="410.0" y="202.0" fill="#475569" font-size="9" text-anchor="start">— trỏ block chứa 256 single_indirect</text>
+  <text x="30.0" y="228.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">• triple_indirect</text>
+  <line x1="268.0" y1="224.0" x2="306.0" y2="224.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="312.0" y="228.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">block 400</text>
+  <text x="410.0" y="228.0" fill="#475569" font-size="9" text-anchor="start">— trỏ block chứa 256 double_indirect</text>
+</svg>
 
 ### 3.2. Tính dung lượng file tối đa
 

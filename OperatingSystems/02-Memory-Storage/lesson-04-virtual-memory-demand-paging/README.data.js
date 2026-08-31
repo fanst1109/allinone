@@ -85,12 +85,29 @@ Tiến trình bắt đầu không có trang nào trong RAM. Mọi truy cập đ�
 
 **Xét tiến trình 5 trang, chạy tuần tự code từ page 0:**
 
-\`\`\`
-Truy cập page 0 → page fault → nạp page 0 → tiếp tục
-Truy cập page 0 lại → RAM hit → không fault
-Truy cập page 1 → page fault → nạp page 1 → tiếp tục
-...
-\`\`\`
+<svg viewBox="0 0 532 158" style="max-width:532px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Demand paging: lần đầu chạm page nào thì fault và nạp page đó; lần sau hit RAM">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="500.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Truy cập</text>
+  <text x="231.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Kết quả</text>
+  <text x="296.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Hành động</text>
+  <rect x="16.0" y="40.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Truy cập page 0</text>
+  <text x="231.0" y="57.0" fill="#dc2626" font-size="10" text-anchor="middle">page fault</text>
+  <text x="296.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">nạp page 0 → tiếp tục</text>
+  <rect x="16.0" y="66.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Truy cập page 0 lại</text>
+  <text x="231.0" y="83.0" fill="#15803d" font-size="10" text-anchor="middle">RAM hit</text>
+  <text x="296.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">không fault</text>
+  <rect x="16.0" y="92.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Truy cập page 1</text>
+  <text x="231.0" y="109.0" fill="#dc2626" font-size="10" text-anchor="middle">page fault</text>
+  <text x="296.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">nạp page 1 → tiếp tục</text>
+  <rect x="16.0" y="118.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">…</text>
+  <text x="231.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">…</text>
+  <text x="296.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">chỉ nạp trang khi CHẠM tới</text>
+</svg>
 
 Sau khi các trang "nóng" (hot pages) được nạp, page fault giảm dần → steady state: hầu hết truy cập là RAM hit.
 
@@ -110,21 +127,37 @@ Bạn đọc đến trang 100, nhân viên không tìm thấy sách trên kệ (
 
 **Các bước chi tiết:**
 
-\`\`\`
-1. CPU phát địa chỉ ảo → MMU tra bảng trang.
-2. Valid bit = 0 → MMU phát tín hiệu ngắt (trap) lên OS.
-3. OS lưu trạng thái CPU (registers, PC, ...) vào PCB.
-4. OS kiểm tra: địa chỉ hợp lệ không?
-   - Nếu không hợp lệ (tiến trình truy cập vùng không được phép) → Segmentation Fault → kill tiến trình.
-   - Nếu hợp lệ: tiếp tục bước 5.
-5. OS tìm frame trống trong RAM.
-   - Có frame trống: dùng luôn.
-   - Không có frame trống: chọn victim frame để thay thế (Lesson 05).
-6. OS đọc trang từ đĩa (I/O operation — rất chậm, ~8 ms).
-7. Cập nhật bảng trang: ghi frame number vào PTE, set valid=1.
-8. OS resume tiến trình từ instruction đã gây ra fault (tiến trình không biết gì đã xảy ra).
-9. CPU thực thi lại instruction → lần này valid=1 → RAM hit → tiếp tục.
-\`\`\`
+<svg viewBox="0 0 580 596" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chín bước xử lý page fault: MMU trap, OS lưu PCB, kiểm tra hợp lệ, tìm frame, đọc đĩa 8ms, cập nhật bảng trang, resume và chạy lại">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="400.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. CPU phát địa chỉ ảo → MMU tra bảng trang</text>
+  <line x1="290.0" y1="60.0" x2="290.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="76.0" width="400.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="102.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">2. Valid bit = 0 → trap lên OS</text>
+  <line x1="290.0" y1="122.0" x2="290.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="138.0" width="400.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="164.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">3. OS lưu trạng thái CPU vào PCB</text>
+  <line x1="290.0" y1="184.0" x2="290.0" y2="198.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="200.0" width="400.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="225.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4. Địa chỉ hợp lệ?</text>
+  <text x="290.0" y="241.2" fill="#475569" font-size="11" text-anchor="middle">không hợp lệ → Segmentation Fault, kill tiến trình</text>
+  <line x1="290.0" y1="260.0" x2="290.0" y2="274.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="276.0" width="400.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="301.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">5. Tìm frame trống</text>
+  <text x="290.0" y="317.2" fill="#475569" font-size="11" text-anchor="middle">không có → chọn victim frame thay thế (L05)</text>
+  <line x1="290.0" y1="336.0" x2="290.0" y2="350.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="352.0" width="400.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="378.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">6. Đọc trang từ đĩa (I/O ~8 ms — rất chậm)</text>
+  <line x1="290.0" y1="398.0" x2="290.0" y2="412.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="414.0" width="400.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="440.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">7. Cập nhật bảng trang: ghi frame, valid=1</text>
+  <line x1="290.0" y1="460.0" x2="290.0" y2="474.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="476.0" width="400.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="502.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">8. Resume tiến trình từ instruction gây fault</text>
+  <line x1="290.0" y1="522.0" x2="290.0" y2="536.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="538.0" width="400.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="564.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">9. Thực thi lại → valid=1 → RAM hit</text>
+</svg>
 
 ⚠ **Lỗi thường gặp:**
 
@@ -276,11 +309,23 @@ Nhờ locality, working set thường chỉ gồm vài chục đến vài trăm 
 
 Nếu $\\sum_i |W(t_i)| >$ số frame RAM, thì:
 
-\`\`\`
-thiếu frame → page fault liên tục → CPU utilization giảm
-→ OS nạp thêm tiến trình (CPU idle có vẻ "rảnh") → thậm chí thiếu frame hơn
-→ vòng luẩn quẩn → thrashing
-\`\`\`
+<svg viewBox="0 0 650 246" style="max-width:650px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng thrashing: thiếu frame gây page fault liên tục, CPU giảm, OS tưởng rảnh nạp thêm tiến trình, càng thiếu frame hơn">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="225.0" y="14.0" width="150.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="33.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">thiếu frame</text>
+  <rect x="414.4" y="106.0" width="151.2" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="490.0" y="125.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">page fault liên tục</text>
+  <rect x="221.0" y="198.0" width="158.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="217.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">CPU utilization giảm</text>
+  <rect x="16.4" y="106.0" width="287.2" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="160.0" y="125.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">OS nạp thêm tiến trình (tưởng CPU rảnh)</text>
+  <line x1="347.3" y1="38.7" x2="442.4" y2="112.4" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="442.4" y1="130.7" x2="349.8" y2="204.4" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="253.8" y1="203.0" x2="244.0" y2="134.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="244.0" y1="111.0" x2="256.1" y2="42.1" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="300.0" y="118.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">THRASHING</text>
+  <text x="300.0" y="135.0" fill="#475569" font-size="10" text-anchor="middle">vòng luẩn quẩn</text>
+</svg>
 
 **Dấu hiệu thrashing:**
 

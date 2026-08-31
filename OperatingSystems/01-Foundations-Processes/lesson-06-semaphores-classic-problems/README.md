@@ -57,19 +57,48 @@ signal(S):
 
 **Ví dụ: Semaphore S = 3 (3 tài nguyên dùng chung)**
 
-```
-Thao tác           S trước → S sau     Kết quả
-──────────────────────────────────────────────────────
-Khởi tạo                               S = 3
-Thread A: wait(S)  3 → 2              A vào, S=2
-Thread B: wait(S)  2 → 1              B vào, S=1
-Thread C: wait(S)  1 → 0              C vào, S=0
-Thread D: wait(S)  0 → -1             D BỊ BLOCK, S=-1
-Thread E: wait(S)  -1 → -2            E BỊ BLOCK, S=-2
-Thread A: signal(S) -2 → -1           D được đánh thức, S=-1
-Thread B: signal(S) -1 → 0            E được đánh thức, S=0
-Thread C: signal(S) 0 → 1             Không ai chờ, S=1
-```
+<svg viewBox="0 0 502 288" style="max-width:502px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Counting semaphore S=3: A, B, C vào; D, E block khi S âm; mỗi signal đánh thức một thread chờ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="470.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thao tác</text>
+  <text x="246.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">S trước → sau</text>
+  <text x="396.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Kết quả</text>
+  <rect x="16.0" y="40.0" width="470.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Khởi tạo</text>
+  <text x="396.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">S = 3</text>
+  <rect x="16.0" y="66.0" width="470.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Thread A: wait(S)</text>
+  <text x="246.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">3 → 2</text>
+  <text x="396.0" y="83.0" fill="#15803d" font-size="10" text-anchor="middle">A vào</text>
+  <rect x="16.0" y="92.0" width="470.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Thread B: wait(S)</text>
+  <text x="246.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">2 → 1</text>
+  <text x="396.0" y="109.0" fill="#15803d" font-size="10" text-anchor="middle">B vào</text>
+  <rect x="16.0" y="118.0" width="470.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">Thread C: wait(S)</text>
+  <text x="246.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">1 → 0</text>
+  <text x="396.0" y="135.0" fill="#15803d" font-size="10" text-anchor="middle">C vào</text>
+  <rect x="16.0" y="144.0" width="470.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">Thread D: wait(S)</text>
+  <text x="246.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">0 → −1</text>
+  <text x="396.0" y="161.0" fill="#dc2626" font-size="10" text-anchor="middle">D BỊ BLOCK</text>
+  <rect x="16.0" y="170.0" width="470.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="start">Thread E: wait(S)</text>
+  <text x="246.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">−1 → −2</text>
+  <text x="396.0" y="187.0" fill="#dc2626" font-size="10" text-anchor="middle">E BỊ BLOCK</text>
+  <rect x="16.0" y="196.0" width="470.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="start">Thread A: signal(S)</text>
+  <text x="246.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">−2 → −1</text>
+  <text x="396.0" y="213.0" fill="#1d4ed8" font-size="10" text-anchor="middle">D được đánh thức</text>
+  <rect x="16.0" y="222.0" width="470.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="start">Thread B: signal(S)</text>
+  <text x="246.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">−1 → 0</text>
+  <text x="396.0" y="239.0" fill="#1d4ed8" font-size="10" text-anchor="middle">E được đánh thức</text>
+  <rect x="16.0" y="248.0" width="470.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="start">Thread C: signal(S)</text>
+  <text x="246.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="middle">0 → 1</text>
+  <text x="396.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="middle">không ai chờ</text>
+</svg>
 
 Sau 3 signal: S = 1, D và E đã vào, C ra — hệ thống trở lại bình thường.
 
@@ -163,20 +192,75 @@ loop:
 
 Khởi tạo: `mutex=1, empty=2, full=0`, buffer = `[_, _]`.
 
-```
-Thao tác                              mutex  empty  full  buffer
-───────────────────────────────────────────────────────────────────
-P: wait(empty)   → 2-1=1              1      1      0     [_, _]
-P: wait(mutex)   → 1-1=0              0      1      0     [_, _]
-P: buffer[0] = A                      0      1      0     [A, _]
-P: signal(mutex) → 0+1=1              1      1      0     [A, _]
-P: signal(full)  → 0+1=1              1      1      1     [A, _]
-C: wait(full)    → 1-1=0              1      1      0     [A, _]
-C: wait(mutex)   → 1-1=0              0      1      0     [A, _]
-C: item = buffer[0] = A               0      1      0     [_, _]
-C: signal(mutex) → 0+1=1              1      1      0     [_, _]
-C: signal(empty) → 1+1=2              1      2      0     [_, _]
-```
+<svg viewBox="0 0 532 314" style="max-width:532px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Producer-consumer: P wait(empty)+wait(mutex), ghi A, signal; C wait(full)+wait(mutex), lấy A, signal — các semaphore giữ đồng bộ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="500.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thao tác</text>
+  <text x="261.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">mutex</text>
+  <text x="331.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">empty</text>
+  <text x="396.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">full</text>
+  <text x="471.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">buffer</text>
+  <rect x="16.0" y="40.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">P: wait(empty) 2→1</text>
+  <text x="261.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="331.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">[_, _]</text>
+  <rect x="16.0" y="66.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">P: wait(mutex) 1→0</text>
+  <text x="261.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="331.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">[_, _]</text>
+  <rect x="16.0" y="92.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">P: buffer[0] = A</text>
+  <text x="261.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="331.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="109.0" fill="#15803d" font-size="10" text-anchor="middle">[A, _]</text>
+  <rect x="16.0" y="118.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">P: signal(mutex)</text>
+  <text x="261.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="331.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">[A, _]</text>
+  <rect x="16.0" y="144.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">P: signal(full) 0→1</text>
+  <text x="261.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="331.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="471.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">[A, _]</text>
+  <rect x="16.0" y="170.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="start">C: wait(full) 1→0</text>
+  <text x="261.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="331.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">[A, _]</text>
+  <rect x="16.0" y="196.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="start">C: wait(mutex) 1→0</text>
+  <text x="261.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="331.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">[A, _]</text>
+  <rect x="16.0" y="222.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="start">C: item = buffer[0] = A</text>
+  <text x="261.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="331.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="239.0" fill="#b45309" font-size="10" text-anchor="middle">[_, _]</text>
+  <rect x="16.0" y="248.0" width="500.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="start">C: signal(mutex)</text>
+  <text x="261.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="331.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="396.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="265.0" fill="#1f2937" font-size="10" text-anchor="middle">[_, _]</text>
+  <rect x="16.0" y="274.0" width="500.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="291.0" fill="#1f2937" font-size="10" text-anchor="start">C: signal(empty) 1→2</text>
+  <text x="261.0" y="291.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="331.0" y="291.0" fill="#1f2937" font-size="10" text-anchor="middle">2</text>
+  <text x="396.0" y="291.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <text x="471.0" y="291.0" fill="#1f2937" font-size="10" text-anchor="middle">[_, _]</text>
+</svg>
 
 Kết quả: Consumer lấy được item A, buffer về rỗng. Vòng tiếp tục.
 
@@ -262,15 +346,42 @@ signal(wrt)
 
 ### 4.2. Walk-through Deadlock
 
-```
-Triết gia  Trạng thái    Cầm        Chờ
-─────────────────────────────────────────────
-T0         Đói           Đũa 0      Đũa 1
-T1         Đói           Đũa 1      Đũa 2
-T2         Đói           Đũa 2      Đũa 3
-T3         Đói           Đũa 3      Đũa 4
-T4         Đói           Đũa 4      Đũa 0
-```
+<svg viewBox="0 0 430 306" style="max-width:430px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Năm triết gia T0–T4 quanh bàn: mỗi người cầm đũa bên trái và chờ đũa bên phải — chu trình chờ vòng tròn gây deadlock">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="178.0" y="29.0" width="64.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="210.0" y="48.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">T0</text>
+  <circle cx="260.6" cy="80.3" r="6" fill="#b45309"/>
+  <text x="266.5" y="76.3" fill="#b45309" font-size="9" text-anchor="start">đũa 0</text>
+  <rect x="277.9" y="101.6" width="64.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="309.9" y="121.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">T1</text>
+  <circle cx="291.9" cy="176.6" r="6" fill="#b45309"/>
+  <text x="301.4" y="183.7" fill="#b45309" font-size="9" text-anchor="start">đũa 1</text>
+  <rect x="239.7" y="218.9" width="64.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="271.7" y="238.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">T2</text>
+  <circle cx="210.0" cy="236.1" r="6" fill="#b45309"/>
+  <text x="210.0" y="250.1" fill="#b45309" font-size="9" text-anchor="middle">đũa 2</text>
+  <rect x="116.3" y="218.9" width="64.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="148.3" y="238.8" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">T3</text>
+  <circle cx="128.1" cy="176.6" r="6" fill="#b45309"/>
+  <text x="118.6" y="183.7" fill="#b45309" font-size="9" text-anchor="end">đũa 3</text>
+  <rect x="78.1" y="101.6" width="64.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="110.1" y="121.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">T4</text>
+  <circle cx="159.4" cy="80.3" r="6" fill="#b45309"/>
+  <text x="153.5" y="76.3" fill="#b45309" font-size="9" text-anchor="end">đũa 4</text>
+  <line x1="185.4" y1="53.0" x2="166.8" y2="75.2" stroke="#15803d" stroke-width="1.6" marker-end="url(#arg)"/>
+  <line x1="234.6" y1="53.0" x2="253.2" y2="75.2" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="285.9" y1="109.1" x2="267.8" y2="85.8" stroke="#15803d" stroke-width="1.6" marker-end="url(#arg)"/>
+  <line x1="301.1" y1="130.9" x2="294.5" y2="168.0" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="281.5" y1="221.7" x2="288.9" y2="185.1" stroke="#15803d" stroke-width="1.6" marker-end="url(#arg)"/>
+  <line x1="241.7" y1="235.2" x2="219.0" y2="235.9" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="178.3" y1="235.2" x2="201.0" y2="235.9" stroke="#15803d" stroke-width="1.6" marker-end="url(#arg)"/>
+  <line x1="138.5" y1="221.7" x2="131.1" y2="185.1" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="118.9" y1="130.9" x2="125.5" y2="168.0" stroke="#15803d" stroke-width="1.6" marker-end="url(#arg)"/>
+  <line x1="134.1" y1="109.1" x2="152.2" y2="85.8" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="210.0" y="142.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">mỗi Ti cầm đũa i (xanh)</text>
+  <text x="210.0" y="158.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">chờ đũa (i+1) (đỏ, nét đứt)</text>
+  <text x="210.0" y="176.0" fill="#1f2937" font-size="10" text-anchor="middle" font-weight="700">→ chu trình chờ = DEADLOCK</text>
+</svg>
 
 Mỗi triết gia cầm đũa trái mình → chờ đũa phải → đũa phải đang bị triết gia bên phải cầm → **chu trình chờ đợi tròn → deadlock**.
 
@@ -403,19 +514,57 @@ Trong giải pháp Readers-Writers ưu tiên reader: có 3 reader (R1, R2, R3) �
 
 **Bài 1 — Walk-through semaphore (S ban đầu = 2)**
 
-```
-Thao tác    S trước → S sau   T1        T2        T3
-────────────────────────────────────────────────────────
-Khởi tạo                       ready     ready     ready    S=2
-T1: wait(S)  2→1               running   ready     ready    S=1
-T2: wait(S)  1→0               running   running   ready    S=0
-T3: wait(S)  0→-1              running   running   BLOCKED  S=-1
-T1: signal(S) -1→0             done      running   unblocked S=0
-                                                   (T3 woken up)
-T3: signal(S)  0→1             done      running   running  S=1
-  // T3 đã được đánh thức bởi signal của T1, nên T3 có thể gọi signal
-T2: signal(S)  1→2             done      done      running  S=2
-```
+<svg viewBox="0 0 542 236" style="max-width:542px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Semaphore giới hạn 2 thread chạy đồng thời: T3 block khi S=−1, được T1 signal đánh thức">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="510.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thao tác</text>
+  <text x="216.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">S</text>
+  <text x="291.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T1</text>
+  <text x="381.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T2</text>
+  <text x="476.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">T3</text>
+  <rect x="16.0" y="40.0" width="510.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Khởi tạo</text>
+  <text x="216.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">S=2</text>
+  <text x="291.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">ready</text>
+  <text x="381.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">ready</text>
+  <text x="476.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">ready</text>
+  <rect x="16.0" y="66.0" width="510.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">T1: wait(S) 2→1</text>
+  <text x="216.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">S=1</text>
+  <text x="291.0" y="83.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="381.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">ready</text>
+  <text x="476.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">ready</text>
+  <rect x="16.0" y="92.0" width="510.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">T2: wait(S) 1→0</text>
+  <text x="216.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">S=0</text>
+  <text x="291.0" y="109.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="381.0" y="109.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="476.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">ready</text>
+  <rect x="16.0" y="118.0" width="510.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">T3: wait(S) 0→−1</text>
+  <text x="216.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">S=−1</text>
+  <text x="291.0" y="135.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="381.0" y="135.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="476.0" y="135.0" fill="#dc2626" font-size="10" text-anchor="middle">BLOCKED</text>
+  <rect x="16.0" y="144.0" width="510.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">T1: signal(S) −1→0</text>
+  <text x="216.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">S=0</text>
+  <text x="291.0" y="161.0" fill="#94a3b8" font-size="10" text-anchor="middle">done</text>
+  <text x="381.0" y="161.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="476.0" y="161.0" fill="#1d4ed8" font-size="10" text-anchor="middle">unblocked</text>
+  <rect x="16.0" y="170.0" width="510.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="start">T3: signal(S) 0→1</text>
+  <text x="216.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">S=1</text>
+  <text x="291.0" y="187.0" fill="#94a3b8" font-size="10" text-anchor="middle">done</text>
+  <text x="381.0" y="187.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <text x="476.0" y="187.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+  <rect x="16.0" y="196.0" width="510.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="start">T2: signal(S) 1→2</text>
+  <text x="216.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">S=2</text>
+  <text x="291.0" y="213.0" fill="#94a3b8" font-size="10" text-anchor="middle">done</text>
+  <text x="381.0" y="213.0" fill="#94a3b8" font-size="10" text-anchor="middle">done</text>
+  <text x="476.0" y="213.0" fill="#15803d" font-size="10" text-anchor="middle">running</text>
+</svg>
 
 Lưu ý: T3 bị block sau `wait(S)` và được đánh thức bởi `signal(S)` của T1. Khi T3 được đánh thức, T3 "vào" tài nguyên (signal chỉ xảy ra sau khi T3 dùng xong tài nguyên).
 

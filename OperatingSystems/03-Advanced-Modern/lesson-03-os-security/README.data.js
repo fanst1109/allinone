@@ -31,13 +31,39 @@ Một công ty có văn phòng, phòng kỹ thuật, và phòng tài chính. Ai 
 
 Mỗi file/directory Unix có **9 bit quyền** chia thành 3 nhóm × 3 bit:
 
-\`\`\`
-  Chủ sở hữu (user/owner)   Nhóm (group)   Khác (other)
-  ┌───────────────────┐  ┌──────────────┐  ┌────────────┐
-  │  r   w   x        │  │  r   w   x   │  │  r   w   x │
-  │  4   2   1        │  │  4   2   1   │  │  4   2   1 │
-  └───────────────────┘  └──────────────┘  └────────────┘
-\`\`\`
+<svg viewBox="0 0 640 100" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Quyền Unix chia 3 nhóm owner, group, other; mỗi nhóm 3 bit r=4, w=2, x=1">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="50.0" y="57.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">r</text>
+  <text x="50.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">4</text>
+  <rect x="80.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="110.0" y="57.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">w</text>
+  <text x="110.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">2</text>
+  <rect x="140.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="170.0" y="57.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">x</text>
+  <text x="170.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">1</text>
+  <rect x="230.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="260.0" y="57.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">r</text>
+  <text x="260.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">4</text>
+  <rect x="290.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="320.0" y="57.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">w</text>
+  <text x="320.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">2</text>
+  <rect x="350.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="380.0" y="57.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">x</text>
+  <text x="380.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">1</text>
+  <rect x="440.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="470.0" y="57.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">r</text>
+  <text x="470.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">4</text>
+  <rect x="500.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="530.0" y="57.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">w</text>
+  <text x="530.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">2</text>
+  <rect x="560.0" y="40.0" width="60.0" height="40.0" rx="0" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="590.0" y="57.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">x</text>
+  <text x="590.0" y="72.0" fill="#475569" font-size="9" text-anchor="middle">1</text>
+  <text x="110.0" y="28.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Chủ sở hữu (owner)</text>
+  <text x="320.0" y="28.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Nhóm (group)</text>
+  <text x="530.0" y="28.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Khác (other)</text>
+</svg>
 
 | Bit | Ký hiệu | Với file | Với directory |
 |-----|---------|----------|--------------|
@@ -49,32 +75,59 @@ Mỗi file/directory Unix có **9 bit quyền** chia thành 3 nhóm × 3 bit:
 
 **Ví dụ 1: \`0755\` (rwxr-xr-x)**
 
-\`\`\`
-0755 = 7    5    5
-       rwx  r-x  r-x
-
-Chủ sở hữu (7 = 4+2+1): r=✓ w=✓ x=✓ → rwx
-Nhóm       (5 = 4+0+1): r=✓ w=✗ x=✓ → r-x
-Khác       (5 = 4+0+1): r=✓ w=✗ x=✓ → r-x
-
-Ký hiệu đầy đủ: -rwxr-xr-x
-                ↑ ký tự đầu là '-' (file bình thường), 'd' (directory), 'l' (symlink)
-\`\`\`
+<svg viewBox="0 0 462 150" style="max-width:462px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="chmod 0755: owner rwx (4+2+1), group và other r-x (4+0+1)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="430.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Nhóm</text>
+  <text x="201.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Giá trị</text>
+  <text x="301.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Phân tích</text>
+  <text x="406.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Quyền</text>
+  <rect x="16.0" y="40.0" width="430.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Chủ sở hữu</text>
+  <text x="201.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">7</text>
+  <text x="301.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">4+2+1</text>
+  <text x="406.0" y="57.0" fill="#15803d" font-size="10" text-anchor="middle">rwx</text>
+  <rect x="16.0" y="66.0" width="430.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Nhóm</text>
+  <text x="201.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">5</text>
+  <text x="301.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">4+0+1</text>
+  <text x="406.0" y="83.0" fill="#b45309" font-size="10" text-anchor="middle">r-x</text>
+  <rect x="16.0" y="92.0" width="430.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Khác</text>
+  <text x="201.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">5</text>
+  <text x="301.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">4+0+1</text>
+  <text x="406.0" y="109.0" fill="#b45309" font-size="10" text-anchor="middle">r-x</text>
+  <text x="231.0" y="136.0" fill="#475569" font-size="10" text-anchor="middle">Ký hiệu đầy đủ: -rwxr-xr-x</text>
+</svg>
 
 Kết luận: chủ sở hữu đọc/ghi/chạy được; nhóm và người khác chỉ đọc và chạy được.
 
 **Ví dụ 2: \`0644\` (rw-r--r--)**
 
-\`\`\`
-0644 = 6    4    4
-       rw-  r--  r--
-
-Chủ sở hữu (6 = 4+2+0): r=✓ w=✓ x=✗ → rw-
-Nhóm       (4 = 4+0+0): r=✓ w=✗ x=✗ → r--
-Khác       (4 = 4+0+0): r=✓ w=✗ x=✗ → r--
-
-Ký hiệu: -rw-r--r--
-\`\`\`
+<svg viewBox="0 0 462 150" style="max-width:462px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="chmod 0644: owner rw- (4+2), group và other r-- (4)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="430.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Nhóm</text>
+  <text x="201.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Giá trị</text>
+  <text x="301.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Phân tích</text>
+  <text x="406.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Quyền</text>
+  <rect x="16.0" y="40.0" width="430.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Chủ sở hữu</text>
+  <text x="201.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">6</text>
+  <text x="301.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">4+2+0</text>
+  <text x="406.0" y="57.0" fill="#15803d" font-size="10" text-anchor="middle">rw-</text>
+  <rect x="16.0" y="66.0" width="430.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Nhóm</text>
+  <text x="201.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">4</text>
+  <text x="301.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">4+0+0</text>
+  <text x="406.0" y="83.0" fill="#b45309" font-size="10" text-anchor="middle">r--</text>
+  <rect x="16.0" y="92.0" width="430.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Khác</text>
+  <text x="201.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">4</text>
+  <text x="301.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">4+0+0</text>
+  <text x="406.0" y="109.0" fill="#b45309" font-size="10" text-anchor="middle">r--</text>
+  <text x="231.0" y="136.0" fill="#475569" font-size="10" text-anchor="middle">Ký hiệu đầy đủ: -rw-r--r--</text>
+</svg>
 
 Đây là quyền thường gặp nhất cho file cấu hình: chủ sở hữu đọc/ghi; nhóm và người khác chỉ đọc.
 
@@ -194,22 +247,25 @@ $ ls -la /usr/bin/ping
 \`\`\`
 
 **Walk-through chạy \`passwd\`:**
-\`\`\`
-User alice (UID 1001) chạy: passwd
-   ↓
-Kernel: fork() + execve("/usr/bin/passwd")
-   ↓
-Kernel: setuid bit = 1, chủ sở hữu = root (UID 0)
-→ euid của tiến trình = 0 (root)
-→ ruid của tiến trình = 1001 (alice, vẫn biết mình là ai)
-   ↓
-passwd chạy với euid=0 → có thể đọc/ghi /etc/shadow
-passwd kiểm tra: ruid=1001 → chỉ được phép đổi password của user 1001
-   ↓
-Ghi hash mới vào /etc/shadow thành công
-   ↓
-passwd exit → tiến trình kết thúc, euid=0 không còn tồn tại
-\`\`\`
+<svg viewBox="0 0 600 356" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Setuid: alice chạy passwd, tiến trình có euid=0 (root) nhưng ruid=1001; ghi /etc/shadow xong thì exit, quyền root biến mất">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="440.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">alice (UID 1001) chạy passwd</text>
+  <line x1="300.0" y1="60.0" x2="300.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="78.0" width="440.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="103.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">fork() + execve(&quot;/usr/bin/passwd&quot;)</text>
+  <text x="300.0" y="119.2" fill="#475569" font-size="11" text-anchor="middle">setuid bit=1, chủ sở hữu root → euid=0, ruid=1001</text>
+  <line x1="300.0" y1="138.0" x2="300.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="156.0" width="440.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="181.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">passwd với euid=0 đọc/ghi được /etc/shadow</text>
+  <text x="300.0" y="197.2" fill="#475569" font-size="11" text-anchor="middle">kiểm tra ruid=1001 → chỉ được đổi password của alice</text>
+  <line x1="300.0" y1="216.0" x2="300.0" y2="232.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="234.0" width="440.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="260.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Ghi hash mới vào /etc/shadow thành công</text>
+  <line x1="300.0" y1="280.0" x2="300.0" y2="296.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="298.0" width="440.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="300.0" y="324.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">passwd exit — euid=0 không còn tồn tại</text>
+</svg>
 
 **Setgid**: tương tự setuid nhưng cho GID — tiến trình chạy với egid = GID của file.
 
@@ -227,16 +283,25 @@ passwd exit → tiến trình kết thúc, euid=0 không còn tồn tại
 
 Giả sử có binary \`/usr/local/bin/backup\` với setuid root, và binary có lỗ hổng buffer overflow:
 
-\`\`\`
-Attacker (uid=1001) chạy /usr/local/bin/backup với input được craft
-   ↓
-euid của tiến trình = 0 (root) vì setuid
-   ↓
-Buffer overflow trong backup → ghi đè return address
-   ↓
-Attacker kiểm soát luồng thực thi với euid=0
-→ Chạy /bin/sh với euid=0 → shell root!
-\`\`\`
+<svg viewBox="0 0 560 356" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Rủi ro setuid: chương trình backup setuid-root có buffer overflow cho phép attacker ghi đè return address và lấy shell root">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Attacker (uid=1001) chạy /usr/local/bin/backup</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">với input được craft</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="92.0" width="380.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="118.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">euid = 0 (root) vì setuid bit</text>
+  <line x1="280.0" y1="138.0" x2="280.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="156.0" width="380.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="181.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Buffer overflow trong backup</text>
+  <text x="280.0" y="197.2" fill="#475569" font-size="11" text-anchor="middle">ghi đè return address</text>
+  <line x1="280.0" y1="216.0" x2="280.0" y2="232.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="234.0" width="380.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="260.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Attacker kiểm soát luồng thực thi với euid=0</text>
+  <line x1="280.0" y1="280.0" x2="280.0" y2="296.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="298.0" width="380.0" height="44.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="280.0" y="324.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Chạy /bin/sh với euid=0 → SHELL ROOT!</text>
+</svg>
 
 **Ví dụ cơ chế — Khai thác sudo misconfiguration:**
 

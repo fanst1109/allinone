@@ -111,13 +111,23 @@ bảng_cấp_2_B[p2=3] = frame 127
 \`\`\`
 
 **Tổng kết walk-through:**
-\`\`\`
-0x00403004
-  → p1=1, p2=3, offset=4
-  → outer_table[1] → bảng B
-  → bảng B[3] = frame 127
-  → vật lý = 0x7F004
-\`\`\`
+<svg viewBox="0 0 882 68" style="max-width:882px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Dịch địa chỉ 2 cấp: 0x00403004 tách p1=1, p2=3, offset=4; outer_table[1] ra bảng B, B[3] = frame 127, địa chỉ vật lý 0x7F004">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="14.0" y="14.0" width="110.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="69.0" y="37.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">0x00403004</text>
+  <line x1="126.0" y1="34.0" x2="154.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="156.0" y="14.0" width="154.2" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="233.1" y="37.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">p1=1, p2=3, offset=4</text>
+  <line x1="312.2" y1="34.0" x2="340.2" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="342.2" y="14.0" width="173.7" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="429.1" y="37.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">outer_table[1] → bảng B</text>
+  <line x1="517.9" y1="34.0" x2="545.9" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="547.9" y="14.0" width="160.7" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="628.3" y="37.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">bảng B[3] = frame 127</text>
+  <line x1="710.6" y1="34.0" x2="738.6" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="740.6" y="14.0" width="128.2" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="804.7" y="37.7" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">vật lý = 0x7F004</text>
+</svg>
 
 ### 2.3. Walk-through 2 cấp — Ví dụ 2
 
@@ -196,13 +206,30 @@ Lần đầu bạn đi đến siêu thị, phải tra bản đồ (mất thời 
 
 **Truy cập địa chỉ ảo:**
 
-\`\`\`
-1. Tách page_number từ địa chỉ ảo.
-2. Tra TLB:
-   - TLB HIT: tìm thấy frame number trong TLB → dùng luôn, không tra bảng trang.
-   - TLB MISS: không có → phải tra bảng trang (1 hoặc nhiều lần RAM access) → nạp vào TLB.
-3. Tính địa chỉ vật lý.
-\`\`\`
+<svg viewBox="0 0 890 150" style="max-width:890px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Tra TLB: hit thì dùng frame number ngay, miss thì tra bảng trang rồi nạp TLB; cuối cùng tính địa chỉ vật lý">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="50.0" width="190.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="111.0" y="66.3" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Tách page_number</text>
+  <text x="111.0" y="81.3" fill="#475569" font-size="10" text-anchor="middle">từ địa chỉ ảo</text>
+  <line x1="208.0" y1="70.0" x2="266.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="268.0" y="50.0" width="110.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="323.0" y="73.8" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Tra TLB</text>
+  <path d="M 380.0,70.0 L 420.0,70.0 L 420.0,30.0 L 458.0,30.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="424.0" y="22.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">TLB HIT</text>
+  <rect x="460.0" y="12.0" width="240.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="580.0" y="26.4" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">dùng frame number ngay</text>
+  <text x="580.0" y="40.9" fill="#475569" font-size="9" text-anchor="middle">không tra bảng trang</text>
+  <path d="M 420.0,70.0 L 420.0,110.0 L 458.0,110.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="424.0" y="100.0" fill="#dc2626" font-size="10" text-anchor="start" font-weight="700">TLB MISS</text>
+  <rect x="460.0" y="92.0" width="240.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="580.0" y="106.4" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">tra bảng trang (1+ lần RAM)</text>
+  <text x="580.0" y="120.9" fill="#475569" font-size="9" text-anchor="middle">rồi nạp vào TLB</text>
+  <path d="M 580.0,48.0 L 580.0,70.0 L 700.0,70.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <path d="M 580.0,130.0 L 580.0,70.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <line x1="700.0" y1="70.0" x2="718.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="720.0" y="52.0" width="150.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="795.0" y="73.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">Tính địa chỉ vật lý</text>
+</svg>
 
 **Thời gian truy cập:**
 

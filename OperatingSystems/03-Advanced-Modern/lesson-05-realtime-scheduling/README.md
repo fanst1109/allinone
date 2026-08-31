@@ -270,14 +270,33 @@ Tưởng tượng bạn (ưu tiên cao) cần mượn sách từ thư viện. Th
 - τ_H (ưu tiên cao) và τ_L (ưu tiên thấp) chia sẻ mutex M.
 - τ_M (ưu tiên trung bình) không dùng M.
 
-```
-t=0: τ_L lock(M), bắt đầu critical section
-t=1: τ_H kích hoạt, preempt τ_L → nhưng cần lock(M) → bị block
-t=2: τ_L được chạy lại (để hoàn thành unlock) → τ_M kích hoạt, preempt τ_L!
-t=2..5: τ_M chạy xong (không liên quan M)
-t=5: τ_L chạy tiếp, unlock(M)
-t=6: τ_H chạy xong
-```
+<svg viewBox="0 0 640 158" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Priority inversion: τ_L giữ M, τ_H block; τ_M ưu tiên giữa preempt τ_L t=2..5 khiến τ_H phải chờ tới t=6">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="110.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">6</text>
+  <line x1="227.5" y1="24.0" x2="227.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="227.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">1.5</text>
+  <line x1="345.0" y1="24.0" x2="345.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="345.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">3</text>
+  <line x1="462.5" y1="24.0" x2="462.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="462.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">4.5</text>
+  <line x1="110.0" y1="24.0" x2="110.0" y2="118.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="24.0" x2="580.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">τ_H (cao)</text>
+  <rect x="188.3" y="32.0" width="313.3" height="20.0" rx="3" fill="#dc2626" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="345.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">BLOCK chờ M</text>
+  <rect x="501.7" y="32.0" width="78.3" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="540.8" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy</text>
+  <text x="102.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">τ_M (giữa)</text>
+  <rect x="266.7" y="62.0" width="235.0" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="384.2" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy — preempt τ_L!</text>
+  <text x="102.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">τ_L (thấp)</text>
+  <rect x="110.0" y="92.0" width="156.7" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="188.3" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">giữ M (CS)</text>
+  <rect x="501.7" y="92.0" width="54.8" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="529.1" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">unlock</text>
+  <text x="320.0" y="138.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">τ_M không liên quan M nhưng làm τ_H trễ — đảo ngược ưu tiên</text>
+</svg>
 
 τ_H bị chặn từ t=1 đến t=5 — do τ_M gián tiếp!
 
@@ -287,13 +306,31 @@ t=6: τ_H chạy xong
 
 **Giải pháp:** Khi τ_H bị block bởi τ_L đang giữ mutex, tạm thời **nâng ưu tiên của τ_L lên bằng τ_H**.
 
-```
-t=0: τ_L lock(M)
-t=1: τ_H cần M → bị block → τ_L thừa kế ưu tiên của τ_H
-t=1..2: τ_L chạy với ưu tiên cao (τ_M không thể preempt!)
-t=2: τ_L unlock(M) → ưu tiên τ_L trở về bình thường
-t=2: τ_H được thức dậy, chạy ngay
-```
+<svg viewBox="0 0 640 158" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Priority inheritance: τ_L thừa kế ưu tiên của τ_H nên τ_M không preempt được; τ_L unlock tại t=2, τ_H chạy ngay">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="110.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="580.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">5</text>
+  <line x1="227.5" y1="24.0" x2="227.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="227.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">1.25</text>
+  <line x1="345.0" y1="24.0" x2="345.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="345.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">2.5</text>
+  <line x1="462.5" y1="24.0" x2="462.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="462.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">3.75</text>
+  <line x1="110.0" y1="24.0" x2="110.0" y2="118.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="580.0" y1="24.0" x2="580.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">τ_H (cao)</text>
+  <rect x="204.0" y="32.0" width="94.0" height="20.0" rx="3" fill="#dc2626" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="251.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">block</text>
+  <rect x="298.0" y="32.0" width="94.0" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="345.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy ngay</text>
+  <text x="102.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">τ_M (giữa)</text>
+  <rect x="392.0" y="62.0" width="188.0" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="486.0" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy sau</text>
+  <text x="102.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">τ_L (thấp)</text>
+  <rect x="110.0" y="92.0" width="188.0" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="204.0" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">giữ M — thừa kế ưu tiên τ_H</text>
+  <text x="320.0" y="138.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">τ_M bị đẩy xuống sau — không còn inversion</text>
+</svg>
 
 τ_H chỉ bị chặn từ t=1 đến t=2 — giảm từ 4 đơn vị xuống còn 1!
 
@@ -386,27 +423,59 @@ Timeline chi tiết:
 **Tình huống:** τ_H(ưu tiên cao), τ_M(trung bình), τ_L(thấp). Mutex M.
 
 **(a) Không có priority inheritance:**
-```
-t=0: τ_L kích hoạt, lock(M), bắt đầu critical section (cần 3 đơn vị)
-t=1: τ_H kích hoạt → cần lock(M) → bị block (M đang giữ bởi τ_L)
-t=1: τ_M kích hoạt → preempt τ_L (vì τ_M > τ_L)
-t=1..4: τ_M thực thi xong
-t=4: τ_L tiếp tục → t=4..6 (còn 2 đơn vị trong CS)
-t=6: τ_L unlock(M) → τ_H được thức dậy
-t=6..8: τ_H thực thi xong
-```
+<svg viewBox="0 0 760 136" style="max-width:760px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Không inheritance: τ_L bị τ_M preempt giữa CS, τ_H block từ t=1 tới t=6 rồi mới chạy xong t=8">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="110.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="700.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">8</text>
+  <line x1="257.5" y1="24.0" x2="257.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="257.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">2</text>
+  <line x1="405.0" y1="24.0" x2="405.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="405.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">4</text>
+  <line x1="552.5" y1="24.0" x2="552.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="552.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">6</text>
+  <line x1="110.0" y1="24.0" x2="110.0" y2="118.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="700.0" y1="24.0" x2="700.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">τ_H (cao)</text>
+  <rect x="183.8" y="32.0" width="368.8" height="20.0" rx="3" fill="#dc2626" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="368.1" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">BLOCK chờ M</text>
+  <rect x="552.5" y="32.0" width="147.5" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="626.2" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy</text>
+  <text x="102.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">τ_M (giữa)</text>
+  <rect x="183.8" y="62.0" width="221.2" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="294.4" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy — preempt τ_L</text>
+  <text x="102.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">τ_L (thấp)</text>
+  <rect x="110.0" y="92.0" width="73.8" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="146.9" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">CS (1/3)</text>
+  <rect x="405.0" y="92.0" width="147.5" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="556.5" y="106.0" fill="#1d4ed8" font-size="9" text-anchor="start">CS (2 còn lại), unlock t=6</text>
+</svg>
 τ_H bị block: **5 đơn vị** (t=1 đến t=6). Bị τ_M (không liên quan M) làm delay!
 
 **(b) Có priority inheritance:**
-```
-t=0: τ_L lock(M)
-t=1: τ_H cần M → bị block → τ_L thừa kế ưu tiên của τ_H (bây giờ τ_L có ưu tiên cao nhất)
-t=1: τ_M kích hoạt nhưng KHÔNG thể preempt τ_L (τ_L đang có ưu tiên cao hơn τ_M!)
-t=1..3: τ_L hoàn thành critical section với ưu tiên thừa kế
-t=3: τ_L unlock(M), ưu tiên trở về bình thường → τ_H thức dậy ngay
-t=3..5: τ_H thực thi xong
-t=5..8: τ_M thực thi
-```
+<svg viewBox="0 0 680 136" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Có inheritance: τ_L chạy trọn CS với ưu tiên thừa kế, unlock t=3; τ_H xong t=5, τ_M chạy t=5–8">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <text x="110.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="620.0" y="18.0" fill="#475569" font-size="10" text-anchor="middle">8</text>
+  <line x1="237.5" y1="24.0" x2="237.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="237.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">2</text>
+  <line x1="365.0" y1="24.0" x2="365.0" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="365.0" y="18.0" fill="#475569" font-size="9" text-anchor="middle">4</text>
+  <line x1="492.5" y1="24.0" x2="492.5" y2="118.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="492.5" y="18.0" fill="#475569" font-size="9" text-anchor="middle">6</text>
+  <line x1="110.0" y1="24.0" x2="110.0" y2="118.0" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="620.0" y1="24.0" x2="620.0" y2="118.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="102.0" y="46.0" fill="#475569" font-size="10" text-anchor="end">τ_H (cao)</text>
+  <rect x="173.8" y="32.0" width="127.5" height="20.0" rx="3" fill="#dc2626" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="237.5" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">block</text>
+  <rect x="301.2" y="32.0" width="127.5" height="20.0" rx="3" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="365.0" y="46.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy</text>
+  <text x="102.0" y="76.0" fill="#475569" font-size="10" text-anchor="end">τ_M (giữa)</text>
+  <rect x="428.8" y="62.0" width="191.2" height="20.0" rx="3" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="524.4" y="76.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">chạy</text>
+  <text x="102.0" y="106.0" fill="#475569" font-size="10" text-anchor="end">τ_L (thấp)</text>
+  <rect x="110.0" y="92.0" width="191.2" height="20.0" rx="3" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="205.6" y="106.0" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">CS — thừa kế ưu tiên τ_H</text>
+</svg>
 τ_H bị block: **2 đơn vị** (t=1 đến t=3). Giảm đáng kể so với 5 đơn vị!
 
 ---

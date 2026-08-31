@@ -167,20 +167,29 @@ Kernel thực thi lệnh `sysret`, CPU:
 
 **Walk-through ví dụ — Lệnh `cat file.txt`:**
 
-```
-shell fork()                   → tạo process con (PID mới)
-  process con: exec("cat", "file.txt")
-    → kernel nạp binary /bin/cat vào bộ nhớ
-    cat: open("file.txt", O_RDONLY) → trả fd=3
-    cat: vòng lặp:
-         read(fd=3, buf, 4096) → đọc tối đa 4096 byte
-         write(fd=1, buf, n)   → ghi ra stdout (fd 1)
-         ... cho đến khi read() trả về 0 (EOF)
-    cat: close(fd=3)
-    cat: exit(0)
-  shell: wait()                → chờ cat kết thúc
-  shell: in prompt tiếp theo
-```
+<svg viewBox="0 0 580 444" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi syscall khi shell chạy cat file.txt: fork, exec, open trả fd=3, vòng lặp read/write tới EOF, close, exit, shell wait">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="400.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">shell: fork()</text>
+  <text x="290.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">tạo process con (PID mới)</text>
+  <line x1="290.0" y1="74.0" x2="290.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="94.0" width="400.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="119.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">con: exec(&quot;cat&quot;, &quot;file.txt&quot;)</text>
+  <text x="290.0" y="135.2" fill="#475569" font-size="11" text-anchor="middle">kernel nạp /bin/cat vào bộ nhớ</text>
+  <line x1="290.0" y1="154.0" x2="290.0" y2="172.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="174.0" width="400.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="200.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">cat: open(&quot;file.txt&quot;, O_RDONLY) → fd=3</text>
+  <line x1="290.0" y1="220.0" x2="290.0" y2="238.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="240.0" width="400.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="265.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">vòng lặp: read(fd=3, buf, 4096) → write(fd=1, buf, n)</text>
+  <text x="290.0" y="281.2" fill="#475569" font-size="11" text-anchor="middle">đến khi read() trả 0 (EOF)</text>
+  <line x1="290.0" y1="300.0" x2="290.0" y2="318.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="320.0" width="400.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="346.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">cat: close(fd=3) → exit(0)</text>
+  <line x1="290.0" y1="366.0" x2="290.0" y2="384.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="386.0" width="400.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="412.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">shell: wait() → chờ cat kết thúc, in prompt tiếp</text>
+</svg>
 
 Toàn bộ chuỗi `cat file.txt` = khoảng 6-10 syscall — tất cả đều qua cơ chế trap/sysret mô tả ở trên.
 

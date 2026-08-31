@@ -40,16 +40,29 @@ STORE count, reg    ; ghi kết quả về bộ nhớ
 
 Xét 2 thread A và B cùng chạy `count++` khi `count = 0`:
 
-```
-Thread A                    Thread B                    count (RAM)
-─────────────────────────────────────────────────────────────────────
-LOAD  regA, count                                         0
-                            LOAD  regB, count             0
-ADD   regA, 1  → regA=1
-                            ADD   regB, 1  → regB=1
-STORE count, regA                                         1
-                            STORE count, regB             1   ← MẤT!
-```
+<svg viewBox="0 0 582 210" style="max-width:582px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Race condition: hai thread cùng LOAD count=0, cùng ADD lên 1, cùng STORE — kết quả 1 thay vì 2, một lần tăng bị mất">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="550.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thread A</text>
+  <text x="236.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thread B</text>
+  <text x="501.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">count (RAM)</text>
+  <rect x="16.0" y="40.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">LOAD  regA, count</text>
+  <text x="501.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <rect x="16.0" y="66.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="236.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">LOAD  regB, count</text>
+  <text x="501.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <rect x="16.0" y="92.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">ADD  regA, 1 → regA=1</text>
+  <rect x="16.0" y="118.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="236.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">ADD  regB, 1 → regB=1</text>
+  <rect x="16.0" y="144.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">STORE count, regA</text>
+  <text x="501.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <rect x="16.0" y="170.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="236.0" y="187.0" fill="#dc2626" font-size="10" text-anchor="start">STORE count, regB</text>
+  <text x="501.0" y="187.0" fill="#dc2626" font-size="10" text-anchor="middle">1  ← MẤT!</text>
+</svg>
 
 **Phân tích:** Thread A load `count = 0`, bị preempt (scheduler chuyển CPU sang B). B cũng load `count = 0`, cộng 1 và lưu lại. A tiếp tục, cũng lưu `regA = 1`. Kết quả cuối: `count = 1` thay vì `count = 2` — **một lần tăng bị mất**.
 
@@ -187,19 +200,34 @@ lock = false
 
 **Walk-through với 2 thread (lock ban đầu = false):**
 
-```
-Thread A                        Thread B                    lock
-────────────────────────────────────────────────────────────────
-TAS(&lock) → trả về false, set lock=true                   true
-// A vào CS ─────────────────────────────────────────────────────
-                                TAS(&lock) → trả về true   true
-                                // trả true → spin          true
-                                TAS(&lock) → trả về true   true
-                                // spin tiếp...             true
-// A ra CS: lock = false                                    false
-                                TAS(&lock) → trả về false, set true
-                                // B vào CS                 true
-```
+<svg viewBox="0 0 582 236" style="max-width:582px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Test-And-Set: A đặt lock=true và vào CS; B spin vì TAS trả true; A ra đặt false, B TAS thành công và vào CS">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="550.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thread A</text>
+  <text x="256.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thread B</text>
+  <text x="521.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">lock</text>
+  <rect x="16.0" y="40.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">TAS(&amp;lock) → false, set lock=true</text>
+  <text x="521.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <rect x="16.0" y="66.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#15803d" font-size="10" text-anchor="start">A vào critical section</text>
+  <text x="521.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <rect x="16.0" y="92.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="256.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">TAS(&amp;lock) → true → SPIN</text>
+  <text x="521.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <rect x="16.0" y="118.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="256.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">TAS(&amp;lock) → true → spin tiếp…</text>
+  <text x="521.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <rect x="16.0" y="144.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#15803d" font-size="10" text-anchor="start">A ra CS: lock=false</text>
+  <text x="521.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">false</text>
+  <rect x="16.0" y="170.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="256.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="start">TAS(&amp;lock) → false, set true</text>
+  <text x="521.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <rect x="16.0" y="196.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="256.0" y="213.0" fill="#15803d" font-size="10" text-anchor="start">B vào critical section</text>
+  <text x="521.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+</svg>
 
 ### 3.3. Spinlock vs Blocking Lock
 
@@ -286,21 +314,55 @@ flag[i] = false         // "Tôi đã xong, nhường bạn"
 
 **Kịch bản 1 — Cả hai cùng vào lúc nhau:**
 
-```
-P0:                         P1:                      flag[0]  flag[1]  turn
-────────────────────────────────────────────────────────────────────────────
-flag[0] = true                                          true     false    ?
-turn = 1                                                true     false    1
-                            flag[1] = true              true     true     1
-                            turn = 0                    true     true     0
-// P0 kiểm tra: flag[1]==true VÀ turn==1? → turn==0 (false) → THOÁT vòng lặp
-// P0 vào CS ─────────────────────────────────────────────────────────────────
-                            // P1 kiểm tra: flag[0]==true VÀ turn==0? → TRUE
-                            // P1 CHỜ
-flag[0] = false             // P0 ra CS               false     true     0
-                            // P1 kiểm tra: flag[0]==false → THOÁT vòng lặp
-                            // P1 vào CS
-```
+<svg viewBox="0 0 672 262" style="max-width:672px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Peterson: cả hai giơ cờ, turn=0 quyết định P0 vào trước, P1 chờ; P0 hạ cờ thì P1 vào">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="640.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">P0</text>
+  <text x="246.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">P1</text>
+  <text x="491.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">flag[0]</text>
+  <text x="561.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">flag[1]</text>
+  <text x="626.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">turn</text>
+  <rect x="16.0" y="40.0" width="640.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">flag[0]=true</text>
+  <text x="491.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="561.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">false</text>
+  <text x="626.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">?</text>
+  <rect x="16.0" y="66.0" width="640.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">turn=1</text>
+  <text x="491.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="561.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">false</text>
+  <text x="626.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <rect x="16.0" y="92.0" width="640.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="246.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">flag[1]=true</text>
+  <text x="491.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="561.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="626.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <rect x="16.0" y="118.0" width="640.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="246.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">turn=0</text>
+  <text x="491.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="561.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="626.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <rect x="16.0" y="144.0" width="640.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#15803d" font-size="10" text-anchor="start">P0: flag[1] &amp;&amp; turn==1? sai → VÀO CS</text>
+  <text x="491.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="561.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="626.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <rect x="16.0" y="170.0" width="640.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="246.0" y="187.0" fill="#dc2626" font-size="10" text-anchor="start">P1: flag[0] &amp;&amp; turn==0? đúng → CHỜ</text>
+  <text x="491.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="561.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="626.0" y="187.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <rect x="16.0" y="196.0" width="640.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="213.0" fill="#15803d" font-size="10" text-anchor="start">P0 ra CS: flag[0]=false</text>
+  <text x="491.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">false</text>
+  <text x="561.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="626.0" y="213.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+  <rect x="16.0" y="222.0" width="640.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="246.0" y="239.0" fill="#15803d" font-size="10" text-anchor="start">P1: flag[0]==false → VÀO CS</text>
+  <text x="491.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">false</text>
+  <text x="561.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">true</text>
+  <text x="626.0" y="239.0" fill="#1f2937" font-size="10" text-anchor="middle">0</text>
+</svg>
 
 **Kịch bản 2 — Chỉ P0 muốn vào:**
 
@@ -446,16 +508,29 @@ Hoặc dùng `sync/atomic` nếu chỉ thao tác đơn giản.
 
 **Bài 2 — Walk-through load/add/store**
 
-```
-Thread A (x += 5)          Thread B (x += 5)          x
-─────────────────────────────────────────────────────────
-LOAD  rA, x  → rA = 10                                 10
-                            LOAD  rB, x  → rB = 10     10
-ADD   rA, 5  → rA = 15
-STORE x, rA                                            15
-                            ADD   rB, 5  → rB = 15
-                            STORE x, rB                15  ← x = 15, đúng ra phải là 20
-```
+<svg viewBox="0 0 592 210" style="max-width:592px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lost update với x += 5: cả hai đọc x=10, cùng cộng 5 và ghi 15 — một lần cộng biến mất">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="560.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thread A (x += 5)</text>
+  <text x="226.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Thread B (x += 5)</text>
+  <text x="496.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">x</text>
+  <rect x="16.0" y="40.0" width="560.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">LOAD rA, x → rA=10</text>
+  <text x="496.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">10</text>
+  <rect x="16.0" y="66.0" width="560.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="226.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">LOAD rB, x → rB=10</text>
+  <text x="496.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">10</text>
+  <rect x="16.0" y="92.0" width="560.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">ADD rA, 5 → rA=15</text>
+  <rect x="16.0" y="118.0" width="560.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">STORE x, rA</text>
+  <text x="496.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">15</text>
+  <rect x="16.0" y="144.0" width="560.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="226.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">ADD rB, 5 → rB=15</text>
+  <rect x="16.0" y="170.0" width="560.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="226.0" y="187.0" fill="#dc2626" font-size="10" text-anchor="start">STORE x, rB</text>
+  <text x="496.0" y="187.0" fill="#dc2626" font-size="10" text-anchor="middle">15 — đúng ra phải 20</text>
+</svg>
 
 Thread B load giá trị cũ (`x = 10`) trước khi A ghi kết quả. B tính xong và ghi đè lên giá trị của A. Một lần cộng 5 bị mất.
 

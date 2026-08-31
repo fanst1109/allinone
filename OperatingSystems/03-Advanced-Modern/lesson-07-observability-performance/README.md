@@ -288,11 +288,22 @@ Chẩn đoán: **RAM không đủ → thrashing** (swap liên tục) + I/O bottl
 Thrashing = tình trạng OS dành phần lớn thời gian swap trang (page fault liên tục) thay vì chạy process thật. Giống người làm việc nhưng 90% thời gian bị gián đoạn để tìm hồ sơ.
 
 **Vòng luẩn quẩn:**
-```
-RAM đầy → page fault → kernel swap trang ra đĩa → 
-→ process cần trang đó → lại swap vào → 
-→ swap process khác ra → ... (lặp vô tận)
-```
+<svg viewBox="0 0 520 244" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng swap thrashing: RAM đầy gây page fault, kernel swap ra đĩa, process lại cần trang đó swap vào, đẩy trang khác ra — lặp vô tận">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="165.0" y="12.0" width="190.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="260.0" y="31.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">RAM đầy</text>
+  <rect x="355.0" y="104.0" width="190.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="450.0" y="123.7" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">page fault</text>
+  <rect x="165.0" y="196.0" width="190.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="260.0" y="215.7" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">swap trang ra đĩa</text>
+  <rect x="-25.0" y="104.0" width="190.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="70.0" y="123.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">process cần trang đó → swap vào lại</text>
+  <line x1="332.0" y1="37.6" x2="376.2" y2="109.5" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="378.0" y1="129.6" x2="333.8" y2="201.5" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="188.0" y1="202.4" x2="143.8" y2="130.5" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="142.0" y1="110.4" x2="186.2" y2="38.5" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="260.0" y="124.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">swap thrashing — lặp vô tận</text>
+</svg>
 
 **Nhận diện thrashing:**
 - `vmstat`: `si` + `so` > 0 liên tục (số MB/s).

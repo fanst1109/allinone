@@ -114,34 +114,102 @@ Ciphertext: Q W E R T Y U I O P A  S  D  F  G  H  J  K  L  Z  X  C  B  N  M  V
 
 **Ví dụ 1 — Encrypt "HELLO" với key trên:**
 
-```
-H → I
-E → T
-L → S
-L → S
-O → G
-
-"HELLO" → "ITSSG"
-```
+<svg viewBox="0 0 280 150" style="max-width:280px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thay thế từng chữ theo bảng khóa: H→I, E→T, L→S, O→G cho ra ITSSG">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="40.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">H</text>
+  <line x1="40.0" y1="56.0" x2="40.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">I</text>
+  <rect x="66.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="86.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">E</text>
+  <line x1="86.0" y1="56.0" x2="86.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="66.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="86.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">T</text>
+  <rect x="112.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="132.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">L</text>
+  <line x1="132.0" y1="56.0" x2="132.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="112.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="132.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">S</text>
+  <rect x="158.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="178.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">L</text>
+  <line x1="178.0" y1="56.0" x2="178.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="158.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="178.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">S</text>
+  <rect x="204.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="224.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">O</text>
+  <line x1="224.0" y1="56.0" x2="224.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="204.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="224.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">G</text>
+  <text x="20.0" y="136.0" fill="#1f2937" font-size="12" text-anchor="start" font-weight="700">&quot;HELLO&quot; → &quot;ITSSG&quot;</text>
+</svg>
 
 **Ví dụ 2 — Encrypt "CRYPTOGRAPHY":**
 
-```
-C → E
-R → K
-Y → M
-P → H
-T → Z
-O → G
-G → U
-R → K
-A → Q
-P → H
-H → I
-Y → M
-
-"CRYPTOGRAPHY" → "EKHMZGUKQHIM"
-```
+<svg viewBox="0 0 592 150" style="max-width:592px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thay thế 12 chữ CRYPTOGRAPHY theo bảng khóa thành EKHMZGUKQHIM">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="40.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">C</text>
+  <line x1="40.0" y1="56.0" x2="40.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="40.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">E</text>
+  <rect x="66.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="86.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R</text>
+  <line x1="86.0" y1="56.0" x2="86.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="66.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="86.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">K</text>
+  <rect x="112.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="132.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Y</text>
+  <line x1="132.0" y1="56.0" x2="132.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="112.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="132.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">H</text>
+  <rect x="158.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="178.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P</text>
+  <line x1="178.0" y1="56.0" x2="178.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="158.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="178.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">M</text>
+  <rect x="204.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="224.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">T</text>
+  <line x1="224.0" y1="56.0" x2="224.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="204.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="224.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Z</text>
+  <rect x="250.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="270.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">O</text>
+  <line x1="270.0" y1="56.0" x2="270.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="250.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="270.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">G</text>
+  <rect x="296.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="316.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">G</text>
+  <line x1="316.0" y1="56.0" x2="316.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="296.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="316.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">U</text>
+  <rect x="342.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="362.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">R</text>
+  <line x1="362.0" y1="56.0" x2="362.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="342.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="362.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">K</text>
+  <rect x="388.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="408.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">A</text>
+  <line x1="408.0" y1="56.0" x2="408.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="388.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="408.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">Q</text>
+  <rect x="434.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="454.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">P</text>
+  <line x1="454.0" y1="56.0" x2="454.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="434.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="454.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">H</text>
+  <rect x="480.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="500.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">H</text>
+  <line x1="500.0" y1="56.0" x2="500.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="480.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="500.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">I</text>
+  <rect x="526.0" y="20.0" width="40.0" height="34.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="546.0" y="42.0" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="700">Y</text>
+  <line x1="546.0" y1="56.0" x2="546.0" y2="76.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="526.0" y="78.0" width="40.0" height="34.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="546.0" y="100.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">M</text>
+  <text x="20.0" y="136.0" fill="#1f2937" font-size="12" text-anchor="start" font-weight="700">&quot;CRYPTOGRAPHY&quot; → &quot;EKHMZGUKQHIM&quot;</text>
+</svg>
 
 **Ví dụ 3 — Tính key space:**
 

@@ -367,18 +367,40 @@ Verify: $7^1=7$, $7^2=49$, $7^4=49^2=2401 \bmod 100=1$, $7^8=1^2=1$, $7^{13}=7^8
 
 $k = 19 = 10011_2$.
 
-```
-base = 3
-result = 1
-
-Bit 4 (MSB=1): sq→1; mul→3
-Bit 3 (=0):    sq→3^2=9 mod 7=2; no mul
-Bit 2 (=0):    sq→2^2=4 mod 7=4; no mul
-Bit 1 (=1):    sq→4^2=16 mod 7=2; mul→2·3=6 mod 7=6
-Bit 0 (=1):    sq→6^2=36 mod 7=1; mul→1·3=3 mod 7=3
-
-→ 3^19 mod 7 = 3
-```
+<svg viewBox="0 0 582 202" style="max-width:582px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Square-and-multiply 3^19 mod 7 (19 = 10011₂): đi từng bit, luôn bình phương, bit 1 thì nhân thêm 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="550.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Bit</text>
+  <text x="136.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">square</text>
+  <text x="316.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">multiply</text>
+  <text x="511.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">kết quả</text>
+  <rect x="16.0" y="40.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 4 (MSB=1)</text>
+  <text x="136.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 1</text>
+  <text x="316.0" y="57.0" fill="#15803d" font-size="10" text-anchor="start">mul → 3</text>
+  <text x="511.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">3</text>
+  <rect x="16.0" y="66.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 3 (=0)</text>
+  <text x="136.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 3² = 9 mod 7 = 2</text>
+  <text x="316.0" y="83.0" fill="#94a3b8" font-size="10" text-anchor="start">no mul</text>
+  <text x="511.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">2</text>
+  <rect x="16.0" y="92.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 2 (=0)</text>
+  <text x="136.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 2² = 4</text>
+  <text x="316.0" y="109.0" fill="#94a3b8" font-size="10" text-anchor="start">no mul</text>
+  <text x="511.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">4</text>
+  <rect x="16.0" y="118.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 1 (=1)</text>
+  <text x="136.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 4² = 16 mod 7 = 2</text>
+  <text x="316.0" y="135.0" fill="#15803d" font-size="10" text-anchor="start">mul → 2·3 = 6</text>
+  <text x="511.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">6</text>
+  <rect x="16.0" y="144.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 0 (=1)</text>
+  <text x="136.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 6² = 36 mod 7 = 1</text>
+  <text x="316.0" y="161.0" fill="#15803d" font-size="10" text-anchor="start">mul → 1·3 = 3</text>
+  <text x="511.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">3</text>
+  <text x="291.0" y="188.0" fill="#475569" font-size="10" text-anchor="middle">→ 3¹⁹ mod 7 = 3</text>
+</svg>
 
 Cross-check: Fermat: $3^6 \equiv 1 \pmod{7}$. $19 = 3 \cdot 6 + 1$. $3^{19} = (3^6)^3 \cdot 3^1 = 1 \cdot 3 = 3 \pmod{7}$ ✓
 
@@ -386,14 +408,30 @@ Cross-check: Fermat: $3^6 \equiv 1 \pmod{7}$. $19 = 3 \cdot 6 + 1$. $3^{19} = (3
 
 $k = 5 = 101_2$.
 
-```
-base = 17
-Bit 2 (=1): sq→1; mul→17
-Bit 1 (=0): sq→17^2=289 mod 143=289-2·143=3; no mul
-Bit 0 (=1): sq→3^2=9; mul→9·17=153 mod 143=10
-
-→ 17^5 mod 143 = 10
-```
+<svg viewBox="0 0 582 150" style="max-width:582px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Square-and-multiply 17^5 mod 143 (5 = 101₂)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="550.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Bit</text>
+  <text x="136.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">square</text>
+  <text x="316.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">multiply</text>
+  <text x="511.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">kết quả</text>
+  <rect x="16.0" y="40.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 2 (=1)</text>
+  <text x="136.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 1</text>
+  <text x="316.0" y="57.0" fill="#15803d" font-size="10" text-anchor="start">mul → 17</text>
+  <text x="511.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">17</text>
+  <rect x="16.0" y="66.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 1 (=0)</text>
+  <text x="136.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 17² = 289 mod 143 = 3</text>
+  <text x="316.0" y="83.0" fill="#94a3b8" font-size="10" text-anchor="start">no mul</text>
+  <text x="511.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">3</text>
+  <rect x="16.0" y="92.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 0 (=1)</text>
+  <text x="136.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 3² = 9</text>
+  <text x="316.0" y="109.0" fill="#15803d" font-size="10" text-anchor="start">mul → 9·17 = 153 mod 143 = 10</text>
+  <text x="511.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">10</text>
+  <text x="291.0" y="136.0" fill="#475569" font-size="10" text-anchor="middle">→ 17⁵ mod 143 = 10</text>
+</svg>
 
 Verify: $17^2=289=2 \cdot 143+3 \to 3$; $17^4=3^2=9$; $17^5=9 \cdot 17=153=143+10 \to 10$ ✓
 
@@ -477,16 +515,40 @@ Trực tiếp: $22 = 23-1 \to 5^{22} \bmod 23 =$ **1**.
 
 Verify bằng fast exp: $22 = 10110_2$.
 
-```
-base = 5, result = 1
-Bit 4 (=1): sq→1; mul→5
-Bit 3 (=0): sq→5^2=25 mod 23=2; no mul
-Bit 2 (=1): sq→2^2=4; mul→4·5=20
-Bit 1 (=1): sq→20^2=400 mod 23: 400/23=17 dư 9 → 9; mul→9·5=45 mod 23=45-23=22
-Bit 0 (=0): sq→22^2=484 mod 23: 484=21·23+1 → 1; no mul
-
-→ 5^22 mod 23 = 1 ✓
-```
+<svg viewBox="0 0 582 202" style="max-width:582px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Square-and-multiply 5^22 mod 23 (22 = 10110₂) — kiểm chứng Fermat: kết quả 1">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="550.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">Bit</text>
+  <text x="136.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">square</text>
+  <text x="316.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="start" font-weight="700">multiply</text>
+  <text x="511.0" y="31.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">kết quả</text>
+  <rect x="16.0" y="40.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 4 (=1)</text>
+  <text x="136.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 1</text>
+  <text x="316.0" y="57.0" fill="#15803d" font-size="10" text-anchor="start">mul → 5</text>
+  <text x="511.0" y="57.0" fill="#1f2937" font-size="10" text-anchor="middle">5</text>
+  <rect x="16.0" y="66.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 3 (=0)</text>
+  <text x="136.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 5² = 25 mod 23 = 2</text>
+  <text x="316.0" y="83.0" fill="#94a3b8" font-size="10" text-anchor="start">no mul</text>
+  <text x="511.0" y="83.0" fill="#1f2937" font-size="10" text-anchor="middle">2</text>
+  <rect x="16.0" y="92.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 2 (=1)</text>
+  <text x="136.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 2² = 4</text>
+  <text x="316.0" y="109.0" fill="#15803d" font-size="10" text-anchor="start">mul → 4·5 = 20</text>
+  <text x="511.0" y="109.0" fill="#1f2937" font-size="10" text-anchor="middle">20</text>
+  <rect x="16.0" y="118.0" width="550.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 1 (=1)</text>
+  <text x="136.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 20² = 400 mod 23 = 9</text>
+  <text x="316.0" y="135.0" fill="#15803d" font-size="10" text-anchor="start">mul → 9·5 = 45 mod 23 = 22</text>
+  <text x="511.0" y="135.0" fill="#1f2937" font-size="10" text-anchor="middle">22</text>
+  <rect x="16.0" y="144.0" width="550.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">Bit 0 (=0)</text>
+  <text x="136.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="start">sq → 22² = 484 mod 23 = 1</text>
+  <text x="316.0" y="161.0" fill="#94a3b8" font-size="10" text-anchor="start">no mul</text>
+  <text x="511.0" y="161.0" fill="#1f2937" font-size="10" text-anchor="middle">1</text>
+  <text x="291.0" y="188.0" fill="#475569" font-size="10" text-anchor="middle">→ 5²² mod 23 = 1 ✓ (đúng định lý Fermat nhỏ)</text>
+</svg>
 
 ---
 

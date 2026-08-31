@@ -79,15 +79,36 @@ Dấu \`{}\` = đã mã hóa bằng handshake keys.
 
 **Deriving Keys (HKDF)**:
 
-\`\`\`
-HKDF-Extract(salt=0, IKM=0)  →  early_secret
-HKDF-Extract(salt=early_secret, IKM=ECDHE_secret)  →  handshake_secret
-HKDF-Expand(handshake_secret, "c hs traffic")  →  client_handshake_key
-HKDF-Expand(handshake_secret, "s hs traffic")  →  server_handshake_key
-HKDF-Expand(handshake_secret, ...)  →  master_secret
-HKDF-Expand(master_secret, "c ap traffic")  →  client_application_key
-HKDF-Expand(master_secret, "s ap traffic")  →  server_application_key
-\`\`\`
+<svg viewBox="0 0 950 254" style="max-width:950px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Key schedule TLS 1.3: HKDF-Extract ra early_secret rồi handshake_secret (trộn ECDHE); HKDF-Expand ra khóa handshake c/s, master_secret và khóa application c/s">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="220.0" height="36.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="126.0" y="37.5" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">HKDF-Extract(salt=0, IKM=0)</text>
+  <line x1="238.0" y1="34.0" x2="276.0" y2="34.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="278.0" y="16.0" width="140.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="348.0" y="37.7" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">early_secret</text>
+  <line x1="348.0" y1="54.0" x2="348.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="356.0" y="74.0" fill="#475569" font-size="9" text-anchor="start">HKDF-Extract(salt=early_secret, IKM=ECDHE_secret)</text>
+  <rect x="278.0" y="90.0" width="160.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="358.0" y="111.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">handshake_secret</text>
+  <path d="M 320.0,128.0 L 320.0,186.0 L 20.0,186.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <rect x="22.0" y="170.0" width="276.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="160.0" y="189.3" fill="#b45309" font-size="9" text-anchor="middle" font-weight="700">client_handshake_key — &quot;c hs traffic&quot;</text>
+  <path d="M 320.0,128.0 L 320.0,228.0 L 20.0,228.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <rect x="22.0" y="212.0" width="276.0" height="32.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="160.0" y="231.3" fill="#b45309" font-size="9" text-anchor="middle" font-weight="700">server_handshake_key — &quot;s hs traffic&quot;</text>
+  <text x="330.0" y="152.0" fill="#b45309" font-size="9" text-anchor="end">HKDF-Expand</text>
+  <line x1="440.0" y1="108.0" x2="516.0" y2="108.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="478.0" y="102.0" fill="#475569" font-size="9" text-anchor="middle">HKDF-Expand</text>
+  <rect x="518.0" y="90.0" width="140.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="588.0" y="111.7" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">master_secret</text>
+  <path d="M 588.0,128.0 L 588.0,186.0 L 636.0,186.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="638.0" y="170.0" width="290.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="783.0" y="189.3" fill="#15803d" font-size="9" text-anchor="middle" font-weight="700">client_application_key — &quot;c ap traffic&quot;</text>
+  <path d="M 588.0,128.0 L 588.0,228.0 L 636.0,228.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="638.0" y="212.0" width="290.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="783.0" y="231.3" fill="#15803d" font-size="9" text-anchor="middle" font-weight="700">server_application_key — &quot;s ap traffic&quot;</text>
+  <text x="600.0" y="152.0" fill="#15803d" font-size="9" text-anchor="start">HKDF-Expand</text>
+</svg>
 
 **Certificate**: Server's X.509 certificate.
 

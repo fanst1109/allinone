@@ -38,21 +38,173 @@ Trong đó $P[i]$, $C[i]$ = chỉ số plaintext/ciphertext tại vị trí $i$;
 
 Key "LEMON": L=11, E=4, M=12, O=14, N=13. Key length m=5.
 
-\`\`\`
-Vị trí: i=0   i=1   i=2   i=3   i=4   i=5   i=6   i=7   i=8   i=9   i=10  i=11
-Plain:  A     T     T     A     C     K     A     T     D     A     W     N
-Index:  0     19    19    0     2     10    0     19    3     0     22    13
-Key:    L     E     M     O     N     L     E     M     O     N     L     E
-K-idx:  11    4     12    14    13    11    4     12    14    13    11    4
-
-(P+K) mod26:
- 0+11=11=L    19+4=23=X   19+12=31→5=F   0+14=14=O    2+13=15=P
-10+11=21=V    0+4=4=E    19+12=31→5=F    3+14=17=R    0+13=13=N
-22+11=33→7=H  13+4=17=R
-
-Kết quả: L X F O P V E F R N H R
-Ciphertext: "LXFOPVEFRNHR"
-\`\`\`
+<svg viewBox="0 0 680 314" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vigenère ATTACKATDAWN với khóa LEMON: từng cột cộng index plain và key mod 26 ra LXFOPVEFRNHR">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="106.0" y="30.0" fill="#475569" font-size="10" text-anchor="end">i =</text>
+  <text x="132.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">0</text>
+  <text x="176.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">1</text>
+  <text x="220.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">2</text>
+  <text x="264.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">3</text>
+  <text x="308.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">4</text>
+  <text x="352.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">5</text>
+  <text x="396.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">6</text>
+  <text x="440.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">7</text>
+  <text x="484.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">8</text>
+  <text x="528.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">9</text>
+  <text x="572.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">10</text>
+  <text x="616.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle">11</text>
+  <text x="106.0" y="64.0" fill="#1d4ed8" font-size="10" text-anchor="end" font-weight="700">Plain</text>
+  <rect x="110.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="130.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <rect x="154.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="174.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <rect x="198.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="218.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <rect x="242.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="262.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <rect x="286.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="306.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">C</text>
+  <rect x="330.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="350.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">K</text>
+  <rect x="374.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="394.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <rect x="418.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="438.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">T</text>
+  <rect x="462.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="482.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">D</text>
+  <rect x="506.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="526.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">A</text>
+  <rect x="550.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="570.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">W</text>
+  <rect x="594.0" y="40.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="614.0" y="61.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">N</text>
+  <text x="106.0" y="104.0" fill="#1d4ed8" font-size="10" text-anchor="end" font-weight="700">Index</text>
+  <rect x="110.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="130.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="154.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="174.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">19</text>
+  <rect x="198.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="218.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">19</text>
+  <rect x="242.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="262.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="286.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="306.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="330.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="350.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">10</text>
+  <rect x="374.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="394.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="418.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="438.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">19</text>
+  <rect x="462.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="482.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="506.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="526.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">0</text>
+  <rect x="550.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="570.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">22</text>
+  <rect x="594.0" y="80.0" width="40.0" height="32.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="614.0" y="101.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <text x="106.0" y="144.0" fill="#b45309" font-size="10" text-anchor="end" font-weight="700">Key</text>
+  <rect x="110.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="130.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">L</text>
+  <rect x="154.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="174.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">E</text>
+  <rect x="198.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="218.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">M</text>
+  <rect x="242.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="262.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">O</text>
+  <rect x="286.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="306.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">N</text>
+  <rect x="330.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="350.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">L</text>
+  <rect x="374.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="394.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">E</text>
+  <rect x="418.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="438.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">M</text>
+  <rect x="462.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="482.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">O</text>
+  <rect x="506.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="526.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">N</text>
+  <rect x="550.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="570.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">L</text>
+  <rect x="594.0" y="120.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="614.0" y="141.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">E</text>
+  <text x="106.0" y="184.0" fill="#b45309" font-size="10" text-anchor="end" font-weight="700">K-idx</text>
+  <rect x="110.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="130.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">11</text>
+  <rect x="154.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="174.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="198.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="218.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">12</text>
+  <rect x="242.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="262.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">14</text>
+  <rect x="286.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="306.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <rect x="330.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="350.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">11</text>
+  <rect x="374.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="394.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="418.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="438.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">12</text>
+  <rect x="462.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="482.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">14</text>
+  <rect x="506.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="526.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <rect x="550.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="570.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">11</text>
+  <rect x="594.0" y="160.0" width="40.0" height="32.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.4"/>
+  <text x="614.0" y="181.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <text x="106.0" y="224.0" fill="#7c3aed" font-size="10" text-anchor="end" font-weight="700">(P+K) mod 26</text>
+  <rect x="110.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="130.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">11</text>
+  <rect x="154.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="174.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">23</text>
+  <rect x="198.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="218.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <rect x="242.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="262.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">14</text>
+  <rect x="286.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="306.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">15</text>
+  <rect x="330.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="350.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">21</text>
+  <rect x="374.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="394.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="418.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="438.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <rect x="462.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="482.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">17</text>
+  <rect x="506.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="526.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">13</text>
+  <rect x="550.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="570.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <rect x="594.0" y="200.0" width="40.0" height="32.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.4"/>
+  <text x="614.0" y="221.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">17</text>
+  <text x="106.0" y="264.0" fill="#15803d" font-size="10" text-anchor="end" font-weight="700">Cipher</text>
+  <rect x="110.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="130.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">L</text>
+  <rect x="154.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="174.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">X</text>
+  <rect x="198.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="218.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">F</text>
+  <rect x="242.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="262.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">O</text>
+  <rect x="286.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="306.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">P</text>
+  <rect x="330.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="350.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">V</text>
+  <rect x="374.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="394.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">E</text>
+  <rect x="418.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="438.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">F</text>
+  <rect x="462.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="482.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">R</text>
+  <rect x="506.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="526.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">N</text>
+  <rect x="550.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="570.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">H</text>
+  <rect x="594.0" y="240.0" width="40.0" height="32.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="614.0" y="261.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">R</text>
+  <text x="106.0" y="298.0" fill="#475569" font-size="10" text-anchor="start">Ciphertext: &quot;LXFOPVEFRNHR&quot; — ví dụ: i=2: 19+12=31 → 31−26=5 = F</text>
+</svg>
 
 **Ví dụ 2 — Decrypt "LXFOPVEFRNHR" với key "LEMON":**
 

@@ -356,20 +356,34 @@ $0.40 \\to 0.20 \\to 0.10 \\to 0.05$. Còn $0.05$.
 
 Đặt mọi thứ vào một frame, đây là thứ tự một physics engine thật (kiểu Box2D) chạy:
 
-\`\`\`
-mỗi frame (dt):
-  1. Tích phân lực:    v += (F/m)·dt        (trọng lực, drag — Lesson 04)
-  2. Phát hiện va chạm: tìm tất cả contact + penetration + n  (Lesson 07/08)
-  3. Bỏ qua vật đang ngủ (Sleeping — mục 6)
-  4. Giải vận tốc (lặp velocityIterations lần):   ← Sequential impulse, mục 5
-       với mỗi contact:
-         - impulse pháp tuyến jₙ (có restitution slop)   ← L09 + mục 3
-         - impulse ma sát jₜ, kẹp |jₜ| ≤ μ·jₙ            ← mục 2
-  5. Tích phân vị trí:  pos += v·dt
-  6. Giải vị trí (lặp positionIterations lần):    ← mục 4 + mục 5
-         positional correction (slop + percent)
-  7. Cập nhật sleeping: vật nào đủ chậm đủ lâu → ngủ; va chạm mới → đánh thức
-\`\`\`
+<svg viewBox="0 0 580 514" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Pipeline vật lý mỗi frame: tích phân lực, phát hiện va chạm, giải vận tốc lặp, tích phân vị trí, giải vị trí lặp, cập nhật sleeping">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="400.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. Tích phân lực: v += (F/m)·dt</text>
+  <text x="290.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">trọng lực, drag — L04</text>
+  <line x1="290.0" y1="74.0" x2="290.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="90.0" width="400.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="115.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">2. Phát hiện va chạm: contact + penetration + n</text>
+  <text x="290.0" y="131.2" fill="#475569" font-size="11" text-anchor="middle">L07/L08</text>
+  <line x1="290.0" y1="150.0" x2="290.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="166.0" width="400.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="290.0" y="192.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">3. Bỏ qua vật đang ngủ (Sleeping — mục 6)</text>
+  <line x1="290.0" y1="212.0" x2="290.0" y2="226.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="228.0" width="400.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="253.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4. Giải vận tốc ×velocityIterations</text>
+  <text x="290.0" y="269.2" fill="#475569" font-size="11" text-anchor="middle">jₙ (restitution slop) · jₜ kẹp |jₜ| ≤ μ·jₙ</text>
+  <line x1="290.0" y1="288.0" x2="290.0" y2="302.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="304.0" width="400.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="330.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5. Tích phân vị trí: pos += v·dt</text>
+  <line x1="290.0" y1="350.0" x2="290.0" y2="364.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="366.0" width="400.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="391.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">6. Giải vị trí ×positionIterations</text>
+  <text x="290.0" y="407.2" fill="#475569" font-size="11" text-anchor="middle">positional correction (slop + percent)</text>
+  <line x1="290.0" y1="426.0" x2="290.0" y2="440.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="442.0" width="400.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="467.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">7. Cập nhật sleeping</text>
+  <text x="290.0" y="483.2" fill="#475569" font-size="11" text-anchor="middle">đủ chậm đủ lâu → ngủ; va chạm mới → thức</text>
+</svg>
 
 🔗 **Đây chính là cái làm nên một physics engine "thật".** [Box2D](https://box2d.org/) (engine 2D nổi tiếng dùng trong Angry Birds, vô số game) chạy đúng pipeline này: broad-phase → narrow-phase → sequential impulse solver (velocity + position iteration) → sleeping islands. Bạn vừa hiểu xương sống của nó.
 

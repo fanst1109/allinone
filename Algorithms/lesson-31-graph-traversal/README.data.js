@@ -308,20 +308,27 @@ func (g *Graph) DFS(start int) []int {
 
 Walk-through DFS từ đỉnh \`0\` trên đồ thị mục 2.1 (hàng xóm xét theo thứ tự trong adj):
 
-\`\`\`
-Vào 0 → vào 1 (hàng xóm đầu của 0)
-  Vào 1 → vào 0? đã thăm. vào 3
-    Vào 3 → vào 1? đã thăm. vào 5
-      Vào 5 → vào 3? đã. vào 4
-        Vào 4 → 1,2 ... 1 đã thăm; vào 2
-          Vào 2 → 0,4 đều đã thăm → cụt, RỜI 2
-        RỜI 4
-      RỜI 5
-    RỜI 3
-  RỜI 1
-  (0 còn hàng xóm 2 nhưng 2 đã thăm)
-RỜI 0
-\`\`\`
+<svg viewBox="0 0 310 348" style="max-width:310px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thứ tự DFS từ đỉnh 0: vào 0→1→3→5→4→2 rồi lần lượt rời theo chiều ngược; số khoanh = thứ tự vào/rời">
+  <defs></defs>
+  <line x1="110.0" y1="45.0" x2="110.0" y2="67.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="110.0" y1="97.0" x2="110.0" y2="119.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="110.0" y1="149.0" x2="110.0" y2="171.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="110.0" y1="201.0" x2="110.0" y2="223.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="110.0" y1="253.0" x2="110.0" y2="275.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="90.0" y="275.0" width="40.0" height="30.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="110.0" y="294.0" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">2 ⑥⑦</text>
+  <rect x="90.0" y="223.0" width="40.0" height="30.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="110.0" y="242.0" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">4 ⑤⑧</text>
+  <rect x="90.0" y="171.0" width="40.0" height="30.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="110.0" y="190.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">5 ④⑨</text>
+  <rect x="90.0" y="119.0" width="40.0" height="30.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="110.0" y="138.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">3 ③⑩</text>
+  <rect x="90.0" y="67.0" width="40.0" height="30.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="110.0" y="86.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">1 ②⑪</text>
+  <rect x="90.0" y="15.0" width="40.0" height="30.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="110.0" y="34.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">0 ①⑫</text>
+  <text x="155.0" y="340.0" fill="#475569" font-size="11" text-anchor="middle">① số vào (enter) · ⑫ số rời (leave) — 2 đã thăm nên 0 không đi lại</text>
+</svg>
 
 - **Pre-order**: \`[0, 1, 3, 5, 4, 2]\`
 - **Post-order**: \`[2, 4, 5, 3, 1, 0]\` (thứ tự RỜI)

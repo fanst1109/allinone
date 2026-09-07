@@ -400,23 +400,27 @@ Một số thiết bị không nối PE (3 dây) mà chỉ dùng L+N (2 dây). G
 
 Nhìn lại hành trình 8 bài, mọi thứ đều xoay quanh một câu hỏi: **"Điện áp, dòng điện và phần tử mạch tương tác với nhau như thế nào?"**
 
-\`\`\`
-Ohm (L01): V = I × R — nền tảng tất cả
-     │
-     ├─ Kirchhoff (L02): KVL + KCL — tổng V vòng = 0, tổng I nút = 0
-     │
-     ├─ Phân áp, Phân dòng (L03): điện trở mắc nối tiếp / song song
-     │
-     ├─ Tụ điện RC (L04): V không thể nhảy bậc, τ = RC, xạc/xả
-     │
-     ├─ Cuộn cảm RL (L05): I không thể nhảy bậc, τ = L/R, từ trường
-     │
-     ├─ AC & Tổng trở (L06): Z = R + jX, X_C = 1/ωC, X_L = ωL
-     │
-     ├─ Bộ lọc (L07): RC/RL + tổng trở tạo ra LPF/HPF/BPF
-     │
-     └─ Nguồn & Đo lường (L08): nội trở, pin, multimeter, scope
-\`\`\`
+<svg viewBox="0 0 718 162" style="max-width:718px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây phụ thuộc Tầng 1: định luật Ohm V = I·R là gốc; Kirchhoff, phân áp/phân dòng, tụ RC, cuộn cảm RL, AC &amp; tổng trở đều xây trên nó">
+  <defs></defs>
+  <line x1="359.0" y1="46.0" x2="95.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="43.8" y="88.0" width="102.3" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="95.0" y="106.0" fill="#7c3aed" font-size="9.5" text-anchor="middle" font-weight="700">Kirchhoff (L02)</text>
+  <line x1="359.0" y1="46.0" x2="227.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="167.0" y="88.0" width="120.0" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="227.0" y="106.0" fill="#7c3aed" font-size="9.5" text-anchor="middle" font-weight="700">Phân áp/dòng (L03)</text>
+  <line x1="359.0" y1="46.0" x2="359.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="319.6" y="88.0" width="78.8" height="28.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="359.0" y="106.0" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">Tụ RC (L04)</text>
+  <line x1="359.0" y1="46.0" x2="491.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="433.9" y="88.0" width="114.1" height="28.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="491.0" y="106.0" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">Cuộn cảm RL (L05)</text>
+  <line x1="359.0" y1="46.0" x2="623.0" y2="88.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="580.7" y="88.0" width="84.7" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="623.0" y="106.0" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">AC &amp; Z (L06)</text>
+  <rect x="299.0" y="18.0" width="120.0" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="359.0" y="36.0" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">Ohm (L01): V = I·R</text>
+  <text x="359.0" y="154.0" fill="#475569" font-size="11" text-anchor="middle">KVL/KCL · nối tiếp/song song · τ = RC · τ = L/R · Z = R + jX</text>
+</svg>
 
 ### 6.2. Tại sao nội trở quan trọng cho toàn Tầng 1?
 

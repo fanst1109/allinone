@@ -365,15 +365,36 @@ Kết quả: **An, Chi**.
 
 Bạn *viết* SELECT theo một thứ tự, nhưng DBMS *thực thi logic* theo thứ tự khác. Hiểu thứ tự này giải thích mọi quy tắc "vì sao được/không được" ở trên.
 
-\`\`\`
-1. FROM / JOIN     →  ghép & xác định nguồn dữ liệu
-2. WHERE           →  lọc DÒNG (chưa có nhóm, chưa có alias của SELECT)
-3. GROUP BY        →  gom thành các nhóm
-4. HAVING          →  lọc NHÓM (dùng được aggregate)
-5. SELECT          →  chọn cột, tính biểu thức, đặt alias
-6. ORDER BY        →  sắp xếp (dùng được alias của SELECT)
-7. LIMIT / OFFSET  →  cắt số dòng trả về
-\`\`\`
+<svg viewBox="0 0 520 530" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Thứ tự thực thi SQL: FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="95.0" y="14.0" width="330.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. FROM / JOIN</text>
+  <text x="260.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">ghép &amp; xác định nguồn dữ liệu</text>
+  <line x1="260.0" y1="74.0" x2="260.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="88.0" width="330.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="113.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">2. WHERE</text>
+  <text x="260.0" y="129.2" fill="#475569" font-size="11" text-anchor="middle">lọc DÒNG — chưa có nhóm, chưa có alias</text>
+  <line x1="260.0" y1="148.0" x2="260.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="162.0" width="330.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="260.0" y="187.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">3. GROUP BY</text>
+  <text x="260.0" y="203.2" fill="#475569" font-size="11" text-anchor="middle">gom thành các nhóm</text>
+  <line x1="260.0" y1="222.0" x2="260.0" y2="234.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="236.0" width="330.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="260.0" y="261.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4. HAVING</text>
+  <text x="260.0" y="277.2" fill="#475569" font-size="11" text-anchor="middle">lọc NHÓM — dùng được aggregate</text>
+  <line x1="260.0" y1="296.0" x2="260.0" y2="308.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="310.0" width="330.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="260.0" y="335.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">5. SELECT</text>
+  <text x="260.0" y="351.2" fill="#475569" font-size="11" text-anchor="middle">chọn cột, tính biểu thức, đặt alias</text>
+  <line x1="260.0" y1="370.0" x2="260.0" y2="382.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="384.0" width="330.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="260.0" y="409.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">6. ORDER BY</text>
+  <text x="260.0" y="425.2" fill="#475569" font-size="11" text-anchor="middle">sắp xếp — dùng được alias</text>
+  <line x1="260.0" y1="444.0" x2="260.0" y2="456.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="95.0" y="458.0" width="330.0" height="58.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="260.0" y="483.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">7. LIMIT / OFFSET</text>
+  <text x="260.0" y="499.2" fill="#475569" font-size="11" text-anchor="middle">cắt số dòng trả về</text>
+</svg>
 
 Hai hệ quả thực tế suy ra trực tiếp từ thứ tự này:
 

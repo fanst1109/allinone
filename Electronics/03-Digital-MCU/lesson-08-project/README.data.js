@@ -360,17 +360,36 @@ nếu T ≥ setpoint → tắt sưởi
 
 **Logic hysteresis cho bài này**:
 
-\`\`\`
-Setpoint = 37.5 °C
-Hysteresis = 0.5 °C
-
-Ngưỡng BẬT sưởi = setpoint − hysteresis = 37.0 °C
-Ngưỡng TẮT sưởi = setpoint + hysteresis = 38.0 °C
-
-Nếu T < 37.0 °C  → BẬT sưởi (HEATING)
-Nếu T > 38.0 °C  → BẬT quạt (COOLING)
-Nếu 37.0 ≤ T ≤ 38.0 → GIỮ trạng thái hiện tại (HOLD)
-\`\`\`
+<svg viewBox="0 0 640 146" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trục nhiệt độ với hysteresis: dưới 37.0 bật sưởi, trên 38.0 bật quạt, giữa 37.0–38.0 giữ trạng thái">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <line x1="80.0" y1="90.0" x2="560.0" y2="90.0" stroke="#1a202c" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="568.0" y="94.0" fill="#475569" font-size="10" text-anchor="start">T °C</text>
+  <line x1="80.0" y1="85.0" x2="80.0" y2="95.0" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="80.0" y="110.0" fill="#475569" font-size="9.5" text-anchor="middle">36.5</text>
+  <line x1="176.0" y1="85.0" x2="176.0" y2="95.0" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="176.0" y="110.0" fill="#475569" font-size="9.5" text-anchor="middle">37.0</text>
+  <line x1="272.0" y1="85.0" x2="272.0" y2="95.0" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="272.0" y="110.0" fill="#475569" font-size="9.5" text-anchor="middle">37.5</text>
+  <line x1="368.0" y1="85.0" x2="368.0" y2="95.0" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="368.0" y="110.0" fill="#475569" font-size="9.5" text-anchor="middle">38.0</text>
+  <line x1="464.0" y1="85.0" x2="464.0" y2="95.0" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="464.0" y="110.0" fill="#475569" font-size="9.5" text-anchor="middle">38.5</text>
+  <line x1="560.0" y1="85.0" x2="560.0" y2="95.0" stroke="#1a202c" stroke-width="1.2"/>
+  <text x="560.0" y="110.0" fill="#475569" font-size="9.5" text-anchor="middle">39.0</text>
+  <rect x="80.0" y="60.0" width="96.0" height="22.0" rx="4" fill="#fee2e2" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="128.0" y="75.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">BẬT SƯỞI (HEATING)</text>
+  <rect x="176.0" y="60.0" width="192.0" height="22.0" rx="4" fill="#dcfce7" fill-opacity="0.9" stroke="#15803d" stroke-width="0"/>
+  <text x="272.0" y="75.0" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">GIỮ (HOLD)</text>
+  <rect x="368.0" y="60.0" width="192.0" height="22.0" rx="4" fill="#dbeafe" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="464.0" y="75.0" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">BẬT QUẠT (COOLING)</text>
+  <line x1="272.0" y1="38.0" x2="272.0" y2="90.0" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="272.0" y="30.0" fill="#475569" font-size="10" text-anchor="middle" font-weight="700">setpoint 37.5</text>
+  <line x1="176.0" y1="46.0" x2="176.0" y2="90.0" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="176.0" y="42.0" fill="#dc2626" font-size="9.5" text-anchor="middle">BẬT sưởi = 37.0</text>
+  <line x1="368.0" y1="46.0" x2="368.0" y2="90.0" stroke="#1d4ed8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="368.0" y="42.0" fill="#1d4ed8" font-size="9.5" text-anchor="middle">BẬT quạt = 38.0</text>
+  <text x="320.0" y="132.0" fill="#475569" font-size="10.5" text-anchor="middle">hysteresis ±0.5 °C quanh setpoint tạo vùng GIỮ — tránh bật/tắt liên tục</text>
+</svg>
 
 **Lý do "HOLD" quan trọng**: trong vùng trễ, KHÔNG thay đổi trạng thái. Sưởi đang bật thì giữ bật cho đến khi T > 38.0 °C. Quạt đang bật thì giữ bật cho đến khi T < 37.0 °C. Đây là bản chất của hysteresis — trạng thái phụ thuộc lịch sử.
 
@@ -663,37 +682,23 @@ void loop() {
 
 ### 6.1. Bản đồ 3 tầng đã học
 
-\`\`\`
-┌─────────────────────────────────────────────────────────┐
-│  TẦNG 1 — 01-Fundamentals (Nền tảng)                    │
-│  L01: V, I, R — Định luật Ohm                           │
-│  L02: Kirchhoff KVL/KCL — Phân tích mạch               │
-│  L03: Tụ điện RC — Nạp/xả, thời hằng                   │
-│  L04: Cuộn cảm RL — Lưu trữ năng lượng từ trường        │
-│  L05: Mạch RLC & Cộng hưởng                             │
-│  L06: AC — Pha, công suất, biến áp                      │
-├─────────────────────────────────────────────────────────┤
-│  TẦNG 2 — 02-Semiconductors (Linh kiện bán dẫn)        │
-│  L01: Diode — Chỉnh lưu, ổn áp Zener                   │
-│  L02: Diode đặc biệt — LED, Schottky, TVS               │
-│  L03: BJT — Khuếch đại tín hiệu nhỏ                    │
-│  L04: BJT Class A/B — Khuếch đại công suất              │
-│  L05: BJT Switch — Bão hòa/cắt, flyback diode           │
-│  L06: MOSFET — Logic-level switch, NMOS/PMOS            │
-│  L07: MOSFET khuếch đại — Mạch cực nguồn                │
-│  L08: Op-amp — Schmitt trigger, bộ lọc tích cực         │
-├─────────────────────────────────────────────────────────┤
-│  TẦNG 3 — 03-Digital-MCU (Số & Vi điều khiển)           │
-│  L01: Cổng logic & Đại số Boole                         │
-│  L02: Mạch tổ hợp — MUX, decoder, cộng                 │
-│  L03: Flip-flop — D, JK, SR — Lưu trữ bit              │
-│  L04: Register & Counter — Dịch bit, đếm                │
-│  L05: ADC/DAC — Cầu nối analog ↔ digital                │
-│  L06: MCU GPIO & PWM — Điều khiển I/O                   │
-│  L07: I2C/SPI/UART — Giao tiếp ngoại vi                 │
-│  L08: DỰ ÁN — Hệ điều khiển nhiệt độ (bài này)         │
-└─────────────────────────────────────────────────────────┘
-\`\`\`
+<svg viewBox="0 0 600 274" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Ba tầng lộ trình Electronics: Fundamentals → Semiconductors → Digital-MCU, kết thúc bằng dự án hệ điều khiển nhiệt độ">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="560.0" height="70.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="36.0" fill="#1d4ed8" font-size="11.5" text-anchor="middle" font-weight="700">TẦNG 1 — 01-Fundamentals (Nền tảng)</text>
+  <text x="300.0" y="54.0" fill="#1f2937" font-size="9.5" text-anchor="middle">L01 Ohm · L02 Kirchhoff · L03 Tụ RC · L04 Cuộn cảm RL</text>
+  <text x="300.0" y="70.0" fill="#1f2937" font-size="9.5" text-anchor="middle">L05 RLC &amp; cộng hưởng · L06 AC — pha, công suất, biến áp</text>
+  <line x1="300.0" y1="88.0" x2="300.0" y2="102.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="20.0" y="104.0" width="560.0" height="70.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="300.0" y="124.0" fill="#7c3aed" font-size="11.5" text-anchor="middle" font-weight="700">TẦNG 2 — 02-Semiconductors (Bán dẫn)</text>
+  <text x="300.0" y="142.0" fill="#1f2937" font-size="9.5" text-anchor="middle">L01 Diode · L02 LED/Schottky/TVS · L03-04 BJT khuếch đại/công suất</text>
+  <text x="300.0" y="158.0" fill="#1f2937" font-size="9.5" text-anchor="middle">L05 BJT switch · L06 MOSFET switch · L07 MOSFET khuếch đại · L08 Op-amp</text>
+  <line x1="300.0" y1="176.0" x2="300.0" y2="190.0" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="20.0" y="192.0" width="560.0" height="70.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="212.0" fill="#15803d" font-size="11.5" text-anchor="middle" font-weight="700">TẦNG 3 — 03-Digital-MCU (Số &amp; MCU)</text>
+  <text x="300.0" y="230.0" fill="#1f2937" font-size="9.5" text-anchor="middle">L01 Cổng logic · L02 Mạch tổ hợp · L03 Flip-flop · L04 Register/Counter</text>
+  <text x="300.0" y="246.0" fill="#1f2937" font-size="9.5" text-anchor="middle">L05 ADC/DAC · L06 GPIO &amp; PWM · L07 I2C/SPI/UART · L08 DỰ ÁN nhiệt độ (bài này)</text>
+</svg>
 
 ### 6.2. Những gì bạn đã thành thạo
 

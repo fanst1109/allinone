@@ -116,11 +116,29 @@ Không có list ngoài. Khi collision, **tìm slot trống kế tiếp** theo pr
 **Linear Probing**: $\text{probe}(k, i) = (h(k) + i) \bmod m$
 
 Insert `{22, 15, 8}` vào table size 7:
-```
-h(22) = 1 → slot[1] trống → lưu 22 ở slot[1]
-h(15) = 1 → slot[1] có 22 → thử slot[2] trống → lưu 15 ở slot[2]
-h(8)  = 1 → slot[1] có 22 → slot[2] có 15 → thử slot[3] trống → lưu 8 ở slot[3]
-```
+<svg viewBox="0 0 420 112" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Linear probing: 22 vào slot 1; 15 đụng 22 dò sang slot 2; 8 đụng cả hai dò tới slot 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="24.0" fill="#475569" font-size="10.5" text-anchor="start">h(22)=1, h(15)=1, h(8)=1 — cùng slot 1 → dò tuyến tính:</text>
+  <rect x="40.0" y="40.0" width="60.0" height="40.0" rx="5" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.6"/>
+  <text x="70.0" y="64.0" fill="#94a3b8" font-size="13" text-anchor="middle" font-weight="700">—</text>
+  <text x="70.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">slot 0</text>
+  <rect x="110.0" y="40.0" width="60.0" height="40.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="140.0" y="64.0" fill="#15803d" font-size="13" text-anchor="middle" font-weight="700">22</text>
+  <text x="140.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">slot 1</text>
+  <rect x="180.0" y="40.0" width="60.0" height="40.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.6"/>
+  <text x="210.0" y="64.0" fill="#b45309" font-size="13" text-anchor="middle" font-weight="700">15</text>
+  <text x="210.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">slot 2</text>
+  <rect x="250.0" y="40.0" width="60.0" height="40.0" rx="5" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.6"/>
+  <text x="280.0" y="64.0" fill="#dc2626" font-size="13" text-anchor="middle" font-weight="700">8</text>
+  <text x="280.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">slot 3</text>
+  <rect x="320.0" y="40.0" width="60.0" height="40.0" rx="5" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.6"/>
+  <text x="350.0" y="64.0" fill="#94a3b8" font-size="13" text-anchor="middle" font-weight="700">—</text>
+  <text x="350.0" y="96.0" fill="#475569" font-size="10" text-anchor="middle">slot 4</text>
+  <path d="M 110.0,36.0 L 180.0,26.0 L 180.0,38.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="150.0" y="20.0" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">+1</text>
+  <path d="M 180.0,36.0 L 250.0,26.0 L 250.0,38.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="220.0" y="20.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">+1</text>
+</svg>
 
 Bảng:
 <svg viewBox="0 0 420 115" style="max-width:420px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Open addressing (linear probing) m = 7: 22 ở slot 1, 15 dò sang slot 2, 8 dò sang slot 3; các slot còn lại trống">
@@ -367,13 +385,32 @@ m := make(map[string]int)
 </svg>
 
 **(b) Linear probing** (insert theo thứ tự 5, 27, 13, 6, 48):
-```
-Insert 5:  h=5 → slot[5] trống → slot[5] = 5
-Insert 27: h=6 → slot[6] trống → slot[6] = 27
-Insert 13: h=6 → slot[6] có 27 → slot[0] trống → slot[0] = 13
-Insert 6:  h=6 → slot[6] có 27 → slot[0] có 13 → slot[1] trống → slot[1] = 6
-Insert 48: h=6 → slot[6]→slot[0]→slot[1]→slot[2] trống → slot[2] = 48
-```
+<svg viewBox="0 0 640 130" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Linear probing wrap-around: h=6 đầy dần nên 13, 6, 48 lần lượt dò vòng sang slot 0, 1, 2">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="24.0" fill="#475569" font-size="10.5" text-anchor="start">h(5)=5 · h(27)=6 · h(13)=6 · h(6)=6 · h(48)=6 — bảng 7 slot:</text>
+  <rect x="30.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.6"/>
+  <text x="57.0" y="63.0" fill="#b45309" font-size="12.5" text-anchor="middle" font-weight="700">13</text>
+  <text x="57.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 0</text>
+  <rect x="92.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.6"/>
+  <text x="119.0" y="63.0" fill="#dc2626" font-size="12.5" text-anchor="middle" font-weight="700">6</text>
+  <text x="119.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 1</text>
+  <rect x="154.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.6"/>
+  <text x="181.0" y="63.0" fill="#7c3aed" font-size="12.5" text-anchor="middle" font-weight="700">48</text>
+  <text x="181.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 2</text>
+  <rect x="216.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.6"/>
+  <text x="243.0" y="63.0" fill="#94a3b8" font-size="12.5" text-anchor="middle" font-weight="700">—</text>
+  <text x="243.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 3</text>
+  <rect x="278.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.6"/>
+  <text x="305.0" y="63.0" fill="#94a3b8" font-size="12.5" text-anchor="middle" font-weight="700">—</text>
+  <text x="305.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 4</text>
+  <rect x="340.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="367.0" y="63.0" fill="#15803d" font-size="12.5" text-anchor="middle" font-weight="700">5</text>
+  <text x="367.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 5</text>
+  <rect x="402.0" y="40.0" width="54.0" height="38.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.6"/>
+  <text x="429.0" y="63.0" fill="#15803d" font-size="12.5" text-anchor="middle" font-weight="700">27</text>
+  <text x="429.0" y="94.0" fill="#475569" font-size="9.5" text-anchor="middle">slot 6</text>
+  <text x="320.0" y="116.0" fill="#475569" font-size="10" text-anchor="middle">27 vào slot 6; 13 dò 6→0; 6 dò 6→0→1; 48 dò 6→0→1→2 (wrap quanh bảng)</text>
+</svg>
 
 Bảng: `[13, 6, 48, _, _, 5, 27]` (index 0–6)
 

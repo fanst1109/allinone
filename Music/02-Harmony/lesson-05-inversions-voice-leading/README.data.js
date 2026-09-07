@@ -269,12 +269,49 @@ Công thức kết rất phổ biến trong nhạc cổ điển: **I⁶/₄ → 
 
 Trong C trưởng: **C/G → G → C**
 
-\`\`\`
-Bass: G  →  G  →  C      (bass G giữ nguyên 2 nhịp, rồi xuống C)
-Bè 2: E  →  D  →  E      (đi quãng 2 xuống rồi lên)
-Bè 3: C  →  B  →  G      (đi bậc)
-Soprano: G  →  G  →  G   (giữ nguyên hoặc đi nhỏ)
-\`\`\`
+<svg viewBox="0 0 560 272" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Voice leading 4 bè qua 3 nhịp: soprano giữ G, bè 2 E-D-E, bè 3 C-B-G đi bậc, bass G-G-C">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="80.0" y="44.0" fill="#15803d" font-size="11" text-anchor="end" font-weight="700">Soprano</text>
+  <circle cx="130.0" cy="30.0" r="9" fill="#15803d"/>
+  <text x="130.0" y="16.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="270.0" cy="30.0" r="9" fill="#15803d"/>
+  <text x="270.0" y="16.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="410.0" cy="30.0" r="9" fill="#15803d"/>
+  <text x="410.0" y="16.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <line x1="140.0" y1="30.0" x2="260.0" y2="30.0" stroke="#15803d" stroke-width="1.6"/>
+  <line x1="280.0" y1="30.0" x2="400.0" y2="30.0" stroke="#15803d" stroke-width="1.6"/>
+  <text x="80.0" y="94.0" fill="#7c3aed" font-size="11" text-anchor="end" font-weight="700">Bè 2</text>
+  <circle cx="130.0" cy="90.0" r="9" fill="#7c3aed"/>
+  <text x="130.0" y="76.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">E</text>
+  <circle cx="270.0" cy="95.0" r="9" fill="#7c3aed"/>
+  <text x="270.0" y="81.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">D</text>
+  <circle cx="410.0" cy="90.0" r="9" fill="#7c3aed"/>
+  <text x="410.0" y="76.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">E</text>
+  <line x1="140.0" y1="90.0" x2="260.0" y2="95.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <line x1="280.0" y1="95.0" x2="400.0" y2="90.0" stroke="#7c3aed" stroke-width="1.6"/>
+  <text x="80.0" y="144.0" fill="#b45309" font-size="11" text-anchor="end" font-weight="700">Bè 3</text>
+  <circle cx="130.0" cy="150.0" r="9" fill="#b45309"/>
+  <text x="130.0" y="136.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <circle cx="270.0" cy="155.0" r="9" fill="#b45309"/>
+  <text x="270.0" y="141.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">B</text>
+  <circle cx="410.0" cy="130.0" r="9" fill="#b45309"/>
+  <text x="410.0" y="116.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <line x1="140.0" y1="150.0" x2="260.0" y2="155.0" stroke="#b45309" stroke-width="1.6"/>
+  <line x1="280.0" y1="155.0" x2="400.0" y2="130.0" stroke="#b45309" stroke-width="1.6"/>
+  <text x="80.0" y="199.0" fill="#1d4ed8" font-size="11" text-anchor="end" font-weight="700">Bass</text>
+  <circle cx="130.0" cy="185.0" r="9" fill="#1d4ed8"/>
+  <text x="130.0" y="171.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="270.0" cy="185.0" r="9" fill="#1d4ed8"/>
+  <text x="270.0" y="171.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">G</text>
+  <circle cx="410.0" cy="205.0" r="9" fill="#1d4ed8"/>
+  <text x="410.0" y="191.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">C</text>
+  <line x1="140.0" y1="185.0" x2="260.0" y2="185.0" stroke="#1d4ed8" stroke-width="1.6"/>
+  <line x1="280.0" y1="185.0" x2="400.0" y2="205.0" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="130.0" y="238.0" fill="#475569" font-size="10" text-anchor="middle">nhịp 1</text>
+  <text x="270.0" y="238.0" fill="#475569" font-size="10" text-anchor="middle">nhịp 2</text>
+  <text x="410.0" y="238.0" fill="#475569" font-size="10" text-anchor="middle">nhịp 3</text>
+  <text x="300.0" y="258.0" fill="#475569" font-size="10" text-anchor="middle">soprano giữ G; bè giữa đi bậc nhỏ; bass G→G→C — voice leading mượt</text>
+</svg>
 
 I⁶/₄ (C/G) tạo sức căng vì thế đảo 2 kém ổn định → giải quyết về V (G) rồi I (C). Bass G giữ nguyên qua I⁶/₄ và V tạo cảm giác "đứng hình" chờ kết — rất hiệu quả.
 

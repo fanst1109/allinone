@@ -33,13 +33,20 @@ Sau bài này bạn sẽ:
 
 ### 1.1. Hai bước của một collision frame
 
-```
-Mỗi frame:
-  1. DETECTION  (L06/L07)  → có chạm? lấy n (pháp tuyến) + penetration
-  2. RESPONSE   (bài này)
-       a. Impulse resolution → đổi VẬN TỐC (vật bật ra)
-       b. Positional correction → đẩy hết LÚN (vật không dính/lún)
-```
+<svg viewBox="0 0 520 246" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mỗi frame: detection tìm pháp tuyến và độ lún, rồi response gồm impulse (đổi vận tốc) và positional correction (đẩy lún)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="340.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="260.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. DETECTION (L06/L07)</text>
+  <text x="260.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">có chạm? lấy n (pháp tuyến) + penetration</text>
+  <line x1="260.0" y1="74.0" x2="260.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="94.0" width="340.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="260.0" y="119.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">2a. Impulse resolution</text>
+  <text x="260.0" y="135.2" fill="#475569" font-size="11" text-anchor="middle">đổi VẬN TỐC — vật bật ra</text>
+  <line x1="260.0" y1="154.0" x2="260.0" y2="172.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="174.0" width="340.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="260.0" y="199.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">2b. Positional correction</text>
+  <text x="260.0" y="215.2" fill="#475569" font-size="11" text-anchor="middle">đẩy hết LÚN — vật không dính/lún</text>
+</svg>
 
 > 💡 **Trực giác về xung lực (impulse).** Lực (force) là cái đẩy *liên tục* (trọng lực kéo bạn xuống mọi lúc). **Xung lực** là một "cú hích" *tức thời* — như cú búng tay vào viên bi. Về mặt vật lý, xung lực $\vec J$ là **độ thay đổi động lượng**: $\vec J = \Delta \vec p = m \, \Delta \vec v$. Va chạm xảy ra cực nhanh (mili-giây), nên thay vì mô phỏng lực khổng lồ trong thời gian cực ngắn, ta áp thẳng một xung lực làm đổi vận tốc ngay lập tức.
 

@@ -60,14 +60,31 @@ Mô hình phổ biến nhất: **một node là leader** (master/primary), **cá
 
 **Walk-through luồng ghi → replicate → đọc.** Giả sử leader L, hai follower F1, F2. Client ghi `balance = 500` cho user #7:
 
-```
-t=0ms   Client → L:  UPDATE users SET balance=500 WHERE id=7
-t=1ms   L ghi vào WAL local: "user#7.balance: 300 → 500", commit. balance(L)=500
-t=2ms   L gửi đoạn log đó tới F1 và F2 (qua mạng)
-t=8ms   F1 nhận, replay log: balance(F1)=500
-t=12ms  F2 nhận, replay log: balance(F2)=500
-        → Sau t=12ms, cả 3 node đều thấy balance=500 (đã hội tụ)
-```
+<svg viewBox="0 0 640 290" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Replication: leader ghi WAL rồi gửi log cho follower F1 (t=8ms) và F2 (t=12ms); sau t=12ms cả 3 node hội tụ balance=500">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="180.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Leader L</text>
+  <line x1="240.0" y1="44.0" x2="240.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="340.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="400.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">F1</text>
+  <line x1="400.0" y1="44.0" x2="400.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">F2</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="236.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="160.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">t=0ms — UPDATE balance=500 WHERE id=7</text>
+  <text x="240.0" y="102.0" fill="#475569" font-size="10" text-anchor="middle">t=1ms — ghi WAL, commit. balance(L)=500</text>
+  <line x1="243.0" y1="134.0" x2="396.0" y2="134.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="128.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">t=2ms — gửi log</text>
+  <line x1="243.0" y1="166.0" x2="556.0" y2="166.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="400.0" y="160.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">t=2ms — gửi log</text>
+  <text x="400.0" y="198.0" fill="#475569" font-size="10" text-anchor="middle">t=8ms — replay: balance(F1)=500</text>
+  <text x="550.0" y="230.0" fill="#475569" font-size="10" text-anchor="end">t=12ms — replay: balance(F2)=500</text>
+  <text x="320.0" y="284.0" fill="#475569" font-size="11" text-anchor="middle">độ trễ replication: mỗi follower hội tụ ở thời điểm khác nhau</text>
+</svg>
 
 Ai đọc từ L sau t=1ms thấy ngay 500. Ai đọc từ F2 *trong khoảng t=2..12ms* vẫn thấy **300** (giá trị cũ) — đây chính là **replication lag**.
 
@@ -192,12 +209,22 @@ Walk-through với `N = 4` shard, băm đơn giản `hash(id) = id` (toy — th�
 
 Walk-through hotspot do range lệch — chia theo chữ cái đầu họ tên ở Việt Nam:
 
-```
-S0: A–M  → ~25% dân số
-S1: N     → "Nguyễn" chiếm ~38% dân số Việt Nam → MỘT MÌNH cõng 38%!
-S2: O–T  → ~20%
-S3: U–Z  → ~17%
-```
+<svg viewBox="0 0 660 216" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Shard theo chữ cái đầu tên: S1 chứa họ Nguyễn chiếm 38% dữ liệu — lệch tải nặng so với S0 25%, S2 20%, S3 17%">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="39.0" fill="#1d4ed8" font-size="10.5" text-anchor="end" font-weight="700">S0: A–M</text>
+  <rect x="130.0" y="20.0" width="250.0" height="26.0" rx="4" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="388.0" y="38.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">25%</text>
+  <text x="120.0" y="81.0" fill="#dc2626" font-size="10.5" text-anchor="end" font-weight="700">S1: N</text>
+  <rect x="130.0" y="62.0" width="380.0" height="26.0" rx="4" fill="#dc2626" fill-opacity="0.85" stroke="#dc2626" stroke-width="0"/>
+  <text x="518.0" y="80.0" fill="#dc2626" font-size="10.5" text-anchor="start" font-weight="700">38%</text>
+  <text x="120.0" y="123.0" fill="#1d4ed8" font-size="10.5" text-anchor="end" font-weight="700">S2: O–T</text>
+  <rect x="130.0" y="104.0" width="200.0" height="26.0" rx="4" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="338.0" y="122.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">20%</text>
+  <text x="120.0" y="165.0" fill="#1d4ed8" font-size="10.5" text-anchor="end" font-weight="700">S3: U–Z</text>
+  <rect x="130.0" y="146.0" width="170.0" height="26.0" rx="4" fill="#1d4ed8" fill-opacity="0.85" stroke="#1d4ed8" stroke-width="0"/>
+  <text x="308.0" y="164.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">17%</text>
+  <text x="330.0" y="200.0" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">&quot;Nguyễn&quot; chiếm ~38% dân số → shard S1 một mình cõng 38% — hot shard vì chia theo chữ cái</text>
+</svg>
 
 S1 quá tải trong khi S3 nhàn rỗi → chọn range theo trường lệch là sai lầm.
 

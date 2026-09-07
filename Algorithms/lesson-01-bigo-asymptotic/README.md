@@ -504,12 +504,48 @@ func merge(l, r []int) []int {
 
 Hệ thức truy hồi: $T(n) = 2 \cdot T(n/2) + O(n)$. Hình dung cây đệ quy với $n=8$:
 
-```
-Tầng 0:            [8]            → gộp 8 phần tử  = 8 việc
-Tầng 1:        [4]     [4]        → gộp 4+4        = 8 việc
-Tầng 2:      [2][2]   [2][2]      → gộp 2+2+2+2    = 8 việc
-Tầng 3:     [1][1]...  (8 cái)    → base case
-```
+<svg viewBox="0 0 660 228" style="max-width:660px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây merge sort 8 phần tử: 4 tầng, mỗi tầng tổng công gộp đúng 8 việc, ra O(n log n)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="70.0" y="40.0" fill="#475569" font-size="10.5" text-anchor="end" font-weight="700">Tầng 0</text>
+  <rect x="240.0" y="20.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="260.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <text x="450.0" y="40.0" fill="#475569" font-size="10.5" text-anchor="start">gộp 8 phần tử = 8 việc</text>
+  <text x="70.0" y="86.0" fill="#475569" font-size="10.5" text-anchor="end" font-weight="700">Tầng 1</text>
+  <rect x="215.0" y="66.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="235.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="265.0" y="66.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="285.0" y="85.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <text x="450.0" y="86.0" fill="#475569" font-size="10.5" text-anchor="start">gộp 4+4 = 8 việc</text>
+  <text x="70.0" y="132.0" fill="#475569" font-size="10.5" text-anchor="end" font-weight="700">Tầng 2</text>
+  <rect x="165.0" y="112.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="185.0" y="131.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="215.0" y="112.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="235.0" y="131.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="265.0" y="112.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="285.0" y="131.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="315.0" y="112.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="335.0" y="131.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <text x="450.0" y="132.0" fill="#475569" font-size="10.5" text-anchor="start">gộp 2+2+2+2 = 8 việc</text>
+  <text x="70.0" y="178.0" fill="#475569" font-size="10.5" text-anchor="end" font-weight="700">Tầng 3</text>
+  <rect x="65.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="85.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="115.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="135.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="165.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="185.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="215.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="235.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="265.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="285.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="315.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="335.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="365.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="385.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="415.0" y="158.0" width="40.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="435.0" y="177.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <text x="450.0" y="178.0" fill="#475569" font-size="10.5" text-anchor="start">base case</text>
+  <text x="320.0" y="212.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">mỗi tầng tổng công gộp = 8 → log₂8 = 3 tầng × 8 việc = O(n log n)</text>
+</svg>
 
 Mỗi tầng tổng cộng $n = 8$ việc gộp. Số tầng $= \log_2 8 = 3$. Tổng $= n \times \log n = 8 \times 3 = 24$ việc → $\boldsymbol{O(n \log n)}$. (Cách giải hệ thức truy hồi tổng quát học kỹ ở [Lesson 03 — Master Theorem](../lesson-03-recursion-recurrence/README.md).)
 

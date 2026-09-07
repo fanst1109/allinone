@@ -173,21 +173,36 @@ Mảng `tree` cuối:
 
 Gọi `query(1, 0, 5, 1, 4)`:
 
-```
-node 1 [0,5]: KHÔNG nằm trọn → đi tiếp
-  node 2 [0,2]: KHÔNG nằm trọn → đi tiếp
-    node 4 [0,1]: KHÔNG nằm trọn → đi tiếp
-      node 8 [0,0]: KHÔNG giao [1,4] → 0
-      node 9 [1,1]: NẰM TRỌN → 3
-      → trả về 3
-    node 5 [2,2]: NẰM TRỌN trong [1,4] → 5
-    → trả về 3 + 5 = 8
-  node 3 [3,5]: KHÔNG nằm trọn → đi tiếp
-    node 6 [3,4]: NẰM TRỌN → 16
-    node 7 [5,5]: KHÔNG giao → 0
-    → trả về 16
-  → trả về 8 + 16 = 24
-```
+<svg viewBox="0 0 480 256" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Query [1,4] trên segment tree: node cam đi tiếp, node xanh nằm trọn (9→3, 5→5, 6→16), node xám không giao — tổng 3+5+16 = 24">
+  <defs></defs>
+  <line x1="273.0" y1="43.0" x2="174.0" y2="73.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="174.0" y1="99.0" x2="108.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="108.0" y1="155.0" x2="64.0" y2="185.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="35.3" y="185.0" width="57.4" height="26.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="64.0" y="202.0" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">8 [0,0]</text>
+  <line x1="108.0" y1="155.0" x2="152.0" y2="185.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="123.3" y="185.0" width="57.4" height="26.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="152.0" y="202.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">9 [1,1]</text>
+  <rect x="79.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="108.0" y="146.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">4 [0,1]</text>
+  <line x1="174.0" y1="99.0" x2="240.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="211.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="146.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">5 [2,2]</text>
+  <rect x="145.3" y="73.0" width="57.4" height="26.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="174.0" y="90.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">2 [0,2]</text>
+  <line x1="273.0" y1="43.0" x2="372.0" y2="73.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="372.0" y1="99.0" x2="328.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="299.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="328.0" y="146.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">6 [3,4]</text>
+  <line x1="372.0" y1="99.0" x2="416.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="387.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="416.0" y="146.0" fill="#94a3b8" font-size="10" text-anchor="middle" font-weight="700">7 [5,5]</text>
+  <rect x="343.3" y="73.0" width="57.4" height="26.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="372.0" y="90.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">3 [3,5]</text>
+  <rect x="244.3" y="17.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="273.0" y="34.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">1 [0,5]</text>
+  <text x="240.0" y="248.0" fill="#475569" font-size="11" text-anchor="middle">cam: đi tiếp · xanh: NẰM TRỌN, cộng giá trị · xám: không giao — kết quả 3+5+16 = 24</text>
+</svg>
 
 Kiểm tra: `a[1]+a[2]+a[3]+a[4] = 3+5+7+9 = 24` ✓.
 
@@ -197,13 +212,36 @@ Số node ghé thăm: **8 node** (1, 2, 4, 8, 9, 5, 3, 6, 7) trên cây cao 4. V
 
 Gọi `update(1, 0, 5, 2, +10)`:
 
-```
-node 1 [0,5]: 2 ≤ mid=2 → đi trái
-  node 2 [0,2]: 2 > mid=1 → đi phải
-    node 5 [2,2]: lá → tree[5] += 10 → 5 + 10 = 15
-  tree[2] = tree[4] + tree[5] = 4 + 15 = 19
-tree[1] = tree[2] + tree[3] = 19 + 27 = 46
-```
+<svg viewBox="0 0 480 256" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Update index 2 (+10): đi 1 [0,5] → 2 [0,2] → lá 5 [2,2] = 15, rồi cập nhật ngược tree[2]=19, tree[1]=46">
+  <defs></defs>
+  <line x1="273.0" y1="43.0" x2="174.0" y2="73.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="174.0" y1="99.0" x2="108.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="108.0" y1="155.0" x2="64.0" y2="185.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="35.3" y="185.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="64.0" y="202.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">8 [0,0]</text>
+  <line x1="108.0" y1="155.0" x2="152.0" y2="185.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="123.3" y="185.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="152.0" y="202.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">9 [1,1]</text>
+  <rect x="79.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="108.0" y="146.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">4 [0,1]</text>
+  <line x1="174.0" y1="99.0" x2="240.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="211.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="240.0" y="146.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">5 [2,2]</text>
+  <rect x="145.3" y="73.0" width="57.4" height="26.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="174.0" y="90.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">2 [0,2]</text>
+  <line x1="273.0" y1="43.0" x2="372.0" y2="73.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="372.0" y1="99.0" x2="328.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="299.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="328.0" y="146.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">6 [3,4]</text>
+  <line x1="372.0" y1="99.0" x2="416.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="387.3" y="129.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="416.0" y="146.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">7 [5,5]</text>
+  <rect x="343.3" y="73.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="372.0" y="90.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">3 [3,5]</text>
+  <rect x="244.3" y="17.0" width="57.4" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="273.0" y="34.0" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">1 [0,5]</text>
+  <text x="240.0" y="248.0" fill="#475569" font-size="11" text-anchor="middle">đường update: node 1 → 2 → lá 5 (+10) · đi lên: tree[2]=4+15=19, tree[1]=19+27=46</text>
+</svg>
 
 Chỉ **3 node** trên đường được sửa: 5, 2, 1 — đúng chiều cao cây. Các nhánh không liên quan giữ nguyên.
 

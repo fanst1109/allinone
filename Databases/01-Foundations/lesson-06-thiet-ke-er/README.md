@@ -382,13 +382,36 @@ Khóa chính là cặp (`student_id`, `course_id`) — vừa là FK kép vừa l
 
 **Lược đồ kết quả (text):**
 
-```
-Book(book_id PK, title, author)
-Copy(book_id FK→Book, copy_no, status, PK(book_id, copy_no))
-Member(member_id PK, name)
-Borrows(member_id FK→Member, book_id, copy_no, borrow_date, return_date,
-        FK(book_id, copy_no)→Copy, PK(member_id, book_id, copy_no, borrow_date))
-```
+<svg viewBox="0 0 640 250" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Sơ đồ quan hệ thư viện: Copy thuộc Book, Borrows nối Member với Copy qua khóa ngoại kép (book_id, copy_no)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="20.0" width="190.0" height="60.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="115.0" y="36.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Book</text>
+  <text x="32.0" y="56.0" fill="#1f2937" font-size="9.5" text-anchor="start">book_id PK</text>
+  <text x="32.0" y="74.0" fill="#1f2937" font-size="9.5" text-anchor="start">title, author</text>
+  <rect x="20.0" y="130.0" width="190.0" height="96.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="115.0" y="146.0" fill="#7c3aed" font-size="11" text-anchor="middle" font-weight="700">Copy</text>
+  <text x="32.0" y="166.0" fill="#1f2937" font-size="9.5" text-anchor="start">book_id FK → Book</text>
+  <text x="32.0" y="184.0" fill="#1f2937" font-size="9.5" text-anchor="start">copy_no</text>
+  <text x="32.0" y="202.0" fill="#1f2937" font-size="9.5" text-anchor="start">status</text>
+  <text x="32.0" y="220.0" fill="#1f2937" font-size="9.5" text-anchor="start">PK(book_id, copy_no)</text>
+  <rect x="420.0" y="20.0" width="190.0" height="60.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="515.0" y="36.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">Member</text>
+  <text x="432.0" y="56.0" fill="#1f2937" font-size="9.5" text-anchor="start">member_id PK</text>
+  <text x="432.0" y="74.0" fill="#1f2937" font-size="9.5" text-anchor="start">name</text>
+  <rect x="420.0" y="130.0" width="190.0" height="114.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="515.0" y="146.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">Borrows</text>
+  <text x="432.0" y="166.0" fill="#1f2937" font-size="9.5" text-anchor="start">member_id FK → Member</text>
+  <text x="432.0" y="184.0" fill="#1f2937" font-size="9.5" text-anchor="start">(book_id, copy_no) FK → Copy</text>
+  <text x="432.0" y="202.0" fill="#1f2937" font-size="9.5" text-anchor="start">borrow_date, return_date</text>
+  <text x="432.0" y="220.0" fill="#1f2937" font-size="9.5" text-anchor="start">PK(member_id, book_id,</text>
+  <text x="432.0" y="238.0" fill="#1f2937" font-size="9.5" text-anchor="start">      copy_no, borrow_date)</text>
+  <line x1="115.0" y1="128.0" x2="115.0" y2="88.0" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arp)"/>
+  <text x="115.0" y="108.0" fill="#475569" font-size="9" text-anchor="middle">N : 1</text>
+  <line x1="515.0" y1="128.0" x2="515.0" y2="72.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="515.0" y="100.0" fill="#475569" font-size="9" text-anchor="middle">N : 1</text>
+  <line x1="418.0" y1="190.0" x2="212.0" y2="190.0" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <text x="315.0" y="184.0" fill="#475569" font-size="9" text-anchor="middle">N : 1 tới Copy</text>
+</svg>
 
 (Khóa của `Borrows` gồm cả `borrow_date` vì cùng một người có thể mượn lại cùng bản sao ở thời điểm khác.)
 

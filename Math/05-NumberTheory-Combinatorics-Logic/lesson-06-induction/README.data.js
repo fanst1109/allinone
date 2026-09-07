@@ -180,12 +180,52 @@ Vậy $P(n)$ đúng $\\forall n \\ge 1$. □ — Để ý 4 mảnh tách bạch 
 
 💡 **Trực giác trước khi chứng minh**: vì sao công thức $\\frac{n(n+1)}{2}$ lại đúng? Xếp hai bản sao của tổng, một xuôi một ngược, rồi cộng theo cột:
 
-\`\`\`
-   1  +  2  +  3  + ... + (n-1) +  n
-   n  + (n-1)+(n-2)+ ... +  2   +  1
-  ─────────────────────────────────────
- (n+1)+(n+1)+(n+1)+ ... +(n+1) +(n+1)   ← n cột, mỗi cột = (n+1)
-\`\`\`
+<svg viewBox="0 0 560 184" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mẹo Gauss: viết 1..n và n..1 chồng nhau, mỗi cột cộng thành n+1; n cột cho 2S = n(n+1)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="60.0" y="24.0" width="60.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="90.0" y="44.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="60.0" y="64.0" width="60.0" height="30.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="90.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <line x1="90.0" y1="96.0" x2="90.0" y2="112.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="60.0" y="114.0" width="60.0" height="30.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="90.0" y="134.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">n+1</text>
+  <rect x="132.0" y="24.0" width="60.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="162.0" y="44.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="132.0" y="64.0" width="60.0" height="30.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="162.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">n−1</text>
+  <line x1="162.0" y1="96.0" x2="162.0" y2="112.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="132.0" y="114.0" width="60.0" height="30.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="162.0" y="134.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">n+1</text>
+  <rect x="204.0" y="24.0" width="60.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="234.0" y="44.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="204.0" y="64.0" width="60.0" height="30.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="234.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">n−2</text>
+  <line x1="234.0" y1="96.0" x2="234.0" y2="112.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="204.0" y="114.0" width="60.0" height="30.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="234.0" y="134.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">n+1</text>
+  <rect x="276.0" y="24.0" width="60.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="306.0" y="44.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="276.0" y="64.0" width="60.0" height="30.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="306.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <line x1="306.0" y1="96.0" x2="306.0" y2="112.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="276.0" y="114.0" width="60.0" height="30.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="306.0" y="134.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">n+1</text>
+  <rect x="348.0" y="24.0" width="60.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="378.0" y="44.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">n−1</text>
+  <rect x="348.0" y="64.0" width="60.0" height="30.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="378.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <line x1="378.0" y1="96.0" x2="378.0" y2="112.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="348.0" y="114.0" width="60.0" height="30.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="378.0" y="134.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">n+1</text>
+  <rect x="420.0" y="24.0" width="60.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="450.0" y="44.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">n</text>
+  <rect x="420.0" y="64.0" width="60.0" height="30.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="450.0" y="84.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <line x1="450.0" y1="96.0" x2="450.0" y2="112.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <rect x="420.0" y="114.0" width="60.0" height="30.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="450.0" y="134.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">n+1</text>
+  <text x="280.0" y="168.0" fill="#1f2937" font-size="11" text-anchor="middle" font-weight="700">n cột, mỗi cột (n+1) → 2S = n(n+1) → S = n(n+1)/2</text>
+</svg>
 
 Tổng của HAI bản $= n\\cdot(n+1)$, nên một bản $= \\frac{n(n+1)}{2}$. (Đây là cách Gauss làm khi 9 tuổi cho $1+\\dots+100 = \\frac{100\\cdot 101}{2} = 5050$.) Quy nạp **không tìm ra** công thức — nó **xác nhận** công thức ta đã đoán là đúng cho mọi $n$.
 
@@ -515,14 +555,31 @@ Mệnh đề (sai) cần "chứng minh": **"Mọi tập gồm $n$ con ngựa đ�
 - **Cơ sở n=1**: 1 con ngựa hiển nhiên cùng màu với chính nó ✓.
 - **Bước quy nạp (lươn lẹo)**: giả sử mọi tập $k$ con ngựa cùng màu. Xét tập $k+1$ con $\\{h_1, h_2, \\dots, h_{k+1}\\}$.
 
-\`\`\`
-   Tập k+1 con:  h₁ h₂ h₃ ... hₖ hₖ₊₁
-
-   Bỏ con cuối:  [h₁ h₂ ... hₖ]            ← k con ⟹ cùng màu A
-   Bỏ con đầu:      [h₂ ... hₖ hₖ₊₁]       ← k con ⟹ cùng màu A
-                     └──────┬──────┘
-              GIAO (h₂..hₖ) chung cả 2 nhóm ⟹ "nối" màu ⟹ cả k+1 cùng màu A
-\`\`\`
+<svg viewBox="0 0 640 194" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nghịch lý ngựa cùng màu: hai nhóm k con chồng lên nhau qua phần giao h₂…hₖ — lập luận sập khi k=1 vì giao rỗng">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="30.0" y="26.0" fill="#475569" font-size="11" text-anchor="start">Tập k+1 con ngựa:</text>
+  <rect x="170.0" y="14.0" width="54.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="197.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">h₁</text>
+  <rect x="232.0" y="14.0" width="54.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="259.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">h₂</text>
+  <rect x="294.0" y="14.0" width="54.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="321.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">h₃</text>
+  <rect x="356.0" y="14.0" width="54.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="383.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">…</text>
+  <rect x="418.0" y="14.0" width="54.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="445.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">hₖ</text>
+  <rect x="480.0" y="14.0" width="54.0" height="30.0" rx="5" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="507.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">hₖ₊₁</text>
+  <rect x="160.0" y="58.0" width="320.0" height="26.0" rx="5" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="320.0" y="75.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">bỏ con cuối: {h₁ … hₖ} — k con ⟹ cùng màu A</text>
+  <rect x="232.0" y="94.0" width="320.0" height="26.0" rx="5" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="392.0" y="111.0" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">bỏ con đầu: {h₂ … hₖ₊₁} — k con ⟹ cùng màu A</text>
+  <rect x="232.0" y="132.0" width="248.0" height="24.0" rx="5" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="356.0" y="148.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">GIAO {h₂ … hₖ} thuộc CẢ HAI nhóm</text>
+  <line x1="300.0" y1="86.0" x2="300.0" y2="92.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <line x1="380.0" y1="122.0" x2="380.0" y2="130.0" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="320.0" y="178.0" fill="#475569" font-size="10" text-anchor="middle">phần giao &quot;nối màu&quot; hai nhóm ⟹ cả k+1 con cùng màu A (bước quy nạp — sai ở k=1 vì giao rỗng!)</text>
+</svg>
 
 - **Lỗi nằm ở đâu?** Lập luận "hai nhóm con giao nhau ở $h_2, \\dots, h_k$ nên cùng màu" chỉ đúng khi phần giao **khác rỗng**, tức cần $k - 1 \\ge 1 \\Leftrightarrow k \\ge 2$. Nhưng dây chuyền bắt đầu từ cơ sở $n=1$, nên mắt xích **đầu tiên** là $k=1 \\to k=2$: lúc đó "bỏ con cuối" còn $\\{h_1\\}$, "bỏ con đầu" còn $\\{h_2\\}$ — **giao rỗng**, không có con chung để "nối màu". Bước $1 \\to 2$ **đứt** → dây chuyền không bao giờ khởi động được, dù mọi bước $k \\to k+1$ với $k \\ge 2$ đều đúng.
 

@@ -221,16 +221,33 @@ Tạo cảm giác "leo thang" hoặc "trôi" tự nhiên. Người nghe nhận r
 
 Lật ngược mọi quãng: quãng lên bao nhiêu nửa cung → trở thành quãng xuống bấy nhiêu nửa cung.
 
-\`\`\`
-M gốc: C4–E4–G4
-  C4→E4: +4 nửa cung (lên quãng 3 trưởng)
-  E4→G4: +3 nửa cung (lên quãng 3 thứ)
-
-Đảo ảnh từ C4:
-  C4→A♭3: −4 nửa cung (xuống quãng 3 trưởng)
-  A♭3→F3: −3 nửa cung (xuống quãng 3 thứ)
-  → C4–A♭3–F3
-\`\`\`
+<svg viewBox="0 0 620 236" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đảo ảnh motif: C4–E4–G4 (lên +4, +3 nửa cung) thành C4–A♭3–F3 (xuống −4, −3) quanh trục C4">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="130.0" y="24.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Motif gốc: C4–E4–G4</text>
+  <text x="430.0" y="24.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">Đảo ảnh từ C4: C4–A♭3–F3</text>
+  <circle cx="70.0" cy="130.0" r="8" fill="#1d4ed8"/>
+  <text x="70.0" y="117.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">C4</text>
+  <circle cx="130.0" cy="102.0" r="8" fill="#1d4ed8"/>
+  <text x="130.0" y="89.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">E4</text>
+  <circle cx="190.0" cy="81.0" r="8" fill="#1d4ed8"/>
+  <text x="190.0" y="68.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">G4</text>
+  <line x1="78.0" y1="130.0" x2="122.0" y2="102.0" stroke="#1d4ed8" stroke-width="1.6" marker-end="url(#arb)"/>
+  <line x1="138.0" y1="102.0" x2="182.0" y2="81.0" stroke="#1d4ed8" stroke-width="1.6" marker-end="url(#arb)"/>
+  <text x="100.0" y="132.0" fill="#475569" font-size="9" text-anchor="middle">+4 nửa cung</text>
+  <text x="160.0" y="107.5" fill="#475569" font-size="9" text-anchor="middle">+3 nửa cung</text>
+  <circle cx="370.0" cy="130.0" r="8" fill="#dc2626"/>
+  <text x="370.0" y="117.0" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">C4</text>
+  <circle cx="430.0" cy="158.0" r="8" fill="#dc2626"/>
+  <text x="430.0" y="145.0" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">A♭3</text>
+  <circle cx="490.0" cy="179.0" r="8" fill="#dc2626"/>
+  <text x="490.0" y="166.0" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">F3</text>
+  <line x1="378.0" y1="130.0" x2="422.0" y2="158.0" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="438.0" y1="158.0" x2="482.0" y2="179.0" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arr)"/>
+  <text x="400.0" y="160.0" fill="#475569" font-size="9" text-anchor="middle">-4 nửa cung</text>
+  <text x="460.0" y="184.5" fill="#475569" font-size="9" text-anchor="middle">-3 nửa cung</text>
+  <line x1="310.0" y1="60.0" x2="310.0" y2="200.0" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="310.0" y="220.0" fill="#475569" font-size="10" text-anchor="middle">đảo ảnh: mỗi quãng đổi dấu (+4→−4, +3→−3) quanh nốt trục C4</text>
+</svg>
 
 **Ví dụ rõ hơn với motif 3 nốt C–D–E:**
 

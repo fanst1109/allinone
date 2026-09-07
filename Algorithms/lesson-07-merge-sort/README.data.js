@@ -185,15 +185,36 @@ func mergeSort(a []int) []int {
 
 **Pha CHIA (đi xuống)** — mỗi node chia đôi cho tới size 1. Với mảng lẻ, \`mid = len/2\`, nửa trái nhỏ hơn:
 
-\`\`\`
-                 [5,2,4,1,3]                  mid=2 → trái [5,2], phải [4,1,3]
-                /            \\
-          [5,2]               [4,1,3]         [4,1,3]: mid=1 → [4], [1,3]
-          /    \\              /      \\
-       [5]     [2]         [4]       [1,3]    [1,3]: mid=1 → [1],[3]
-                                     /   \\
-                                  [1]    [3]
-\`\`\`
+<svg viewBox="0 0 448 256" style="max-width:448px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây chia của merge sort [5,2,4,1,3]: mid=2 tách [5,2] và [4,1,3]; [4,1,3] tách [4] và [1,3]; xuống tới mảng 1 phần tử">
+  <defs></defs>
+  <line x1="192.5" y1="43.0" x2="98.0" y2="73.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="98.0" y1="99.0" x2="56.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="56.0" cy="142.0" r="15" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="56.0" y="146.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">[5]</text>
+  <line x1="98.0" y1="99.0" x2="140.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="140.0" cy="142.0" r="15" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="140.0" y="146.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">[2]</text>
+  <rect x="74.7" y="73.0" width="46.5" height="26.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="98.0" y="90.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">[5,2]</text>
+  <line x1="192.5" y1="43.0" x2="287.0" y2="73.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="287.0" y1="99.0" x2="224.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="224.0" cy="142.0" r="15" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="224.0" y="146.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">[4]</text>
+  <line x1="287.0" y1="99.0" x2="350.0" y2="129.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="350.0" y1="155.0" x2="308.0" y2="185.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="308.0" cy="198.0" r="15" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="308.0" y="202.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">[1]</text>
+  <line x1="350.0" y1="155.0" x2="392.0" y2="185.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="392.0" cy="198.0" r="15" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="392.0" y="202.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">[3]</text>
+  <rect x="326.7" y="129.0" width="46.5" height="26.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="350.0" y="146.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">[1,3]</text>
+  <rect x="257.2" y="73.0" width="59.6" height="26.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="287.0" y="90.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">[4,1,3]</text>
+  <rect x="149.7" y="17.0" width="85.6" height="26.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="192.5" y="34.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">[5,2,4,1,3]</text>
+  <text x="224.0" y="248.0" fill="#475569" font-size="11" text-anchor="middle">mỗi lần chia đôi tại mid — dừng khi mảng còn 1 phần tử</text>
+</svg>
 
 **Pha MERGE (đi lên)** — merge từng cặp con đã sort, từ lá lên gốc:
 
@@ -371,12 +392,81 @@ Thứ tự \`b\` trước \`d\` (đúng input), \`a\` trước \`c\` (đúng inp
 
 ### 7.2 Walk-through bottom-up: \`[5,2,4,1,3,8,6,7]\` (n=8)
 
-\`\`\`
-Ban đầu (cỡ 1): [5][2][4][1][3][8][6][7]
-Pass cỡ=1 → merge cặp:  [2,5] [1,4] [3,8] [6,7]
-Pass cỡ=2 → merge cặp:  [1,2,4,5]   [3,6,7,8]
-Pass cỡ=4 → merge cặp:  [1,2,3,4,5,6,7,8]   ✓
-\`\`\`
+<svg viewBox="0 0 620 232" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Merge sort bottom-up [5,2,4,1,3,8,6,7]: pass cỡ 1 → cặp 2, pass cỡ 2 → nhóm 4, pass cỡ 4 → mảng hoàn chỉnh">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="120.0" y="40.0" fill="#1d4ed8" font-size="10.5" text-anchor="end" font-weight="700">Ban đầu (cỡ 1)</text>
+  <rect x="140.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="157.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <rect x="188.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="205.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="236.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="253.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="284.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="301.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="332.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="349.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="380.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="397.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <rect x="428.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="445.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <rect x="476.0" y="20.0" width="34.0" height="30.0" rx="4" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="493.0" y="39.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <line x1="80.0" y1="54.0" x2="80.0" y2="66.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="120.0" y="88.0" fill="#7c3aed" font-size="10.5" text-anchor="end" font-weight="700">Pass cỡ=1</text>
+  <rect x="140.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="157.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="174.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="191.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <rect x="222.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="239.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="256.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="273.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="304.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="321.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="338.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="355.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <rect x="386.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="403.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <rect x="420.0" y="68.0" width="34.0" height="30.0" rx="4" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="437.0" y="87.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <line x1="80.0" y1="102.0" x2="80.0" y2="114.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="120.0" y="136.0" fill="#b45309" font-size="10.5" text-anchor="end" font-weight="700">Pass cỡ=2</text>
+  <rect x="140.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="157.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="174.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="191.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="208.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="225.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="242.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="259.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <rect x="290.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="307.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="324.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="341.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <rect x="358.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="375.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <rect x="392.0" y="116.0" width="34.0" height="30.0" rx="4" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="409.0" y="135.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <line x1="80.0" y1="150.0" x2="80.0" y2="162.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="120.0" y="184.0" fill="#15803d" font-size="10.5" text-anchor="end" font-weight="700">Pass cỡ=4</text>
+  <rect x="140.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="157.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">1</text>
+  <rect x="174.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="191.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">2</text>
+  <rect x="208.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="225.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">3</text>
+  <rect x="242.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="259.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">4</text>
+  <rect x="276.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="293.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">5</text>
+  <rect x="310.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="327.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">6</text>
+  <rect x="344.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="361.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">7</text>
+  <rect x="378.0" y="164.0" width="34.0" height="30.0" rx="4" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="395.0" y="183.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">8</text>
+  <text x="310.0" y="216.0" fill="#475569" font-size="10.5" text-anchor="middle">mỗi pass merge từng cặp run kề nhau, cỡ run nhân đôi</text>
+</svg>
 
 Số pass = $\\log_2 8 = 3$. Mỗi pass quét toàn bộ $n$ phần tử → $O(n \\log n)$, khớp top-down.
 

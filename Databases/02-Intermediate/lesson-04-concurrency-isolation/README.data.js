@@ -25,14 +25,25 @@ Sau bài này bạn sẽ:
 
 Tài khoản có \`balance = 100\`. Cùng một khoảnh khắc, T1 rút 50 ở ATM, T2 rút 30 ở quầy. Nếu hai transaction chạy *xen kẽ* sai cách:
 
-\`\`\`
-balance ban đầu = 100
-T1: đọc balance → 100
-T2: đọc balance → 100        (T2 cũng thấy 100, chưa biết T1 sẽ rút)
-T1: ghi balance = 100 - 50 = 50
-T2: ghi balance = 100 - 30 = 70   (đè lên kết quả của T1!)
-→ balance cuối = 70
-\`\`\`
+<svg viewBox="0 0 612 158" style="max-width:612px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lost update: T1 và T2 cùng đọc 100, T1 ghi 50, T2 ghi 70 đè mất thay đổi của T1 — đúng ra phải 20">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="580.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">T1 (rút 50)</text>
+  <text x="236.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">T2 (rút 30)</text>
+  <text x="551.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">balance</text>
+  <rect x="16.0" y="40.0" width="580.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">đọc balance → 100</text>
+  <text x="551.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="middle">100</text>
+  <rect x="16.0" y="66.0" width="580.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="236.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">đọc balance → 100  (chưa biết T1 sẽ rút)</text>
+  <text x="551.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="middle">100</text>
+  <rect x="16.0" y="92.0" width="580.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="start">ghi balance = 100 − 50 = 50</text>
+  <text x="551.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="middle">50</text>
+  <rect x="16.0" y="118.0" width="580.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="236.0" y="135.0" fill="#dc2626" font-size="10.5" text-anchor="start">ghi balance = 100 − 30 = 70 — ĐÈ lên T1!</text>
+  <text x="551.0" y="135.0" fill="#dc2626" font-size="10.5" text-anchor="middle">70</text>
+</svg>
 
 Ngân hàng rút tổng 80 nhưng số dư chỉ giảm 30. **Mất 50 vô hình** — đây là *lost update*. Cùng những thao tác đó, nếu chạy **lần lượt** (T1 xong rồi T2) thì kết quả đúng là \`100 − 50 − 30 = 20\`.
 

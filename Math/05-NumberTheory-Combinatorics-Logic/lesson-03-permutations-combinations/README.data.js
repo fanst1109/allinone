@@ -479,12 +479,46 @@ Khi gặp một bài đếm, chạy lần lượt 2 câu hỏi như sơ đồ d�
 
 **Vì sao là $C(n+k-1,k)$ — kỹ thuật "sao và vách ngăn"**: biểu diễn lựa chọn bằng $k$ ngôi sao ⋆ (mỗi sao = 1 vật mua) và $n-1$ vách \`|\` (chia $n$ loại). Vd mua $k=3$ bánh từ $n=3$ loại (A, B, C):
 
-\`\`\`
-   ⋆⋆ | ⋆ |        →  2 bánh A, 1 bánh B, 0 bánh C
-   ⋆ | ⋆ | ⋆       →  1 mỗi loại
-   | | ⋆⋆⋆         →  0 A, 0 B, 3 bánh C
-   ⋆⋆⋆ | |         →  3 bánh A
-\`\`\`
+<svg viewBox="0 0 520 228" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Stars and bars: 3 bánh chia 3 loại A, B, C bằng cách xếp 3 sao và 2 vách ngăn — C(5,2) = 10 cách">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <circle cx="50.0" cy="34.0" r="8" fill="#b45309"/>
+  <text x="50.0" y="38.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <circle cx="76.0" cy="34.0" r="8" fill="#b45309"/>
+  <text x="76.0" y="38.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <line x1="100.0" y1="20.0" x2="100.0" y2="48.0" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="122.0" cy="34.0" r="8" fill="#b45309"/>
+  <text x="122.0" y="38.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <line x1="146.0" y1="20.0" x2="146.0" y2="48.0" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="210.0" y="39.0" fill="#475569" font-size="10.5" text-anchor="start">2 bánh A, 1 bánh B, 0 bánh C</text>
+  <circle cx="50.0" cy="80.0" r="8" fill="#b45309"/>
+  <text x="50.0" y="84.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <line x1="74.0" y1="66.0" x2="74.0" y2="94.0" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="96.0" cy="80.0" r="8" fill="#b45309"/>
+  <text x="96.0" y="84.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <line x1="120.0" y1="66.0" x2="120.0" y2="94.0" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="142.0" cy="80.0" r="8" fill="#b45309"/>
+  <text x="142.0" y="84.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <text x="210.0" y="85.0" fill="#475569" font-size="10.5" text-anchor="start">1 mỗi loại</text>
+  <line x1="48.0" y1="112.0" x2="48.0" y2="140.0" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="68.0" y1="112.0" x2="68.0" y2="140.0" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="90.0" cy="126.0" r="8" fill="#b45309"/>
+  <text x="90.0" y="130.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <circle cx="116.0" cy="126.0" r="8" fill="#b45309"/>
+  <text x="116.0" y="130.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <circle cx="142.0" cy="126.0" r="8" fill="#b45309"/>
+  <text x="142.0" y="130.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <text x="210.0" y="131.0" fill="#475569" font-size="10.5" text-anchor="start">0 A, 0 B, 3 bánh C</text>
+  <circle cx="50.0" cy="172.0" r="8" fill="#b45309"/>
+  <text x="50.0" y="176.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <circle cx="76.0" cy="172.0" r="8" fill="#b45309"/>
+  <text x="76.0" y="176.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <circle cx="102.0" cy="172.0" r="8" fill="#b45309"/>
+  <text x="102.0" y="176.0" fill="#ffffff" font-size="9" text-anchor="middle">★</text>
+  <line x1="126.0" y1="158.0" x2="126.0" y2="186.0" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="146.0" y1="158.0" x2="146.0" y2="186.0" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="210.0" y="177.0" fill="#475569" font-size="10.5" text-anchor="start">3 bánh A</text>
+  <text x="250.0" y="212.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">3 sao + 2 vách | → chọn vị trí 2 vách trong 5 ô: C(5,2) = 10 cách</text>
+</svg>
 
 Mỗi cách mua ↔ một cách sắp $k$ sao và $n-1$ vách trên hàng $k+(n-1)$ ô. Chọn chỗ cho $k$ ngôi sao trong $k+n-1$ ô: $C(k+n-1, k)$. Với ví dụ: $C(3+3-1, 3) = C(5,3) = \\dfrac{5 \\cdot 4 \\cdot 3}{3!} = 10$ cách.
 

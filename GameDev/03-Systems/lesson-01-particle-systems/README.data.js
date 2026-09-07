@@ -85,16 +85,23 @@ Cùng một struct, khác giá trị → ra hiệu ứng khác hẳn:
 
 Mỗi hạt đi qua đúng 4 giai đoạn, lặp lại mỗi frame ở giai đoạn 2:
 
-\`\`\`
-1. SPAWN   : emitter sinh hạt → đặt Px,Py,Vx,Vy,Lifetime,màu...; Age = 0; Alive = true
-2. UPDATE  : mỗi frame, Δt giây:
-                Age += Δt
-                áp lực → đổi Vx,Vy        (§4)
-                Px += Vx·Δt; Py += Vy·Δt  (tích phân Euler, L03)
-                nội suy Size/Alpha/màu theo Age/Lifetime  (§5)
-3. DIE     : khi Age ≥ Lifetime → Alive = false
-4. RECYCLE : trả hạt chết về pool để emitter dùng lại  (§6)
-\`\`\`
+<svg viewBox="0 0 680 186" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng đời hạt: SPAWN → UPDATE mỗi frame (lực, tích phân, nội suy) → DIE khi hết Lifetime → RECYCLE về pool cho emitter dùng lại">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="60.0" width="150.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="105.0" y="78.4" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">1. SPAWN</text>
+  <text x="105.0" y="92.9" fill="#475569" font-size="9.5" text-anchor="middle">emitter sinh hạt, Age=0</text>
+  <line x1="182.0" y1="82.0" x2="240.0" y2="82.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="242.0" y="60.0" width="190.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="337.0" y="78.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">2. UPDATE mỗi frame</text>
+  <text x="337.0" y="92.5" fill="#475569" font-size="9" text-anchor="middle">Age+=Δt · lực · tích phân · nội suy</text>
+  <line x1="434.0" y1="82.0" x2="492.0" y2="82.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="494.0" y="60.0" width="150.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="569.0" y="78.4" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">3. DIE</text>
+  <text x="569.0" y="92.9" fill="#475569" font-size="9.5" text-anchor="middle">Age ≥ Lifetime → chết</text>
+  <path d="M 569.0,106.0 L 569.0,150.0 L 105.0,150.0 L 105.0,106.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="240.0" y="132.0" width="200.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="340.0" y="153.7" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">4. RECYCLE — trả về pool</text>
+</svg>
 
 📌 Bước UPDATE (vị trí từ vận tốc) **chính xác** là tích phân Euler ở [Lesson 03](../../01-Motion/lesson-03-integration-euler-verlet/): \`pos += vel·Δt\`. Hạt không cần Verlet hay RK4 — Euler "đủ tốt" vì hạt sống ngắn, sai số tích lũy không kịp lộ ra, và ta cần **rẻ × hàng nghìn lần**.
 

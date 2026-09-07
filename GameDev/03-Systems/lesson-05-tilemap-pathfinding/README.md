@@ -420,33 +420,28 @@ Khi nhiều ô đồng `f`, chọn ô nào ảnh hưởng số ô phải mở (k
 
 Bạn vừa hoàn thành **15 bài** xây một động cơ game/mô phỏng vật lý từ con số 0. Nhìn lại toàn bộ **pipeline**:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  GAME LOOP (L01)  — nhịp tim: input → update(dt) → render        │
-│      cố định dt, tách render khỏi physics (fixed timestep)        │
-├─────────────────────────────────────────────────────────────────┤
-│  VẬT LÝ (L02–L05)                                                 │
-│   • vector & kinematics (vị trí, vận tốc, gia tốc)                │
-│   • tích phân: Euler vs Verlet (vì sao Verlet ổn định hơn)        │
-│   • lực: trọng lực, cản (drag), ma sát → a = F/m                  │
-│   • lò xo & dao động: F = −k·x, hệ điều hoà                       │
-├─────────────────────────────────────────────────────────────────┤
-│  VA CHẠM (L06–L10)                                                │
-│   • DETECT: AABB & circle (L06) → SAT polygon (L07)               │
-│   • BROAD-PHASE: quadtree (L08) — lọc cặp không thể chạm          │
-│   • RESPONSE: impulse (L09) — đẩy ra, bảo toàn động lượng         │
-│   • ma sát/nghỉ/xếp chồng (L10) — vật đứng yên ổn định            │
-├─────────────────────────────────────────────────────────────────┤
-│  SYSTEMS (L11–L14)                                                │
-│   • hạt (particles), ràng buộc (constraints)                      │
-│   • flocking / steering (L13) — hành vi bầy đàn                   │
-│   • ECS & Architecture (L14) — tổ chức entity/component/system    │
-├─────────────────────────────────────────────────────────────────┤
-│  AI TÌM ĐƯỜNG (L15 — bài này)                                     │
-│   • tilemap → graph → BFS / Dijkstra / A*                         │
-│   • thường chạy như một system trong ECS, mỗi NPC một đường       │
-└─────────────────────────────────────────────────────────────────┘
-```
+<svg viewBox="0 0 640 347" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bản đồ lộ trình GameDev: game loop → vật lý → va chạm → systems → AI tìm đường (L15)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="600.0" height="51.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="320.0" y="36.0" fill="#1d4ed8" font-size="11.5" text-anchor="middle" font-weight="700">GAME LOOP (L01)</text>
+  <text x="320.0" y="53.0" fill="#1f2937" font-size="9.5" text-anchor="middle">input → update(dt) → render · fixed timestep</text>
+  <line x1="320.0" y1="69.0" x2="320.0" y2="81.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20.0" y="83.0" width="600.0" height="51.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="320.0" y="103.0" fill="#7c3aed" font-size="11.5" text-anchor="middle" font-weight="700">VẬT LÝ (L02–L05)</text>
+  <text x="320.0" y="120.0" fill="#1f2937" font-size="9.5" text-anchor="middle">vector &amp; kinematics · Euler vs Verlet · lực → a = F/m · lò xo F = −k·x</text>
+  <line x1="320.0" y1="136.0" x2="320.0" y2="148.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20.0" y="150.0" width="600.0" height="51.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="170.0" fill="#b45309" font-size="11.5" text-anchor="middle" font-weight="700">VA CHẠM (L06–L10)</text>
+  <text x="320.0" y="187.0" fill="#1f2937" font-size="9.5" text-anchor="middle">DETECT AABB/circle → SAT · BROAD-PHASE quadtree · RESPONSE impulse · ma sát/xếp chồng</text>
+  <line x1="320.0" y1="203.0" x2="320.0" y2="215.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20.0" y="217.0" width="600.0" height="51.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="320.0" y="237.0" fill="#15803d" font-size="11.5" text-anchor="middle" font-weight="700">SYSTEMS (L11–L14)</text>
+  <text x="320.0" y="254.0" fill="#1f2937" font-size="9.5" text-anchor="middle">particles · constraints · flocking/steering · ECS &amp; Architecture</text>
+  <line x1="320.0" y1="270.0" x2="320.0" y2="282.0" stroke="#1a202c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20.0" y="284.0" width="600.0" height="51.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="320.0" y="304.0" fill="#dc2626" font-size="11.5" text-anchor="middle" font-weight="700">AI TÌM ĐƯỜNG (L15 — bài này)</text>
+  <text x="320.0" y="321.0" fill="#1f2937" font-size="9.5" text-anchor="middle">tilemap → graph → BFS / Dijkstra / A* · chạy như một system trong ECS</text>
+</svg>
 
 Mỗi tầng **dựng trên tầng dưới**: tìm đường (L15) trả về một chuỗi waypoint; NPC đi theo waypoint bằng **steering** (L13); chuyển động được **tích phân** (L03) qua mỗi tick của **game loop** (L01); khi NPC đụng tường, **va chạm** (L06) đẩy ra; tất cả tổ chức gọn trong **ECS** (L14). Bạn đã có đủ mảnh để ghép một game nhỏ chạy thật.
 

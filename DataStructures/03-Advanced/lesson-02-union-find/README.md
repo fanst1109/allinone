@@ -204,22 +204,43 @@ cây:    4
 
 `find(0)` **có** path compression (đệ quy):
 
-```
-find(0):
-  parent[0]=1 ≠ 0 → parent[0] = find(1)
-    find(1):
-      parent[1]=2 ≠ 1 → parent[1] = find(2)
-        find(2):
-          parent[2]=3 ≠ 2 → parent[2] = find(3)
-            find(3):
-              parent[3]=4 ≠ 3 → parent[3] = find(4)
-                find(4):
-                  parent[4]=4 → return 4
-              parent[3] = 4 → return 4
-          parent[2] = 4 → return 4
-      parent[1] = 4 → return 4
-  parent[0] = 4 → return 4
-```
+<svg viewBox="0 0 558 258" style="max-width:558px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Path compression: find(0) đệ quy tới root 4 rồi gắn 0,1,2,3 trỏ thẳng root — cây thành hình sao">
+  <defs></defs>
+  <text x="126.0" y="16.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">Trước: chuỗi 0→1→2→3→4</text>
+  <g transform="translate(0,22)">
+  <line x1="105.0" y1="38.0" x2="105.0" y2="58.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="105.0" y1="82.0" x2="105.0" y2="102.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="105.0" y1="126.0" x2="105.0" y2="146.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="105.0" y1="170.0" x2="105.0" y2="190.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="105.0" cy="202.0" r="14" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="105.0" y="206.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="105.0" cy="158.0" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="105.0" y="162.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="105.0" cy="114.0" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="105.0" y="118.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <circle cx="105.0" cy="70.0" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="105.0" y="74.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="105.0" cy="26.0" r="14" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+  <text x="105.0" y="30.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  </g>
+  <text x="430.0" y="16.0" fill="#1a202c" font-size="12" text-anchor="middle" font-weight="700">Sau: tất cả trỏ thẳng 4</text>
+  <g transform="translate(302,22)">
+  <line x1="128.0" y1="38.0" x2="50.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="50.0" cy="74.0" r="14" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="50.0" y="78.0" fill="#dc2626" font-size="11" text-anchor="middle" font-weight="700">0</text>
+  <line x1="128.0" y1="38.0" x2="102.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="102.0" cy="74.0" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="102.0" y="78.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <line x1="128.0" y1="38.0" x2="154.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="154.0" cy="74.0" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="154.0" y="78.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <line x1="128.0" y1="38.0" x2="206.0" y2="62.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="206.0" cy="74.0" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+  <text x="206.0" y="78.0" fill="#b45309" font-size="11" text-anchor="middle" font-weight="700">3</text>
+  <circle cx="128.0" cy="26.0" r="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="128.0" y="30.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">4</text>
+  </g>
+</svg>
 
 Trạng thái sau:
 

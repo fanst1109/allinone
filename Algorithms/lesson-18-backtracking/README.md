@@ -200,19 +200,33 @@ func subsets(nums []int) [][]int {
 
 `*` đánh dấu node được ghi nhận (mọi node đều ghi):
 
-```
-dfs(start=0, path=[])  → ghi []*
-  i=0: path=[1] → dfs(1,[1]) → ghi [1]*
-        i=1: path=[1,2] → dfs(2,[1,2]) → ghi [1,2]*
-              i=2: path=[1,2,3] → dfs(3,...) → ghi [1,2,3]*  ; undo → [1,2]
-              undo → [1]
-        i=2: path=[1,3] → dfs(3,[1,3]) → ghi [1,3]*  ; undo → [1]
-        undo → []
-  i=1: path=[2] → dfs(2,[2]) → ghi [2]*
-        i=2: path=[2,3] → dfs(3,[2,3]) → ghi [2,3]*  ; undo → [2]
-        undo → []
-  i=2: path=[3] → dfs(3,[3]) → ghi [3]*  ; undo → []
-```
+<svg viewBox="0 0 332 262" style="max-width:332px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây đệ quy liệt kê subset của {1,2,3}: mỗi node là một subset được ghi, đi xuống = thêm phần tử, quay lui = bỏ phần tử">
+  <defs></defs>
+  <line x1="185.0" y1="43.0" x2="90.0" y2="75.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="90.0" y1="101.0" x2="52.0" y2="133.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="52.0" y1="159.0" x2="52.0" y2="191.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="22.2" y="191.0" width="59.6" height="26.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="52.0" y="208.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">[1,2,3]</text>
+  <rect x="28.7" y="133.0" width="46.5" height="26.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="52.0" y="150.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">[1,2]</text>
+  <line x1="90.0" y1="101.0" x2="128.0" y2="133.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="104.7" y="133.0" width="46.5" height="26.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="128.0" y="150.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">[1,3]</text>
+  <circle cx="90.0" cy="88.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="90.0" y="92.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">[1]</text>
+  <line x1="185.0" y1="43.0" x2="204.0" y2="75.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="204.0" y1="101.0" x2="204.0" y2="133.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="180.7" y="133.0" width="46.5" height="26.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="204.0" y="150.0" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">[2,3]</text>
+  <circle cx="204.0" cy="88.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="204.0" y="92.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">[2]</text>
+  <line x1="185.0" y1="43.0" x2="280.0" y2="75.0" stroke="#1a202c" stroke-width="1.5"/>
+  <circle cx="280.0" cy="88.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="280.0" y="92.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">[3]</text>
+  <circle cx="185.0" cy="30.0" r="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="185.0" y="34.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">[]</text>
+  <text x="166.0" y="254.0" fill="#475569" font-size="11" text-anchor="middle">8 node = 8 subset · xuống: push(i), lên: pop (undo)</text>
+</svg>
 
 Thứ tự ghi: `[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]` — đủ 8 tập, không trùng.
 

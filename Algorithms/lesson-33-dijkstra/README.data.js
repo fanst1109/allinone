@@ -506,12 +506,22 @@ Cạnh: \`0→1 (1)\`, \`0→2 (4)\`, \`1→2 (-10)\`.
 
 Khoan — ở ví dụ nhỏ này Dijkstra *tình cờ* ra đúng \`dist[2] = -9\` vì 2 chưa được chốt khi cập nhật. Cạm bẫy thực sự xuất hiện khi đỉnh bị **chốt trước** rồi mới có đường âm tới. Phản ví dụ chuẩn:
 
-\`\`\`
-   src = 0
-   0→1 (5)
-   0→2 (3)
-   2→1 (-4)
-\`\`\`
+<svg viewBox="0 0 370 230" style="max-width:370px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị có cạnh âm: 0→1 nặng 5, 0→2 nặng 3, 2→1 nặng −4 — đường 0→2→1 = −1 rẻ hơn 0→1">
+  <defs><marker id="dija" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="91.0" y1="60.0" x2="265.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dija)"/>
+  <text x="169.0" y="52.0" fill="#475569" font-size="10.5" text-anchor="middle" font-weight="700">5</text>
+  <line x1="84.8" y1="74.1" x2="162.3" y2="151.6" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dija)"/>
+  <text x="119.5" y="101.5" fill="#475569" font-size="10.5" text-anchor="middle" font-weight="700">3</text>
+  <line x1="194.8" y1="155.9" x2="272.3" y2="78.4" stroke="#1a202c" stroke-width="1.8" marker-end="url(#dija)"/>
+  <text x="229.5" y="112.5" fill="#475569" font-size="10.5" text-anchor="middle" font-weight="700">−4</text>
+  <circle cx="70.0" cy="60.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="70.0" y="64.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">0</text>
+  <circle cx="290.0" cy="60.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="290.0" y="64.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">1</text>
+  <circle cx="180.0" cy="170.0" r="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="180.0" y="174.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">2</text>
+  <text x="185.0" y="222.0" fill="#475569" font-size="10.5" text-anchor="middle">Dijkstra chốt đỉnh 1 với d=5 quá sớm → sai khi có cạnh âm</text>
+</svg>
 
 **Dijkstra (SAI):**
 1. Pop (0,0). \`dist[1]=5\`, \`dist[2]=3\`. Heap \`{(3,2),(5,1)}\`.

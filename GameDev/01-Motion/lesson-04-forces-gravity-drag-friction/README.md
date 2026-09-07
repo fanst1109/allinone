@@ -354,17 +354,24 @@ func (b *Body) update(dt float64) {
 
 Mọi thứ trong bài này khớp vào một vòng lặp duy nhất:
 
-```
-mỗi frame:
-  acc = 0
-  applyForce(gravity)      ← §3
-  applyForce(drag)         ← §4
-  applyForce(friction)     ← §5
-  applyForce(gió, lò xo, va chạm ...)
-  a = Σ F / m              ← §2 (đã chia trong applyForce)
-  v += a·dt; p += v·dt     ← L03 tích phân
-  acc = 0
-```
+<svg viewBox="0 0 560 342" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Vòng lặp lực mỗi frame: reset acc, cộng dồn các lực, a = ΣF/m, tích phân v và p, reset acc">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">acc = 0</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="78.0" width="380.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="103.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">applyForce(gravity) §3 · applyForce(drag) §4</text>
+  <text x="280.0" y="119.2" fill="#475569" font-size="11" text-anchor="middle">applyForce(friction) §5 · gió, lò xo, va chạm…</text>
+  <line x1="280.0" y1="138.0" x2="280.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="156.0" width="380.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="182.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">a = Σ F / m  (§2)</text>
+  <line x1="280.0" y1="202.0" x2="280.0" y2="218.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="220.0" width="380.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="246.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">v += a·dt ; p += v·dt  (L03 tích phân)</text>
+  <line x1="280.0" y1="266.0" x2="280.0" y2="282.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="284.0" width="380.0" height="44.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="280.0" y="310.2" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="700">acc = 0 — sẵn sàng frame sau</text>
+</svg>
 
 - **Tích phân (L03)** là cỗ máy biến gia tốc thành chuyển động — bài này chỉ cung cấp gia tốc.
 - **Lò xo (L05)** chỉ là *thêm một lực nữa*: $\vec{F}_{spring} = -k_s(\vec{x} - \vec{x}_0)$ (định luật Hooke). Cộng vào net force y như gravity/drag. Sẽ học kỹ ở [Lesson 05 — Springs & Oscillation](../lesson-05-springs-oscillation/).

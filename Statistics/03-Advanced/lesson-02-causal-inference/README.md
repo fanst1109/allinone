@@ -348,12 +348,19 @@ $P(Y \mid do(X = 1))$: ta **can thiệp**, ép ngẫu nhiên mọi người uố
 
 **Ví dụ**:
 
-```
-DAG:
-  Tuổi (C) → Điều trị (X)
-  Tuổi (C) → Kết quả (Y)
-  Điều trị (X) → Kết quả (Y)
-```
+<svg viewBox="0 0 360 220" style="max-width:360px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="DAG nhân quả: Tuổi (confounder) tác động cả Điều trị lẫn Kết quả; Điều trị tác động Kết quả">
+  <defs><marker id="daga" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="136.5" y1="57.4" x2="97.0" y2="148.2" stroke="#1a202c" stroke-width="1.8" marker-end="url(#daga)"/>
+  <line x1="185.8" y1="56.8" x2="242.4" y2="149.2" stroke="#1a202c" stroke-width="1.8" marker-end="url(#daga)"/>
+  <line x1="111.0" y1="160.0" x2="229.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#daga)"/>
+  <rect x="123.0" y="42.0" width="74.0" height="16.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="160.0" y="54.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Tuổi (C)</text>
+  <rect x="8.0" y="152.0" width="104.0" height="16.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="60.0" y="164.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Điều trị (X)</text>
+  <rect x="231.8" y="152.0" width="96.5" height="16.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="280.0" y="164.0" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Kết quả (Y)</text>
+  <text x="180.0" y="212.0" fill="#475569" font-size="10.5" text-anchor="middle">C là confounder — phải điều chỉnh theo C mới đo đúng X → Y</text>
+</svg>
 
 Backdoor path: X ← C → Y. Kiểm soát C → block backdoor path → có thể ước lượng $P(Y \mid do(X))$.
 

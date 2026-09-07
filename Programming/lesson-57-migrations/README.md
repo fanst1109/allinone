@@ -90,21 +90,39 @@ Gọi `migrate down 1` → chạy `003_create_posts.down.sql` (`DROP TABLE posts
 
 **Walk-through version tracking bằng số cụ thể.** Giả sử database ở Version 1 (đã chạy `001`). Bạn pull code mới có thêm `002` và `003`. Gọi `migrate up`:
 
-```
-schema_migrations.version = 1   (trạng thái hiện tại)
-→ tool tìm các file > 1: thấy 002, 003
-→ chạy 002.up.sql  → set version = 2
-→ chạy 003.up.sql  → set version = 3
-schema_migrations.version = 3   (kết thúc)
-```
+<svg viewBox="0 0 480 320" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Migrate up: từ version 1, tool chạy lần lượt 002.up.sql và 003.up.sql, mỗi file xong tăng version — kết thúc ở 3">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="310.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">schema_migrations.version = 1</text>
+  <line x1="240.0" y1="60.0" x2="240.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="76.0" width="310.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="240.0" y="102.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">tool tìm file &gt; 1: thấy 002, 003</text>
+  <line x1="240.0" y1="122.0" x2="240.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="138.0" width="310.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="240.0" y="164.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">chạy 002.up.sql → version = 2</text>
+  <line x1="240.0" y1="184.0" x2="240.0" y2="198.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="200.0" width="310.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="240.0" y="226.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">chạy 003.up.sql → version = 3</text>
+  <line x1="240.0" y1="246.0" x2="240.0" y2="260.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="262.0" width="310.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="240.0" y="288.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">schema_migrations.version = 3</text>
+</svg>
 
 Bây giờ gọi `migrate down 2`:
-```
-version = 3
-→ chạy 003.down.sql → version = 2
-→ chạy 002.down.sql → version = 1
-version = 1
-```
+<svg viewBox="0 0 480 258" style="max-width:480px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Migrate down: từ version 3 chạy ngược 003.down.sql rồi 002.down.sql về version 1">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="310.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="240.0" y="40.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">version = 3</text>
+  <line x1="240.0" y1="60.0" x2="240.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="76.0" width="310.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="240.0" y="102.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">chạy 003.down.sql → version = 2</text>
+  <line x1="240.0" y1="122.0" x2="240.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="138.0" width="310.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="240.0" y="164.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">chạy 002.down.sql → version = 1</text>
+  <line x1="240.0" y1="184.0" x2="240.0" y2="198.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="200.0" width="310.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="226.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">version = 1</text>
+</svg>
 
 Tool **không bao giờ** chạy lại `001` (vì version ≥ 1 đã apply) — đó là cách migration đảm bảo mỗi bước chạy đúng một lần.
 

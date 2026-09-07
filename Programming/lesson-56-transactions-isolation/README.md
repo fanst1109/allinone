@@ -750,13 +750,24 @@ mới và retry. Không khóa row → không deadlock.
 ### Lời giải BT5 — Deadlock + fix
 
 **Interleaving gây deadlock:**
-```
-T1 (A→B): SELECT ... id='A' FOR UPDATE  ✓ khóa A
-T2 (B→A): SELECT ... id='B' FOR UPDATE  ✓ khóa B
-T1: SELECT ... id='B' FOR UPDATE  ⏳ đợi T2 nhả B
-T2: SELECT ... id='A' FOR UPDATE  ⏳ đợi T1 nhả A
-→ DEADLOCK → DB abort 1 tx
-```
+<svg viewBox="0 0 642 176" style="max-width:642px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Deadlock hai transaction: T1 khóa A chờ B, T2 khóa B chờ A — vòng chờ, DB phải abort một transaction">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="610.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">T1 (chuyển A→B)</text>
+  <text x="276.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">T2 (chuyển B→A)</text>
+  <text x="576.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">trạng thái</text>
+  <rect x="16.0" y="40.0" width="610.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">SELECT id='A' FOR UPDATE → ✓ khóa A</text>
+  <rect x="16.0" y="66.0" width="610.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="276.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">SELECT id='B' FOR UPDATE → ✓ khóa B</text>
+  <rect x="16.0" y="92.0" width="610.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="start">SELECT id='B' FOR UPDATE → ⏳ đợi T2</text>
+  <text x="576.0" y="109.0" fill="#b45309" font-size="10.5" text-anchor="middle">chờ</text>
+  <rect x="16.0" y="118.0" width="610.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="276.0" y="135.0" fill="#dc2626" font-size="10.5" text-anchor="start">SELECT id='A' FOR UPDATE → ⏳ đợi T1</text>
+  <text x="576.0" y="135.0" fill="#dc2626" font-size="10.5" text-anchor="middle">DEADLOCK</text>
+  <text x="321.0" y="162.0" fill="#475569" font-size="10.5" text-anchor="middle">DB phát hiện chu trình chờ → abort 1 tx (thử lại sau)</text>
+</svg>
 
 **Fix — lock ordering:** luôn khóa id nhỏ trước.
 ```go

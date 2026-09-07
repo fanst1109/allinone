@@ -695,14 +695,26 @@ Operation idempotent: **gọi 1 lần hay nhiều lần cho cùng input → cùn
 
 ### 13.2 Retry trên non-idempotent = nguy hiểm
 
-```
-Client gọi POST /charge {amount: 100}
-  → Server trừ tiền OK
-  → Server gửi response, mạng đứt
-  → Client timeout, retry
-  → Server trừ tiền LẦN 2
-  → User mất 200 thay vì 100
-```
+<svg viewBox="0 0 560 308" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Retry không idempotent: response lần 1 rơi trên đường về, client retry, server trừ tiền lần 2 — user mất gấp đôi">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /charge {amount: 100}</text>
+  <text x="470.0" y="100.0" fill="#475569" font-size="10" text-anchor="end">trừ tiền OK (lần 1)</text>
+  <line x1="477.0" y1="130.0" x2="84.0" y2="130.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="280.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">response — MẠNG ĐỨT ✗</text>
+  <text x="90.0" y="160.0" fill="#475569" font-size="10" text-anchor="start">timeout → retry</text>
+  <line x1="83.0" y1="190.0" x2="476.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /charge {amount: 100} (lại)</text>
+  <text x="470.0" y="220.0" fill="#475569" font-size="10" text-anchor="end">trừ tiền LẦN 2!</text>
+  <text x="90.0" y="250.0" fill="#475569" font-size="10" text-anchor="start">user mất 200 thay vì 100</text>
+  <text x="280.0" y="302.0" fill="#475569" font-size="11" text-anchor="middle">cần Idempotency-Key để retry an toàn (xem L43)</text>
+</svg>
 
 ### 13.3 Idempotency key
 

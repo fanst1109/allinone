@@ -340,15 +340,27 @@ go test ./...
 Để thấy các lesson Tier 5 "nói chuyện" với nhau thế nào, theo dấu `GET /posts/3`
 khi cache trống:
 
-```
-HTTP request
-  └─ handler.get          (L43 REST design — parse path, gọi service)
-       └─ service.Get      (L58 cache-aside — điều phối)
-            ├─ cache.Get   (L58 Redis — MISS)
-            ├─ repo.GetPost (L54 SQL — đọc storage)
-            └─ cache.Set   (L58 — populate với TTL)
-  └─ handler writeJSON     (L23 JSON encoding — trả 200)
-```
+<svg viewBox="0 0 580 376" style="max-width:580px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi gọi GET /posts/3: handler parse rồi gọi service; service tra cache miss, đọc repo, populate cache; handler trả JSON">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="420.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="290.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">HTTP request</text>
+  <line x1="290.0" y1="60.0" x2="290.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="76.0" width="420.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="290.0" y="101.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">handler.get</text>
+  <text x="290.0" y="117.2" fill="#475569" font-size="11" text-anchor="middle">L43 REST — parse path, gọi service</text>
+  <line x1="290.0" y1="136.0" x2="290.0" y2="150.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="152.0" width="420.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="290.0" y="177.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">service.Get</text>
+  <text x="290.0" y="193.2" fill="#475569" font-size="11" text-anchor="middle">L58 cache-aside — điều phối</text>
+  <line x1="290.0" y1="212.0" x2="290.0" y2="226.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="228.0" width="420.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="290.0" y="253.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">cache.Get → MISS · repo.GetPost → đọc storage · cache.Set</text>
+  <text x="290.0" y="269.2" fill="#475569" font-size="11" text-anchor="middle">L58 Redis / L54 SQL</text>
+  <line x1="290.0" y1="288.0" x2="290.0" y2="302.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="304.0" width="420.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="290.0" y="329.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">handler writeJSON → 200</text>
+  <text x="290.0" y="345.2" fill="#475569" font-size="11" text-anchor="middle">L23 JSON encoding</text>
+</svg>
 
 Một request đọc đụng **3 tầng** (handler → service → cache/storage). Một request
 ghi comment đụng **thêm transaction** (L56). Đó là vì sao project này là bài tổng
@@ -382,19 +394,35 @@ service.Create:
 
 Giả sử cache đang trống, ta `GET /posts/3` hai lần:
 
-```
-Lần 1 (CACHE MISS):
-  cache.Get("post:3")        → (nil, false)   [misses=1]
-  repo.GetPost(3)            → đọc storage, lấy post
-  json.Marshal(post)         → raw bytes
-  cache.Set("post:3", raw, 5m)   ← POPULATE cache
-  → trả post
-
-Lần 2 (CACHE HIT):
-  cache.Get("post:3")        → (raw, true)    [hits=1]
-  json.Unmarshal(raw)        → post
-  → trả post (KHÔNG chạm storage)
-```
+<svg viewBox="0 0 620 370" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cache-aside hai lần đọc post:3 — lần 1 miss phải xuống storage rồi populate, lần 2 hit trả thẳng từ cache">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Handler</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="356.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="250.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="310.0" y="34.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Cache</text>
+  <line x1="310.0" y1="44.0" x2="310.0" y2="356.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="480.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="540.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Storage</text>
+  <line x1="540.0" y1="44.0" x2="540.0" y2="356.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">Lần 1 — CACHE MISS</text>
+  <line x1="83.0" y1="99.0" x2="306.0" y2="99.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="195.0" y="93.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">Get(&quot;post:3&quot;)</text>
+  <line x1="307.0" y1="128.0" x2="84.0" y2="128.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="195.0" y="122.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">(nil, false) — misses=1</text>
+  <line x1="83.0" y1="157.0" x2="536.0" y2="157.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="310.0" y="151.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GetPost(3)</text>
+  <line x1="537.0" y1="186.0" x2="84.0" y2="186.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="310.0" y="180.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">post</text>
+  <line x1="83.0" y1="215.0" x2="306.0" y2="215.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="195.0" y="209.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">Set(&quot;post:3&quot;, raw, 5m) — POPULATE</text>
+  <text x="90.0" y="244.0" fill="#475569" font-size="10" text-anchor="start">Lần 2 — CACHE HIT</text>
+  <line x1="83.0" y1="273.0" x2="306.0" y2="273.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="195.0" y="267.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">Get(&quot;post:3&quot;)</text>
+  <line x1="307.0" y1="302.0" x2="84.0" y2="302.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="195.0" y="296.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">(raw, true) — hits=1</text>
+  <text x="90.0" y="331.0" fill="#475569" font-size="10" text-anchor="start">trả post — KHÔNG chạm storage</text>
+</svg>
 
 Sau hai lần: `hits=1, misses=1`. Test `TestCacheAsideHitMiss` kiểm tra đúng con
 số này.

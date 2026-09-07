@@ -247,13 +247,28 @@ Không có orchestrator. Các service giao tiếp qua **event** trên message bu
 
 ### 6.1 Happy path (events)
 
-```
-[Order]     CreateOrder          → emit OrderCreated
-[Payment]   nghe OrderCreated    → charge $100, emit PaymentReserved
-[Inventory] nghe PaymentReserved → qty−1, emit InventoryReserved
-[Shipping]  nghe InventoryReserved → tạo shipment, emit OrderShipped
-[Order]     nghe OrderShipped    → set order = COMPLETED
-```
+<svg viewBox="0 0 600 390" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Saga happy path: chuỗi event OrderCreated → PaymentReserved → InventoryReserved → OrderShipped, order COMPLETED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="430.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Order] CreateOrder</text>
+  <text x="300.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">emit OrderCreated</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="90.0" width="430.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="115.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[Payment] nghe OrderCreated</text>
+  <text x="300.0" y="131.2" fill="#475569" font-size="11" text-anchor="middle">charge $100 → emit PaymentReserved</text>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="166.0" width="430.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="191.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">[Inventory] nghe PaymentReserved</text>
+  <text x="300.0" y="207.2" fill="#475569" font-size="11" text-anchor="middle">qty−1 → emit InventoryReserved</text>
+  <line x1="300.0" y1="226.0" x2="300.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="242.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="267.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">[Shipping] nghe InventoryReserved</text>
+  <text x="300.0" y="283.2" fill="#475569" font-size="11" text-anchor="middle">tạo shipment → emit OrderShipped</text>
+  <line x1="300.0" y1="302.0" x2="300.0" y2="316.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="318.0" width="430.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="343.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[Order] nghe OrderShipped</text>
+  <text x="300.0" y="359.2" fill="#475569" font-size="11" text-anchor="middle">set order = COMPLETED</text>
+</svg>
 
 Mỗi mũi tên là một event chảy trên bus. Không service nào gọi trực tiếp service khác — chỉ publish/subscribe.
 
@@ -261,13 +276,28 @@ Mỗi mũi tên là một event chảy trên bus. Không service nào gọi tr�
 
 Giả sử Inventory hết hàng:
 
-```
-[Order]     CreateOrder          → emit OrderCreated
-[Payment]   nghe OrderCreated    → charge $100, emit PaymentReserved
-[Inventory] nghe PaymentReserved → HẾT HÀNG → emit InventoryFailed   ← event "thất bại"
-[Payment]   nghe InventoryFailed → refund $100, emit PaymentRefunded   ← compensation event
-[Order]     nghe PaymentRefunded → set order = CANCELLED
-```
+<svg viewBox="0 0 600 390" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Saga thất bại giữa chừng: Inventory hết hàng phát InventoryFailed, Payment refund (compensation), order CANCELLED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="430.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">[Order] CreateOrder</text>
+  <text x="300.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">emit OrderCreated</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="90.0" width="430.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="115.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[Payment] nghe OrderCreated</text>
+  <text x="300.0" y="131.2" fill="#475569" font-size="11" text-anchor="middle">charge $100 → emit PaymentReserved</text>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="166.0" width="430.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="191.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[Inventory] nghe PaymentReserved</text>
+  <text x="300.0" y="207.2" fill="#475569" font-size="11" text-anchor="middle">HẾT HÀNG → emit InventoryFailed</text>
+  <line x1="300.0" y1="226.0" x2="300.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="242.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="267.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">[Payment] nghe InventoryFailed</text>
+  <text x="300.0" y="283.2" fill="#475569" font-size="11" text-anchor="middle">refund $100 → emit PaymentRefunded (compensation)</text>
+  <line x1="300.0" y1="302.0" x2="300.0" y2="316.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="318.0" width="430.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="343.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">[Order] nghe PaymentRefunded</text>
+  <text x="300.0" y="359.2" fill="#475569" font-size="11" text-anchor="middle">set order = CANCELLED</text>
+</svg>
 
 Compensation cũng chảy bằng **event ngược**: `InventoryFailed` kích hoạt Payment tự refund, `PaymentRefunded` kích hoạt Order tự hủy.
 
@@ -626,11 +656,24 @@ ReleaseSeat ✓ (bù bước 1: nhả ghế)
 ```
 
 **Fail path — IssueTicket lỗi mạng tạm thời (đã ReserveSeat + ChargeCard thành công):**
-```
-ReserveSeat ✓ → ChargeCard ✓ → IssueTicket ✗ (timeout)
-                                → đã qua điểm chốt → FORWARD recovery: retry IssueTicket
-                                → IssueTicket ✓ (lần 2) → DONE
-```
+<svg viewBox="0 0 720 158" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Forward recovery: đã đặt ghế và trừ tiền (qua điểm chốt) nên khi IssueTicket timeout thì retry tới thành công thay vì bù ngược">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="30.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="81.0" y="51.7" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">ReserveSeat ✓</text>
+  <line x1="148.0" y1="48.0" x2="186.0" y2="48.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="188.0" y="30.0" width="130.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="253.0" y="51.7" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">ChargeCard ✓</text>
+  <line x1="320.0" y1="48.0" x2="358.0" y2="48.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="360.0" y="30.0" width="170.0" height="36.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="445.0" y="51.5" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">IssueTicket ✗ (timeout)</text>
+  <line x1="445.0" y1="68.0" x2="445.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="453.0" y="88.0" fill="#b45309" font-size="10" text-anchor="start">đã qua điểm chốt → FORWARD recovery</text>
+  <rect x="330.0" y="102.0" width="230.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="445.0" y="123.7" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">retry IssueTicket → ✓ (lần 2)</text>
+  <line x1="562.0" y1="120.0" x2="600.0" y2="120.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="602.0" y="102.0" width="90.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="647.0" y="123.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">DONE</text>
+</svg>
 Không refund/release vì đã cam kết; lỗi tạm thời thì retry.
 
 ### Lời giải BT2 — Orchestration saga state machine
@@ -669,21 +712,48 @@ Chỗ lưu `completedSteps`: ngay **sau** khi `step.Do` thành công và append 
 ### Lời giải BT3 — Choreography saga order flow
 
 **Happy path (event chain):**
-```
-Order:     CreateOrder           → emit OrderCreated
-Payment:   [nghe OrderCreated]   → charge → emit PaymentReserved
-Inventory: [nghe PaymentReserved]→ qty−1  → emit InventoryReserved
-Order:     [nghe InventoryReserved] → set order = COMPLETED
-```
+<svg viewBox="0 0 600 314" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lời giải happy path: 3 service nối nhau bằng event, Order chốt COMPLETED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="430.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Order: CreateOrder</text>
+  <text x="300.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">emit OrderCreated</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="90.0" width="430.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="115.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Payment (nghe OrderCreated)</text>
+  <text x="300.0" y="131.2" fill="#475569" font-size="11" text-anchor="middle">charge → emit PaymentReserved</text>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="166.0" width="430.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="300.0" y="191.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Inventory (nghe PaymentReserved)</text>
+  <text x="300.0" y="207.2" fill="#475569" font-size="11" text-anchor="middle">qty−1 → emit InventoryReserved</text>
+  <line x1="300.0" y1="226.0" x2="300.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="242.0" width="430.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="267.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Order (nghe InventoryReserved)</text>
+  <text x="300.0" y="283.2" fill="#475569" font-size="11" text-anchor="middle">set order = COMPLETED</text>
+</svg>
 
 **Fail path — Inventory hết hàng (compensation event chain):**
-```
-Order:     CreateOrder           → emit OrderCreated
-Payment:   [nghe OrderCreated]   → charge → emit PaymentReserved
-Inventory: [nghe PaymentReserved]→ HẾT HÀNG → emit InventoryFailed
-Payment:   [nghe InventoryFailed]→ refund   → emit PaymentRefunded   (compensation event)
-Order:     [nghe PaymentRefunded]→ set order = CANCELLED
-```
+<svg viewBox="0 0 600 390" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lời giải nhánh fail: InventoryFailed kích hoạt refund bù trừ rồi Order CANCELLED">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="85.0" y="14.0" width="430.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="300.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Order: CreateOrder</text>
+  <text x="300.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">emit OrderCreated</text>
+  <line x1="300.0" y1="74.0" x2="300.0" y2="88.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="90.0" width="430.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="300.0" y="115.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Payment (nghe OrderCreated)</text>
+  <text x="300.0" y="131.2" fill="#475569" font-size="11" text-anchor="middle">charge → emit PaymentReserved</text>
+  <line x1="300.0" y1="150.0" x2="300.0" y2="164.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="166.0" width="430.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="191.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Inventory (nghe PaymentReserved)</text>
+  <text x="300.0" y="207.2" fill="#475569" font-size="11" text-anchor="middle">HẾT HÀNG → emit InventoryFailed</text>
+  <line x1="300.0" y1="226.0" x2="300.0" y2="240.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="242.0" width="430.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="300.0" y="267.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Payment (nghe InventoryFailed)</text>
+  <text x="300.0" y="283.2" fill="#475569" font-size="11" text-anchor="middle">refund → emit PaymentRefunded (compensation)</text>
+  <line x1="300.0" y1="302.0" x2="300.0" y2="316.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="85.0" y="318.0" width="430.0" height="58.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="300.0" y="343.2" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Order (nghe PaymentRefunded)</text>
+  <text x="300.0" y="359.2" fill="#475569" font-size="11" text-anchor="middle">set order = CANCELLED</text>
+</svg>
 
 Ai nghe gì: Payment subscribe `OrderCreated` + `InventoryFailed`; Inventory subscribe `PaymentReserved`; Order subscribe `InventoryReserved` + `PaymentRefunded`. Mỗi event mang `sagaId` để service biết bù cho saga nào.
 

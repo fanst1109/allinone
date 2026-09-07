@@ -41,12 +41,26 @@ Hai khái niệm thường bị gộp làm một, nhưng tách bạch sẽ khi�
 
 **Ví dụ flow đầy đủ** (request \`DELETE /posts/42\` từ Alice):
 
-\`\`\`
-1. AuthN: server đọc Authorization header → parse JWT → userID = 7 (Alice).
-2. AuthZ: server load post 42 → kiểm tra post.AuthorID == 7 hoặc Alice là admin?
-   - Đúng → cho phép xóa, trả 204.
-   - Sai → trả 403 Forbidden.
-\`\`\`
+<svg viewBox="0 0 720 182" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai bước bảo vệ API: AuthN parse JWT xác định user, AuthZ kiểm quyền trên tài nguyên — đúng thì 204, sai thì 403">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="40.0" width="150.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="91.0" y="56.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">DELETE /posts/42</text>
+  <text x="91.0" y="70.5" fill="#475569" font-size="9" text-anchor="middle">Authorization: Bearer…</text>
+  <line x1="168.0" y1="60.0" x2="216.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="218.0" y="40.0" width="190.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="313.0" y="56.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">AuthN — BẠN LÀ AI?</text>
+  <text x="313.0" y="70.5" fill="#475569" font-size="9" text-anchor="middle">parse JWT → userID = 7 (Alice)</text>
+  <line x1="410.0" y1="60.0" x2="458.0" y2="60.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="460.0" y="40.0" width="230.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="575.0" y="56.5" fill="#b45309" font-size="10" text-anchor="middle" font-weight="700">AuthZ — ĐƯỢC PHÉP KHÔNG?</text>
+  <text x="575.0" y="70.5" fill="#475569" font-size="9" text-anchor="middle">post.AuthorID == 7? hoặc admin?</text>
+  <path d="M 530.0,82.0 L 530.0,116.0 L 568.0,116.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <rect x="570.0" y="100.0" width="130.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="635.0" y="119.7" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">204 — cho xóa</text>
+  <path d="M 620.0,82.0 L 620.0,150.0 L 564.0,150.0" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <rect x="430.0" y="134.0" width="130.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="495.0" y="153.7" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">403 Forbidden</text>
+</svg>
 
 > ⚠ **Lỗi thường gặp**: gom AuthN + AuthZ vào cùng một middleware, dẫn tới code khó test và khó audit. Pattern tốt là **middleware AuthN** chỉ làm xác thực và gắn \`userID\` vào context, còn AuthZ làm ở handler hoặc middleware riêng cho từng route group.
 

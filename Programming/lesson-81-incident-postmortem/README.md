@@ -186,18 +186,29 @@ Cao hơn SLA, ví dụ 99.95%. Lý do: cần "vùng đệm" để đội phát h
 
 **(c) Ví dụ số cụ thể.**
 
-```
-SLO = 99.9% trong 30 ngày
-Error budget = 0.1% × tổng = 43.2 phút downtime (hoặc theo request:)
-
-Giả sử 10.000.000 request/tháng.
-Budget lỗi = 0.1% × 10M = 10.000 request được phép fail.
-
-Đầu tháng: đã fail 0 request    → budget còn 100% → ship thoải mái.
-Giữa tháng: deploy lỗi, fail 7.000 req → budget còn 30% → cẩn thận.
-Cuối tháng: thêm 4.000 req fail (tổng 11.000 > 10.000)
-            → BUDGET ÂM → FREEZE feature, chỉ làm reliability.
-```
+<svg viewBox="0 0 720 208" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Error budget 10.000 request fail: đầu tháng còn 100%, giữa tháng còn 30% sau deploy lỗi, cuối tháng âm — freeze feature">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="16.0" y="24.0" fill="#1f2937" font-size="10.5" text-anchor="start" font-weight="700">SLO 99.9%/30 ngày → error budget = 10.000 request fail (10M req/tháng)</text>
+  <text x="140.0" y="62.0" fill="#15803d" font-size="10.5" text-anchor="end" font-weight="700">Đầu tháng</text>
+  <rect x="150.0" y="44.0" width="340.0" height="26.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="150.0" y="44.0" width="340.0" height="26.0" rx="4" fill="#15803d" fill-opacity="0.85" stroke="#15803d" stroke-width="0"/>
+  <text x="320.0" y="61.0" fill="#ffffff" font-size="9.5" text-anchor="middle" font-weight="700">còn 100%</text>
+  <text x="502.0" y="57.0" fill="#475569" font-size="9.5" text-anchor="start">fail 0</text>
+  <text x="502.0" y="70.0" fill="#15803d" font-size="9.5" text-anchor="start" font-weight="700">ship thoải mái</text>
+  <text x="140.0" y="108.0" fill="#b45309" font-size="10.5" text-anchor="end" font-weight="700">Giữa tháng</text>
+  <rect x="150.0" y="90.0" width="340.0" height="26.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="150.0" y="90.0" width="102.0" height="26.0" rx="4" fill="#b45309" fill-opacity="0.85" stroke="#b45309" stroke-width="0"/>
+  <text x="201.0" y="107.0" fill="#ffffff" font-size="9.5" text-anchor="middle" font-weight="700">còn 30%</text>
+  <text x="502.0" y="103.0" fill="#475569" font-size="9.5" text-anchor="start">deploy lỗi, fail 7.000</text>
+  <text x="502.0" y="116.0" fill="#b45309" font-size="9.5" text-anchor="start" font-weight="700">cẩn thận</text>
+  <text x="140.0" y="154.0" fill="#dc2626" font-size="10.5" text-anchor="end" font-weight="700">Cuối tháng</text>
+  <rect x="150.0" y="136.0" width="340.0" height="26.0" rx="4" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="150.0" y="136.0" width="340.0" height="26.0" rx="4" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.2"/>
+  <text x="320.0" y="153.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">−1.000 request (âm 10%)</text>
+  <text x="502.0" y="149.0" fill="#475569" font-size="9.5" text-anchor="start">thêm 4.000 (tổng 11.000)</text>
+  <text x="502.0" y="162.0" fill="#dc2626" font-size="9.5" text-anchor="start" font-weight="700">BUDGET ÂM → FREEZE feature</text>
+  <text x="330.0" y="192.0" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">budget âm = đã phá SLO → dừng feature, chỉ làm reliability</text>
+</svg>
 
 **Error budget policy (chính sách)** điển hình:
 

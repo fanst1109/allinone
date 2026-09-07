@@ -1069,27 +1069,23 @@ GitHub trả về URL gợi ý mở Pull Request.
 
 Trên GitHub:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ feat/user-profile-page  ──>  main                       │
-│                                                         │
-│ Title: feat(user): user profile page                    │
-│                                                         │
-│ Description:                                            │
-│ ## Summary                                              │
-│ - Thêm GET /users/:id/profile                          │
-│ - Cache 5 phút bằng Redis                              │
-│                                                         │
-│ ## Test plan                                            │
-│ - [x] Unit test cho handler                            │
-│ - [x] Integration test với Redis                        │
-│ - [ ] Load test (sẽ làm sau)                            │
-│                                                         │
-│ Closes #234                                             │
-│                                                         │
-│ [ Create Pull Request ]                                 │
-└─────────────────────────────────────────────────────────┘
-```
+<svg viewBox="0 0 600 272" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Mẫu Pull Request tốt: title theo conventional commit, Summary nêu thay đổi, Test plan checklist, Closes #234 liên kết issue">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="560.0" height="240.0" rx="10" fill="#ffffff" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="40.0" y="44.0" fill="#7c3aed" font-size="11" text-anchor="start" font-weight="700">feat/user-profile-page → main</text>
+  <line x1="20.0" y1="56.0" x2="580.0" y2="56.0" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="40.0" y="80.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Title: feat(user): user profile page</text>
+  <text x="40.0" y="106.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">## Summary</text>
+  <text x="56.0" y="124.0" fill="#1f2937" font-size="10" text-anchor="start">• Thêm GET /users/:id/profile</text>
+  <text x="56.0" y="141.0" fill="#1f2937" font-size="10" text-anchor="start">• Cache 5 phút bằng Redis</text>
+  <text x="40.0" y="166.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">## Test plan</text>
+  <text x="56.0" y="184.0" fill="#15803d" font-size="10" text-anchor="start">☑ Unit test cho handler</text>
+  <text x="56.0" y="201.0" fill="#15803d" font-size="10" text-anchor="start">☑ Integration test với Redis</text>
+  <text x="56.0" y="218.0" fill="#94a3b8" font-size="10" text-anchor="start">☐ Load test (sẽ làm sau)</text>
+  <text x="40.0" y="242.0" fill="#b45309" font-size="10" text-anchor="start" font-weight="700">Closes #234</text>
+  <rect x="390.0" y="224.0" width="170.0" height="24.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="475.0" y="240.0" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">Create Pull Request</text>
+</svg>
 
 ### 7.6 Review
 
@@ -1123,17 +1119,18 @@ PR tự cập nhật (vì cùng branch).
 
 Sau khi tất cả comment resolved + CI xanh + ≥1 approval:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ ✓ All checks passed                                     │
-│ ✓ 2 approving reviews                                   │
-│                                                         │
-│ [ ▼ Merge pull request ]                                │
-│   ├─ Create a merge commit                              │
-│   ├─ Squash and merge   ← thường dùng nhất              │
-│   └─ Rebase and merge                                   │
-└─────────────────────────────────────────────────────────┘
-```
+<svg viewBox="0 0 560 186" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nút merge trên GitHub sau khi checks pass và đủ review: ba lựa chọn, Squash and merge thường dùng nhất">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="520.0" height="150.0" rx="10" fill="#ffffff" fill-opacity="1" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="40.0" y="42.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">✓ All checks passed</text>
+  <text x="40.0" y="62.0" fill="#15803d" font-size="11" text-anchor="start" font-weight="700">✓ 2 approving reviews</text>
+  <rect x="40.0" y="78.0" width="220.0" height="28.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.5"/>
+  <text x="150.0" y="97.0" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">▼ Merge pull request</text>
+  <text x="64.0" y="124.0" fill="#1f2937" font-size="10.5" text-anchor="start">• Create a merge commit</text>
+  <text x="64.0" y="144.0" fill="#15803d" font-size="10.5" text-anchor="start" font-weight="700">• Squash and merge</text>
+  <text x="230.0" y="144.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">← thường dùng nhất</text>
+  <text x="64.0" y="164.0" fill="#1f2937" font-size="10.5" text-anchor="start">• Rebase and merge</text>
+</svg>
 
 **Squash and merge** = gộp mọi commit của PR thành **1 commit duy nhất** trên main → lịch sử main sạch, mỗi PR = 1 commit. Đa số team backend modern chọn cái này.
 

@@ -246,12 +246,19 @@ kubectl set image deployment/myapp myapp=myregistry.io/myapp:${GIT_SHA}
 
 GitHub Actions định nghĩa pipeline bằng file YAML trong `.github/workflows/`. Cấu trúc phân cấp:
 
-```
-workflow (1 file .yml)
- └─ jobs (chạy song song mặc định, mỗi job 1 runner riêng)
-     └─ steps (chạy tuần tự trong 1 job)
-         └─ uses: action có sẵn  |  run: lệnh shell
-```
+<svg viewBox="0 0 640 200" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cấu trúc GitHub Actions lồng nhau: workflow chứa jobs song song, mỗi job chứa steps tuần tự, mỗi step là uses hoặc run">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="600.0" height="168.0" rx="10" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="40.0" y="38.0" fill="#1d4ed8" font-size="11.5" text-anchor="start" font-weight="700">workflow (1 file .yml)</text>
+  <rect x="40.0" y="50.0" width="560.0" height="120.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.6"/>
+  <text x="60.0" y="72.0" fill="#7c3aed" font-size="10.5" text-anchor="start" font-weight="700">jobs — chạy SONG SONG mặc định, mỗi job 1 runner riêng</text>
+  <rect x="60.0" y="84.0" width="520.0" height="72.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.5"/>
+  <text x="80.0" y="106.0" fill="#b45309" font-size="10.5" text-anchor="start" font-weight="700">steps — chạy TUẦN TỰ trong 1 job</text>
+  <rect x="80.0" y="118.0" width="220.0" height="28.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="190.0" y="136.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">uses: action có sẵn</text>
+  <rect x="320.0" y="118.0" width="220.0" height="28.0" rx="5" fill="#ffffff" fill-opacity="1" stroke="#15803d" stroke-width="1.4"/>
+  <text x="430.0" y="136.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">run: lệnh shell</text>
+</svg>
 
 ### 4.1 Khái niệm cốt lõi
 

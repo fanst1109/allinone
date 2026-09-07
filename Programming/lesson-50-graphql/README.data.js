@@ -103,15 +103,38 @@ Màn hình mobile cần hiển thị: **tên user, email, 5 post mới nhất c�
 
 ### 2.2 Với REST (cổ điển)
 
-\`\`\`
-GET /users/42                       → {id, name, email, ...}
-GET /users/42/posts?limit=5         → [{id, title, body, ...}, ...]
-GET /posts/101/comments?limit=3     → [{id, text, ...}, ...]
-GET /posts/102/comments?limit=3     → ...
-GET /posts/103/comments?limit=3     → ...
-GET /posts/104/comments?limit=3     → ...
-GET /posts/105/comments?limit=3     → ...
-\`\`\`
+<svg viewBox="0 0 620 300" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="REST under-fetching: lấy 1 user với 5 post và comment cần 1 + 1 + 5 = 7 request — bài toán N+1 mà GraphQL giải">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="80.0" width="90.0" height="36.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="61.0" y="102.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="108.0" y1="98.0" x2="196.0" y2="98.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="152.0" y="90.0" fill="#475569" font-size="9" text-anchor="middle">1 + 1 + 5 request</text>
+  <rect x="198.0" y="16.0" width="190.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="293.0" y="35.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">GET /users/42</text>
+  <rect x="198.0" y="58.0" width="220.0" height="32.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="308.0" y="77.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">GET /users/42/posts?limit=5</text>
+  <rect x="198.0" y="100.0" width="250.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="323.0" y="118.3" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">GET /posts/101/comments?limit=3</text>
+  <rect x="198.0" y="136.0" width="250.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="323.0" y="154.3" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">GET /posts/102/comments?limit=3</text>
+  <rect x="198.0" y="172.0" width="250.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="323.0" y="190.3" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">GET /posts/103/comments?limit=3</text>
+  <rect x="198.0" y="208.0" width="250.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="323.0" y="226.3" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">GET /posts/104/comments?limit=3</text>
+  <rect x="198.0" y="244.0" width="250.0" height="30.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="323.0" y="262.3" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">GET /posts/105/comments?limit=3</text>
+  <path d="M 108.0,90.0 L 150.0,90.0 L 150.0,32.0 L 196.0,32.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,90.0 L 150.0,74.0 L 196.0,74.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,98.0 L 150.0,115.0 L 196.0,115.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,98.0 L 150.0,151.0 L 196.0,151.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,98.0 L 150.0,187.0 L 196.0,187.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,98.0 L 150.0,223.0 L 196.0,223.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 150.0,98.0 L 150.0,259.0 L 196.0,259.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="470.0" y="120.0" fill="#dc2626" font-size="11" text-anchor="start" font-weight="700">N+1 problem:</text>
+  <text x="470.0" y="138.0" fill="#475569" font-size="10" text-anchor="start">1 user + 1 posts</text>
+  <text x="470.0" y="153.0" fill="#475569" font-size="10" text-anchor="start">+ N request comments</text>
+  <text x="470.0" y="168.0" fill="#475569" font-size="10" text-anchor="start">(N = số post)</text>
+</svg>
 
 **Tổng cộng: 7 round-trip HTTP.** Trên 3G/4G mobile, mỗi round-trip ~100-300ms → tổng latency 700ms-2s.
 

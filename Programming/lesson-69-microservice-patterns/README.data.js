@@ -412,15 +412,47 @@ Tên lấy từ cây **đa bóp cổ (strangler fig)**: nó mọc quanh một c�
 
 ### 8.2 Walk-through migrate \`/users\`
 
-\`\`\`
-Giai đoạn 0:  mọi /*           → Monolith
-Giai đoạn 1:  /users/*         → UserService (mới)
-              mọi /* khác      → Monolith
-Giai đoạn 2:  /users/*, /orders/* → service mới
-              còn lại          → Monolith
-...
-Giai đoạn N:  không còn route nào về Monolith → tắt Monolith
-\`\`\`
+<svg viewBox="0 0 900 244" style="max-width:900px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Strangler pattern: gateway route từng prefix (/users, /orders…) sang service mới theo giai đoạn, cuối cùng tắt monolith">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="20.0" y="36.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn 0</text>
+  <rect x="130.0" y="16.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="35.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">mọi /*</text>
+  <line x1="302.0" y1="32.0" x2="334.0" y2="32.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="16.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="411.0" y="35.3" fill="#94a3b8" font-size="9.5" text-anchor="middle" font-weight="700">Monolith</text>
+  <line x1="70.0" y1="52.0" x2="70.0" y2="66.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="20.0" y="88.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn 1</text>
+  <rect x="130.0" y="68.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="87.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">/users/*</text>
+  <line x1="302.0" y1="84.0" x2="334.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="68.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="411.0" y="87.3" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">UserService (mới)</text>
+  <rect x="510.0" y="68.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="595.0" y="87.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">mọi /* khác</text>
+  <line x1="682.0" y1="84.0" x2="714.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="716.0" y="68.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="791.0" y="87.3" fill="#94a3b8" font-size="9.5" text-anchor="middle" font-weight="700">Monolith</text>
+  <line x1="70.0" y1="104.0" x2="70.0" y2="118.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="20.0" y="140.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn 2</text>
+  <rect x="130.0" y="120.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="139.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">/users/*, /orders/*</text>
+  <line x1="302.0" y1="136.0" x2="334.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="120.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="411.0" y="139.3" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">service mới</text>
+  <rect x="510.0" y="120.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="595.0" y="139.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">còn lại</text>
+  <line x1="682.0" y1="136.0" x2="714.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="716.0" y="120.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="791.0" y="139.3" fill="#94a3b8" font-size="9.5" text-anchor="middle" font-weight="700">Monolith</text>
+  <line x1="70.0" y1="156.0" x2="70.0" y2="170.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="20.0" y="192.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn N</text>
+  <rect x="130.0" y="172.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="191.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">không còn route nào</text>
+  <line x1="302.0" y1="188.0" x2="334.0" y2="188.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="172.0" width="150.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="411.0" y="191.3" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">→ TẮT Monolith</text>
+  <text x="340.0" y="228.0" fill="#475569" font-size="10.5" text-anchor="middle">route chuyển dần từng prefix sang service mới — monolith teo dần rồi tắt</text>
+</svg>
 
 Ưu điểm: mỗi bước nhỏ, có thể **rollback** (route ngược về monolith) nếu service mới lỗi. Không có "ngày D đập hết".
 
@@ -780,14 +812,47 @@ Code minh họa: hàm \`AggregateOrderDetail\` trong [solutions.go](./solutions.
 
 Router (đặt trước, thường là gateway) quyết định theo prefix path:
 
-\`\`\`
-Giai đoạn 0: route("/users/42")  → Monolith
-Giai đoạn 1: route("/users/42")  → UserService (mới)
-             route("/orders/7")  → Monolith   (chưa migrate)
-Giai đoạn 2: route("/orders/7")  → OrderService (mới)
-             ...
-Giai đoạn N: không còn prefix nào map về Monolith → tắt Monolith
-\`\`\`
+<svg viewBox="0 0 900 244" style="max-width:900px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lời giải strangler: route(/users/42) chuyển sang UserService ở giai đoạn 1, /orders sang OrderService ở giai đoạn 2, giai đoạn N tắt monolith">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="20.0" y="36.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn 0</text>
+  <rect x="130.0" y="16.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="35.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">mọi /*</text>
+  <line x1="302.0" y1="32.0" x2="334.0" y2="32.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="16.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="411.0" y="35.3" fill="#94a3b8" font-size="9.5" text-anchor="middle" font-weight="700">Monolith</text>
+  <line x1="70.0" y1="52.0" x2="70.0" y2="66.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="20.0" y="88.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn 1</text>
+  <rect x="130.0" y="68.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="87.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">/users/*</text>
+  <line x1="302.0" y1="84.0" x2="334.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="68.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="411.0" y="87.3" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">UserService (mới)</text>
+  <rect x="510.0" y="68.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="595.0" y="87.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">mọi /* khác</text>
+  <line x1="682.0" y1="84.0" x2="714.0" y2="84.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="716.0" y="68.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="791.0" y="87.3" fill="#94a3b8" font-size="9.5" text-anchor="middle" font-weight="700">Monolith</text>
+  <line x1="70.0" y1="104.0" x2="70.0" y2="118.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="20.0" y="140.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn 2</text>
+  <rect x="130.0" y="120.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="139.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">/users/*, /orders/*</text>
+  <line x1="302.0" y1="136.0" x2="334.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="120.0" width="150.0" height="32.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="411.0" y="139.3" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">service mới</text>
+  <rect x="510.0" y="120.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="595.0" y="139.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">còn lại</text>
+  <line x1="682.0" y1="136.0" x2="714.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="716.0" y="120.0" width="150.0" height="32.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="791.0" y="139.3" fill="#94a3b8" font-size="9.5" text-anchor="middle" font-weight="700">Monolith</text>
+  <line x1="70.0" y1="156.0" x2="70.0" y2="170.0" stroke="#1a202c" stroke-width="1.3" marker-end="url(#ar)"/>
+  <text x="20.0" y="192.0" fill="#1f2937" font-size="11" text-anchor="start" font-weight="700">Giai đoạn N</text>
+  <rect x="130.0" y="172.0" width="170.0" height="32.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="215.0" y="191.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">không còn route nào</text>
+  <line x1="302.0" y1="188.0" x2="334.0" y2="188.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="336.0" y="172.0" width="150.0" height="32.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="411.0" y="191.3" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">→ TẮT Monolith</text>
+  <text x="340.0" y="228.0" fill="#475569" font-size="10.5" text-anchor="middle">route chuyển dần từng prefix sang service mới — monolith teo dần rồi tắt</text>
+</svg>
 
 Logic router: giữ một bảng \`prefix → backend\`. Khi migrate \`/users\`, đổi \`"/users" → UserService\`. Phần còn lại fallback về Monolith.
 

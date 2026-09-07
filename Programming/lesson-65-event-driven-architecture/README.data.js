@@ -729,23 +729,46 @@ func CreateOrder(db *DB, o Order) error {
 
 **Choreography:**
 
-\`\`\`
-OrderService:     publish OrderCreated
-PaymentService:   (nghe OrderCreated) charge → publish PaymentCharged
-InventoryService: (nghe PaymentCharged) reserve → publish StockReserved
-ShippingService:  (nghe StockReserved) ship → publish ShipmentScheduled
-\`\`\`
+<svg viewBox="0 0 560 320" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lời giải choreography: mỗi service nghe event của bước trước rồi phát event của mình — không có điều phối trung tâm">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">OrderService</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">publish OrderCreated</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="92.0" width="380.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="117.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">PaymentService (nghe OrderCreated)</text>
+  <text x="280.0" y="133.2" fill="#475569" font-size="11" text-anchor="middle">charge → publish PaymentCharged</text>
+  <line x1="280.0" y1="152.0" x2="280.0" y2="168.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="170.0" width="380.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="195.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">InventoryService (nghe PaymentCharged)</text>
+  <text x="280.0" y="211.2" fill="#475569" font-size="11" text-anchor="middle">reserve → publish StockReserved</text>
+  <line x1="280.0" y1="230.0" x2="280.0" y2="246.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="248.0" width="380.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="273.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">ShippingService (nghe StockReserved)</text>
+  <text x="280.0" y="289.2" fill="#475569" font-size="11" text-anchor="middle">ship → publish ShipmentScheduled</text>
+</svg>
 
 Khi inventory **fail**: InventoryService publish \`StockReservationFailed\`. Ai phải bù? PaymentService phải tự nghe event này và **refund** (publish \`PaymentRefunded\`). OrderService nghe để set order \`cancelled\`. → Logic bù **rải khắp** các service, mỗi service phải biết "ai bù cho ai" → khó trace.
 
 **Orchestration:**
 
-\`\`\`
-OrchestratorSaga:
-  step1: gửi ChargePayment → chờ PaymentCharged
-  step2: gửi ReserveStock  → chờ StockReserved
-  step3: gửi ScheduleShipment → chờ ShipmentScheduled → DONE
-\`\`\`
+<svg viewBox="0 0 560 320" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Lời giải orchestration: OrchestratorSaga gửi lần lượt 3 command và chờ event trả lời từng bước rồi DONE">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="400.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">OrchestratorSaga</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="74.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="76.0" width="400.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="102.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">step 1: gửi ChargePayment → chờ PaymentCharged</text>
+  <line x1="280.0" y1="122.0" x2="280.0" y2="136.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="138.0" width="400.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="164.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">step 2: gửi ReserveStock → chờ StockReserved</text>
+  <line x1="280.0" y1="184.0" x2="280.0" y2="198.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="200.0" width="400.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="226.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">step 3: gửi ScheduleShipment → chờ ShipmentScheduled</text>
+  <line x1="280.0" y1="246.0" x2="280.0" y2="260.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="262.0" width="400.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="288.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">DONE</text>
+</svg>
 
 Khi inventory **fail** (\`step2\` trả \`StockReservationFailed\`): orchestrator **biết** đã làm step1 → tự gửi compensation \`RefundPayment\`, rồi set order \`cancelled\`. → Logic bù **tập trung một chỗ** trong orchestrator → dễ đọc, dễ trace, dễ thêm bước.
 

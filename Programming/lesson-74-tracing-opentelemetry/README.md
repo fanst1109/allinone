@@ -91,16 +91,27 @@ Một request `POST /checkout` có thể chạm 5 service, 2 database, 1 message
 
 Vì span có `parent_span_id`, các span của một trace tạo thành **cây**:
 
-```
-trace_id = 7be2...  (cả cây dùng chung)
-
-Span A  "POST /checkout"        span_id=01  parent=∅      [root]   2400ms
-├── Span B  "validate order"    span_id=02  parent=01               120ms
-├── Span C  "charge payment"    span_id=03  parent=01              1900ms
-│   └── Span D  "POST bank-api"  span_id=04  parent=03             1850ms
-└── Span E  "reserve stock"     span_id=05  parent=01               300ms
-    └── Span F  "UPDATE inventory" span_id=06 parent=05             250ms
-```
+<svg viewBox="0 0 600 220" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây span của trace 7be2…: root A POST /checkout 2400ms, con B validate, C charge (chứa D bank-api 1850ms), E reserve (chứa F update)">
+  <defs></defs>
+  <line x1="300.0" y1="46.0" x2="120.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="39.4" y="82.0" width="161.2" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="120.0" y="100.0" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">B: validate order — 120ms</text>
+  <line x1="300.0" y1="46.0" x2="300.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="300.0" y1="110.0" x2="300.0" y2="146.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="219.4" y="146.0" width="161.2" height="28.0" rx="7" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="300.0" y="164.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">D: POST bank-api — 1850ms</text>
+  <rect x="216.4" y="82.0" width="167.1" height="28.0" rx="7" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="300.0" y="100.0" fill="#7c3aed" font-size="9.5" text-anchor="middle" font-weight="700">C: charge payment — 1900ms</text>
+  <line x1="300.0" y1="46.0" x2="480.0" y2="82.0" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="480.0" y1="110.0" x2="480.0" y2="146.0" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="393.5" y="146.0" width="173.0" height="28.0" rx="7" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="480.0" y="164.0" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">F: UPDATE inventory — 250ms</text>
+  <rect x="402.3" y="82.0" width="155.4" height="28.0" rx="7" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="100.0" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">E: reserve stock — 300ms</text>
+  <rect x="216.4" y="18.0" width="167.1" height="28.0" rx="7" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="300.0" y="36.0" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">A: POST /checkout — 2400ms</text>
+  <text x="300.0" y="212.0" fill="#475569" font-size="11" text-anchor="middle">cả cây chung trace_id · span_id/parent nối cha-con · D là nút thắt</text>
+</svg>
 
 Root span (A) bao trùm toàn bộ request. Span con nằm trong khoảng thời gian của cha. Nhìn cây này biết ngay: tổng 2400ms thì 1900ms nằm ở "charge payment", mà trong đó 1850ms là chờ "POST bank-api". **Thủ phạm là Bank API.**
 
@@ -389,11 +400,22 @@ Cách liên kết:
 - **trace_id trong log**: mỗi dòng log structured nhúng `trace_id` (và `span_id`) hiện hành. Khi điều tra một trace, lọc log theo `trace_id` → thấy mọi chi tiết. (Nối Lesson 72 — correlation ID giờ chính là `trace_id`.)
 - **Exemplar trong metric**: một histogram bucket có thể đính kèm vài "exemplar" — mỗi exemplar là một `trace_id` đại diện cho một quan sát rơi vào bucket đó. Trên Grafana, click vào điểm spike của histogram → nhảy tới trace cụ thể gây ra nó. (Nối Lesson 73.)
 
-```
-Metric:  http_request_duration_seconds, bucket le=2.0 có exemplar {trace_id: 7be2...}
-   └─click─► Trace 7be2... waterfall ──► span "POST bank-api" Error
-        └─lọc log theo trace_id=7be2─► log "bank timeout after 2s"
-```
+<svg viewBox="0 0 560 246" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Exemplar nối ba trụ observability: từ metric histogram click sang trace waterfall rồi lọc log cùng trace_id">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="400.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Metric: http_request_duration_seconds</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">bucket le=2.0 có exemplar {trace_id: 7be2…}</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="92.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="288.0" y="87.0" fill="#475569" font-size="10" text-anchor="start">click</text>
+  <rect x="80.0" y="94.0" width="400.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="119.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">click → Trace 7be2… waterfall</text>
+  <text x="280.0" y="135.2" fill="#475569" font-size="11" text-anchor="middle">span &quot;POST bank-api&quot; Error</text>
+  <line x1="280.0" y1="154.0" x2="280.0" y2="172.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="288.0" y="167.0" fill="#475569" font-size="10" text-anchor="start">lọc log</text>
+  <rect x="80.0" y="174.0" width="400.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="199.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">lọc log theo trace_id=7be2…</text>
+  <text x="280.0" y="215.2" fill="#475569" font-size="11" text-anchor="middle">log &quot;bank timeout after 2s&quot;</text>
+</svg>
 
 > 📝 **Tóm tắt mục 10.** Nhúng `trace_id` vào log + exemplar vào metric → đi lại tự do giữa ba trụ. Đây là "observability" thực sự, không chỉ ba công cụ rời.
 

@@ -380,14 +380,27 @@ Vì fallacy #1: request có thể *gửi đi nhưng response mất*. Client khô
 
 Cách phổ biến nhất để biến một operation *vốn không idempotent* thành idempotent: client sinh một **key duy nhất** (UUID) cho *ý định* (intent) và gửi kèm. Server lưu key đã xử lý:
 
-\`\`\`
-1. Client sinh key = "a1b2-c3d4" cho lần thanh toán này.
-2. Gửi POST /payments với header Idempotency-Key: a1b2-c3d4.
-3. Server: đã thấy key này chưa?
-   - Chưa: xử lý (trừ tiền), lưu (key → kết quả), trả kết quả.
-   - Rồi: KHÔNG xử lý lại, trả lại kết quả đã lưu.
-4. Client timeout → retry CÙNG key → server nhận ra → không trừ tiền lần 2.
-\`\`\`
+<svg viewBox="0 0 640 312" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Idempotency key trong hệ phân tán: server nhớ key đã xử lý nên retry cùng key không trừ tiền lần 2">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="298.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="298.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">sinh key &quot;a1b2-c3d4&quot; cho lần thanh toán này</text>
+  <line x1="83.0" y1="99.0" x2="556.0" y2="99.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="93.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /payments · Idempotency-Key: a1b2-c3d4</text>
+  <text x="550.0" y="128.0" fill="#475569" font-size="10" text-anchor="end">chưa thấy key → xử lý (trừ tiền), lưu (key → kết quả)</text>
+  <line x1="557.0" y1="157.0" x2="84.0" y2="157.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="320.0" y="151.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">kết quả — mạng có thể rơi</text>
+  <text x="90.0" y="186.0" fill="#475569" font-size="10" text-anchor="start">timeout → retry</text>
+  <line x1="83.0" y1="215.0" x2="556.0" y2="215.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="209.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /payments · CÙNG key</text>
+  <text x="550.0" y="244.0" fill="#475569" font-size="10" text-anchor="end">đã thấy key → KHÔNG xử lý lại</text>
+  <line x1="557.0" y1="273.0" x2="84.0" y2="273.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="267.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả kết quả đã lưu</text>
+</svg>
 
 Stripe, PayPal đều dùng cơ chế này. Xem cài đặt trong [solutions.go](./solutions.go) (\`IdempotencyStore\`).
 

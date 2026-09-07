@@ -747,21 +747,26 @@ Pattern Stripe phổ biến hoá: client gửi UUID, server cache (key → respo
 
 ### 16.1 Workflow
 
-```
-1. Client: POST /payments
-   Idempotency-Key: 8400ec70-1c5e-4b8a
-   Body: { "amount": 100, "card": "tok_xxx" }
-
-2. Server:
-   - Tra cache với key 8400ec70-...
-   - Nếu thấy → trả response cũ ngay (không charge lại)
-   - Nếu không → process, lưu (key, response, status) → trả response
-
-3. Client retry vì timeout:
-   POST /payments
-   Idempotency-Key: 8400ec70-1c5e-4b8a    ← cùng key
-   → Server trả response cũ, KHÔNG charge lần 2
-```
+<svg viewBox="0 0 640 290" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Idempotency-Key: lần đầu server xử lý và lưu response theo key; client retry cùng key thì server trả response cũ, không charge lần 2">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="556.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /payments · Idempotency-Key: 8400ec70…</text>
+  <text x="550.0" y="100.0" fill="#475569" font-size="10" text-anchor="end">tra cache theo key: CHƯA có → process, lưu (key, response)</text>
+  <line x1="557.0" y1="130.0" x2="84.0" y2="130.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="124.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">201 response</text>
+  <text x="90.0" y="160.0" fill="#475569" font-size="10" text-anchor="start">timeout — không nhận được response</text>
+  <line x1="83.0" y1="190.0" x2="556.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /payments · CÙNG key 8400ec70…</text>
+  <text x="550.0" y="220.0" fill="#475569" font-size="10" text-anchor="end">tra cache: ĐÃ có → không charge lại</text>
+  <line x1="557.0" y1="250.0" x2="84.0" y2="250.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="320.0" y="244.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">trả lại response cũ</text>
+</svg>
 
 ### 16.2 Edge case
 

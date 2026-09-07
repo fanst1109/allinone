@@ -218,12 +218,26 @@ PUT /products
 
 Kết quả lưu vào inverted index là `["run", "dog"]`. Khi user search `"dogs are running"`:
 
-```
-"dogs are running"
-  → ["dogs", "are", "running"]
-  → lowercase → stop word (bỏ "are") → stemming
-  → ["dog", "run"]
-```
+<svg viewBox="0 0 460 372" style="max-width:460px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Analyzer: câu dogs are running qua tokenize, lowercase, bỏ stop word, stemming còn [dog, run]">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="300.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="230.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">&quot;dogs are running&quot;</text>
+  <line x1="230.0" y1="60.0" x2="230.0" y2="72.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="74.0" width="300.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="100.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">tokenize → [&quot;dogs&quot;, &quot;are&quot;, &quot;running&quot;]</text>
+  <line x1="230.0" y1="120.0" x2="230.0" y2="132.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="134.0" width="300.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="230.0" y="160.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">lowercase</text>
+  <line x1="230.0" y1="180.0" x2="230.0" y2="192.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="194.0" width="300.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="230.0" y="220.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">stop word — bỏ &quot;are&quot;</text>
+  <line x1="230.0" y1="240.0" x2="230.0" y2="252.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="254.0" width="300.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="230.0" y="280.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">stemming</text>
+  <line x1="230.0" y1="300.0" x2="230.0" y2="312.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="314.0" width="300.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="230.0" y="340.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">[&quot;dog&quot;, &quot;run&quot;]</text>
+</svg>
 
 Cả hai cùng quy về `{run, dog}` → **khớp**, dù chữ gốc khác hẳn.
 

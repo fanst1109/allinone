@@ -519,15 +519,44 @@ handler := Recover(Logger(Auth(myAPI)))
 ### 8.2 Walk-through trật tự gọi
 
 Khi \`handler.ServeHTTP(w, r)\`:
-\`\`\`
-1. Recover — defer recover() set
-2.   → Logger — log "→ GET /users"
-3.     → Auth — check token OK
-4.       → myAPI — xử lý; w.Write("ok")
-5.       ← Auth return
-6.     ← Logger log "← GET /users (1.2ms)"
-7. ← Recover defer — không panic, no-op
-\`\`\`
+<svg viewBox="0 0 700 431" style="max-width:700px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Middleware lồng nhau: request đi Recover → Logger → Auth → myAPI rồi return ngược lại; Logger đo thời gian, Recover chỉ hành động khi panic">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Request</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="417.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="155.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="215.0" y="34.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Recover</text>
+  <line x1="215.0" y1="44.0" x2="215.0" y2="417.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="290.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="350.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Logger</text>
+  <line x1="350.0" y1="44.0" x2="350.0" y2="417.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="425.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="485.0" y="34.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Auth</text>
+  <line x1="485.0" y1="44.0" x2="485.0" y2="417.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="560.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="620.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">myAPI</text>
+  <line x1="620.0" y1="44.0" x2="620.0" y2="417.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="211.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="147.5" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">vào</text>
+  <text x="215.0" y="97.0" fill="#475569" font-size="10" text-anchor="middle">defer recover() set</text>
+  <line x1="218.0" y1="124.0" x2="346.0" y2="124.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="282.5" y="118.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700"></text>
+  <text x="350.0" y="151.0" fill="#475569" font-size="10" text-anchor="middle">log &quot;→ GET /users&quot;</text>
+  <line x1="353.0" y1="178.0" x2="481.0" y2="178.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="417.5" y="172.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700"></text>
+  <text x="485.0" y="205.0" fill="#475569" font-size="10" text-anchor="middle">check token OK</text>
+  <line x1="488.0" y1="232.0" x2="616.0" y2="232.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="552.5" y="226.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700"></text>
+  <text x="610.0" y="259.0" fill="#475569" font-size="10" text-anchor="end">xử lý; w.Write(&quot;ok&quot;)</text>
+  <line x1="617.0" y1="286.0" x2="489.0" y2="286.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="552.5" y="280.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">return</text>
+  <line x1="482.0" y1="313.0" x2="354.0" y2="313.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="417.5" y="307.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">return</text>
+  <text x="350.0" y="340.0" fill="#475569" font-size="10" text-anchor="middle">log &quot;← GET /users (1.2ms)&quot;</text>
+  <line x1="347.0" y1="367.0" x2="219.0" y2="367.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="282.5" y="361.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">return</text>
+  <text x="215.0" y="394.0" fill="#475569" font-size="10" text-anchor="middle">không panic → no-op</text>
+</svg>
 Nếu Auth fail tại bước 3: gọi \`http.Error\` rồi \`return\` → bước 4 *không* chạy. Bước 5-7 vẫn chạy bình thường.
 
 ### 8.3 Helper compose

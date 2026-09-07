@@ -437,12 +437,29 @@ Clean architecture **không miễn phí**. Cái giá: nhiều file hơn, nhiều
 
 ### 11.1. Ví dụ cụ thể — vì sao domain không import DB
 
-```
-domain/      → User, Order + interface UserRepo (KHÔNG import sql/gorm)
-usecase/     → logic nghiệp vụ, dùng interface UserRepo
-infra/db/    → PostgresUserRepo implements UserRepo (import gorm)
-infra/http/  → handler gọi usecase
-```
+<svg viewBox="0 0 470 268" style="max-width:470px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phụ thuộc clean architecture: usecase dùng interface của domain, infra/db implements interface, infra/http gọi usecase — mũi tên đều chĩa vào domain, domain không import sql/gorm">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="16.0" y="16.0" width="220.0" height="52.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="126.0" y="31.5" fill="#1d4ed8" font-size="10" text-anchor="middle" font-weight="700">domain/</text>
+  <text x="126.0" y="45.5" fill="#475569" font-size="9" text-anchor="middle">User, Order + interface UserRepo</text>
+  <text x="126.0" y="59.5" fill="#475569" font-size="9" text-anchor="middle">KHÔNG import sql/gorm</text>
+  <rect x="16.0" y="96.0" width="220.0" height="36.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="126.0" y="110.5" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">usecase/</text>
+  <text x="126.0" y="124.5" fill="#475569" font-size="9" text-anchor="middle">logic nghiệp vụ</text>
+  <line x1="126.0" y1="94.0" x2="126.0" y2="70.0" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arp)"/>
+  <text x="136.0" y="84.0" fill="#475569" font-size="9" text-anchor="start">dùng interface UserRepo</text>
+  <rect x="16.0" y="156.0" width="220.0" height="36.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="126.0" y="170.6" fill="#b45309" font-size="9.5" text-anchor="middle" font-weight="700">infra/db/ PostgresUserRepo</text>
+  <text x="126.0" y="184.1" fill="#475569" font-size="8.5" text-anchor="middle">implements UserRepo (import gorm)</text>
+  <path d="M 236.0,174.0 L 300.0,174.0 L 300.0,42.0 L 238.0,42.0" fill="none" stroke="#b45309" stroke-width="1.8" marker-end="url(#aro)"/>
+  <rect x="16.0" y="216.0" width="220.0" height="36.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="126.0" y="230.5" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">infra/http/ handler</text>
+  <text x="126.0" y="244.5" fill="#475569" font-size="9" text-anchor="middle">gọi usecase</text>
+  <path d="M 236.0,234.0 L 270.0,234.0 L 270.0,114.0 L 238.0,114.0" fill="none" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="310.0" y="100.0" fill="#1f2937" font-size="10" text-anchor="start" font-weight="700">mọi mũi tên phụ thuộc</text>
+  <text x="310.0" y="114.0" fill="#1f2937" font-size="10" text-anchor="start">chĩa VÀO domain;</text>
+  <text x="310.0" y="128.0" fill="#1f2937" font-size="10" text-anchor="start">domain không biết hạ tầng</text>
+</svg>
 
 Mũi tên phụ thuộc hướng **vào trong** (infra → usecase → domain), không bao giờ ngược. Lợi: (1) test usecase với fake repo, không cần Postgres; (2) đổi DB chỉ sửa `infra/db`, domain/usecase không động; (3) logic nghiệp vụ không lẫn SQL/HTTP → đọc hiểu được. Đây là [dependency inversion](../lesson-39-design-patterns-go/) + [package boundary](../lesson-20-packages-modules/) áp ở quy mô kiến trúc.
 

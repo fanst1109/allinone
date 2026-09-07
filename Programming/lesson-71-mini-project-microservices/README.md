@@ -831,12 +831,24 @@ Nhìn 2 dòng này biết ngay: order tạo rồi bị cancel (saga fail). Trong
 
 **Phác thảo choreography:** không có orchestrator. Mỗi service tự subscribe event của bước trước:
 
-```
-Order publishes   order.created
-  └─ Inventory subscribes order.created → reserve → publishes inventory.reserved
-       └─ Payment subscribes inventory.reserved → charge → publishes payment.charged
-            └─ Order subscribes payment.charged → confirm
-```
+<svg viewBox="0 0 560 320" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chuỗi event mini-project: order.created → inventory.reserved → payment.charged → Order confirm">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="400.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Order</text>
+  <text x="280.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">publishes order.created</text>
+  <line x1="280.0" y1="74.0" x2="280.0" y2="90.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="92.0" width="400.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="117.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">Inventory (subscribes order.created)</text>
+  <text x="280.0" y="133.2" fill="#475569" font-size="11" text-anchor="middle">reserve → publishes inventory.reserved</text>
+  <line x1="280.0" y1="152.0" x2="280.0" y2="168.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="170.0" width="400.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="195.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Payment (subscribes inventory.reserved)</text>
+  <text x="280.0" y="211.2" fill="#475569" font-size="11" text-anchor="middle">charge → publishes payment.charged</text>
+  <line x1="280.0" y1="230.0" x2="280.0" y2="246.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="248.0" width="400.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="273.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Order (subscribes payment.charged)</text>
+  <text x="280.0" y="289.2" fill="#475569" font-size="11" text-anchor="middle">confirm</text>
+</svg>
 
 Compensation cũng theo event: nếu Payment charge fail, nó phát `payment.failed`; Inventory subscribe `payment.failed` → release; Order subscribe → cancel.
 

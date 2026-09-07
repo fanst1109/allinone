@@ -752,13 +752,23 @@ dùng one-time ticket (server cấp ticket từ endpoint HTTPS, ticket chỉ dù
 
 **(b) First message authenticate**
 
-\`\`\`
-1. Client connect (no auth).
-2. Server: gửi \`{"type":"hello"}\`, đặt timer 5s.
-3. Client gửi \`{"type":"auth","token":"eyJ..."}\`.
-4. Server verify → set authenticated flag → tiếp tục.
-5. Nếu 5s không có auth message → close.
-\`\`\`
+<svg viewBox="0 0 560 230" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Auth sau khi connect WebSocket: server gửi hello kèm timer 5 giây, client phải gửi auth token trước hạn nếu không bị đóng kết nối">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Client</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="216.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="216.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="476.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">connect (chưa auth)</text>
+  <line x1="477.0" y1="100.0" x2="84.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="94.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{&quot;type&quot;:&quot;hello&quot;} — đặt timer 5s</text>
+  <line x1="83.0" y1="130.0" x2="476.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="124.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{&quot;type&quot;:&quot;auth&quot;,&quot;token&quot;:&quot;eyJ…&quot;}</text>
+  <text x="470.0" y="160.0" fill="#475569" font-size="10" text-anchor="end">verify → set authenticated</text>
+  <text x="470.0" y="190.0" fill="#475569" font-size="10" text-anchor="end">5s không có auth message → close</text>
+</svg>
 
 Sạch (không leak token vào log), nhưng phức tạp hơn — server cần stateful FSM cho mỗi connection.
 

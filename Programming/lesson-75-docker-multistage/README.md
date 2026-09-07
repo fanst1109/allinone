@@ -511,11 +511,25 @@ grype myapp:slim
 
 ### 11.3 Attack surface: distroless < alpine < full
 
-```
-scratch / distroless  ──►  ít công cụ nhất  ──►  attack surface NHỎ nhất
-alpine                ──►  có sh, apk        ──►  trung bình
-debian/ubuntu full    ──►  bash, apt, hàng nghìn binary ──► LỚN nhất
-```
+<svg viewBox="0 0 562 132" style="max-width:562px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="So sánh base image: scratch/distroless gần như rỗng nên attack surface nhỏ nhất, alpine trung bình, debian/ubuntu đầy đủ nên lớn nhất">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="530.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">Base image</text>
+  <text x="196.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">Bên trong</text>
+  <text x="481.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">Attack surface</text>
+  <rect x="16.0" y="40.0" width="530.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">scratch / distroless</text>
+  <text x="196.0" y="57.0" fill="#15803d" font-size="10.5" text-anchor="start">ít công cụ nhất</text>
+  <text x="481.0" y="57.0" fill="#15803d" font-size="10.5" text-anchor="middle">NHỎ nhất</text>
+  <rect x="16.0" y="66.0" width="530.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">alpine</text>
+  <text x="196.0" y="83.0" fill="#b45309" font-size="10.5" text-anchor="start">có sh, apk</text>
+  <text x="481.0" y="83.0" fill="#b45309" font-size="10.5" text-anchor="middle">trung bình</text>
+  <rect x="16.0" y="92.0" width="530.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="start">debian/ubuntu full</text>
+  <text x="196.0" y="109.0" fill="#dc2626" font-size="10.5" text-anchor="start">bash, apt, hàng nghìn binary</text>
+  <text x="481.0" y="109.0" fill="#dc2626" font-size="10.5" text-anchor="middle">LỚN nhất</text>
+</svg>
 
 Càng ít thứ trong image, kẻ tấn công vào được càng không có công cụ để leo thang (không `sh`, không `curl`, không `wget`...).
 

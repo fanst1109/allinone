@@ -228,25 +228,34 @@ DONE
 
 **1 ví dụ thuật toán (lập trình):**
 
-\`\`\`
-Bài toán: Tìm số lớn nhất trong một list số
-
-INPUT: list = [3, 7, 2, 9, 5]
-OUTPUT: 9
-
-BƯỚC 1: max = list[0]              // tạm thời coi phần tử đầu là max → max = 3
-BƯỚC 2: với mỗi i từ 1 đến hết list:
-           nếu list[i] > max:
-               max = list[i]
-BƯỚC 3: Trả về max
-
-Trace với list = [3, 7, 2, 9, 5]:
-  i=1: list[1]=7 > 3  → max = 7
-  i=2: list[2]=2 < 7  → max vẫn là 7
-  i=3: list[3]=9 > 7  → max = 9
-  i=4: list[4]=5 < 9  → max vẫn là 9
-Kết quả: 9 ✓
-\`\`\`
+<svg viewBox="0 0 402 202" style="max-width:402px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Trace tìm max của [3,7,2,9,5]: max khởi tạo 3, cập nhật lên 7 tại i=1 rồi 9 tại i=3 — kết quả 9">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="370.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="61.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">Bước</text>
+  <text x="116.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">So sánh</text>
+  <text x="341.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">max</text>
+  <rect x="16.0" y="40.0" width="370.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="middle">khởi tạo</text>
+  <text x="116.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">max = list[0] = 3</text>
+  <text x="341.0" y="57.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle">3</text>
+  <rect x="16.0" y="66.0" width="370.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="middle">i=1</text>
+  <text x="116.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">list[1]=7 &gt; 3</text>
+  <text x="341.0" y="83.0" fill="#15803d" font-size="10.5" text-anchor="middle">max = 7</text>
+  <rect x="16.0" y="92.0" width="370.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="middle">i=2</text>
+  <text x="116.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="start">list[2]=2 &lt; 7</text>
+  <text x="341.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="middle">7</text>
+  <rect x="16.0" y="118.0" width="370.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="135.0" fill="#1f2937" font-size="10.5" text-anchor="middle">i=3</text>
+  <text x="116.0" y="135.0" fill="#1f2937" font-size="10.5" text-anchor="start">list[3]=9 &gt; 7</text>
+  <text x="341.0" y="135.0" fill="#15803d" font-size="10.5" text-anchor="middle">max = 9</text>
+  <rect x="16.0" y="144.0" width="370.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="61.0" y="161.0" fill="#1f2937" font-size="10.5" text-anchor="middle">i=4</text>
+  <text x="116.0" y="161.0" fill="#1f2937" font-size="10.5" text-anchor="start">list[4]=5 &lt; 9</text>
+  <text x="341.0" y="161.0" fill="#1f2937" font-size="10.5" text-anchor="middle">9</text>
+  <text x="201.0" y="188.0" fill="#475569" font-size="10.5" text-anchor="middle">Kết quả: 9 ✓</text>
+</svg>
 
 > **⚠ Lỗi thường gặp** — Viết thuật toán **mơ hồ**: "duyệt list và tìm max". Mơ hồ ở chỗ: "tìm" cụ thể là gì? Bắt đầu từ đâu? Khởi tạo max bằng gì (số đầu, hay số 0, hay -∞)? Máy tính không "hiểu ngầm" — bạn phải nói rõ.
 

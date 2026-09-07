@@ -199,16 +199,28 @@ Thời điểm T=10.001s (sau khi S2 nhận thêm):
 
 LB định kỳ gửi **health check** đến từng backend:
 
-```
-LB → GET /health HTTP/1.1 → S1
-S1 → 200 OK {"status":"healthy"}  ✓ Server bình thường
-
-LB → GET /health HTTP/1.1 → S2
-S2 → [timeout 5 giây — không phản hồi]  ✗ Đánh dấu S2 là DOWN
-
-LB → [Không gửi request mới đến S2]
-LB → Kiểm tra lại S2 sau 10 giây...
-```
+<svg viewBox="0 0 600 272" style="max-width:600px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Health check: S1 trả 200 OK, S2 timeout 5s bị đánh dấu DOWN và loại khỏi pool, LB thử lại sau 10 giây">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">LB</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="240.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="300.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">S1</text>
+  <line x1="300.0" y1="44.0" x2="300.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="460.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="520.0" y="34.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">S2</text>
+  <line x1="520.0" y1="44.0" x2="520.0" y2="258.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="296.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="190.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /health</text>
+  <line x1="297.0" y1="102.0" x2="84.0" y2="102.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="190.0" y="96.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK {&quot;status&quot;:&quot;healthy&quot;} ✓</text>
+  <line x1="83.0" y1="134.0" x2="516.0" y2="134.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="300.0" y="128.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /health</text>
+  <text x="510.0" y="166.0" fill="#475569" font-size="10" text-anchor="end">timeout 5 giây — không phản hồi ✗</text>
+  <text x="90.0" y="198.0" fill="#475569" font-size="10" text-anchor="start">đánh dấu S2 DOWN — không gửi request mới đến S2</text>
+  <line x1="83.0" y1="230.0" x2="516.0" y2="230.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="300.0" y="224.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">kiểm tra lại sau 10 giây…</text>
+</svg>
 
 **Thông số điển hình**: check interval 10s, timeout 5s, unhealthy threshold 3 lần fail liên tiếp → đánh dấu DOWN. Healthy threshold 2 lần pass → đưa lại vào pool.
 
@@ -364,29 +376,50 @@ Với trang web cần tải 50 ảnh riêng lẻ:
 
 **Cache Hit (nội dung đã có tại edge)**:
 
-```
-1. User Hà Nội: GET https://cdn.example.com/logo.png
-2. DNS phân giải cdn.example.com → trả về IP edge gần nhất (Singapore 203.1.20.5)
-3. User → [TLS handshake] → Edge SG (35 ms RTT)
-4. Edge SG: kiểm tra cache → TÌM THẤY logo.png (hết hạn chưa? Cache-Control: max-age=86400, còn 20 giờ)
-5. Edge SG → User: 200 OK + logo.png (35 ms RTT)
-
-Tổng: ~70 ms (35ms TLS + 35ms data). Server gốc không bị đụng đến.
-```
+<svg viewBox="0 0 560 260" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CDN cache hit: user Hà Nội được DNS trỏ tới edge Singapore, edge có sẵn logo.png còn hạn — tổng 70 ms, không chạm origin">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">User Hà Nội</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="420.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="480.0" y="34.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Edge SG</text>
+  <line x1="480.0" y1="44.0" x2="480.0" y2="246.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">DNS: cdn.example.com → IP edge gần nhất (SG 203.1.20.5)</text>
+  <line x1="83.0" y1="100.0" x2="476.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="94.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">TLS handshake (35 ms RTT)</text>
+  <line x1="83.0" y1="130.0" x2="476.0" y2="130.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="124.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /logo.png</text>
+  <text x="470.0" y="160.0" fill="#475569" font-size="10" text-anchor="end">cache: TÌM THẤY, max-age=86400 còn 20 giờ</text>
+  <line x1="477.0" y1="190.0" x2="84.0" y2="190.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="280.0" y="184.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK + logo.png (35 ms)</text>
+  <text x="90.0" y="220.0" fill="#475569" font-size="10" text-anchor="start">Tổng ≈ 70 ms — server gốc không bị đụng đến</text>
+</svg>
 
 **Cache Miss (lần đầu tiên, hoặc cache đã hết hạn)**:
 
-```
-1. User Hà Nội: GET https://cdn.example.com/new-banner.png
-2. DNS → Edge SG (35 ms RTT)
-3. Edge SG: kiểm tra cache → KHÔNG TÌM THẤY
-4. Edge SG → Server gốc LA: GET /new-banner.png  (thêm ~180 ms RTT)
-5. Server LA → Edge SG: 200 OK + new-banner.png + header Cache-Control: max-age=604800
-6. Edge SG: lưu vào cache (TTL 7 ngày)
-7. Edge SG → User: 200 OK + new-banner.png (35 ms RTT)
-
-Tổng: ~250 ms (lần đầu). Các user tiếp theo ở Hà Nội: cache hit → ~70 ms.
-```
+<svg viewBox="0 0 640 290" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="CDN cache miss: edge SG không có file phải về origin LA (+180 ms), lưu cache 7 ngày rồi trả user — 250 ms lần đầu, các lần sau 70 ms">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">User Hà Nội</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="260.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="1.8"/>
+  <text x="320.0" y="34.0" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">Edge SG</text>
+  <line x1="320.0" y1="44.0" x2="320.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="500.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="560.0" y="34.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Origin LA</text>
+  <line x1="560.0" y1="44.0" x2="560.0" y2="276.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="83.0" y1="70.0" x2="316.0" y2="70.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="200.0" y="64.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /new-banner.png (35 ms)</text>
+  <text x="320.0" y="100.0" fill="#475569" font-size="10" text-anchor="middle">cache: KHÔNG TÌM THẤY</text>
+  <line x1="323.0" y1="130.0" x2="556.0" y2="130.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="440.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">GET /new-banner.png (+180 ms RTT)</text>
+  <line x1="557.0" y1="160.0" x2="324.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="440.0" y="154.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">200 OK + Cache-Control: max-age=604800</text>
+  <text x="320.0" y="190.0" fill="#475569" font-size="10" text-anchor="middle">lưu cache TTL 7 ngày</text>
+  <line x1="317.0" y1="220.0" x2="84.0" y2="220.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="200.0" y="214.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK + new-banner.png (35 ms)</text>
+  <text x="90.0" y="250.0" fill="#475569" font-size="10" text-anchor="start">Tổng ≈ 250 ms lần đầu — user sau ở Hà Nội: hit ≈ 70 ms</text>
+</svg>
 
 **Cache Hit Rate** thực tế của CDN lớn: 90–98%. Chỉ 2–10% request phải về server gốc.
 

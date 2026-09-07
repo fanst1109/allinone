@@ -38,13 +38,24 @@ Tôi    đi    đến    trường   bằng    xe    đạp.
 
 Tiếng Anh — **stress-timed**: chỉ tính các âm tiết NHẤN; các âm tiết không nhấn bị nén lại để vừa với khoảng cách giữa hai nhịp.
 
-```
-   I went to school by bicycle.
-   ●           ●            ●       ●          ← 4 nhịp (cũng dài bằng câu Việt 7 nhịp)
-  (I)         (went)to     (school)by     (BI)cycle
-   ↑           ↑            ↑              ↑
-nhịp 1       nhịp 2        nhịp 3        nhịp 4
-```
+<svg viewBox="0 0 640 136" style="max-width:640px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Nhịp câu tiếng Anh: I went to SCHOOL by BIcycle có 4 nhịp trọng âm đều, từ chức năng bị nén giữa các nhịp">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <text x="80.0" y="66.0" fill="#94a3b8" font-size="12" text-anchor="middle">I</text>
+  <circle cx="133.0" cy="34.0" r="7" fill="#dc2626"/>
+  <text x="133.0" y="20.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">nhịp 1</text>
+  <text x="133.0" y="66.0" fill="#1f2937" font-size="15" text-anchor="middle" font-weight="700">went</text>
+  <text x="186.0" y="66.0" fill="#94a3b8" font-size="12" text-anchor="middle">to</text>
+  <circle cx="252.0" cy="34.0" r="7" fill="#dc2626"/>
+  <text x="252.0" y="20.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">nhịp 2</text>
+  <text x="252.0" y="66.0" fill="#1f2937" font-size="15" text-anchor="middle" font-weight="700">school</text>
+  <text x="318.0" y="66.0" fill="#94a3b8" font-size="12" text-anchor="middle">by</text>
+  <circle cx="358.0" cy="34.0" r="7" fill="#dc2626"/>
+  <text x="358.0" y="20.0" fill="#dc2626" font-size="9.5" text-anchor="middle" font-weight="700">nhịp 3</text>
+  <text x="358.0" y="66.0" fill="#1f2937" font-size="15" text-anchor="middle" font-weight="700">BI</text>
+  <text x="417.5" y="66.0" fill="#94a3b8" font-size="12" text-anchor="middle">cycle</text>
+  <text x="60.0" y="100.0" fill="#475569" font-size="10.5" text-anchor="start">4 trọng âm = 4 nhịp đều nhau — từ không nhấn bị nén lại giữa các nhịp (stress-timed)</text>
+  <text x="60.0" y="120.0" fill="#475569" font-size="10" text-anchor="start">&quot;I went to school by bicycle.&quot; — dài bằng câu Việt 7 nhịp vì tiếng Việt syllable-timed</text>
+</svg>
 
 Bốn nhịp này được phát **đều nhau về thời gian**. Các từ chen giữa (`to`, `by`) bị nén cực ngắn, nguyên âm thành schwa, đôi khi gần như mất:
 

@@ -300,13 +300,14 @@ Hậu quả:
 Giả sử switch 4 cổng: Port 1 nối Host A (`00:AA:AA:AA:AA:AA`), Port 2 nối Host B (`00:BB:BB:BB:BB:BB`), Port 3 nối Host C (`00:CC:CC:CC:CC:CC`), Port 4 nối Host D (`00:DD:DD:DD:DD:DD`).
 
 **Trạng thái ban đầu — Bảng MAC rỗng**:
-```
-+──────────────────────────+──────+
-| MAC Address              | Port |
-+--------------------------+------+
-| (trống)                  |      |
-+──────────────────────────+──────+
-```
+<svg viewBox="0 0 322 80" style="max-width:322px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng MAC lúc switch mới khởi động: trống — chưa học địa chỉ nào">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="290.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">MAC Address</text>
+  <text x="271.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">Port</text>
+  <rect x="16.0" y="40.0" width="290.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">(trống)</text>
+</svg>
 
 **Bước 1**: Host A gửi frame tới Host B.
 - Frame: MAC nguồn = `00:AA:AA:AA:AA:AA`, MAC đích = `00:BB:BB:BB:BB:BB`.
@@ -316,12 +317,15 @@ Giả sử switch 4 cổng: Port 1 nối Host A (`00:AA:AA:AA:AA:AA`), Port 2 n�
 - **Flood**: gửi frame ra tất cả cổng trừ Port 1 (Port 2, 3, 4).
 - Host B nhận frame (vì là đúng địa chỉ đích). Host C, D nhận nhưng bỏ qua (MAC đích không khớp).
 
-```
-Bảng MAC sau Bước 1:
-+──────────────────────────+──────+
-| 00:AA:AA:AA:AA:AA        |  1   |
-+──────────────────────────+──────+
-```
+<svg viewBox="0 0 322 80" style="max-width:322px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng MAC sau bước 1: học được máy A ở port 1 nhờ frame đầu tiên A gửi">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="290.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">MAC Address</text>
+  <text x="271.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">Port</text>
+  <rect x="16.0" y="40.0" width="290.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:AA:AA:AA:AA:AA</text>
+  <text x="271.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="middle">1</text>
+</svg>
 
 **Bước 2**: Host B trả lời Host A.
 - Frame: MAC nguồn = `00:BB:BB:BB:BB:BB`, MAC đích = `00:AA:AA:AA:AA:AA`.
@@ -330,13 +334,18 @@ Bảng MAC sau Bước 1:
 - **Tra cứu MAC đích** `00:AA:AA:AA:AA:AA` → tìm thấy: Port 1.
 - **Unicast forward**: gửi frame **chỉ ra Port 1** — không flood!
 
-```
-Bảng MAC sau Bước 2:
-+──────────────────────────+──────+
-| 00:AA:AA:AA:AA:AA        |  1   |
-| 00:BB:BB:BB:BB:BB        |  2   |
-+──────────────────────────+──────+
-```
+<svg viewBox="0 0 322 106" style="max-width:322px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng MAC sau bước 2: thêm máy B ở port 2">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="290.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">MAC Address</text>
+  <text x="271.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">Port</text>
+  <rect x="16.0" y="40.0" width="290.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:AA:AA:AA:AA:AA</text>
+  <text x="271.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="middle">1</text>
+  <rect x="16.0" y="66.0" width="290.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:BB:BB:BB:BB:BB</text>
+  <text x="271.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="middle">2</text>
+</svg>
 
 **Bước 3**: Host C gửi frame tới Host D.
 - Frame: MAC nguồn = `00:CC:CC:CC:CC:CC`, MAC đích = `00:DD:DD:DD:DD:DD`.
@@ -348,15 +357,24 @@ Bảng MAC sau Bước 2:
 - Switch học Port 4 → `00:DD:DD:DD:DD:DD`.
 - Tra cứu `00:CC:CC:CC:CC:CC` → Port 3 → **chỉ gửi ra Port 3**.
 
-```
-Bảng MAC sau Bước 4 (đã học đủ):
-+──────────────────────────+──────+
-| 00:AA:AA:AA:AA:AA        |  1   |
-| 00:BB:BB:BB:BB:BB        |  2   |
-| 00:CC:CC:CC:CC:CC        |  3   |
-| 00:DD:DD:DD:DD:DD        |  4   |
-+──────────────────────────+──────+
-```
+<svg viewBox="0 0 322 158" style="max-width:322px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng MAC sau bước 4: đã học đủ 4 máy trên 4 port">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="290.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">MAC Address</text>
+  <text x="271.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">Port</text>
+  <rect x="16.0" y="40.0" width="290.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:AA:AA:AA:AA:AA</text>
+  <text x="271.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="middle">1</text>
+  <rect x="16.0" y="66.0" width="290.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:BB:BB:BB:BB:BB</text>
+  <text x="271.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="middle">2</text>
+  <rect x="16.0" y="92.0" width="290.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:CC:CC:CC:CC:CC</text>
+  <text x="271.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="middle">3</text>
+  <rect x="16.0" y="118.0" width="290.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10.5" text-anchor="start">00:DD:DD:DD:DD:DD</text>
+  <text x="271.0" y="135.0" fill="#1f2937" font-size="10.5" text-anchor="middle">4</text>
+</svg>
 
 Từ đây, mọi giao tiếp giữa các host đã biết đều được **unicast forwarding** — không flood nữa.
 

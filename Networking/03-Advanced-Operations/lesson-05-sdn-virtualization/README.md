@@ -240,23 +240,32 @@ Nếu frame thuộc VLAN 20 → Switch KHÔNG chuyển vào VLAN 10. Hoàn toàn
 - Frame qua trunk port **giữ nguyên VLAN tag**.
 - Có thể cấu hình "native VLAN" — VLAN không cần tag khi qua trunk (mặc định VLAN 1, nên đổi vì lý do bảo mật).
 
-```
-Ví dụ topology:
-
-  SW1                         SW2
-  port 1 — access VLAN 10     port 1 — access VLAN 10
-  port 2 — access VLAN 20     port 2 — access VLAN 20
-  port 8 — trunk (VLAN 10,20) port 8 — trunk (VLAN 10,20)
-       |_________________________|
-              (uplink trunk)
-
-Máy A (SW1, port 1, VLAN 10) → Máy C (SW2, port 1, VLAN 10):
-1. SW1 nhận frame từ Máy A → gắn tag VLAN 10 → gửi qua trunk port 8.
-2. Frame có tag VLAN 10 đi qua dây uplink.
-3. SW2 nhận trên trunk port 8 → thấy tag VLAN 10 → chuyển tới port 1 (VLAN 10) → bóc tag → gửi Máy C.
-
-Máy B (SW1, port 2, VLAN 20) không nhận được frame này.
-```
+<svg viewBox="0 0 680 296" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Hai switch nối trunk: frame từ máy A VLAN 10 được gắn tag qua trunk, SW2 bóc tag giao cho máy C cùng VLAN; máy B VLAN 20 không nhận">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="30.0" y="20.0" width="240.0" height="150.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="150.0" y="40.0" fill="#1f2937" font-size="12" text-anchor="middle" font-weight="700">SW1</text>
+  <rect x="400.0" y="20.0" width="240.0" height="150.0" rx="10" fill="#f1f5f9" fill-opacity="1" stroke="#475569" stroke-width="1.5"/>
+  <text x="520.0" y="40.0" fill="#1f2937" font-size="12" text-anchor="middle" font-weight="700">SW2</text>
+  <rect x="50.0" y="52.0" width="200.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="69.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">port 1 — access VLAN 10</text>
+  <rect x="50.0" y="86.0" width="200.0" height="28.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="150.0" y="103.3" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">port 2 — access VLAN 20</text>
+  <rect x="50.0" y="120.0" width="200.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="150.0" y="137.3" fill="#7c3aed" font-size="9.5" text-anchor="middle" font-weight="700">port 8 — trunk (VLAN 10, 20)</text>
+  <rect x="420.0" y="52.0" width="200.0" height="28.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="520.0" y="69.3" fill="#1d4ed8" font-size="9.5" text-anchor="middle" font-weight="700">port 1 — access VLAN 10</text>
+  <rect x="420.0" y="86.0" width="200.0" height="28.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="520.0" y="103.3" fill="#15803d" font-size="9.5" text-anchor="middle" font-weight="700">port 2 — access VLAN 20</text>
+  <rect x="420.0" y="120.0" width="200.0" height="28.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="520.0" y="137.3" fill="#7c3aed" font-size="9.5" text-anchor="middle" font-weight="700">port 8 — trunk (VLAN 10, 20)</text>
+  <line x1="270.0" y1="134.0" x2="400.0" y2="134.0" stroke="#7c3aed" stroke-width="3"/>
+  <text x="335.0" y="126.0" fill="#7c3aed" font-size="10" text-anchor="middle" font-weight="700">uplink trunk</text>
+  <text x="20.0" y="196.0" fill="#1f2937" font-size="10.5" text-anchor="start" font-weight="700">Máy A (SW1 p1, VLAN 10) → Máy C (SW2 p1, VLAN 10):</text>
+  <text x="30.0" y="216.0" fill="#1f2937" font-size="10" text-anchor="start">• 1. SW1 nhận frame từ A → gắn tag VLAN 10 → gửi qua trunk port 8</text>
+  <text x="30.0" y="233.0" fill="#1f2937" font-size="10" text-anchor="start">• 2. frame mang tag VLAN 10 đi qua uplink</text>
+  <text x="30.0" y="250.0" fill="#1f2937" font-size="10" text-anchor="start">• 3. SW2 thấy tag 10 → chuyển tới port 1 (VLAN 10) → bóc tag → gửi C</text>
+  <text x="30.0" y="267.0" fill="#dc2626" font-size="10" text-anchor="start">✗ Máy B (port 2, VLAN 20) KHÔNG nhận được frame này</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên**:
 

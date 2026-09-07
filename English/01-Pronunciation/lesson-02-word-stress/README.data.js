@@ -196,30 +196,55 @@ Bạn thấy: trọng âm **nhảy 3 vị trí khác nhau** trong cùng word fam
 
 Khi gặp từ mới, lần lượt áp dụng các quy tắc:
 
-\`\`\`
-1. Đếm số âm tiết.
-   └→ Đếm số NGUYÊN ÂM phát ra (không phải chữ cái).
-      "education" có 4 âm tiết: e-du-ca-tion = /ˌedjuˈkeɪʃn/
-
-2. Có hậu tố thuộc nhóm "kéo trọng âm trước" (3.2)?
-   └→ Có: nhấn âm tiết ngay TRƯỚC hậu tố.
-       "information" → -tion → nhấn "ma" → /ˌɪnfərˈmeɪʃn/
-
-3. Có hậu tố nhóm "hút về chính nó" (3.1)?
-   └→ Có: nhấn vào chính hậu tố đó.
-       "employee" → -ee → nhấn "ee" → /ɪmplɔɪˈiː/
-
-4. Có hậu tố trung tính (3.3)?
-   └→ Có: giữ trọng âm của gốc từ.
-       "manager" → "manage" + er → /ˈmænɪdʒər/
-
-5. Từ 2 âm tiết, không có hậu tố trên?
-   └→ Danh từ: nhấn 1. Động từ: nhấn 2.
-       "table" (n) → /ˈteɪbl/. "decide" (v) → /dɪˈsaɪd/.
-
-6. Còn lại — không khớp quy luật nào?
-   └→ Đoán nhấn âm 1, rồi TRA TỪ ĐIỂN để xác nhận.
-\`\`\`
+<svg viewBox="0 0 880 388" style="max-width:880px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây quyết định trọng âm: đếm âm tiết rồi xét hậu tố (kéo trước / hút về nó / trung tính), từ 2 âm tiết theo loại từ, còn lại tra từ điển">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="14.0" width="440.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="240.0" y="37.7" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">1. Đếm số âm tiết (= số nguyên âm phát ra)</text>
+  <line x1="462.0" y1="34.0" x2="494.0" y2="34.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="478.0" y="26.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="502.0" y="30.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">—</text>
+  <text x="502.0" y="44.0" fill="#475569" font-size="8.5" text-anchor="start">education = e-du-ca-tion (4)</text>
+  <line x1="240.0" y1="56.0" x2="240.0" y2="76.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="248.0" y="69.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="78.0" width="440.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="240.0" y="101.7" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">2. Hậu tố kéo trọng âm về TRƯỚC nó? (-tion, -ic…)</text>
+  <line x1="462.0" y1="98.0" x2="494.0" y2="98.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="478.0" y="90.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="502.0" y="94.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">nhấn âm tiết trước hậu tố</text>
+  <text x="502.0" y="108.0" fill="#475569" font-size="8.5" text-anchor="start">information → /ˌɪnfərˈmeɪʃn/</text>
+  <line x1="240.0" y1="120.0" x2="240.0" y2="140.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="248.0" y="133.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="142.0" width="440.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="240.0" y="165.7" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">3. Hậu tố hút về chính nó? (-ee, -eer…)</text>
+  <line x1="462.0" y1="162.0" x2="494.0" y2="162.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="478.0" y="154.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="502.0" y="158.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">nhấn chính hậu tố</text>
+  <text x="502.0" y="172.0" fill="#475569" font-size="8.5" text-anchor="start">employee → /ɪmplɔɪˈiː/</text>
+  <line x1="240.0" y1="184.0" x2="240.0" y2="204.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="248.0" y="197.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="206.0" width="440.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="240.0" y="229.7" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">4. Hậu tố trung tính? (-er, -ness…)</text>
+  <line x1="462.0" y1="226.0" x2="494.0" y2="226.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="478.0" y="218.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="502.0" y="222.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">giữ trọng âm gốc từ</text>
+  <text x="502.0" y="236.0" fill="#475569" font-size="8.5" text-anchor="start">manager → /ˈmænɪdʒər/</text>
+  <line x1="240.0" y1="248.0" x2="240.0" y2="268.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="248.0" y="261.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="270.0" width="440.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="240.0" y="293.7" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">5. Từ 2 âm tiết không hậu tố?</text>
+  <line x1="462.0" y1="290.0" x2="494.0" y2="290.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="478.0" y="282.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="502.0" y="286.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">danh từ nhấn 1, động từ nhấn 2</text>
+  <text x="502.0" y="300.0" fill="#475569" font-size="8.5" text-anchor="start">ˈtable (n) · deˈcide (v)</text>
+  <line x1="240.0" y1="312.0" x2="240.0" y2="332.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="248.0" y="325.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="334.0" width="440.0" height="40.0" rx="8" fill="#f1f5f9" fill-opacity="1" stroke="#94a3b8" stroke-width="2"/>
+  <text x="240.0" y="357.7" fill="#94a3b8" font-size="10.5" text-anchor="middle" font-weight="700">6. Không khớp quy luật nào</text>
+  <line x1="462.0" y1="354.0" x2="494.0" y2="354.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="478.0" y="346.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="502.0" y="350.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">đoán nhấn âm 1 + TRA TỪ ĐIỂN</text>
+  <text x="502.0" y="364.0" fill="#475569" font-size="8.5" text-anchor="start"></text>
+</svg>
 
 **Quy tắc này đúng ~80% trường hợp**. Phần 20% còn lại là ngoại lệ — không có cách nào ngoài tra từ điển + ghi nhớ.
 

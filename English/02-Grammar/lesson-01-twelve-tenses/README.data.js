@@ -310,22 +310,27 @@ Dùng verb \`work\` làm mẫu (V-ing = \`working\`, V2/V3 = \`worked\`).
 
 ## 5. Quy trình "Chọn thì cho câu" — 4 bước
 
-\`\`\`
-1. Thời gian xảy ra là khi nào?
-   Quá khứ → past
-   Hiện tại / chung chung → present
-   Tương lai → future
-
-2. Trạng thái hành động?
-   Đã hoàn thành (chấm) → simple
-   Đang diễn ra (mũi tên) → continuous
-   Hoàn thành trước thời điểm tham chiếu → perfect
-   Kéo dài tới thời điểm tham chiếu, nhấn duration → perfect continuous
-
-3. Bước 1 + Bước 2 → ra một trong 12 thì.
-
-4. Kiểm tra signal words: nếu có "yesterday" → past simple/continuous; nếu có "since/for" → perfect/perfect continuous; nếu có "by + time tương lai" → future perfect.
-\`\`\`
+<svg viewBox="0 0 720 232" style="max-width:720px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Chọn thì 4 bước: xác định thời gian (past/present/future) × trạng thái (simple/continuous/perfect/perfect continuous) = 12 thì, rồi soát signal words">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="16.0" width="260.0" height="72.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="40.9" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">BƯỚC 1 — Thời gian?</text>
+  <text x="150.0" y="55.9" fill="#475569" font-size="10" text-anchor="middle">quá khứ → past</text>
+  <text x="150.0" y="70.8" fill="#475569" font-size="10" text-anchor="middle">hiện tại/chung → present · tương lai → future</text>
+  <rect x="320.0" y="16.0" width="300.0" height="86.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="470.0" y="40.9" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">BƯỚC 2 — Trạng thái?</text>
+  <text x="470.0" y="55.4" fill="#475569" font-size="9.5" text-anchor="middle">hoàn thành (chấm) → simple · đang diễn ra → continuous</text>
+  <text x="470.0" y="69.9" fill="#475569" font-size="9.5" text-anchor="middle">xong trước mốc → perfect</text>
+  <text x="470.0" y="84.4" fill="#475569" font-size="9.5" text-anchor="middle">kéo dài tới mốc, nhấn duration → perfect continuous</text>
+  <line x1="282.0" y1="55.0" x2="318.0" y2="55.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 170.0,90.0 L 170.0,130.0 L 298.0,130.0" fill="none" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <path d="M 470.0,104.0 L 470.0,130.0 L 322.0,130.0" fill="none" stroke="#1a202c" stroke-width="1.8"/>
+  <rect x="300.0" y="114.0" width="220.0" height="34.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="410.0" y="134.8" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">BƯỚC 3 = 1 × 2 → 12 thì</text>
+  <rect x="120.0" y="170.0" width="560.0" height="44.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="400.0" y="188.4" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">BƯỚC 4 — kiểm tra signal words</text>
+  <text x="400.0" y="202.9" fill="#475569" font-size="9.5" text-anchor="middle">yesterday → past · since/for → perfect · by + mốc tương lai → future perfect</text>
+  <line x1="410.0" y1="150.0" x2="410.0" y2="168.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+</svg>
 
 ### Ví dụ áp dụng
 

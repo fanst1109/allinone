@@ -636,37 +636,40 @@ Lưu ý thiết kế:
 
 **Bài 2 — Luồng Cookie/Session**
 
-```
-Bước 1 — Truy cập lần đầu (không có cookie):
-  GET /dashboard HTTP/1.1
-  Host: example.com
-  (không có Cookie header)
-
-  → Server kiểm tra cookie — không có → 302 Redirect to /login
-
-Bước 2 — Đăng nhập:
-  POST /login HTTP/1.1
-  Content-Type: application/x-www-form-urlencoded
-  username=nva&password=...
-
-  → Server kiểm tra DB, xác minh mật khẩu
-  → Tạo session: "xyz789" → {user_id: 42, expires: now+3600}
-  → Lưu vào Redis
-
-  HTTP/1.1 302 Found
-  Location: /dashboard
-  Set-Cookie: session_id=xyz789; HttpOnly; Secure; SameSite=Strict; Max-Age=3600
-
-Bước 3 — Truy cập dashboard (đã có cookie):
-  GET /dashboard HTTP/1.1
-  Cookie: session_id=xyz789
-
-  → Server lấy "xyz789" → tra Redis → {user_id: 42, ...}
-  → Render dashboard cho user 42
-
-  HTTP/1.1 200 OK
-  [HTML dashboard]
-```
+<svg viewBox="0 0 680 470" style="max-width:680px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Phiên đăng nhập bằng cookie: chưa có cookie bị đẩy về /login; POST /login tạo session lưu Redis và Set-Cookie; lần sau server tra Redis theo cookie">
+  <defs><marker id="sq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="20.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="80.0" y="34.0" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Trình duyệt</text>
+  <line x1="80.0" y1="44.0" x2="80.0" y2="456.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="280.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="1.8"/>
+  <text x="340.0" y="34.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Server</text>
+  <line x1="340.0" y1="44.0" x2="340.0" y2="456.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="540.0" y="14.0" width="120.0" height="30.0" rx="6" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="600.0" y="34.0" fill="#dc2626" font-size="12" text-anchor="middle" font-weight="700">Redis</text>
+  <line x1="600.0" y1="44.0" x2="600.0" y2="456.0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="90.0" y="70.0" fill="#475569" font-size="10" text-anchor="start">Bước 1 — chưa có cookie</text>
+  <line x1="83.0" y1="100.0" x2="336.0" y2="100.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="94.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /dashboard (không có Cookie)</text>
+  <line x1="337.0" y1="130.0" x2="84.0" y2="130.0" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#sq)"/>
+  <text x="210.0" y="124.0" fill="#dc2626" font-size="10" text-anchor="middle" font-weight="700">302 Redirect → /login</text>
+  <text x="90.0" y="160.0" fill="#475569" font-size="10" text-anchor="start">Bước 2 — đăng nhập</text>
+  <line x1="83.0" y1="190.0" x2="336.0" y2="190.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="184.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">POST /login (username=nva&amp;password=…)</text>
+  <text x="340.0" y="220.0" fill="#475569" font-size="10" text-anchor="middle">xác minh mật khẩu, tạo session xyz789</text>
+  <line x1="343.0" y1="250.0" x2="596.0" y2="250.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="470.0" y="244.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">lưu xyz789 → {user_id:42, expires}</text>
+  <line x1="337.0" y1="280.0" x2="84.0" y2="280.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="274.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">302 + Set-Cookie: session_id=xyz789; HttpOnly; Secure</text>
+  <text x="90.0" y="310.0" fill="#475569" font-size="10" text-anchor="start">Bước 3 — đã có cookie</text>
+  <line x1="83.0" y1="340.0" x2="336.0" y2="340.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="334.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">GET /dashboard (Cookie: session_id=xyz789)</text>
+  <line x1="343.0" y1="370.0" x2="596.0" y2="370.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="470.0" y="364.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">tra xyz789</text>
+  <line x1="597.0" y1="400.0" x2="344.0" y2="400.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="470.0" y="394.0" fill="#1a202c" font-size="10" text-anchor="middle" font-weight="700">{user_id: 42, …}</text>
+  <line x1="337.0" y1="430.0" x2="84.0" y2="430.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#sq)"/>
+  <text x="210.0" y="424.0" fill="#15803d" font-size="10" text-anchor="middle" font-weight="700">200 OK — dashboard của user 42</text>
+</svg>
 
 **Bài 3 — Cache 304**
 

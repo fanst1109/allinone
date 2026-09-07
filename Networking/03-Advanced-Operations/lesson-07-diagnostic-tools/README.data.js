@@ -510,13 +510,27 @@ No.  Time    Source           Destination     Protocol  Info
 
 ### 6.1. Mô hình 5 tầng chẩn đoán
 
-\`\`\`
-Tầng 5: Ứng dụng  → curl, browser, telnet
-Tầng 4: TCP/UDP   → netstat/ss, telnet HOST PORT
-Tầng 3: IP/DNS    → ping IP, nslookup, dig
-Tầng 2: Link/ARP  → ping gateway, arp -a
-Tầng 1: Vật lý    → đèn LED, cable, ifconfig/ip addr
-\`\`\`
+<svg viewBox="0 0 492 184" style="max-width:492px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Bảng tầng ↔ công cụ: debug từ ứng dụng (curl) xuống transport (ss), IP (ping/dig), link (arp) và vật lý (đèn, cáp)">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="16.0" y="14.0" width="460.0" height="26.0" rx="0" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="26.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">Tầng</text>
+  <text x="206.0" y="31.0" fill="#1d4ed8" font-size="10.5" text-anchor="start" font-weight="700">Công cụ chẩn đoán</text>
+  <rect x="16.0" y="40.0" width="460.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="57.0" fill="#1f2937" font-size="10.5" text-anchor="start">Tầng 5 — Ứng dụng</text>
+  <text x="206.0" y="57.0" fill="#1d4ed8" font-size="10.5" text-anchor="start">curl, browser, telnet</text>
+  <rect x="16.0" y="66.0" width="460.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="83.0" fill="#1f2937" font-size="10.5" text-anchor="start">Tầng 4 — TCP/UDP</text>
+  <text x="206.0" y="83.0" fill="#7c3aed" font-size="10.5" text-anchor="start">netstat/ss, telnet HOST PORT</text>
+  <rect x="16.0" y="92.0" width="460.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="109.0" fill="#1f2937" font-size="10.5" text-anchor="start">Tầng 3 — IP/DNS</text>
+  <text x="206.0" y="109.0" fill="#15803d" font-size="10.5" text-anchor="start">ping IP, nslookup, dig</text>
+  <rect x="16.0" y="118.0" width="460.0" height="26.0" rx="0" fill="#f1f5f9" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="135.0" fill="#1f2937" font-size="10.5" text-anchor="start">Tầng 2 — Link/ARP</text>
+  <text x="206.0" y="135.0" fill="#b45309" font-size="10.5" text-anchor="start">ping gateway, arp -a</text>
+  <rect x="16.0" y="144.0" width="460.0" height="26.0" rx="0" fill="#ffffff" fill-opacity="1" stroke="#e2e8f0" stroke-width="0.8"/>
+  <text x="26.0" y="161.0" fill="#1f2937" font-size="10.5" text-anchor="start">Tầng 1 — Vật lý</text>
+  <text x="206.0" y="161.0" fill="#dc2626" font-size="10.5" text-anchor="start">đèn LED, cable, ifconfig/ip addr</text>
+</svg>
 
 ### 6.2. Kịch bản: "Không vào được web" — 7 bước
 

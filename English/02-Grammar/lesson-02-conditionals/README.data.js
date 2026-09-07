@@ -22,14 +22,17 @@ window.README_MD = `# Lesson 02 — Câu điều kiện (Conditionals)
 
 Câu điều kiện có **2 vế**:
 
-\`\`\`
-   IF clause                 MAIN clause
-   (vế điều kiện)            (vế kết quả)
-   ┌──────────────┐         ┌──────────────────┐
-If it rains tomorrow,    I will stay at home.
-   └──────────────┘         └──────────────────┘
-       điều kiện              hệ quả nếu điều kiện đúng
-\`\`\`
+<svg viewBox="0 0 620 104" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Câu điều kiện hai vế: IF clause nêu điều kiện, MAIN clause nêu hệ quả khi điều kiện đúng">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="40.0" y="40.0" width="220.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="150.0" y="58.4" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">If it rains tomorrow,</text>
+  <text x="150.0" y="73.3" fill="#475569" font-size="10" text-anchor="middle">IF clause — vế điều kiện</text>
+  <rect x="340.0" y="40.0" width="230.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="455.0" y="58.4" fill="#15803d" font-size="11" text-anchor="middle" font-weight="700">I will stay at home.</text>
+  <text x="455.0" y="73.3" fill="#475569" font-size="10" text-anchor="middle">MAIN clause — vế kết quả</text>
+  <line x1="262.0" y1="62.0" x2="338.0" y2="62.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="300.0" y="54.0" fill="#475569" font-size="9.5" text-anchor="middle">nếu đúng →</text>
+</svg>
 
 **Quy tắc dấu phẩy**:
 - Vế \`if\` đứng **trước**: cần dấu phẩy giữa hai vế.
@@ -55,29 +58,47 @@ Nghĩa giống nhau. Vị trí chỉ là phong cách nhấn mạnh.
 
 Quy trình quyết định:
 
-\`\`\`
-1. Câu nói về SỰ THẬT / QUY LUẬT chung (lúc nào cũng đúng)?
-   └→ Có → ZERO CONDITIONAL.
-   "If you heat water to 100°C, it boils."
-
-2. Câu nói về TƯƠNG LAI có thể xảy ra (xác suất thực tế > 0)?
-   └→ Có → FIRST CONDITIONAL.
-   "If it rains tomorrow, I will stay home." (trời có thể mưa thật)
-
-3. Câu nói về tình huống KHÔNG CÓ THẬT ở hiện tại / tương lai (giả định)?
-   └→ Có → SECOND CONDITIONAL.
-   "If I were rich, I would buy a yacht." (tôi không giàu)
-
-4. Câu nói về tình huống KHÔNG CÓ THẬT trong quá khứ (đã xảy ra ngược lại)?
-   └→ Có → THIRD CONDITIONAL.
-   "If I had studied harder, I would have passed." (thực tế tôi đã không học chăm → đã trượt)
-
-5. Câu kết hợp 2 thời điểm khác nhau (điều kiện quá khứ → kết quả hiện tại,
-   hoặc điều kiện hiện tại → kết quả quá khứ)?
-   └→ Có → MIXED CONDITIONAL.
-   "If I had studied harder, I would be a doctor now."
-   (quá khứ không học chăm → hiện tại không phải bác sĩ)
-\`\`\`
+<svg viewBox="0 0 860 324" style="max-width:860px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Cây quyết định 5 loại câu điều kiện: sự thật chung → zero, tương lai thực → first, giả định hiện tại → second, giả định quá khứ → third, trộn thời điểm → mixed">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker><marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker><marker id="arg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="aro" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker><marker id="arp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker></defs>
+  <rect x="20.0" y="14.0" width="400.0" height="40.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="220.0" y="37.7" fill="#1d4ed8" font-size="10.5" text-anchor="middle" font-weight="700">1. SỰ THẬT / QUY LUẬT chung (lúc nào cũng đúng)?</text>
+  <line x1="422.0" y1="34.0" x2="454.0" y2="34.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="438.0" y="26.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="462.0" y="30.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">ZERO conditional</text>
+  <text x="462.0" y="44.0" fill="#475569" font-size="8.5" text-anchor="start">If you heat water to 100°C, it boils.</text>
+  <line x1="220.0" y1="56.0" x2="220.0" y2="76.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="228.0" y="69.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="78.0" width="400.0" height="40.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="220.0" y="101.7" fill="#15803d" font-size="10.5" text-anchor="middle" font-weight="700">2. TƯƠNG LAI có thể xảy ra thật?</text>
+  <line x1="422.0" y1="98.0" x2="454.0" y2="98.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="438.0" y="90.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="462.0" y="94.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">FIRST conditional</text>
+  <text x="462.0" y="108.0" fill="#475569" font-size="8.5" text-anchor="start">If it rains tomorrow, I will stay home.</text>
+  <line x1="220.0" y1="120.0" x2="220.0" y2="140.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="228.0" y="133.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="142.0" width="400.0" height="40.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="220.0" y="165.7" fill="#b45309" font-size="10.5" text-anchor="middle" font-weight="700">3. KHÔNG CÓ THẬT ở hiện tại/tương lai (giả định)?</text>
+  <line x1="422.0" y1="162.0" x2="454.0" y2="162.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="438.0" y="154.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="462.0" y="158.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">SECOND conditional</text>
+  <text x="462.0" y="172.0" fill="#475569" font-size="8.5" text-anchor="start">If I were rich, I would buy a yacht.</text>
+  <line x1="220.0" y1="184.0" x2="220.0" y2="204.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="228.0" y="197.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="206.0" width="400.0" height="40.0" rx="8" fill="#fee2e2" fill-opacity="1" stroke="#dc2626" stroke-width="2"/>
+  <text x="220.0" y="229.7" fill="#dc2626" font-size="10.5" text-anchor="middle" font-weight="700">4. KHÔNG CÓ THẬT trong quá khứ?</text>
+  <line x1="422.0" y1="226.0" x2="454.0" y2="226.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="438.0" y="218.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="462.0" y="222.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">THIRD conditional</text>
+  <text x="462.0" y="236.0" fill="#475569" font-size="8.5" text-anchor="start">If I had studied, I would have passed.</text>
+  <line x1="220.0" y1="248.0" x2="220.0" y2="268.0" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arr)"/>
+  <text x="228.0" y="261.0" fill="#dc2626" font-size="9" text-anchor="start">không</text>
+  <rect x="20.0" y="270.0" width="400.0" height="40.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="220.0" y="293.7" fill="#7c3aed" font-size="10.5" text-anchor="middle" font-weight="700">5. Kết hợp 2 thời điểm khác nhau?</text>
+  <line x1="422.0" y1="290.0" x2="454.0" y2="290.0" stroke="#15803d" stroke-width="1.8" marker-end="url(#arg)"/>
+  <text x="438.0" y="282.0" fill="#15803d" font-size="9" text-anchor="middle">có</text>
+  <text x="462.0" y="286.0" fill="#15803d" font-size="10" text-anchor="start" font-weight="700">MIXED conditional</text>
+  <text x="462.0" y="300.0" fill="#475569" font-size="8.5" text-anchor="start">If I had studied, I would be a doctor now.</text>
+</svg>
 
 ---
 

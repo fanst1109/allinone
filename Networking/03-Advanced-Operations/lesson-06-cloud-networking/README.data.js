@@ -198,13 +198,25 @@ So sánh với IGW:
 
 **Luồng dữ liệu từ private subnet ra internet qua NAT Gateway:**
 
-\`\`\`
-instance-private (10.0.11.5)
-  → route table private: 0.0.0.0/0 → nat-gw-xxx (trong public subnet 10.0.1.x)
-  → NAT Gateway thay đổi source thành IP public của NAT GW
-  → route table public: 0.0.0.0/0 → igw-xxx
-  → Internet Gateway → internet
-\`\`\`
+<svg viewBox="0 0 560 356" style="max-width:560px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Instance private ra internet: route private trỏ NAT gateway, NAT đổi source IP, route public trỏ Internet Gateway">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="90.0" y="14.0" width="380.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="280.0" y="40.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">instance-private (10.0.11.5)</text>
+  <line x1="280.0" y1="60.0" x2="280.0" y2="76.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="78.0" width="380.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="103.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">route table private: 0.0.0.0/0 → nat-gw-xxx</text>
+  <text x="280.0" y="119.2" fill="#475569" font-size="11" text-anchor="middle">(NAT GW nằm trong public subnet 10.0.1.x)</text>
+  <line x1="280.0" y1="138.0" x2="280.0" y2="154.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="156.0" width="380.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="280.0" y="181.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">NAT Gateway</text>
+  <text x="280.0" y="197.2" fill="#475569" font-size="11" text-anchor="middle">đổi source IP thành IP public của NAT GW</text>
+  <line x1="280.0" y1="216.0" x2="280.0" y2="232.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="234.0" width="380.0" height="44.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="280.0" y="260.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">route table public: 0.0.0.0/0 → igw-xxx</text>
+  <line x1="280.0" y1="280.0" x2="280.0" y2="296.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="90.0" y="298.0" width="380.0" height="44.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="280.0" y="324.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">Internet Gateway → internet</text>
+</svg>
 
 ❓ **Câu hỏi tự nhiên:**
 - *"Tại sao NAT Gateway đặt trong public subnet?"* — Vì NAT GW cần ra internet, nên bản thân nó phải có IP public và route tới IGW — chỉ public subnet mới có.
@@ -304,26 +316,35 @@ instance-private (10.0.11.5)
 
 **Gói SYN từ client \`203.0.113.5:51234\` đến \`10.0.1.10:443\`:**
 
-\`\`\`
-1. Internet → Internet Gateway
-   IGW nhận gói: SRC=203.0.113.5:51234 DST=203.0.113.45:443
-   IGW dịch DST = 10.0.1.10 (reverse của Elastic IP mapping)
-
-2. IGW → Network ACL (kiểm tra trước khi vào subnet)
-   NACL inbound rule 110: TCP port 443, ALLOW → GÓI ĐI QUA
-
-3. Network ACL → Security Group (kiểm tra trước khi vào instance)
-   SG inbound: TCP 443 từ 0.0.0.0/0 → ALLOW → GÓI VÀO INSTANCE
-
-4. Instance xử lý, gửi SYN-ACK về: SRC=10.0.1.10:443 DST=203.0.113.5:51234
-
-5. Security Group outbound (stateful): kết nối này đã được cho vào
-   → response tự động được cho ra, KHÔNG cần rule outbound riêng
-
-6. NACL outbound rule 120: TCP port 51234 (ephemeral 1024–65535), ALLOW → ĐI QUA
-
-7. IGW dịch SRC=10.0.1.10 → 203.0.113.45, gửi ra internet
-\`\`\`
+<svg viewBox="0 0 620 516" style="max-width:620px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Gói từ internet vào instance AWS: IGW dịch địa chỉ, qua NACL rồi Security Group; chiều về SG stateful tự cho qua, NACL cần rule ephemeral, IGW dịch ngược">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <rect x="80.0" y="14.0" width="460.0" height="58.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="39.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">1. Internet → IGW</text>
+  <text x="310.0" y="55.2" fill="#475569" font-size="11" text-anchor="middle">SRC=203.0.113.5:51234 → DST 203.0.113.45:443; IGW dịch DST = 10.0.1.10</text>
+  <line x1="310.0" y1="74.0" x2="310.0" y2="86.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="88.0" width="460.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="310.0" y="113.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">2. Network ACL (vào subnet)</text>
+  <text x="310.0" y="129.2" fill="#475569" font-size="11" text-anchor="middle">inbound rule 110: TCP 443 → ALLOW</text>
+  <line x1="310.0" y1="148.0" x2="310.0" y2="160.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="162.0" width="460.0" height="58.0" rx="8" fill="#ede9fe" fill-opacity="1" stroke="#7c3aed" stroke-width="2"/>
+  <text x="310.0" y="187.2" fill="#7c3aed" font-size="12" text-anchor="middle" font-weight="700">3. Security Group (vào instance)</text>
+  <text x="310.0" y="203.2" fill="#475569" font-size="11" text-anchor="middle">inbound TCP 443 từ 0.0.0.0/0 → ALLOW</text>
+  <line x1="310.0" y1="222.0" x2="310.0" y2="234.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="236.0" width="460.0" height="58.0" rx="8" fill="#fef3c7" fill-opacity="1" stroke="#b45309" stroke-width="2"/>
+  <text x="310.0" y="261.2" fill="#b45309" font-size="12" text-anchor="middle" font-weight="700">4. Instance xử lý, trả SYN-ACK</text>
+  <text x="310.0" y="277.2" fill="#475569" font-size="11" text-anchor="middle">SRC=10.0.1.10:443 → DST=203.0.113.5:51234</text>
+  <line x1="310.0" y1="296.0" x2="310.0" y2="308.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="310.0" width="460.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="335.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">5. SG outbound (stateful)</text>
+  <text x="310.0" y="351.2" fill="#475569" font-size="11" text-anchor="middle">kết nối đã cho vào → response tự động cho ra</text>
+  <line x1="310.0" y1="370.0" x2="310.0" y2="382.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="384.0" width="460.0" height="58.0" rx="8" fill="#dcfce7" fill-opacity="1" stroke="#15803d" stroke-width="2"/>
+  <text x="310.0" y="409.2" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">6. NACL outbound rule 120</text>
+  <text x="310.0" y="425.2" fill="#475569" font-size="11" text-anchor="middle">TCP ephemeral 1024–65535 → ALLOW</text>
+  <line x1="310.0" y1="444.0" x2="310.0" y2="456.0" stroke="#1a202c" stroke-width="1.8" marker-end="url(#ar)"/>
+  <rect x="80.0" y="458.0" width="460.0" height="44.0" rx="8" fill="#dbeafe" fill-opacity="1" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="310.0" y="484.2" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">7. IGW dịch SRC 10.0.1.10 → 203.0.113.45, gửi ra internet</text>
+</svg>
 
 So với firewall truyền thống ([Lesson 01 — An ninh mạng](../lesson-01-network-security/)): Security Group đóng vai trò host-based firewall (như iptables trên Linux), còn NACL đóng vai trò perimeter firewall gắn ở ranh giới subnet.
 

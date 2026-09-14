@@ -142,21 +142,16 @@ Dạng lượng giác và dạng mũ chỉ là **hai cách viết một thứ** 
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Vì sao có dạng này?"* Vì khi nhân/chia số phức, dạng lượng giác **đơn giản hơn nhiều** dạng đại số (xem mục 3) — nhân = cộng góc.
 - *"argument có duy nhất không?"* Không — $\\theta$ và $\\theta + 2k\\pi$ cùng chỉ một điểm. Thường chọn **argument chính** trong $(-\\pi, \\pi]$ để tránh nhập nhằng.
 - *"Vì sao dùng $\\operatorname{atan2}(b, a)$ mà không phải $\\arctan(b/a)$?"* Vì $\\arctan(b/a)$ không phân biệt phần tư (mất dấu). $\\operatorname{atan2}$ xét dấu cả a và b → cho đúng góc trong cả 4 phần tư.
 
-⚠ **Lỗi thường gặp — tính argument bằng $\\arctan(b/a)$ rồi quên chỉnh phần tư**. Phản ví dụ: $z = -1 - i$ (phần tư III). $\\arctan(b/a) = \\arctan\\left(\\dfrac{-1}{-1}\\right) = \\arctan(1) = \\dfrac{\\pi}{4}$ (phần tư I) — **sai**. Đúng phải cộng π: $\\theta = \\dfrac{\\pi}{4} + \\pi = \\dfrac{5\\pi}{4}$ (hoặc $-\\dfrac{3\\pi}{4}$). Luôn kiểm điểm thực sự nằm ở phần tư nào.
+⚠ **Ba lỗi thường gặp khi đổi dạng**
 
-**4 ví dụ số đa dạng (đại số → lượng giác)**:
-- $z = 1 + i$: $r = \\sqrt{2}$, $\\theta = \\dfrac{\\pi}{4}$ → $\\sqrt{2}\\left(\\cos\\dfrac{\\pi}{4} + i\\sin\\dfrac{\\pi}{4}\\right)$.
-- $z = 2i$: $r = 2$, $\\theta = \\dfrac{\\pi}{2}$ → $2\\left(\\cos\\dfrac{\\pi}{2} + i\\sin\\dfrac{\\pi}{2}\\right)$.
-- $z = -3$: $r = 3$, $\\theta = \\pi$ → $3(\\cos\\pi + i\\sin\\pi)$.
-- $z = 1 - \\sqrt{3}\\,i$: $r = \\sqrt{1+3} = 2$, $\\theta = -\\dfrac{\\pi}{3}$ (phần tư IV) → $2\\left(\\cos\\left(-\\dfrac{\\pi}{3}\\right) + i\\sin\\left(-\\dfrac{\\pi}{3}\\right)\\right)$.
+- **Quên chỉnh phần tư**: $z = -1 - i$ (phần tư III) mà lấy $\\arctan\\left(\\dfrac{-1}{-1}\\right) = \\dfrac{\\pi}{4}$ là sai — phải chỉnh: $\\theta = \\dfrac{\\pi}{4} - \\pi = -\\dfrac{3\\pi}{4}$. Luôn kiểm điểm nằm ở phần tư nào trước.
 
-⚠ **Lỗi thường gặp 2 — nhầm độ và radian khi tính $\\theta$**. Mọi argument trong dạng lượng giác/Euler đều tính bằng **radian**, không phải độ. Phản ví dụ: với $z = 1 + i$, đáp án đúng $\\theta = \\dfrac{\\pi}{4}$ rad ($\\approx 0.785$). Nếu vô ý ghi $\\theta = 45$ (tưởng là độ) rồi cắm vào $e^{i\\cdot 45}$ thì ra một điểm hoàn toàn khác trên đường tròn ($45$ rad $\\approx 7.16$ vòng). Quy đổi khi cần: $180° = \\pi$ rad, nên $45° = \\dfrac{45}{180}\\pi = \\dfrac{\\pi}{4}$.
+- **Nhầm độ và radian**: argument luôn tính bằng **radian**. Với $z = 1+i$, $\\theta = \\dfrac{\\pi}{4} \\approx 0.785$; ghi $\\theta = 45$ rồi cắm vào $e^{i\\cdot 45}$ là một điểm khác hẳn ($45$ rad $\\approx 7.16$ vòng). Quy đổi: $45° = \\dfrac{45}{180}\\pi = \\dfrac{\\pi}{4}$.
 
-⚠ **Lỗi thường gặp 3 — lấy nhầm $r$ là một thành phần thay vì độ dài**. $r$ **không phải** $a$ cũng không phải $b$ — nó là **cạnh huyền** $\\sqrt{a^2+b^2}$. Phản ví dụ: $z = 3 + 4i$ có $r = 5$ (không phải 3, không phải 4). Quên căn → sai mọi bước sau.
+- **Lấy nhầm $r$ là một thành phần**: $r$ là **cạnh huyền** $\\sqrt{a^2+b^2}$, không phải $a$ hay $b$. $z = 3 + 4i$ có $r = 5$ (không phải 3 hay 4).
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -198,7 +193,12 @@ $$z = re^{i\\theta}$$
 >
 > **(b) Vì sao cần**: Vì làm cho mọi phép toán số phức trở nên **đơn giản như đại số mũ**: nhân/chia số phức = cộng/trừ argument ($e^{i\\alpha}\\cdot e^{i\\beta} = e^{i(\\alpha+\\beta)}$), lũy thừa = nhân argument (De Moivre). Cốt lõi của **Fourier analysis** (tín hiệu = tổng các $e^{i\\omega t}$), **mạch điện AC** (phasor), **cơ học lượng tử** (hàm sóng $e^{i(kx-\\omega t)}$). Đặc biệt $e^{i\\pi} = -1$ → $e^{i\\pi} + 1 = 0$ liên kết 5 hằng số quan trọng nhất toán ($0, 1, \\pi, e, i$) — được mệnh danh "công thức đẹp nhất toán học".
 >
-> **(c) Ví dụ số**: $\\theta = 0$: $e^0 = 1 = \\cos 0 + i\\sin 0 = 1 + 0$ ✓. $\\theta = \\dfrac{\\pi}{2}$: $e^{i\\pi/2} = \\cos\\dfrac{\\pi}{2} + i\\sin\\dfrac{\\pi}{2} = 0 + i =$ **$i$** (nhân với i = quay 90°!). $\\theta = \\pi$: $e^{i\\pi} = \\cos\\pi + i\\sin\\pi = -1 + 0 =$ **$-1$**. $\\theta = 2\\pi$: $e^{i\\cdot 2\\pi} = 1$ (tuần hoàn!). $z = 1+i$: $r = \\sqrt{2}$, $\\theta = \\dfrac{\\pi}{4}$ → $z = \\sqrt{2}\\,e^{i\\pi/4}$. $z^2 = 2e^{i\\pi/2} = 2i$ ✓ (kiểm: $(1+i)^2 = 1+2i+i^2 = 2i$ ✓).
+> **(c) Ví dụ số** — đi quanh đường tròn đơn vị:
+>
+> - $\\theta = 0$: $e^{0} = \\cos 0 + i\\sin 0 = 1$ ✓ (điểm xuất phát).
+> - $\\theta = \\dfrac{\\pi}{2}$: $e^{i\\pi/2} = 0 + i = \\mathbf{i}$ — nhân với $i$ = quay 90°.
+> - $\\theta = \\pi$: $e^{i\\pi} = \\mathbf{-1}$ (nửa vòng). $\\theta = 2\\pi$: $e^{i\\cdot 2\\pi} = 1$ — tuần hoàn, về chỗ cũ.
+> - Số bất kỳ: $z = 1+i = \\sqrt{2}\\,e^{i\\pi/4}$; bình phương: $z^2 = 2e^{i\\pi/2} = 2i$. Kiểm đại số: $(1+i)^2 = 1 + 2i + i^2 = 2i$ ✓.
 
 💡 **Vì sao đúng?** Khai triển Taylor của $e^x$, $\\sin x$, $\\cos x$:
 
@@ -290,9 +290,11 @@ $$e^{i\\pi} = \\cos\\pi + i\\sin\\pi = -1 + 0i = -1$$
 
 Năm "người lạ" từ năm thành phố khác nhau, vậy mà ráp lại vừa khít thành $= 0$, không thừa không thiếu.
 
-⚠ **Lỗi thường gặp — quên $\\theta$ trong Euler là RADIAN**. $e^{i\\theta} = \\cos\\theta + i\\sin\\theta$ chỉ đúng khi θ tính bằng radian. Phản ví dụ: $e^{i\\pi} = -1$, nhưng nếu hiểu nhầm $\\pi \\approx 3.14$ là "độ" thì $\\cos 3.14^\\circ + i\\sin 3.14^\\circ \\approx 0.9985 + 0.0548i \\neq -1$. Luôn dùng radian.
+⚠ **Hai lỗi thường gặp với Euler**
 
-⚠ **Lỗi thường gặp 2 — viết $e^{i\\theta}$ có mô-đun khác 1**. $|e^{i\\theta}| = \\sqrt{\\cos^2\\theta + \\sin^2\\theta} = 1$ **luôn** — nó nằm trên đường tròn đơn vị. Mọi số phức là $re^{i\\theta}$; phần $r$ mới mang độ lớn, $e^{i\\theta}$ chỉ mang hướng.
+- **Quên θ là RADIAN**: $e^{i\\pi} = -1$; nếu hiểu nhầm $\\pi \\approx 3.14$ là "độ" thì $\\cos 3.14° + i\\sin 3.14° \\approx 0.9985 + 0.0548i \\neq -1$.
+
+- **Gán mô-đun cho $e^{i\\theta}$**: $|e^{i\\theta}| = \\sqrt{\\cos^2\\theta + \\sin^2\\theta} = 1$ **luôn** — nó chỉ mang hướng. Độ lớn nằm ở $r$ trong $re^{i\\theta}$.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

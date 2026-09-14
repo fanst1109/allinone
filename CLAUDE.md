@@ -314,10 +314,20 @@ Mỗi mục lớn (`## N. ...`) trong `README.md` của một lesson nên có c�
 | Callout | Khi nào dùng | Vị trí |
 |---------|--------------|--------|
 | **💡 Trực giác / Hình dung** | Trước MỌI định nghĩa hình thức — analogy đời sống | Mở đầu mục con |
-| **❓ Câu hỏi tự nhiên của người đọc** | Sau các phần khó, anticipate ≥ 2-3 câu hỏi mà người mới sẽ thắc mắc | Giữa hoặc cuối mục con |
-| **⚠ Lỗi thường gặp** | Ở mọi chỗ có sai lầm phổ thông, kèm ví dụ phản chứng | Sau quy tắc/công thức |
+| **❓ Câu hỏi tự nhiên của người đọc** | Anticipate 2-3 câu hỏi của người mới. **Tối đa 1 khối mỗi mục lớn**, đặt gần cuối mục | Cuối mục lớn |
+| **⚠ Lỗi thường gặp** | Sai lầm phổ thông + phản ví dụ. **≥ 2 lỗi trong cùng mục → GỘP thành 1 khối bullet** ("⚠ Các lỗi thường gặp"), không rải nhiều khối liên tiếp | Sau quy tắc/công thức |
 | **🔁 Dừng lại tự kiểm tra** | Sau mỗi mục con quan trọng, 1-2 câu hỏi + đáp án `<details>` | Cuối mục con |
 | **📝 Tóm tắt mục N** | Cuối mỗi mục lớn, 3-5 điểm chốt dạng bullet | Cuối mục lớn |
+
+### Quy tắc chống trùng lặp & nhịp đọc (rút từ feedback "đọc không thoải mái")
+
+Callout đầy đủ nhưng KHÔNG được làm bài rậm và lặp. Bắt buộc:
+
+- **Mỗi ví dụ số xuất hiện đúng MỘT lần trong bài.** Walk-through là bản chính; KHÔNG thêm khối "N ví dụ số đa dạng" lặp lại các con số đã giải ở walk-through ngay trên đó. Cần đa dạng thì dùng ví dụ MỚI.
+- **Khối 📐 Định nghĩa đầy đủ (a)(b)(c)**: chỉ đặt ở lần đầu khái niệm xuất hiện; phần (c) không giải lại ví dụ đã có ở mục khác của cùng bài — trỏ về ("xem walk-through 2.1") hoặc dùng số mới.
+- **Một khái niệm không trình bày lại ở quá 2 "khung"** (trực giác / walk-through / 📐 / bảng): quá số đó = đang lặp, phải cắt.
+- **Nhịp**: giữa hai callout liên tiếp nên có ít nhất một đoạn văn/bảng nội dung; ⚠ nhiều lỗi thì gộp bullet; ❓ và 🔁 dồn về cuối mục lớn thay vì rải mỗi mục con.
+- Câu dài quá ~25 từ hoặc quá 1 ngoặc chú thích → tách câu.
 
 ## Quy tắc lượng hóa: ví dụ và chứng minh
 

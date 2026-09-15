@@ -77,7 +77,7 @@ $$z = a + bi$$
 >
 > **(b) Vì sao tồn tại**: Trong $\mathbb{R}$, PT $x^2 = -1$ vô nghiệm. Người ta "phát minh" $i$ với $i^2 = -1$ → mọi PT đa thức bậc $n$ có đủ $n$ nghiệm (Định lý đại số cơ bản — Gauss). Quan trọng hơn — $i$ sinh ra cấu trúc đại số "đầy đủ" và **mang ý nghĩa hình học thực** (xem L06: nhân với $i$ = quay 90°). Cốt lõi của: signal processing (Fourier), điện xoay chiều (phasor), cơ học lượng tử (hàm sóng phức).
 >
-> **(c) Ví dụ số**: $z = 3 + 4i$: $\operatorname{Re}(z)=3$, $\operatorname{Im}(z)=4$. Trên mặt phẳng → điểm $(3, 4)$. Mô-đun $|z| = \sqrt{9+16} = 5$. Liên hợp $\bar{z} = 3 - 4i$. $z\cdot\bar{z} = 9 + 16 = 25 = |z|^2$ ✓. $(1+i)\cdot(1-i) = 1 - i + i - i^2 = 1 + 1 = 2$ (số thực!). $i^3 = i\cdot i^2 = i\cdot(-1) = $ **$-i$**. $i^4 = 1$. Giải $x^2 + 4 = 0$: $x^2 = -4 \to x = \pm 2i$.
+> **(c) Ví dụ số**: $z = 3 + 4i$: $\operatorname{Re}(z)=3$, $\operatorname{Im}(z)=4$ — trên mặt phẳng là điểm $(3, 4)$. Lũy thừa: $i^3 = i\cdot i^2 = -i$, $i^4 = 1$. Giải $x^2 + 4 = 0$: $x^2 = -4 \to x = \pm 2i$. (Mô-đun, liên hợp của $z$: xem mục 3.)
 
 **4 ví dụ số đa dạng**:
 - Phần thực và ảo đều dương: $z = 2 + 5i$ → $\operatorname{Re} = 2$, $\operatorname{Im} = 5$.
@@ -187,7 +187,7 @@ $$\bar{z} = a - bi$$
 - $\overline{\bar{z}} = z$ (liên hợp hai lần về chỗ cũ — lật gương hai lần).
 - $|\bar{z}| = |z|$ (gương không đổi độ dài), $|z\cdot w| = |z|\cdot|w|$, $\overline{z\cdot w} = \bar{z}\cdot\bar{w}$.
 
-**Verify bằng số ($z = 3 + 4i$)**: $|z| = \sqrt{3^2+4^2} = \sqrt{25} = 5$. $\bar{z} = 3 - 4i$. $z\cdot\bar{z} = (3+4i)(3-4i) = 9 - 12i + 12i - 16i^2 = 9 + 16 = 25 = |z|^2$ ✓. $z + \bar{z} = 6 = 2\cdot\operatorname{Re}(z)$ ✓. $z - \bar{z} = 8i = 2\cdot(4)i$ ✓.
+**Verify bằng số ($z = 3 + 4i$, $\bar{z} = 3 - 4i$)**: $z + \bar{z} = 6 = 2\cdot\operatorname{Re}(z)$ ✓. $z - \bar{z} = 8i = 2\cdot(4)i$ ✓. $z\cdot\bar{z} = 9 + 16 = 25 = |z|^2$ ✓. (Thêm ví dụ mô-đun và liên hợp: bảng 3.1, 3.2 ngay dưới.)
 
 #### 3.1. Walk-through mô-đun |z| — 4 ví dụ đa dạng
 
@@ -231,9 +231,11 @@ $$z^{-1} = \frac{-i}{1} = -i$$
 $$z^{-1} = \frac{1+2i}{5} = \frac{1}{5} + \frac{2}{5}i$$
 **Kiểm tra**: $(1-2i)\cdot\dfrac{1+2i}{5} = \dfrac{(1-2i)(1+2i)}{5} = \dfrac{1+4}{5} = 1$ ✓.
 
-⚠ **Lỗi thường gặp — tính mô-đun thiếu bình phương hoặc cộng nhầm**. $|a+bi| = \sqrt{a^2+b^2}$, KHÔNG phải $a + b$ hay $\sqrt{a+b}$. Phản ví dụ: $|3+4i|$ đúng là $\sqrt{9+16}=5$; nếu tính $3+4=7$ hay $\sqrt{3+4}=\sqrt{7}\approx 2.65$ đều sai.
+⚠ **Hai lỗi thường gặp với mô-đun**
 
-⚠ **Lỗi thường gặp — nhầm $\lvert z\rvert$ (số thực) với $z$ (số phức)**. Mô-đun $|z|$ là **một số thực** (độ dài), không còn phần ảo. Với $z=3+4i$, $|z|=5$ — không viết $|z|=5+0i$ rồi tiếp tục coi như số phức để cộng phần ảo. Tương tự đừng nhầm $|z|^2$ (số thực $a^2+b^2$) với $z^2$ (số phức $(a+bi)^2$): với $z=3+4i$, $|z|^2=25$ nhưng $z^2 = 9+24i-16 = -7+24i$ — khác hoàn toàn.
+- **Tính $|z|$ sai công thức**: $|a+bi| = \sqrt{a^2+b^2}$, KHÔNG phải $a+b$ hay $\sqrt{a+b}$. $|3+4i| = \sqrt{9+16} = 5$; tính $3+4=7$ hay $\sqrt{7} \approx 2.65$ đều sai.
+
+- **Nhầm $|z|$ với $z$, $|z|^2$ với $z^2$**: $|z|$ là **số thực** (độ dài), $|z|^2 = a^2+b^2$ cũng thực. Với $z = 3+4i$: $|z|^2 = 25$ nhưng $z^2 = 9 + 24i - 16 = -7 + 24i$ — khác hoàn toàn.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -455,7 +457,7 @@ $$\frac{a+bi}{c+di} = \frac{(a+bi)(c-di)}{(c+di)(c-di)} = \frac{(a+bi)(c-di)}{c^
 - $i^6 = i^{6 \bmod 4} = i^2 = -1$.
 - $i^{12} = i^{12 \bmod 4} = i^0 = 1$ (bội của 4 → 1).
 - $i^{25} = i^{25 \bmod 4} = i^1 = i$.
-- $i^{-1} = \dfrac{1}{i} = \dfrac{1}{i}\cdot\dfrac{i}{i}\cdot(-1)\ldots$ thực ra $i^{-1} = i^3 = -i$ (vì $i\cdot(-i) = -i^2 = 1$).
+- $i^{-1} = i^{(-1) \bmod 4} = i^3 = -i$. Kiểm: $i\cdot(-i) = -i^2 = 1$ ✓ (khớp ví dụ 2 mục 3.3).
 
 ⚠ **Lỗi thường gặp — tính $n \bmod 4$ sai với số có thể chia hết**. Nếu $n$ chia hết cho 4 thì $i^n = 1$ (không phải i). Phản ví dụ: $i^{100}$: $100 \bmod 4 = 0$ → $i^0 = 1$. Người mới hay nhầm ra $i$.
 

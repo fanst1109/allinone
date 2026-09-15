@@ -53,7 +53,7 @@ $$\\sin x = a \\quad (|a| \\le 1)$$
 
 $$x = \\alpha + k\\cdot 2\\pi \\quad \\text{hoặc} \\quad x = \\pi - \\alpha + k\\cdot 2\\pi \\quad (k \\in \\mathbb{Z})$$
 
-💡 **Vì sao 2 họ nghiệm?** sin x = tung độ (hoành... không, **tung độ**) của điểm trên đường tròn. Cố định tung độ $= a$ tức **cắt đường tròn bằng một đường nằm ngang** $y = a$. Đường ngang này cắt đường tròn ở **2 điểm** đối xứng qua **trục tung Oy** (vì đường tròn đối xứng trái-phải): điểm bên phải ứng góc $\\alpha$, điểm bên trái ứng góc $\\pi - \\alpha$. Đó chính là 2 họ nghiệm.
+💡 **Vì sao 2 họ nghiệm?** $\\sin x$ = **tung độ** của điểm trên đường tròn. Cố định tung độ $= a$ tức **cắt đường tròn bằng một đường nằm ngang** $y = a$. Đường ngang này cắt đường tròn ở **2 điểm** đối xứng qua **trục tung Oy** (vì đường tròn đối xứng trái-phải): điểm bên phải ứng góc $\\alpha$, điểm bên trái ứng góc $\\pi - \\alpha$. Đó chính là 2 họ nghiệm.
 
 <svg viewBox="0 0 520 320" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="sin x = 1/2: đường ngang y = 1/2 cắt đường tròn tại π/6 (phải) và 5π/6 (trái), đối xứng qua trục Oy">
   <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
@@ -90,16 +90,18 @@ Vì sao thêm $k\\cdot 2\\pi$? Vì quay thêm trọn $k$ vòng ($k$ nguyên, dư
 >
 > **(b) Vì sao cần**: PT đại số $x^2 = 4$ có hữu hạn nghiệm. PT lượng giác KHÔNG — sin tuần hoàn nên nghiệm xuất hiện vô hạn lần. Phải có ký hiệu nén tất cả: "$x = \\alpha + k\\cdot 2\\pi$, $k \\in \\mathbb{Z}$". Trong vật lý: thời điểm dao động đạt giá trị x cụ thể xảy ra lặp đi lặp lại — cần biết tất cả các thời điểm, không chỉ 1.
 >
-> **(c) Ví dụ số**: $\\sin x = \\frac{1}{2}$ → $\\alpha = \\frac{\\pi}{6}$. Nghiệm: $\\frac{\\pi}{6}, \\frac{5\\pi}{6}, \\frac{\\pi}{6}+2\\pi, \\frac{5\\pi}{6}+2\\pi, \\frac{\\pi}{6}-2\\pi, \\ldots$ Vô hạn. $\\sin x = \\frac{\\sqrt{2}}{2}$ → $\\alpha = \\frac{\\pi}{4}$ → $x = \\frac{\\pi}{4} + k\\cdot 2\\pi$ hoặc $\\frac{3\\pi}{4} + k\\cdot 2\\pi$. $\\sin x = 1$ → $\\alpha = \\frac{\\pi}{2}$, 2 họ trùng nhau (vì sin x đạt max chỉ tại 1 điểm/chu kỳ) → $x = \\frac{\\pi}{2} + k\\cdot 2\\pi$. $\\sin x = 2$ → $|a|>1$ → **vô nghiệm**.
+> **(c) Ví dụ số**: $\\sin x = \\frac{\\sqrt{2}}{2}$ → $\\alpha = \\frac{\\pi}{4}$ → $x = \\frac{\\pi}{4} + k\\cdot 2\\pi$ hoặc $\\frac{3\\pi}{4} + k\\cdot 2\\pi$ — liệt kê vài nghiệm: $\\frac{\\pi}{4}, \\frac{3\\pi}{4}, \\frac{\\pi}{4}+2\\pi, \\frac{\\pi}{4}-2\\pi, \\ldots$ vô hạn. $\\sin x = 1$ → $\\alpha = \\frac{\\pi}{2}$, 2 họ trùng nhau (sin đạt max chỉ 1 điểm/chu kỳ) → $x = \\frac{\\pi}{2} + k\\cdot 2\\pi$. $\\sin x = 2$ → $|a|>1$ → **vô nghiệm**. (Trường hợp $\\sin x = \\frac{1}{2}$: xem hình và ví dụ ngay trên.)
 
-⚠ **Lỗi thường gặp — chỉ lấy 1 họ nghiệm, quên họ $\\pi - \\alpha$**. $\\sin x = a$ (với $0 < |a| < 1$) có **hai** họ. Phản ví dụ: giải $\\sin x = \\frac{1}{2}$ mà chỉ ghi $x = \\frac{\\pi}{6} + k2\\pi$ là **mất một nửa nghiệm** — góc $\\frac{5\\pi}{6}$ cũng có $\\sin = \\frac{1}{2}$ nhưng bị bỏ. Luôn nhớ họ thứ hai $x = \\pi - \\alpha + k2\\pi$.
+⚠ **Hai lỗi thường gặp với nghiệm tổng quát**
 
-⚠ **Lỗi thường gặp 2 — quên $+k\\cdot 2\\pi$**. Viết $x = \\frac{\\pi}{6}$ (thiếu $+k2\\pi$) là chỉ nêu 1 nghiệm trong vô hạn nghiệm. PT lượng giác phải ghi nghiệm tổng quát.
+- **Chỉ lấy 1 họ, quên họ $\\pi - \\alpha$**: giải $\\sin x = \\frac{1}{2}$ mà chỉ ghi $x = \\frac{\\pi}{6} + k2\\pi$ là mất một nửa nghiệm — $\\frac{5\\pi}{6}$ cũng có $\\sin = \\frac{1}{2}$.
+
+- **Quên $+k\\cdot 2\\pi$**: viết $x = \\frac{\\pi}{6}$ trần là chỉ nêu 1 nghiệm trong vô hạn. PT lượng giác phải ghi nghiệm tổng quát.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Khi nào hai họ nghiệm trùng làm một?"* Khi $a = \\pm 1$. Vd $\\sin x = 1$: $\\alpha = \\frac{\\pi}{2}$ và $\\pi - \\frac{\\pi}{2} = \\frac{\\pi}{2}$ — trùng → chỉ 1 họ $x = \\frac{\\pi}{2} + k2\\pi$.
-- *"Đề chỉ hỏi nghiệm trong $[0, 2\\pi)$ thì sao?"* Vẫn tìm nghiệm tổng quát rồi cho k = 0, 1, ... lấy ra các nghiệm rơi trong khoảng. Vd $\\sin x = \\frac{1}{2}$ trên $[0, 2\\pi)$ → $\\{\\frac{\\pi}{6}, \\frac{5\\pi}{6}\\}$.
+- *"Đề chỉ hỏi nghiệm trong $[0, 2\\pi)$ thì sao?"* Giải nghiệm tổng quát rồi quét $k$ lấy các nghiệm lọt khoảng — có quy trình và walk-through riêng ở **mục 8**.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -157,7 +159,7 @@ $$x = \\pm\\alpha + k\\cdot 2\\pi \\quad (k \\in \\mathbb{Z})$$
 - $x = \\pm\\frac{3\\pi}{4} + k\\cdot 2\\pi$.
 
 **4 ví dụ số đa dạng**:
-- $\\cos x = \\frac{1}{2}$ → $\\alpha = \\frac{\\pi}{3}$ → $x = \\pm\\frac{\\pi}{3} + k2\\pi$.
+- $\\cos x = \\frac{1}{2}$ → $x = \\pm\\frac{\\pi}{3} + k2\\pi$ (đúng như hình trên).
 - $\\cos x = 0$ → $\\alpha = \\frac{\\pi}{2}$ → $x = \\pm\\frac{\\pi}{2} + k2\\pi$ ($= \\frac{\\pi}{2} + k\\pi$).
 - $\\cos x = -1$ → $\\alpha = \\pi$ → $x = \\pm\\pi + k2\\pi = \\pi + k2\\pi$ (hai dấu trùng).
 - $\\cos x = 2$ → $|a|>1$ → **vô nghiệm**.
@@ -330,9 +332,11 @@ $$\\begin{aligned}
 
 **Kiểm tra** với $x = \\frac{2\\pi}{3}$: $\\cos\\frac{2\\pi}{3} = -\\frac{1}{2}$, thay vào $2\\cdot(-\\frac12)^2 + 3\\cdot(-\\frac12) + 1 = 2\\cdot\\frac14 - \\frac32 + 1 = \\frac12 - \\frac32 + 1 = 0$ ✓.
 
-⚠ **Lỗi thường gặp — quên điều kiện $-1 \\le t \\le 1$ rồi giữ nghiệm t "ảo"**. Vì $t = \\sin x$ (hoặc cos x) bị chặn trong $[-1, 1]$. Phản ví dụ: PT $t^2 - 3t + 2 = 0$ cho $t = 1$ và $t = 2$. Nghiệm $t = 2$ phải **loại** vì $\\sin x = 2$ vô nghiệm — chỉ giữ $\\sin x = 1$.
+⚠ **Hai lỗi thường gặp với ẩn phụ**
 
-⚠ **Lỗi thường gặp 2 — PT lẫn cả sin và cos bậc 2 mà không quy về một hàm**. Vd $\\sin^2 x + \\cos x = 1$ có cả hai. Phải dùng $\\sin^2 x = 1 - \\cos^2 x$ đưa về một ẩn cos trước: $1 - \\cos^2 x + \\cos x = 1$ → $\\cos x - \\cos^2 x = 0$ → $\\cos x(1 - \\cos x) = 0$.
+- **Giữ nghiệm $t$ ngoài $[-1, 1]$**: $t^2 - 3t + 2 = 0$ cho $t = 1$ và $t = 2$; phải **loại** $t = 2$ vì $\\sin x = 2$ vô nghiệm — chỉ giữ $\\sin x = 1$.
+
+- **PT lẫn cả sin và cos mà không quy về một hàm**: $\\sin^2 x + \\cos x = 1$ phải thế $\\sin^2 x = 1 - \\cos^2 x$ trước: $1 - \\cos^2 x + \\cos x = 1 \\to \\cos x(1 - \\cos x) = 0$.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -549,9 +553,11 @@ k=0:\\ x=\\tfrac{\\pi}{3}\\approx 1.05 \\in (-\\pi,\\pi)\\ \\checkmark \\\\
 &\\textbf{Kết luận.}\\quad x \\in \\left\\{-\\tfrac{2\\pi}{3},\\ \\tfrac{\\pi}{3}\\right\\}.
 \\end{aligned}$$
 
-⚠ **Lỗi thường gặp — quên quét $k$ âm**. Nhiều người chỉ thử $k = 0, 1, 2$ rồi dừng, bỏ sót nghiệm ứng $k < 0$. Với khoảng đối xứng quanh 0 như $(-\\pi, \\pi)$, gần như **luôn** có nghiệm từ $k$ âm. Phản ví dụ: ở 8.2, nếu chỉ lấy $k\\ge 0$ thì mất nghiệm $-\\frac{2\\pi}{3}$ → sai một nửa.
+⚠ **Hai lỗi thường gặp khi lọc nghiệm**
 
-⚠ **Lỗi thường gặp 2 — nhầm khoảng đóng/mở**. $[0, 2\\pi)$ **chứa** $0$ nhưng **không** chứa $2\\pi$. Nếu một nghiệm tổng quát rơi đúng vào $2\\pi$, phải loại (vì đầu mút mở). Phản ví dụ: giải $\\cos x = 1$ trên $[0, 2\\pi)$ → $x = k2\\pi$ → chỉ $x = 0$ (loại $x = 2\\pi$ vì mở), KHÔNG phải $\\{0, 2\\pi\\}$.
+- **Quên quét $k$ âm**: chỉ thử $k = 0, 1, 2$ rồi dừng. Với khoảng đối xứng quanh 0 như $(-\\pi, \\pi)$ gần như luôn có nghiệm từ $k$ âm — ở 8.2, bỏ $k=-1$ là mất $-\\frac{2\\pi}{3}$.
+
+- **Nhầm đầu mút đóng/mở**: $[0, 2\\pi)$ chứa $0$ nhưng KHÔNG chứa $2\\pi$. $\\cos x = 1$ trên $[0, 2\\pi)$ chỉ có $x = 0$, không phải $\\{0, 2\\pi\\}$.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -640,9 +646,8 @@ k=0:\\ x=\\tfrac{\\pi}{3}\\approx 1.05 \\in (-\\pi,\\pi)\\ \\checkmark \\\\
 | $\\cos x = a$ | $\\lvert a\\rvert \\le 1$ | qua Ox (đứng) | $\\pm\\alpha + k2\\pi$ | $2\\pi$ |
 | $\\tan x = a$ | mọi $a\\in\\mathbb{R}$ | đối tâm | $\\alpha + k\\pi$ | $\\pi$ |
 
-1. **$\\sin x = a$**: $x = \\alpha + k\\cdot 2\\pi$ hoặc $\\pi-\\alpha + k\\cdot 2\\pi$. Nhớ "sin ngang → $\\pi-\\alpha$".
-2. **$\\cos x = a$**: $x = \\pm\\alpha + k\\cdot 2\\pi$. Nhớ "cos đứng → $\\pm\\alpha$".
-3. **$\\tan x = a$**: $x = \\alpha + k\\pi$ (chu kỳ $\\pi$, KHÔNG $2\\pi$); loại $x = \\frac{\\pi}{2} + k\\pi$.
+Mẹo nhớ bảng: **"sin ngang → $\\pi-\\alpha$, cos đứng → $\\pm\\alpha$, tan nửa vòng → $+k\\pi$"** (tan nhớ loại $x = \\frac{\\pi}{2} + k\\pi$).
+
 4. **Bậc 2 theo sin/cos**: đặt ẩn phụ $t$, giải bậc 2 đại số, **lọc $-1\\le t\\le 1$**, rồi giải PT cơ bản.
 5. **$a\\cdot\\sin x + b\\cdot\\cos x = c$**: dùng $R\\cdot\\sin(x+\\varphi)$, $R=\\sqrt{a^2+b^2}$. Có nghiệm khi $c^2 \\le a^2+b^2$.
 6. **Tổng→tích**: đưa về **tích = 0** rồi tách thành các PT cơ bản; chuyển hết về một vế trước.

@@ -227,9 +227,11 @@ $$\\sqrt{72} = \\sqrt{36\\cdot 2} = \\sqrt{36}\\cdot\\sqrt{2} = 6\\sqrt{2}$$
 
 Thêm 3 ví dụ: $\\sqrt{48} = \\sqrt{16\\cdot 3} = 4\\sqrt{3}$; $\\sqrt{50} = \\sqrt{25\\cdot 2} = 5\\sqrt{2}$; $\\sqrt[3]{54} = \\sqrt[3]{27\\cdot 2} = 3\\sqrt[3]{2}$. Kiểm chứng số: $6\\sqrt{2}\\approx 6\\cdot 1.414 = 8.485$, và $\\sqrt{72}\\approx 8.485$ ✓.
 
-⚠ **Lỗi thường gặp 1 — $\\sqrt{a^2} = |a|$, KHÔNG phải $a$**. Căn bậc chẵn luôn trả về giá trị **không âm**. Vd $\\sqrt{(-3)^2} = \\sqrt{9} = 3 = |-3|$, **không** phải $-3$. Đây là lý do khi giải $x^2 = 9$ ta được $x = \\pm 3$, nhưng $\\sqrt{9}$ thì chỉ bằng $3$.
+⚠ **Hai lỗi thường gặp với căn**
 
-⚠ **Lỗi thường gặp 2 — $\\sqrt{a+b} \\neq \\sqrt{a} + \\sqrt{b}$**. Phản ví dụ: $\\sqrt{9+16} = \\sqrt{25} = 5$, nhưng $\\sqrt{9} + \\sqrt{16} = 3 + 4 = 7$. $5 \\neq 7$. Căn **không** "phân phối" qua phép cộng (chỉ qua nhân/chia).
+- **$\\sqrt{a^2} = |a|$, KHÔNG phải $a$**: căn bậc chẵn luôn trả giá trị không âm. $\\sqrt{(-3)^2} = 3 = |-3|$. Vì thế $x^2 = 9$ cho $x = \\pm 3$, còn $\\sqrt{9}$ chỉ bằng $3$.
+
+- **$\\sqrt{a+b} \\neq \\sqrt{a} + \\sqrt{b}$**: $\\sqrt{9+16} = 5$ nhưng $\\sqrt{9}+\\sqrt{16} = 7$. Căn chỉ phân phối qua **nhân/chia**, không qua cộng/trừ.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -417,15 +419,17 @@ xy &= b^u\\cdot b^v &&\\text{(thay } x = b^u,\\ y = b^v) \\\\
 
 Hữu ích vì máy tính/thư viện chỉ có nút $\\ln$ và $\\log_{10}$; muốn $\\log_2$ hay $\\log_b$ bất kỳ thì đổi cơ số.
 
-⚠ **Lỗi thường gặp — lỗi #1 của người học log**: $\\log(x + y) \\neq \\log x + \\log y$. Log chỉ biến **nhân** thành cộng, **không phải cộng** thành cộng. Phản ví dụ: $\\log_{10}(10 + 90) = \\log_{10}(100) = 2$, nhưng $\\log_{10}(10) + \\log_{10}(90) = 1 + 1.954 = 2.954$. $2 \\neq 2.954$. Tương tự $\\log(x-y) \\neq \\log x - \\log y$.
+⚠ **Năm lỗi kinh điển của người học log** (mỗi lỗi kèm phản ví dụ cơ số 10)
 
-⚠ **Lỗi thường gặp — log của số $\\le 0$ không xác định**. $\\log_b(0)$ và $\\log_b(\\text{số âm})$ **vô nghĩa** trong $\\mathbb{R}$: không số mũ thực nào làm $b^y$ ra 0 hay ra số âm (vì $b^y > 0$ luôn với $b > 0$). Khi giải phương trình log, luôn kiểm tra **điều kiện đối số $> 0$**. (Chính xác hơn: $\\log_b(x)\\to -\\infty$ khi $x\\to 0^+$, nên đôi khi viết $\\log(0) = -\\infty$.)
+- **$\\log(x + y) \\neq \\log x + \\log y$** — log biến **nhân** thành cộng, không biến cộng thành cộng: $\\log(10+90) = \\log 100 = 2$ nhưng $\\log 10 + \\log 90 = 2.954$. Tương tự $\\log(x-y) \\neq \\log x - \\log y$.
 
-⚠ **Lỗi thường gặp — $\\log(x^2) \\neq (\\log x)^2$**. Đúng là $\\log(x^2) = 2\\log x$ (luật 3). Phản ví dụ: $\\log_{10}(100) = 2$, nhưng $(\\log_{10}10)^2 = 1^2 = 1$. $2\\neq 1$.
+- **Log của số $\\le 0$ vô nghĩa trong $\\mathbb{R}$**: $b^y > 0$ luôn nên không $y$ nào cho $b^y = 0$ hay âm. Giải PT log phải kiểm điều kiện **đối số $> 0$**. (Giới hạn: $\\log_b(x) \\to -\\infty$ khi $x \\to 0^+$.)
 
-⚠ **Lỗi thường gặp — $\\log(1/x) \\neq 1/\\log x$**. Đúng là $\\log(1/x) = -\\log x$ (luật 2 với tử $= 1$). Phản ví dụ: $\\log_{10}(1/100) = -2$, nhưng $1/\\log_{10}(100) = 1/2 = 0.5$. Khác hẳn.
+- **$\\log(x^2) \\neq (\\log x)^2$** — đúng phải là $\\log(x^2) = 2\\log x$: $\\log(100) = 2$ nhưng $(\\log 10)^2 = 1$.
 
-⚠ **Lỗi thường gặp — $\\dfrac{\\log x}{\\log y} \\neq \\log\\dfrac{x}{y}$**. $\\log(x/y) = \\log x - \\log y$ (HIỆU). Còn $\\log x/\\log y$ chính là **đổi cơ số** $\\log_y(x)$ — một thứ hoàn toàn khác.
+- **$\\log(1/x) \\neq 1/\\log x$** — đúng phải là $\\log(1/x) = -\\log x$: $\\log(1/100) = -2$ nhưng $1/\\log(100) = 0.5$.
+
+- **$\\dfrac{\\log x}{\\log y} \\neq \\log\\dfrac{x}{y}$** — hiệu mới đúng: $\\log(x/y) = \\log x - \\log y$; còn $\\log x/\\log y$ là **đổi cơ số** $\\log_y(x)$, thứ hoàn toàn khác.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

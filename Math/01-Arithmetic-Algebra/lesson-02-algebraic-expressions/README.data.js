@@ -535,9 +535,11 @@ Tính nhanh $97 \\cdot 103$ mà không cần máy tính:
 3. $(5+y)(5-y) = 25 - y^2$.
 4. $(x+3)^2 - (x-3)^2 = (x^2 + 6x + 9) - (x^2 - 6x + 9) = 12x$ — biểu thức trông phức tạp rút gọn rất gọn.
 
-⚠ **Lỗi thường gặp #1 của cả đại số**: $(a+b)^2 \\neq a^2 + b^2$. Bị thiếu hạng tử giữa $2ab$. Phản ví dụ: $(3+4)^2 = 49$, nhưng $3^2+4^2 = 25$. $49 \\neq 25$ — đúng bằng phần $2ab = 24$ bị bỏ quên. Tương tự $\\sqrt{a^2+b^2} \\neq a+b$ (thử $a=3,b=4$: $\\sqrt{25}=5 \\neq 7$).
+⚠ **Hai lỗi kinh điển với hằng đẳng thức**
 
-⚠ **Lỗi dấu trong $(a-b)^2$**: viết $a^2 - 2ab - b^2$ là **sai** — $b^2$ phải **dương** (bình phương luôn không âm). Và đừng nhầm $(a+b)(a-b)$ với $(a-b)^2$: cái đầu triệt tiêu hạng tử giữa ra $a^2-b^2$, cái sau có $-2ab$.
+- **$(a+b)^2 \\neq a^2 + b^2$** — thiếu hạng tử giữa $2ab$. Phản ví dụ: $(3+4)^2 = 49$ nhưng $3^2+4^2 = 25$; chênh đúng $2ab = 24$. Tương tự $\\sqrt{a^2+b^2} \\neq a+b$ ($\\sqrt{25}=5 \\neq 7$).
+
+- **Sai dấu trong $(a-b)^2$**: viết $a^2 - 2ab - b^2$ là sai — $b^2$ phải **dương**. Và đừng nhầm $(a+b)(a-b) = a^2-b^2$ (triệt tiêu hạng tử giữa) với $(a-b)^2$ (có $-2ab$).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

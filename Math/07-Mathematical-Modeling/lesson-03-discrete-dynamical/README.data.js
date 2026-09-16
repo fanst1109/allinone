@@ -383,11 +383,13 @@ $x^* = 4/(1-0.5) = 8$. $x_n = (10-8)\\cdot 0.5^n + 8 =$ **$2\\cdot(0.5)^n + 8$**
 - *"Vì sao điều kiện là $|f'| < 1$?"* Gần $x^*$, đặt $y_n = x_n - x^*$; xấp xỉ tuyến tính $f(x) \\approx f(x^*) + f'(x^*)(x-x^*)$ cho $y_{n+1} \\approx f'(x^*)\\cdot y_n$. Đây là cấp số nhân công bội $f'(x^*)$: độ lệch co lại ($\\to 0$) khi $|f'| < 1$, phình ra khi $|f'| > 1$. (Liên hệ tuyến tính hóa ở [L01 mục 3](../lesson-01-modeling-cycle/).)
 - *"Dấu của a/f′ ảnh hưởng gì?"* Trị tuyệt đối quyết định ổn định; **dấu** quyết định *kiểu*: $a > 0$ → tiến *một phía* (đơn điệu); $a < 0$ → **dao động** quanh $x^*$ (lắc qua lắc lại mỗi bước).
 
-⚠ **Lỗi thường gặp — quên xét dấu, chỉ nhìn độ lớn.** $|a| = 0.7$ cho ổn định, nhưng $a = +0.7$ (tiến mượt) và $a = -0.7$ (xoắn dao động) cho *hình dạng* dãy rất khác. Khi vẽ/diễn giải phải để ý dấu.
+⚠ **Ba lỗi thường gặp khi xét ổn định**
 
-⚠ **Lỗi thường gặp — kết luận ổn định từ vài bước đầu trông "có vẻ tiến về $x^*$".** Quan sát $x_1, x_2$ gần $x^*$ rồi vội kết "ổn định" là sai — phải kiểm $|f'(x^*)|$. Phản ví dụ: $x_{n+1} = 1.2x_n - 1$ có $x^* = 5$; bắt đầu $x_0 = 4.99$ (rất gần 5) trông như đứng yên vài bước, nhưng độ lệch $y_n = -0.01\\cdot 1.2^n$ phình ra: sau 30 bước $|y_{30}| = 0.01\\cdot 1.2^{30} \\approx 2.4$ → đã chạy xa. **Vài bước đầu không nói lên hành vi dài hạn**; chỉ $|f'(x^*)|$ mới quyết định.
+- **Quên xét dấu, chỉ nhìn độ lớn**: $|a| = 0.7$ cho ổn định, nhưng $a = +0.7$ tiến mượt còn $a = -0.7$ dao động lắc quanh $x^*$ — hình dạng dãy rất khác.
 
-⚠ **Lỗi thường gặp — chỉ tìm một điểm cân bằng rồi bỏ qua các điểm khác.** Hệ phi tuyến thường có **nhiều** điểm cân bằng (logistic: $x^*=0$ và $x^*=1-1/r$). Phải xét *tất cả*, vì quỹ đạo tiến về điểm nào tuỳ $x_0$ và tuỳ điểm nào ổn định. Vd logistic $r=2$: $x^*=0$ có $f'(0)=r=2>1$ (đẩy ra) còn $x^*=0.5$ có $f'=0$ (hút vào) — bỏ sót $x^*=0$ thì không hiểu vì sao dãy *rời* khỏi 0.
+- **Kết luận từ vài bước đầu**: $x_{n+1} = 1.2x_n - 1$ có $x^* = 5$; từ $x_0 = 4.99$ trông đứng yên vài bước nhưng $|y_{30}| = 0.01\\cdot 1.2^{30} \\approx 2.4$ — đã chạy xa. Chỉ $|f'(x^*)|$ quyết định.
+
+- **Bỏ sót điểm cân bằng khác**: logistic có cả $x^*=0$ và $x^*=1-1/r$. Với $r=2$: $f'(0)=2>1$ (đẩy ra), $f'(0.5)=0$ (hút vào) — bỏ $x^*=0$ thì không hiểu vì sao dãy rời khỏi 0.
 
 🔁 **Dừng lại tự kiểm tra**
 

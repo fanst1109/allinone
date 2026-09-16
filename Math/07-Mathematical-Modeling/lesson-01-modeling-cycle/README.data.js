@@ -167,9 +167,11 @@ Không phải giả định nào cũng nguy hiểm như nhau. Chia ba mức:
 
 ### 3.3 Hai cực sai: quá đơn giản và quá phức tạp
 
-⚠ **Lỗi thường gặp — mô hình quá đơn giản (underfitting).** Bỏ quá nhiều → mô hình không bắt được hành vi cốt lõi. Phản ví dụ: mô hình giá nhà chỉ dùng *diện tích* → bỏ qua vị trí, năm xây; dự đoán lệch xa vì hai căn cùng diện tích ở quận khác nhau giá gấp 3 lần. Dấu hiệu: mô hình sai *có hệ thống* (luôn lệch cùng chiều ở một nhóm dữ liệu).
+⚠ **Hai cực sai của độ phức tạp**
 
-⚠ **Lỗi thường gặp — mô hình quá phức tạp (overfitting / over-engineering).** Thêm quá nhiều biến → mô hình "học thuộc" cả nhiễu trong dữ liệu, khớp lịch sử hoàn hảo nhưng dự báo tương lai tệ. Phản ví dụ số: 10 điểm dữ liệu nhiễu, khớp đa thức bậc 9 → đi qua *cả 10 điểm* (sai số huấn luyện $= 0$!) nhưng dao động điên loạn giữa các điểm, dự đoán điểm thứ 11 sai thậm tệ; trong khi đường thẳng (bậc 1) bỏ qua nhiễu lại dự báo tốt hơn. Càng nhiều tham số tự do, càng dễ overfit (xem mục 8 về validation).
+- **Quá đơn giản (underfitting)**: mô hình giá nhà chỉ dùng *diện tích* → hai căn cùng diện tích ở quận khác nhau giá gấp 3. Dấu hiệu: sai *có hệ thống* (luôn lệch cùng chiều ở một nhóm).
+
+- **Quá phức tạp (overfitting)**: 10 điểm nhiễu khớp đa thức bậc 9 — đi qua cả 10 điểm (sai số huấn luyện $= 0$!) nhưng dao động điên loạn, dự đoán điểm 11 tệ; đường thẳng bỏ qua nhiễu lại dự báo tốt hơn. Càng nhiều tham số càng dễ overfit (mục 8).
 
 > 🪒 **Dao cạo Occam (Occam's razor) cho mô hình hóa.** Giữa hai mô hình giải thích dữ liệu *tương đương nhau*, chọn cái **đơn giản hơn** (ít tham số hơn). Lý do không phải "đơn giản thì đẹp" mà là *đơn giản thì ít overfit hơn và dễ kiểm chứng/diễn giải hơn*. "Đủ phức tạp để bắt cơ chế, không hơn."
 

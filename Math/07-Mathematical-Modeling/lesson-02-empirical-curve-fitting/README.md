@@ -416,9 +416,11 @@ Hai điểm cách đều: từ $(0, 1.589)$ đến $(1.386, 4.362)$, độ dốc
 
 💡 **Mẹo chẩn đoán nhanh bằng mắt**: vẽ dữ liệu trên cả ba loại giấy; loại nào cho **đường thẳng nhất** thì đó là dạng mô hình. Thẳng trên semi-log → mũ; thẳng trên log–log → lũy thừa; thẳng trên giấy thường → tuyến tính.
 
-⚠ **Lỗi thường gặp — quên rằng log làm méo trọng số sai số.** Fit trên ln y *không* cực tiểu sai số trên y mà trên ln y — điểm y nhỏ bị "phóng đại" tầm quan trọng. Với dữ liệu sạch thì ổn; cần chính xác cao thì dùng fit phi tuyến trực tiếp (Gauss–Newton). Nêu rõ đây là **xấp xỉ tiện lợi**.
+⚠ **Hai lỗi thường gặp khi fit qua log**
 
-⚠ **Lỗi thường gặp — lẫn semi-log với log–log.** Dùng nhầm sẽ ra dạng sai: nếu dữ liệu thật là mũ mà bạn vẽ log–log (log cả $x$) thì không thẳng, và ngược lại. Quy tắc: **mũ → chỉ log $y$; lũy thừa → log cả hai**. Kiểm bằng "đường nào thẳng nhất" ở mục 6.4.
+- **Log làm méo trọng số sai số**: fit trên $\ln y$ cực tiểu sai số trên $\ln y$, không phải trên $y$ — điểm $y$ nhỏ bị phóng đại. Cần chính xác cao thì fit phi tuyến trực tiếp (Gauss–Newton); đây là **xấp xỉ tiện lợi**.
+
+- **Lẫn semi-log với log–log**: mũ → chỉ log $y$; lũy thừa → log cả hai. Dùng nhầm thì đường không thẳng — kiểm bằng "đường nào thẳng nhất" (mục 6.4).
 
 🔁 **Dừng lại tự kiểm tra**
 

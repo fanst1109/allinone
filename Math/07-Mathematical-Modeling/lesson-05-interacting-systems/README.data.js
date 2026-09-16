@@ -487,9 +487,11 @@ $$R_0(1 - p) \\le 1 \\iff 1 - p \\le \\frac{1}{R_0} \\iff p \\ge 1 - \\frac{1}{R
 $$\\begin{cases} \\dfrac{dS}{dt} = -\\dfrac{\\beta S I}{N} \\\\[6pt] \\dfrac{dE}{dt} = \\dfrac{\\beta S I}{N} - \\sigma E & \\text{(vào E khi nhiễm, rời E khi hết ủ)} \\\\[6pt] \\dfrac{dI}{dt} = \\sigma E - \\gamma I \\\\[6pt] \\dfrac{dR}{dt} = \\gamma I \\end{cases}$$
 $1/\\sigma$ = thời gian ủ trung bình. SEIR cho **đỉnh muộn hơn, thoải hơn** SIR (độ trễ ủ bệnh làm chậm bùng). Còn các biến thể khác: **SIRS** (miễn dịch suy giảm, R quay lại S — cúm/COVID), **SIS** (không miễn dịch, I về thẳng S — cảm lạnh). Mỗi chữ là một "ngăn" (compartment); chọn ngăn nào tùy sinh học bệnh.
 
-⚠ **Lỗi thường gặp — quên giả định "trộn đều" của SIR.** SIR giả định mọi người tiếp xúc đồng đều, dân số kín, không sinh tử, miễn dịch vĩnh viễn. Thực tế có cấu trúc mạng xã hội, vùng miền, biến chủng, miễn dịch suy giảm → cần mở rộng (SEIR thêm nhóm phơi nhiễm E, mô hình mạng...). SIR cho *bức tranh định tính* (có đỉnh, có ngưỡng), không phải số ca chính xác.
+⚠ **Hai lỗi thường gặp với SIR**
 
-⚠ **Lỗi thường gặp — viết số hạng lây là $\\beta S$ thay vì $\\beta SI/N$.** Lây mới phải tỉ lệ với *cả* số người dễ nhiễm $S$ **và** số người đang lây $I$ (lại là số hạng tích $S\\cdot I$, giống $xy$ ở Lotka–Volterra). Viết $\\frac{dS}{dt} = -\\beta S$ là "người khỏe tự biến mất không cần ai lây" — vô nghĩa: nếu $I=0$ (không ai nhiễm) thì *không* được có ca mới, mà $\\beta SI/N = 0$ ✓ còn $\\beta S \\neq 0$ ✗. Chia $N$ để $\\beta$ là "số tiếp xúc/người" không phụ thuộc quy mô dân số.
+- **Quên giả định "trộn đều"**: SIR giả định tiếp xúc đồng đều, dân số kín, miễn dịch vĩnh viễn. Thực tế có mạng xã hội, biến chủng, miễn dịch suy giảm → SIR cho *bức tranh định tính*, không phải số ca chính xác.
+
+- **Viết số hạng lây là $\\beta S$ thay vì $\\beta SI/N$**: lây phải tỉ lệ cả $S$ lẫn $I$ (số hạng tích như Lotka–Volterra). Kiểm: $I=0$ thì không được có ca mới — $\\beta SI/N = 0$ ✓ còn $\\beta S \\neq 0$ ✗. Chia $N$ để $\\beta$ không phụ thuộc quy mô.
 
 🔁 **Dừng lại tự kiểm tra**
 

@@ -122,11 +122,13 @@ Cùng $r$, đổi $N_0$ chỉ dịch đường; đổi $r$ đổi độ cong:
 - $t = 1.386/\lambda = 1.386/(1.21\times10^{-4}) \approx$ **11 460 năm** — đúng bằng $2\times T_{1/2}$ (vì $25\% = (\tfrac12)^2$, qua đúng 2 chu kỳ bán rã) ✓.
 - Kiểm bằng bán rã: 1 chu kỳ → $50\%$ (5730 năm); 2 chu kỳ → $25\%$ (11 460 năm) ✓.
 
-⚠ **Lỗi thường gặp — nhầm dấu $\lambda$ (k dương/âm).** Phân rã là $\frac{dN}{dt} = -\lambda N$ với dấu **trừ** → $e^{-\lambda t}$ giảm. Nếu vô ý viết $+\lambda N$ thì ra $e^{+\lambda t}$ *tăng vô hạn* — mô tả ngược hẳn (sinh sôi thay vì rã). Quy tắc: tăng trưởng $r > 0$ → $e^{+}$; phân rã/nguội $\to$ số mũ phải **âm** để tiến về giới hạn.
+⚠ **Ba lỗi thường gặp với mô hình mũ**
 
-⚠ **Lỗi thường gặp — dùng mũ cho dài hạn.** Mô hình mũ tăng *không có giới hạn*: $N \to \infty$. Thực tế mọi tài nguyên đều hữu hạn (đã cảnh báo ở [L01 mục 2](../lesson-01-modeling-cycle/)). Mũ chỉ đúng *giai đoạn đầu* khi $N$ còn nhỏ so với sức chứa. → cần logistic (mục 3).
+- **Nhầm dấu $\lambda$**: phân rã là $\frac{dN}{dt} = -\lambda N$ (dấu trừ) → $e^{-\lambda t}$ giảm. Viết $+\lambda N$ ra $e^{+\lambda t}$ tăng vô hạn — ngược hẳn. Tăng trưởng → mũ dương; phân rã/nguội → mũ âm.
 
-⚠ **Lỗi thường gặp — quên điều kiện đầu $N_0$.** Nghiệm tổng quát $N = A\,e^{rt}$ còn hằng số $A$; phải dùng $N(0) = N_0$ để chốt $A = N_0$. Viết ngay "$N = e^{rt}$" (ngầm $A=1$) là sai trừ khi tình cờ $N_0 = 1$. Mọi bài ODE đều cần điều kiện đầu để ra nghiệm cụ thể.
+- **Dùng mũ cho dài hạn**: mũ tăng không giới hạn ($N \to \infty$) trong khi tài nguyên hữu hạn — mũ chỉ đúng giai đoạn đầu khi $N$ nhỏ so với sức chứa → cần logistic (mục 3).
+
+- **Quên điều kiện đầu $N_0$**: nghiệm tổng quát $N = A\,e^{rt}$ còn hằng $A$; phải chốt $A = N_0$ từ $N(0)$. Viết ngay "$N = e^{rt}$" chỉ đúng khi tình cờ $N_0 = 1$.
 
 🔁 **Dừng lại tự kiểm tra**
 

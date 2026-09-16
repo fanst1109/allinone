@@ -180,9 +180,11 @@ $$\\sin(a+b) = \\frac{3}{5}\\cdot\\frac{12}{13} + \\frac{4}{5}\\cdot\\frac{5}{13
 >
 > **(c) Ví dụ số**: $\\sin 75^\\circ = \\sin(45+30) = \\frac{\\sqrt{2}}{2}\\cdot\\frac{\\sqrt{3}}{2} + \\frac{\\sqrt{2}}{2}\\cdot\\frac{1}{2} = \\frac{\\sqrt{6}+\\sqrt{2}}{4} \\approx $ **0.9659**. Kiểm tra máy tính $\\sin 75^\\circ \\approx 0.9659$ ✓. $\\cos 75^\\circ = \\cos 45\\cdot\\cos 30 - \\sin 45\\cdot\\sin 30 = \\frac{\\sqrt{2}}{2}\\cdot\\frac{\\sqrt{3}}{2} - \\frac{\\sqrt{2}}{2}\\cdot\\frac{1}{2} = \\frac{\\sqrt{6}-\\sqrt{2}}{4} \\approx 0.2588$. $\\cos(60^\\circ-30^\\circ) = \\cos 30^\\circ = \\frac{\\sqrt{3}}{2} \\approx 0.866$. Verify: $\\cos 60\\cdot\\cos 30 + \\sin 60\\cdot\\sin 30 = \\frac{1}{2}\\cdot\\frac{\\sqrt{3}}{2} + \\frac{\\sqrt{3}}{2}\\cdot\\frac{1}{2} = \\frac{\\sqrt{3}}{4} + \\frac{\\sqrt{3}}{4} = \\frac{\\sqrt{3}}{2}$ ✓.
 
-⚠ **Lỗi thường gặp — số 1 trong trig: $\\sin(a+b) \\neq \\sin a + \\sin b$**. Phản ví dụ bằng số: $\\sin(30^\\circ+60^\\circ) = \\sin 90^\\circ = 1$, nhưng $\\sin 30^\\circ + \\sin 60^\\circ = \\frac{1}{2} + \\frac{\\sqrt{3}}{2} \\approx 1.366$. $1 \\neq 1.366$. Phải dùng công thức cộng đầy đủ với "cross terms". Tương tự $\\cos(a+b) \\neq \\cos a + \\cos b$.
+⚠ **Hai lỗi thường gặp với công thức cộng**
 
-⚠ **Lỗi thường gặp 2 — quên dấu của cos: vế phải là TRỪ**. $\\cos(a+b) = \\cos a\\cdot\\cos b - \\sin a\\cdot\\sin b$ (dấu **trừ**), ngược dấu với sin. Mẹo: "cos đổi dấu, sin giữ dấu". Phản ví dụ nếu nhầm dấu cộng: $\\cos 90^\\circ = \\cos(60+30)$ lẽ ra = 0, nếu dùng dấu + ra $\\frac{1}{2}\\cdot\\frac{\\sqrt{3}}{2}+\\frac{\\sqrt{3}}{2}\\cdot\\frac{1}{2}=\\frac{\\sqrt{3}}{2} \\neq 0$ → sai; dùng dấu − ra $\\frac{\\sqrt{3}}{4} - \\frac{\\sqrt{3}}{4} = 0$ ✓.
+- **$\\sin(a+b) \\neq \\sin a + \\sin b$**: $\\sin(30°+60°) = 1$ nhưng $\\sin 30° + \\sin 60° \\approx 1.366$. Phải dùng công thức cộng đầy đủ; tương tự cho cos.
+
+- **Quên dấu TRỪ của cos**: $\\cos(a+b) = \\cos a\\cos b \\boldsymbol{-} \\sin a\\sin b$ (mẹo: "cos đổi dấu, sin giữ dấu"). Kiểm $\\cos 90° = \\cos(60+30)$: dấu − cho $\\frac{\\sqrt{3}}{4} - \\frac{\\sqrt{3}}{4} = 0$ ✓, dấu + cho $\\frac{\\sqrt{3}}{2} \\neq 0$ ✗.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -521,9 +523,11 @@ Kiểm: $C = 120° > 90°$ → kỳ vọng $c > \\sqrt{100} = 10$; thực tế $
 **Ví dụ 4 — định lý cosin "nhận ra" tam giác vuông ($a=3, b=4, c=5$)**:
 $$25 = 9 + 16 - 24\\cos C \\;\\Rightarrow\\; 25 = 25 - 24\\cos C \\;\\Rightarrow\\; \\cos C = 0 \\;\\Rightarrow\\; C = 90°. ✓$$
 
-⚠ **Lỗi thường gặp — đặt sai góc xen giữa**. Số hạng $-2ab\\cos C$ phải dùng góc $C$ **xen giữa** đúng hai cạnh $a$ và $b$. Nếu lỡ dùng góc $A$ (đối diện $a$) vào công thức của $c$ thì sai. Mẹo: trong $c^2 = a^2 + b^2 - 2ab\\cos C$, **chữ in hoa $C$ (góc) phải khác chữ thường $a,b$ đang bình phương**, và $C$ đối diện cạnh $c$ đang tính.
+⚠ **Hai lỗi thường gặp với định lý cosin**
 
-⚠ **Lỗi thường gặp 2 — quên dấu trừ**. Là $a^2 + b^2 \\boldsymbol{-} 2ab\\cos C$, KHÔNG phải dấu cộng. Phản ví dụ $a=3,b=4,C=90°$: đúng cho $c^2 = 9+16-0 = 25$ → $c=5$; nếu dùng dấu cộng và quên $\\cos 90°=0$ thì ra số khác → sai.
+- **Đặt sai góc xen giữa**: trong $c^2 = a^2 + b^2 - 2ab\\cos C$, góc $C$ phải **xen giữa** hai cạnh $a, b$ và đối diện cạnh $c$ đang tính — dùng góc $A$ vào công thức của $c$ là sai.
+
+- **Quên dấu trừ**: là $a^2 + b^2 \\boldsymbol{-} 2ab\\cos C$. Với $a=3, b=4, C=90°$: $c^2 = 9+16-0 = 25 \\to c = 5$ ✓.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

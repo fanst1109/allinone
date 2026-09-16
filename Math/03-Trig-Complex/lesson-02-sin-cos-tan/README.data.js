@@ -556,9 +556,11 @@ Khi $0 < \\theta < \\frac{\\pi}{2}$:
 
 Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\\theta$; cạnh **kề** là cạnh chạm vào $\\theta$ (mà không phải huyền); **huyền** luôn là cạnh dài nhất, đối diện góc vuông.
 
-⚠ **Lỗi thường gặp — đảo "đối/kề" của sin và cos**. $\\sin = $ đối/huyền (SOH), $\\cos = $ kề/huyền (CAH), $\\tan = $ đối/kề (TOA). Phản ví dụ: trong tam giác 3-4-5 với $\\theta$ kề cạnh 4, nếu viết $\\cos\\theta = \\frac{3}{5}$ là sai (3 là cạnh **đối**, không phải kề) → đúng là $\\cos\\theta = \\frac{4}{5}$.
+⚠ **Hai lỗi thường gặp với định nghĩa tam giác vuông**
 
-⚠ **Lỗi thường gặp — máy tính / code để sai chế độ độ (DEG) vs radian (RAD)**. Hàm \`sin\`, \`cos\`, \`tan\` trong hầu hết ngôn ngữ lập trình (Go, Python, C, JS) nhận **radian**, không phải độ. Ví dụ trong Go: \`math.Sin(30)\` cho $\\sin(30 \\text{ rad}) \\approx -0.988$, **không phải** $\\sin 30^\\circ = 0.5$. Phải đổi sang radian trước: \`math.Sin(30 * math.Pi / 180)\` hoặc \`math.Sin(math.Pi/6)\` mới ra $0.5$. Trên máy tính cầm tay: kiểm tra góc trên màn hình ghi \`DEG\` hay \`RAD\` trước khi bấm — đây là lỗi #1 khiến đáp án "sai một cách bí ẩn".
+- **Đảo "đối/kề"**: $\\sin =$ đối/huyền (SOH), $\\cos =$ kề/huyền (CAH), $\\tan =$ đối/kề (TOA). Tam giác 3-4-5 với $\\theta$ kề cạnh 4: $\\cos\\theta = \\frac{4}{5}$, không phải $\\frac{3}{5}$.
+
+- **Sai chế độ DEG/RAD**: \`sin\`, \`cos\` trong Go/Python/C/JS nhận **radian**. \`math.Sin(30)\` cho $\\sin(30\\text{ rad}) \\approx -0.988$, không phải $\\sin 30° = 0.5$ — phải \`math.Sin(30 * math.Pi / 180)\`. Máy tính cầm tay: kiểm màn hình ghi DEG hay RAD trước khi bấm.
 
 **Verify lỗi DEG/RAD bằng số**: $\\sin 30^\\circ = 0.5$ (đúng). Nhưng $30$ radian $\\approx 4.77$ vòng $\\to$ tương đương $30 - 4 \\times 2\\pi \\approx 4.87$ rad, cho $\\sin \\approx -0.988$. Hai kết quả cách nhau một trời một vực — nếu nhập nhầm chế độ, không có cách nào ra đúng.
 
@@ -635,9 +637,11 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\\theta$; c�
 - Phần tư III, 210°: $\\sin = -\\frac{1}{2}$ (−), $\\cos = -\\frac{\\sqrt{3}}{2}$ (−), $\\tan = \\frac{\\sqrt{3}}{3}$ (+) → chỉ **Tan** dương ✓.
 - Phần tư IV, 300°: $\\sin = -\\frac{\\sqrt{3}}{2}$ (−), $\\cos = \\frac{1}{2}$ (+), $\\tan = -\\sqrt{3}$ (−) → chỉ **Cos** dương ✓.
 
-⚠ **Lỗi thường gặp — gán nhầm dấu khi giải $\\sin x = a$ ra hai góc**. Một giá trị sin (vd $\\frac{1}{2}$) ứng với **hai góc** ở hai phần tư khác nhau (30° ở I và 150° ở II), khác nhau ở dấu của cos. Nếu bài cho thêm điều kiện "góc phần tư III" thì cả sin lẫn cos đều âm — phải chọn đúng dấu, đừng mặc định dương.
+⚠ **Hai lỗi thường gặp với dấu theo phần tư**
 
-⚠ **Lỗi thường gặp — quên áp dấu sau khi quy về góc nhọn**. Tính $\\sin 210^\\circ$: tách $210^\\circ = 180^\\circ + 30^\\circ$, lấy $\\sin 30^\\circ = \\frac{1}{2}$ rồi **quên** rằng $210^\\circ$ ở QIII nên sin âm → trả lời $\\frac{1}{2}$ (sai), đúng là $-\\frac{1}{2}$. Quy trình an toàn: (1) tìm góc phần tư, (2) tra trị tuyệt đối qua góc tham chiếu, (3) áp dấu theo ASTC.
+- **Gán nhầm dấu khi giải $\\sin x = a$**: một giá trị sin ứng 2 góc ở 2 phần tư ($30°$ ở I, $150°$ ở II) khác dấu cos. Đề cho "phần tư III" thì cả sin lẫn cos đều âm — chọn dấu theo đề, đừng mặc định dương.
+
+- **Quên áp dấu sau khi quy về góc nhọn**: $\\sin 210°$ — tách $210° = 180° + 30°$, tra $\\sin 30° = \\frac{1}{2}$ rồi quên QIII sin âm → trả $\\frac{1}{2}$ là sai, đúng $-\\frac{1}{2}$. Quy trình: (1) tìm phần tư, (2) tra trị tuyệt đối qua góc tham chiếu, (3) áp dấu ASTC.
 
 **Walk-through chọn dấu khi giải $\\sin x = -\\frac{1}{2}$ (4 bước)**:
 
@@ -700,9 +704,11 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\\theta$; c�
 3. **$\\arctan(-1)$** — Tìm $\\theta \\in (-90^\\circ, 90^\\circ)$ có $\\tan\\theta = -1$. $\\tan(-45^\\circ) = -1$ và $-45^\\circ$ trong khoảng ⟶ $\\arctan(-1) = -45^\\circ$ (KHÔNG chọn $135^\\circ$, dù $\\tan 135^\\circ = -1$, vì $135^\\circ$ ngoài khoảng chính).
 4. **$\\arcsin(-\\frac{1}{2})$** — $\\sin(-30^\\circ) = -\\frac{1}{2}$ và $-30^\\circ \\in [-90, 90]$ ⟶ $\\arcsin(-\\frac{1}{2}) = -30^\\circ$.
 
-⚠ **Lỗi thường gặp — tưởng $\\sin^{-1} x = \\frac{1}{\\sin x}$**. Ký hiệu $\\sin^{-1}$ nghĩa là **hàm ngược** (arcsin), KHÔNG phải nghịch đảo. Nghịch đảo của $\\sin x$ là $\\csc x = \\frac{1}{\\sin x}$ (cosecant), hoàn toàn khác. Phản ví dụ: $\\sin^{-1}(0.5) = 30^\\circ$, còn $\\frac{1}{\\sin(0.5 \\text{ rad})} \\approx \\frac{1}{0.479} \\approx 2.086$ — không liên quan gì nhau.
+⚠ **Hai lỗi thường gặp với hàm ngược**
 
-⚠ **Lỗi thường gặp — quên máy tính chỉ trả về giá trị chính**. Giải $\\sin x = \\frac{1}{2}$ trong $[0, 2\\pi]$, bấm máy ra $\\arcsin(0.5) = 30^\\circ$ rồi dừng → **thiếu nghiệm** $150^\\circ$. Máy chỉ cho 1 nghiệm (giá trị chính); nghiệm còn lại phải tự suy bằng đối xứng đường tròn ($180^\\circ - 30^\\circ = 150^\\circ$).
+- **Tưởng $\\sin^{-1} x = \\frac{1}{\\sin x}$**: $\\sin^{-1}$ là **hàm ngược** (arcsin); nghịch đảo của $\\sin x$ là $\\csc x$. $\\sin^{-1}(0.5) = 30°$ còn $\\frac{1}{\\sin(0.5\\text{ rad})} \\approx 2.086$ — không liên quan.
+
+- **Quên máy chỉ trả giá trị chính**: giải $\\sin x = \\frac{1}{2}$ trong $[0, 2\\pi]$, bấm $\\arcsin(0.5) = 30°$ rồi dừng là **thiếu** $150°$ — nghiệm kia tự suy bằng đối xứng ($180° - 30°$).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

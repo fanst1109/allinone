@@ -73,11 +73,13 @@ Mỗi khi cần tính lũy thừa số phức, đừng nhân trực tiếp. Ch�
 - $(1+i)^{-2} = (\sqrt 2\,e^{i\pi/4})^{-2} = (\sqrt 2)^{-2} e^{-i\pi/2} = \dfrac{1}{2}\,e^{-i\pi/2} = \dfrac{1}{2}(\cos(-90^\circ) + i\sin(-90^\circ)) = \dfrac{1}{2}(0 - i) =$ **$-\dfrac{i}{2}$**.
 - Kiểm tra: $(1+i)^2 = 2i$ nên $(1+i)^{-2} = \dfrac{1}{2i} = \dfrac{1}{2i}\cdot\dfrac{-i}{-i} = \dfrac{-i}{2}$ ✓.
 
-⚠ **Lỗi thường gặp**: Quên nhân n vào θ. $(e^{i\theta})^n = e^{in\theta}$, KHÔNG phải $e^{i\theta}$.
+⚠ **Ba lỗi thường gặp với De Moivre**
 
-⚠ **Lỗi thường gặp 2 — quên nâng cả mô-đun lên lũy thừa n**. $(re^{i\theta})^n = r^n e^{in\theta}$ — mô-đun thành $r^n$, KHÔNG giữ nguyên r. Phản ví dụ: $(1+i)^4 = (\sqrt{2}\,e^{i\pi/4})^4 = (\sqrt{2})^4 e^{i\pi} = 4\cdot(-1) = -4$; nếu quên mũ mô-đun ra $\sqrt{2}\,e^{i\pi} = -\sqrt{2}$ → sai.
+- **Quên nhân $n$ vào $\theta$**: $(e^{i\theta})^n = e^{in\theta}$, không phải $e^{i\theta}$.
 
-⚠ **Lỗi thường gặp 3 — quên rút gọn góc về $[0, 2\pi)$**. Sau khi nhân $n\theta$ thường ra góc lớn (vd $\dfrac{5\pi}{2}$, $\dfrac{13\pi}{3}$). Phải trừ bội $2\pi$ trước khi đọc $\cos/\sin$. Phản ví dụ: $\cos\dfrac{5\pi}{2}$ — nếu không rút về $\dfrac{\pi}{2}$ mà bấm máy nhầm $\dfrac{5\pi}{2}\approx 7.85$ rad theo độ → sai. Đúng: $\dfrac{5\pi}{2} - 2\pi = \dfrac{\pi}{2}$ → $\cos = 0$.
+- **Quên nâng mô-đun lên mũ $n$**: $(re^{i\theta})^n = r^n e^{in\theta}$. $(1+i)^4 = (\sqrt{2})^4 e^{i\pi} = -4$; giữ nguyên $r$ ra $-\sqrt{2}$ là sai.
+
+- **Quên rút góc về $[0, 2\pi)$**: $n\theta$ thường vượt vòng (vd $\frac{5\pi}{2}$) — trừ bội $2\pi$ trước khi đọc cos/sin: $\frac{5\pi}{2} - 2\pi = \frac{\pi}{2} \to \cos = 0$.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -314,11 +316,13 @@ $$z_k = \omega^k, \quad k = 0, 1, \ldots, n-1 \quad\Rightarrow\quad \{1, \omega,
 1. **Tổng bằng 0** ($n\ge 2$): $1 + \omega + \omega^2 + \cdots + \omega^{n-1} = 0$. Lý do đại số: tổng cấp số nhân $\dfrac{\omega^n - 1}{\omega - 1} = \dfrac{1-1}{\omega-1} = 0$ (vì $\omega^n = 1$). Lý do hình học: n vector đối xứng quanh tâm triệt tiêu.
 2. **Tích các nghiệm**: $\displaystyle\prod_{k=0}^{n-1}\omega^k = \omega^{0+1+\cdots+(n-1)} = \omega^{n(n-1)/2}$.
 
-⚠ **Lỗi thường gặp — nghĩ "căn nguyên thủy là số 1"**. Số $1 = \omega^0$ KHÔNG nguyên thủy (quay $1$ mãi vẫn ra $1$, không sinh được nghiệm khác). Căn nguyên thủy phải có chu kỳ đúng bằng n. Vd $n=4$: $\omega = i$ nguyên thủy (chu kỳ 4), nhưng $-1 = \omega^2$ chỉ chu kỳ 2 → không nguyên thủy.
+⚠ **Ba lỗi thường gặp với căn bậc n của 1**
 
-⚠ **Lỗi thường gặp — chỉ lấy 1 nghiệm thực (= 1) mà bỏ các nghiệm phức**. $z^n = 1$ có **n** nghiệm, không phải 1. Phản ví dụ: $z^3 = 1$ không chỉ có $z = 1$ — còn $z = -\dfrac{1}{2} \pm \dfrac{\sqrt{3}}{2}i$. Kiểm: $\left(-\dfrac{1}{2} + \dfrac{\sqrt{3}}{2}i\right)^3 = 1$ (quay 120° ba lần = 360° về 1). Bỏ chúng là mất 2/3 nghiệm.
+- **Nghĩ "căn nguyên thủy là số 1"**: $1 = \omega^0$ không nguyên thủy (không sinh được nghiệm khác). Căn nguyên thủy phải có chu kỳ đúng $n$: với $n=4$, $\omega = i$ nguyên thủy còn $-1 = \omega^2$ (chu kỳ 2) thì không.
 
-⚠ **Lỗi thường gặp 2 — cho k chạy tới n (lặp nghiệm)**. k chỉ chạy $0, 1, \ldots, n-1$ (đúng n giá trị). Tại $k = n$: $e^{i\cdot 2n\pi/n} = e^{i2\pi} = 1 = z_0$ — trùng lại. Đừng đếm dư.
+- **Chỉ lấy nghiệm thực $z=1$**: $z^n = 1$ có đủ **n** nghiệm. $z^3 = 1$ còn $-\frac{1}{2} \pm \frac{\sqrt{3}}{2}i$ (quay 120° ba lần về 1) — bỏ là mất 2/3 nghiệm.
+
+- **Cho $k$ chạy tới $n$**: $k$ chỉ chạy $0..n-1$; tại $k=n$ thì $e^{i2\pi} = 1 = z_0$ — đếm dư nghiệm trùng.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

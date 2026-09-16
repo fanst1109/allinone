@@ -297,9 +297,11 @@ Trước khi dao động và sóng dùng tới lượng giác "động" (theo th
   <text x="410.0" y="229.0" fill="#15803d" font-size="12" text-anchor="middle" font-weight="700">d</text>
 </svg>
 
-⚠ **Lỗi thường gặp #1 — nhầm góc nâng với góc hạ**. Cả hai đều đo **từ đường ngang**, KHÔNG phải từ đường thẳng đứng. Phản ví dụ: "tháp cao, nhìn xuống thuyền góc hạ $30^\\circ$" nghĩa là đường ngắm chếch $30^\\circ$ **dưới phương ngang** — góc giữa đường ngắm và **phương đứng** là $60^\\circ$, đừng dùng nhầm $60^\\circ$ vào $\\tan$.
+⚠ **Hai lưu ý về góc nâng / góc hạ**
 
-⚠ **Lỗi thường gặp #2 — góc hạ từ A xuống B = góc nâng từ B lên A**. Hai đường ngang (ở A và ở B) song song, đường ngắm AB là cát tuyến → hai góc **so le trong bằng nhau**. Tận dụng tính chất này để chuyển bài "nhìn xuống" thành "nhìn lên" khi tiện hơn.
+- **Đo từ đường ngang, không phải đường đứng**: "góc hạ $30°$" là đường ngắm chếch $30°$ dưới phương ngang — góc với phương đứng là $60°$, đừng đưa nhầm $60°$ vào $\\tan$.
+
+- **Góc hạ từ A xuống B = góc nâng từ B lên A**: hai đường ngang song song, đường ngắm là cát tuyến → so le trong bằng nhau — tận dụng để đổi bài "nhìn xuống" thành "nhìn lên".
 
 ### 5.2. Walk-through 4 bài toán thực tế — từng bước
 

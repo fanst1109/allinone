@@ -329,9 +329,11 @@ Chuỗi $2^{k+1} > 2k = k+k \\ge k+5 > k+1$ cho $2^{k+1} > k+1$. Vậy $P(n)$ đ
 
 🔢 **Kiểm số**: $n=5$: $32 > 5$ ✓; $n=6$: $64 > 6$ ✓; $n=10$: $1024 > 10$ ✓ — khoảng cách ngày càng nới rộng (hàm mũ vượt xa hàm tuyến tính).
 
-⚠ **Lưu ý**: Phải chọn cơ sở đủ lớn. Ví dụ n = 2: $2^2 = 4 > 2$ ✓, n = 3: $8 > 3$ ✓, ... thực ra $2^n > n$ đúng từ n = 1, nhưng nếu bài hỏi $n \\ge 5$ thì làm theo.
+⚠ **Hai lưu ý về chọn cơ sở cho bất đẳng thức**
 
-⚠ **Lỗi cơ sở trong bài $2^n > n^2$** (đối lập): mệnh đề này **chỉ đúng từ $n \\ge 5$**, KHÔNG đúng với $n$ nhỏ. Nếu lấy cơ sở $n=1$ ($2 > 1$ ✓) rồi tưởng bước quy nạp sẽ cứu thì sai — vì bước quy nạp $2^k > k^2 \\implies 2^{k+1} > (k+1)^2$ chỉ chạy được khi $2k^2 \\ge (k+1)^2$, tức $k \\ge 3$. Bài học: **cơ sở phải đặt tại $n_0$ mà từ đó bước quy nạp thực sự đúng** — kiểm $n=2,3,4$ thấy $4<4? 8<9, 16=16$ đều hỏng, $n=5$ ($32>25$) mới bắt đầu đúng.
+- **Cơ sở đặt tại $n_0$ đề yêu cầu**: $2^n > n$ thực ra đúng từ $n = 1$, nhưng đề hỏi $n \\ge 5$ thì làm từ $n = 5$.
+
+- **Cơ sở phải đặt nơi bước quy nạp thực sự chạy**: $2^n > n^2$ chỉ đúng từ $n \\ge 5$ — lấy cơ sở $n=1$ ($2>1$ ✓) không cứu được vì bước quy nạp cần $2k^2 \\ge (k+1)^2$, tức $k \\ge 3$, và $n = 2,3,4$ đều hỏng ($4=4$, $8<9$, $16=16$); $n=5$ ($32>25$) mới bắt đầu đúng.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 

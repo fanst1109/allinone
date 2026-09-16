@@ -149,9 +149,11 @@ Hai cột tô đậm trùng nhau $(F, F, F, T)$ → tương đương ✓. (Phầ
 - *"Vì sao $p \to q$ đúng khi p sai?"* Vì $p \to q$ chỉ "hứa hẹn": *nếu* p thì q. Khi p không xảy ra, lời hứa không bị vi phạm → mặc định đúng. Vd "nếu trời mưa thì tôi mang ô" — hôm trời không mưa, dù tôi có mang ô hay không, lời hứa vẫn không sai.
 - *"$p \to q$ và $q \to p$ có giống nhau không?"* **Không**. $p \to q$ (thuận) khác $q \to p$ (đảo). Vd "mưa → ướt đường" đúng, nhưng "ướt đường → mưa" sai (có thể do tưới cây).
 
-⚠ **Lỗi thường gặp — lẫn $p \to q$ với chiều đảo $q \to p$**. Chúng KHÔNG tương đương. Cái tương đương với $p \to q$ là **phản đảo** $\neg q \to \neg p$. Phản ví dụ kiểm bảng chân trị: với p=F, q=T: $p \to q = T$ nhưng $q \to p = F$ → khác nhau.
+⚠ **Hai lỗi thường gặp với phép kéo theo**
 
-⚠ **Lỗi thường gặp — nhầm $\to$ (kéo theo) với $\leftrightarrow$ (tương đương)**. "$p \to q$" chỉ là **một chiều** (p đủ cho q), còn "$p \leftrightarrow q$" là **hai chiều** (p khi và chỉ khi q). Phản ví dụ: "mưa $\to$ ướt đường" đúng, nhưng "mưa $\leftrightarrow$ ướt đường" **sai** (đường ướt do tưới cây, không mưa). Kiểm bảng: dòng $p=F, q=T$ cho $p\to q = T$ nhưng $p \leftrightarrow q = F$ → khác nhau.
+- **Lẫn $p \to q$ với chiều đảo $q \to p$**: không tương đương — cái tương đương với $p \to q$ là **phản đảo** $\neg q \to \neg p$. Kiểm bảng: $p{=}F, q{=}T$ cho $p \to q = T$ nhưng $q \to p = F$.
+
+- **Nhầm $\to$ với $\leftrightarrow$**: "mưa $\to$ ướt đường" đúng nhưng "mưa $\leftrightarrow$ ướt đường" sai (đường ướt do tưới cây). Dòng $p{=}F, q{=}T$: $p\to q = T$ còn $p \leftrightarrow q = F$.
 
 🔁 **Dừng lại tự kiểm tra**
 

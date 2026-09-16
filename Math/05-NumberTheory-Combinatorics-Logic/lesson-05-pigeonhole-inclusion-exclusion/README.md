@@ -71,11 +71,13 @@ Cốt lõi: **đếm so sánh**. Nếu mỗi chuồng "chịu" tối đa 1 con t
 - *"Bài khó thì 'hộp' là gì?"* Mấu chốt là **thiết kế hộp khéo**. Vd "2 số có hiệu chia hết 7": hộp = số dư $\bmod 7$ (7 hộp); 8 số → 2 cùng dư → hiệu chia hết 7. Quy luật chung: muốn kết luận "có 2 vật cùng tính chất P", hãy lấy **hộp = các lớp tương đương theo P**, rồi đếm xem có nhiều vật hơn số hộp không.
 - *"Tại sao đúng $n+1$ vật mới chắc chắn, $n$ thì chưa?"* Với đúng $n$ vật và $n$ hộp, hoàn toàn có thể xếp 1 vật/hộp — KHÔNG đụng độ. Chỉ từ vật thứ $n+1$ trở đi mới buộc trùng (xem ⚠ bên dưới).
 
-⚠ **Lỗi 1 — quên làm tròn LÊN (trần ⌈⌉)**. Công thức là $\lceil N/k \rceil$, KHÔNG phải $N/k$ rồi làm tròn xuống. Phản ví dụ: 30 sinh viên, 12 tháng → $\lceil 30/12 \rceil = \lceil 2.5 \rceil = 3$, KHÔNG phải 2. Có ít nhất 3 người cùng tháng (nếu chỉ 2/tháng thì tối đa $24 < 30$ người).
+⚠ **Ba lỗi thường gặp với Dirichlet**
 
-⚠ **Lỗi 2 — cần $n+1$ vật, KHÔNG phải $n$**. Để chắc chắn có hộp $\ge 2$ vật khi có $n$ hộp, cần **$n+1$** vật chứ không phải $n$. Phản ví dụ: 366 ngày + đúng 366 người → có thể (về lý thuyết) mỗi người một ngày, **không** chắc trùng. Phải **367** người mới chắc chắn 2 người trùng ngày sinh. Sai 1 đơn vị ở đây làm hỏng toàn bộ lập luận.
+- **Quên làm tròn LÊN**: công thức là $\lceil N/k \rceil$. 30 sinh viên, 12 tháng → $\lceil 2.5 \rceil = 3$ người cùng tháng, không phải 2 (nếu chỉ 2/tháng thì tối đa $24 < 30$).
 
-⚠ **Lỗi 3 — đếm "hộp" sai số lượng**. Số dư khi chia $m$ có **$m$** lớp ($0, 1, \dots, m-1$), không phải $m+1$ hay $m-1$. Vd chia cho 12 → 12 hộp (kể cả dư 0), nên cần 13 số mới chắc trùng dư. Đếm nhầm số hộp → ngưỡng $n+1$ sai theo.
+- **Cần $n+1$ vật, không phải $n$**: 366 ngày + đúng 366 người vẫn có thể mỗi người một ngày; phải **367** người mới chắc trùng. Sai 1 đơn vị là hỏng lập luận.
+
+- **Đếm "hộp" sai số lượng**: số dư chia $m$ có đúng **$m$** lớp ($0..m-1$); chia 12 → 12 hộp, cần 13 số mới chắc trùng dư.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -313,11 +315,13 @@ $$\left|\bigcup_{i=1}^{n} A_i\right| = \sum_{\emptyset \neq S \subseteq \{1,\dot
 - *"Dấu tổng quát theo quy luật nào?"* Giao của $k$ tập mang dấu $(-1)^{k+1}$: 1 tập (+), 2 tập (−), 3 tập (+), 4 tập (−)... — dấu **dương** khi $k$ lẻ, **âm** khi $k$ chẵn.
 - *"Có bao nhiêu số hạng cho $n$ tập?"* Tổng cộng $2^n - 1$ số hạng (mọi tập con khác rỗng của $\{1,\dots,n\}$). Vd $n=3$: $2^3-1 = 7$ số hạng (3 đơn + 3 đôi + 1 ba) ✓.
 
-⚠ **Lỗi 1 — quên trừ phần giao, đếm trùng**. Phản ví dụ: lớp có 18 thích toán + 15 thích lý, nếu cộng $18+15 = 33$ thì SAI (lớp chỉ 30 người!). Phần "thích cả 2" (8 người) bị đếm 2 lần → đáp án đúng $33 - 8 = 25$.
+⚠ **Ba lỗi thường gặp với bù trừ**
 
-⚠ **Lỗi 2 — quên CỘNG LẠI giao ba (với 3 tập)**. Nhiều người dừng ở "cộng đơn − trừ đôi" và ra $95 - 37 = 58$ (ví dụ 100 sinh viên), quên $+5$. Hậu quả: phần tử thuộc cả 3 tập bị trừ về 0, **bị bỏ sót**. Luôn nhớ số hạng cuối $+|A\cap B\cap C|$ → đáp án đúng $58 + 5 = 63$.
+- **Quên trừ phần giao**: 18 thích toán + 15 thích lý mà cộng $33$ là sai (lớp chỉ 30 người) — phần "thích cả 2" (8) bị đếm 2 lần → đúng là $33 - 8 = 25$.
 
-⚠ **Lỗi 3 — nhầm "đúng $k$ tập" với "ít nhất $k$ tập"**. Trong dữ liệu bài toán, "$|A\cap B| = 15$" thường nghĩa là **ít nhất** A và B (có thể kể cả C). Nếu đề cho "đúng 2 môn" thì phải quy đổi: số học **đúng** Toán+Lý $= |T\cap L| - |T\cap L\cap H| = 15 - 5 = 10$. Đọc kỹ "ít nhất" hay "đúng".
+- **Quên cộng lại giao ba**: dừng ở "cộng đơn − trừ đôi" ra $95 - 37 = 58$, quên $+5$ — phần tử thuộc cả 3 tập bị trừ về 0. Đáp án đúng $58 + 5 = 63$.
+
+- **Nhầm "đúng $k$ tập" với "ít nhất $k$ tập"**: "$|A\cap B| = 15$" thường là **ít nhất** A và B; số học **đúng** Toán+Lý $= 15 - |T\cap L\cap H| = 15 - 5 = 10$. Đọc kỹ đề.
 
 🔁 **Dừng lại tự kiểm tra**
 

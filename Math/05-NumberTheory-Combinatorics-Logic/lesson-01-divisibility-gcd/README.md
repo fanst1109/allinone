@@ -237,11 +237,13 @@ $r = 0$ tại bước 3, số chia cuối khác 0 là $6$ → $\gcd(48, 18) = \m
 - *"Vì sao $\gcd(a, b) = \gcd(b, a \bmod b)$?"* Vì tập **ước chung** của $(a, b)$ và của $(b, r)$ là **giống hệt nhau**. Chứng minh từng bước: viết $a = b \cdot q + r$, tức $r = a - b \cdot q$. (→) Nếu $d \mid a$ và $d \mid b$ thì $d \mid (a - bq) = r$, nên $d$ là ước chung của $(b, r)$. (←) Nếu $d \mid b$ và $d \mid r$ thì $d \mid (bq + r) = a$, nên $d$ là ước chung của $(a, b)$. Hai tập ước chung trùng nhau → ước chung **lớn nhất** cũng bằng nhau. □
 - *"Tại sao thuật toán dừng?"* Vì số dư $r$ giảm nghiêm ngặt sau mỗi bước ($0 \le r < b$), dãy số tự nhiên giảm thì phải về 0. Khi $b = 0$, $\gcd(a, 0) = a$.
 
-⚠ **Lỗi thường gặp**: nhầm $\gcd(a, 0)$. Nhiều người tưởng $\gcd(a, 0) = 0$. SAI — $\gcd(a, 0) = a$ (vì mọi số chia hết 0, ước chung lớn nhất của $a$ và 0 là chính $a$). Phản ví dụ: $\gcd(12, 0) = 12$, không phải 0. Đây đúng là điều kiện dừng của thuật toán.
+⚠ **Ba lỗi thường gặp với GCD**
 
-⚠ **Lỗi thường gặp — $\gcd(0, 0)$**: đây là trường hợp **đặc biệt** không rơi vào công thức $\gcd(a, 0) = a$ một cách "tự nhiên". Mọi số nguyên đều chia hết $0$ (vì $0 = d \cdot 0$), nên tập ước chung của $(0, 0)$ là **toàn bộ** số nguyên — không có phần tử lớn nhất. Theo quy ước chuẩn (và mọi thư viện như Python `math.gcd`), người ta **định nghĩa** $\gcd(0, 0) = 0$. Đừng tưởng "không xác định nên báo lỗi": quy ước trả $0$ giúp giữ tính nhất quán $\operatorname{lcm}(0,0) = 0$ và công thức $\gcd \cdot \operatorname{lcm} = |ab|$ vẫn đúng dạng $0 = 0$.
+- **Nhầm $\gcd(a, 0)$**: $\gcd(a, 0) = a$, không phải $0$ (mọi số chia hết 0 → ước chung lớn nhất là chính $a$). $\gcd(12, 0) = 12$ — đây chính là điều kiện dừng của Euclid.
 
-⚠ **Lỗi thường gặp — lẫn $\gcd$ với $\operatorname{lcm}$**: hai khái niệm **ngược nhau**. $\gcd$ là số **lớn nhất** chia hết *cả hai* (luôn $\le \min(a,b)$); $\operatorname{lcm}$ là số **nhỏ nhất** mà *cả hai* chia hết (luôn $\ge \max(a,b)$). Phản ví dụ kiểm tra nhanh: $\gcd(4, 6) = 2$ (nhỏ, $\le 4$), còn $\operatorname{lcm}(4, 6) = 12$ (lớn, $\ge 6$). Nếu bạn ra một số nằm **giữa** hai input thì chắc chắn sai một trong hai.
+- **$\gcd(0, 0)$ là trường hợp đặc biệt**: mọi số nguyên đều chia hết 0 nên không có "ước chung lớn nhất"; quy ước chuẩn (Python `math.gcd`) **định nghĩa** $\gcd(0,0) = 0$ — giữ nhất quán $\operatorname{lcm}(0,0) = 0$ và $\gcd \cdot \operatorname{lcm} = |ab|$.
+
+- **Lẫn $\gcd$ với $\operatorname{lcm}$**: $\gcd \le \min(a,b)$ còn $\operatorname{lcm} \ge \max(a,b)$. $\gcd(4,6) = 2$, $\operatorname{lcm}(4,6) = 12$ — ra số nằm **giữa** hai input là chắc chắn sai.
 
 ### Độ phức tạp
 

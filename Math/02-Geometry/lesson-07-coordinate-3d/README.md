@@ -200,9 +200,11 @@ $$\begin{aligned}
 - $\vec{AB}\times\vec{AC} = (0\cdot0-0\cdot2,\ 0\cdot0-1\cdot0,\ 1\cdot2-0\cdot0) = (0,0,2)$.
 - Diện tích tam giác $= \frac{1}{2}|\vec{AB}\times\vec{AC}| = \frac{1}{2}\cdot 2 = $ **1** (khớp công thức $\frac12\cdot\text{đáy}\cdot\text{cao} = \frac12\cdot1\cdot2 = 1$ ✓).
 
-⚠ **Lỗi thường gặp — cross product KHÔNG giao hoán**: $u\times v = -(v\times u)$ (đảo dấu, không bằng nhau!). Phản ví dụ: từ Ví dụ 1, $v\times u = (0,1,0)\times(1,0,0) = (0,0,-1) = -(u\times v)$. Khác hẳn dot product (giao hoán: $u\cdot v = v\cdot u$). Đảo thứ tự cross → pháp tuyến lật ngược hướng.
+⚠ **Hai lỗi thường gặp với cross product**
 
-⚠ **Lỗi thường gặp — nhầm dot với cross**: dot $u\cdot v$ → **một số** (vô hướng), dùng tìm góc / kiểm vuông góc. Cross $u\times v$ → **một vector** (3 thành phần), dùng tìm pháp tuyến / diện tích. Phản ví dụ: với $u=(1,2,3), v=(4,5,6)$: $u\cdot v = 4+10+18 = 32$ (số), còn $u\times v = (-3,6,-3)$ (vector) — hai đại lượng hoàn toàn khác loại, đừng lẫn.
+- **Tưởng cross giao hoán**: $u\times v = -(v\times u)$ — đảo thứ tự là pháp tuyến lật ngược hướng. Từ Ví dụ 1: $v\times u = (0,0,-1) = -(u\times v)$. (Dot thì giao hoán.)
+
+- **Nhầm dot với cross**: dot ra **một số** (tìm góc, kiểm vuông góc), cross ra **một vector** (pháp tuyến, diện tích). $u=(1,2,3), v=(4,5,6)$: $u\cdot v = 32$ còn $u\times v = (-3,6,-3)$ — hai loại khác hẳn.
 
 🔁 **Dừng lại tự kiểm tra (cross product)**
 

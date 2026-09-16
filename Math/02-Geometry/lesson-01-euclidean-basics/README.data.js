@@ -463,11 +463,13 @@ Kiểm tra góc phụ: $2(40)-30 = 50^\\circ$, và $40 + 50 = 90^\\circ$ ✓. G�
 - *"Góc tù có góc phụ không?"* Không. Góc phụ cần tổng $= 90^\\circ$, mà góc tù đã $> 90^\\circ$ → "góc phụ" sẽ âm, không tồn tại.
 - *"Đối đỉnh khác kề bù chỗ nào?"* 2 đường cắt nhau tạo 4 góc: 2 cặp **đối đỉnh** (bằng nhau, không chung cạnh), còn mỗi góc với góc **kề** nó tạo cặp **kề bù** (tổng $180^\\circ$, chung 1 cạnh).
 
-⚠ **Lỗi 1 — nhầm "so le trong" với "trong cùng phía".** So le trong (nằm 2 phía của đường cắt) thì **bằng nhau**; trong cùng phía (cùng 1 phía của đường cắt) thì **bù nhau** (tổng $180^\\circ$). Phản ví dụ: nếu so le trong là $70^\\circ$ thì so le trong còn lại cũng $70^\\circ$ (không phải $110^\\circ$); nhưng trong cùng phía của góc $70^\\circ$ là $110^\\circ$.
+⚠ **Ba lỗi thường gặp khi tính góc**
 
-⚠ **Lỗi 2 — nhầm góc bù ($180^\\circ$) với góc phụ ($90^\\circ$).** Đây là lỗi số một khi giải bài tính góc. "Phụ" dùng $90^\\circ$, "bù" dùng $180^\\circ$ — dùng nhầm thang là sai toàn bài. Phản ví dụ cụ thể: góc $\\beta = 60^\\circ$. Người làm sai lấy "góc bù $= 90 - 60 = 30^\\circ$" — **sai**, đó là góc phụ. Đúng phải là: góc **phụ** $= 90 - 60 = 30^\\circ$, góc **bù** $= 180 - 60 = 120^\\circ$. Mẹo: "**phụ** = **P**hần nhỏ ($90^\\circ$)", "**bù** = đầy nửa vòng ($180^\\circ$)".
+- **Nhầm "so le trong" với "trong cùng phía"**: so le trong (2 phía đường cắt) thì **bằng nhau**; trong cùng phía thì **bù nhau**. So le trong của $70°$ vẫn là $70°$; trong cùng phía của $70°$ là $110°$.
 
-⚠ **Lỗi 3 — giả định 2 đường song song khi đề bài chưa cho dấu.** Các quy luật "so le trong bằng nhau", "đồng vị bằng nhau" **chỉ đúng khi $a \\parallel b$**. Phản ví dụ: nếu $a$ và $b$ không song song mà ta vẫn viết "so le trong $= 70^\\circ$ nên góc kia $= 70^\\circ$" → kết quả **sai**, vì khi không song song hai góc đó khác nhau. Chỉ áp dụng quy luật khi đề cho rõ dấu $\\parallel$, hoặc cho điều kiện đủ để suy ra song song (vd "2 đường cùng vuông góc với $c$"). Đừng nhìn hình vẽ "trông có vẻ song song" rồi kết luận — hình minh họa có thể lệch.
+- **Nhầm bù ($180°$) với phụ ($90°$)**: góc $\\beta = 60°$ có góc **phụ** $= 90 - 60 = 30°$ và góc **bù** $= 180 - 60 = 120°$ — lấy "bù $= 90 - 60$" là sai thang (mẹo nhớ ở ❓ phía trên).
+
+- **Giả định song song khi đề chưa cho**: "so le trong bằng nhau", "đồng vị bằng nhau" chỉ đúng khi $a \\parallel b$. Hình vẽ "trông có vẻ song song" không phải căn cứ — cần dấu $\\parallel$ hoặc điều kiện suy ra được (vd cùng vuông góc với $c$).
 
 🔁 **Dừng lại tự kiểm tra**
 

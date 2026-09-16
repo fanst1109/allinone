@@ -351,12 +351,6 @@ V &= \tfrac13\cdot S_{\text{đáy}}\cdot h = \tfrac13\cdot 36\cdot 10 = \tfrac{3
 \end{aligned}$$
 Nếu quên ⅓ sẽ ra $360$ (gấp 3 lần — sai).
 
-**4 ví dụ số đa dạng** (tóm gọn):
-- Lập phương cạnh 3: $V = 3^3 = $ **27**.
-- Hộp $2\times 3\times 4$: $V = 24$.
-- Trụ R=2, h=5: $V = \pi\cdot 4\cdot 5 = 20\pi \approx$ **62.8**.
-- Nón R=2, h=5: $V = \frac{1}{3}\cdot 20\pi \approx$ **20.9** (đúng = 1/3 trụ cùng đáy, cao).
-
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Vì sao chóp/nón có hệ số 1/3?"* Vì khối nhọn dần lên đỉnh, "hụt" thể tích so với khối thẳng. Có thể xác nhận: đổ đầy 3 nón nước vào sẽ vừa đầy 1 trụ cùng đáy, cùng cao.

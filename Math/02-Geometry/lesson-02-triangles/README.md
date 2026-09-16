@@ -498,9 +498,11 @@ Bước 3. $DE = k \cdot BC = 0.4 \cdot 15 = \textbf{6}$.
 - *"AA và AAA có giống nhau không?"* Giống về kết quả: chỉ cần 2 góc bằng (AA) là đủ, vì góc thứ 3 $= 180 - (2$ góc kia$)$ tự bằng nhau.
 - *"Bằng nhau có phải là đồng dạng không?"* Có — bằng nhau là đồng dạng với tỉ số $k = 1$.
 
-⚠ **Lỗi thường gặp**: lấy tỉ số diện tích = tỉ số cạnh. Phản ví dụ: 2 tam giác đồng dạng tỉ số cạnh $k = 3$ thì tỉ số diện tích $=$ **9** ($= 3^2$), không phải 3. Tương tự, tỉ số thể tích của 2 khối đồng dạng $= k^3$.
+⚠ **Hai lỗi thường gặp với đồng dạng**
 
-⚠ **Lỗi thường gặp — nhầm điều kiện ĐỒNG DẠNG với BẰNG NHAU**: nhìn bề ngoài chữ viết tắt giống nhau (SAS, SSS) nên dễ lẫn. Khác biệt cốt lõi:
+- **Lấy tỉ số diện tích = tỉ số cạnh**: đồng dạng tỉ số cạnh $k = 3$ thì tỉ số diện tích $= 9$ ($= 3^2$), không phải 3; tỉ số thể tích khối đồng dạng $= k^3$.
+
+- **Nhầm điều kiện ĐỒNG DẠNG với BẰNG NHAU** (chữ viết tắt SAS, SSS giống nhau nên dễ lẫn) — khác biệt cốt lõi:
 
 | Dấu hiệu | Bằng nhau (congruence) | Đồng dạng (similarity) |
 |----------|------------------------|------------------------|

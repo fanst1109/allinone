@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lesson 04 — Phương trình bậc 2</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
+<link rel="stylesheet" href="../../../tools/katex/katex.min.css">
+<script src="../../../tools/katex/katex.min.js"></script>
+<script src="../../../tools/viz-math.js"></script>
 <style>
   h1 { color: #166534; }
   h2 { color: #15803d; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
@@ -38,6 +41,7 @@
 
 <h2>1. Quadratic Solver — ax² + bx + c = 0</h2>
 <div class="card">
+  <p style="margin-top:0">Nhập a, b, c rồi bấm Giải — parabol được vẽ, chấm đỏ = nghiệm (nơi cắt trục hoành). <strong>Thử:</strong> 1, −5, 6 → hai nghiệm 2 và 3; đổi c thành 7 → Δ &lt; 0, parabol không chạm trục nữa.</p>
   <div class="row">
     <input type="number" id="qA" step="1" value="1"> x² +
     <input type="number" id="qB" step="1" value="-5"> x +
@@ -79,27 +83,26 @@ function solveQ() {
   const c = parseFloat(document.getElementById("qC").value);
   if (a === 0) { document.getElementById("qResult").innerHTML = "<strong>a = 0 → KHÔNG phải bậc 2.</strong>"; return; }
   const delta = b*b - 4*a*c;
-  let html = `<div style="font-family:monospace; font-size:15px">${a}x² ${b>=0?"+":""}${b}x ${c>=0?"+":""}${c} = 0</div>`;
-  html += `<div style="font-family:monospace; font-size:14px; margin-top:6px">Δ = b² − 4ac = ${b}² − 4·${a}·${c} = <strong>${delta}</strong></div>`;
+  let html = `<div style="font-family:monospace; font-size:15px">① PT: ${a}x² ${b>=0?"+":""}${b}x ${c>=0?"+":""}${c} = 0</div>`;
+  html += `<div style="font-family:monospace; font-size:14px; margin-top:6px">② Δ = b² − 4ac = ${b}² − 4·${a}·${c} = <strong>${delta}</strong></div>`;
   let x1, x2;
   if (delta > 0) {
     x1 = (-b + Math.sqrt(delta))/(2*a);
     x2 = (-b - Math.sqrt(delta))/(2*a);
-    html += `<div style="margin-top:8px"><strong>Δ > 0 → 2 NGHIỆM PHÂN BIỆT</strong></div>`;
-    html += `<div style="font-family:monospace; font-size:14px">x₁ = (−${b} + √${delta})/(2·${a}) = <strong>${x1.toFixed(4)}</strong></div>`;
-    html += `<div style="font-family:monospace; font-size:14px">x₂ = (−${b} − √${delta})/(2·${a}) = <strong>${x2.toFixed(4)}</strong></div>`;
-    html += `<div style="margin-top:6px; font-family:monospace; font-size:13px; background:#fef3c7; padding:6px">Viete kiểm tra: x₁+x₂ = ${(x1+x2).toFixed(3)} (= −b/a = ${(-b/a).toFixed(3)}) ✓ &nbsp; x₁·x₂ = ${(x1*x2).toFixed(3)} (= c/a = ${(c/a).toFixed(3)}) ✓</div>`;
+    html += `<div style="margin-top:8px">③ <strong>Δ > 0 → 2 NGHIỆM PHÂN BIỆT</strong></div>`;
+    html += `<div style="font-family:monospace; font-size:14px">④ Áp công thức ${km("x_{1,2}=\\dfrac{-b\\pm\\sqrt{\\Delta}}{2a}")}: &nbsp; x₁ = (${-b} + √${delta})/(2·${a}) = <strong>${x1.toFixed(4)}</strong> &nbsp;·&nbsp; x₂ = (${-b} − √${delta})/(2·${a}) = <strong>${x2.toFixed(4)}</strong></div>`;
+    html += `<div style="margin-top:6px; font-family:monospace; font-size:13px; background:#fef3c7; padding:6px">⑤ Viete kiểm tra: x₁+x₂ = ${(x1+x2).toFixed(3)} (= −b/a = ${(-b/a).toFixed(3)}) ✓ &nbsp; x₁·x₂ = ${(x1*x2).toFixed(3)} (= c/a = ${(c/a).toFixed(3)}) ✓</div>`;
   } else if (delta === 0) {
     x1 = -b/(2*a);
     x2 = x1;
-    html += `<div style="margin-top:8px"><strong>Δ = 0 → NGHIỆM KÉP</strong></div>`;
-    html += `<div style="font-family:monospace; font-size:14px">x = −b/(2a) = <strong>${x1.toFixed(4)}</strong></div>`;
+    html += `<div style="margin-top:8px">③ <strong>Δ = 0 → NGHIỆM KÉP</strong></div>`;
+    html += `<div style="font-family:monospace; font-size:14px">④ x = −b/(2a) = ${-b}/${2*a} = <strong>${x1.toFixed(4)}</strong></div>`;
   } else {
-    html += `<div style="margin-top:8px"><strong>Δ < 0 → VÔ NGHIỆM trong ℝ</strong></div>`;
-    html += `<div style="margin-top:4px; font-size:13px">Nghiệm phức: x = (−${b} ± i√${-delta})/(2·${a})</div>`;
+    html += `<div style="margin-top:8px">③ <strong>Δ < 0 → VÔ NGHIỆM trong ℝ</strong></div>`;
+    html += `<div style="margin-top:4px; font-size:13px">④ Nghiệm phức: x = (${-b} ± i√${-delta})/(2·${a})</div>`;
   }
   document.getElementById("qResult").innerHTML = html;
-  drawParabola(a, b, c, delta >= 0 ? [x1, x2] : []);
+  drawParabola(a, b, c, delta > 0 ? [x1, x2] : delta === 0 ? [x1] : []);
 }
 
 function drawParabola(a, b, c, roots) {
@@ -139,15 +142,16 @@ function drawParabola(a, b, c, roots) {
   svg.appendChild(p);
 
   // Roots (intersection with x-axis)
-  roots.forEach(r => {
-    const x = cx + r*scale;
+  const rootPx = roots.map(r => cx + r*scale);
+  roots.forEach((r, ri) => {
+    const x = rootPx[ri];
     if (x > 0 && x < W) {
       const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       c.setAttribute("cx", x); c.setAttribute("cy", cy); c.setAttribute("r", 6);
       c.setAttribute("fill", "#dc2626");
       svg.appendChild(c);
       const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      t.setAttribute("x", x); t.setAttribute("y", cy + 25);
+      t.setAttribute("x", x); t.setAttribute("y", cy + 25 + (ri === 1 && Math.abs(rootPx[1] - rootPx[0]) < 70 ? 18 : 0));
       t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#dc2626"); t.setAttribute("font-weight", "700");
       t.textContent = r.toFixed(2);
       svg.appendChild(t);
@@ -184,12 +188,12 @@ function lifeThrow() {
   const yMaxHeight = C - B * B / (4 * A);
   drawThrow(A, B, C, range, xVertex, yMaxHeight);
   document.getElementById("thResult").innerHTML = `
-    <div style="font-family:monospace; font-size:13px">vₓ = v₀·cos θ = ${v0}·cos${ang}° = ${vx.toFixed(2)} m/s ; v_y = ${vy.toFixed(2)} m/s</div>
-    <div style="font-family:monospace; font-size:14px; margin-top:6px">Quỹ đạo: y(x) = ${C} + ${B.toFixed(3)}·x ${A.toFixed(4)}·x²</div>
-    <div style="font-size:13px; margin-top:4px">→ Đúng dạng <strong>y = ax² + bx + c</strong> với a = ${A.toFixed(4)} < 0 (parabola mở xuống = "mặt buồn").</div>
-    <div style="font-family:monospace; font-size:14px; margin-top:6px">Độ cao cực đại = đỉnh parabola ≈ <strong>${yMaxHeight.toFixed(2)} m</strong> tại x ≈ ${xVertex.toFixed(2)} m</div>
-    <div style="font-family:monospace; font-size:14px">Tầm xa (nghiệm y=0) ≈ <strong>${range.toFixed(2)} m</strong></div>
-    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: tầm xa = <strong>nghiệm của phương trình bậc 2</strong> y(x)=0; điểm cao nhất = <strong>đỉnh parabola</strong> x = −b/(2a). Cùng công thức Δ, đỉnh đã học ở trên.</div>
+    <div style="font-family:monospace; font-size:13px">① Tách vận tốc: vₓ = v₀·cos θ = ${v0}·cos${ang}° = ${vx.toFixed(2)} m/s ; v_y = ${vy.toFixed(2)} m/s</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">② Quỹ đạo: y(x) = ${C} + ${B.toFixed(3)}·x ${A.toFixed(4)}·x²</div>
+    <div style="font-size:13px; margin-top:4px">③ → Đúng dạng <strong>y = ax² + bx + c</strong> với a = ${A.toFixed(4)} < 0 (parabola mở xuống = "mặt buồn").</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">④ Độ cao cực đại = đỉnh parabola ≈ <strong>${yMaxHeight.toFixed(2)} m</strong> tại x ≈ ${xVertex.toFixed(2)} m</div>
+    <div style="font-family:monospace; font-size:14px">⑤ Tầm xa (nghiệm y=0) ≈ <strong>${range.toFixed(2)} m</strong></div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">⑥ Bài học: tầm xa = <strong>nghiệm của phương trình bậc 2</strong> y(x)=0; điểm cao nhất = <strong>đỉnh parabola</strong> x = −b/(2a). Cùng công thức Δ, đỉnh đã học ở trên.</div>
   `;
 }
 

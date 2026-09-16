@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lesson 06 — Nguyên hàm</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
+<link rel="stylesheet" href="../../../tools/katex/katex.min.css">
+<script src="../../../tools/katex/katex.min.js"></script>
+<script src="../../../tools/viz-math.js"></script>
 <style>
   h1 { color: #166534; }
   h2 { color: #15803d; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
@@ -54,18 +57,7 @@
 <div class="card">
   <table>
     <thead><tr><th>f(x)</th><th>∫ f dx</th></tr></thead>
-    <tbody>
-      <tr><td>x^n (n ≠ -1)</td><td>x^(n+1)/(n+1) + C</td></tr>
-      <tr><td>1/x</td><td>ln|x| + C</td></tr>
-      <tr><td>e^x</td><td>e^x + C</td></tr>
-      <tr><td>a^x</td><td>a^x / ln a + C</td></tr>
-      <tr><td>sin x</td><td>-cos x + C</td></tr>
-      <tr><td>cos x</td><td>sin x + C</td></tr>
-      <tr><td>1/cos²x</td><td>tan x + C</td></tr>
-      <tr><td>1/(1+x²)</td><td>arctan x + C</td></tr>
-      <tr><td>1/(x²+a²)</td><td>(1/a)·arctan(x/a) + C</td></tr>
-      <tr><td>1/(ax+b)</td><td>(1/a)·ln|ax+b| + C</td></tr>
-    </tbody>
+    <tbody id="aTable"></tbody>
   </table>
 </div>
 
@@ -138,13 +130,28 @@ function draw() {
   });
 
   document.getElementById("res").innerHTML = `
-    <div style="font-family:monospace; font-size:14px">① Bài toán: ∫ 2x dx = <strong>x² + C</strong></div>
+    <div style="font-family:monospace; font-size:14px">① Bài toán: ${km("\\int 2x\\,dx = x^2 + C")}</div>
     <div style="margin-top:8px; padding:8px 10px; background:#fef9c3; border-radius:6px">② Điều cần thấy: mỗi đường = 1 nguyên hàm. Tất cả <strong>cùng slope</strong> tại mỗi x (gạch đỏ ở x = 1: slope đều = 2) — đạo hàm xóa mất C, nên nguyên hàm chỉ xác định "sai khác một hằng số".</div>
     <div style="margin-top:6px; font-size:13px; color:#64748b">③ +C đại diện cho "vô hạn" nguyên hàm, dịch lên/xuống.</div>
   `;
 }
 
 draw();
+
+// Bảng nguyên hàm cơ bản — render công thức bằng KaTeX (km)
+const A_ROWS = [
+  ["x^n\\ (n\\neq -1)", "\\tfrac{x^{n+1}}{n+1}+C"],
+  ["\\tfrac{1}{x}", "\\ln|x|+C"],
+  ["e^x", "e^x+C"],
+  ["a^x", "\\tfrac{a^x}{\\ln a}+C"],
+  ["\\sin x", "-\\cos x+C"],
+  ["\\cos x", "\\sin x+C"],
+  ["\\tfrac{1}{\\cos^2 x}", "\\tan x+C"],
+  ["\\tfrac{1}{1+x^2}", "\\arctan x+C"],
+  ["\\tfrac{1}{x^2+a^2}", "\\tfrac{1}{a}\\arctan\\tfrac{x}{a}+C"],
+  ["\\tfrac{1}{ax+b}", "\\tfrac{1}{a}\\ln|ax+b|+C"]
+];
+document.getElementById("aTable").innerHTML = A_ROWS.map(r => `<tr><td>${km(r[0])}</td><td>${km(r[1])}</td></tr>`).join("");
 
 // ===== Đời sống thực tế: suy vị trí từ vận tốc — C = nơi xuất phát =====
 // v(t) = 2t (m/s) → s(t) = ∫v dt = t² + C, với C = vị trí ban đầu (mốc mét)
@@ -170,7 +177,7 @@ function motion() {
   const yl=document.createElementNS("http://www.w3.org/2000/svg","text");yl.setAttribute("x",ox+4);yl.setAttribute("y",30);yl.setAttribute("font-size","11");yl.setAttribute("fill","#64748b");yl.textContent="vị trí s (m)";svg.appendChild(yl);
 
   document.getElementById("mtRes").innerHTML = `
-    <div style="font-family:monospace; font-size:14px">① Bài toán: biết vận tốc v(t) = 2t (m/s) → vị trí s(t) = ∫2t dt = t² + C</div>
+    <div style="font-family:monospace; font-size:14px">① Bài toán: biết vận tốc v(t) = 2t (m/s) → vị trí ${km("s(t)=\\int 2t\\,dt = t^2 + C")}</div>
     <div style="font-family:monospace; font-size:14px; margin-top:4px">② Chốt C bằng điều kiện đầu: xuất phát ở mốc <strong>${s0} m</strong> → C = ${s0} → s(t) = t² + ${s0}. Sau 5s ở mét thứ <strong>${25+s0}</strong>.</div>
     <div style="margin-top:8px; font-size:13px; color:#475569">③ Tất cả đường (xám) có <strong>cùng vận tốc</strong> ở mọi thời điểm — đạo hàm của chúng đều là 2t, hằng số C đã bị xoá khi lấy đạo hàm. Vì vậy <strong>chỉ biết vận tốc thì chưa đủ để biết đang ở đâu</strong>: phải có thêm <em>vị trí xuất phát</em> (chính là C). Đây là lý do GPS cần một điểm mốc ban đầu, và vì sao mọi bài "tìm quãng đường từ vận tốc" đều kèm điều kiện đầu.</div>
   `;

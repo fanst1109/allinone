@@ -504,7 +504,7 @@ Bước 3 & 4 — phân loại từng điểm:
 
 ⚠ **Lỗi thường gặp — quên kiểm dấu $\frac{\partial^2 f}{\partial x^2}$ khi $\det(H) > 0$**. $\det(H) > 0$ chỉ nói "cực trị (không phải yên ngựa)", còn **cực đại hay cực tiểu** phải xem $\frac{\partial^2 f}{\partial x^2}$: $> 0 \to$ tiểu, $< 0 \to$ đại. Phản ví dụ: $f = -x^2-y^2$ có $H = \begin{bmatrix} -2 & 0 \\ 0 & -2 \end{bmatrix}$, $\det = 4 > 0$ nhưng $\frac{\partial^2 f}{\partial x^2} = -2 < 0 \to$ **cực đại** (không phải tiểu).
 
-⚠ **Tại sao test này đúng — góc nhìn định dấu (definiteness) của Hessian**. Bản chất phân loại là xét $H$ **xác định dương / âm** (positive/negative definite). Với ma trận $2\times2$ đối xứng, dấu hai eigenvalue $\lambda_1, \lambda_2$ quyết định:
+💡 **Tại sao test này đúng — góc nhìn định dấu (definiteness) của Hessian**. Bản chất phân loại là xét $H$ **xác định dương / âm** (positive/negative definite). Với ma trận $2\times2$ đối xứng, dấu hai eigenvalue $\lambda_1, \lambda_2$ quyết định:
 - $\det(H) = \lambda_1\lambda_2 > 0$ → hai $\lambda$ **cùng dấu**: cùng dương ($f_{xx}>0$, lõm lên mọi hướng → cực tiểu) hoặc cùng âm (cực đại).
 - $\det(H) = \lambda_1\lambda_2 < 0$ → hai $\lambda$ **trái dấu**: 1 hướng cong lên, 1 hướng cong xuống → yên ngựa.
 - $\det(H) = 0$ → có $\lambda = 0$ (hướng "phẳng" cấp 2) → test thất bại, phải xét bậc cao hơn.

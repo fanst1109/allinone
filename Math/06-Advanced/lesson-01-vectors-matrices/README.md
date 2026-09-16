@@ -359,11 +359,13 @@ $$AB = \begin{bmatrix} 2 & 1 \\ 4 & 3 \end{bmatrix} \neq BA = \begin{bmatrix} 3 
 
 Cùng tập số nhưng sắp khác. Lý do trực giác: $B$ ở đây là "hoán đổi 2 hàng/cột" — nhân **trái** đổi 2 **hàng** của A, nhân **phải** đổi 2 **cột** của A; hai thao tác cho kết quả khác. Tổng quát: "quay rồi lật" ≠ "lật rồi quay".
 
-⚠ **Lỗi thường gặp 2 — nhầm hàng với cột khi nhân**. $(AB)_{ij}$ = **hàng i của A** · **cột j của B**, KHÔNG phải cột i · hàng j. Nếu kích thước không khớp (số cột của A $\neq$ số hàng của B) thì phép nhân **không tồn tại**: A là $2 \times 3$ nhân B là $2 \times 2$ → vô nghĩa ($3 \neq 2$).
+⚠ **Ba lỗi thường gặp nữa với phép nhân ma trận**
 
-⚠ **Lỗi thường gặp 3 — tưởng $AB = O$ thì $A = O$ hoặc $B = O$**. SAI với ma trận (đúng với số thường). Phản ví dụ: $A = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}$, $B = \begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix}$ → $AB = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix} = O$ dù cả $A, B \neq O$. Hệ quả: **không "chia hai vế cho A"** để rút gọn — phải nhân nghịch đảo $A^{-1}$ (nếu có).
+- **Nhầm hàng với cột**: $(AB)_{ij}$ = **hàng i của A** · **cột j của B**. Kích thước không khớp (cột A $\neq$ hàng B) thì phép nhân **không tồn tại**: $2\times 3$ nhân $2\times 2$ là vô nghĩa.
 
-⚠ **Lỗi thường gặp 4 — khai triển $(A+B)^2$ như số thường**. $(A+B)^2 = (A+B)(A+B) = A^2 + AB + BA + B^2$, KHÔNG gộp $AB + BA = 2AB$ vì $AB \neq BA$. Chỉ khi $A, B$ giao hoán mới có $(A+B)^2 = A^2 + 2AB + B^2$.
+- **Tưởng $AB = O$ thì $A$ hoặc $B$ $= O$**: sai — $A = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}$, $B = \begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix}$ cho $AB = O$ dù cả hai khác $O$. Hệ quả: không "chia hai vế cho A" — phải nhân $A^{-1}$ (nếu có).
+
+- **Khai triển $(A+B)^2$ như số thường**: đúng là $A^2 + AB + BA + B^2$ — không gộp được $AB + BA = 2AB$ vì $AB \neq BA$ (chỉ khi giao hoán).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -584,9 +586,11 @@ Kiểm: $(AA^{-1})_{11} = 1\cdot(-2) + 2\cdot 1.5 = -2 + 3 = 1$; $(AA^{-1})_{12}
 
 **Ví dụ 3 — KHÔNG khả nghịch.** $A = \begin{bmatrix} 1 & 2 \\ 2 & 4 \end{bmatrix}$. $\det = 1\cdot 4 - 2\cdot 2 = 0$ → **không có** $A^{-1}$ (suy biến). Lý do trực giác: hàng 2 = $2\times$ hàng 1 → máy "ép phẳng" không gian, mất thông tin, không undo được.
 
-⚠ **Lỗi thường gặp — tưởng mọi ma trận vuông đều khả nghịch**. Chỉ khi $\det \neq 0$. Ví dụ 3 ở trên ($\det = 0$) không có nghịch đảo. Học sâu định thức ở [Lesson 02](../lesson-02-determinants-linear-systems/).
+⚠ **Hai lỗi thường gặp với nghịch đảo**
 
-⚠ **Lỗi thường gặp — viết $(AB)^{-1} = A^{-1}B^{-1}$**. SAI, đảo thứ tự giống transpose: $(AB)^{-1} = B^{-1}A^{-1}$.
+- **Tưởng mọi ma trận vuông khả nghịch**: chỉ khi $\det \neq 0$ — Ví dụ 3 ($\det = 0$) không có nghịch đảo. Học sâu ở [Lesson 02](../lesson-02-determinants-linear-systems/).
+
+- **Viết $(AB)^{-1} = A^{-1}B^{-1}$**: sai — đảo thứ tự giống transpose: $(AB)^{-1} = B^{-1}A^{-1}$.
 
 ### 6.3 Hạng (rank) — "số chiều thực sự" của ảnh
 

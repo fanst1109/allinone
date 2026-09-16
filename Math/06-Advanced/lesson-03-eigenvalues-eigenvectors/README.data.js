@@ -340,14 +340,16 @@ Cùng một biến đổi $A$ trông rối (off-diagonal $\\neq 0$) ở hệ tr�
 - *"Ma trận nào cũng chéo hóa được?"* Không. Cần đủ n eigenvector **độc lập tuyến tính**. Vd $\\begin{bmatrix} 1 & 1 \\\\ 0 & 1 \\end{bmatrix}$ chỉ có 1 hướng eigenvector ($\\lambda=1$ bội 2 nhưng eigenspace 1 chiều) → KHÔNG chéo hóa được trên $\\mathbb{R}$.
 - *"Vì sao $A^n$ tính nhanh hơn?"* Vì $D^n$ chỉ là $\\lambda_i^n$ trên đường chéo — $n-1$ phép nhân ma trận đầy đủ rút còn vài phép lũy thừa số + 2 phép nhân với $P, P^{-1}$.
 
-⚠ **Lỗi thường gặp — đặt cột $P$ không khớp thứ tự với $D$**. Cột thứ i của $P$ phải là eigenvector ứng với $\\lambda_i$ ở vị trí $(i,i)$ của $D$. Nếu đặt lệch (eigenvector của $\\lambda=1$ nhưng để 3 vào $D$) thì $A \\neq PDP^{-1}$. Luôn ghép đúng cặp $(\\lambda, \\vec{v})$.
+⚠ **Ba lỗi thường gặp với chéo hóa**
 
-⚠ **Lỗi thường gặp — tưởng MỌI ma trận đều chéo hóa được**. Ma trận **khiếm khuyết (defective)** thì không. Ví dụ cụ thể $A = \\begin{bmatrix} 1 & 1 \\\\ 0 & 1 \\end{bmatrix}$:
+- **Đặt cột $P$ lệch thứ tự với $D$**: cột thứ $i$ của $P$ phải là eigenvector của $\\lambda_i$ tại ô $(i,i)$ của $D$ — đặt lệch thì $A \\neq PDP^{-1}$. Luôn ghép đúng cặp $(\\lambda, \\vec{v})$.
+
+- **Tưởng mọi ma trận đều chéo hóa được** — ma trận **khiếm khuyết (defective)** thì không. $A = \\begin{bmatrix} 1 & 1 \\\\ 0 & 1 \\end{bmatrix}$:
 - PT đặc trưng $(1-\\lambda)^2 = 0 \\to \\lambda = 1$ **bội 2** (algebraic multiplicity = 2).
 - Tìm vector riêng: $A - I = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}$, giải $\\to v_2 = 0$, $v_1$ tự do $\\to$ chỉ **1 hướng** $\\vec{v} = (1, 0)$ (geometric multiplicity = 1).
 - Không đủ 2 vector riêng độc lập $\\to P$ không khả nghịch $\\to$ **KHÔNG chéo hóa được**. Khi đó dùng **dạng Jordan** $A = PJP^{-1}$ ($J$ gần chéo, có 1 ô phụ trên đường chéo) — ngoài phạm vi bài này.
 
-⚠ **Lỗi thường gặp — quên chuẩn hóa vector riêng khi cần $Q$ trực giao**. Khi chéo hóa thường ($A = PDP^{-1}$) không bắt buộc chuẩn hóa $\\vec{v}$. Nhưng với ma trận đối xứng và muốn $A = QDQ^\\top$ (dạng phổ, $Q^{-1} = Q^\\top$), phải chia mỗi vector riêng cho độ dài của nó. Ví dụ $\\vec{v} = (1,1)$ phải thành $\\vec{q} = (1/\\sqrt{2}, 1/\\sqrt{2})$; bỏ qua bước này thì $Q^\\top \\neq Q^{-1}$ và công thức sai.
+- **Quên chuẩn hóa khi cần $Q$ trực giao**: chéo hóa thường không bắt buộc, nhưng dạng phổ $A = QDQ^\\top$ ($Q^{-1} = Q^\\top$) của ma trận đối xứng đòi chia mỗi $\\vec{v}$ cho độ dài — $(1,1)$ phải thành $(1/\\sqrt{2}, 1/\\sqrt{2})$, bỏ qua thì $Q^\\top \\neq Q^{-1}$.
 
 🔁 **Dừng lại tự kiểm tra**
 

@@ -178,11 +178,11 @@ E[(X-\\mu)^2] &= E[X^2 - 2\\mu X + \\mu^2] \\\\
 Không bước nào "lươn lẹo" — mỗi dòng chỉ dùng $E[aX+b] = aE[X]+b$ và $E[X] = \\mu$. Đừng nhầm thứ tự.
 - *"Vì sao dùng bình phương, không dùng trị tuyệt đối $E[|X-\\mu|]$?"* Bình phương **khả vi mượt** (dễ làm giải tích, dễ ráp vào hồi quy/MLE), còn $|X-\\mu|$ không khả vi tại $0$. Bình phương cũng "phạt nặng" giá trị xa $\\mu$ — phù hợp nhiều ứng dụng.
 
-⚠ **Lỗi thường gặp — tính $E[X^2]$ bằng $(E[X])^2$**. $E[X^2] \\neq (E[X])^2$ (trừ khi $X$ là hằng số). Phản ví dụ xúc xắc: $E[X^2] = 91/6 \\approx 15.17$ nhưng $(E[X])^2 = 3.5^2 = 12.25$ — khác nhau, hiệu của chúng **chính là** phương sai $35/12 \\approx 2.917$ ($\\ge 0$ luôn, vì $\\operatorname{Var} \\ge 0$).
+⚠ **Hai lỗi thường gặp với kỳ vọng**
 
-⚠ **Lỗi thường gặp — nhầm xác suất với mật độ ở biến liên tục**. Với biến **liên tục**, $f(x)$ là **mật độ** chứ KHÔNG phải xác suất: $f(x)$ có thể $> 1$ (vd $\\text{Uniform}(0, 0.5)$ có $f = 2$), và $P(X = x_0) = 0$ tại mọi điểm. Chỉ **diện tích** $\\int_a^b f\\,dx$ mới là xác suất. Phản ví dụ: $f(x) = 2$ trên $[0, 0.5]$ → $f(0.3) = 2$ không phải "xác suất 200%", mà $P(0.1 \\le X \\le 0.3) = \\int_{0.1}^{0.3} 2\\,dx = 0.4$.
+- **$E[g(X)] \\neq g(E[X])$ khi $g$ phi tuyến**: $E[X^2] \\neq (E[X])^2$ (xúc xắc: $91/6 \\approx 15.17$ vs $3.5^2 = 12.25$ — hiệu chính là phương sai $35/12$); tương tự $E[1/X] \\neq 1/E[X]$, $E[\\sqrt{X}] \\neq \\sqrt{E[X]}$. Chỉ đúng khi $g$ tuyến tính; đúng phải lấy $g$ của TỪNG giá trị rồi mới trung bình.
 
-⚠ **Lỗi thường gặp — $E[g(X)] \\neq g(E[X])$ khi $g$ phi tuyến**. Vd $E[X^2] \\neq (E[X])^2$; tổng quát $E[1/X] \\neq 1/E[X]$, $E[\\sqrt{X}] \\neq \\sqrt{E[X]}$. Chỉ đúng khi $g$ tuyến tính ($g(x) = ax + b$). Đúng phải tính $E[g(X)] = \\sum g(k)\\,P(X=k)$ — lấy $g$ của TỪNG giá trị rồi mới lấy trung bình. Phản ví dụ xúc xắc: $E[X^2] = 15.17$ nhưng $(E[X])^2 = 12.25$.
+- **Nhầm xác suất với mật độ (biến liên tục)**: $f(x)$ là mật độ, có thể $> 1$ ($\\text{Uniform}(0, 0.5)$ có $f = 2$) và $P(X = x_0) = 0$; chỉ **diện tích** $\\int_a^b f\\,dx$ mới là xác suất — $P(0.1 \\le X \\le 0.3) = 0.4$.
 
 🔁 **Dừng lại tự kiểm tra**
 

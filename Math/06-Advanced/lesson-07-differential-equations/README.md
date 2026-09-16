@@ -353,9 +353,11 @@ Verify (cà phê $T_0 = 90°$C, phòng $T_s = 25°$C, $k = 0.1$/phút): $t=0 \to
 - *"Mọi ODE bậc 1 đều tách biến được?"* Không. Chỉ khi vế phải $= f(x)\cdot g(y)$. Vd $\frac{dy}{dx} = x + y$ KHÔNG tách được (phải dùng phương pháp tuyến tính, mục 3).
 - *"Vì sao $\frac{dN}{dt} = kN$ ra hàm mũ?"* Vì "tốc độ tỉ lệ với lượng hiện có" = đặc trưng của hàm mũ (càng nhiều càng tăng nhanh). Đây là mô hình lãi kép, dân số, phóng xạ ($k < 0$).
 
-⚠ **Lỗi thường gặp — quên $|y|$ và hằng số khi tích phân $1/y$**. $\int \frac{dy}{y} = \ln|y| + C$ (có trị tuyệt đối). Quên $C$ → mất họ nghiệm; quên $|\cdot|$ → sai miền. Sau khi mũ hóa: $y = \pm e^C\cdot e^{...} = A\cdot e^{...}$, $A$ gói cả dấu.
+⚠ **Hai lỗi thường gặp khi tách biến**
 
-⚠ **Lỗi thường gặp — chia cho 0 khi tách biến (đánh rơi nghiệm hằng)**. Bước 2 chia hai vế cho $g(y)$ — nhưng nếu $g(y_0) = 0$ tại giá trị $y_0$ nào đó thì phép chia **không hợp lệ** ở đó, và $y \equiv y_0$ (hằng) thường là một **nghiệm bị bỏ sót**. Phản ví dụ: $\frac{dy}{dx} = y^2 - y = y(y-1)$. Chia cho $y(y-1)$ làm mất hai nghiệm hằng $y \equiv 0$ và $y \equiv 1$ (cả hai cho $y' = 0 = g(y)$ ✓). Với logistic, $N \equiv 0$ và $N \equiv K$ là hai nghiệm cân bằng bị chia mất — phải kiểm riêng. **Quy tắc**: trước khi chia $g(y)$, giải $g(y) = 0$ và ghi các nghiệm hằng ra trước.
+- **Quên $|y|$ và $+C$ khi tích phân $1/y$**: $\int \frac{dy}{y} = \ln|y| + C$. Quên $C$ mất họ nghiệm; sau mũ hóa $y = A e^{\ldots}$ với $A$ gói cả dấu.
+
+- **Chia cho 0 đánh rơi nghiệm hằng**: $y' = y(y-1)$ — chia cho $y(y-1)$ làm mất hai nghiệm $y \equiv 0$, $y \equiv 1$. Logistic mất $N \equiv 0$ và $N \equiv K$. **Quy tắc**: trước khi chia $g(y)$, giải $g(y) = 0$ ghi các nghiệm hằng ra trước.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -436,11 +438,13 @@ Verify ($C = 0$): $y = x^2/3$, $y' = 2x/3$; $xy' + y = \frac{2x^2}{3} + \frac{x^
 - *"Vì sao $\mu = e^{\int P\,dx}$?"* Để $\mu' = P\cdot\mu$, khi đó $\mu y' + P\mu y = \mu y' + \mu'y = (\mu y)'$ — gập lại thành đạo hàm tích. Đó là yêu cầu thiết kế $\mu$.
 - *"Nghiệm gồm 2 phần: 2 và $C\cdot e^{-2x}$, nghĩa là gì?"* "2" là nghiệm riêng (trạng thái cân bằng lâu dài); $C\cdot e^{-2x}$ là phần phụ tắt dần về 0. Cấu trúc "cân bằng + transient" rất phổ biến trong vật lý/kỹ thuật.
 
-⚠ **Lỗi thường gặp — quên nhân $Q$ với $\mu$ ở vế phải**. Sau khi nhân $\mu$, vế phải phải là $\mu\cdot Q$ (cả hai vế nhân $\mu$). Phản ví dụ: $y'+2y=4$, $\mu=e^{2x}$. Vế phải đúng $\int 4e^{2x}\,dx$; nếu quên $\mu$, tích $\int 4\,dx = 4x$ → nghiệm sai.
+⚠ **Ba lỗi thường gặp với thừa số tích phân**
 
-⚠ **Lỗi thường gặp — áp điều kiện đầu TRƯỚC khi viết $+C$ (chốt $C$ vào nghiệm thiếu hằng)**. Đây là lỗi "chết người" xuyên suốt mọi phương pháp giải ODE: phải có nghiệm tổng quát đầy đủ (kèm $C$) **rồi mới** thay $y(x_0) = y_0$ để tìm $C$. Phản ví dụ với $y' + 2y = 4$, $y(0) = 5$: nếu vội viết $y = 2$ (bỏ $C\,e^{-2x}$) rồi thấy $y(0) = 2 \neq 5$ thì bí. Làm đúng: nghiệm tổng quát $y = 2 + C e^{-2x}$, thay $y(0) = 2 + C = 5 \to C = 3 \to y = 2 + 3e^{-2x}$. **Nhớ**: $+C$ trước, điều kiện đầu sau.
+- **Quên nhân $Q$ với $\mu$**: cả hai vế cùng nhân $\mu$. $y'+2y=4$, $\mu=e^{2x}$: vế phải là $\int 4e^{2x}\,dx$, quên $\mu$ ra $4x$ — nghiệm sai.
 
-⚠ **Lỗi thường gặp — quên chuẩn dạng (hệ số $y' \neq 1$)**. Nếu PT là $2y' + 4y = 8$, KHÔNG được lấy $P = 4$. Phải chia cho $2$ trước: $y' + 2y = 4 \to P = 2$. Lấy nhầm $P$ → $\mu$ sai → cả nghiệm sai.
+- **Áp điều kiện đầu trước khi viết $+C$**: phải có nghiệm tổng quát đầy đủ rồi mới thay $y(x_0)$. $y'+2y=4$, $y(0)=5$: nghiệm $y = 2 + Ce^{-2x}$, thay $2 + C = 5 \to C = 3$. Vội viết $y = 2$ là bí. **$+C$ trước, điều kiện đầu sau.**
+
+- **Quên chuẩn dạng**: $2y' + 4y = 8$ phải chia 2 thành $y' + 2y = 4$ trước ($P = 2$, không phải 4). Lấy nhầm $P$ → $\mu$ sai → cả nghiệm sai.
 
 🔁 **Dừng lại tự kiểm tra**
 

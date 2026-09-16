@@ -430,12 +430,6 @@ Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2)
 1. $f(2)$ → chia 0, **không xác định** → vi phạm (1).
 2. $\lim_{x \to 2^-} = -\infty$, $\lim_{x \to 2^+} = +\infty$ → DNE → vi phạm (2). Gián đoạn **vô hạn** (tiệm cận đứng $x = 2$).
 
-**4 ví dụ số đa dạng**:
-- Liên tục: $f(x) = x^2$ tại $a = 2$: $f(2) = 4 = \lim_{x \to 2} x^2$ ✓.
-- Gián đoạn (lỗ): $f(x) = \frac{x^2-1}{x-1}$ tại $1$: $f(1)$ không xác định → vi phạm điều kiện (1).
-- Gián đoạn (giá trị lệch): $f(x) = x+1$ nếu $x \neq 1$, $f(1) = 5 \to \lim = 2 \neq 5 = f(1) \to$ vi phạm (3).
-- Gián đoạn ($\lim$ không tồn tại): $f(x) = \frac{|x|}{x}$ tại $0 \to$ vi phạm (2) (hai bên lệch).
-
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Liên tục tại 1 điểm khác liên tục trên 1 khoảng thế nào?"* Liên tục trên $(a,b)$ nghĩa là liên tục tại **mọi** điểm trong khoảng. Một hàm có thể liên tục khắp nơi trừ vài điểm (vd $\frac{1}{x}$ liên tục mọi nơi trừ $0$).

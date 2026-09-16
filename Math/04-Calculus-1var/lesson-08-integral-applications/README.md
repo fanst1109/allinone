@@ -106,9 +106,11 @@ Nếu cố cắt dải dọc ($dx$) thì phải tách $x = y^2$ thành hai nhán
 - *"Khi nào nên cắt dải dọc ($dx$), khi nào dải ngang ($dy$)?"* Cắt dọc khi mỗi $x$ ứng với một "trần" và một "sàn" rõ ràng (hàm theo $x$). Cắt ngang khi vùng dễ mô tả theo $y$ (vd parabol nằm ngang $x = y^2$). Chọn chiều cắt làm số đoạn ít nhất.
 - *"Diện tích có bao giờ phụ thuộc việc cắt dọc hay ngang không?"* Không — diện tích là một con số cố định của vùng. Cắt dọc hay ngang chỉ là **hai cách cộng** ra cùng kết quả; chọn cách nào tính nhanh hơn.
 
-⚠ **Lỗi thường gặp — không xét đường nào trên/dưới, ra diện tích âm**. Nếu lấy $\int(x^2 - x)\,dx$ (sàn trừ trần) trên $[0,1]$ ra $-\frac{1}{6} < 0$ — diện tích không thể âm. Phải lấy trần $-$ sàn $= \int(x - x^2)\,dx = \frac{1}{6}$. Diện tích luôn lấy $|f - g|$ hoặc xác định đúng thứ tự.
+⚠ **Hai lỗi thường gặp với diện tích giữa hai đường**
 
-⚠ **Lỗi thường gặp — quên chia đoạn khi hai đường giao $\ge 3$ lần**. Như Ví dụ 3: tính thẳng một tích phân từ $-1$ tới $1$ cho $0$ (phần âm triệt tiêu phần dương), trong khi diện tích thật là $\frac{1}{2}$. Luôn giải $f = g$ tìm **hết** giao điểm trong khoảng trước khi đặt cận.
+- **Không xét đường nào trên/dưới**: lấy $\int(x^2 - x)\,dx$ (sàn trừ trần) trên $[0,1]$ ra $-\frac{1}{6}$ — diện tích không thể âm. Phải lấy trần $-$ sàn hoặc $|f - g|$.
+
+- **Quên chia đoạn khi hai đường giao $\ge 3$ lần**: như Ví dụ 3, tính thẳng từ $-1$ tới $1$ ra $0$ (âm dương triệt tiêu) trong khi diện tích thật $\frac{1}{2}$. Giải $f = g$ tìm **hết** giao điểm trước khi đặt cận.
 
 🔁 **Dừng lại tự kiểm tra**
 

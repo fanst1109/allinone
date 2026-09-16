@@ -302,11 +302,13 @@ Mỗi ví dụ: (1) tìm nguyên hàm $F$ — kiểm bằng cách đạo hàm ng
 - *"FTC1 và FTC2 liên hệ thế nào?"* FTC1 nói "tích phân rồi đạo hàm $\\to$ trở lại hàm gốc" (chứng minh đạo hàm và tích phân ngược nhau). FTC2 là **hệ quả tính toán**: dùng nguyên hàm để tính tích phân xác định mà không cần tổng Riemann.
 - *"Chọn nguyên hàm nào trong FTC2?"* Bất kỳ một nguyên hàm nào cũng được (hằng số tự triệt tiêu). Thường chọn cái đơn giản nhất với $C = 0$.
 
-⚠ **Lỗi thường gặp — tính $F(a) - F(b)$ thay vì $F(b) - F(a)$**. Thứ tự là **cận trên trừ cận dưới**. Đảo lại sẽ ra dấu ngược. Vd $\\int_0^1 x^2\\,dx = F(1)-F(0) = 1/3$, nếu viết $F(0)-F(1) = -1/3$ là sai dấu.
+⚠ **Ba lỗi thường gặp với FTC2**
 
-⚠ **Lỗi thường gặp — sai dấu khi tìm nguyên hàm của $\\sin/\\cos$**. $\\int \\sin x\\,dx = -\\cos x$ (có dấu trừ), $\\int \\cos x\\,dx = +\\sin x$ (không trừ). Viết $\\int \\sin x\\,dx = \\cos x$ là sai — kiểm ngay bằng đạo hàm: $(\\cos x)' = -\\sin x \\neq \\sin x$. **Mẹo phòng sai**: tìm xong $F$, luôn đạo hàm $F$ kiểm có ra lại $f$ không.
+- **Tính $F(a) - F(b)$ thay vì $F(b) - F(a)$**: thứ tự là cận trên trừ cận dưới. $\\int_0^1 x^2\\,dx = F(1)-F(0) = 1/3$; đảo lại ra $-1/3$ sai dấu.
 
-⚠ **Lỗi thường gặp — dùng công thức $\\frac{x^{n+1}}{n+1}$ cho $n = -1$**. Với $\\int \\frac1x\\,dx$ ($n = -1$) công thức lũy thừa chia cho $n + 1 = 0$ → vô nghĩa. Trường hợp này nguyên hàm là $\\ln|x|$, không phải $\\frac{x^0}{0}$.
+- **Sai dấu nguyên hàm $\\sin/\\cos$**: $\\int \\sin x\\,dx = -\\cos x$ (có trừ), $\\int \\cos x\\,dx = +\\sin x$. Mẹo phòng sai: tìm xong $F$, đạo hàm lại kiểm có ra $f$ không.
+
+- **Dùng $\\frac{x^{n+1}}{n+1}$ cho $n = -1$**: mẫu $n+1 = 0$ vô nghĩa — nguyên hàm của $\\frac{1}{x}$ là $\\ln|x|$.
 
 🔁 **Dừng lại tự kiểm tra**
 

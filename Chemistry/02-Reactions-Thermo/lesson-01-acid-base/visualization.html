@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lesson 01 (T2) — Acid-Base</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
+<link rel="stylesheet" href="../../../tools/katex/katex.min.css">
+<script src="../../../tools/katex/katex.min.js"></script>
+<script src="../../../tools/viz-math.js"></script>
 <style>
   h1 { color: #9d174d; }
   h2 { color: #be185d; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #fbcfe8; }
@@ -76,6 +79,7 @@
 
 <h2>1. pH Scale & Calculator</h2>
 <div class="card">
+  <p style="margin-top:0">Chọn loại dung dịch, nhập nồng độ C — pH tính theo đúng cơ chế từng loại. <strong>Thử:</strong> acid mạnh C = 0.01 → pH = 2; đổi sang acid yếu cùng C — pH cao hơn hẳn vì chỉ phân ly một phần.</p>
   <div class="row">
     <label>Loại dung dịch:</label>
     <select id="solType">
@@ -108,7 +112,7 @@
 
 <h2>2. Buffer Designer (Henderson-Hasselbalch)</h2>
 <div class="card">
-  <p>Cho cặp acid yếu (HA) + base liên hợp (A⁻), điều chỉnh tỉ lệ để xem pH thay đổi.</p>
+  <p style="margin-top:0">Cho cặp acid yếu (HA) + base liên hợp (A⁻), điều chỉnh tỉ lệ để xem pH thay đổi. <strong>Thử:</strong> đặt [A⁻] gấp 10 lần [HA] — pH = pKa + 1: mỗi bậc tỉ lệ ×10 đổi đúng 1 đơn vị pH.</p>
   <div class="row">
     <label>Acid:</label>
     <select id="bufferAcid">
@@ -130,7 +134,7 @@
 
 <h2>3. Titration Curve</h2>
 <div class="card">
-  <p>Đường chuẩn độ pH theo lượng base thêm vào — so sánh acid mạnh vs acid yếu.</p>
+  <p style="margin-top:0">Đường chuẩn độ pH theo lượng base thêm vào. <strong>Thử:</strong> so 2 nút — acid yếu có "vai đệm" thoai thoải trước điểm tương đương, và điểm tương đương nằm ở pH &gt; 7.</p>
   <div class="row">
     <label>Loại chuẩn độ:</label>
     <button class="muted active" onclick="setTitration('strong')">Acid mạnh + Base mạnh</button>
@@ -171,28 +175,28 @@ function calcPH() {
 
   if (type === "strong_acid") {
     pH = -Math.log10(C);
-    html = `<div>Acid mạnh: phân ly 100% → [H⁺] = C = ${C} M</div><div>pH = −log(${C}) = <strong>${pH.toFixed(2)}</strong></div>`;
+    html = `<div>① Acid mạnh: phân ly 100% → [H⁺] = C = ${C} M</div><div>② pH = −log(${C}) = <strong>${pH.toFixed(2)}</strong></div>`;
   } else if (type === "weak_acid") {
     // Ka = x² / (C − x) ≈ x²/C if x small
     const x = Math.sqrt(Kval * C);
     pH = -Math.log10(x);
-    html = `<div>Acid yếu với Ka = ${Kval.toExponential(2)}, C = ${C} M</div>
-            <div>Ka ≈ [H⁺]² / C → [H⁺] = √(Ka·C) = √(${(Kval*C).toExponential(2)}) = ${x.toExponential(3)} M</div>
-            <div>pH = <strong>${pH.toFixed(2)}</strong></div>
-            <div>% phân ly = ${(x/C*100).toFixed(2)}%</div>`;
+    html = `<div>① Acid yếu với Ka = ${Kval.toExponential(2)}, C = ${C} M</div>
+            <div>② Ka ≈ [H⁺]² / C → ${km("[H^+]=\\sqrt{K_a\\,C}")} = √(${(Kval*C).toExponential(2)}) = ${x.toExponential(3)} M</div>
+            <div>③ pH = <strong>${pH.toFixed(2)}</strong></div>
+            <div>④ % phân ly = ${(x/C*100).toFixed(2)}%</div>`;
   } else if (type === "strong_base") {
     const pOH = -Math.log10(C);
     pH = 14 - pOH;
-    html = `<div>Base mạnh: phân ly 100% → [OH⁻] = ${C} M</div>
-            <div>pOH = −log(${C}) = ${pOH.toFixed(2)}</div>
-            <div>pH = 14 − pOH = <strong>${pH.toFixed(2)}</strong></div>`;
+    html = `<div>① Base mạnh: phân ly 100% → [OH⁻] = ${C} M</div>
+            <div>② pOH = −log(${C}) = ${pOH.toFixed(2)}</div>
+            <div>③ pH = 14 − pOH = <strong>${pH.toFixed(2)}</strong></div>`;
   } else { // weak_base
     const x = Math.sqrt(Kval * C);
     const pOH = -Math.log10(x);
     pH = 14 - pOH;
-    html = `<div>Base yếu với Kb = ${Kval.toExponential(2)}, C = ${C} M</div>
-            <div>[OH⁻] = √(Kb·C) = ${x.toExponential(3)} M → pOH = ${pOH.toFixed(2)}</div>
-            <div>pH = 14 − pOH = <strong>${pH.toFixed(2)}</strong></div>`;
+    html = `<div>① Base yếu với Kb = ${Kval.toExponential(2)}, C = ${C} M</div>
+            <div>② ${km("[OH^-]=\\sqrt{K_b\\,C}")} = ${x.toExponential(3)} M → pOH = ${pOH.toFixed(2)}</div>
+            <div>③ pH = 14 − pOH = <strong>${pH.toFixed(2)}</strong></div>`;
   }
 
   document.getElementById("phResult").innerHTML = html;
@@ -216,10 +220,9 @@ function calcBuffer() {
   const A = parseFloat(document.getElementById("A").value);
   const pH = pKa + Math.log10(A / HA);
   let html = `
-    <div>Henderson-Hasselbalch:</div>
-    <div style="font-family:monospace; padding:8px; background:#f8fafc; margin:6px 0">pH = pKa + log([A⁻]/[HA])</div>
-    <div>= ${pKa} + log(${A}/${HA}) = ${pKa} + log(${(A/HA).toFixed(3)}) = ${pKa} + ${Math.log10(A/HA).toFixed(3)}</div>
-    <div style="margin-top:6px"><strong>pH = ${pH.toFixed(2)}</strong></div>
+    <div>① Henderson-Hasselbalch: <span style="padding:4px 8px; background:#f8fafc; border-radius:4px">${km("pH = pK_a + \\log\\dfrac{[A^-]}{[HA]}")}</span></div>
+    <div style="margin-top:6px">② Thay số: = ${pKa} + log(${A}/${HA}) = ${pKa} + log(${(A/HA).toFixed(3)}) = ${pKa} + ${Math.log10(A/HA).toFixed(3)}</div>
+    <div style="margin-top:6px">③ <strong>pH = ${pH.toFixed(2)}</strong></div>
   `;
   if (Math.abs(Math.log10(A/HA)) < 1) {
     html += `<div style="margin-top:8px; color:#047857"><strong>✓ Đệm tốt:</strong> tỉ lệ [A⁻]/[HA] gần 1 → khả năng kháng pH cao nhất.</div>`;
@@ -423,11 +426,11 @@ function calcAntacid() {
   antEl.innerHTML = `
     <div><strong>Hoạt chất:</strong> ${name}</div>
     <div style="font-family:monospace; padding:8px; background:#f8fafc; margin:6px 0">${reaction}</div>
-    <div class="stat">Khối lượng thuốc: <strong>${totalMass.toFixed(2)} g</strong></div>
-    <div class="stat">mol thuốc = $\\dfrac{${totalMass.toFixed(2)}}{${M}}$ = <strong>${nDrug.toFixed(4)} mol</strong></div>
-    <div class="stat">Trung hoà được: <strong>${nHCl.toFixed(4)} mol HCl</strong></div>
-    <div class="stat">CO₂ sinh ra ≈ <strong>${co2_L.toFixed(2)} L</strong> (đó là tiếng "ợ" sau khi uống!)</div>
-    <div style="margin-top:6px">Dạ dày có sẵn ≈ ${stomachM} M × ${stomachV*1000} mL = <strong>${nHClStomach.toFixed(4)} mol HCl</strong> dư.</div>
+    <div class="stat">① Khối lượng thuốc: <strong>${totalMass.toFixed(2)} g</strong></div>
+    <div class="stat">② mol thuốc = ${km(`\\dfrac{${totalMass.toFixed(2)}}{${M}}`)} = <strong>${nDrug.toFixed(4)} mol</strong></div>
+    <div class="stat">③ Trung hoà được: <strong>${nHCl.toFixed(4)} mol HCl</strong></div>
+    <div class="stat">④ CO₂ sinh ra ≈ <strong>${co2_L.toFixed(2)} L</strong> (đó là tiếng "ợ" sau khi uống!)</div>
+    <div style="margin-top:6px">⑤ Dạ dày có sẵn ≈ ${stomachM} M × ${stomachV*1000} mL = <strong>${nHClStomach.toFixed(4)} mol HCl</strong> dư.</div>
     ${verdict}
   `;
   if (window.katexHero) window.katexHero.render(antEl);

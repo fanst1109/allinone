@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lesson 06 — Chuyển động tròn</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
+<link rel="stylesheet" href="../../../tools/katex/katex.min.css">
+<script src="../../../tools/katex/katex.min.js"></script>
+<script src="../../../tools/viz-math.js"></script>
 <style>
   h1 { color: #1e3a8a; }
   h2 { color: #1e40af; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bfdbfe; }
@@ -48,6 +51,7 @@
 
 <h2>1. Circular Motion Animator</h2>
 <div class="card">
+  <p style="margin-top:0">Nhập r, T rồi bấm Bắt đầu — vector v (xanh) luôn tiếp tuyến, a (đỏ) luôn hướng vào tâm. <strong>Thử:</strong> giảm T một nửa — ω và v gấp đôi nhưng a_c gấp 4 (a = ω²·r).</p>
   <div class="row">
     <label>Bán kính r (m):</label>
     <input type="number" id="cmR" step="0.5" value="3" oninput="updateCM()">
@@ -98,7 +102,7 @@
   </div>
 </div>
 
-<h2>🌍 Đời sống thực tế — Xe vào cua: tốc độ tối đa theo ma sát</h2>
+<h2>4. 🌍 Đời sống thực tế — Xe vào cua: tốc độ tối đa theo ma sát</h2>
 <div class="card">
   <p>Khi xe vào cua, ma sát ngang của lốp đóng vai trò <strong>lực hướng tâm</strong> giữ xe đi theo đường cong. Nếu cần lực hướng tâm m·v²/r vượt quá ma sát tối đa μ·m·g, xe trượt ra ngoài. Kéo các thanh để tìm tốc độ tối đa an toàn (đường phẳng vs nghiêng).</p>
   <div class="row">
@@ -149,13 +153,14 @@ function updateCM() {
 
   document.getElementById("cmResult").innerHTML = `
     <div class="row">
+      <span style="font-family:monospace; font-size:14px">① Chuỗi suy ra:</span>
       <span class="stat">ω = 2π/T = <strong>${omega.toFixed(2)} rad/s</strong></span>
       <span class="stat">v = ω·r = <strong>${v.toFixed(2)} m/s</strong></span>
       <span class="stat">a_c = v²/r = <strong>${ac.toFixed(2)} m/s²</strong></span>
       <span class="stat">F_c = m·a_c = <strong>${Fc.toFixed(2)} N</strong></span>
     </div>
     <div style="margin-top:8px; font-size:13px">
-      <strong>Quan sát:</strong> Vector vận tốc v (xanh) luôn vuông góc với bán kính (= tiếp tuyến). Gia tốc a (đỏ) và lực F_c luôn hướng vào tâm. |v| không đổi nhưng hướng đổi → có gia tốc!
+      ② <strong>Quan sát:</strong> Vector vận tốc v (xanh) luôn vuông góc với bán kính (= tiếp tuyến). Gia tốc a (đỏ) và lực F_c luôn hướng vào tâm. |v| không đổi nhưng hướng đổi → có gia tốc!
     </div>
   `;
   drawCM();
@@ -281,15 +286,16 @@ function calcSat() {
 
   document.getElementById("satResult").innerHTML = `
     <div class="row">
+      <span style="font-family:monospace; font-size:14px">① Tính:</span>
       <span class="stat">r = R_T + h = <strong>${(r/1000).toFixed(0)} km</strong></span>
-      <span class="stat">v = √(GM/r) = <strong>${(v/1000).toFixed(3)} km/s</strong></span>
+      <span class="stat">${km("v=\\sqrt{GM/r}")} = <strong>${(v/1000).toFixed(3)} km/s</strong></span>
       <span class="stat">T = <strong>${Tlbl}</strong></span>
     </div>
     <div class="row">
-      <span class="stat">a_c = v²/r = <strong>${ac.toFixed(2)} m/s²</strong> (= g ở độ cao này)</span>
+      <span class="stat">② a_c = v²/r = <strong>${ac.toFixed(2)} m/s²</strong> (= g ở độ cao này)</span>
     </div>
     <div style="margin-top:6px; font-size:13px">
-      ${h < 1000 ? "Quỹ đạo thấp (LEO) — ISS, vệ tinh quan sát Trái Đất, chu kỳ ~90 phút." :
+      ③ ${h < 1000 ? "Quỹ đạo thấp (LEO) — ISS, vệ tinh quan sát Trái Đất, chu kỳ ~90 phút." :
        h < 30000 ? "Quỹ đạo trung (MEO) — GPS, Galileo." :
        h < 40000 ? "Quỹ đạo địa tĩnh (GEO) — T = 1 ngày, vệ tinh đứng yên trên 1 điểm Trái Đất." :
        "Quỹ đạo Mặt Trăng — T ≈ 27 ngày."}
@@ -367,12 +373,12 @@ function updateCorner() {
 
   document.getElementById("corResult").innerHTML = `
     <h3 style="margin-top:0">Walk-through số thật</h3>
-    <p>Vào cua ${speedKmh.toFixed(0)} km/h = <strong>${v.toFixed(2)} m/s</strong>, bán kính ${radius.toFixed(0)} m. Gia tốc hướng tâm cần thiết a = v²/r = ${v.toFixed(2)}²/${radius.toFixed(0)} = <strong>${acNeeded.toFixed(2)} m/s²</strong> (≈ ${gForce.toFixed(2)} g ngang).</p>
+    <p>① Vào cua ${speedKmh.toFixed(0)} km/h = <strong>${v.toFixed(2)} m/s</strong>, bán kính ${radius.toFixed(0)} m. Gia tốc hướng tâm cần thiết a = v²/r = ${v.toFixed(2)}²/${radius.toFixed(0)} = <strong>${acNeeded.toFixed(2)} m/s²</strong> (≈ ${gForce.toFixed(2)} g ngang).</p>
     <div class="row">
-      <span class="stat">Đường phẳng: v_max = √(μ·g·r) = √(${mu.toFixed(2)}·9.8·${radius.toFixed(0)}) = <strong>${(vMaxFlat*3.6).toFixed(0)} km/h</strong></span>
+      <span class="stat">② Đường phẳng: ${km("v_{max}=\\sqrt{\\mu g r}")} = √(${mu.toFixed(2)}·9.8·${radius.toFixed(0)}) = <strong>${(vMaxFlat*3.6).toFixed(0)} km/h</strong></span>
     </div>
     <div class="row">
-      <span class="stat">Đường nghiêng ${bank.toFixed(0)}°: v_max = <strong>${vMaxBank===Infinity ? "∞" : (vMaxBank*3.6).toFixed(0)+" km/h"}</strong></span>
+      <span class="stat">③ Đường nghiêng ${bank.toFixed(0)}°: v_max = <strong>${vMaxBank===Infinity ? "∞" : (vMaxBank*3.6).toFixed(0)+" km/h"}</strong></span>
     </div>
     <div style="margin-top:8px; padding:10px; border-radius:6px; background:${safeFlat ? '#dcfce7' : (safeBank ? '#fef3c7' : '#fee2e2')}">
       <strong>${safeFlat ? '✓ An toàn trên cả đường phẳng.' : (safeBank ? '⚠ Văng nếu đường phẳng — cần mặt nghiêng để giữ.' : '💥 Quá nhanh — xe trượt ra ngoài cua!')}</strong>

@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lesson 03 — Các loại lực</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
+<link rel="stylesheet" href="../../../tools/katex/katex.min.css">
+<script src="../../../tools/katex/katex.min.js"></script>
+<script src="../../../tools/viz-math.js"></script>
 <style>
   h1 { color: #1e3a8a; }
   h2 { color: #1e40af; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bfdbfe; }
@@ -77,6 +80,7 @@
 
 <h2>2. Friction Simulator — Mặt phẳng nghiêng</h2>
 <div class="card">
+  <p style="margin-top:0">Kéo m, θ, μ — so lực kéo xuống dốc W·sinθ với ma sát giữ tối đa. <strong>Thử:</strong> tăng θ từ từ — đúng lúc W·sinθ vượt f_s_max, vật bắt đầu trượt.</p>
   <div class="row">
     <label>Khối lượng (kg):</label>
     <input type="number" id="fricM" step="1" value="5" oninput="updateFriction()">
@@ -134,7 +138,7 @@
   </table>
 </div>
 
-<h2>🌍 Đời sống thực tế — Kéo co: ma sát giày quyết định ai thắng</h2>
+<h2>6. 🌍 Đời sống thực tế — Kéo co: ma sát giày quyết định ai thắng</h2>
 <div class="card">
   <p>Trong kéo co, lực căng dây bằng nhau ở 2 đầu (định luật III). Đội <em>không</em> thắng nhờ kéo mạnh hơn một chút — mà nhờ <strong>chân không bị trượt</strong>. Ma sát giày giữ chân tối đa f_max = μ·N (N = trọng lượng đội). Khi chênh lệch lực kéo vượt ma sát giữ chân đối phương, họ trượt và thua.</p>
   <div class="row">
@@ -174,10 +178,11 @@ function calcGravity() {
   const m2 = parseFloat(document.getElementById("gravM2").value);
   const r = parseFloat(document.getElementById("gravR").value);
   const F = G * m1 * m2 / (r * r);
-  document.getElementById("gravResult").innerHTML = `
-    <div style="font-family:monospace; font-size:15px">F = G · m₁ · m₂ / r²</div>
-    <div style="font-family:monospace; font-size:14px; margin-top:6px">= ${G.toExponential(3)} × ${m1.toExponential(2)} × ${m2.toExponential(2)} / (${r.toExponential(2)})²</div>
-    <div style="font-family:monospace; font-size:18px; font-weight:700; color:#1e40af; margin-top:10px">F = ${F.toExponential(3)} N</div>
+  const gravEl = document.getElementById("gravResult");
+  gravEl.innerHTML = `
+    <div style="font-size:15px">① Công thức: ${km("F=\\dfrac{G\\,m_1\\,m_2}{r^2}")}</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">② Thay số: = ${G.toExponential(3)} × ${m1.toExponential(2)} × ${m2.toExponential(2)} / (${r.toExponential(2)})²</div>
+    <div style="font-family:monospace; font-size:18px; font-weight:700; color:#1e40af; margin-top:10px">③ F = ${F.toExponential(3)} N</div>
   `;
 }
 function setGrav(scen) {
@@ -208,16 +213,18 @@ function updateFriction() {
 
   document.getElementById("fricResult").innerHTML = `
     <div class="row">
+      <span style="font-family:monospace; font-size:14px">① Phân tích lực:</span>
       <span class="stat">W = m·g = <strong>${W.toFixed(1)} N</strong></span>
       <span class="stat">W·sinθ = <strong>${Wpara.toFixed(2)} N</strong> (kéo xuống dốc)</span>
       <span class="stat">N = W·cosθ = <strong>${N.toFixed(2)} N</strong></span>
     </div>
     <div class="row">
+      <span style="font-family:monospace; font-size:14px">② Ma sát:</span>
       <span class="stat" style="background:#fef3c7">f_s_max = μ_s·N = <strong>${fStaticMax.toFixed(2)} N</strong></span>
       <span class="stat" style="background:#fee2e2">f_k = μ_k·N = <strong>${fKinetic.toFixed(2)} N</strong></span>
     </div>
     <div style="margin-top:8px; padding:10px; background:${willSlide ? '#fee2e2' : '#dcfce7'}; border-radius:6px">
-      <strong>${willSlide ? '↘ VẬT TRƯỢT XUỐNG' : '⏸ VẬT ĐỨNG YÊN'}</strong>
+      ③ <strong>${willSlide ? '↘ VẬT TRƯỢT XUỐNG' : '⏸ VẬT ĐỨNG YÊN'}</strong>
       ${willSlide
         ? `<br>W·sinθ (${Wpara.toFixed(2)}) > f_s_max (${fStaticMax.toFixed(2)}) → vật bắt đầu trượt.<br><strong>Gia tốc a = (W·sinθ − f_k)/m = ${a.toFixed(2)} m/s²</strong>`
         : `<br>W·sinθ (${Wpara.toFixed(2)}) ≤ f_s_max (${fStaticMax.toFixed(2)}) → ma sát tĩnh đủ giữ vật yên.`}
@@ -514,15 +521,16 @@ function updateTugwar() {
   const tugEl = document.getElementById("tugResult");
   tugEl.innerHTML = `
     <h3 style="margin-top:0">Walk-through số thật</h3>
-    <p>Mỗi đội bám đất bằng ma sát giày. Ma sát giữ chân tối đa: f_max = μ·N = μ·(trọng lượng đội) = ${mu.toFixed(2)}·${weightTeam.toFixed(0)} = <strong>${fMaxA.toFixed(0)} N</strong>.</p>
+    <p>① Mỗi đội bám đất bằng ma sát giày. Ma sát giữ chân tối đa: f_max = μ·N = μ·(trọng lượng đội) = ${mu.toFixed(2)}·${weightTeam.toFixed(0)} = <strong>${fMaxA.toFixed(0)} N</strong>.</p>
     <div class="row">
+      <span style="font-family:monospace; font-size:14px">② So lực:</span>
       <span class="stat">Lực kéo đội A = <strong>${pullA.toFixed(0)} N</strong></span>
       <span class="stat">Lực kéo đội B = <strong>${pullB.toFixed(0)} N</strong></span>
       <span class="stat">Chênh lệch = <strong>${Math.abs(netPull).toFixed(0)} N</strong></span>
     </div>
     <div style="margin-top:8px; padding:10px; border-radius:6px; background:${winner==='none' ? '#dcfce7' : '#fee2e2'}">
-      <strong>${verdict}</strong>
-      ${slip > 0 ? `<br>Lực dư = ${Math.abs(netPull).toFixed(0)} − ${loserFmax.toFixed(0)} = <strong>${slip.toFixed(0)} N</strong> → gia tốc trượt của đội thua a = lực dư / m = $\\dfrac{${slip.toFixed(0)}}{${massLoser.toFixed(1)}}$ = <strong>${accel.toFixed(2)} m/s²</strong>.` : ""}
+      ③ <strong>${verdict}</strong>
+      ${slip > 0 ? `<br>Lực dư = ${Math.abs(netPull).toFixed(0)} − ${loserFmax.toFixed(0)} = <strong>${slip.toFixed(0)} N</strong> → gia tốc trượt của đội thua a = lực dư / m = ${km(`\\dfrac{${slip.toFixed(0)}}{${massLoser.toFixed(1)}}`)} = <strong>${accel.toFixed(2)} m/s²</strong>.` : ""}
     </div>
     <div style="margin-top:8px; font-size:13px">
       Bí quyết kéo co không chỉ là "kéo mạnh" — mà là <strong>không bị trượt</strong>. Đội nào tăng ma sát giày (đế bám, ngả người để tăng N hướng xuống) sẽ giữ được chân. Khi chênh lệch lực kéo vượt ma sát giữ chân của đối phương, họ bắt đầu trượt và thua.

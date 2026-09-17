@@ -223,6 +223,7 @@
 <h2>1. Lấy mẫu (Sampling) &amp; Định lý Nyquist</h2>
 <div class="card">
   <p>Kéo các slider để thay đổi tần số tín hiệu và tần số lấy mẫu. Quan sát khi nào aliasing xảy ra.</p>
+  <p style="margin-top:0"><strong>Thử:</strong> kéo f_s xuống dưới 2×f_signal — xuất hiện tín hiệu "giả" tần số thấp (aliasing). Đây là lý do CD lấy mẫu 44.1 kHz cho ngưỡng tai người 20 kHz.</p>
 
   <div class="row">
     <label>Tần số tín hiệu f_signal:</label>
@@ -519,9 +520,9 @@ function drawSampling() {
     aliasBox.style.display = 'none';
   } else {
     statusEl.className = 'alias-indicator alias-bad';
-    statusEl.textContent = `Vi pham Nyquist! f_s = ${fS} Hz < 2 × ${fSig} = ${2*fSig} Hz. Aliasing xay ra!`;
+    statusEl.textContent = `Vi phạm Nyquist! f_s = ${fS} Hz < 2 × ${fSig} = ${2*fSig} Hz. Aliasing xảy ra!`;
     aliasBox.style.display = 'block';
-    aliasBox.innerHTML = `<strong>Aliasing:</strong> f_signal = ${fSig} Hz bi "hoa trang" thanh f_alias = <strong>${fAlias.toFixed(0)} Hz</strong>. Duong do net dut la tin hieu sai ma bo so se "thay". Giai phap: dat bo loc low-pass cat moi tan so > ${nyquist} Hz truoc ADC.`;
+    aliasBox.innerHTML = `<strong>Aliasing:</strong> f_signal = ${fSig} Hz bị "hóa trang" thành f_alias = <strong>${fAlias.toFixed(0)} Hz</strong>. Đường đỏ nét đứt là tín hiệu sai mà bộ số sẽ "thấy". Giải pháp: đặt bộ lọc low-pass cắt mọi tần số > ${nyquist} Hz trước ADC.`;
   }
 
   document.getElementById('sampResult').innerHTML = `
@@ -530,12 +531,12 @@ function drawSampling() {
       <span class="stat">f_s = <strong>${fS} Hz</strong></span>
       <span class="stat">T_s = <strong>${(1000/fS).toFixed(3)} ms</strong></span>
       <span class="stat">Nyquist = f_s/2 = <strong>${nyquist} Hz</strong></span>
-      <span class="stat">Mau trong 3 chu ky = <strong>${nSamples} mau</strong></span>
+      <span class="stat">Mẫu trong 3 chu kỳ = <strong>${nSamples} mẫu</strong></span>
     </div>
     <div style="margin-top:6px">
       ${isGood
-        ? `Ty le lay mau: <code>f_s / f_signal = ${(fS/fSig).toFixed(1)}x</code> — du de tai tao chinh xac.`
-        : `<span style="color:#dc2626">f_signal = ${fSig} Hz vuot qua Nyquist ${nyquist} Hz → f_alias = ${fAlias.toFixed(0)} Hz</span>`
+        ? `Tỷ lệ lấy mẫu: <code>f_s / f_signal = ${(fS/fSig).toFixed(1)}×</code> — đủ để tái tạo chính xác.`
+        : `<span style="color:#dc2626">f_signal = ${fSig} Hz vượt quá Nyquist ${nyquist} Hz → f_alias = ${fAlias.toFixed(0)} Hz</span>`
       }
     </div>`;
 }
@@ -663,7 +664,7 @@ function drawQuantization() {
 
   // Legend
   const legData = [
-    ['Analog goc', '#4ade80'], ['So hoa (staircase)', '#facc15'], ['Sai so luong tu', '#f87171']
+    ['Analog gốc', '#4ade80'], ['Số hóa (staircase)', '#facc15'], ['Sai số lượng tử', '#f87171']
   ];
   let legX = Q_PAD.l + 4;
   for (const [lbl, col] of legData) {
@@ -679,15 +680,15 @@ function drawQuantization() {
   document.getElementById('quantResult').innerHTML = `
     <div class="row">
       <span class="stat">n = <strong>${n} bit</strong></span>
-      <span class="stat">Muc = <strong>2<sup>${n}</sup> = ${levels}</strong></span>
+      <span class="stat">Mức = <strong>2<sup>${n}</sup> = ${levels}</strong></span>
       <span class="stat">LSB = V_ref/2<sup>n</sup> = <strong>${lsb.toFixed(4)} V (${(lsb*1000).toFixed(2)} mV)</strong></span>
-      <span class="stat">Sai so toi da = <strong>±${maxErr.toFixed(4)} V</strong></span>
+      <span class="stat">Sai số tối đa = <strong>±${maxErr.toFixed(4)} V</strong></span>
     </div>
     <div style="margin-top:6px">
-      <code>Buoc LSB = ${vRef}V / ${levels} = ${lsb.toFixed(4)} V</code> —
-      ${n <= 3 ? 'Do phan giai kha thap — bac thang ro rang.' :
-        n <= 5 ? 'Do phan giai trung binh — bac thang nho dan.' :
-        'Do phan giai tot — bac thang gan nhu khong nhin thay.'}
+      <code>Bước LSB = ${vRef}V / ${levels} = ${lsb.toFixed(4)} V</code> —
+      ${n <= 3 ? 'Độ phân giải khá thấp — bậc thang rõ ràng.' :
+        n <= 5 ? 'Độ phân giải trung bình — bậc thang nhỏ dần.' :
+        'Độ phân giải tốt — bậc thang gần như không nhìn thấy.'}
     </div>`;
 }
 
@@ -702,7 +703,7 @@ function calcADC() {
   const lsb  = vref / Math.pow(2, n);
 
   if (vin < 0 || vin > vref) {
-    document.getElementById('adc_result').innerHTML = `<span style="color:#dc2626">V_in (${vin}V) phai trong khoang 0..${vref}V.</span>`;
+    document.getElementById('adc_result').innerHTML = `<span style="color:#dc2626">V_in (${vin}V) phải nằm trong khoảng 0..${vref}V.</span>`;
     return;
   }
   const code = Math.round(vin / vref * maxCode);
@@ -715,8 +716,8 @@ function calcADC() {
     </div>
     <div class="row">
       <span class="stat">LSB = <strong>${(lsb*1000).toFixed(3)} mV</strong></span>
-      <span class="stat">V tai tao = <strong>${vBack.toFixed(4)} V</strong></span>
-      <span class="stat">Sai so = <strong>${(err*1000).toFixed(3)} mV</strong></span>
+      <span class="stat">V tái tạo = <strong>${vBack.toFixed(4)} V</strong></span>
+      <span class="stat">Sai số = <strong>${(err*1000).toFixed(3)} mV</strong></span>
     </div>
     <div style="margin-top:6px; font-family:monospace; font-size:12px; color:#4a5568">
       Code = round(${vin}/${vref} × ${maxCode}) = round(${(vin/vref*maxCode).toFixed(3)}) = ${code}
@@ -731,7 +732,7 @@ function calcDAC() {
   const lsb = vref / Math.pow(2, n);
 
   if (code < 0 || code > maxCode) {
-    document.getElementById('dac_result').innerHTML = `<span style="color:#dc2626">Code (${code}) phai trong 0..${maxCode}.</span>`;
+    document.getElementById('dac_result').innerHTML = `<span style="color:#dc2626">Code (${code}) phải nằm trong 0..${maxCode}.</span>`;
     return;
   }
   const vout = code / maxCode * vref;

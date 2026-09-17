@@ -280,6 +280,7 @@
 <h2>1. UART — Mô phỏng khung truyền và thời gian</h2>
 <div class="card">
   <p>Nhập ký tự ASCII hoặc giá trị hex, chọn cấu hình và baud rate — xem giản đồ xung TX và thời gian truyền.</p>
+  <p style="margin-top:0"><strong>Thử:</strong> 9600 bps cấu hình 8N1 — mỗi byte tốn 10 bit trên dây → chỉ ~960 byte/s; bật parity — hiệu suất tụt thêm vì mỗi khung gánh 1 bit kiểm tra.</p>
 
   <div class="ctrl-row">
     <div class="ctrl-group">
@@ -709,12 +710,12 @@ function updateUART() {
   for (let i = 0; i < 8; i++) bitSeq.push((byteVal >> i) & 1);
 
   document.getElementById('uart-result').innerHTML = `
-Ký tự: <span class="hl">'${charInput || 'A'}'</span> = <span class="hl">0x${byteVal.toString(16).toUpperCase().padStart(2,'0')}</span> = <span class="hl">${byteVal.toString(2).padStart(8,'0')}</span> (nhị phân)<br>
-Cấu hình: <span class="info">${config}</span> → ${frameBits} bit/frame (1 start + ${dataBits} data${hasParity ? ' + 1 parity' : ''} + ${stopBits} stop)<br>
-Baud rate: <span class="hl">${baud.toLocaleString()} bps</span> → T_bit = ${fmtTime(T_bit_us)} · T_frame = ${fmtTime(T_frame_us)}<br>
+① Ký tự: <span class="hl">'${charInput || 'A'}'</span> = <span class="hl">0x${byteVal.toString(16).toUpperCase().padStart(2,'0')}</span> = <span class="hl">${byteVal.toString(2).padStart(8,'0')}</span> (nhị phân)<br>
+② Cấu hình: <span class="info">${config}</span> → ${frameBits} bit/frame (1 start + ${dataBits} data${hasParity ? ' + 1 parity' : ''} + ${stopBits} stop)<br>
+③ Baud rate: <span class="hl">${baud.toLocaleString()} bps</span> → T_bit = ${fmtTime(T_bit_us)} · T_frame = ${fmtTime(T_frame_us)}<br>
 ${nBytes > 1 ? `Truyền ${nBytes} byte: T_total = ${fmtTime(T_total_us)}<br>` : ''}
-Hiệu suất: ${dataBits}/${frameBits} = <span class="hl">${((dataBits/frameBits)*100).toFixed(1)}%</span> → Throughput thực = <span class="hl">${throughput_Bps.toFixed(0)} byte/s = ${(throughput_Bps/1024).toFixed(2)} kB/s</span><br>
-Thứ tự bit trên dây: IDLE → START(0) → ${bitSeq.join(' ')}${hasParity ? ' P('+parityBit+')' : ''} → STOP(1) → IDLE
+④ Hiệu suất: ${dataBits}/${frameBits} = <span class="hl">${((dataBits/frameBits)*100).toFixed(1)}%</span> → Throughput thực = <span class="hl">${throughput_Bps.toFixed(0)} byte/s = ${(throughput_Bps/1024).toFixed(2)} kB/s</span><br>
+⑤ Thứ tự bit trên dây: IDLE → START(0) → ${bitSeq.join(' ')}${hasParity ? ' P('+parityBit+')' : ''} → STOP(1) → IDLE
   `;
 }
 
@@ -877,11 +878,11 @@ function updateI2CBus() {
   const addrByte = rw === 'W' ? addrByte_W : addrByte_R;
 
   document.getElementById('i2c-bus-result').innerHTML = `
-Master → Slave <span class="hl">${dev.name}</span> (địa chỉ <span class="hl">0x${addr.toString(16).toUpperCase()}</span>), hoạt động: <span class="info">${rw === 'W' ? 'Ghi' : 'Đọc'}</span><br>
-Byte địa chỉ trên bus: <span class="hl">0x${addrByte.toString(16).toUpperCase().padStart(2,'0')}</span>
+① Master → Slave <span class="hl">${dev.name}</span> (địa chỉ <span class="hl">0x${addr.toString(16).toUpperCase()}</span>), hoạt động: <span class="info">${rw === 'W' ? 'Ghi' : 'Đọc'}</span><br>
+② Byte địa chỉ trên bus: <span class="hl">0x${addrByte.toString(16).toUpperCase().padStart(2,'0')}</span>
 = địa chỉ <span class="hl">0x${addr.toString(16).toUpperCase()}</span> (7-bit) dịch trái 1 bit + bit R/W = <span class="hl">${rw === 'W' ? '0' : '1'}</span><br>
-Tốc độ: <span class="hl">${(speed/1000).toLocaleString()} kHz</span> → T_bit = ${fmtTime(T_bit_us)}<br>
-Giao dịch 1 byte dữ liệu ≈ <span class="hl">${T_us.toFixed(2)} µs</span> (start + 9+9 clock + stop)
+③ Tốc độ: <span class="hl">${(speed/1000).toLocaleString()} kHz</span> → T_bit = ${fmtTime(T_bit_us)}<br>
+④ Giao dịch 1 byte dữ liệu ≈ <span class="hl">${T_us.toFixed(2)} µs</span> (start + 9+9 clock + stop)
   `;
 
   drawI2CBusWave(addr, rw);

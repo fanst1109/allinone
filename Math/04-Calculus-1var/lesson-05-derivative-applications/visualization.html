@@ -201,7 +201,77 @@ function profit() {
 addEventListener("DOMContentLoaded", profit);
 </script>
 
-<h2>2. 🌍 Đời sống thực tế — Quán cà phê nên bán giá nào để lãi nhất?</h2>
+
+<h2>2. Định lý Lagrange (MVT) — tiếp tuyến song song cát tuyến</h2>
+<div class="card">
+  <p style="margin-top:0">Hàm f(x) = x³ − 3x. Kéo hai đầu đoạn [a, b] — đường xanh lá là <strong>cát tuyến</strong> (tốc độ trung bình), đường đỏ đứt là <strong>tiếp tuyến tại c</strong> mà MVT hứa tồn tại: luôn song song cát tuyến. <strong>Thử:</strong> kéo [a, b] bất kỳ — luôn có ít nhất một c; nhiều vị trí cho HAI điểm c: MVT nói "ít nhất một", không nói duy nhất. Đây là lý do camera phạt nguội tốc độ trung bình đứng vững: trung bình 135 km/h thì ắt có khoảnh khắc kim chỉ đúng 135.</p>
+  <div class="row">
+    <label>a:</label>
+    <input type="range" id="mvtA" min="-2.5" max="2.1" step="0.1" value="-2" oninput="drawMVT()">
+    <span class="stat">a = <strong id="mvtVA">−2.0</strong></span>
+    <label>b:</label>
+    <input type="range" id="mvtB" min="-2.1" max="2.5" step="0.1" value="1.5" oninput="drawMVT()">
+    <span class="stat">b = <strong id="mvtVB">1.5</strong></span>
+  </div>
+  <svg class="scene" id="mvtSvg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="mvtRes"></div>
+</div>
+
+<script>
+function drawMVT() {
+  const f = x => x*x*x - 3*x;
+  const fp = x => 3*x*x - 3;
+  let a = parseFloat(document.getElementById("mvtA").value);
+  let b = parseFloat(document.getElementById("mvtB").value);
+  if (b <= a + 0.25) { b = a + 0.3; document.getElementById("mvtB").value = b; }
+  const fmt = v => (v<0?"−":"") + Math.abs(v).toFixed(2);
+  document.getElementById("mvtVA").textContent = fmt(a);
+  document.getElementById("mvtVB").textContent = fmt(b);
+
+  const svg = document.getElementById("mvtSvg");
+  svg.innerHTML = "";
+  const X0=-2.6, X1=2.6, Y0=-4.5, Y1=4.5;
+  const px = x => 50 + (x - X0) / (X1 - X0) * 600;
+  const py = y => 370 - (y - Y0) / (Y1 - Y0) * 340;
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t, at) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); svg.appendChild(e); return e; };
+  // trục
+  el("line", {x1:px(X0), y1:py(0), x2:px(X1), y2:py(0), stroke:"#94a3b8", "stroke-width":1});
+  el("line", {x1:px(0), y1:py(Y0), x2:px(0), y2:py(Y1), stroke:"#94a3b8", "stroke-width":1});
+  // đường cong
+  let d = "";
+  for (let x = X0; x <= X1; x += 0.02) d += (d ? "L" : "M") + px(x) + " " + py(f(x)) + " ";
+  el("path", {d, fill:"none", stroke:"#1d4ed8", "stroke-width":2.5});
+  // cát tuyến
+  const m = (f(b) - f(a)) / (b - a);
+  const secY = x => f(a) + m * (x - a);
+  el("line", {x1:px(a-0.3), y1:py(secY(a-0.3)), x2:px(b+0.3), y2:py(secY(b+0.3)), stroke:"#15803d", "stroke-width":2});
+  el("circle", {cx:px(a), cy:py(f(a)), r:5, fill:"#15803d"});
+  el("circle", {cx:px(b), cy:py(f(b)), r:5, fill:"#15803d"});
+  // c: f'(c)=m => 3c²−3=m => c=±√((m+3)/3)
+  let cs = [];
+  if (m + 3 >= 0) {
+    const r = Math.sqrt((m + 3) / 3);
+    [r, -r].forEach(c => { if (c > a + 1e-9 && c < b - 1e-9) cs.push(c); });
+  }
+  cs.forEach(c => {
+    const tY = x => f(c) + m * (x - c);
+    el("line", {x1:px(c-0.7), y1:py(tY(c-0.7)), x2:px(c+0.7), y2:py(tY(c+0.7)), stroke:"#dc2626", "stroke-width":2.2, "stroke-dasharray":"7 4"});
+    el("circle", {cx:px(c), cy:py(f(c)), r:5.5, fill:"#dc2626"});
+    const t = el("text", {x:px(c)+8, y:py(f(c))-8, fill:"#dc2626", "font-size":13});
+    t.textContent = "c = " + fmt(c);
+  });
+  const cTxt = cs.map(c => `c = <strong>${fmt(c)}</strong>, f'(c) = <strong>${fmt(fp(c))}</strong>`).join(" &nbsp;·&nbsp; ");
+  document.getElementById("mvtRes").innerHTML =
+    `<div style="margin-bottom:6px">${km("f'(c) = \\dfrac{f(b)-f(a)}{b-a}")}</div>` +
+    `<span class="stat">① slope cát tuyến = (${fmt(f(b))} − ${fmt(f(a))}) / (${fmt(b)} − ${fmt(a)}) = <strong>${fmt(m)}</strong></span>` +
+    `<span class="stat">② ${cs.length ? cTxt : "—"}</span>` +
+    `<span class="stat">③ ${cs.length ? "f'(c) = slope ✓ (" + cs.length + " điểm c)" : "không có c trong (a,b)"}</span>`;
+}
+drawMVT();
+</script>
+
+<h2>3. 🌍 Đời sống thực tế — Quán cà phê nên bán giá nào để lãi nhất?</h2>
 <div class="card">
   <p style="margin-top:0; color:#475569">Bài tối ưu hộp ở trên là hình học; đây là tối ưu trong <strong>kinh doanh</strong>. Một ly cà phê vốn 15k. Bán càng đắt thì lãi mỗi ly cao nhưng ít khách: ước lượng số ly bán được mỗi ngày <code>q = 200 − 4p</code> (p tính nghìn đồng). Lợi nhuận <code>Π(p) = (p − 15)·(200 − 4p)</code> — tìm giá p để Π lớn nhất bằng cách giải <strong>Π'(p) = 0</strong>.</p>
   <div class="row">

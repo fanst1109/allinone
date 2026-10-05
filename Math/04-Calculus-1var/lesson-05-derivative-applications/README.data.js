@@ -83,7 +83,110 @@ Dấu $f'$ đọc thành "hình dáng" đồ thị: lên–đỉnh–xuống–�
 
 ---
 
-## 2. Cực trị
+## 2. Định lý Rolle & định lý Lagrange (MVT)
+
+💡 **Trực giác — camera phạt nguội tốc độ trung bình.** Cao tốc có hai trạm camera cách nhau 60 km, giới hạn 100 km/h. Xe bạn qua trạm 1 lúc 14:00, qua trạm 2 lúc 14:30 — tốc độ trung bình $\\frac{60}{0.5} = 120$ km/h. Không camera nào bắn được tốc độ tức thời, nhưng biên bản phạt vẫn đứng vững: toán học **bảo đảm** có ít nhất một khoảnh khắc kim đồng hồ chỉ đúng 120. Không thể cả hành trình đều chạy dưới 120 mà trung bình lại ra 120. Định lý "bảo kê" cho khẳng định đó chính là **định lý giá trị trung bình** — do Lagrange phát biểu, nên còn gọi là **định lý Lagrange**. (Hệ thống phạt tốc độ trung bình qua hai mốc — section control — đang áp dụng trên một số tuyến cao tốc ở Việt Nam.)
+
+### 2.1. Định lý Rolle — trường hợp "hai đầu bằng nhau"
+
+**Định lý Rolle**: nếu $f$ **liên tục trên $[a, b]$**, **khả vi trên $(a, b)$**, và $f(a) = f(b)$, thì tồn tại ít nhất một điểm $c \\in (a, b)$ sao cho:
+
+$$f'(c) = 0$$
+
+💡 Ném quả bóng lên rồi bắt lại ở cùng độ cao — ắt có khoảnh khắc bóng đứng lơ lửng (vận tốc 0) tại đỉnh. Xuất phát và về đích cùng "độ cao" thì đâu đó ở giữa đồ thị phải có điểm nằm ngang.
+
+**Ví dụ số**: $f(x) = x^2 - 4x$ trên $[0, 4]$: $f(0) = f(4) = 0$. $f'(x) = 2x - 4 = 0 \\Rightarrow c = 2 \\in (0, 4)$ ✓ — đúng đỉnh parabol.
+
+### 2.2. Định lý Lagrange (Mean Value Theorem — MVT)
+
+Rolle đòi hai đầu bằng nhau — hiếm gặp. Lagrange "nghiêng" định lý đi: hai đầu tùy ý.
+
+> 📐 **Định nghĩa đầy đủ — định lý Lagrange (MVT)**
+>
+> **(a) Là gì**: nếu $f$ liên tục trên $[a,b]$ và khả vi trên $(a,b)$, thì tồn tại $c \\in (a, b)$ sao cho:
+>
+> $$f'(c) = \\frac{f(b) - f(a)}{b - a}$$
+>
+> Vế phải là **slope cát tuyến** nối hai đầu đồ thị (tốc độ trung bình); vế trái là **slope tiếp tuyến** tại $c$ (tốc độ tức thời). MVT nói: luôn có chỗ tiếp tuyến **song song** cát tuyến.
+>
+> **(b) Vì sao cần**: MVT là **cây cầu nối đạo hàm tại một điểm với hành vi của hàm trên cả khoảng**. Định nghĩa $f'$ chỉ nói chuyện cục bộ tại từng điểm; muốn kết luận kiểu "f tăng trên cả khoảng" (mục 1), "hai hàm cùng đạo hàm thì chỉ lệch nhau hằng số" (nền của nguyên hàm — Lesson 06), hay "sai số xấp xỉ bị chặn" đều phải đi qua MVT. Không có nó, các định lý ở mục 1 chỉ là niềm tin.
+>
+> **(c) Ví dụ trực giác bằng số**: xe đi quãng đường $s(t) = 120t^2$ (km, $t$ giờ — tăng tốc dần) trong nửa giờ đầu. Tốc độ trung bình $= \\frac{s(0.5) - s(0)}{0.5} = \\frac{30}{0.5} = 60$ km/h. MVT hứa có lúc đồng hồ chỉ đúng 60: $s'(t) = 240t = 60 \\Rightarrow c = 0.25$ — phút thứ 15, nằm trong $(0,\\ 0.5)$ ✓.
+
+**Hình — cát tuyến (xanh lá) và tiếp tuyến song song tại c (đỏ):**
+
+<svg viewBox="0 0 520 300" style="max-width:520px;width:100%;height:auto;display:block;margin:14px auto;background:#f8fafc;border-radius:8px" role="img" aria-label="Đồ thị hàm lồi với cát tuyến nối (a, f(a)) và (b, f(b)), tiếp tuyến tại c song song cát tuyến">
+  <defs><marker id="mvt1ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a202c"/></marker></defs>
+  <line x1="40" y1="260" x2="500" y2="260" stroke="#1a202c" stroke-width="1.5" marker-end="url(#mvt1ar)"/>
+  <line x1="40" y1="260" x2="40" y2="20" stroke="#1a202c" stroke-width="1.5" marker-end="url(#mvt1ar)"/>
+  <text x="495" y="278" fill="#1a202c" font-size="13">x</text>
+  <text x="24" y="30" fill="#1a202c" font-size="13">y</text>
+  <path d="M 80 220 Q 260 -40 450 120" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+  <line x1="80" y1="220" x2="450" y2="120" stroke="#15803d" stroke-width="2"/>
+  <line x1="150" y1="113" x2="380" y2="51" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="80" cy="220" r="4" fill="#15803d"/>
+  <circle cx="450" cy="120" r="4" fill="#15803d"/>
+  <circle cx="265" cy="82" r="4.5" fill="#dc2626"/>
+  <line x1="80" y1="220" x2="80" y2="260" stroke="#94a3b8" stroke-dasharray="4 3"/>
+  <line x1="450" y1="120" x2="450" y2="260" stroke="#94a3b8" stroke-dasharray="4 3"/>
+  <line x1="265" y1="82" x2="265" y2="260" stroke="#94a3b8" stroke-dasharray="4 3"/>
+  <text x="76" y="276" fill="#475569" font-size="13">a</text>
+  <text x="261" y="276" fill="#dc2626" font-size="13">c</text>
+  <text x="446" y="276" fill="#475569" font-size="13">b</text>
+  <text x="300" y="190" fill="#15803d" font-size="12">cát tuyến — slope = (f(b)−f(a))/(b−a)</text>
+  <text x="150" y="60" fill="#dc2626" font-size="12">tiếp tuyến tại c — slope = f′(c), song song cát tuyến</text>
+</svg>
+
+**Vì sao MVT đúng (phác chứng minh qua Rolle, từng bước):**
+1. Đặt $h(x) = f(x) - \\left[f(a) + \\frac{f(b)-f(a)}{b-a}(x - a)\\right]$ — hiệu giữa $f$ và đường cát tuyến.
+2. $h$ liên tục trên $[a,b]$, khả vi trên $(a,b)$ (vì $f$ như vậy và phần trừ là đa thức bậc 1).
+3. $h(a) = f(a) - f(a) = 0$ và $h(b) = f(b) - \\left[f(a) + (f(b)-f(a))\\right] = 0$ — hai đầu bằng nhau.
+4. Rolle áp cho $h$: tồn tại $c$ với $h'(c) = 0$, tức $f'(c) - \\frac{f(b)-f(a)}{b-a} = 0$. ∎
+
+### 2.3. Bốn ví dụ số — tự tìm c
+
+1. $f(x) = x^2$ trên $[1, 3]$: slope cát tuyến $= \\frac{9-1}{2} = 4$; $f'(c) = 2c = 4 \\Rightarrow c = 2 \\in (1,3)$ ✓.
+2. $f(x) = x^3$ trên $[0, 3]$: slope $= \\frac{27-0}{3} = 9$; $3c^2 = 9 \\Rightarrow c = \\sqrt{3} \\approx 1.732$ ✓ (nghiệm $-\\sqrt 3$ bị loại vì nằm ngoài $(0,3)$).
+3. $f(x) = \\ln x$ trên $[1, e]$: slope $= \\frac{1 - 0}{e - 1} \\approx 0.582$; $\\frac{1}{c} = \\frac{1}{e-1} \\Rightarrow c = e - 1 \\approx 1.718 \\in (1, e)$ ✓.
+4. $f(x) = \\sin x$ trên $[0, \\pi]$ (Rolle vì $\\sin 0 = \\sin \\pi = 0$): $\\cos c = 0 \\Rightarrow c = \\frac{\\pi}{2}$ ✓ — đỉnh sóng.
+
+### 2.4. MVT trả nợ cho mục 1 — và chặn sai số
+
+**Chứng minh định lý đồng biến** (mục 1 đã dùng mà chưa chứng minh): giả sử $f' > 0$ trên khoảng. Lấy hai điểm bất kỳ $x_1 < x_2$. MVT trên $[x_1, x_2]$: tồn tại $c$ với
+
+$$f(x_2) - f(x_1) = f'(c)\\,(x_2 - x_1) > 0$$
+
+(vì $f'(c) > 0$ và $x_2 - x_1 > 0$) → $f(x_2) > f(x_1)$ — đồng biến. Mọi kết luận "dấu của $f'$ quyết định chiều biến thiên" đứng trên đúng một dòng này.
+
+**Chặn chênh lệch hàm bằng chặn đạo hàm**: nếu $|f'| \\le M$ trên khoảng thì $|f(b) - f(a)| = |f'(c)|\\,|b-a| \\le M\\,|b - a|$. Ví dụ số: $|\\sin a - \\sin b| \\le 1 \\cdot |a - b|$ (vì $|\\cos| \\le 1$) — thử $a = 0.2, b = 0.1$: $|\\sin 0.2 - \\sin 0.1| = |0.19867 - 0.09983| = 0.09884 \\le 0.1$ ✓. Đây là tổ tiên của mọi phép chặn sai số xấp xỉ (gặp lại ở phần dư Lagrange — chuỗi Taylor, Tier 6).
+
+⚠ **Các lỗi thường gặp**
+- **Quên kiểm tra điều kiện**: $f(x) = |x|$ trên $[-1, 1]$ có slope cát tuyến $= \\frac{1-1}{2} = 0$ nhưng **không tồn tại** $c$ nào có $f'(c) = 0$ ($f'$ chỉ là $\\pm 1$) — vì $f$ không khả vi tại $0$. Thiếu một trong hai điều kiện (liên tục trên $[a,b]$, khả vi trên $(a,b)$) là định lý sập.
+- **Tưởng $c$ duy nhất**: MVT chỉ nói *tồn tại ít nhất một* $c$. $f(x) = \\sin x$ trên $[0, 4\\pi]$ có nhiều $c$.
+- **Tưởng MVT chỉ ra cách tìm $c$**: định lý khẳng định tồn tại, không đưa công thức tìm — với hàm cụ thể phải tự giải phương trình $f'(c) = \\text{slope}$ như mục 2.3.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+- *"Camera đo trung bình 120 nhưng tôi cãi 'có lúc nào tốc độ đúng 120 đâu'?"* — MVT bác bỏ: quãng đường là hàm liên tục, khả vi (xe không dịch chuyển tức thời), nên chắc chắn tồn tại khoảnh khắc tốc độ tức thời đúng bằng 120.
+- *"Rolle và Lagrange, cái nào tổng quát hơn?"* — Lagrange. Rolle là Lagrange với $f(a) = f(b)$ (cát tuyến nằm ngang). Nhưng chứng minh Lagrange lại dựa vào Rolle (mục 2.2) — nghiêng hệ trục cho cát tuyến nằm ngang.
+
+🔁 **Dừng lại tự kiểm tra**: $f(x) = x^2 - 2x$ trên $[0, 3]$ — tìm $c$ của MVT.
+
+<details><summary>Đáp án</summary>
+
+Slope cát tuyến $= \\frac{f(3) - f(0)}{3} = \\frac{3 - 0}{3} = 1$. $f'(c) = 2c - 2 = 1 \\Rightarrow c = 1.5 \\in (0, 3)$ ✓.
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- **Rolle**: liên tục $[a,b]$ + khả vi $(a,b)$ + $f(a) = f(b)$ → có $c$ với $f'(c) = 0$.
+- **Lagrange (MVT)**: cùng điều kiện, hai đầu tùy ý → có $c$ với $f'(c) = \\frac{f(b)-f(a)}{b-a}$ — tiếp tuyến song song cát tuyến; "tốc độ trung bình ắt có lúc là tốc độ tức thời".
+- MVT là cầu nối đạo-hàm-tại-điểm → hành-vi-trên-khoảng: chứng minh định lý đồng biến (mục 1), chặn $|f(b)-f(a)| \\le M|b-a|$.
+- Thiếu liên tục/khả vi là định lý sập (phản ví dụ $|x|$); $c$ tồn tại nhưng không nhất thiết duy nhất.
+
+---
+
+## 3. Cực trị
 
 **Định nghĩa**: $f$ đạt **cực đại** tại $x_0$ nếu $f(x_0) \\ge f(x)$ trong 1 lân cận nhỏ. **Cực tiểu** tương tự ($\\le$).
 
@@ -91,14 +194,14 @@ Dấu $f'$ đọc thành "hình dáng" đồ thị: lên–đỉnh–xuống–�
 
 ⚠ **Không phải ngược lại**: $f'(x_0) = 0$ chưa chắc cực trị. VD $f(x) = x^3$, $f'(0) = 0$ nhưng không phải cực trị (điểm yên ngựa = saddle point).
 
-### 2.1. Quy tắc bảng biến thiên
+### 3.1. Quy tắc bảng biến thiên
 
 Xét dấu $f'(x)$:
 - $f'$ đổi từ $+$ sang $-$ tại $x_0$ → **cực đại**.
 - $f'$ đổi từ $-$ sang $+$ tại $x_0$ → **cực tiểu**.
 - $f'$ không đổi dấu → không phải cực trị.
 
-### 2.2. Quy tắc đạo hàm bậc 2
+### 3.2. Quy tắc đạo hàm bậc 2
 
 Nếu $f'(x_0) = 0$:
 - $f''(x_0) > 0$ → **cực tiểu**.
@@ -111,7 +214,7 @@ Nếu $f'(x_0) = 0$:
 - $f''(1) = 6 > 0 \\to x = 1$ **cực tiểu** ($f(1) = -2$).
 - $f''(-1) = -6 < 0 \\to x = -1$ **cực đại** ($f(-1) = 2$).
 
-### 2.3. Bốn ví dụ số phân loại cực trị
+### 3.3. Bốn ví dụ số phân loại cực trị
 
 Áp dụng cả hai test trên các dạng hàm khác nhau (đa thức, mũ, log, lượng giác) để thấy quy trình luôn giống nhau.
 
@@ -161,9 +264,9 @@ Nếu $f'(x_0) = 0$:
 
 </details>
 
-### 2.4. Cực trị TOÀN CỤC trên đoạn đóng [a, b] — không quên hai mút
+### 3.4. Cực trị TOÀN CỤC trên đoạn đóng [a, b] — không quên hai mút
 
-💡 **Trực giác**: cực trị địa phương (mục 2.1–2.3) chỉ so với **lân cận nhỏ** — như một quả đồi giữa hai dãy núi cao hơn vẫn là "đỉnh địa phương". Còn **cực trị toàn cục (global / absolute extremum)** là điểm cao/thấp nhất trên **toàn miền**. Trên đoạn đóng $[a,b]$, hàm liên tục **luôn đạt** cả max và min toàn cục (Định lý Weierstrass) — và chúng chỉ có thể nằm ở **một trong hai loại điểm**: critical point bên trong $(a,b)$, **hoặc** ở hai đầu mút $a, b$.
+💡 **Trực giác**: cực trị địa phương (mục 3.1–3.3) chỉ so với **lân cận nhỏ** — như một quả đồi giữa hai dãy núi cao hơn vẫn là "đỉnh địa phương". Còn **cực trị toàn cục (global / absolute extremum)** là điểm cao/thấp nhất trên **toàn miền**. Trên đoạn đóng $[a,b]$, hàm liên tục **luôn đạt** cả max và min toàn cục (Định lý Weierstrass) — và chúng chỉ có thể nằm ở **một trong hai loại điểm**: critical point bên trong $(a,b)$, **hoặc** ở hai đầu mút $a, b$.
 
 **Quy trình chuẩn** (không cần test bậc 1/bậc 2, chỉ SO SÁNH giá trị):
 1. Tính $f'$, tìm tất cả nghiệm $f'=0$ (và chỗ $f'$ không tồn tại) **nằm trong** $(a,b)$.
@@ -184,7 +287,7 @@ Nếu $f'(x_0) = 0$:
 
 ⚠ **Lỗi thường gặp — bỏ mút**: trên $[-2,2]$ nếu chỉ tìm $f'=0$ ra $x=\\pm1$ rồi nói "max $=2$ tại $x=-1$, min $=-2$ tại $x=1$" thì vẫn đúng số nhưng **may mắn**; với $f(x)=x^2$ trên $[1,3]$, $f'=0$ cho $x=0$ **ngoài đoạn** → bỏ; max/min thực ra ở hai mút ($f(1)=1$ là min, $f(3)=9$ là max). Quên mút → trả lời sai hoàn toàn.
 
-### 📝 Tóm tắt mục 2
+### 📝 Tóm tắt mục 3
 
 - Fermat: cực trị (trong khoảng mở) $\\implies f' = 0$ — điều kiện **cần**, không đủ.
 - Phân loại: $f'$ đổi $+\\to-$ (cực đại), $-\\to+$ (cực tiểu); hoặc $f''>0$ (tiểu), $f''<0$ (đại).
@@ -193,7 +296,7 @@ Nếu $f'(x_0) = 0$:
 
 ---
 
-## 3. Lồi / lõm & Điểm uốn
+## 4. Lồi / lõm & Điểm uốn
 
 **Định nghĩa**:
 - **Lồi (concave up)** trên $(a, b)$: đồ thị nằm trên tiếp tuyến. $f''(x) > 0$.
@@ -228,7 +331,7 @@ Nếu $f'(x_0) = 0$:
 
 </details>
 
-### 📝 Tóm tắt mục 3
+### 📝 Tóm tắt mục 4
 
 - $f'' > 0$ → lồi (mở lên, "chứa nước"); $f'' < 0$ → lõm (mở xuống).
 - Điểm uốn = nơi $f''$ **đổi dấu** (không chỉ bằng 0).
@@ -236,7 +339,7 @@ Nếu $f'(x_0) = 0$:
 
 ---
 
-## 4. Khảo sát đồ thị — Quy trình 7 bước
+## 5. Khảo sát đồ thị — Quy trình 7 bước
 
 1. **Miền xác định**.
 2. **Tính giới hạn** tại biên ($\\infty$, các điểm gián đoạn) → tiệm cận.
@@ -248,7 +351,7 @@ Nếu $f'(x_0) = 0$:
 
 💡 **Trực giác**: quy trình gom mọi công cụ đã học thành một "checklist" — $f'$ cho biến thiên + cực trị, $f''$ cho lồi/lõm + uốn, giới hạn cho tiệm cận. Làm theo thứ tự thì đồ thị "tự lộ ra" mà không cần thử nhiều điểm.
 
-### 4.1. Tiệm cận (asymptotes) — bước 2 chi tiết
+### 5.1. Tiệm cận (asymptotes) — bước 2 chi tiết
 
 > 📐 **Định nghĩa đầy đủ — Tiệm cận**
 >
@@ -265,7 +368,7 @@ Nếu $f'(x_0) = 0$:
 - $= x + \\dfrac{1}{x}$. Khi $x\\to\\pm\\infty$, $\\dfrac{1}{x}\\to 0$ → $f(x) \\approx x$ → **tiệm cận xiên** $y = x$.
 - Mẫu $=0$ tại $x=0$, $\\lim_{x\\to0^+} = +\\infty$ → **tiệm cận đứng** $x = 0$.
 
-### 4.2. Walk-through khảo sát đầy đủ — Ví dụ 1: f(x) = x³ − 3x²
+### 5.2. Walk-through khảo sát đầy đủ — Ví dụ 1: f(x) = x³ − 3x²
 
 **Bước 1 — Miền xác định**: $\\mathbb{R}$ (đa thức).
 
@@ -293,7 +396,7 @@ $$f''(x) = 6x - 6 = 6(x-1) = 0 \\implies x = 1.$$
 
 (\`⌢\` = lõm, \`⌣\` = lồi.) Đồ thị: từ $-\\infty$ đi lên (lõm) tới đỉnh $(0,0)$, đi xuống qua điểm uốn $(1,-2)$ chuyển sang lồi, chạm đáy $(2,-4)$ rồi lên $+\\infty$.
 
-### 4.3. Walk-through khảo sát đầy đủ — Ví dụ 2 (hàm hữu tỉ): f(x) = x²/(x−1)
+### 5.3. Walk-through khảo sát đầy đủ — Ví dụ 2 (hàm hữu tỉ): f(x) = x²/(x−1)
 
 **Bước 1 — Miền xác định**: $x \\neq 1$.
 
@@ -387,7 +490,7 @@ Nhánh trái ($x<1$): lõm, có cực đại $(0,0)$, lao xuống $-\\infty$ khi
 
 </details>
 
-### 📝 Tóm tắt mục 4
+### 📝 Tóm tắt mục 5
 
 - Quy trình 7 bước: miền XĐ → giới hạn/tiệm cận → $f'$ (biến thiên) → $f''$ (lồi/lõm) → điểm đặc biệt → bảng → vẽ.
 - Miền xác định làm **đầu tiên**; tiệm cận từ giới hạn ở biên.
@@ -395,7 +498,7 @@ Nhánh trái ($x<1$): lõm, có cực đại $(0,0)$, lao xuống $-\\infty$ khi
 
 ---
 
-## 5. Quy tắc l'Hôpital — Cứu cánh cho $0/0$ và $\\infty/\\infty$
+## 6. Quy tắc l'Hôpital — Cứu cánh cho $0/0$ và $\\infty/\\infty$
 
 💡 **Trực giác**: gần điểm tới hạn, mỗi hàm xấp xỉ tuyến tính theo slope của nó: $f \\approx f'\\cdot(x-a)$, $g \\approx g'\\cdot(x-a)$. Tỉ số $f/g \\approx f'/g'$ (phần $(x-a)$ triệt tiêu). Vậy khi cả hai cùng về 0 (hay $\\infty$), tỉ số được quyết định bởi **tốc độ** thay đổi — chính là đạo hàm.
 
@@ -448,7 +551,7 @@ $$\\lim_{x\\to0^+} x\\ln x = \\lim_{x\\to0^+} \\frac{\\ln x}{1/x} \\quad (\\text
 
 </details>
 
-### 📝 Tóm tắt mục 5
+### 📝 Tóm tắt mục 6
 
 - l'Hôpital: chỉ dạng $0/0$ hoặc $\\infty/\\infty$ → $\\lim f/g = \\lim f'/g'$ (đạo hàm **riêng** tử, mẫu).
 - Có thể áp **nhiều lần** nếu vẫn vô định; dạng $0\\cdot\\infty$, $\\infty-\\infty$ phải biến đổi về phân số trước.
@@ -456,7 +559,7 @@ $$\\lim_{x\\to0^+} x\\ln x = \\lim_{x\\to0^+} \\frac{\\ln x}{1/x} \\quad (\\text
 
 ---
 
-## 6. Bài toán tối ưu (Optimization)
+## 7. Bài toán tối ưu (Optimization)
 
 **Mẫu câu hỏi**: Tìm cách làm sao để tối đa/tối thiểu một đại lượng.
 
@@ -529,7 +632,7 @@ Người cứu hộ ở bờ, điểm $A$ cách mép nước $0$ (ngay bờ), ng
 
 </details>
 
-### 📝 Tóm tắt mục 6
+### 📝 Tóm tắt mục 7
 
 - Quy trình: viết đại lượng cần tối ưu thành hàm 1 biến (dùng ràng buộc), xác định **miền**, giải $f'=0$, kiểm $f''$/biên.
 - Luôn xác định **miền hợp lệ** của biến trước, loại nghiệm vô lý/biên.
@@ -537,7 +640,7 @@ Người cứu hộ ở bờ, điểm $A$ cách mép nước $0$ (ngay bờ), ng
 
 ---
 
-## 7. Tốc độ liên quan (Related Rates)
+## 8. Tốc độ liên quan (Related Rates)
 
 💡 **Trực giác**: nhiều đại lượng cùng thay đổi **theo thời gian** và bị buộc với nhau bởi một công thức (vd thể tích bóng bay buộc với bán kính qua $V = \\frac43\\pi r^3$). Nếu biết tốc độ thay đổi của đại lượng này ($\\frac{dr}{dt}$), ta suy ra tốc độ của đại lượng kia ($\\frac{dV}{dt}$) bằng cách **đạo hàm hai vế theo $t$** (dùng chain rule). Không tìm cực trị — đây là chuyển đổi tốc độ.
 
@@ -548,7 +651,7 @@ Người cứu hộ ở bờ, điểm $A$ cách mép nước $0$ (ngay bờ), ng
 4. Thay số liệu tại **thời điểm quan tâm** (thay sau khi đã đạo hàm, không trước!).
 5. Giải ra tốc độ cần tìm.
 
-### 7.1. Ví dụ 1 — Bóng bay phồng lên
+### 8.1. Ví dụ 1 — Bóng bay phồng lên
 
 Bơm khí vào bóng cầu với tốc độ $\\frac{dV}{dt} = 100$ cm³/s. Bán kính đang là $r = 5$ cm. Bán kính tăng nhanh cỡ nào?
 
@@ -560,7 +663,7 @@ Bơm khí vào bóng cầu với tốc độ $\\frac{dV}{dt} = 100$ cm³/s. Bán
 
 💡 Khi $r$ càng lớn, cùng tốc độ bơm $\\frac{dV}{dt}$ thì $\\frac{dr}{dt}$ càng **nhỏ** (vì $4\\pi r^2$ ở mẫu lớn dần) — bóng to ra càng chậm phồng bán kính.
 
-### 7.2. Ví dụ 2 — Thang trượt tường
+### 8.2. Ví dụ 2 — Thang trượt tường
 
 Thang dài $10$ m dựa tường. Chân thang trượt xa tường với tốc độ $\\frac{dx}{dt} = 2$ m/s. Khi chân cách tường $x = 6$ m, đỉnh thang tụt xuống nhanh cỡ nào?
 
@@ -584,7 +687,7 @@ Thang dài $10$ m dựa tường. Chân thang trượt xa tường với tốc �
 
 </details>
 
-### 📝 Tóm tắt mục 7
+### 📝 Tóm tắt mục 8
 
 - Related rates: nhiều đại lượng cùng biến theo $t$, buộc nhau bởi 1 phương trình → đạo hàm hai vế theo $t$ (chain rule) để liên hệ các tốc độ.
 - **Đạo hàm trước, thay số sau** — thay số sớm sẽ làm mất hạng tử của biến bị "đóng băng".
@@ -592,7 +695,7 @@ Thang dài $10$ m dựa tường. Chân thang trượt xa tường với tốc �
 
 ---
 
-## 8. Xấp xỉ tuyến tính (Linear Approximation)
+## 9. Xấp xỉ tuyến tính (Linear Approximation)
 
 💡 **Trực giác**: gần một điểm $a$, đồ thị "trông như" đường thẳng — chính là **tiếp tuyến** tại $a$. Vậy với $x$ gần $a$, ta thay $f(x)$ bằng giá trị trên tiếp tuyến để tính nhanh mà không cần máy tính.
 
@@ -601,25 +704,25 @@ $$f(x) \\approx L(x) = f(a) + f'(a)\\,(x - a).$$
 
 Đây là Taylor bậc 1 — xấp xỉ tốt khi $x$ đủ gần $a$; sai số tỉ lệ $f''$ (độ cong).
 
-### 8.1. Ví dụ 1 — √4.1
+### 9.1. Ví dụ 1 — √4.1
 
 Chọn $f(x) = \\sqrt{x}$, $a = 4$ (vì $\\sqrt4 = 2$ đẹp). $f'(x) = \\dfrac{1}{2\\sqrt x}$, $f'(4) = \\dfrac14$.
 $$\\sqrt{4.1} \\approx 2 + \\tfrac14(4.1 - 4) = 2 + 0.025 = \\mathbf{2.025}.$$
 Giá trị thật $\\sqrt{4.1} = 2.02485\\ldots$ → sai số chỉ $\\approx 0.0001$.
 
-### 8.2. Ví dụ 2 — (1.02)¹⁰
+### 9.2. Ví dụ 2 — (1.02)¹⁰
 
 $f(x) = x^{10}$, $a = 1$. $f'(x) = 10x^9$, $f'(1) = 10$.
 $$(1.02)^{10} \\approx 1 + 10(1.02 - 1) = 1 + 0.2 = \\mathbf{1.2}.$$
 Thật: $1.02^{10} = 1.21899\\ldots$ → xấp xỉ $1.2$ khá sát (sai do bỏ hạng tử bậc 2).
 
-### 8.3. Ví dụ 3 — ln(1.05)
+### 9.3. Ví dụ 3 — ln(1.05)
 
 $f(x) = \\ln x$, $a = 1$. $f'(x) = 1/x$, $f'(1) = 1$, $f(1) = 0$.
 $$\\ln(1.05) \\approx 0 + 1\\cdot(1.05 - 1) = \\mathbf{0.05}.$$
 Thật: $\\ln 1.05 = 0.04879\\ldots$ ✓. (Quy tắc gần đúng nổi tiếng: $\\ln(1+x)\\approx x$ với $x$ nhỏ.)
 
-### 8.4. Ví dụ 4 — sin(0.1)
+### 9.4. Ví dụ 4 — sin(0.1)
 
 $f(x) = \\sin x$, $a = 0$. $f'(0) = \\cos 0 = 1$, $f(0) = 0$.
 $$\\sin(0.1) \\approx 0 + 1\\cdot(0.1 - 0) = \\mathbf{0.1}.$$
@@ -639,7 +742,7 @@ Thật: $\\sin 0.1 = 0.09983\\ldots$ → cơ sở của xấp xỉ $\\sin x \\ap
 
 </details>
 
-### 📝 Tóm tắt mục 8
+### 📝 Tóm tắt mục 9
 
 - Gần $a$: $f(x) \\approx f(a) + f'(a)(x-a)$ — giá trị trên tiếp tuyến.
 - Tốt khi $x$ gần $a$; sai số do độ cong $f''$. Chọn $a$ "đẹp" và gần $x$.
@@ -647,7 +750,7 @@ Thật: $\\sin 0.1 = 0.09983\\ldots$ → cơ sở của xấp xỉ $\\sin x \\ap
 
 ---
 
-## 9. Bài tập
+## 10. Bài tập
 
 ### Bài tập
 
@@ -671,7 +774,9 @@ Thật: $\\sin 0.1 = 0.09983\\ldots$ → cơ sở của xấp xỉ $\\sin x \\ap
 
 **Bài 10** (xấp xỉ tuyến tính): Dùng xấp xỉ tuyến tính tính gần đúng $\\sqrt[3]{8.1}$.
 
-### Lời giải
+
+
+**Bài 11**: Xe chạy qua hai trạm camera cách nhau 45 km trong 20 phút. Giới hạn tốc độ 100 km/h. (a) CSGT có đủ căn cứ phạt không — định lý nào bảo đảm? (b) Với $f(x) = x^3 - 3x$ trên $[0, 3]$, tìm mọi điểm $c$ thỏa định lý Lagrange.### Lời giải
 
 **Bài 1**: $f'(x) = 3x^2 - 12x + 9 = 3(x-1)(x-3)$. $f'=0 \\to x=1, 3$.  
 - $f''(x) = 6x - 12$. $f''(1) = -6$ → CĐ. $f(1) = 4$. $f''(3) = 6$ → CT. $f(3) = 0$.  
@@ -709,7 +814,11 @@ Thật: $\\sin 0.1 = 0.09983\\ldots$ → cơ sở của xấp xỉ $\\sin x \\ap
 
 ---
 
-## 10. Bài tiếp theo
+
+**Bài 11**:
+(a) Tốc độ trung bình $= \\dfrac{45}{1/3} = 135$ km/h $> 100$. Quãng đường $s(t)$ liên tục và khả vi (xe không dịch chuyển tức thời) → **định lý Lagrange (MVT)** bảo đảm tồn tại thời điểm $c$ trong 20 phút đó mà tốc độ tức thời $s'(c) = 135$ km/h — vượt giới hạn, đủ căn cứ phạt dù không camera nào bắn được khoảnh khắc ấy.
+(b) Slope cát tuyến $= \\dfrac{f(3)-f(0)}{3-0} = \\dfrac{18-0}{3} = 6$. Giải $f'(c) = 3c^2 - 3 = 6 \\Rightarrow c^2 = 3 \\Rightarrow c = \\pm\\sqrt{3}$. Chỉ $c = \\sqrt{3} \\approx 1.732 \\in (0,3)$ hợp lệ. Kiểm: $f'(\\sqrt3) = 3\\cdot3 - 3 = 6$ ✓.
+## 11. Bài tiếp theo
 
 [Lesson 06 — Nguyên hàm](../lesson-06-antiderivatives/).
 

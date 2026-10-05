@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lesson 06 — Chuỗi & Taylor</title>
 <link rel="stylesheet" href="../../../tools/viz-base.css">
+<link rel="stylesheet" href="../../../tools/katex/katex.min.css">
+<script src="../../../tools/katex/katex.min.js"></script>
+<script src="../../../tools/viz-math.js"></script>
 <style>
   h1 { color: #166534; }
   h2 { color: #15803d; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
@@ -218,7 +221,75 @@ function rlInit() {
 document.addEventListener("DOMContentLoaded", rlInit);
 </script>
 
-<h2>2. 🌍 Đời sống thực tế — Máy tính bỏ túi tính sin/cos/e^x thế nào?</h2>
+
+<h2>2. Sai số thật vs chặn phần dư Lagrange</h2>
+<div class="card">
+  <p style="margin-top:0">Cột xanh: sai số THẬT |f(x) − Pₙ(x)| theo từng bậc n (thang log). Cột viền đỏ: chặn trên Lagrange M·|x|ⁿ⁺¹/(n+1)!. <strong>Thử:</strong> tăng x ra xa 0 — cả hai cột dâng lên nhưng chặn LUÔN nằm trên sai số thật; nhìn cột rơi theo n: giai thừa ở mẫu giết sai số nhanh hơn mọi lũy thừa.</p>
+  <div class="row">
+    <button id="rb1" class="active" onclick="setRF('sin')">f = sin x</button>
+    <button id="rb2" onclick="setRF('cos')">f = cos x</button>
+    <button id="rb3" onclick="setRF('exp')">f = e^x</button>
+    <label style="margin-left:14px">x:</label>
+    <input type="range" id="remX" min="0.1" max="2" step="0.05" value="1" oninput="drawRem()">
+    <span class="stat">x = <strong id="remVX">1.00</strong></span>
+  </div>
+  <svg id="remSvg" viewBox="0 0 700 300" style="display:block;margin:12px auto;width:100%;max-width:700px;height:auto;background:#f8fafc;border-radius:8px"></svg>
+  <div class="result" id="remRes"></div>
+</div>
+
+<script>
+const REM = {
+  sin: { coef: k => [0,1,0,-1][k%4], f: Math.sin, M: () => 1, label: "sin" },
+  cos: { coef: k => [1,0,-1,0][k%4], f: Math.cos, M: () => 1, label: "cos" },
+  exp: { coef: () => 1, f: Math.exp, M: x => Math.exp(Math.max(0,x)), label: "e^x" }
+};
+let remCur = "sin";
+function setRF(k){ remCur=k; const m={sin:"rb1",cos:"rb2",exp:"rb3"}; Object.values(m).forEach(id=>document.getElementById(id).classList.remove("active")); document.getElementById(m[k]).classList.add("active"); drawRem(); }
+function fact(n){ let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+function drawRem(){
+  const D = REM[remCur];
+  const x = parseFloat(document.getElementById("remX").value);
+  document.getElementById("remVX").textContent = x.toFixed(2);
+  const NMAX = 9;
+  const data = [];
+  for (let n = 0; n <= NMAX; n++) {
+    let P = 0;
+    for (let k = 0; k <= n; k++) P += D.coef(k) / fact(k) * Math.pow(x, k);
+    const err = Math.abs(D.f(x) - P);
+    const bound = D.M(x) * Math.pow(Math.abs(x), n+1) / fact(n+1);
+    data.push({ n, P, err, bound });
+  }
+  const svg = document.getElementById("remSvg"); svg.innerHTML = "";
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t,at)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);svg.appendChild(e);return e;};
+  // thang log: 1e-12 .. 1e1
+  const LMIN=-12, LMAX=1;
+  const py = v => { const l = Math.max(LMIN, Math.min(LMAX, Math.log10(Math.max(v,1e-14)))); return 260 - (l - LMIN) / (LMAX - LMIN) * 230; };
+  // gridline các bậc 10
+  for (let l = LMIN; l <= LMAX; l += 2) {
+    el("line",{x1:46,y1:py(Math.pow(10,l)),x2:690,y2:py(Math.pow(10,l)),stroke:"#e2e8f0","stroke-width":1});
+    const t=el("text",{x:42,y:py(Math.pow(10,l))+4,"text-anchor":"end","font-size":10,fill:"#94a3b8"}); t.textContent="1e"+l;
+  }
+  data.forEach((d,i)=>{
+    const bx = 60 + i*63;
+    el("rect",{x:bx,y:py(d.bound),width:22,height:Math.max(1,260-py(d.bound)),fill:"none",stroke:"#dc2626","stroke-width":1.8,rx:2});
+    el("rect",{x:bx+24,y:py(d.err),width:22,height:Math.max(1,260-py(d.err)),fill:"#1d4ed8",opacity:0.8,rx:2});
+    const t=el("text",{x:bx+23,y:278,"text-anchor":"middle","font-size":12,fill:"#475569"}); t.textContent="n="+d.n;
+  });
+  const t1=el("text",{x:560,y:30,"font-size":12,fill:"#dc2626"}); t1.textContent="▭ chặn Lagrange";
+  const t2=el("text",{x:560,y:48,"font-size":12,fill:"#1d4ed8"}); t2.textContent="▮ sai số thật";
+  const n3 = data[3];
+  const fmt = v => v < 1e-3 ? v.toExponential(2) : v.toFixed(5);
+  document.getElementById("remRes").innerHTML =
+    `<div style="margin-bottom:6px">${km("|R_n(x)| \\le \\dfrac{M\\,|x|^{\\,n+1}}{(n+1)!},\\quad M = \\max_{[0,x]}\\big|f^{(n+1)}\\big|")}</div>` +
+    `<span class="stat">① P₃(${x.toFixed(2)}) = <strong>${n3.P.toFixed(6)}</strong>, ${D.label}(${x.toFixed(2)}) = <strong>${D.f(x).toFixed(6)}</strong></span>` +
+    `<span class="stat">② sai số thật |R₃| = <strong>${fmt(n3.err)}</strong></span>` +
+    `<span class="stat">③ chặn Lagrange = <strong>${fmt(n3.bound)}</strong> ≥ sai số thật ✓</span>`;
+}
+setRF("sin");
+</script>
+
+<h2>3. 🌍 Đời sống thực tế — Máy tính bỏ túi tính sin/cos/e^x thế nào?</h2>
 <div class="card">
   <p>Bộ vi xử lý không có sẵn "phép tính sin". Khi bạn bấm <code>sin(0.5)</code>, nó <strong>cộng vài số hạng đầu của chuỗi Taylor</strong> (sau khi đưa góc về khoảng nhỏ). Chọn hàm, nhập x, tăng số số hạng và xem tổng tích luỹ hội tụ về giá trị thật — chỉ vài số hạng đã chính xác tới 8 chữ số.</p>
   <div class="row">

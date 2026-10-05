@@ -575,6 +575,30 @@ Bước 3 — $x = 1$, $y = 2$. $f = 1 + 4 = 5$, khoảng cách $= \\sqrt5$.
 
 Kiểm tra hình học: điểm gần gốc nhất trên đường thẳng là chân đường vuông góc hạ từ gốc — và $\\nabla f = (2,4) \\parallel \\nabla g = (1,2)$ ✓ (gradient của $f$ song song pháp tuyến đường thẳng = vuông góc đường thẳng).
 
+**Walk-through 3 — phân bổ lại "ngân sách tăng trưởng" (3 biến, multiplier nhân chuỗi)**:
+
+Chỉ số gốc 5000 đi qua ba nhóm với mức tăng CRI +938%, VUL +141%, COL +113% (multiplier = 1 + mức tăng):
+
+$$5000 \\times 10.38 \\times 2.41 \\times 2.13 = 266\\,418$$
+
+Tăng trưởng chuyển được giữa các nhóm theo **tỷ giá**: 1 điểm CRI đổi được 0.56 điểm VUL, hoặc 0.48 điểm COL. Hỏi: phân bổ lại $(r_1, r_2, r_3)$ thế nào để chỉ số cuối lớn nhất?
+
+Bước 1 — hàm mục tiêu và ràng buộc. Quy mọi mức tăng về "đơn vị CRI" (1 điểm VUL giá $\\tfrac{1}{0.56}$, 1 điểm COL giá $\\tfrac{1}{0.48}$):
+$$f = (1+r_1)(1+r_2)(1+r_3) \\to \\max,\\qquad g:\\ r_1 + \\frac{r_2}{0.56} + \\frac{r_3}{0.48} = 9.38 + \\frac{1.41}{0.56} + \\frac{1.13}{0.48} = 14.252$$
+
+Bước 2 — lấy $\\ln$ (tích thành tổng, nghiệm không đổi) rồi viết hệ $\\nabla(\\ln f) = \\lambda\\nabla g$:
+$$\\frac{1}{1+r_1} = \\lambda,\\qquad \\frac{1}{1+r_2} = \\frac{\\lambda}{0.56},\\qquad \\frac{1}{1+r_3} = \\frac{\\lambda}{0.48}$$
+
+Bước 3 — rút $1+r_1 = \\tfrac{1}{\\lambda}$, $1+r_2 = \\tfrac{0.56}{\\lambda}$, $1+r_3 = \\tfrac{0.48}{\\lambda}$, thế vào ràng buộc:
+$$\\frac{3}{\\lambda} - \\Big(1 + \\frac{1}{0.56} + \\frac{1}{0.48}\\Big) = 14.252 \\ \\Rightarrow\\ \\frac{3}{\\lambda} = 19.121 \\ \\Rightarrow\\ \\lambda = 0.157$$
+
+Bước 4 — kết quả: $r_1 = 537.4\\%$, $r_2 = 256.9\\%$, $r_3 = 205.9\\%$ (multiplier $6.374 \\times 3.569 \\times 3.059$):
+$$f^* = 5000 \\times 6.374 \\times 3.569 \\times 3.059 = 348\\,001 \\quad (+30.6\\%)$$
+
+Kiểm tra: ba lợi suất biên bằng nhau $\\tfrac{1}{6.374} = \\tfrac{0.56}{3.569} = \\tfrac{0.48}{3.059} = 0.157 = \\lambda$ ✓; ngân sách $5.374 + \\tfrac{2.569}{0.56} + \\tfrac{2.059}{0.48} = 14.252$ ✓.
+
+Hai bài học từ lời giải: **(i)** tích bị thừa số nhỏ kéo xuống — rút bớt tăng trưởng của CRI (thừa số đã khủng) bơm sang VUL/COL (thừa số còi) dù tỷ giá ăn mất gần nửa; dấu hiệu đạt đỉnh là **tỷ số multiplier đúng bằng tỷ giá chuyển đổi** ($\\tfrac{3.569}{6.374} = 0.56$, $\\tfrac{3.059}{6.374} = 0.48$). **(ii)** $\\lambda = 0.157$ là shadow price: kiếm thêm 1 điểm ngân sách tăng trưởng thì $\\ln f^*$ tăng 0.157, tức chỉ số cuối tăng $\\approx 17\\%$. Xem mô phỏng tương tác ở [visualization.html](./visualization.html) (mục 4).
+
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Vì sao tại tối ưu hai gradient lại song song?"* Vì $\\nabla f \\perp$ đường mức $f$, $\\nabla g \\perp$ đường ràng buộc. Tại điểm tiếp xúc hai đường có chung tiếp tuyến → chung pháp tuyến → hai gradient cùng phương.

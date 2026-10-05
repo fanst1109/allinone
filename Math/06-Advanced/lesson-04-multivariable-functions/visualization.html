@@ -269,6 +269,127 @@ document.addEventListener("DOMContentLoaded", rlInit);
 
 </main>
 
+
+<h2>3. Nhân tử Lagrange — đường mức tiếp xúc ràng buộc, ∇f song song ∇g</h2>
+<div class="card">
+  <p style="margin-top:0">Đường chấm xanh: các đường mức của f. Đường xanh lá: ràng buộc g = c. Trượt điểm P dọc ràng buộc — mũi tên đỏ là ∇f, mũi tên xanh lá là ∇g. <strong>Thử:</strong> chừng nào hai mũi tên còn lệch nhau, đường ràng buộc còn CẮT đường mức — f còn tăng được; f đạt đỉnh đúng chỗ hai mũi tên song song (tiếp xúc), λ = |∇f|/|∇g|.</p>
+  <div class="row">
+    <button id="lgA" class="active" onclick="setLG('A')">f = xy, ràng buộc x + y = 10</button>
+    <button id="lgB" onclick="setLG('B')">f = x² + y², ràng buộc x + 2y = 5</button>
+  </div>
+  <div class="row">
+    <label>Vị trí trên ràng buộc:</label>
+    <input type="range" id="lgT" min="0.05" max="0.95" step="0.005" value="0.28" oninput="drawLG()" style="flex:1;min-width:200px">
+  </div>
+  <svg class="scene" id="lgSvg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="lgRes"></div>
+</div>
+
+<h2>4. 🌍 Đời sống thực tế — phân bổ "ngân sách tăng trưởng" 3 nhóm (CRI / VUL / COL)</h2>
+<div class="card">
+  <p style="margin-top:0">Chỉ số gốc 5000 nhân chuỗi qua 3 nhóm. Tăng trưởng chuyển được giữa nhóm theo tỷ giá CRI→VUL 1 : 0.56, CRI→COL 1 : 0.48 (tổng ngân sách quy về CRI = 14.25, cố định). Kéo r_VUL và r_COL — r_CRI tự suy từ ngân sách. <strong>Thử:</strong> bấm "Hiện trạng" (266 418) rồi kéo hai thanh — chỉ số cuối leo lên đỉnh 348 001 đúng chỗ BA lợi suất biên bằng nhau; bấm "Tối ưu λ" để nhảy thẳng tới nghiệm Lagrange.</p>
+  <div class="row">
+    <button onclick="criPreset(1.41,1.13)">Hiện trạng (938 / 141 / 113%)</button>
+    <button onclick="criPreset(2.569289,2.059391)">Tối ưu λ (537 / 257 / 206%)</button>
+  </div>
+  <div class="row">
+    <label>r_VUL:</label>
+    <input type="range" id="criR2" min="0" max="5" step="0.01" value="1.41" oninput="drawCRI()">
+    <span class="stat">+<strong id="criV2">141</strong>%</span>
+    <label>r_COL:</label>
+    <input type="range" id="criR3" min="0" max="5" step="0.01" value="1.13" oninput="drawCRI()">
+    <span class="stat">+<strong id="criV3">113</strong>%</span>
+  </div>
+  <svg id="criSvg" viewBox="0 0 700 230" style="display:block;margin:12px auto;width:100%;max-width:700px;height:auto;background:#f8fafc;border-radius:8px"></svg>
+  <div class="result" id="criRes"></div>
+</div>
+
+<script>
+// ---------- Module 3: Lagrange tangency ----------
+const LG = {
+  A: { // f=xy, g: x+y=10, tham số hóa P=(10t, 10(1-t)) với t∈(0,1)
+    pt: t => [10*t, 10*(1-t)],
+    f: (x,y) => x*y, gf: (x,y) => [y,x], gg: () => [1,1],
+    fLabel: "f = x·y", levels: [6,12,18,25,32,40],
+    lvlPath: (c, M) => { let d=""; for(let x=Math.max(0.35,c/9.6); x<=9.6; x+=0.05){const y=c/x; if(y>9.6||y<0.3)continue; d+=(d?"L":"M")+M(x,y).join(" ")+" ";} return d; },
+    cons: M => "M"+M(0.4,9.6).join(" ")+" L"+M(9.6,0.4).join(" "), scale: 48, origin: [-230,230]
+  },
+  B: { // f=x²+y², g: x+2y=5, P=(5-2*(5t), 5t)? param y=t*2.4+0.1 → x=5-2y
+    pt: t => { const y=0.1+t*2.3; return [5-2*y, y]; },
+    f: (x,y) => x*x+y*y, gf: (x,y) => [2*x,2*y], gg: () => [1,2],
+    fLabel: "f = x² + y²", levels: [1,2.5,5,9,14],
+    lvlPath: (c, M) => { let d=""; for(let a=0;a<=6.3;a+=0.05){const r=Math.sqrt(c),x=r*Math.cos(a),y=r*Math.sin(a); d+=(d?"L":"M")+M(x,y).join(" ")+" ";} return d+"Z"; },
+    cons: M => "M"+M(5-2*(-0.3),-0.3).join(" ")+" L"+M(5-2*2.6,2.6).join(" "), scale: 80, origin: [-230,180]
+  }
+};
+let lgCur = "A";
+function setLG(k){ lgCur=k; document.getElementById("lgA").classList.toggle("active",k==="A"); document.getElementById("lgB").classList.toggle("active",k==="B"); drawLG(); }
+function drawLG(){
+  const D = LG[lgCur], t = parseFloat(document.getElementById("lgT").value);
+  const M = (x,y) => [D.origin[0]+x*D.scale, D.origin[1]-y*D.scale];
+  const svg = document.getElementById("lgSvg"); svg.innerHTML = "";
+  const NS="http://www.w3.org/2000/svg";
+  const el=(tag,at)=>{const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);svg.appendChild(e);return e;};
+  el("defs",{}).innerHTML='<marker id="lgArF" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker><marker id="lgArG" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#15803d"/></marker>';
+  // level curves
+  D.levels.forEach(c => el("path",{d:D.lvlPath(c,M),fill:"none",stroke:"#93c5fd","stroke-width":1.5,"stroke-dasharray":"5 4"}));
+  // constraint
+  el("path",{d:D.cons(M),fill:"none",stroke:"#15803d","stroke-width":2.5});
+  // point + gradients
+  const [x,y]=D.pt(t), P=M(x,y), gf=D.gf(x,y), gg=D.gg();
+  const nf=Math.hypot(gf[0],gf[1])||1, ng=Math.hypot(gg[0],gg[1])||1, AL=62;
+  el("line",{x1:P[0],y1:P[1],x2:P[0]+gf[0]/nf*AL,y2:P[1]-gf[1]/nf*AL,stroke:"#dc2626","stroke-width":2.5,"marker-end":"url(#lgArF)"});
+  el("line",{x1:P[0],y1:P[1],x2:P[0]+gg[0]/ng*AL*0.8,y2:P[1]-gg[1]/ng*AL*0.8,stroke:"#15803d","stroke-width":2.5,"marker-end":"url(#lgArG)"});
+  el("circle",{cx:P[0],cy:P[1],r:6,fill:"#1d4ed8"});
+  // mức qua P (nét liền mờ) để thấy cắt/tiếp xúc
+  el("path",{d:D.lvlPath(D.f(x,y),M),fill:"none",stroke:"#1d4ed8","stroke-width":1.8,opacity:0.85});
+  const cross = gf[0]*gg[1]-gf[1]*gg[0];
+  const parallel = Math.abs(cross)/(nf*ng) < 0.02;
+  const lam = gg[0]!==0 ? gf[0]/gg[0] : gf[1]/gg[1];
+  const fmt=v=>(v<0?"−":"")+Math.abs(v).toFixed(2);
+  document.getElementById("lgRes").innerHTML =
+    `<span class="stat">① P = (${fmt(x)}, ${fmt(y)}), ${D.fLabel} = <strong>${fmt(D.f(x,y))}</strong></span>`+
+    `<span class="stat">② ∇f = (${fmt(gf[0])}, ${fmt(gf[1])}), ∇g = (${gg[0]}, ${gg[1]}), cross = ${fmt(cross)}</span>`+
+    `<span class="stat">③ ${parallel ? "∇f ∥ ∇g — TIẾP XÚC, cực trị! λ ≈ <strong>"+fmt(lam)+"</strong>" : "còn cắt đường mức — chưa tối ưu"}</span>`;
+}
+
+// ---------- Module 4: CRI/VUL/COL ----------
+const BUDGET = 9.38 + 1.41/0.56 + 1.13/0.48; // 14.252
+function criPreset(r2,r3){ document.getElementById("criR2").value=r2; document.getElementById("criR3").value=r3; drawCRI(); }
+function drawCRI(){
+  const r2=parseFloat(document.getElementById("criR2").value), r3=parseFloat(document.getElementById("criR3").value);
+  const r1=BUDGET - r2/0.56 - r3/0.48;
+  document.getElementById("criV2").textContent=(r2*100).toFixed(0);
+  document.getElementById("criV3").textContent=(r3*100).toFixed(0);
+  const svg=document.getElementById("criSvg"); svg.innerHTML="";
+  const NS="http://www.w3.org/2000/svg";
+  const el=(t,at)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);svg.appendChild(e);return e;};
+  const res=document.getElementById("criRes");
+  if(r1 <= -1){ res.innerHTML='<span class="stat">⚠ Ngân sách âm quá sâu — r_CRI &lt; −100%, vô nghĩa. Giảm r_VUL / r_COL.</span>'; return; }
+  const m=[1+r1, 1+r2, 1+r3];
+  const F=5000*m[0]*m[1]*m[2];
+  const marg=[1/m[0], 0.56/m[1], 0.48/m[2]];
+  const names=["CRI","VUL","COL"], cols=["#1d4ed8","#15803d","#d97706"];
+  const maxM=11;
+  m.forEach((mi,i)=>{
+    const h=Math.max(2, mi/maxM*170), x=70+i*210;
+    el("rect",{x:x,y:200-h,width:90,height:h,fill:cols[i],rx:4,opacity:0.85});
+    const t1=el("text",{x:x+45,y:195-h,"text-anchor":"middle","font-size":15,fill:"#1a202c","font-weight":"700"});
+    t1.textContent="×"+mi.toFixed(3);
+    const t2=el("text",{x:x+45,y:218,"text-anchor":"middle","font-size":13,fill:"#475569"});
+    t2.textContent=names[i]+" (+"+(100*(mi-1)).toFixed(0)+"%)";
+  });
+  const spread=Math.max(...marg)-Math.min(...marg);
+  const balanced = spread < 0.004;
+  const fmt=v=>v.toFixed(4);
+  res.innerHTML =
+    `<span class="stat">① Chỉ số cuối = 5000 × ${m[0].toFixed(3)} × ${m[1].toFixed(3)} × ${m[2].toFixed(3)} = <strong>${F.toLocaleString("en-US",{maximumFractionDigits:0})}</strong></span><br>`+
+    `<span class="stat">② Lợi suất biên: CRI ${fmt(marg[0])} · VUL ${fmt(marg[1])} · COL ${fmt(marg[2])}</span>`+
+    `<span class="stat">③ ${balanced ? "BA LỢI SUẤT BIÊN BẰNG NHAU — đỉnh Lagrange, λ ≈ <strong>"+fmt(marg[0])+"</strong> ✓" : "chênh "+fmt(spread)+" — chuyển ngân sách từ nhóm biên THẤP sang nhóm biên CAO để tăng tiếp"}</span>`;
+}
+setLG("A"); drawCRI();
+</script>
+
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>
 <script src="../../../tools/readme-modal.js"></script>

@@ -133,6 +133,24 @@ Hình dung bằng **biểu đồ tán xạ (scatter plot)** — 5 điểm "giờ
 | **Số tham số** | Bằng số điểm (đa thức bậc $n-1$ cho $n$ điểm) | Ít (vd 2 cho đường thẳng) |
 | **Dùng khi** | Số liệu chính xác (bảng tra, tọa độ thiết kế) | Số liệu đo có sai số (đa số thực tế) |
 
+### 2.1. Đa thức nội suy Lagrange — cơ chế "đi qua đúng mọi điểm"
+
+Cho $n$ điểm $(x_i, y_i)$ với các $x_i$ khác nhau, luôn tồn tại đúng một đa thức bậc $\\le n-1$ đi qua cả $n$ điểm. Lagrange viết nó ra tường minh:
+
+$$P(x) = \\sum_{i=1}^{n} y_i\\,L_i(x),\\qquad L_i(x) = \\prod_{j \\ne i}\\frac{x - x_j}{x_i - x_j}$$
+
+💡 Mỗi $L_i$ là một "công tắc": $L_i(x_i) = 1$ (tử = mẫu) và $L_i(x_j) = 0$ với mọi nút khác (tử chứa thừa số $x_j - x_j$). Tại mỗi nút, chỉ đúng một công tắc bật — nên $P(x_i) = y_i$ tự động.
+
+**Walk-through 3 điểm** $(0,1), (1,3), (2,2)$:
+
+$$L_1 = \\frac{(x-1)(x-2)}{(0-1)(0-2)} = \\frac{x^2-3x+2}{2},\\quad L_2 = \\frac{x(x-2)}{1\\cdot(1-2)} = -x^2+2x,\\quad L_3 = \\frac{x(x-1)}{2\\cdot 1} = \\frac{x^2-x}{2}$$
+
+$$P(x) = 1\\cdot L_1 + 3\\cdot L_2 + 2\\cdot L_3 = -1.5x^2 + 3.5x + 1$$
+
+Kiểm cả 3 nút: $P(0) = 1$ ✓, $P(1) = -1.5 + 3.5 + 1 = 3$ ✓, $P(2) = -6 + 7 + 1 = 2$ ✓.
+
+Nội suy Lagrange là công cụ đứng sau bảng tra giá trị hàm, đường cong thiết kế đồ họa, và các công thức tích phân số (Newton–Cotes). Nhưng chính nó ở bậc cao cũng là thủ phạm của hiện tượng Runge ngay dưới đây — xem mô phỏng ở [visualization.html](./visualization.html) (mục 3).
+
 ⚠ **Lỗi thường gặp — dùng đa thức bậc cao để "khớp hoàn hảo".** Ép đa thức bậc $n-1$ qua $n$ điểm cho sai số 0 *trên dữ liệu đã có*, nhưng giữa các điểm nó **dao động dữ dội** (hiện tượng Runge) và dự đoán ngoài vùng dữ liệu thì *thảm họa*. Phản ví dụ: 10 điểm gần như thẳng hàng + 1 chút nhiễu → đa thức bậc 9 qua hết 10 điểm sẽ uốn lượn điên loạn, còn đường thẳng hồi quy thì bám xu hướng đẹp. **Khớp hoàn hảo dữ liệu cũ ≠ dự đoán tốt dữ liệu mới** — đây là mầm mống của *overfitting* (mục 7).
 
 ❓ **Câu hỏi tự nhiên của người đọc**

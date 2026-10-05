@@ -229,7 +229,55 @@ function drawHouse(){
 document.addEventListener("DOMContentLoaded", drawHouse);
 </script>
 
-<h2>3. 🌍 Đời sống thực tế — định giá nhà theo diện tích</h2>
+
+<h2>3. Nội suy Lagrange — qua đúng mọi điểm &amp; bẫy Runge</h2>
+<div class="card">
+  <p style="margin-top:0">Lấy n điểm cách đều trên hàm Runge f(x) = 1/(1+25x²) (đường xám) rồi dựng đa thức nội suy Lagrange bậc n−1 (đường xanh) — đi qua ĐÚNG mọi điểm. <strong>Thử:</strong> tăng n từ 5 lên 12 — đa thức vẫn qua đủ các nút nhưng GIỮA các nút rìa nó dao động càng dữ dội (hiện tượng Runge): khớp hoàn hảo dữ liệu cũ không hứa hẹn gì giữa hai điểm đo.</p>
+  <div class="row">
+    <label>Số điểm n:</label>
+    <input type="range" id="lagN" min="3" max="13" step="1" value="6" oninput="drawLag()">
+    <span class="stat">n = <strong id="lagVN">6</strong></span>
+  </div>
+  <svg id="lagSvg" viewBox="0 0 700 360" style="display:block;margin:12px auto;width:100%;max-width:700px;height:auto;background:#f8fafc;border-radius:8px"></svg>
+  <div class="result" id="lagRes"></div>
+</div>
+
+<script>
+function drawLag(){
+  const n = parseInt(document.getElementById("lagN").value);
+  document.getElementById("lagVN").textContent = n;
+  const f = x => 1/(1+25*x*x);
+  const xs = [], ys = [];
+  for (let i = 0; i < n; i++) { const x = -1 + 2*i/(n-1); xs.push(x); ys.push(f(x)); }
+  const P = x => { let s = 0; for (let i = 0; i < n; i++) { let L = 1; for (let j = 0; j < n; j++) if (j !== i) L *= (x - xs[j])/(xs[i] - xs[j]); s += ys[i]*L; } return s; };
+  const svg = document.getElementById("lagSvg"); svg.innerHTML = "";
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t,at)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);svg.appendChild(e);return e;};
+  const Y0=-1.6, Y1=2.2;
+  const px = x => 50 + (x+1)/2*600;
+  const py = y => 340 - (Math.max(Y0,Math.min(Y1,y)) - Y0)/(Y1-Y0)*320;
+  el("line",{x1:50,y1:py(0),x2:650,y2:py(0),stroke:"#94a3b8","stroke-width":1});
+  // hàm gốc
+  let d1=""; for(let x=-1;x<=1.001;x+=0.01) d1+=(d1?"L":"M")+px(x)+" "+py(f(x))+" ";
+  el("path",{d:d1,fill:"none",stroke:"#94a3b8","stroke-width":2.5});
+  // đa thức nội suy
+  let d2=""; for(let x=-1;x<=1.001;x+=0.004) d2+=(d2?"L":"M")+px(x)+" "+py(P(x))+" ";
+  el("path",{d:d2,fill:"none",stroke:"#1d4ed8","stroke-width":2.2});
+  xs.forEach((x,i)=>el("circle",{cx:px(x),cy:py(ys[i]),r:5,fill:"#dc2626"}));
+  // max sai số giữa các nút
+  let maxErr = 0, argX = 0;
+  for (let x=-1;x<=1.001;x+=0.004){ const e=Math.abs(P(x)-f(x)); if(e>maxErr){maxErr=e;argX=x;} }
+  el("line",{x1:px(argX),y1:py(f(argX)),x2:px(argX),y2:py(P(argX)),stroke:"#dc2626","stroke-width":2,"stroke-dasharray":"5 3"});
+  const fmt=v=>v<0.01?v.toExponential(1):v.toFixed(3);
+  document.getElementById("lagRes").innerHTML =
+    `<span class="stat">① P đi qua đúng <strong>${n}/${n}</strong> điểm nút ✓ (bậc ${n-1})</span>`+
+    `<span class="stat">② sai số lớn nhất GIỮA các nút = <strong>${fmt(maxErr)}</strong> tại x ≈ ${argX.toFixed(2)}</span>`+
+    `<span class="stat">③ ${maxErr > 0.5 ? "dao động Runge bùng nổ ở rìa — bậc cao phản chủ" : "còn tạm ổn — kéo n lên nữa để thấy Runge"}</span>`;
+}
+drawLag();
+</script>
+
+<h2>4. 🌍 Đời sống thực tế — định giá nhà theo diện tích</h2>
 <div class="card">
   <p class="lead">Một sàn môi giới có 6 căn đã bán (chấm xanh): diện tích (m²) và giá (tỉ đồng). Dùng <strong>least squares</strong> y hệt phần 1, máy tự khớp đường thẳng tối ưu. Kéo slider để chọn diện tích cần định giá — đường cam chỉ ra giá dự đoán.</p>
   <div class="row">

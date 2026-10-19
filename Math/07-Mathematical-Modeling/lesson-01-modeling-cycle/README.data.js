@@ -20,19 +20,25 @@ window.README_MD = `# Lesson 01 — Chu trình mô hình hóa & Phân tích th�
 
 ## 1. Mô hình toán học là gì?
 
-💡 **Trực giác / Hình dung — bản đồ không phải lãnh thổ.** Một tấm bản đồ tỉ lệ 1:50000 *cố tình* bỏ đi từng viên gạch, từng cái cây — nhưng chính nhờ bỏ bớt mà nó **dùng được** để tìm đường. Mô hình toán học cũng vậy: nó là một **mô tả đơn giản hóa** hiện thực bằng ngôn ngữ toán (biến số, phương trình), giữ lại đúng những gì cần cho câu hỏi đang quan tâm và lược bỏ phần còn lại.
+💡 **Trực giác / Hình dung — bản đồ không phải lãnh thổ.** Một tấm bản đồ tỉ lệ 1:50000 *cố tình* bỏ đi từng viên gạch, từng cái cây — nhưng chính nhờ bỏ bớt mà nó **dùng được** để tìm đường. Mô hình toán học cũng vậy. Nó là một **mô tả đơn giản hóa** hiện thực bằng ngôn ngữ toán — biến số và phương trình. Nó giữ lại đúng những gì cần cho câu hỏi đang hỏi, và lược bỏ tất cả phần còn lại.
 
 > 📐 **Định nghĩa đầy đủ — Mô hình toán học**
 >
-> **(a) Là gì**: Một tập hợp gồm (i) các **biến** đại diện cho đại lượng thực (vd nhiệt độ $T$, dân số $N$), (ii) các **quan hệ toán học** giữa chúng (phương trình, bất phương trình, hàm), được xây dựng dưới một bộ **giả định** nêu rõ. Mục tiêu: *trả lời một câu hỏi* hoặc *dự đoán* về hệ thực.
+> **(a) Là gì**: Một mô hình gồm ba thứ:
 >
-> **(b) Vì sao cần**: Hiện thực quá phức tạp để tính trực tiếp. Mô hình cho phép ta **suy luận** (giải phương trình) thay vì **thử nghiệm** tốn kém/nguy hiểm. Không thể "thử" thả 1000 quả tên lửa để xem quỹ đạo, cũng không thể cho cả thành phố nhiễm bệnh để xem dịch lan ra sao — nhưng có thể *tính* trên mô hình. Mô hình cũng giúp **hiểu cơ chế**: vì sao logistic bão hòa, vì sao dịch có đỉnh.
+> - các **biến** — đại diện cho đại lượng thực (vd nhiệt độ $T$, dân số $N$);
+> - các **quan hệ toán học** nối chúng — phương trình, bất phương trình, hàm;
+> - một bộ **giả định** nêu rõ — cái gì bỏ qua, cái gì coi là cố định.
+>
+> Mục tiêu: *trả lời một câu hỏi* hoặc *dự đoán* về hệ thực.
+>
+> **(b) Vì sao cần**: Hiện thực quá phức tạp để tính trực tiếp. Mô hình cho phép ta **suy luận** (giải phương trình) thay vì **thử nghiệm** tốn kém/nguy hiểm. Không ai thử thả 1000 quả tên lửa để xem quỹ đạo. Cũng không ai cho cả thành phố nhiễm bệnh để xem dịch lan ra sao. Nhưng cả hai đều *tính được* trên mô hình. Mô hình cũng giúp **hiểu cơ chế**: vì sao logistic bão hòa, vì sao dịch có đỉnh.
 >
 > **(c) Ví dụ số**: Ném một quả bóng thẳng lên với vận tốc đầu $v_0 = 20$ m/s. Mô hình (bỏ qua sức cản không khí): độ cao $h(t) = v_0 \\cdot t - \\frac{1}{2} \\cdot g \\cdot t^2$ với $g = 9.8$ m/s². Tại $t = 1$s: $h = 20 \\cdot 1 - \\frac{1}{2} \\cdot 9.8 \\cdot 1^2 = 20 - 4.9 =$ **15.1 m**. Đỉnh khi $h'(t) = v_0 - g \\cdot t = 0 \\to t = 20/9.8 \\approx 2.04$s, $h_{max} = 20^2 / (2 \\cdot 9.8) \\approx$ **20.4 m**. Mô hình cho ngay dự đoán bằng số — không cần thực sự ném bóng.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Mô hình có cần đúng tuyệt đối không?"* Không — và không thể. Câu nói nổi tiếng của nhà thống kê George Box: *"All models are wrong, but some are useful"* (mọi mô hình đều sai, nhưng một số hữu ích). Mô hình ném bóng ở trên bỏ qua sức cản, gió, độ cong Trái Đất; nó vẫn hữu ích cho quả bóng tennis trong sân, nhưng vô dụng cho tên lửa liên lục địa.
+- *"Mô hình có cần đúng tuyệt đối không?"* Không — và không thể. Câu nói nổi tiếng của nhà thống kê George Box: *"All models are wrong, but some are useful"* (mọi mô hình đều sai, nhưng một số hữu ích). Mô hình ném bóng ở trên bỏ qua sức cản, gió, độ cong Trái Đất. Với quả bóng tennis trong sân, nó vẫn hữu ích. Với tên lửa liên lục địa, nó vô dụng.
 - *"Mô hình khác công thức ở chỗ nào?"* Công thức là *một phần* của mô hình. Mô hình còn bao gồm **giả định** (cái gì bỏ qua), **phạm vi áp dụng** (khi nào dùng được), và **diễn giải** (biến này nghĩa là gì trong thực tế).
 - *"Có một mô hình 'đúng nhất' cho mỗi bài toán không?"* Không. Có nhiều mô hình cho cùng hiện tượng, tùy *mục đích* và *độ chính xác cần*. Dự báo thời tiết 1 giờ tới khác mô hình khí hậu 100 năm.
 
@@ -46,7 +52,7 @@ window.README_MD = `# Lesson 01 — Chu trình mô hình hóa & Phân tích th�
 
 ## 2. Chu trình mô hình hóa (6 bước)
 
-💡 **Trực giác / Hình dung.** Mô hình hóa không phải đường thẳng "đề bài → đáp số" mà là một **vòng lặp**: dựng thử → kiểm tra với thực tế → thấy sai chỗ nào → sửa giả định → dựng lại. Giống như nặn tượng: phác thô, lùi lại ngắm, chỉnh, lại ngắm.
+💡 **Trực giác / Hình dung.** Mô hình hóa không phải đường thẳng "đề bài → đáp số" mà là một **vòng lặp**: dựng thử, so với thực tế, sửa giả định, rồi dựng lại. Giống như nặn tượng: phác thô, lùi lại ngắm, chỉnh, lại ngắm.
 
 Sáu bước:
 
@@ -88,7 +94,7 @@ Sáu bước:
 | 5 | **Kiểm chứng** | So nghiệm với dữ liệu/trực giác; ước lượng sai số | "Khớp thực tế không? Sai bao nhiêu? Có vô lý chỗ nào?" |
 | 6 | **Tinh chỉnh** | Nếu chưa đạt: sửa giả định, quay lại bước 2 | "Bỏ giả định nào để khớp hơn? Có đáng phức tạp thêm không?" |
 
-⚠ **Lỗi thường gặp — dừng ở bước 3 hoặc 4.** Rất nhiều người "lập được phương trình" rồi coi như xong. Nhưng nếu không **kiểm chứng** (bước 5), bạn không biết mô hình *đúng* hay chỉ *trông có vẻ đúng*. Một mô hình cho ra "dân số âm" hoặc "xác suất 1.3" là sai dù phương trình giải ra đẹp. Phản ví dụ: mô hình tăng trưởng mũ $N = N_0 \\cdot e^{rt}$ dự báo dân số Trái Đất năm 3000 là $10^{20}$ người — vô lý vật lý → phải tinh chỉnh thành logistic (Lesson 04).
+⚠ **Lỗi thường gặp — dừng ở bước 3 hoặc 4.** Rất nhiều người "lập được phương trình" rồi coi như xong. Nhưng nếu không **kiểm chứng** (bước 5), bạn không biết mô hình *đúng* hay chỉ *trông có vẻ đúng*. Một mô hình cho ra "dân số âm" hoặc "xác suất 1.3" là sai dù phương trình giải ra đẹp. Phản ví dụ: mô hình tăng trưởng mũ $N = N_0 \\cdot e^{rt}$ dự báo dân số Trái Đất năm 3000 là $10^{20}$ người — vô lý về vật lý. Vậy phải tinh chỉnh: đổi sang mô hình logistic (Lesson 04).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -118,7 +124,7 @@ Sáu bước:
 
 ## 3. Giả định & đơn giản hóa
 
-💡 **Trực giác / Hình dung.** Giả định là "công tắc" bạn gạt để tắt bớt độ phức tạp của thế giới. Mỗi công tắc tắt đi một yếu tố ("bỏ qua sức cản", "coi nhiệt độ phòng không đổi"), đổi lại bài toán dễ giải hơn nhưng mô hình xa thực tế hơn. Nghệ thuật mô hình hóa = **tắt đúng công tắc**.
+💡 **Trực giác / Hình dung.** Giả định là "công tắc" bạn gạt để tắt bớt độ phức tạp của thế giới. Mỗi công tắc tắt đi một yếu tố: bỏ qua sức cản, coi nhiệt độ phòng không đổi. Gạt càng nhiều công tắc, bài toán càng dễ giải — nhưng mô hình càng xa thực tế. Nghệ thuật mô hình hóa = **tắt đúng công tắc**.
 
 Các loại giả định thường gặp:
 
@@ -128,7 +134,7 @@ Các loại giả định thường gặp:
 - **Rời rạc ↔ liên tục**: coi dân số (số nguyên) như biến liên tục để dùng ODE.
 - **Đồng nhất / trộn đều**: mọi cá thể trong quần thể tiếp xúc như nhau (giả định nền của SIR — Lesson 05).
 
-⚠ **Lỗi thường gặp — quên rằng đây là toy model.** Khi dùng một mô hình đơn giản hóa mạnh, đừng tưởng nó là sự thật. Ví dụ kinh điển: mô hình tăng trưởng mũ cho dân số. Nó đúng *trong giai đoạn đầu* khi tài nguyên dư thừa, nhưng giả định "tốc độ sinh tỉ lệ dân số mãi mãi" là **sai về dài hạn** — thực tế có giới hạn tài nguyên $K$. Luôn ghi rõ: *"mô hình này chỉ dùng được khi ..."*.
+⚠ **Lỗi thường gặp — quên rằng đây là toy model.** Khi dùng một mô hình đơn giản hóa mạnh, đừng tưởng nó là sự thật. Ví dụ kinh điển: mô hình tăng trưởng mũ cho dân số. Nó đúng *trong giai đoạn đầu*, khi tài nguyên còn dư thừa. Nhưng giả định "tốc độ sinh tỉ lệ dân số mãi mãi" **sai về dài hạn** — thực tế luôn có giới hạn tài nguyên $K$. Luôn ghi rõ: *"mô hình này chỉ dùng được khi ..."*.
 
 > 🧪 **Toy model & phiên bản thật.** Mô hình ném bóng $h(t) = v_0 t - \\frac{1}{2}gt^2$ (bỏ sức cản) là *toy model* tốt cho minh họa. Phiên bản thật thêm lực cản tỉ lệ $v$ hoặc $v^2$: $m \\cdot \\frac{dv}{dt} = -mg - k \\cdot v^2$, không còn giải tay gọn được, phải mô phỏng số. Quy tắc: nêu toy model để hiểu cơ chế, **cảnh báo hạn chế**, rồi chỉ ra phiên bản thật ở đâu.
 
@@ -152,13 +158,13 @@ Không phải giả định nào cũng nguy hiểm như nhau. Chia ba mức:
 | 🟡 Phải canh chừng | Coi hằng cái đang thay đổi chậm | Đúng ngắn hạn, lệch dần dài hạn | "Lãi suất cố định" trong mô hình vay 30 năm |
 | 🔴 Gãy mô hình | Bỏ chính cơ chế chi phối | Sai về *chất*, không chỉ về lượng | Bỏ sức cản với tờ giấy rơi; bỏ giới hạn tài nguyên trong tăng trưởng dài hạn |
 
-💡 **Trực giác.** Một giả định 🔴 không làm mô hình "kém chính xác vài %", mà làm nó trả lời **sai loại câu hỏi** — như dùng bản đồ đường bộ để đoán độ sâu biển. Việc đầu tiên khi mô hình hóa: hỏi *"yếu tố tôi định bỏ có phải là cơ chế chính của câu hỏi này không?"* Nếu có → đừng bỏ.
+💡 **Trực giác.** Một giả định 🔴 không làm mô hình "kém chính xác vài %", mà làm nó trả lời **sai loại câu hỏi** — như dùng bản đồ đường bộ để đoán độ sâu biển. Việc đầu tiên khi mô hình hóa: hỏi *"yếu tố tôi định bỏ có phải là cơ chế chính của câu hỏi này không?"* Nếu có thì đừng bỏ.
 
 ### 3.2 Giả định ngầm (implicit assumptions) — nguy hiểm nhất vì không ai viết ra
 
 ⚠ **Lỗi thường gặp — giả định ngầm.** Giả định *viết ra* thì còn kiểm tra được; giả định *ngầm* (bạn không nhận ra mình đang giả định) mới gây tai họa, vì không ai nghĩ tới chuyện kiểm tra nó. Bốn ví dụ:
 
-1. **"Dân số là số thực"** — khi dùng ODE liên tục cho dân số, bạn ngầm cho phép "0.37 con thỏ". Vô hại khi $N$ lớn (làm tròn không đáng kể), nhưng vô lý khi $N$ nhỏ (mô hình nói còn "0.8 cá thể" → tuyệt chủng hay chưa?).
+1. **"Dân số là số thực"** — khi dùng ODE liên tục cho dân số, bạn ngầm cho phép "0.37 con thỏ". Khi $N$ lớn, điều này vô hại — làm tròn không đáng kể. Khi $N$ nhỏ thì thành vô lý: mô hình nói còn "0.8 cá thể" — vậy đã tuyệt chủng hay chưa?
 2. **"Tham số không đổi theo thời gian"** — mô hình lan bệnh giả định tỉ lệ lây $\\beta$ cố định, ngầm bỏ qua việc người dân *đeo khẩu trang sau khi nghe tin dịch* (β tự giảm). Đây là lý do nhiều dự báo dịch 2020 lệch.
 3. **"Đơn vị đồng nhất"** — trộn mét với foot (vụ Mars Climate Orbiter). Không ai *cố ý* giả định "mọi số đều cùng đơn vị", nhưng code ngầm giả định thế.
 4. **"Quá khứ giống tương lai"** — mọi mô hình khớp dữ liệu lịch sử rồi ngoại suy đều ngầm giả định quy luật không đổi. Sai khi có "thiên nga đen" (đại dịch, khủng hoảng tài chính).
@@ -171,7 +177,7 @@ Không phải giả định nào cũng nguy hiểm như nhau. Chia ba mức:
 
 - **Quá đơn giản (underfitting)**: mô hình giá nhà chỉ dùng *diện tích* → hai căn cùng diện tích ở quận khác nhau giá gấp 3. Dấu hiệu: sai *có hệ thống* (luôn lệch cùng chiều ở một nhóm).
 
-- **Quá phức tạp (overfitting)**: 10 điểm nhiễu khớp đa thức bậc 9 — đi qua cả 10 điểm (sai số huấn luyện $= 0$!) nhưng dao động điên loạn, dự đoán điểm 11 tệ; đường thẳng bỏ qua nhiễu lại dự báo tốt hơn. Càng nhiều tham số càng dễ overfit (mục 8).
+- **Quá phức tạp (overfitting)**: lấy 10 điểm dữ liệu nhiễu rồi khớp đa thức bậc 9 — đường cong đi qua cả 10 điểm, sai số huấn luyện $= 0$. Nhưng giữa các điểm nó dao động điên loạn, và dự đoán điểm thứ 11 rất tệ. Một đường thẳng bỏ qua nhiễu lại dự báo tốt hơn. Càng nhiều tham số càng dễ overfit (mục 8).
 
 > 🪒 **Dao cạo Occam (Occam's razor) cho mô hình hóa.** Giữa hai mô hình giải thích dữ liệu *tương đương nhau*, chọn cái **đơn giản hơn** (ít tham số hơn). Lý do không phải "đơn giản thì đẹp" mà là *đơn giản thì ít overfit hơn và dễ kiểm chứng/diễn giải hơn*. "Đủ phức tạp để bắt cơ chế, không hơn."
 
@@ -194,7 +200,11 @@ Không phải giả định nào cũng nguy hiểm như nhau. Chia ba mức:
 >
 > **(a) Là gì**: Thứ nguyên là *loại* đại lượng, biểu diễn qua các đại lượng cơ bản. Trong cơ học dùng 3 thứ nguyên cơ bản: khối lượng **M**, chiều dài **L**, thời gian **T**. Thứ nguyên của một đại lượng viết trong ngoặc vuông \`[ ]\`. Vd: vận tốc $[v] = L \\cdot T^{-1}$ (mét trên giây); gia tốc $[a] = L \\cdot T^{-2}$; lực $[F] = M \\cdot L \\cdot T^{-2}$ (vì $F = ma$).
 >
-> **(b) Vì sao cần**: (1) **Bắt lỗi nhanh** — hai vế phương trình phải cùng thứ nguyên; nếu không, công thức sai, khỏi cần kiểm tra gì thêm. (2) **Đoán dạng công thức** — chỉ từ "kết quả phải có thứ nguyên thời gian" ta đoán được cách ghép các biến. (3) **Đổi đơn vị an toàn** và phát hiện nhầm lẫn đơn vị (vụ tàu Mars Climate Orbiter 1999 rơi vì lẫn pound-giây với newton-giây).
+> **(b) Vì sao cần**:
+>
+> - **Bắt lỗi nhanh**: hai vế phương trình phải cùng thứ nguyên. Nếu không — công thức sai, khỏi kiểm tra gì thêm.
+> - **Đoán dạng công thức**: chỉ từ "kết quả phải có thứ nguyên thời gian", đoán được cách ghép các biến.
+> - **Đổi đơn vị an toàn**: phát hiện nhầm đơn vị (tàu Mars Climate Orbiter 1999 rơi vì lẫn pound-giây với newton-giây).
 >
 > **(c) Ví dụ số (4 ví dụ)**:
 > - Quãng đường $s = v \\cdot t$: $[v \\cdot t] = (L \\cdot T^{-1}) \\cdot T = L = [s]$ ✓. Số: 10 m/s · 3 s = 30 m ($L$) ✓.
@@ -234,7 +244,7 @@ Vậy $T = C \\cdot \\ell^{1/2} \\cdot g^{-1/2} = C\\sqrt{\\ell/g}$. So với c�
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Thứ nguyên cân rồi thì công thức chắc chắn đúng?"* **Không** — cân thứ nguyên là điều kiện *cần*, không *đủ*. $s = v \\cdot t$ và $s = 2 \\cdot v \\cdot t$ đều cân thứ nguyên nhưng chỉ một đúng. Hằng số không thứ nguyên ($2$, $\\pi$...) phương pháp không bắt được. Nhưng nếu *không* cân thứ nguyên thì *chắc chắn sai* — đó là giá trị của nó: bộ lọc loại nhanh công thức sai.
+- *"Thứ nguyên cân rồi thì công thức chắc chắn đúng?"* **Không** — cân thứ nguyên là điều kiện *cần*, không *đủ*. $s = v \\cdot t$ và $s = 2 \\cdot v \\cdot t$ đều cân thứ nguyên nhưng chỉ một đúng. Hằng số không thứ nguyên ($2$, $\\pi$...) phương pháp không bắt được. Nhưng nếu *không* cân thứ nguyên thì *chắc chắn sai*. Giá trị của phương pháp nằm ở đó: một bộ lọc loại nhanh công thức sai.
 - *"Đơn vị (mét, foot) và thứ nguyên (L) khác nhau không?"* Có. **Thứ nguyên** là loại (chiều dài); **đơn vị** là thước đo cụ thể của loại đó (mét, foot, dặm). Cùng thứ nguyên $L$ có thể đo bằng nhiều đơn vị. Đổi đơn vị không đổi thứ nguyên.
 - *"Vì sao sin/cos/log/exp phải nhận số không thứ nguyên?"* Vì chúng định nghĩa qua chuỗi cộng các lũy thừa khác bậc ($\\sin x = x - x^3/6 + \\dots$); chỉ cộng được khi các số hạng cùng thứ nguyên, tức $x$ không thứ nguyên. Nên $\\sin(5 \\text{ mét})$ vô nghĩa; phải $\\sin(5 \\text{ mét} / \\text{chiều\\_dài\\_chuẩn})$.
 
@@ -297,13 +307,22 @@ Tìm $t$ khi $T = 60$°C:
 
 **Bước 6 — Tinh chỉnh.** Mô hình bỏ qua bay hơi (làm nguội nhanh hơn lúc đầu, khi còn rất nóng) và sự nguội không đều trong cốc. Nếu cần chính xác hơn: thêm số hạng bay hơi, hoặc đo nhiều điểm dữ liệu rồi khớp k bằng hồi quy (Lesson 02). Với mục đích "ước lượng uống được khi nào", mô hình hiện tại **đủ tốt** → dừng.
 
-📝 Cả 6 bước gói gọn: bài toán cụ thể → giả định rõ ràng → ODE Newton → giải ra $T(t)$ → khớp dữ liệu tìm $k$ → kiểm chứng giới hạn & trực giác → đánh giá đủ tốt. Đây là khuôn mẫu cho mọi lesson sau.
+📝 **Cả 6 bước gói gọn:**
+
+- Bài toán cụ thể: 90°C nguội về 60°C mất bao lâu?
+- Giả định rõ ràng: phòng không đổi, trộn đều, bỏ bay hơi.
+- Lập mô hình: định luật nguội Newton (một ODE).
+- Giải: ra công thức $T(t) = 25 + 65\\cdot e^{-kt}$.
+- Khớp một điểm đo để tìm $k$, rồi tính đáp số 8.4 phút.
+- Kiểm chứng giới hạn và trực giác; thấy đủ tốt thì dừng.
+
+Đây là khuôn mẫu cho mọi lesson sau.
 
 ---
 
 ## 6. Biến, tham số và hằng số — phân biệt ba vai
 
-💡 **Trực giác / Hình dung — công thức nấu ăn.** Trong một công thức bánh: *lượng bột* bạn đong là **biến đầu vào** (input, thay đổi mỗi lần làm), *chiếc bánh nở to bao nhiêu* là **biến đầu ra** (output), còn *"180°C trong 25 phút"* là **tham số** — cố định cho một công thức cụ thể, nhưng ai đổi lò/khuôn thì chỉnh lại. Nhầm ba vai này là nhầm "cái gì tôi điều khiển" với "cái gì tôi quan sát".
+💡 **Trực giác / Hình dung — công thức nấu ăn.** Nhìn một công thức bánh. *Lượng bột* bạn đong là **biến đầu vào** (input) — đổi mỗi lần làm. *Bánh nở to bao nhiêu* là **biến đầu ra** (output). Còn *"nướng 180°C trong 25 phút"* là **tham số**: cố định cho công thức này, nhưng đổi lò thì phải chỉnh lại. Nhầm ba vai này là nhầm "cái gì tôi điều khiển" với "cái gì tôi quan sát".
 
 > 📐 **Định nghĩa đầy đủ — Biến (variable), Tham số (parameter), Hằng số (constant)**
 >
@@ -391,7 +410,7 @@ Một mô hình mang **một nhãn trên mỗi trục** (vd "tất định, liê
 - *"Khi nào cần mô hình ngẫu nhiên?"* Khi *sự dao động/may rủi chính là điều cần trả lời* (rủi ro đầu tư, xác suất hết hàng), hoặc khi hệ nhỏ (ít cá thể) nên thăng giáng lớn. Nếu chỉ cần xu hướng trung bình và hệ lớn → tất định thường đủ và đơn giản hơn.
 - *"Một mô hình có thể vừa rời rạc vừa liên tục?"* Có — mô hình *lai* (hybrid): vd dân số tăng liên tục trong năm nhưng thu hoạch *một lần* cuối năm (cú nhảy rời rạc). Thực tế nhiều mô hình là lai.
 
-⚠ **Lỗi thường gặp — ép sai loại.** Dùng ODE liên tục cho quần thể chỉ còn 3 cá thể → mô hình nói "2.4 cá thể", vô nghĩa và bỏ sót *tuyệt chủng do ngẫu nhiên* (3 con xui rủi chết hết) mà mô hình tất định không bao giờ thấy. Hệ nhỏ → cân nhắc rời rạc + ngẫu nhiên. Phản ví dụ ngược: dùng mô phỏng ngẫu nhiên từng phân tử khí cho 1 mol ($6\\times10^{23}$ hạt) là phí phạm — số lớn nên trung bình rất ổn định, mô hình liên tục tất định (nhiệt động lực học) đủ và rẻ hơn vô vàn.
+⚠ **Lỗi thường gặp — ép sai loại.** Dùng ODE liên tục cho quần thể chỉ còn 3 cá thể — mô hình nói "còn 2.4 cá thể", vô nghĩa. Tệ hơn, nó bỏ sót *tuyệt chủng do ngẫu nhiên*: 3 con xui rủi chết hết, điều mô hình tất định không bao giờ thấy. Hệ nhỏ nên cân nhắc rời rạc + ngẫu nhiên. Chiều ngược lại cũng sai: mô phỏng ngẫu nhiên từng phân tử khí cho 1 mol ($6\\times10^{23}$ hạt) là phí phạm. Số hạt lớn thì trung bình rất ổn định — mô hình liên tục tất định (nhiệt động lực học) đủ dùng và rẻ hơn vô vàn.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -452,7 +471,7 @@ RMSE (1.80) > MAE (1.75) vì RMSE phạt nặng các lệch $\\pm 2$. Diễn gi�
 
 ### 8.3 Train/test split — bí quyết chống overfit
 
-⚠ **Lỗi thường gặp — validation trên chính dữ liệu đã khớp.** Đây là cái bẫy lớn nhất. Nếu hiệu chỉnh tham số trên *toàn bộ* dữ liệu rồi đo sai số trên *cùng dữ liệu đó*, mô hình overfit sẽ cho sai số *giả tạo nhỏ* (đa thức bậc 9 ở mục 3.3 đạt sai số $= 0$ trên 10 điểm khớp) nhưng dự báo thật lại tệ. Đó là "thử lại chính chiếc áo đã chọn".
+⚠ **Lỗi thường gặp — validation trên chính dữ liệu đã khớp.** Đây là cái bẫy lớn nhất. Hiệu chỉnh tham số trên *toàn bộ* dữ liệu, rồi đo sai số trên *chính dữ liệu đó* — mô hình overfit sẽ khoe sai số nhỏ giả tạo. Đa thức bậc 9 ở mục 3.3 đạt sai số $= 0$ trên 10 điểm nó khớp, nhưng dự báo thật thì tệ. Đó là "thử lại chính chiếc áo đã chọn".
 
 **Cách đúng — tách dữ liệu**:
 
@@ -583,5 +602,5 @@ $$\\begin{aligned}
 5. **Ví dụ cà phê nguội** minh họa trọn chu trình bằng số — khuôn mẫu cho các lesson sau.
 6. **Biến / tham số / hằng số**: biến độc lập → mô hình → biến phụ thuộc; tham số cố định mỗi lần chạy và *hiệu chỉnh từ dữ liệu*; hằng số (g, π, e) tra bảng. Phân vai sai → giải sai bài.
 7. **Phân loại mô hình** theo 3 trục: tất định↔ngẫu nhiên, liên tục↔rời rạc, tĩnh↔động — loại quyết định công cụ toán (ODE / dãy đệ quy / đại số / xác suất).
-8. **Kiểm chứng & sai số**: phân biệt sai số mô hình (đổi cấu trúc mới giảm) ↔ sai số tham số (thêm dữ liệu giảm); đo bằng MAE/RMSE; **train/test split** chống ngộ nhận overfit; chạy *sniff test* (giới hạn, dấu/miền, thứ nguyên) trước khi tính.
+8. **Kiểm chứng & sai số**: sai số mô hình chỉ giảm khi đổi cấu trúc; sai số tham số giảm khi thêm dữ liệu. Đo bằng MAE/RMSE trên tập **test** (train/test split chống ngộ nhận overfit). Chạy *sniff test* (giới hạn, dấu/miền, thứ nguyên) trước khi tính.
 `;

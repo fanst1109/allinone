@@ -211,6 +211,8 @@ So với thật $\frac13 \approx 0.3333$: cận phải cho $0.46875$ — cao hơ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay $n$ vào công thức tổng Riemann — xem nó bò về giá trị thật $1/3$.
+
 1. $(1+0.5)(2+0.5)/6 = (1.5 \cdot 2.5)/6 = 3.75/6 = 0.625$ (xấp xỉ thô vì $n$ nhỏ).
 2. $\Delta x = 1/n \to 0$ (hình chữ nhật càng mỏng, xấp xỉ càng khít đường cong).
 3. $\Delta x = 1$; $x_i^* = 1, 2, 3$; $f = 2, 4, 6$; $S_3 = (2+4+6)\cdot 1 = 12$. Diện tích tam giác đáy 3, cao 6 là $\frac{3 \cdot 6}{2} = 9$. Cận phải overestimate (12 > 9) vì $f$ tăng. Dùng cận **giữa** ($x_i^* = 0.5, 1.5, 2.5$, $f = 1, 3, 5$) cho $S_3 = 9$ — khớp chính xác.
@@ -316,6 +318,8 @@ Mỗi ví dụ: (1) tìm nguyên hàm $F$ — kiểm bằng cách đạo hàm ng
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: FTC2: tìm nguyên hàm rồi lấy hiệu hai đầu cận.
+
 1. $F(x) = x^3 \to F(2) - F(0) = 8 - 0 = 8$.
 2. $F(x) = \ln|x| \to \ln 3 - \ln 1 = \ln 3 \approx 1.0986$.
 3. $F(x) = \sin x \to \sin(\pi/2) - \sin 0 = 1 - 0 = 1$.
@@ -418,6 +422,8 @@ Nếu muốn **diện tích thật**: $\int_0^{2\pi} |\sin x|\,dx = 4$.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tận dụng đối xứng: hàm lẻ trên đoạn đối xứng cho tích phân 0.
+
 1. $\left.x^2/2\right|_{-1}^1 = 1/2 - 1/2 = 0$ (hàm lẻ, phần âm $[-1,0]$ triệt tiêu phần dương $[0,1]$).
 2. $\int_0^4 f\,dx = \int_0^2 f\,dx + \int_2^4 f\,dx$ (cộng đoạn).
 3. Tách theo dấu: $\int_0^\pi \sin x\,dx = 2$ (dương) và $\int_\pi^{2\pi}\sin x\,dx = -2$ (âm). Diện tích thật $= |2| + |-2| = 4$, khác hẳn tích phân $= 0$.
@@ -479,6 +485,8 @@ $$\int_a^b f(g(x)) \cdot g'(x)\,dx = \int_{g(a)}^{g(b)} f(u)\,du$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đổi biến trong tích phân XÁC ĐỊNH thì đổi luôn cận theo $u$.
+
 1. $u = x^2$: $x=0 \to u=0$, $x=2 \to u=4$. $\int_0^4 e^u\,du = e^4 - 1 \approx 53.6$.
 2. Vì tránh được bước thay $u = g(x)$ ngược lại — tính trực tiếp trên biến $u$ với cận mới.
 
@@ -520,6 +528,8 @@ $$\int_a^b u\,dv = \left[u \cdot v\right]_a^b - \int_a^b v\,du$$
 2. Tính $\left[x \cdot \sin x\right]_0^{\pi/2}$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: từng phần với cận: phần $[uv]$ cũng lấy hiệu hai đầu.
 
 1. $u=x, dv=e^x\,dx, v=e^x$: $\left[x e^x\right]_0^1 - \int_0^1 e^x\,dx = e - \left[e^x\right]_0^1 = e - (e-1) = 1$.
 2. $(\pi/2) \cdot \sin(\pi/2) - 0 \cdot \sin 0 = (\pi/2) \cdot 1 - 0 = \pi/2$.

@@ -120,6 +120,8 @@ Nếu cố cắt dải dọc ($dx$) thì phải tách $x = y^2$ thành hai nhán
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: xác định đường trên bằng cách thử một điểm giữa; diện tích = tích phân hiệu (trên − dưới).
+
 1. Tại $x=0.5$: $x=0.5 > x^3=0.125 \to y=x$ trên. $S = \int_0^1 (x - x^3)\,dx = \left[\frac{x^2}{2} - \frac{x^4}{4}\right]_0^1 = \frac{1}{2} - \frac{1}{4} = \frac{1}{4}$.
 2. Giao: $x^2 = 2x \to x(x-2)=0 \to x = 0, 2 \to$ cận $[0, 2]$. Thử $x=1$: $2x=2 > x^2=1$ → trần $=2x$. $S = \int_0^2 (2x - x^2)\,dx = \left[x^2 - \frac{x^3}{3}\right]_0^2 = 4 - \frac{8}{3} = \frac{4}{3}$.
 3. Giao: $x^2 = x^3 \to x^2(1-x)=0 \to x = 0, 1$. Thử $x=0.5$: $x^2=0.25 > x^3=0.125$ → trần $=x^2$. $S = \int_0^1 (x^2 - x^3)\,dx = \left[\frac{x^3}{3} - \frac{x^4}{4}\right]_0^1 = \frac{1}{3} - \frac{1}{4} = \frac{1}{12}$.
@@ -250,6 +252,8 @@ $$V = \pi\int_0^1 \big[(\sqrt{x})^2 - (x^2)^2\big]\,dx = \pi\int_0^1 (x - x^4)\,
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đĩa tròn: $V = \pi\int f^2\,dx$; so với công thức nón để kiểm.
+
 1. $V = \pi\int_0^3 x^2\,dx = \pi\left[\frac{x^3}{3}\right]_0^3 = 9\pi$. Nón đáy $R=3$ cao $h=3$: $\frac{1}{3}\pi R^2 h = \frac{1}{3}\pi\cdot 9\cdot 3 = 9\pi$ ✓.
 2. Vì quay quanh Ox, mỗi điểm $(x, f(x))$ vạch một đường tròn bán kính $f(x)$ → lát cắt là hình tròn.
 3. $V = \pi\int_0^2 (x^2)^2\,dx = \pi\int_0^2 x^4\,dx = \pi\left[\frac{x^5}{5}\right]_0^2 = \frac{32\pi}{5}$.
@@ -322,6 +326,8 @@ $$V = 2\pi\cdot\int_a^b x\cdot f(x)\,dx$$
 4. Một vật quay quanh Ox. Nên dùng đĩa hay vỏ trụ (theo biến $x$)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: vỏ trụ quanh Oy: $V = 2\pi\int x\cdot f(x)\,dx$ — $2\pi x$ là chu vi vỏ.
 
 1. $V = 2\pi\int_0^2 x\cdot x^2\,dx = 2\pi\int_0^2 x^3\,dx = 2\pi\left[\frac{x^4}{4}\right]_0^2 = 2\pi\cdot 4 = 8\pi$.
 2. Chu vi đường tròn bán kính $x$ ($= 2\pi x$) — bề rộng khi trải phẳng vỏ trụ.
@@ -400,6 +406,8 @@ Cộng dồn mọi đoạn → tổng độ dài cung.
 3. Lập (không cần tính) tích phân độ dài $y = x^2$ trên $[0, 2]$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: độ dài cung $L = \int\sqrt{1 + (f')^2}\,dx$; đường thẳng kiểm được bằng Pythagoras.
 
 1. $f'=3$, $L = \int_0^4 \sqrt{1+9}\,dx = \sqrt{10}\cdot4 = 4\sqrt{10} \approx 12.65$. Hai điểm $(0,0),(4,12)$: $\sqrt{16+144} = \sqrt{160} = 4\sqrt{10}$ ✓.
 2. Pythagoras: $\sqrt{dx^2 + dy^2}$ với $dy = f'\cdot dx$ → $\sqrt{dx^2(1+(f')^2)} = \sqrt{1+(f')^2}\cdot dx$.
@@ -481,6 +489,8 @@ $$f_{tb} = \frac{1}{b-a}\cdot\int_a^b f(x)\,dx$$
 3. Giá trị trung bình của $f(x) = x^2$ trên $[0, 2]$ (tìm cả điểm $c$ để $f(c) = f_{tb}$).
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: giá trị trung bình = tích phân chia độ dài khoảng.
 
 1. $\frac{1}{4}\int_0^4 x\,dx = \frac{1}{4}\left[\frac{x^2}{2}\right]_0^4 = \frac{1}{4}\cdot8 = 2$ (đúng bằng trung điểm, vì $x$ tuyến tính).
 2. $7$ (trung bình của hằng số luôn bằng chính nó).
@@ -567,6 +577,8 @@ $$P(a \le X \le b) = \int_a^b f(x)\,dx.$$
 4. $v(t) = t - 1$ trên $[0,2]$: độ dời và quãng đường thực có bằng nhau không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: công = tích phân lực theo quãng đường; quãng đường = tích phân |v|.
 
 1. $W = \int_0^2 6x\,dx = [3x^2]_0^2 = 12$ J.
 2. $s = \int_0^2 3t^2\,dt = [t^3]_0^2 = 8$ m.

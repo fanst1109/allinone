@@ -149,6 +149,8 @@ Mỗi dòng là một câu hỏi ngược: "đạo hàm hàm nào ra được v�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nguyên hàm là bài đạo-hàm-ngược — tăng mũ 1, chia mũ mới; LUÔN kiểm lại bằng đạo hàm.
+
 1. $x^3 + C$. Kiểm: $(x^3 + C)' = 3x^2$ ✓.
 2. Cả hai là nguyên hàm của $2x$ (vì $(x^2+5)' = (x^2-3)' = 2x$); chúng khác nhau đúng một hằng số.
 
@@ -231,6 +233,8 @@ Cả hai miền cùng ra $\\frac{1}{x}$ → $\\ln\\lvert x\\rvert$ mới là ngu
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhớ cặp sin/cos đổi dấu một chiều: $\\int\\sin = -\\cos$.
+
 1. $\\int \\cos x = \\sin x + C$; $\\int \\sin x = -\\cos x + C$. (Đạo hàm tạo dấu trừ với cos; nguyên hàm "trả" dấu trừ cho sin.)
 2. $\\frac{x^4}{4} + C$ (kiểm: $\\left(\\frac{x^4}{4}\\right)' = x^3$ ✓).
 
@@ -293,6 +297,8 @@ $$\\begin{aligned}
 2. $\\int x^2\\cdot\\cos x\\,dx$ — tách thành $\\int x^2 \\cdot \\int \\cos x$ được không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tách tổng, rút hằng số ra ngoài — tuyến tính của tích phân.
 
 1. $x^4 - 3x^2 + 2x + C$ (tách tổng + rút hằng số).
 2. **Không** — không có quy tắc tích cho tích phân; phải dùng từng phần (mục 5).
@@ -357,6 +363,8 @@ $$\\int f(g(x))\\cdot g'(x)\\,dx = \\int f(u)\\,du \\qquad (\\text{đặt } u = 
 2. Kiểm $\\int e^{3x}\\,dx = \\frac{1}{3}e^{3x} + C$ bằng đạo hàm.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tìm cụm mà đạo hàm của nó có sẵn bên cạnh — đó là $u$.
 
 1. $u = x^3+1$, $du = 3x^2\\,dx$ → $\\int u^5\\,du = \\frac{u^6}{6} + C = \\frac{(x^3+1)^6}{6} + C$.
 2. $\\left(\\frac{1}{3}e^{3x}\\right)' = \\frac{1}{3}\\cdot e^{3x}\\cdot 3 = e^{3x}$ ✓.
@@ -426,6 +434,8 @@ $$\\int u\\,dv = u\\cdot v - \\int v\\,du$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tích phân từng phần: LIATE chọn $u$, phần còn lại là $dv$.
+
 1. $u=x, du=dx$; $dv=e^{2x}\\,dx, v=\\frac{1}{2}e^{2x}$. $= \\frac{x}{2}e^{2x} - \\int\\frac{1}{2}e^{2x}\\,dx = \\frac{x}{2}e^{2x} - \\frac{1}{4}e^{2x} + C$.
 2. Vì $\\ln x$ không có nguyên hàm hiển nhiên để làm $dv$; đặt $dv=dx$ cho $v=x$, còn $u=\\ln x$ đạo hàm thành $\\frac{1}{x}$ đơn giản.
 
@@ -486,6 +496,8 @@ $$= -\\ln|\\cos x| + C$$
 2. $\\int \\frac{1}{2x+5}\\,dx = \\,?$
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhận dạng mẫu $x^2 + a^2$ → arctan; mẫu bậc nhất → $\\ln$ chia hệ số.
 
 1. $a=3$ → $\\frac{1}{3}\\arctan\\frac{x}{3} + C$.
 2. $\\frac{1}{2}\\ln|2x+5| + C$.
@@ -568,6 +580,8 @@ Mô hình tăng trưởng: $P'(t) = 2e^{t}$ (tốc độ tăng dân số), biế
 2. Vật ném lên có $v' = -9.8$, $v(0) = 20$ m/s. Tìm $v(t)$ và thời điểm $v = 0$ (đỉnh).
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tích phân ra họ nghiệm $+C$; điều kiện đầu khóa $C$ cụ thể.
 
 1. $y = \\int 6x\\,dx = 3x^2 + C$; $y(0) = C = -4$ → $y = 3x^2 - 4$.
 2. $v(t) = \\int -9.8\\,dt = -9.8t + C$; $v(0) = C = 20$ → $v(t) = 20 - 9.8t$. Đỉnh khi $v = 0$: $20 - 9.8t = 0 \\Rightarrow t = \\frac{20}{9.8} \\approx 2.04$ s.

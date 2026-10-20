@@ -41,6 +41,8 @@
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay lần lượt $n = 1, 2, 3, 4$; dãy mũ so sánh với dãy bị chặn.
+
 1. $a_1 = -1, a_2 = \frac{1}{2}, a_3 = -\frac{1}{3}, a_4 = \frac{1}{4}$. Dấu xen kẽ, độ lớn giảm dần → tiến về 0.
 2. $2, 4, 8, 16, \ldots$ tăng vô hạn → phân kỳ về $+\infty$ (không có giới hạn hữu hạn).
 
@@ -123,6 +125,8 @@ Người đòi $\varepsilon$ nhỏ tới đâu, ta luôn có công thức $N = \
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: giải bất phương trình $|a_n - L| < \varepsilon$ theo $n$.
+
 1. Cần $\frac{1}{n} < 0.02 \iff n > 50$. Vậy $N = 51$ (từ $n = 51$ trở đi $\frac{1}{n} < 0.02$).
 2. Có, $\lim = 7$. Với mọi $\varepsilon > 0$, $|7 - 7| = 0 < \varepsilon$ đúng với mọi $n$ → chọn $N = 1$.
 
@@ -159,6 +163,8 @@ Người đòi $\varepsilon$ nhỏ tới đâu, ta luôn có công thức $N = \
 2. Dãy $a_n = n - \frac{1}{n}$ thuộc loại nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhìn ĐỘ LỚN $|a_n|$ — dấu xen kẽ không cản hội tụ nếu độ lớn co về 0.
 
 1. **Hội tụ** về 0 (dù dấu xen kẽ, độ lớn $\frac{1}{n} \to 0$, bị kẹp giữa $-\frac{1}{n}$ và $\frac{1}{n}$).
 2. **Phân kỳ về $+\infty$** ($n$ áp đảo, $\frac{1}{n} \to 0$).
@@ -256,6 +262,8 @@ Verify $n=1000$: $0.999^{1000} \approx 0.3677 \to \frac1e$ ✓. (Đối lập v�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tách giới hạn theo quy tắc tổng/tích khi từng phần hội tụ.
+
 1. $= 5 \cdot 2 = 10$ (cả hai thừa số hội tụ → dùng quy tắc tích).
 2. Dạng $\infty - \infty$; biến đổi $n^2 - n = n(n-1) \to +\infty$.
 3. Bậc tử = bậc mẫu $= 3$ → tỉ số hệ số đầu $= \frac{2}{4} = \frac{1}{2}$.
@@ -310,6 +318,8 @@ $$\lim \frac{\sin x}{x} = 1 \quad \text{khi } x \to 0$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: ép về dạng chuẩn $(1 + 1/n)^n \to e$ bằng cách nhóm số mũ.
+
 1. $\left(1+\frac{1}{n}\right)^{2n} = \left[\left(1+\frac{1}{n}\right)^n\right]^2 \to e^2 \approx 7.389$.
 2. Viết $\frac{\sin(5x)}{x} = 5 \cdot \frac{\sin(5x)}{5x} \to 5 \cdot 1 = 5$.
 
@@ -346,6 +356,8 @@ Nếu $a_n \le b_n \le c_n$ và $\lim a_n = \lim c_n = L$, thì **$\lim b_n = L$
 2. Tại sao không kẹp được $\lim \sin(n)$ (không chia $n$)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: kẹp phần dao động bị chặn giữa hai dãy cùng tiến về 0.
 
 1. $-\frac{1}{n} \le \frac{\cos(n^2)}{n} \le \frac{1}{n}$, hai cận $\to 0 \to \lim = 0$.
 2. Cận tự nhiên là $-1 \le \sin(n) \le 1$ nhưng $\lim(-1) = -1 \neq 1 = \lim(1) \to$ không kẹp được; thực tế $\lim \sin(n)$ không tồn tại.
@@ -398,6 +410,8 @@ Nếu $a_n \le b_n \le c_n$ và $\lim a_n = \lim c_n = L$, thì **$\lim b_n = L$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: viết lại dãy dạng $c - \tfrac{1}{n}$ rồi dùng định lý đơn điệu–bị chặn.
+
 1. $a_n = 2 - \frac1n$: tăng (vì $-\frac1n$ tăng), chặn trên bởi $2$ → hội tụ, $\lim = 2$.
 2. $a_1 = 2, a_2 = 2, a_3 = 2, \ldots$ — thực ra hằng $= 2$ (vì $\frac22 + 1 = 2$). Hội tụ về $2$. Tổng quát: giải $L = \frac L2 + 1 \Rightarrow L = 2$.
 
@@ -445,6 +459,8 @@ Nếu $a_n \le b_n \le c_n$ và $\lim a_n = \lim c_n = L$, thì **$\lim b_n = L$
 2. Dãy $a_n = \frac{(-1)^n n}{n+1}$ có hội tụ không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tìm hai dãy con tiến về hai giới hạn khác nhau là đủ kết luận phân kỳ.
 
 1. $\cos(n\pi) = (-1)^n$: dãy con chẵn $\to 1$, lẻ $\to -1$ → phân kỳ.
 2. Dãy con chẵn $\frac{2k}{2k+1} \to 1$, dãy con lẻ $\frac{-(2k-1)}{2k} \to -1$. Hai limit khác → **phân kỳ**.
@@ -527,6 +543,8 @@ S_n - rS_n &= a_1 - a_1 r^n
 3. Đổi $0.4545\ldots$ ($= 0.\overline{45}$) thành phân số bằng cấp số nhân.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: cấp số cộng dùng $a_n = a_1 + (n-1)d$; tổng dùng công thức trung bình đầu–cuối.
 
 1. $a_{10} = 3 + 9\cdot 4 = 39$; $S_{10} = \frac{10(3 + 39)}{2} = 210$.
 2. $S_\infty = \frac{2}{1 - 1/3} = \frac{2}{2/3} = 3$.

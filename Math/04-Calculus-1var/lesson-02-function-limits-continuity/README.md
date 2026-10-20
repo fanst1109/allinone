@@ -116,6 +116,8 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dạng $0/0$ do nhân tử chung — phân tích rồi rút gọn; giới hạn không quan tâm $f$ tại điểm đó.
+
 1. $x^3-1 = (x-1)(x^2+x+1) \to$ rút gọn còn $x^2+x+1 \to$ thay $x=1 \to 3$.
 2. Không. Giới hạn chỉ phụ thuộc giá trị $f$ ở **lân cận** $a$, không phụ thuộc $f(a)$.
 
@@ -204,6 +206,8 @@ Hai mép `o` ở hai độ cao khác nhau → không có giá trị duy nhất �
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tính giới hạn trái và phải riêng — lệch nhau là không tồn tại.
+
 1. $\lim$ trái $= 1^2 = 1$, $\lim$ phải $= 1+3 = 4$. Lệch → **không tồn tại**.
 2. Với $x < 0$, $|x| = -x \to \frac{|x|}{x} = -1$. $\lim$ trái $= -1$.
 
@@ -254,6 +258,8 @@ Verify 3 trường hợp:
 2. $\lim_{x \to 0} \frac{1}{x^2} = ?$ (cẩn thận hai bên)
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: ở vô cực, so bậc tử–mẫu; cùng bậc thì lấy tỉ số hệ số đầu.
 
 1. Cùng bậc 3 → tỉ số hệ số đầu $= \frac{2}{5}$.
 2. $+\infty$ cả hai bên (vì $x^2 > 0$ luôn → khác $\frac{1}{x}$). Ở đây nói $\lim = +\infty$ hợp lệ vì hai bên khớp.
@@ -380,6 +386,8 @@ Verify số: $x = 0.001 \to \frac{e^{0.001}-1}{0.001} = \frac{0.0010005}{0.001} 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: rút nhân tử chung; dạng căn thì nhân liên hợp.
+
 1. $\frac{(x-3)(x+3)}{x-3} = x+3 \to 6$.
 2. Nhân liên hợp $\sqrt{4+x}+2$: tử $\to (4+x)-4 = x \to \frac{1}{\sqrt{4+x}+2} \to \frac{1}{4}$.
 
@@ -443,6 +451,8 @@ Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2)
 2. $f(x) = x^2$ nếu $x \le 1$, $f(x) = 2x$ nếu $x > 1$. Liên tục tại 1?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: soát 3 điều kiện liên tục: $f(a)$ tồn tại, $\lim$ tồn tại, hai cái bằng nhau.
 
 1. Không (vi phạm điều kiện 1 — $f(2)$ không tồn tại), dù $\lim = 1$. Đây là gián đoạn **bỏ được**.
 2. $\lim$ trái $= 1$, $\lim$ phải $= 2$, $f(1) = 1$. $\lim$ hai bên lệch → **gián đoạn nhảy**, không liên tục.
@@ -527,6 +537,8 @@ Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2)
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: hỏi: giới hạn có tồn tại hữu hạn không? có thì gián đoạn bỏ được.
+
 1. **Bỏ được** — $\lim_{x \to 0} \frac{\sin x}{x} = 1$ tồn tại; định nghĩa $f(0) = 1$ thì liên tục.
 2. **Nhảy** — $\lim$ trái $= 2$, $\lim$ phải $= 3$, cả hai hữu hạn nhưng lệch.
 
@@ -565,6 +577,8 @@ Các hàm sau **liên tục trên toàn miền xác định**:
 2. $f(x) = \sqrt{x} + \cos x$ liên tục trên miền nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: điểm nghi ngờ duy nhất là chỗ mẫu bằng 0 hoặc hàm đổi công thức.
 
 1. Tại $x = 2$ (mẫu bằng 0) — gián đoạn vô hạn; liên tục ở mọi điểm khác.
 2. Trên $[0, \infty)$ — $\sqrt{x}$ chỉ xác định khi $x \ge 0$, $\cos x$ liên tục khắp nơi → giao là $[0, \infty)$.
@@ -653,6 +667,8 @@ Trực giác IVT — đường liền nét đi từ $f(a)$ tới $f(b)$ **buộc
 2. $f(x) = \frac{1}{x}$ trên $[-1, 1]$ đi từ $-1$ lên $1$, có nhận giá trị $0$ không? IVT áp dụng được không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: định lý giá trị trung gian: hàm liên tục đổi dấu trên đoạn thì có nghiệm bên trong.
 
 1. $f(0) = 1 > 0$, $f(1) = \cos 1 - 1 \approx -0.46 < 0$. Đổi dấu, $f$ liên tục → **có nghiệm** trong $(0,1)$.
 2. Không nhận $0$ ($\frac{1}{x}$ không bao giờ bằng 0). IVT **không áp dụng được** vì $f$ gián đoạn vô hạn tại $0 \in [-1,1]$.

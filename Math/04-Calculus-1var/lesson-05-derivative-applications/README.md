@@ -67,6 +67,8 @@ Dấu $f'$ đọc thành "hình dáng" đồ thị: lên–đỉnh–xuống–�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: xét dấu $f'$ trên từng khoảng chia bởi nghiệm $f' = 0$.
+
 1. $f'(x) = 2x - 4 = 0 \to x = 2$. $x < 2$: $f' < 0$ (nghịch biến); $x > 2$: $f' > 0$ (đồng biến).
 2. $f'(x) = e^x > 0$ với mọi $x$ → **đồng biến** trên toàn $\mathbb{R}$.
 
@@ -170,6 +172,8 @@ $$f(x_2) - f(x_1) = f'(c)\,(x_2 - x_1) > 0$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: slope cát tuyến trước, rồi giải $f'(c) = $ slope đó.
+
 Slope cát tuyến $= \frac{f(3) - f(0)}{3} = \frac{3 - 0}{3} = 1$. $f'(c) = 2c - 2 = 1 \Rightarrow c = 1.5 \in (0, 3)$ ✓.
 
 </details>
@@ -256,6 +260,8 @@ Nếu $f'(x_0) = 0$:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: điểm dừng từ $f' = 0$, phân loại bằng $f''$; nhớ ca $f'' = 0$ phải xét dấu $f'$.
+
 1. $f' = 2x - 6 = 0 \to x = 3$; $f''(3) = 2 > 0$ → **cực tiểu**; $f(3) = 9 - 18 + 1 = -8$.
 2. Xét dấu $f' = 4x^3$: $x<0$ thì $f'<0$ (giảm), $x>0$ thì $f'>0$ (tăng) → đổi $-\to+$ → **cực tiểu** tại 0.
 
@@ -322,6 +328,8 @@ Nếu $f'(x_0) = 0$:
 2. $f(x) = x^3 - 3x$. Tìm điểm uốn.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: dấu $f''$ cho lồi/lõm; điểm uốn cần $f''$ ĐỔI DẤU, không chỉ bằng 0.
 
 1. $f'' = 2 > 0$ luôn → **lồi** mọi nơi; không đổi dấu → **không có** điểm uốn.
 2. $f'' = 6x = 0 \to x = 0$; $f''$ đổi dấu $-\to+$ qua 0 → **điểm uốn tại $(0, 0)$**.
@@ -482,6 +490,8 @@ Nhánh trái ($x<1$): lõm, có cực đại $(0,0)$, lao xuống $-\infty$ khi 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tiệm cận đứng từ mẫu bằng 0; ngang từ giới hạn ở vô cực.
+
 1. Tiệm cận đứng $x = 1$ (mẫu = 0, $\lim = \pm\infty$); tiệm cận ngang $y = 0$ ($\lim_{x \to \pm\infty} = 0$).
 2. Bước 3 — lập bảng biến thiên từ dấu $f'(x)$.
 
@@ -542,6 +552,8 @@ $$\lim_{x\to0^+} x\ln x = \lim_{x\to0^+} \frac{\ln x}{1/x} \quad (\text{dạng }
 2. Có được dùng l'Hôpital cho $\lim_{x \to 1} (x^2+1)/(x+3)$ không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: kiểm dạng $0/0$ trước mỗi lần áp l'Hôpital — áp được nhiều lần liên tiếp.
 
 1. $0/0$ → $(e^x - 1)/2x$ (vẫn $0/0$) → $e^x/2 \to 1/2$.
 2. **Không** — thay trực tiếp ra $2/4 = 1/2$, không phải vô định. Dùng l'Hôpital ở đây sẽ sai.
@@ -624,6 +636,8 @@ Người cứu hộ ở bờ, điểm $A$ cách mép nước $0$ (ngay bờ), ng
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: khử một biến bằng ràng buộc rồi tối ưu hàm một biến.
+
 1. $2a+2b=20 \to b=10-a$, $S=a(10-a)$, $S'=10-2a=0 \to a=5$, $S=25$ (hình vuông cạnh 5).
 2. $V(0)=0$ (chưa gấp), $V(6)=0$ (hộp dẹp), $V(2)=128 > 0$ → cực đại nằm trong khoảng, lớn hơn cả hai biên.
 
@@ -679,6 +693,8 @@ Thang dài $10$ m dựa tường. Chân thang trượt xa tường với tốc �
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: viết quan hệ thể tích rồi đạo hàm hai vế theo $t$ (related rates).
+
 1. $V = \pi r^2 h = 4\pi h$ (r cố định). $\frac{dV}{dt} = 4\pi\frac{dh}{dt} \Rightarrow 3 = 4\pi\frac{dh}{dt} \Rightarrow \frac{dh}{dt} = \frac{3}{4\pi}\approx 0.239$ m/phút.
 2. $x=8 \to y=\sqrt{100-64}=6$. $\frac{dy}{dt} = -\frac{8}{6}\cdot2 = -\frac{8}{3}\approx -2.67$ m/s (tụt nhanh hơn — càng gần đỉnh chạm đất càng nhanh).
 
@@ -733,6 +749,8 @@ Thật: $\sin 0.1 = 0.09983\ldots$ → cơ sở của xấp xỉ $\sin x \approx
 2. Xấp xỉ $e^{0.02}$ dùng $a = 0$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: xấp xỉ tuyến tính $f(a + \Delta) \approx f(a) + f'(a)\Delta$ quanh điểm đẹp.
 
 1. $f=\sqrt x$, $f'(25)=\frac{1}{10}$. $\sqrt{25.3}\approx 5 + \frac{1}{10}(0.3) = 5.03$ (thật $5.0299\ldots$ ✓).
 2. $f=e^x$, $f'(0)=1$, $f(0)=1$. $e^{0.02}\approx 1 + 1\cdot0.02 = 1.02$ (thật $1.0202\ldots$ ✓).

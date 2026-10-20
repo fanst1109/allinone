@@ -160,6 +160,8 @@ Hai phía cùng **hội tụ về $2$** ⟶ slope tiếp tuyến tại $x=1$ là
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: vận tốc trung bình là thương số chênh lệch; cho khoảng co dần để thấy nó tiến về đạo hàm.
+
 1. $v_{tb} = \\frac{1.21 - 1}{0.1} = \\frac{0.21}{0.1} = 2.1$. Khi $\\Delta t \\to 0$ → tiến tới $2$ = vận tốc tức thời tại $t=1$ ($s'(1) = 2$).
 2. Trở thành **tiếp tuyến** tại điểm đó; slope cát tuyến → slope tiếp tuyến = đạo hàm.
 
@@ -238,6 +240,8 @@ Dấu và độ lớn của $f'$ nói lên hành vi tức thời của hàm:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dấu của $f'$ hai bên điểm dừng kể chuyện tăng–giảm.
+
 1. Tăng trước $5$, giảm sau $5$, phẳng tại $5$ → $x=5$ là **điểm cực đại** (đỉnh).
 2. $C'(10) = 2\\cdot 10 = 20$ nghìn đồng — làm món thứ 11 tốn thêm $\\approx 20$ nghìn.
 
@@ -256,6 +260,8 @@ Dấu và độ lớn của $f'$ nói lên hành vi tức thời của hàm:
 2. $f'(2) = 12$ cho hàm $x^3$ — nghĩa hình học của số $12$ này là gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tiếp tuyến: $y = f(a) + f'(a)(x-a)$ — cần đúng hai số $f(a)$ và $f'(a)$.
 
 1. $f(1) = 1$, $f'(1) = 2$ → $y = 1 + 2(x-1) = 2x - 1$.
 2. Slope của tiếp tuyến với đồ thị $y = x^3$ tại điểm $(2, 8)$ bằng $12$ (đồ thị dốc đứng tại đó).
@@ -360,6 +366,8 @@ Mọi slope số xấp xỉ rất sát giá trị lý thuyết — bằng chứn
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: khai triển $(x+h)^3$, trừ, chia $h$, rồi cho $h \\to 0$.
+
 1. $\\frac{(x+h)^3-x^3}{h} = \\frac{3x^2h + 3xh^2 + h^3}{h} = 3x^2 + 3xh + h^2 \\to 3x^2$ khi $h\\to 0$.
 2. Để biến tử $\\sqrt{x+h}-\\sqrt{x}$ thành $(x+h)-x = h$, qua đó triệt tiêu $h$ ở mẫu (nếu không thì kẹt dạng $\\frac{0}{0}$).
 
@@ -408,6 +416,8 @@ Với $y = f(x) = x^2$, bốn dòng sau **nói cùng một điều** ($\\frac{d 
 2. $\\frac{dy}{dt}$ khác $\\frac{dy}{dx}$ ở chỗ nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: mỗi ký hiệu một truyền thống — Lagrange phẩy, Leibniz phân số $d$.
 
 1. Lagrange: $y''$ (hay $f''(x)$); Leibniz: $\\frac{d^2y}{dx^2}$.
 2. Khác **biến** lấy đạo hàm theo: một theo thời gian $t$, một theo $x$. Quan trọng khi $y$ phụ thuộc nhiều biến.
@@ -509,6 +519,8 @@ Bên phải tỉ số **luôn $+1$**, bên trái **luôn $-1$** — hai phía kh
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: khả vi đòi slope trái = slope phải — điểm gãy là thủ phạm quen thuộc.
+
 1. Tại $x=3$: **không** (góc nhọn, slope trái $-1$ ≠ phải $+1$). Tại $x=5$: **có** (xa góc nhọn, $f = x-3$, $f' = 1$).
 2. Chắc chắn có — theo định lý "khả vi $\\implies$ liên tục" (chứng minh ở trên).
 
@@ -597,6 +609,8 @@ So sánh bằng hình:
 2. Đạo hàm một bên của $f(x) = |x|$ tại 0 là gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: kiểm hai tầng: liên tục trước (giá trị khớp), rồi slope hai phía khớp.
 
 1. Liên tục: trái $1^2=1$, phải $2-1=1$ ✓. Slope: trái $2x|_{x=1}=2$, phải $2$. Bằng nhau → **khả vi**, $f'(1)=2$.
 2. $f'(0^-) = -1$, $f'(0^+) = +1$ → lệch → không khả vi tại 0.

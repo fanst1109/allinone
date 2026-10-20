@@ -172,10 +172,10 @@ Nhân chéo (đường chéo xuống) kèm dấu: $(+)\\,x^2 e^x + (-)\\,2x\\,e^
 
 > ⚠ **Lỗi thường gặp — quên dấu trừ giữa $uv$ và $\\int v\\,du$.** Công thức là $uv \\,\\boldsymbol{-}\\, \\int v\\,du$, không phải $uv + \\int v\\,du$. Mất dấu trừ là lỗi sai số phổ biến nhất; luôn viết rõ dấu trừ trước khi tính tích phân thứ hai.
 
-> 🔁 **Tự kiểm tra (đơn).** Tính $\\int x\\cdot\\cos x\\,dx$.
+> 🔁 **Thực hành (đơn).** Tính $\\int x\\cdot\\cos x\\,dx$.
 > <details><summary>Đáp án</summary>$u=x, dv=\\cos x\\,dx \\to v=\\sin x$. $\\Rightarrow x\\sin x - \\int\\sin x\\,dx = x\\sin x + \\cos x + C$. Verify: $\\sin x + x\\cos x - \\sin x = x\\cos x$ ✓.</details>
 
-> 🔁 **Tự kiểm tra (LIATE — chọn $u$ là $\\arctan$).** Tính $\\int \\arctan x\\,dx$.
+> 🔁 **Thực hành (LIATE — chọn $u$ là $\\arctan$).** Tính $\\int \\arctan x\\,dx$.
 > <details><summary>Đáp án</summary>Chỉ có $\\arctan x$ → coi như $\\arctan x\\cdot 1$. LIATE: $I$ → $u=\\arctan x$, $dv=dx$. $du = \\frac{dx}{1+x^2}$, $v=x$. $\\Rightarrow x\\arctan x - \\int\\frac{x}{1+x^2}\\,dx$. Tích phân còn lại đổi biến $w=1+x^2$: $= \\frac{1}{2}\\ln(1+x^2)$. Vậy $\\int\\arctan x\\,dx = x\\arctan x - \\frac{1}{2}\\ln(1+x^2) + C$. Verify: $\\arctan x + \\frac{x}{1+x^2} - \\frac{x}{1+x^2} = \\arctan x$ ✓.</details>
 
 > 📝 **Tóm tắt mục 2.** $\\int u\\,dv = uv - \\int v\\,du$ — **product rule chạy ngược**, biến tích phân khó thành (hi vọng) dễ hơn. Chọn $u$ theo **LIATE** (Log → Inverse → Algebra → Trig → Exp): mảnh "dễ đạo hàm/khó tích phân" làm $u$. Đa thức × $e^x$/trig → dùng **bảng (tabular)** cho nhanh. Dạng *vòng lặp* ($\\int e^x\\cos x\\,dx$): từng phần hai lần rồi giải như phương trình ẩn $I$. Nhớ **dấu trừ** giữa $uv$ và $\\int v\\,du$.

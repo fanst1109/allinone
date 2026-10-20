@@ -106,6 +106,8 @@ Với cơ số khác $a$: $a^h = e^{h\\ln a}$ nên $\\lim\\limits_{h\\to 0}\\dfr
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: luật lũy thừa chạy cả mũ âm; phân biệt $a^x$ (mũ, nhân thêm $\\ln a$) với $x^a$ (lũy thừa).
+
 1. $-3x^{-4} = -\\frac{3}{x^4}$.
 2. $(3^x)' = 3^x\\cdot \\ln 3$ (biến ở mũ); $(x^3)' = 3x^2$ (biến ở cơ số). Hoàn toàn khác công thức.
 
@@ -306,6 +308,8 @@ $$\\frac{\\partial L}{\\partial w_1} = \\frac{\\partial L}{\\partial f_n}\\cdot\
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tích dùng product rule; hàm lồng dùng chain rule — đạo hàm lớp ngoài nhân lớp trong.
+
 1. Tích: $3x^2\\cdot e^x + x^3\\cdot e^x = x^2\\cdot e^x\\cdot(3 + x)$.
 2. Chain: lớp ngoài $e^u \\to e^u$, lớp trong $x^2 \\to 2x$ → $e^{x^2}\\cdot 2x = 2x\\cdot e^{x^2}$.
 
@@ -347,6 +351,8 @@ $$(f^{-1})'(y) = \\frac{1}{f'(x)}$$
 2. $f(x) = x^3$, $f^{-1}(y) = \\sqrt[3]{y}$. Tính $(f^{-1})'(8)$ qua công thức hàm ngược.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đạo hàm hàm ngược = nghịch đảo đạo hàm hàm xuôi, rồi đổi biến về $x$.
 
 1. $(\\arctan)' = \\dfrac{1}{(\\tan y)'} = \\cos^2 y = \\dfrac{1}{1+\\tan^2 y} = \\dfrac{1}{1+x^2}$ ✓.
 2. $y=8 \\to x=2$. $f'(x)=3x^2$, $f'(2)=12$ → $(f^{-1})'(8) = \\dfrac{1}{12}$. Khớp $(\\sqrt[3]{y})'|_8 = \\dfrac{1}{3}\\cdot 8^{-2/3} = \\dfrac{1}{12}$ ✓.
@@ -392,6 +398,8 @@ $f''(x) = (f'(x))'$. Đạo hàm của đạo hàm.
 2. $f(x) = \\sin x$. $f''(x) = ?$ và $f^{(4)}(x) = ?$
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đạo hàm lặp — mỗi lần hạ một bậc; sin/cos quay vòng chu kỳ 4.
 
 1. $f' = 5x^4$, $f'' = 20x^3$, $f''' = 60x^2$.
 2. $f' = \\cos x$, $f'' = -\\sin x$, $f''' = -\\cos x$, $f^{(4)} = \\sin x$ (chu kỳ 4).
@@ -442,6 +450,8 @@ Gọn hơn dùng định nghĩa giới hạn — đây là lý do đạo hàm �
 2. Cho $\\sin(xy) = x$. Tính $y'$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đạo hàm ngầm: coi $y$ là hàm của $x$, mọi $y$ sinh thêm $y'$, rồi gom $y'$ giải ra.
 
 1. Đạo hàm: $2x + (y + x y') + 2y y' = 0$ (số hạng $xy$ dùng product rule). Giải: $y'(x + 2y) = -(2x + y) \\Rightarrow y' = -\\dfrac{2x + y}{x + 2y}$.
 2. $\\cos(xy)\\cdot(y + x y') = 1 \\Rightarrow y'\\cdot x\\cos(xy) = 1 - y\\cos(xy) \\Rightarrow y' = \\dfrac{1 - y\\cos(xy)}{x\\cos(xy)}$.

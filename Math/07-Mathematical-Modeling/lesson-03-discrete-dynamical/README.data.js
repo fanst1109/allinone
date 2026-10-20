@@ -110,13 +110,21 @@ Mỗi mũi tên là **một lần áp dụng** $f$. Viết gọn: $x_n = f^{(n)}
 
 - *"Phương trình sai phân với ODE — chọn cái nào?"* Hỏi: hệ cập nhật *theo bước* hay *liên tục*? Dân số côn trùng một mùa/năm → rời rạc. Phóng xạ (nguyên tử phân rã bất kỳ lúc nào) → liên tục (ODE). Nhiều khi cả hai dùng được; rời rạc dễ mô phỏng trên máy tính (chỉ là vòng lặp).
 - *"'Bậc' của phương trình sai phân là gì?"* Là khoảng lùi xa nhất: $x_{n+1} = f(x_n)$ là bậc 1; Fibonacci nhìn lại 2 bước → bậc 2. Bậc $k$ cần $k$ điều kiện đầu.
-- *"Quỹ đạo có nhất thiết phải hội tụ không?"* **Không.** Bốn kết cục điển hình: (1) **hội tụ** về một điểm cân bằng (vd $2.5x(1-x)$ → 0.6); (2) **phân kỳ** ra $\\pm\\infty$ (vd $1.5x$); (3) **chu kỳ** lắc qua hữu hạn giá trị (vd $3.2x(1-x)$); (4) **hỗn loạn** không lặp (vd $3.9x(1-x)$). Mục 3–4 sẽ phân loại theo điểm cân bằng và độ dốc $f'$.
+- *"Quỹ đạo có nhất thiết phải hội tụ không?"* **Không.** Có bốn kết cục điển hình:
+  - **hội tụ** về một điểm cân bằng (vd $2.5x(1-x)$ tiến về 0.6);
+  - **phân kỳ** ra $\\pm\\infty$ (vd $1.5x$);
+  - **chu kỳ** — lắc qua lại giữa hữu hạn giá trị (vd $3.2x(1-x)$);
+  - **hỗn loạn** — không bao giờ lặp (vd $3.9x(1-x)$).
+
+  Mục 3–4 sẽ phân loại theo điểm cân bằng và độ dốc $f'$.
 
 🔁 **Thực hành**
 
 1. Cho $x_{n+1} = 0.5x_n + 1$, $x_0 = 0$. Lăn 4 bước. Dãy có vẻ tiến tới đâu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: thay $x_0$ vào công thức, lấy kết quả làm đầu vào của bước kế tiếp — lặp 4 lần.
 
 $x_1 = 0.5\\cdot 0 + 1 = 1$; $x_2 = 0.5\\cdot 1 + 1 = 1.5$; $x_3 = 0.5\\cdot 1.5 + 1 = 1.75$; $x_4 = 0.5\\cdot 1.75 + 1 = 1.875$. Dãy tăng dần và **tiến về 2** (chính là điểm cân bằng $x^* = 1/(1-0.5) = 2$ — sẽ học công thức ở mục 2).
 
@@ -240,6 +248,8 @@ Dạng tuyến tính bao trùm nhiều bài toán đời sống — chỉ cần 
 1. Giải $x_{n+1} = 0.5\\cdot x_n + 4$ với $x_0 = 10$. Tìm $x^*$ và công thức $x_n$. Dãy tiến tới đâu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: dùng hai công thức của mục này — điểm cân bằng $x^* = b/(1-a)$ và nghiệm đóng $x_n = (x_0 - x^*)\\,a^n + x^*$.
 
 $x^* = 4/(1-0.5) = 8$. $x_n = (10-8)\\cdot 0.5^n + 8 =$ **$2\\cdot(0.5)^n + 8$**. Vì $|a| = 0.5 < 1$, $(0.5)^n \\to 0$ → **$x_n \\to 8$** (hội tụ về cân bằng). Kiểm: $x_1 = 0.5\\cdot 10+4 = 9$; công thức: $2\\cdot 0.5+8 = 9$ ✓.
 
@@ -397,6 +407,8 @@ $x^* = 4/(1-0.5) = 8$. $x_n = (10-8)\\cdot 0.5^n + 8 =$ **$2\\cdot(0.5)^n + 8$**
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tính $x^*$ trước, so $|a|$ với 1 để kết luận ổn định, rồi lăn thử một bước từ mỗi $x_0$ xem dãy tiến về hay chạy ra xa.
+
 $x^* = b/(1-a) = (-1)/(1-1.2) = (-1)/(-0.2) =$ **5**. $f' = 1.2 > 1$ → **không ổn định**.
 - $x_0 = 5 = x^*$ → dãy đứng yên tại 5 mãi (đúng cân bằng).
 - $x_0 = 4$ (lệch $-1$ khỏi $x^*$) → $y_n = (4-5)\\cdot 1.2^n = -1.2^n$ → chạy ra $-\\infty$: $x_1 = 1.2\\cdot 4-1 = 3.8$, $x_2 = 3.56$, ... giảm dần ra xa 5. Cân bằng không ổn định: lệch nhỏ cũng bị khuếch đại.
@@ -453,7 +465,7 @@ Hành vi đổi theo $r$ (bắt đầu $x_0 = 0.3$):
 | 3.0 | $-1.0$ | 1.0 | **biên** — mất ổn định |
 | 3.2 | $-1.2$ | 1.2 | không ổn định → **chu kỳ 2** |
 
-→ Đúng tại $r = 3$, $|f'| = 1$: vượt qua → $x^*$ "đẩy ra", quỹ đạo rơi vào chu kỳ 2. Tăng tiếp: chu kỳ 2 cũng mất ổn định ở $r \\approx 3.449$ → chu kỳ 4; rồi 8, 16, ... các ngưỡng dồn nhau ngày càng nhanh (tỉ số khoảng cách → hằng số **Feigenbaum $\\delta \\approx 4.669$**), tích tụ ở $r \\approx 3.5699$ → bắt đầu **hỗn loạn**.
+Đúng tại $r = 3$ thì $|f'| = 1$ — vượt ngưỡng này, $x^*$ "đẩy ra" và quỹ đạo rơi vào chu kỳ 2. Tăng $r$ tiếp: chu kỳ 2 mất ổn định ở $r \\approx 3.449$, sinh chu kỳ 4; rồi 8, 16, … Các ngưỡng dồn nhau ngày càng nhanh — tỉ số khoảng cách tiến về hằng số **Feigenbaum $\\delta \\approx 4.669$** — và tích tụ tại $r \\approx 3.5699$. Từ đó trở đi là **hỗn loạn**.
 
 **Sơ đồ rẽ nhánh (bifurcation diagram) — các giá trị dài hạn theo $r$**:
 
@@ -524,6 +536,8 @@ Lấy $r = 3.9$ (vùng hỗn loạn), so hai quỹ đạo xuất phát *gần nh
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: điểm cân bằng dương của logistic là $x^* = 1 - 1/r$; tiêu chí ổn định là $|f'(x^*)| = |2 - r| < 1$.
+
 $x^* = 1 - 1/2.5 = 1 - 0.4 =$ **0.6**. $f'(x^*) = 2 - r = 2 - 2.5 = -0.5$, $|-0.5| < 1$ → **ổn định** (và vì $f' < 0$, dãy *dao động* xoắn vào 0.6 chứ không tiến một phía). $r = 2.5$ nằm trong $(1, 3)$ nên đúng là ổn định.
 
 </details>
@@ -564,6 +578,8 @@ $$F_n = \\frac{\\varphi^n - \\psi^n}{\\sqrt 5}\\quad(\\text{công thức Binet})
 1. Giải $x_{n+1} = 5x_n - 6x_{n-1}$ với $x_0 = 0, x_1 = 1$. Tìm phương trình đặc trưng và $x_n$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đoán nghiệm dạng $\\lambda^n$, thay vào được phương trình đặc trưng bậc 2; mỗi nghiệm $\\lambda$ cho một thành phần, rồi khớp $A, B$ từ $x_0, x_1$.
 
 Thay $x_n = \\lambda^n$: $\\lambda^2 = 5\\lambda - 6 \\Rightarrow \\lambda^2 - 5\\lambda + 6 = 0 \\Rightarrow (\\lambda-2)(\\lambda-3)=0 \\Rightarrow \\lambda = 2, 3$. Nghiệm $x_n = A\\cdot 2^n + B\\cdot 3^n$. Khớp: $x_0 = A+B = 0$; $x_1 = 2A+3B = 1$ → $A = -1, B = 1$ → **$x_n = 3^n - 2^n$**. Kiểm: $x_2 = 9-4 = 5$; lăn tay: $5\\cdot 1 - 6\\cdot 0 = 5$ ✓. $x_3 = 27-8 = 19$; lăn: $5\\cdot 5 - 6\\cdot 1 = 19$ ✓.
 

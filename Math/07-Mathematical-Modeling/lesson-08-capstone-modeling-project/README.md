@@ -139,7 +139,7 @@ $$g(V_n) = 0.8 \cdot V_n \cdot \left(1 - \frac{V_n}{10^6}\right)$$
 | 3 | 5 816 | 0.9942 | $0.8\cdot5816\cdot0.9942 = 4\,625$ | 10 441 | 5 800 |
 | 4 | 10 441 | 0.9896 | $0.8\cdot10441\cdot0.9896 = 8\,266$ | 18 707 | 24 000* |
 
-\*Lưu ý dòng cuối: nghiệm đóng cho $V(4) \approx 24\,000$ nhưng Euler $\Delta t = 1$ mới ~18 700 — **sai số tích lũy** vì $\Delta t = 1$ ngày là *bước lớn* khi tốc độ đang tăng nhanh. Đây chính là cảnh báo "bước lớn → lệch" của [L04 mục 5](../lesson-04-continuous-ode-models/). Giảm $\Delta t = 0.25$ ngày (4 bước nhỏ/ngày) sẽ ép Euler bám sát nghiệm đóng. Bài học: **khi không có nghiệm đóng để đối chiếu, luôn chạy Euler ở 2 mức $\Delta t$ và xem kết quả có ổn định không** (gọi là *kiểm tra hội tụ*, convergence check).
+\*Lưu ý dòng cuối: nghiệm đóng cho $V(4) \approx 24\,000$ nhưng Euler $\Delta t = 1$ mới ~18 700 — **sai số tích lũy** vì $\Delta t = 1$ ngày là *bước lớn* khi tốc độ đang tăng nhanh. Đây chính là cảnh báo "bước lớn thì lệch" của [L04 mục 5](../lesson-04-continuous-ode-models/). Giảm xuống $\Delta t = 0.25$ ngày (4 bước nhỏ mỗi ngày) sẽ ép Euler bám sát nghiệm đóng. Bài học: **khi không có nghiệm đóng để đối chiếu, luôn chạy Euler ở 2 mức $\Delta t$ và xem kết quả có ổn định không** (gọi là *kiểm tra hội tụ*, convergence check).
 
 **Đồ thị đường cong logistic $V(t)$ (đường S — sigmoid):**
 
@@ -193,7 +193,11 @@ $$g(V_n) = 0.8 \cdot V_n \cdot \left(1 - \frac{V_n}{10^6}\right)$$
   <text x="290.0" y="268.0" fill="#475569" font-size="12" text-anchor="middle">đường S (sigmoid): khởi động chậm → bùng nổ quanh t* → bão hòa</text>
 </svg>
 
-Ba pha rõ rệt: (1) **chậm** ($t < 4$, ít người biết nên lan chậm), (2) **bùng nổ** quanh điểm uốn $t^* \approx 8.6$ (tốc độ đỉnh $rK/4 = 200$k/ngày), (3) **bão hòa** ($t > 16$, gần hết người tiềm năng nên chậm lại) → tiệm cận $K$.
+Ba pha rõ rệt:
+
+- **chậm** ($t < 4$): ít người biết nên lan chậm;
+- **bùng nổ** quanh điểm uốn $t^* \approx 8.6$: tốc độ đỉnh $rK/4 = 200$k lượt/ngày;
+- **bão hòa** ($t > 16$): gần hết người tiềm năng, đường cong tiệm cận $K$.
 
 ❓ **Câu hỏi phản biện mô hình** (luôn tự hỏi sau khi có kết quả):
 
@@ -207,7 +211,16 @@ Ba pha rõ rệt: (1) **chậm** ($t < 4$, ít người biết nên lan chậm),
 2. **Nhầm tương quan với nhân quả**: dữ liệu khớp logistic *không chứng minh* cơ chế truyền miệng đúng — chỉ là *nhất quán*. Cơ chế thật có thể là thuật toán đề xuất đẩy. Mô hình khớp ≠ mô hình đúng.
 3. **Quên đơn vị**: $r = 0.8$ là $0.8$/**ngày**. Nếu lỡ đo dữ liệu theo *giờ* mà vẫn dùng $r = 0.8$/ngày → sai 24 lần. Luôn kiểm thứ nguyên (L01).
 
-📝 Toàn bộ chu trình: câu hỏi cụ thể → giả định truyền miệng → logistic → đặc trưng $K$, đỉnh → fit $r$ từ dữ liệu đầu (tuyến tính hóa) → giải số Euler + kiểm hội tụ → kiểm chứng khớp → phản biện (độ nhạy $K$, robust?) → nêu hạn chế & hướng bọc ngẫu nhiên. *Đây là mẫu cho dự án của bạn.*
+📝 **Toàn bộ chu trình của dự án này:**
+
+- Câu hỏi cụ thể: video đạt bao nhiêu lượt xem, bùng mạnh nhất khi nào?
+- Giả định: lan kiểu truyền miệng → mô hình **logistic**, hai đặc trưng $K$ và điểm uốn.
+- Fit $r$ từ dữ liệu ngày đầu bằng tuyến tính hóa (L02).
+- Giải số Euler, chạy 2 mức $\Delta t$ để kiểm hội tụ.
+- Kiểm chứng khớp dữ liệu, rồi phản biện: độ nhạy với $K$ — kết luận có robust không?
+- Nêu hạn chế và hướng nâng cấp: bọc Monte Carlo.
+
+*Đây là mẫu cho dự án của bạn.*
 
 ---
 
@@ -394,11 +407,23 @@ Lặp tiếp (làm tròn về số nguyên gần nhất để dễ đọc):
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chỉ cần một phép chia — tính lại $R_0$ với $\beta$ mới rồi so với 1.
+
 $R_0 = \beta/\gamma = 0.15/0.2 = 0.75 < 1$ → **dịch tự tắt**, không bùng phát. $I$ chỉ giảm dần từ 10 về 0; không có đỉnh nào vượt giá trị đầu. Đây là lý do các biện pháp "hạ $\beta$" (khẩu trang, giãn cách) hiệu quả: kéo $R_0$ xuống dưới 1 là dập được dịch.
 
 </details>
 
-📝 **Tóm tắt dự án SIR**: chia dân thành $S/I/R$ → hệ 3 ODE với $\beta$ (lây), $\gamma$ (khỏi) → $R_0 = \beta/\gamma$ quyết định bùng/tắt → giải Euler bảng từng ngày → đỉnh ~15 900 ngày ~34, final size ~94% → kiểm chứng bằng bảo toàn + ngưỡng $S = N/R_0$ → hạn chế (trộn đều, $\beta$ cố định) + hướng SEIR/Monte Carlo. **Chu trình 6 bước trọn vẹn.**
+📝 **Tóm tắt dự án SIR**
+
+- Chia dân số thành 3 nhóm: S (chưa nhiễm), I (đang nhiễm), R (đã khỏi).
+- Viết hệ 3 phương trình ODE với 2 tham số: $\beta$ (tốc độ lây) và $\gamma$ (tốc độ khỏi).
+- Một con số quyết định tất cả: $R_0 = \beta/\gamma$. Trên 1 thì dịch bùng, dưới 1 thì tự tắt.
+- Giải bằng Euler, lập bảng từng ngày.
+- Kết quả: đỉnh dịch ~15 900 người vào ngày ~34; cuối cùng ~94% dân số từng nhiễm.
+- Kiểm chứng hai cách: tổng $S+I+R$ không đổi, và đỉnh rơi đúng lúc $S = N/R_0$.
+- Hạn chế: giả định trộn đều và $\beta$ cố định. Muốn thật hơn: SEIR hoặc Monte Carlo.
+
+**Chu trình 6 bước trọn vẹn.**
 
 ---
 
@@ -512,9 +537,18 @@ Liệt kê 3 đỉnh và tính $P$ tại mỗi đỉnh:
 
 ### Bước 6 — Hạn chế
 
-⚠ Hạn chế: (1) Giả định "bán hết" — thực tế cầu hữu hạn, nên thêm ràng buộc $x \le$ số bàn bán được. (2) Lời tuyến tính — số lượng lớn thường phải giảm giá. (3) Nghiệm "0 ghế" rủi ro: nếu cầu ghế đột biến mà ta không có hàng → mất khách; thực tế thêm ràng buộc $y \ge y_{\min}$ để giữ đa dạng.
+⚠ **Hạn chế của lời giải:**
 
-📝 **Tóm tắt dự án LP**: max lợi nhuận tuyến tính dưới ràng buộc nguồn lực → liệt kê đỉnh miền khả thi → tối ưu ở đỉnh → 20 bàn/6 triệu; cắt là bottleneck (giá bóng 150k/giờ) → hạn chế cầu hữu hạn & đa dạng sản phẩm.
+- Giả định "bán hết": thực tế cầu hữu hạn — nên thêm ràng buộc $x \le$ số bàn bán được.
+- Lời tuyến tính: bán số lượng lớn thường phải giảm giá.
+- Nghiệm "0 ghế" rủi ro: cầu ghế đột biến là mất khách — thực tế thêm $y \ge y_{\min}$ để giữ đa dạng.
+
+📝 **Tóm tắt dự án LP**
+
+- Bài toán: max lợi nhuận tuyến tính dưới ràng buộc nguồn lực.
+- Cách giải: liệt kê các đỉnh của miền khả thi — tối ưu luôn ở một đỉnh.
+- Kết quả: 20 bàn, lời 6 triệu; khâu cắt là bottleneck với giá bóng 150k/giờ.
+- Hạn chế: cầu hữu hạn và nhu cầu đa dạng sản phẩm chưa được mô hình.
 
 ---
 

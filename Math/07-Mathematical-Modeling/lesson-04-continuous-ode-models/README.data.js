@@ -140,6 +140,8 @@ Cùng $r$, đổi $N_0$ chỉ dịch đường; đổi $r$ đổi độ cong:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đổi thời gian ra số chu kỳ bán rã — mỗi chu kỳ lượng chất chia đôi.
+
 1. 15h = 3 chu kỳ bán rã → còn $200\\cdot(\\tfrac12)^3 = 200/8 =$ **25 mg**. (Kiểm: $200\\,e^{-(\\ln2/5)\\cdot15} = 200\\,e^{-2.079} = 200\\cdot0.125 = 25$ ✓.)
 2. $T_{1/2} = \\ln 2/\\lambda = 0.693/0.1 \\approx$ **6.93 ngày**.
 
@@ -356,7 +358,7 @@ Trường hướng (slope field) của logistic, gạch = dấu/độ lớn củ
 
 → Quanh $N=0$: dấu $g$ luôn đẩy ra xa → **$N=0$ KHÔNG ổn định**. Quanh $N=K$: cả hai phía đều kéo về → **$N=K$ ổn định**.
 
-⚠ **Lỗi thường gặp — tưởng logistic "vượt $K$ rồi vọt lố".** Nghiệm *liên tục* xuất phát dưới $K$ **không bao giờ vượt** $K$: khi $N\\to K$ thì $\\frac{dN}{dt}\\to 0$, tốc độ tắt dần đúng lúc chạm trần → tiệm cận từ dưới, không "đâm qua". Chỉ bản **rời rạc** (L03) hoặc Euler bước lớn (mục 5) mới vọt lố qua $K$ rồi nảy — đó là *artefact rời rạc hóa*, không phải hành vi của ODE. Đừng vẽ đường logistic liên tục nhô lên trên $K$ rồi tụt xuống.
+⚠ **Lỗi thường gặp — tưởng logistic "vượt $K$ rồi vọt lố".** Nghiệm *liên tục* xuất phát dưới $K$ **không bao giờ vượt** $K$. Khi $N\\to K$ thì $\\frac{dN}{dt}\\to 0$ — tốc độ tắt dần đúng lúc chạm trần, nên đường cong tiệm cận từ dưới chứ không "đâm qua". Chỉ bản **rời rạc** (L03) hoặc Euler bước lớn (mục 5) mới vọt lố qua $K$ rồi nảy. Đó là *artefact của rời rạc hóa*, không phải hành vi của ODE. Đừng vẽ đường logistic liên tục nhô lên trên $K$ rồi tụt xuống.
 
 🔁 **Thực hành**
 
@@ -364,6 +366,8 @@ Trường hướng (slope field) của logistic, gạch = dấu/độ lớn củ
 2. Vì sao $N = 0$ là cân bằng *không ổn định* của logistic?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: câu 1 nhớ nghĩa của cân bằng — nơi $dN/dt = 0$; câu 2 xét dấu của $g(N)$ ngay bên phải điểm 0.
 
 1. $N_0 = K = 500$ là điểm cân bằng → $\\frac{dN}{dt} = 0$ → **$N(t) = 500$ mãi mãi**. ($A = 0$, công thức cho $N = K/(1+0) = K$.)
 2. Với $N$ nhỏ dương, $g(N) = rN(1-N/K) > 0$ → $N$ *tăng*, chạy ra xa khỏi 0. Một con vi khuẩn lẻ cũng đủ sinh sôi → 0 không "giữ" được hệ → **không ổn định**.
@@ -454,7 +458,11 @@ Nguội Newton: chênh lệch tắt theo mũ, tiệm cận $T_p$:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay nghiệm $S(t) = 50 - 30e^{-0.05t}$ bằng 40 rồi giải ngược bằng $\\ln$.
+
 $40 = 50 - 30e^{-0.05t}$ → $30e^{-0.05t} = 10$ → $e^{-0.05t} = 1/3$ → $t = \\ln 3/0.05 = 1.0986/0.05 \\approx$ **22 phút**.
+
+**Kiểm chứng**: $t = 22$ → $e^{-1.1} \\approx 0.333$, $S = 50 - 30\\cdot 0.333 \\approx 40$ kg ✓; và $40 < 50$ (trần tiệm cận) nên đạt được trong thời gian hữu hạn — hợp lý.
 
 </details>
 

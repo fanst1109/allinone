@@ -72,7 +72,10 @@ Tại mỗi điểm, hệ cho ta một **vector vận tốc** $\left(\dfrac{dx}{
 3. **Cạnh tranh hai loài (sinh thái)**: hai loài cùng ăn một nguồn tài nguyên (vd hai loài chim tranh hạt). Loài này đông thì loài kia thiệt — có thể dẫn tới "loại trừ cạnh tranh" (một loài tuyệt chủng) hoặc cùng tồn tại. (Mục 2.4.)
 4. **Phản ứng hóa học dao động (Belousov–Zhabotinsky)**: nồng độ hai chất trung gian tăng/giảm xen kẽ, làm dung dịch **đổi màu tuần hoàn** — bằng chứng nhìn thấy được của vòng kín trong mặt phẳng pha hóa học.
 
-Thêm hai ví dụ ngoài bài (để thấy độ phổ quát): **đua vũ trang quân sự** (mô hình Richardson: chi tiêu vũ khí của nước A kích chi tiêu của nước B và ngược lại); **giá–tồn kho thị trường** (giá cao → sản xuất nhiều → tồn kho tăng → giá giảm → ... dao động kinh tế).
+Thêm hai ví dụ ngoài bài, để thấy độ phổ quát:
+
+- **Đua vũ trang** (mô hình Richardson): chi tiêu vũ khí của nước A kích chi tiêu của nước B, và ngược lại.
+- **Giá–tồn kho thị trường**: giá cao thì sản xuất nhiều, tồn kho tăng làm giá giảm, rồi vòng lặp tiếp — dao động kinh tế.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -84,6 +87,8 @@ Thêm hai ví dụ ngoài bài (để thấy độ phổ quát): **đua vũ tran
 1. Hệ $\frac{dx}{dt} = -x$, $\frac{dy}{dt} = -2y$ có phải "hệ tương tác" thực sự không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: soi vế phải từng phương trình — biến của phương trình kia có xuất hiện không?
 
 **Không** — đây là hệ **rời nhau (decoupled)**: $\frac{dx}{dt}$ chỉ chứa $x$, $\frac{dy}{dt}$ chỉ chứa $y$. Giải độc lập: $x(t) = x_0 e^{-t}$, $y(t) = y_0 e^{-2t}$. Không có số hạng nào trộn $x$ với $y$ → không có "tương tác". Tương tác thật cần biến này nằm trong phương trình của biến kia (vd số hạng $xy$).
 
@@ -251,7 +256,7 @@ x_1 &= x_0 + \tfrac{dx}{dt}\Delta t = 40 + 4\cdot 0.1 = 40.4 \\
 y_1 &= y_0 + \tfrac{dy}{dt}\Delta t = 9 + 13.5\cdot 0.1 = 10.35
 \end{aligned}$$
 
-Sau 1 bước: $(40.4,\ 10.35)$ — mồi tăng nhẹ, thú tăng nhanh hơn (đang ở pha ① chuyển ②). Lặp hàng nghìn bước nhỏ → vẽ ra cả quỹ đạo. **Cảnh báo toy method**: Euler đơn giản với hệ vòng kín "thật" sẽ **trôi xoáy ra** (sai số tích lũy làm biên độ phình to giả) — thực tế dùng Runge–Kutta bậc 4 hoặc tích phân bảo toàn. Euler ở đây chỉ để *thấy cơ chế cập nhật*, không để mô phỏng dài chính xác.
+Sau 1 bước: $(40.4,\ 10.35)$ — mồi tăng nhẹ, thú tăng nhanh hơn (đang ở pha ① chuyển ②). Lặp hàng nghìn bước nhỏ → vẽ ra cả quỹ đạo. **Cảnh báo toy method**: với hệ vòng kín, Euler đơn giản sẽ **trôi xoáy ra** — sai số tích lũy làm biên độ phình to giả. Thực tế người ta dùng Runge–Kutta bậc 4 hoặc tích phân bảo toàn. Euler ở đây chỉ để *thấy cơ chế cập nhật*, không để mô phỏng dài.
 
 ### 2.4. Mở rộng — mô hình cạnh tranh hai loài
 
@@ -259,13 +264,16 @@ Sau 1 bước: $(40.4,\ 10.35)$ — mồi tăng nhẹ, thú tăng nhanh hơn (đ
 
 Mô hình cạnh tranh Lotka–Volterra (mỗi loài có sức chứa $K$ riêng, bị loài kia "lấn"):
 $$\begin{cases} \dfrac{dx}{dt} = r_1 x\left(1 - \dfrac{x + a_{12}\,y}{K_1}\right) \\[8pt] \dfrac{dy}{dt} = r_2 y\left(1 - \dfrac{y + a_{21}\,x}{K_2}\right) \end{cases}$$
-$a_{12}$ = mức loài $y$ lấn vào "phần ăn" của loài $x$. **Kết cục** phụ thuộc tham số: (a) một loài thắng → loài kia tuyệt chủng (*loại trừ cạnh tranh — competitive exclusion*); (b) **cùng tồn tại** ở một điểm cân bằng ổn định nếu mỗi loài tự kìm mình mạnh hơn kìm loài kia. Đây là ví dụ thứ 3 trong [danh sách hệ tương tác](#12-bốn-ví-dụ-hệ-tương-tác-thực-tế).
+$a_{12}$ = mức loài $y$ lấn vào "phần ăn" của loài $x$. **Kết cục** phụ thuộc tham số:
+
+- một loài thắng, loài kia tuyệt chủng (*loại trừ cạnh tranh — competitive exclusion*); hoặc
+- **cùng tồn tại** ở một điểm cân bằng ổn định — xảy ra khi mỗi loài tự kìm mình mạnh hơn kìm loài kia. Đây là ví dụ thứ 3 trong [danh sách hệ tương tác](#12-bốn-ví-dụ-hệ-tương-tác-thực-tế).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Vì sao dao động lệch pha chứ không đồng pha?"* Vì thú phản ứng *sau* mồi: phải có nhiều mồi *trước*, thú mới tăng *sau*; đỉnh thú đến sau đỉnh mồi. Đó là độ trễ tạo vòng đuổi nhau.
 - *"Số hạng $x \cdot y$ nghĩa là gì?"* Tần suất gặp gỡ thú–mồi tỉ lệ *tích* hai số lượng (giống va chạm phân tử). Đây là **giả định trộn đều** — mọi thú gặp mọi mồi như nhau.
-- *"Vì sao gọi là vòng kín 'trung tính' (neutral cycle)?"* Vì biên độ dao động **chỉ phụ thuộc điều kiện đầu** — lệch nhiều thì vòng to, lệch ít thì vòng nhỏ, và vòng đó cứ lặp **mãi** không lớn lên cũng không tắt. Khác **chu trình giới hạn (limit cycle)** thật (mục dưới), nơi mọi quỹ đạo bị hút về *cùng một* vòng bất kể bắt đầu ở đâu.
+- *"Vì sao gọi là vòng kín 'trung tính' (neutral cycle)?"* Vì biên độ dao động **chỉ phụ thuộc điều kiện đầu**: lệch nhiều thì vòng to, lệch ít thì vòng nhỏ. Vòng đó lặp **mãi**, không lớn lên cũng không tắt. Khác hẳn **chu trình giới hạn (limit cycle)** thật (mục dưới) — ở đó mọi quỹ đạo bị hút về *cùng một* vòng, bất kể bắt đầu ở đâu.
 - *"Quần thể có thể về 0 rồi 'sống lại' không?"* Trong toy model lý tưởng (liên tục, không nhiễu): không — quỹ đạo vòng kín không bao giờ chạm trục, $x, y$ luôn $>0$. Nhưng nếu biên độ quá lớn, số mồi xuống *rất gần 0*; thực tế khi đó **một con cuối cùng chết là tuyệt chủng vĩnh viễn** — đây là một lý do toy model phi thực tế.
 
 ### 2.5. Chu trình giới hạn (limit cycle) — phân biệt với vòng kín trung tính
@@ -294,6 +302,8 @@ $a_{12}$ = mức loài $y$ lấn vào "phần ăn" của loài $x$. **Kết cụ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay thẳng $(20, 10)$ vào hai vế phải xem chúng bằng bao nhiêu.
+
 Cả hai đạo hàm = 0 → hệ **đứng yên** tại $(20, 10)$ mãi (điểm cân bằng). Chỉ khi lệch khỏi điểm này mới sinh dao động vòng quanh nó.
 
 </details>
@@ -301,6 +311,8 @@ Cả hai đạo hàm = 0 → hệ **đứng yên** tại $(20, 10)$ mãi (điể
 2. Tại trạng thái $(x, y) = (10, 20)$ (mồi ít, thú đông) với cùng tham số trên, tính dấu của $\frac{dx}{dt}$ và $\frac{dy}{dt}$. Đây là pha nào trong 4 pha?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tính dấu của hai đạo hàm tại điểm đã cho, rồi tra bảng 4 pha.
 
 $\frac{dx}{dt} = 10(1 - 0.1\cdot 20) = 10(1 - 2) = -10 < 0$ (mồi giảm). $\frac{dy}{dt} = 20(0.075\cdot 10 - 1.5) = 20(0.75 - 1.5) = 20\cdot(-0.75) = -15 < 0$ (thú giảm). Cả hai giảm → **pha ③** (mồi ít, thú đông, cả hai đang tụt — thú thiếu ăn).
 
@@ -496,7 +508,11 @@ $1/\sigma$ = thời gian ủ trung bình. SEIR cho **đỉnh muộn hơn, thoả
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: $R_0 = \beta/\gamma$; so với 1 để kết luận; ngưỡng miễn dịch là $1 - 1/R_0$.
+
 $R_0 = \beta/\gamma = 0.2/0.1 = $ **2** $> 1$ → **dịch bùng**. Ngưỡng miễn dịch cộng đồng $= 1 - 1/R_0 = 1 - 1/2 = $ **50%**.
+
+**Kiểm chứng**: $R_0 = 2$ nghĩa là mỗi ca lây 2 ca mới khi ai cũng nhạy cảm; chặn dịch cần mỗi ca lây dưới 1 — tức trên một nửa số tiếp xúc phải "trượt" vì đã miễn dịch → 50% khớp ✓.
 
 </details>
 
@@ -572,6 +588,8 @@ Với số bài ($\alpha=1$, $\gamma=1.5$): $\lambda = \pm i\sqrt{1.5} \approx \
 1. Một điểm cân bằng có Jacobian với trị riêng $\lambda_1 = -2$, $\lambda_2 = -0.5$. Ổn định hay không? Kiểu gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhìn dấu phần thực của hai trị riêng — cùng âm là hút vào, cùng dương là đẩy ra, trái dấu là yên ngựa.
 
 Cả hai thực và **âm** → quỹ đạo hút vào → **ổn định**, kiểu **nút ổn định (stable node)**. (Như viên bi dưới đáy bát — đẩy nhẹ là về.)
 

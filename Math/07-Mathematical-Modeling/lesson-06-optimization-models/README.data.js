@@ -62,6 +62,8 @@ $$\\max_{x}\\ f(x) \\quad \\text{(hoặc } \\min_x f(x)\\text{)} \\qquad \\text{
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: hỏi hai câu cho mỗi bài — có ràng buộc không? mục tiêu và ràng buộc có tuyến tính không?
+
 (a) **Không ràng buộc** → $R'(p) = 0$. (b) **LP (min)** — mục tiêu & ràng buộc tuyến tính, dấu $\\ge$. (c) **Lagrange** — ràng buộc đẳng thức (chu vi $= 40$). 
 
 </details>
@@ -127,7 +129,11 @@ $$C(q) = \\frac{36000}{q} + 3q, \\qquad q > 0$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: điểm dừng từ $P'(q) = 0$, phân loại bằng dấu $P''$.
+
 $P'(q) = 30 - 0{,}5q = 0 \\Rightarrow q = 60$. $P''(q) = -0{,}5 < 0$ → cực **đại**. $P(60) = 30\\cdot 60 - 0{,}25\\cdot 3600 - 100 = 1800 - 900 - 100 = $ **800**. Vậy sản xuất **60 đơn vị**, lời 800.
+
+**Kiểm chứng**: thử lệch sang $q = 50$: $P = 1500 - 625 - 100 = 775 < 800$ ✓ — đỉnh thật.
 
 </details>
 
@@ -311,7 +317,7 @@ $$\\min\\ C = 2x + 3y \\quad\\text{với}\\quad 3x + y \\ge 12,\\ \\ x + 2y \\ge
 
 💡 Hàm mục tiêu tuyến tính tăng đều theo một hướng (gradient không đổi). Trong một đa giác lồi, đi theo hướng tăng sẽ luôn dẫn ra **biên**, rồi dọc biên tới một **đỉnh** — không thể có cực đại ở giữa miền (ở đó còn đi tiếp được). Nên chỉ cần *kiểm tra hữu hạn đỉnh*, không cần quét cả miền vô hạn điểm. (Ngoại lệ: nếu mục tiêu song song một cạnh → cả cạnh tối ưu, nhưng đỉnh vẫn nằm trong số nghiệm.)
 
-**Kiểm bằng số — điểm trong miền luôn thua đỉnh.** Lấy bài xưởng mộc, thử một điểm *bên trong* miền, vd $(10, 5)$ (gỗ $25 \\le 40$, công $25 \\le 45$ — đều lỏng): $P = 40\\cdot 10 + 30\\cdot 5 = 550$. Còn nhỏ hơn cả đỉnh tệ nhất $(0,15)$ cho $450$? Không — $550 > 450$, nhưng vẫn **thua xa** đỉnh tối ưu $(15,10)$ cho $900$. Điểm trong miền *luôn* còn đi tiếp được theo hướng tăng (cả gỗ lẫn công đều dư) → chưa thể tối ưu. Chỉ khi *kẹt* ở đỉnh — mọi hướng đi tiếp đều vi phạm một ràng buộc — mới hết cải thiện.
+**Kiểm bằng số — điểm trong miền luôn thua đỉnh.** Lấy bài xưởng mộc, thử một điểm *bên trong* miền, vd $(10, 5)$: gỗ dùng $25 \\le 40$, công $25 \\le 45$ — cả hai ràng buộc đều còn lỏng. Lợi nhuận $P = 40\\cdot 10 + 30\\cdot 5 = 550$ — **thua xa** đỉnh tối ưu $(15,10)$ cho $900$. Điểm trong miền *luôn* còn đi tiếp được theo hướng tăng (cả gỗ lẫn công đều dư) → chưa thể tối ưu. Chỉ khi *kẹt* ở đỉnh — mọi hướng đi tiếp đều vi phạm một ràng buộc — mới hết cải thiện.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -325,6 +331,8 @@ $$\\min\\ C = 2x + 3y \\quad\\text{với}\\quad 3x + y \\ge 12,\\ \\ x + 2y \\ge
 1. Với bài trên, nếu lời mỗi **bàn** tăng lên 60 ($P = 60x + 30y$), đỉnh $(20,0)$ cho $P$ bao nhiêu? So với $(15,10)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: thay tọa độ từng đỉnh vào hàm mục tiêu MỚI rồi so.
 
 $(20,0)$: $P = 60 \\cdot 20 = $ **1200**. $(15,10)$: $P = 60 \\cdot 15 + 30 \\cdot 10 = 900 + 300 = $ **1200**. *Hòa nhau* → mục tiêu song song cạnh nối $(20,0)$–$(15,10)$, cả cạnh đó tối ưu (mọi điểm trên cạnh cho $P = 1200$). Tăng lời bàn thêm nữa → $(20,0)$ thắng (chỉ làm bàn).
 
@@ -364,6 +372,8 @@ $(20,0)$: $P = 60 \\cdot 20 = $ **1200**. $(15,10)$: $P = 60 \\cdot 15 + 30 \\cd
 1. Cực đại $f = x \\cdot y$ với $x + y = 20$. Tìm $x, y$, diện tích và $\\lambda$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: viết hệ $\\nabla f = \\lambda\\nabla g$ cộng phương trình ràng buộc — y hệt bài rào vườn ở (c), chỉ đổi 20 m thành tổng 20.
 
 $\\nabla f = (y,x) = \\lambda(1,1)$ → $x = y$; ràng buộc $x + y = 20$ → **$x = y = 10$**, diện tích $= 100$. $\\lambda = x = 10$ (giá bóng: nới tổng lên 21 → diện tích $\\approx 110.25$, tăng ~10).
 

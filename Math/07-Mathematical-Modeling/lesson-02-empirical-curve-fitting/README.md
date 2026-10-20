@@ -148,7 +148,7 @@ Kiểm cả 3 nút: $P(0) = 1$ ✓, $P(1) = -1.5 + 3.5 + 1 = 3$ ✓, $P(2) = -6 
 
 Nội suy Lagrange là công cụ đứng sau bảng tra giá trị hàm, đường cong thiết kế đồ họa, và các công thức tích phân số (Newton–Cotes). Nhưng chính nó ở bậc cao cũng là thủ phạm của hiện tượng Runge ngay dưới đây — xem mô phỏng ở [visualization.html](./visualization.html) (mục 3).
 
-⚠ **Lỗi thường gặp — dùng đa thức bậc cao để "khớp hoàn hảo".** Ép đa thức bậc $n-1$ qua $n$ điểm cho sai số 0 *trên dữ liệu đã có*, nhưng giữa các điểm nó **dao động dữ dội** (hiện tượng Runge) và dự đoán ngoài vùng dữ liệu thì *thảm họa*. Phản ví dụ: 10 điểm gần như thẳng hàng + 1 chút nhiễu → đa thức bậc 9 qua hết 10 điểm sẽ uốn lượn điên loạn, còn đường thẳng hồi quy thì bám xu hướng đẹp. **Khớp hoàn hảo dữ liệu cũ ≠ dự đoán tốt dữ liệu mới** — đây là mầm mống của *overfitting* (mục 7).
+⚠ **Lỗi thường gặp — dùng đa thức bậc cao để "khớp hoàn hảo".** Ép đa thức bậc $n-1$ qua $n$ điểm cho sai số 0 *trên dữ liệu đã có*. Nhưng giữa các điểm, nó **dao động dữ dội** (hiện tượng Runge); ra ngoài vùng dữ liệu thì *thảm họa*. Phản ví dụ: 10 điểm gần thẳng hàng cộng chút nhiễu. Đa thức bậc 9 qua hết 10 điểm nhưng uốn lượn điên loạn, còn đường thẳng hồi quy lại bám xu hướng đẹp. **Khớp hoàn hảo dữ liệu cũ ≠ dự đoán tốt dữ liệu mới** — đây là mầm mống của *overfitting* (mục 7).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -161,7 +161,9 @@ Nội suy Lagrange là công cụ đứng sau bảng tra giá trị hàm, đư�
 
 <details><summary>Đáp án</summary>
 
-**Hồi quy** (hoặc spline trơn), không nội suy bậc 49. Dữ liệu có nhiễu ±0.5°C; đa thức bậc 49 sẽ bám hết nhiễu và dao động hoang dã giữa các giờ, dự đoán vô nghĩa. Ta muốn *xu hướng* nhiệt độ, không phải tái tạo từng sai số đo.
+**Hướng dẫn**: hỏi câu duy nhất của mục này — dữ liệu có nhiễu không?
+
+**Hồi quy** (hoặc spline trơn), không nội suy bậc 49. Dữ liệu có nhiễu ±0.5°C; đa thức bậc 49 sẽ bám hết nhiễu và dao động hoang dã giữa các giờ, dự đoán vô nghĩa. Ta muốn *xu hướng* nhiệt độ, không phải tái tạo từng sai số đo. Đếm tham số càng thấy vô lý: bậc 49 có 50 tham số cho 50 điểm — "mô hình" chỉ là chép lại dữ liệu.
 
 </details>
 
@@ -175,7 +177,7 @@ Nội suy Lagrange là công cụ đứng sau bảng tra giá trị hàm, đư�
 
 ## 3. Hồi quy tuyến tính bình phương tối thiểu
 
-💡 **Trực giác / Hình dung.** Với mỗi đường thẳng ứng viên $\hat{y} = ax + b$, mỗi điểm dữ liệu lệch khỏi đường một đoạn dọc gọi là **phần dư (residual)** $e_i = y_i - (ax_i + b)$. Ta muốn đường nào tổng các đoạn lệch "nhỏ nhất". Để tránh lệch âm triệt tiêu lệch dương, ta **bình phương** từng đoạn rồi cộng lại — và đi tìm $a$, $b$ cực tiểu hóa tổng đó. Hình dung: mỗi điểm nối với đường bằng một lò xo dọc; đường tối ưu là vị trí cân bằng năng lượng lò xo nhỏ nhất.
+💡 **Trực giác / Hình dung.** Với mỗi đường thẳng ứng viên $\hat{y} = ax + b$, mỗi điểm dữ liệu lệch khỏi đường một đoạn dọc gọi là **phần dư (residual)** $e_i = y_i - (ax_i + b)$. Ta muốn đường có tổng các đoạn lệch "nhỏ nhất". Lệch âm và lệch dương sẽ triệt tiêu nhau, nên ta **bình phương** từng đoạn trước khi cộng. Rồi đi tìm $a$, $b$ làm tổng đó nhỏ nhất. Hình dung: mỗi điểm nối với đường bằng một lò xo dọc; đường tối ưu là vị trí cân bằng năng lượng lò xo nhỏ nhất.
 
 **Phần dư là đoạn DỌC, không phải khoảng cách vuông góc.** Hình dung từng lò xo dọc kéo điểm về đường:
 
@@ -210,7 +212,12 @@ Tổng bình phương $S = \sum e_i^2$ chính là "tổng năng lượng lò xo"
 >
 > **(b) Vì sao cần**: phần dư là "thước đo sai" của từng điểm. Mọi tiêu chí khớp ($S = \sum e_i^2$), mọi chỉ số chất lượng ($R^2$), mọi chẩn đoán (biểu đồ phần dư ở mục 7.5) đều xây trên $e_i$. Không có khái niệm phần dư thì không định nghĩa được "khớp tốt".
 >
-> **(c) Ví dụ số** (dùng đường $\hat{y} = 0.9x + 1.3$ của mục 3.1): tại $x = 3$, $\hat{y} = 0.9\cdot 3 + 1.3 = 4.0$ nhưng $y$ thật $= 5$ → $e = 5 - 4 = +1.0$ (trên đường); tại $x = 4$, $\hat{y} = 4.9$ nhưng $y = 4$ → $e = -0.9$ (dưới đường); tại $x = 1$, $\hat{y} = 2.2$, $y = 2$ → $e = -0.2$; tại $x = 5$, $\hat{y} = 5.8$, $y = 6$ → $e = +0.2$.
+> **(c) Ví dụ số** — dùng đường $\hat{y} = 0.9x + 1.3$ của mục 3.1:
+>
+> - $x = 3$: $\hat{y} = 0.9\cdot 3 + 1.3 = 4.0$, $y$ thật $= 5$ nên $e = +1.0$ (điểm nằm trên đường);
+> - $x = 4$: $\hat{y} = 4.9$, $y = 4$ nên $e = -0.9$ (dưới đường);
+> - $x = 1$: $\hat{y} = 2.2$, $y = 2$ nên $e = -0.2$;
+> - $x = 5$: $\hat{y} = 5.8$, $y = 6$ nên $e = +0.2$.
 
 **Tiêu chí bình phương tối thiểu**: chọn $a$, $b$ cực tiểu hóa
 $$S(a, b) = \sum_i e_i^2 = \sum_i (y_i - a\cdot x_i - b)^2$$
@@ -272,7 +279,7 @@ $$b = \frac{20 - 0.9\cdot 15}{5} = \frac{20 - 13.5}{5} = \frac{6.5}{5} = 1.3$$
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Vì sao đặt đạo hàm = 0 lại ra cực tiểu chứ không phải cực đại?"* Vì $S(a,b)$ là hàm bậc 2 theo $a$, $b$ với hệ số bậc hai dương ($\sum x^2 > 0$) — một paraboloid mở lên trên, chỉ có *một* điểm dừng và đó là cực tiểu toàn cục. Không có cực đại hữu hạn ($S \to \infty$ khi $a, b \to \infty$).
+- *"Vì sao đặt đạo hàm = 0 lại ra cực tiểu chứ không phải cực đại?"* Vì $S(a,b)$ là hàm bậc 2 theo $a$, $b$ với hệ số bậc hai dương ($\sum x^2 > 0$). Đồ thị của nó là một paraboloid mở lên trên: chỉ có *một* điểm dừng, và đó là cực tiểu toàn cục. Cực đại không tồn tại — $S \to \infty$ khi $a, b \to \infty$.
 - *"Mẫu số $n\cdot\sum x^2 - (\sum x)^2$ có khi nào bằng 0 không?"* Bằng 0 khi mọi $x_i$ bằng nhau (mọi điểm cùng một hoành độ) — khi đó không xác định được độ dốc (đường thẳng đứng), bài toán vô nghĩa. Với $x$ phân biệt thì mẫu $> 0$.
 - *"Hồi quy y theo x và x theo y có ra cùng đường không?"* **Không!** Đổi vai trò $x\leftrightarrow y$ cho đường khác (vì ta cực tiểu lệch *dọc* theo trục $y$). Phải rõ biến nào là "đầu vào".
 
@@ -284,9 +291,13 @@ $$b = \frac{20 - 0.9\cdot 15}{5} = \frac{20 - 13.5}{5} = \frac{6.5}{5} = 1.3$$
 
 <details><summary>Đáp án</summary>
 
-$n=3$, $\sum x=3$, $\sum y=9$, $\sum xy = 0+3+10 = 13$, $\sum x^2 = 0+1+4 = 5$.
-$a = (3\cdot 13 - 3\cdot 9)/(3\cdot 5 - 9) = (39-27)/(15-9) = 12/6 =$ **2**.
-$b = (9 - 2\cdot 3)/3 = 3/3 =$ **1**. → $\hat{y} = 2x + 1$. Thẳng hàng hoàn hảo nên residual $= 0$, đường qua đúng cả 3 điểm.
+**Hướng dẫn**: lập bảng 4 tổng ($\sum x, \sum y, \sum xy, \sum x^2$) rồi thay vào công thức nghiệm đóng của $a$, $b$.
+
+- Bảng tổng: $n=3$, $\sum x=3$, $\sum y=9$, $\sum xy = 0+3+10 = 13$, $\sum x^2 = 0+1+4 = 5$.
+- $a = \dfrac{3\cdot 13 - 3\cdot 9}{3\cdot 5 - 3^2} = \dfrac{39-27}{15-9} = \dfrac{12}{6} = \mathbf{2}$.
+- $b = \dfrac{9 - 2\cdot 3}{3} = \mathbf{1}$. Vậy $\hat{y} = 2x + 1$.
+
+**Kiểm chứng**: thay cả 3 điểm — $\hat y(0)=1$ ✓, $\hat y(1)=3$ ✓, $\hat y(2)=5$ ✓. Dữ liệu thẳng hàng hoàn hảo nên mọi phần dư bằng 0 và $R^2 = 1$.
 
 </details>
 
@@ -307,7 +318,7 @@ $b = (9 - 2\cdot 3)/3 = 3/3 =$ **1**. → $\hat{y} = 2x + 1$. Thẳng hàng hoà
 2. **Phạt mạnh điểm lệch xa**: lệch gấp đôi bị phạt gấp *bốn* ($2^2 = 4$). Mô hình "rất sợ" sai lớn → kéo đường về phía giảm các lệch lớn.
 3. **Nền tảng xác suất**: nếu nhiễu tuân theo phân phối chuẩn (Gauss), thì nghiệm bình phương tối thiểu *chính là* nghiệm hợp lý cực đại (MLE) — xem [Vectors/05-Probability](../../../Vectors/). Đây là lý do sâu xa nhất.
 
-⚠ **Lỗi thường gặp — quên rằng bình phương nhạy với outlier.** Chính ưu điểm "phạt mạnh lệch xa" trở thành nhược điểm khi có **điểm ngoại lai (outlier)** do đo sai: một điểm lệch khổng lồ kéo cả đường về phía nó. Khi nghi ngờ outlier, cân nhắc hồi quy bền vững (robust) dùng trị tuyệt đối hoặc loại outlier trước. Phản ví dụ: dữ liệu 5 điểm thẳng + 1 điểm gõ nhầm "60" thay vì "6" → đường bình phương tối thiểu nghiêng hẳn đi.
+⚠ **Lỗi thường gặp — quên rằng bình phương nhạy với outlier.** Chính ưu điểm "phạt mạnh lệch xa" trở thành nhược điểm khi có **điểm ngoại lai (outlier)** do đo sai: một điểm lệch khổng lồ kéo cả đường về phía nó. Phản ví dụ: 5 điểm thẳng hàng cộng 1 điểm gõ nhầm "60" thay vì "6" — đường bình phương tối thiểu nghiêng hẳn đi. Khi nghi outlier: vẽ đồ thị soi trước, loại điểm đo sai, hoặc dùng hồi quy bền vững (robust, dựa trị tuyệt đối).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -350,7 +361,12 @@ $b = (9 - 2\cdot 3)/3 = 3/3 =$ **1**. → $\hat{y} = 2x + 1$. Thẳng hàng hoà
 
 <details><summary>Đáp án</summary>
 
-$R^2 = 1 - 2/8 = 1 - 0.25 =$ **0.75**. Đường giải thích 75% biến động của dữ liệu; 25% còn lại chưa giải thích (nhiễu hoặc yếu tố thiếu).
+**Hướng dẫn**: áp thẳng định nghĩa $R^2 = 1 - SS_{\text{res}}/SS_{\text{tot}}$.
+
+- $R^2 = 1 - \dfrac{2}{8} = 1 - 0.25 = \mathbf{0.75}$.
+- Diễn giải: mô hình giải thích 75% biến động của dữ liệu; 25% còn lại là nhiễu hoặc yếu tố chưa đưa vào mô hình.
+
+**Kiểm chứng** bằng hai cực: nếu đường khớp hoàn hảo thì $SS_{\text{res}} = 0$ cho $R^2 = 1$; nếu đường tệ ngang "đoán bằng trung bình" thì $SS_{\text{res}} = SS_{\text{tot}}$ cho $R^2 = 0$. Giá trị 0.75 nằm giữa, nghiêng về khớp tốt — hợp lý.
 
 </details>
 
@@ -446,7 +462,12 @@ Hai điểm cách đều: từ $(0, 1.589)$ đến $(1.386, 4.362)$, độ dốc
 
 <details><summary>Đáp án</summary>
 
-$\ln y = \ln A + n\cdot\ln x$. Tuyến tính giữa **$\ln y$ và $\ln x$** (độ dốc $= n$, tung độ gốc $= \ln A$). Đây là lý do dữ liệu lũy thừa trông thẳng trên giấy **log–log**.
+**Hướng dẫn**: lấy $\ln$ hai vế rồi dùng tính chất $\ln(uv) = \ln u + \ln v$ và $\ln(x^n) = n\ln x$.
+
+- $\ln y = \ln A + n\cdot\ln x$ — tuyến tính giữa **$\ln y$ và $\ln x$**: độ dốc $= n$, tung độ gốc $= \ln A$.
+- Đây là lý do dữ liệu lũy thừa trông thẳng trên giấy **log–log**.
+
+**Kiểm chứng bằng số**: $y = 2x^3$ tại $x = 10$: $\ln y = \ln 2000 \approx 7.6$; công thức cho $\ln 2 + 3\ln 10 \approx 0.69 + 6.91 = 7.6$ ✓.
 
 </details>
 
@@ -476,7 +497,7 @@ $$\hat{y} = c_0 + c_1 x + c_2 x^2 + \cdots + c_d x^d.$$
 >
 > **(c) Ví dụ số**: 3 điểm $(0,1), (1,0), (2,3)$ cong rõ. Khớp parabol $\hat y = c_0 + c_1 x + c_2 x^2$ qua đúng 3 điểm: từ $x=0$: $c_0 = 1$; từ $x=1$: $c_0 + c_1 + c_2 = 0 \Rightarrow c_1 + c_2 = -1$; từ $x=2$: $c_0 + 2c_1 + 4c_2 = 3 \Rightarrow 2c_1 + 4c_2 = 2 \Rightarrow c_1 + 2c_2 = 1$. Trừ hai phương trình: $c_2 = 2$, $c_1 = -3$. → $\hat y = 1 - 3x + 2x^2$. Kiểm $x=2$: $1 - 6 + 8 = 3$ ✓. (3 điểm + 3 tham số → qua đúng hết, $R^2 = 1$ — đây là nội suy trá hình, xem cảnh báo dưới.)
 
-⚠ **Lỗi thường gặp — tăng bậc $d$ để bơm $R^2$.** $R^2$ trên dữ liệu huấn luyện **luôn tăng** (không bao giờ giảm) khi thêm bậc, vì mô hình mới chứa mô hình cũ như trường hợp riêng ($c_d = 0$). Nên "$R^2$ cao nhờ bậc cao" là *ảo*. Khi $d = n-1$ (bậc bằng số điểm trừ 1) thì $R^2 = 1$ tuyệt đối — nhưng đó là **nội suy + overfitting**, dao động Runge giữa các điểm, dự đoán ngoài thảm họa (đã gặp ở mục 2). Quy tắc: chỉ nâng bậc khi dữ liệu *thật sự* cong và bậc thấp underfit rõ; dùng $R^2$ điều chỉnh (adjusted $R^2$) hoặc tập kiểm tra để so.
+⚠ **Lỗi thường gặp — tăng bậc $d$ để bơm $R^2$.** $R^2$ trên dữ liệu huấn luyện **luôn tăng** (không bao giờ giảm) khi thêm bậc, vì mô hình mới chứa mô hình cũ như trường hợp riêng ($c_d = 0$). Nên "$R^2$ cao nhờ bậc cao" là *ảo*. Khi $d = n-1$ (bậc bằng số điểm trừ 1) thì $R^2 = 1$ tuyệt đối. Nhưng đó là **nội suy + overfitting**: dao động Runge giữa các điểm, dự đoán ngoài vùng thì thảm họa (đã gặp ở mục 2). Quy tắc: chỉ nâng bậc khi dữ liệu *thật sự* cong và bậc thấp underfit rõ; dùng $R^2$ điều chỉnh (adjusted $R^2$) hoặc tập kiểm tra để so.
 
 ### 7.1b Walk-through — khớp parabol bằng phương trình chuẩn
 
@@ -530,7 +551,13 @@ Mỗi bộ dữ liệu dưới đây minh họa "dấu hiệu" để chọn đú
 
 <details><summary>Đáp án</summary>
 
-Tỉ số liên tiếp $6/3 = 2$, $12/6 = 2$, $24/12 = 2$ — hằng ⇒ **mũ** $y = A e^{kx}$ với $e^k = 2 \Rightarrow k = \ln 2 \approx 0.693$. Tại $x=1$, $y=3$: $3 = A e^{0.693} = 2A \Rightarrow A = 1.5$. Vậy $y = 1.5\cdot 2^x$. Kiểm $x=4$: $1.5\cdot 16 = 24$ ✓.
+**Hướng dẫn**: chạy bài kiểm tra dấu hiệu — tính tỉ số hai giá trị $y$ liên tiếp; tỉ số hằng là chữ ký của mô hình mũ.
+
+- Tỉ số liên tiếp: $6/3 = 2$, $12/6 = 2$, $24/12 = 2$ — hằng ⇒ mô hình **mũ** $y = A e^{kx}$.
+- Tỉ số 2 mỗi bước nghĩa là $e^k = 2 \Rightarrow k = \ln 2 \approx 0.693$.
+- Tìm $A$ từ điểm đầu: $x=1, y=3$: $3 = A\cdot 2 \Rightarrow A = 1.5$. Vậy $y = 1.5\cdot 2^x$.
+
+**Kiểm chứng** tại điểm cuối chưa dùng: $x=4$: $1.5\cdot 2^4 = 1.5\cdot 16 = 24$ ✓ khớp dữ liệu.
 
 </details>
 
@@ -565,7 +592,11 @@ Lấy đường ôn thi $\hat y = 0.9x + 1.3$ (mục 3). **Nội suy** (trong v�
 
 ### 8.2 R² cao ≠ nhân quả — minh họa
 
-⚠ **Lỗi thường gặp — suy nhân quả từ tương quan.** $R^2$ cao chỉ nói hai biến *biến thiên cùng nhau*, **không** nói biến này *gây ra* biến kia. Ví dụ kinh điển: doanh số kem và số vụ chết đuối tương quan mạnh ($R^2$ cao) theo tháng — nhưng kem không gây chết đuối; cả hai cùng bị **biến ẩn** (mùa hè nóng) chi phối. Ba khả năng khi $X, Y$ tương quan: (1) $X$ gây $Y$; (2) $Y$ gây $X$; (3) biến thứ ba $Z$ gây cả hai. Hồi quy *một mình* không phân biệt được — cần thí nghiệm có đối chứng hoặc lý lẽ cơ chế.
+⚠ **Lỗi thường gặp — suy nhân quả từ tương quan.** $R^2$ cao chỉ nói hai biến *biến thiên cùng nhau*, **không** nói biến này *gây ra* biến kia. Ví dụ kinh điển: doanh số kem và số vụ chết đuối tương quan mạnh theo tháng. Nhưng kem không gây chết đuối — cả hai cùng bị **biến ẩn** (mùa hè nóng) chi phối. Khi $X, Y$ tương quan, luôn có ba khả năng:
+
+- $X$ gây $Y$;
+- $Y$ gây $X$;
+- một biến thứ ba $Z$ gây cả hai. Hồi quy *một mình* không phân biệt được — cần thí nghiệm có đối chứng hoặc lý lẽ cơ chế.
 
 ### 8.3 Biểu đồ phần dư — công cụ chẩn đoán
 
@@ -615,7 +646,13 @@ Lấy đường ôn thi $\hat y = 0.9x + 1.3$ (mục 3). **Nội suy** (trong v�
 
 Phần dư hình chữ U (hoặc ∩) → quan hệ phi tuyến mà ta ép đường thẳng → nâng lên bậc 2 (mục 7). Phần dư "loe rộng" khi $x$ tăng → phương sai không đều (cân nhắc fit có trọng số). Đây là lý do bộ Anscombe (mục 5) lừa được người chỉ nhìn $R^2$: vẽ phần dư ra là lộ ngay.
 
-📝 **Tóm tắt mục 8**: khớp dữ liệu cũ tốt ≠ dự đoán tốt. Cảnh giác **overfitting** (chọn mô hình đơn giản), **ngoại suy** ($x=20$ giờ → 19.3 điểm vô lý, chỉ tin trong vùng dữ liệu), **outlier** (vẽ đồ thị, robust), **R² cao ≠ nhân quả** (kem ↔ chết đuối, biến ẩn mùa hè). Luôn **vẽ biểu đồ phần dư** để bắt sai dạng.
+📝 **Tóm tắt mục 8** — khớp dữ liệu cũ tốt ≠ dự đoán tốt:
+
+- **Overfitting**: chọn mô hình đơn giản nhất còn khớp đủ.
+- **Ngoại suy**: chỉ tin dự đoán trong vùng dữ liệu ($x = 20$ giờ cho 19.3 điểm là vô lý).
+- **Outlier**: vẽ đồ thị soi trước; cần thì dùng hồi quy bền vững.
+- **$R^2$ cao ≠ nhân quả**: kem ↔ chết đuối chỉ chung biến ẩn mùa hè.
+- Luôn **vẽ biểu đồ phần dư** để bắt sai dạng mô hình.
 
 ---
 

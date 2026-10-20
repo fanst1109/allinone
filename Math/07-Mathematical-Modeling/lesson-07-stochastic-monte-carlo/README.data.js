@@ -47,13 +47,15 @@ window.README_MD = `# Lesson 07 — Mô hình ngẫu nhiên (Monte Carlo, Markov
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Tất định và ngẫu nhiên loại trừ nhau à?"* Không. Phần lớn mô hình thực có **cả hai**: phần xu hướng tất định ($\\mu \\Delta t$ — độ trôi) + phần nhiễu ngẫu nhiên ($\\sigma \\sqrt{\\Delta t}\\, Z$). Giá cổ phiếu ở trên là ví dụ: trôi lên trung bình + dao động ngẫu nhiên quanh đó.
-- *"Sao không cứ chạy mô hình tất định nhiều lần với đầu vào hơi khác nhau?"* Đó *chính là* tinh thần mô phỏng ngẫu nhiên — nhưng phải sinh đầu vào theo *đúng phân phối* của nguồn bất định, rồi tổng hợp thành phân phối kết cục, chứ không chọn vài giá trị tùy tiện.
+- *"Sao không cứ chạy mô hình tất định nhiều lần với đầu vào hơi khác nhau?"* Đó *chính là* tinh thần mô phỏng ngẫu nhiên. Chỉ khác hai điểm: đầu vào phải sinh theo *đúng phân phối* của nguồn bất định, và kết quả phải tổng hợp thành *phân phối* kết cục — không phải chọn vài giá trị tùy tiện rồi xem vài đáp số.
 
 🔁 **Thực hành**
 
 1. Một xưởng dự báo "tháng sau bán đúng 1000 sản phẩm" rồi đặt nguyên liệu cho đúng 1000. Vì sao đây là tư duy tất định nguy hiểm? Mô hình ngẫu nhiên giúp gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hỏi "nếu dự báo lệch thì chuyện gì xảy ra ở mỗi phía?" — rồi xem phân phối cho thêm thông tin gì.
 
 Nhu cầu thực dao động (có tháng 850, có tháng 1180). Đặt đúng 1000: nếu nhu cầu 1180 → thiếu hàng, mất doanh thu; nếu 850 → tồn kho. Mô hình ngẫu nhiên mô tả nhu cầu bằng *phân phối* (vd trung bình 1000, độ lệch chuẩn 120) → tính được "đặt 1150 thì xác suất thiếu hàng chỉ ~10%", giúp chọn mức tồn kho an toàn theo rủi ro chấp nhận được.
 
@@ -296,6 +298,8 @@ Quan sát: mỗi lần $N$ tăng $\\times 100$, sai lệch giảm khoảng $\\ti
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tỉ lệ điểm trong cung xấp xỉ diện tích cung/hình vuông $= \\pi/4$ — nhân ngược lại 4.
+
 $\\pi \\approx 4 \\cdot (1561/2000) = 4 \\cdot 0.7805 = $ **3.122**. (Gần 3.14; sai lệch do $N$ hữu hạn — tăng $N$ để sát hơn.)
 
 </details>
@@ -346,6 +350,8 @@ Mỗi lần $N \\times 100$, sai lệch $\\div 10$ — lại đúng $1/\\sqrt{N}
 1. Dùng 4 điểm $x = 0.2, 0.5, 0.7, 0.9$ ước lượng $\\int_0^1 x^2\\,dx$ (coi như mẫu). Kết quả?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Monte Carlo tích phân = trung bình các giá trị $f$ tại mẫu, nhân độ dài khoảng.
 
 $f$-values: $0.04, 0.25, 0.49, 0.81$. Tổng $=1.59$, trung bình $=0.3975$, $\\times(b-a)=1 \\to$ ước lượng $\\approx$ **0.398**. (So 0.333 — lệch khá vì $N=4$ nhỏ và 3/4 điểm nằm ở nửa phải nơi $x^2$ lớn.)
 
@@ -478,6 +484,8 @@ Kết thúc ở $S_{10} = +2$. (Lý thuyết: $E[S_{10}]=0$, độ lệch chuẩ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: độ tản điển hình của random walk là $\\sqrt{n}$ bước.
+
 $\\sqrt{400}=20$ đơn vị. Sau 1600 bước: $\\sqrt{1600}=40$ → **gấp 2 lần** (dù số bước gấp 4) — vì độ tản theo $\\sqrt{n}$, gấp 4 số bước chỉ gấp 2 độ tản.
 
 </details>
@@ -526,7 +534,11 @@ $\\sqrt{400}=20$ đơn vị. Sau 1600 bước: $\\sqrt{1600}=40$ → **gấp 2 l
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: phân phối dừng thỏa $\\pi = \\pi P$ cộng điều kiện tổng bằng 1 — hai phương trình, hai ẩn.
+
 $P(T \\to R) = 0.1$, $P(R \\to R) = 0.5$. $\\pi_T = 0.9\\pi_T + 0.5\\pi_R$, $\\pi_T + \\pi_R = 1 \\to \\pi_T = 0.9\\pi_T + 0.5(1-\\pi_T) = 0.4\\pi_T + 0.5 \\to 0.6\\pi_T = 0.5 \\to$ **$\\pi_T = 5/6 \\approx 0.833$**, $\\pi_R = 1/6$. Dài hạn ~83% khách ở trạng thái trung thành.
+
+**Kiểm chứng**: thay lại — $0.9\\cdot\\tfrac{5}{6} + 0.5\\cdot\\tfrac{1}{6} = 0.75 + 0.0833 = 0.8333 = \\pi_T$ ✓ — phân phối đứng yên thật.
 
 </details>
 

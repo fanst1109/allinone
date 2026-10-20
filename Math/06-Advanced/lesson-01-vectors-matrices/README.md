@@ -174,6 +174,8 @@ $$\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tích vô hướng = cộng tích từng cặp tọa độ; bằng 0 là vuông góc.
+
 1. $\vec{a}\cdot\vec{b} = 2\cdot 1 + (-1)\cdot 2 = 2 - 2 = \mathbf{0}$ → **có**, vuông góc.
 2. $\lVert(3,4)\rVert = \sqrt{9+16} = \sqrt{25} = \mathbf{5}$.
 
@@ -379,6 +381,8 @@ Cùng tập số nhưng sắp khác. Lý do trực giác: $B$ ở đây là "ho�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhân ma trận–vector: mỗi hàng chấm với vector.
+
 1. $A\vec{x} = (2\cdot 1+0\cdot 1, 0\cdot 1+3\cdot 1) = \mathbf{(2, 3)}$ (giãn x gấp 2, y gấp 3).
 2. $AB$ là $\mathbf{3 \times 4}$ (lấy số hàng của A và số cột của B). $BA$: B là $2 \times 4$, A là $3 \times 2$ → $4 \neq 3$ → **không tồn tại**.
 
@@ -445,6 +449,8 @@ Ma trận $k\cdot I = \begin{bmatrix} k & 0 \\ 0 & k \end{bmatrix}$ biến $(x, 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thử ma trận quay lên hai vector cơ sở $(1,0)$ và $(0,1)$ — kết quả là hai CỘT của ma trận.
+
 1. $R\cdot(1,0) = (0\cdot 1+(-1)\cdot 0, 1\cdot 1+0\cdot 0) = \mathbf{(0, 1)}$ — đúng là $(1,0)$ quay 90° ngược chiều kim đồng hồ.
 2. **Vị tự** (phóng to đều) hệ số 3: mọi vector dài gấp 3, giữ nguyên hướng.
 
@@ -488,6 +494,8 @@ Ma trận $k\cdot I = \begin{bmatrix} k & 0 \\ 0 & k \end{bmatrix}$ biến $(x, 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chuyển vị tráo hàng thành cột.
+
 1. $\begin{bmatrix} 2 & 0 \\ 5 & 7 \end{bmatrix}$ (tráo hàng$\leftrightarrow$cột).
 2. $\begin{bmatrix} a & b \\ b & c \end{bmatrix}$ — phần tử ngoài đường chéo bằng nhau ($A^T = A$).
 
@@ -529,6 +537,8 @@ Ma trận $k\cdot I = \begin{bmatrix} k & 0 \\ 0 & k \end{bmatrix}$ biến $(x, 
 2. Đúng/sai: $A(B+C) = AB + AC$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: chuyển vị của tích đảo toàn bộ thứ tự; phân phối với cộng thì vẫn đúng.
 
 1. $(ABC)^T = C^T\cdot B^T\cdot A^T$ (đảo toàn bộ thứ tự).
 2. **Đúng** — phân phối luôn đúng (kể cả khi không giao hoán), miễn kích thước khớp.
@@ -615,6 +625,8 @@ Kiểm: $(AA^{-1})_{11} = 1\cdot(-2) + 2\cdot 1.5 = -2 + 3 = 1$; $(AA^{-1})_{12}
 2. Hạng của $\begin{bmatrix} 2 & 4 \\ 1 & 2 \end{bmatrix}$ là bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: khả nghịch ⟺ $\det \ne 0$; ma trận đường chéo nghịch đảo từng phần tử.
 
 1. $\det = 6 \neq 0$ → **có**. $A^{-1} = \begin{bmatrix} 1/3 & 0 \\ 0 & 1/2 \end{bmatrix}$.
 2. Hàng 1 = $2\times$ hàng 2 → chỉ 1 hàng độc lập → **hạng = 1** (suy biến, $\det = 2\cdot 2 - 4\cdot 1 = 0$).

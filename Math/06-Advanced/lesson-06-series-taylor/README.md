@@ -74,6 +74,8 @@ $$S_N = \left(1 - \tfrac12\right) + \left(\tfrac12 - \tfrac13\right) + \dots + \
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chuỗi hình học tổng $\tfrac{a}{1-r}$ khi $|r|<1$; chuỗi $p$ hội tụ khi $p > 1$.
+
 1. $a = 1$, $r = 1/4$ → tổng $= \dfrac{1}{1-1/4} = \dfrac{1}{3/4} = \mathbf{\dfrac{4}{3}}$.
 2. $p = 1/2 \le 1$ → **phân kỳ** (chuỗi p chỉ hội tụ khi $p > 1$).
 
@@ -151,6 +153,8 @@ $L = \lim \sqrt[n]{|a_n|}$. $L < 1$: hội tụ; $L > 1$: phân kỳ.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tiêu chí tỉ số: lim tỉ số liên tiếp < 1 là hội tụ.
+
 $\dfrac{a_{n+1}}{a_n} = \dfrac{n!}{(n+1)!} = \dfrac{1}{n+1} \to 0 < 1$ khi $n \to \infty$ → **hội tụ** (thực ra tổng $= e - 1 \approx 1.718$).
 
 </details>
@@ -206,6 +210,8 @@ Hội tụ với **mọi** $x$ (giai thừa luôn thắng). Đây là $e^{2x}$.
 1. Tìm bán kính hội tụ của $\sum x^n/2^n$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: bán kính hội tụ từ nghịch đảo lim tỉ số hệ số.
 
 $a_n = 1/2^n$. $\frac{1}{R} = \lim \left|\frac{a_{n+1}}{a_n}\right| = \lim \frac{2^n}{2^{n+1}} = \frac{1}{2} \to R = \mathbf{2}$ (hội tụ với $|x| < 2$).
 
@@ -469,6 +475,8 @@ $$\frac{1 - \cos x}{x^2} = \frac{1}{2} - \frac{x^2}{24} + \dots \xrightarrow{x\t
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay chuỗi vào giới hạn — các bậc thấp triệt tiêu, còn lại đọc thẳng đáp số.
+
 1. $e^x - 1 - x = \frac{x^2}{2} + \frac{x^3}{6} + \dots$ → chia $x^2$ → $\frac{1}{2} + \frac{x}{6} + \dots \to \mathbf{\frac{1}{2}}$.
 2. $e^{-0.1} \approx 1 + (-0.1) + \frac{(-0.1)^2}{2} = 1 - 0.1 + 0.005 = \mathbf{0.905}$ (thật: $0.90484$ ✓).
 
@@ -496,6 +504,8 @@ $$\frac{1 - \cos x}{x^2} = \frac{1}{2} - \frac{x^2}{24} + \dots \xrightarrow{x\t
 2. $\cos x$ đến bậc 4 là gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: cắt chuỗi ở bậc thấp khi $x$ nhỏ; sai số nhỏ hơn số hạng bỏ đầu tiên (chuỗi đan dấu).
 
 1. $e^x \approx 1 + x + \frac{x^2}{2}$. Tại $0.1$: $1 + 0.1 + 0.005 = \mathbf{1.105}$ (thật: $1.10517$ ✓).
 2. $\cos x \approx 1 - \frac{x^2}{2} + \frac{x^4}{24}$.
@@ -544,6 +554,8 @@ e^{i\theta} &= 1 + i\theta + \frac{(i\theta)^2}{2!} + \frac{(i\theta)^3}{3!} + \
 1. Tính $e^{i\pi/2}$ bằng công thức Euler.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Euler: thay thẳng $\theta = \pi/2$ vào $\cos + i\sin$.
 
 $e^{i\pi/2} = \cos(\pi/2) + i\sin(\pi/2) = 0 + i\cdot 1 = \mathbf{i}$.
 

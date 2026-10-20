@@ -194,6 +194,8 @@ Trường hướng (mỗi gạch = độ dốc tại điểm đó), nghiệm $y 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: kiểm nghiệm = thay vào hai vế; bậc là đạo hàm cao nhất.
+
 1. $y' = 6e^{2x} = 2\cdot(3e^{2x}) = 2y$ ✓ → **có**.
 2. **Bậc 3** (đạo hàm cao nhất là $y'''$).
 
@@ -367,6 +369,8 @@ Verify (cà phê $T_0 = 90°$C, phòng $T_s = 25°$C, $k = 0.1$/phút): $t=0 \to
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tách biến: dồn $y$ một vế, $x$ một vế, tích phân hai vế, dùng điều kiện đầu khóa hằng số.
+
 1. $\frac{dy}{y} = 3\,dx \to \ln|y| = 3x + C \to y = A\cdot e^{3x}$. $y(0) = A = 2 \to \mathbf{y = 2e^{3x}}$.
 2. $T(t) = 25 + 65e^{-0.1t} = 60 \to e^{-0.1t} = 35/65 = 0.538 \to -0.1t = \ln 0.538 = -0.619 \to t = \mathbf{6.19}$ phút.
 3. $g(y) = y(2-y) = 0 \to y \equiv 0$ và $y \equiv 2$ (hai nghiệm cân bằng; đừng quên khi tách biến).
@@ -452,6 +456,8 @@ Verify ($C = 0$): $y = x^2/3$, $y' = 2x/3$; $xy' + y = \frac{2x^2}{3} + \frac{x^
 2. Giải $y' + y = e^{x}$ với $y(0) = 1$ (chú ý: viết $+C$ trước rồi mới chốt).
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: thừa số tích phân $\mu = e^{\int P\,dx}$ cho dạng $y' + Py = Q$.
 
 1. $P = 3 \to \mu = e^{\int 3\,dx} = \mathbf{e^{3x}}$.
 2. $\mu = e^x$; $(e^x y)' = e^x\cdot e^x = e^{2x}$; $e^x y = \frac{e^{2x}}{2} + C$; $y = \frac{e^x}{2} + Ce^{-x}$. $y(0) = \frac12 + C = 1 \to C = \frac12 \to \mathbf{y = \frac{e^x + e^{-x}}{2} = \cosh x}$.
@@ -599,6 +605,8 @@ Dao động tắt dần ($e^{-x}$ bao ngoài, sin/cos lượn trong):
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đoán $y = e^{rx}$ → phương trình đặc trưng bậc 2; dấu $\Delta$ cho 3 kiểu nghiệm.
+
 1. $r^2 - 5r + 6 = 0 \to r = 2, 3$ ($\Delta = 1 > 0$) $\to y = \mathbf{C_1 e^{2x} + C_2 e^{3x}}$.
 2. a) $r^2 + 6r + 9 = (r+3)^2 = 0 \to r = -3$ kép ($\Delta = 0$) $\to y = (C_1 + C_2 x)e^{-3x}$. b) $r^2 + 1 = 0 \to r = \pm i$ ($\Delta < 0$, $\alpha = 0$) $\to y = C_1\cos x + C_2\sin x$ (dao động không tắt).
 3. $r^2 - 2r + 1 = (r-1)^2 = 0 \to r = 1$ kép $\to y = (C_1 + C_2 x)e^x$. $y(0) = C_1 = 1$; $y' = (C_1 + C_2 + C_2 x)e^x$, $y'(0) = C_1 + C_2 = 3 \to C_2 = 2 \to \mathbf{y = (1 + 2x)e^x}$.
@@ -665,6 +673,8 @@ Họ nghiệm $y = Ce^x$ (mỗi $C$ một đường), điều kiện $y(0)=1$ ch
 1. $y'' + 4y = 0$, $y(0) = 0$, $y'(0) = 6$. Tìm nghiệm.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: viết nghiệm tổng quát rồi dùng HAI điều kiện đầu khóa $C_1, C_2$.
 
 Tổng quát $y = C_1\cos 2x + C_2\sin 2x$. $y(0) = C_1 = 0$. $y' = -2C_1\sin 2x + 2C_2\cos 2x$, $y'(0) = 2C_2 = 6 \to C_2 = 3 \to \mathbf{y = 3\sin 2x}$.
 
@@ -758,6 +768,8 @@ Verify ($q_0 = 5$ mC, $\tau = 1$s): $t = 0 \to q = 5$ mC ✓; $t = 1 \to q = 5e^
 2. Tụ nạp đầy $q_0 = 8$ mC, $\tau = 4$s, bắt đầu xả. Còn bao nhiêu sau $4$s?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: mạch RC nạp theo $q = q_{\max}(1 - e^{-t/\tau})$ — tại $t = \tau$ đạt ~63%.
 
 1. $q_{\max} = CV = 10$ mC. $q(2) = 10\cdot(1 - e^{-2/2}) = 10\cdot(1 - e^{-1}) = 10\cdot 0.632 = \mathbf{6.32}$ mC.
 2. Xả: $q(t) = 8e^{-t/4}$. $q(4) = 8e^{-1} = 8\cdot 0.368 = \mathbf{2.94}$ mC ($\sim 37\%$).

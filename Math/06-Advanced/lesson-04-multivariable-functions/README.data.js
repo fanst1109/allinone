@@ -133,6 +133,8 @@ $f(x, y) = c$ (hằng số) → đường cong trong mặt phẳng xy.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay tọa độ vào hàm; đường mức là phương trình $f = c$ — nhận dạng đường cong.
+
 1. $f(3,1) = 9 - 1 = \\mathbf{8}$.
 2. $x + y = 4$ → một **đường thẳng** (dốc −1, cắt trục y tại 4).
 
@@ -213,6 +215,8 @@ $\\frac{\\partial f}{\\partial x}$ tại $(a, b)$ = slope của giao cắt với
 2. Đánh giá $\\frac{\\partial f}{\\partial x}$ tại $(1, 2)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đạo hàm riêng theo biến nào thì coi biến kia là hằng số.
 
 1. $\\frac{\\partial f}{\\partial x} = 6xy$ (coi y hằng); $\\frac{\\partial f}{\\partial y} = 3x^2 + 3y^2$ (coi x hằng).
 2. $\\frac{\\partial f}{\\partial x}\\big|_{(1,2)} = 6\\cdot 1\\cdot 2 = \\mathbf{12}$.
@@ -322,6 +326,8 @@ $= \\mathbf{-\\nabla f}$. Đây là nền tảng của **Gradient Descent** tron
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: gradient gom hai đạo hàm riêng thành vector; độ lớn bằng Pythagoras.
+
 1. $\\nabla f = (2x, 6y) \\to$ tại $(1,1)$: $(2, 6)$. $\\lVert\\nabla f\\rVert = \\sqrt{4+36} = \\sqrt{40} \\approx \\mathbf{6.32}$.
 2. $\\mathbf{-\\nabla f = (-2, -6)}$ (ngược hướng gradient).
 
@@ -370,6 +376,8 @@ $$H = \\begin{bmatrix} \\dfrac{\\partial^2 f}{\\partial x^2} & \\dfrac{\\partial
 1. $f = x^2y$. Tính ma trận Hessian.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Hessian là ma trận các đạo hàm riêng cấp 2 — nhớ hai góc chéo phụ bằng nhau (Schwarz).
 
 $\\frac{\\partial f}{\\partial x} = 2xy \\to \\frac{\\partial^2 f}{\\partial x^2} = 2y$, $\\frac{\\partial^2 f}{\\partial x\\partial y} = 2x$. $\\frac{\\partial f}{\\partial y} = x^2 \\to \\frac{\\partial^2 f}{\\partial y^2} = 0$, $\\frac{\\partial^2 f}{\\partial y\\partial x} = 2x$. $H = \\begin{bmatrix} 2y & 2x \\\\ 2x & 0 \\end{bmatrix}$ (đối xứng ✓).
 
@@ -521,6 +529,8 @@ Vì sao $\\det > 0$ thôi chưa đủ phân biệt min/max? Vì cả "cùng dư�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: điểm dừng từ $\\nabla f = 0$; phân loại bằng dấu định thức Hessian.
+
 1. $\\frac{\\partial f}{\\partial x} = 2x = 0$, $\\frac{\\partial f}{\\partial y} = 2y = 0 \\to (0,0)$. $H = \\begin{bmatrix} 2 & 0 \\\\ 0 & 2 \\end{bmatrix}$, $\\det = 4 > 0$, $\\frac{\\partial^2 f}{\\partial x^2} = 2 > 0 \\to$ **cực tiểu** tại $(0,0)$, $f = 0$.
 2. $\\det(H) = (-12)(-12) - 4\\cdot4 = 144 - 16 = 128 > 0$ và $f_{xx} = -12 < 0 \\to$ **cực đại** tại $(1,1)$. (Hai eigenvalue cùng âm.)
 
@@ -612,6 +622,8 @@ Hai bài học từ lời giải: **(i)** tích bị thừa số nhỏ kéo xu�
 1. Tối đa $f = xy$ với $x^2 + y^2 = 8$. (Gợi ý: $g = x^2+y^2$, $\\nabla g = (2x, 2y)$.)
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hệ Lagrange $\\nabla f = \\lambda\\nabla g$ + ràng buộc; khử $\\lambda$ bằng chia hai phương trình.
 
 $\\nabla f = (y,x) = \\lambda(2x, 2y)$ → $y = 2\\lambda x$ và $x = 2\\lambda y$. Nhân chéo / chia: $\\frac{y}{x} = \\frac{x}{y} \\to x^2 = y^2 \\to y = \\pm x$. Với $y = x$ và $x^2+y^2 = 8$: $2x^2 = 8 \\to x = 2, y = 2$ (hoặc $x=y=-2$), $f = 4$. Đó là **cực đại** ($y = -x$ cho $f = -4$, cực tiểu). Vậy max $f = \\mathbf{4}$ tại $(2,2)$ và $(-2,-2)$.
 

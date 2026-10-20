@@ -87,6 +87,8 @@ $|\det(A)|$ = **tỉ lệ phóng đại diện tích** khi $A$ biến đổi m�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: định thức 2×2: chéo chính trừ chéo phụ.
+
 1. $5\cdot 1 - 2\cdot 3 = 5 - 6 = \mathbf{-1}$.
 2. Ma trận **không khả nghịch**; biến đổi "bẹp" không gian xuống chiều thấp hơn (diện tích/thể tích → 0); 2 cột phụ thuộc tuyến tính.
 
@@ -188,6 +190,8 @@ $$\det = (aei + bfg + cdh) - (ceg + afh + bdi)$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: ma trận tam giác/đường chéo: định thức = tích đường chéo.
+
 1. Với ma trận đường chéo, $\det$ = tích đường chéo $= 2\cdot 3\cdot 4 = \mathbf{24}$.
 2. **0** — khai triển theo hàng 0 đó cho mọi hạng tử = 0 (hình học: khối bị bẹp).
 
@@ -231,6 +235,8 @@ $$\det = (aei + bfg + cdh) - (ceg + afh + bdi)$$
 2. $A$ là $3\times 3$, $\det A = 4$. Tính $\det(2A)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: luật nhân định thức: $\det(AB) = \det A\det B$; nghịch đảo cho nghịch đảo định thức.
 
 1. $\det(A^2) = \det A \cdot \det A = 25$. $\det(A^{-1}) = 1/\det A = \mathbf{1/5}$ (vì $\det A\cdot\det A^{-1} = \det I = 1$).
 2. $\det(2A) = 2^3\cdot 4 = \mathbf{32}$.
@@ -333,6 +339,8 @@ $A = \begin{bmatrix} 1 & 1 & 1 \\ 2 & -1 & 1 \\ 1 & 2 & -1 \end{bmatrix}$, $\vec
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Cramer: thay từng cột bằng vế phải rồi chia định thức.
+
 $A = \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}$, $\det = -2$. $A_1 = \begin{bmatrix} 3 & 1 \\ 1 & -1 \end{bmatrix}$, $\det = -3-1 = -4 \to x = -4/-2 = \mathbf{2}$. $A_2 = \begin{bmatrix} 1 & 3 \\ 1 & 1 \end{bmatrix}$, $\det = 1-3 = -2 \to y = -2/-2 = \mathbf{1}$. Kiểm: $2+1=3$ ✓, $2-1=1$ ✓.
 
 </details>
@@ -423,6 +431,8 @@ $$\left[\begin{array}{ccc|c} 1 & 2 & -1 & 2 \\ 0 & -3 & 3 & 1 \\ 0 & 0 & 4 & 6 \
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Gauss: khử biến bằng phép trừ hàng, rồi thế ngược.
+
 Hàng 2 − 2·hàng 1: $(2x+y) - 2(x+y) = 5 - 8 \to -y = -3 \to y = 3$. Thế lại: $x = 4 - 3 = \mathbf{1}$. Nghiệm $(1, 3)$. Kiểm: $2\cdot 1+3 = 5$ ✓.
 
 </details>
@@ -461,6 +471,8 @@ Hàng 2 − 2·hàng 1: $(2x+y) - 2(x+y) = 5 - 8 \to -y = -3 \to y = 3$. Thế l
 1. Hệ $2x+2y=4$, $x+y=2$ có bao nhiêu nghiệm?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: $\det = 0$ → kiểm tra hai hàng có tỉ lệ nhau không: tương thích là vô số nghiệm.
 
 $\det = 2\cdot 1 - 2\cdot 1 = 0$. Hàng 1 = 2·hàng 2, tương thích ($4 = 2\cdot 2$) → **vô số nghiệm** (cả đường $x+y=2$).
 
@@ -558,6 +570,8 @@ Phần trái = $I$ → $A^{-1} = \begin{bmatrix} -1 & 0 & 2 \\ -1 & 1 & 1 \\ 1 &
 2. $\det A = 0$ thì $A^{-1}$ có tồn tại không? Vì sao?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: công thức 2×2: đảo chéo chính, đổi dấu chéo phụ, chia $\det$.
 
 1. $\det A = 4\cdot 6 - 7\cdot 2 = 24 - 14 = 10$. $A^{-1} = \frac{1}{10}\begin{bmatrix} 6 & -7 \\ -2 & 4 \end{bmatrix} = \begin{bmatrix} 0.6 & -0.7 \\ -0.2 & 0.4 \end{bmatrix}$. Kiểm hàng 1·cột 1: $4\cdot 0.6 + 7\cdot(-0.2) = 2.4 - 1.4 = 1$ ✓.
 2. **Không tồn tại**. Vì $A^{-1} = \frac{1}{\det A}\cdot\text{adj}(A)$ — chia cho $\det A = 0$ là vô nghĩa. Hình học: $A$ "bẹp" không gian xuống chiều thấp hơn → thông tin mất, không undo được.

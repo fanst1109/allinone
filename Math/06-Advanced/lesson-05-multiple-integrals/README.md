@@ -90,6 +90,8 @@ Mỗi lần tăng 1 chiều: miền tăng 1 chiều, và khi $f=1$ thì kết qu
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tích phân hằng số 1 trên miền = diện tích miền.
+
 = diện tích hình chữ nhật $= 2\cdot 3 = \mathbf{6}$. ($\int_0^2\int_0^3 1\,dy\,dx = \int_0^2 3\,dx = 6$.)
 
 </details>
@@ -196,6 +198,8 @@ Chạy đủ 2 bước (trong → ngoài) trên miền chữ nhật, để thấ
 1. Tính $\int_0^1 \int_0^1 (x + y)\,dy\,dx$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tính từ trong ra ngoài — tích phân trong theo $y$ coi $x$ là hằng.
 
 Trong: $\int_0^1 (x+y)\,dy = \left[xy + \frac{y^2}{2}\right]_0^1 = x + \frac{1}{2}$. Ngoài: $\int_0^1 \left(x + \frac{1}{2}\right)\,dx = \left[\frac{x^2}{2} + \frac{x}{2}\right]_0^1 = \frac{1}{2} + \frac{1}{2} = \mathbf{1}$.
 
@@ -375,6 +379,8 @@ Mỗi ví dụ: **(i)** vẽ/mô tả miền, **(ii)** quét cột tìm cận bi
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: miền cong: cận trong phụ thuộc biến ngoài — vẽ nháp miền trước.
+
 $0 \le x \le 2$, $\mathbf{0 \le y \le x^2}$. $\iint_D f\,dA = \int_0^2 \int_0^{x^2} f\,dy\,dx$ (cận trên của $y$ là hàm $x^2$).
 
 </details>
@@ -508,6 +514,8 @@ $$\int_0^y e^{y^2}\,dx = e^{y^2}\left[x\right]_0^y = y\,e^{y^2}.$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đổi thứ tự = tả lại CÙNG miền theo chiều kia — vẽ tam giác ra là thấy.
+
 Miền: $0 \le x \le 2$, $0 \le y \le x$ — tam giác dưới $y=x$, đỉnh $(2,2)$. Đọc lại theo $y$: $0 \le y \le 2$, và $x$ chạy từ $x=y$ tới $x=2$. Vậy $\displaystyle\int_0^2\int_y^2 f\,dx\,dy$. Verify $f=1$: cũ $\int_0^2 x\,dx = 2$; mới $\int_0^2 (2-y)\,dy = [2y - \frac{y^2}{2}]_0^2 = 4-2 = 2$ ✓.
 
 </details>
@@ -583,6 +591,8 @@ $$I^2 = \int_0^{2\pi}\int_0^{\infty} e^{-r^2}\cdot r\,dr\,d\theta.$$
 1. Tính diện tích đĩa bán kính 2 bằng tọa độ cực.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tọa độ cực nhớ nhân Jacobian $r$: $dA = r\,dr\,d\theta$.
 
 $\int_0^{2\pi}\int_0^2 r\,dr\,d\theta = \int_0^{2\pi} \left[\frac{r^2}{2}\right]_0^2 d\theta = \int_0^{2\pi} 2\,d\theta = 4\pi$. Khớp $\pi R^2 = \pi\cdot 4 = \mathbf{4\pi}$ ✓.
 
@@ -665,6 +675,8 @@ $$V = \int_0^h\int_0^{2\pi}\int_0^a r\,dr\,d\theta\,dz.$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tọa độ cầu có Jacobian $\rho^2\sin\varphi$ — quên là sai hệ số.
+
 $dV = \mathbf{\rho^2\sin\varphi\,d\rho\,d\varphi\,d\theta}$. ($\rho^2$ vì khối cách tâm xa thì lớn hơn; $\sin\varphi$ điều chỉnh theo góc cực.)
 
 </details>
@@ -722,6 +734,8 @@ Khối lượng đĩa $M = \rho\cdot\pi R^2$, nên $I_z = \frac{\pi\rho R^4}{2} 
 1. Khối tâm của hình vuông [0,2]×[0,2] mật độ đều nằm ở đâu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đối xứng + mật độ đều thì khối tâm nằm ở tâm hình học — khỏi tích phân.
 
 Mật độ đều → khối tâm = tâm hình học = $\mathbf{(1, 1)}$ (trung điểm theo cả 2 trục).
 

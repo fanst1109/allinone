@@ -74,6 +74,8 @@ $$P(A \\mid B) = \\frac{P(B \\mid A)\\cdot P(A)}{P(B)}$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đếm kết cục thuận trên không gian mẫu 36; công thức cộng nhớ trừ phần giao.
+
 1. Có 6 cách ra tổng 7 trên 36 → $6/36 = \\mathbf{1/6}$.
 2. Độc lập → $P(A\\cap B) = 0.3\\cdot 0.4 = \\mathbf{0.12}$.
 
@@ -192,6 +194,8 @@ Không bước nào "lươn lẹo" — mỗi dòng chỉ dùng $E[aX+b] = aE[X]+
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: kỳ vọng = tổng giá trị × xác suất; phương sai $= E[X^2] - (E[X])^2$.
+
 1. $E[X] = 0\\cdot 0.5 + 10\\cdot 0.5 = \\mathbf{5}$. $E[X^2] = 0\\cdot 0.5 + 100\\cdot 0.5 = 50$. $\\operatorname{Var} = 50 - 25 = \\mathbf{25}$, $\\sigma = 5$.
 2. $E[X] = (1+2+3+4)/4 = \\mathbf{2.5}$; $E[X^2] = (1+4+9+16)/4 = 30/4 = 7.5$; $\\operatorname{Var} = 7.5 - 2.5^2 = 7.5 - 6.25 = \\mathbf{1.25}$. (Verify công thức xúc xắc đều $n$ mặt: $\\operatorname{Var} = (n^2-1)/12 = (16-1)/12 = 15/12 = 1.25$ ✓.)
 3. $E[Y] = 3\\cdot 5 + 5 = \\mathbf{20}$; $\\operatorname{Var}(Y) = 3^2\\cdot 25 = \\mathbf{225}$ (dịch $+5$ KHÔNG đổi độ tản, scale $\\times 3$ → phương sai $\\times 9$).
@@ -243,6 +247,8 @@ np(1-p) &= 3\\cdot 0.5\\cdot 0.5 = 0.75 \\ \\checkmark
 1. Tung 4 đồng xu công bằng. $P(\\text{đúng 2 mặt ngửa})$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhị thức: $\\binom{n}{k}p^k(1-p)^{n-k}$.
 
 $\\binom{4}{2}\\cdot(0.5)^4 = 6\\cdot(1/16) = 6/16 = \\mathbf{3/8} = 0.375$.
 
@@ -381,6 +387,8 @@ Tra bảng chuẩn tắc (hàm phân phối tích lũy $\\Phi$): $\\Phi(1.5) \\a
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: quy khoảng về số sigma quanh $\\mu$ rồi tra quy tắc 68–95–99.7.
+
 1. $40 = \\mu-\\sigma$, $60 = \\mu+\\sigma$ → **68%**.
 2. $30 = \\mu-2\\sigma$. $P(X < \\mu-2\\sigma) = (1-0.95)/2 = \\mathbf{2.5\\%}$.
 3. $z = (182-170)/6 = 12/6 = \\mathbf{2}$. $P(X > \\mu+2\\sigma) = (1-0.95)/2 = \\mathbf{2.5\\%}$ → thuộc nhóm $2.5\\%$ cao nhất.
@@ -434,6 +442,8 @@ Khớp Binomial tới 3 chữ số — đó là lý do Poisson gọi là "luật
 1. $\\lambda = 3$ lỗi/trang. $P(1\\text{ trang có 0 lỗi})$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Poisson: $P(X=k) = e^{-\\lambda}\\lambda^k/k!$ — thay $k=0$.
 
 $P(X=0) = e^{-3}\\cdot 3^0/0! = e^{-3} \\approx \\mathbf{0.0498}$ ($\\sim 5\\%$).
 
@@ -520,6 +530,8 @@ So sánh: cùng $\\bar{x} = 5$ nhưng $s = 3.16 > 2.65$ → mẫu này "trải r
 1. Mẫu: 1, 3, 5, 7. Tính trung bình và trung vị.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: trung vị của số chẵn phần tử = trung bình hai phần tử giữa.
 
 Trung bình $= (1+3+5+7)/4 = \\mathbf{4}$. Trung vị = trung bình 2 giá trị giữa (3 và 5) $= \\mathbf{4}$. (Dữ liệu đối xứng → trùng nhau.)
 

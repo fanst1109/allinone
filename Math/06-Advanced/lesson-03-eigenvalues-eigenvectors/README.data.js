@@ -128,6 +128,8 @@ Vector riêng $(1,1)$: sau khi qua $A$ vẫn nằm trên **cùng tia** đi qua g
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: kiểm eigenvector: nhân thử — kết quả có là bội của vector gốc không?
+
 1. $A\\cdot(1,0) = (5,0) = 5\\cdot(1,0) \\to$ **có**, $\\lambda = 5$.
 2. $A\\cdot(3\\vec{v}) = 3\\cdot(A\\vec{v}) = 3\\cdot(2\\vec{v}) = 2\\cdot(3\\vec{v}) \\to$ **có**, vẫn $\\lambda = 2$ (bội của eigenvector vẫn là eigenvector cùng trị riêng).
 
@@ -239,6 +241,8 @@ $$\\det(A - \\lambda I) = (7-\\lambda)(3-\\lambda)(-1-\\lambda) = 0 \\to \\lambd
 2. $(A - \\lambda I)$ tại $\\lambda = 3$ cho $A = \\begin{bmatrix} 3 & 1 \\\\ 0 & 2 \\end{bmatrix}$ là ma trận nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phương trình đặc trưng: $\\det(A - \\lambda I) = 0$.
 
 1. $\\det\\begin{vmatrix} 1-\\lambda & 2 \\\\ 2 & 1-\\lambda \\end{vmatrix} = (1-\\lambda)^2 - 4 = 0 \\to \\lambda = -1, 3$.
 2. $A - 3I = \\begin{bmatrix} 0 & 1 \\\\ 0 & -1 \\end{bmatrix}$ (trừ 3 ở đường chéo: $3-3=0$, $2-3=-1$).
@@ -358,6 +362,8 @@ Cùng một biến đổi $A$ trông rối (off-diagonal $\\neq 0$) ở hệ tr�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: lũy thừa ma trận thì trị riêng lũy thừa theo.
+
 1. Trị riêng của $A^3 = \\lambda^3 = 2^3 = \\mathbf{8}$ và $4^3 = \\mathbf{64}$ (cùng eigenvector). Vì $A^3\\vec{v} = \\lambda^3\\vec{v}$.
 2. $D^n = \\text{diag}(0.5^n, 2^n) \\to \\text{diag}(0, \\infty)$: thành phần $0.5^n \\to 0$ tắt dần, $2^n \\to \\infty$ bùng nổ. Hướng $\\vec{v}$ ứng với $\\lambda = 2$ thống trị — đây chính là ý tưởng power iteration và tính ổn định ở mục 6.
 
@@ -410,6 +416,8 @@ Giả sử sau khi center dữ liệu, ma trận hiệp phương sai (covariance
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tỉ lệ phương sai giữ được = trị riêng giữ / tổng trị riêng (tư duy PCA).
+
 Tổng = 8 + 1.5 + 0.5 = 10. Giữ trị riêng lớn nhất (8) → 8/10 = **80%** phương sai.
 
 </details>
@@ -446,6 +454,8 @@ Tổng = 8 + 1.5 + 0.5 = 10. Giữ trị riêng lớn nhất (8) → 8/10 = **80
 1. $A$ là $2\\times 2$, trace $= 7$, $\\det = 12$. Tìm 2 trị riêng.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: dùng cặp trace = tổng trị riêng, det = tích trị riêng — thành bài tổng–tích.
 
 $\\lambda_1+\\lambda_2 = 7$, $\\lambda_1\\cdot\\lambda_2 = 12 \\to$ nghiệm của $x^2 - 7x + 12 = 0 \\to x = 3, 4$. Trị riêng **3 và 4**.
 
@@ -517,6 +527,8 @@ Với $\\theta = 90°$: $\\lambda = \\pm i$ (như Bài 5). Với $\\theta = 60°
 2. $A$ có trị riêng $0.9$ và $-0.5$. Hệ $\\vec{x}_{k+1} = A\\vec{x}_k$ ổn định không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phân phối dừng là eigenvector của $\\lambda = 1$: giải $M\\pi = \\pi$.
 
 1. $M = \\begin{bmatrix} 0 & 1 \\\\ 1 & 0 \\end{bmatrix}$. Giải $M\\vec{\\pi} = \\vec{\\pi}$ với tổng = 1: $\\pi_B = \\pi_A$ và $\\pi_A = \\pi_B \\to \\pi_A = \\pi_B = 0.5$. $\\vec{\\pi} = (0.5, 0.5)$.
 2. $|\\lambda_{\\max}| = \\max(0.9, \\ 0.5) = 0.9 < 1 \\to$ **ổn định**, mọi quỹ đạo tắt về $\\vec{0}$.

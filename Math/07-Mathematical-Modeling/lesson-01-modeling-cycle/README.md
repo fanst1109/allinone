@@ -103,11 +103,16 @@ Sáu bước:
 
 1. Một bạn lập mô hình dự báo doanh thu, giải ra phương trình, in đồ thị đẹp rồi nộp. Bạn ấy bỏ qua bước nào quan trọng?
 2. Trong 6 bước, bước nào quyết định mô hình "đơn giản" hay "phức tạp"?
+3. Dân số Trái Đất hiện ~8 tỉ. Mô hình mũ $N(t) = 8\cdot e^{0.01t}$ (tỉ người, $t$ tính bằng năm). Tính $N(1000)$ và chỉ ra bước nào của chu trình bắt được cái sai.
 
 <details><summary>Đáp án</summary>
 
 1. Bỏ qua **bước 5 (kiểm chứng)** và có thể cả **bước 6 (tinh chỉnh)** — chưa so với dữ liệu thật nên không biết mô hình có dùng được không.
 2. **Bước 2 (giả định)** — bỏ qua càng nhiều yếu tố thì mô hình càng đơn giản (nhưng có thể kém chính xác).
+3. **Hướng dẫn**: thay $t = 1000$ vào công thức, rồi hỏi "con số này có hợp lý không?".
+   - $N(1000) = 8\cdot e^{0.01\cdot 1000} = 8\cdot e^{10} \approx 8\cdot 22\,026 \approx 176\,000$ tỉ người.
+   - Trái Đất không chứa nổi 176 nghìn tỉ người — mô hình gãy khi ngoại suy xa.
+   - **Bước 5 (kiểm chứng)** bắt được cái sai này bằng sniff test "con số có vô lý không"; bước 6 sửa bằng cách đổi sang mô hình logistic.
 
 </details>
 
@@ -138,10 +143,15 @@ Các loại giả định thường gặp:
 🔁 **Thực hành**
 
 1. Bạn mô hình hóa thời gian rơi của một tờ giấy phẳng từ độ cao 2m. Giả định "bỏ qua sức cản không khí" có hợp lý không?
+2. Dùng mô hình rơi tự do $t = \sqrt{2h/g}$ để tính thời gian rơi từ 2 m. Tờ giấy thật rơi khoảng 2–3 giây — mô hình lệch bao nhiêu lần?
 
 <details><summary>Đáp án</summary>
 
-**Không hợp lý.** Với tờ giấy, sức cản không khí *là yếu tố chính* (diện tích lớn, khối lượng nhỏ) — bỏ qua nó cho ra thời gian rơi sai hẳn (giấy rơi chậm hơn nhiều so với hòn đá cùng độ cao). Đây đúng là lúc giả định "bỏ sức cản" gãy. Với hòn đá thì giả định đó lại tốt.
+1. **Không hợp lý.** Với tờ giấy, sức cản không khí *là yếu tố chính* (diện tích lớn, khối lượng nhỏ) — bỏ qua nó cho ra thời gian rơi sai hẳn. Với hòn đá thì giả định đó lại tốt.
+2. **Hướng dẫn**: thay $h = 2$ m, $g = 9.8$ m/s² vào công thức rồi so với thực tế.
+   - $t = \sqrt{2\cdot 2 / 9.8} = \sqrt{0.408} \approx 0.64$ giây.
+   - Giấy thật rơi 2–3 giây → mô hình lệch **3–5 lần**, không phải lệch vài phần trăm.
+   - Sai cỡ đó là sai *về chất* — đúng loại giả định 🔴 ở bảng 3.1: cái bị bỏ (sức cản) chính là cơ chế chi phối.
 
 </details>
 
@@ -255,6 +265,8 @@ Vậy $T = C \cdot \ell^{1/2} \cdot g^{-1/2} = C\sqrt{\ell/g}$. So với công t
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: viết thứ nguyên của từng đại lượng rồi nhân/chia như phân số; so kết quả với thứ nguyên kỳ vọng.
+
 1. $[p] = [m\cdot v] = M\cdot(L\cdot T^{-1}) =$ **$M\cdot L\cdot T^{-1}$**. (Đây cũng là thứ nguyên của xung lực $F\cdot t = (M\cdot L\cdot T^{-2})\cdot T = M\cdot L\cdot T^{-1}$ ✓ — định lý xung lượng.)
 2. Năng lượng có thứ nguyên **$M\cdot L^2\cdot T^{-2}$** (từ $E = \frac{1}{2}mv^2$). Vế phải ra $M\cdot L\cdot T^{-2}$ (đó là *lực*, không phải năng lượng) → **công thức sai**, lệch một thừa số chiều dài $L$.
 3. **Hợp lệ.** $P/P_0$ là tỉ số hai áp suất → thứ nguyên triệt tiêu → không thứ nguyên → ln nhận được. Đây là lý do công thức vật lý hay viết log của *tỉ số*, không phải log của đại lượng có đơn vị.
@@ -348,11 +360,16 @@ Tìm $t$ khi $T = 60$°C:
 
 1. Trong mô hình lãi kép $A(t) = P(1 + r)^t$, hãy gắn nhãn biến độc lập, biến phụ thuộc, tham số.
 2. Số $e$ trong $e^{-kt}$ là biến, tham số hay hằng số?
+3. Với $P = 100$ triệu, $r = 6\%$/năm: tính $A(2)$. Nếu ngân hàng nâng lãi suất lên $7\%$, cái gì trong mô hình thay đổi?
 
 <details><summary>Đáp án</summary>
 
 1. **Biến độc lập** $t$ (thời gian); **biến phụ thuộc** $A$ (số tiền); **tham số** $P$ (vốn ban đầu) và $r$ (lãi suất) — cố định cho một khoản gửi, đổi giữa các khoản.
 2. **Hằng số** toán học ($e \approx 2.718$), không bao giờ hiệu chỉnh. Khác hẳn $k$ (tham số, hiệu chỉnh từ dữ liệu).
+3. **Hướng dẫn**: thay số vào $A(t) = P(1+r)^t$; câu sau trả lời bằng "vai" của $r$.
+   - $A(2) = 100\cdot(1.06)^2 = 100\cdot 1.1236 = \mathbf{112.36}$ **triệu**.
+   - Kiểm chứng: lãi đơn 2 năm chỉ cho $100 + 2\cdot 6 = 112$ triệu; lãi kép nhỉnh hơn 0.36 triệu — đúng phần "lãi đẻ lãi" ✓.
+   - Nâng lãi suất = đổi **tham số** $r$: công thức giữ nguyên, chỉ chạy lại mô hình với $r = 0.07$.
 
 </details>
 
@@ -415,6 +432,8 @@ Một mô hình mang **một nhãn trên mỗi trục** (vd "tất định, liê
 2. Mô hình tìm *giá thuê nhà cân bằng* ở một khu (không quan tâm nó tới đó ra sao) — tĩnh hay động?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đi lần lượt ba trục, mỗi trục hỏi một câu — "có may rủi không?", "giá trị nhảy bước hay chạy mượt?", "có theo dõi theo thời gian không?".
 
 1. **Ngẫu nhiên** (người đến lúc nào là may rủi — quá trình hàng đợi/Poisson), **rời rạc** (số người là số nguyên), **động** (thay đổi theo thời gian). → công cụ: lý thuyết hàng đợi / xích Markov.
 2. **Tĩnh** — chỉ tìm trạng thái cân bằng $p^*$ (cung = cầu), không theo dõi đường đi tới đó. Nếu hỏi "giá điều chỉnh dần ra sao theo tuần" thì mới là động.
@@ -511,6 +530,8 @@ Trước cả khi tính MAE, chạy các kiểm tra rẻ tiền bắt lỗi thô
 3. Mô hình dự báo dân số cho ra $N(50) = -120$ người. Đây là loại lỗi gì, bắt bằng kiểm tra nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: câu 1–2 quay về định nghĩa ba loại sai số ở mục 8.1; câu 3 chạy sniff test miền giá trị (mục 8.4).
 
 1. Vì tham số đã được *chỉnh để khớp đúng những điểm đó*; đo lại trên chính chúng là chấm điểm "đề mình tự ra". Mô hình overfit khớp cả nhiễu → sai số giả tạo nhỏ, không phản ánh dự báo thật.
 2. **Sai số tham số**: thêm/sửa dữ liệu *giúp* (hiệu chỉnh chính xác hơn). **Sai số mô hình**: thêm dữ liệu *không giúp* — phải đổi cấu trúc mô hình (thêm sức cản, đổi sang logistic...).

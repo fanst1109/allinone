@@ -109,7 +109,7 @@ Khi vẽ trường slope (slope field), tại mỗi $x$ mọi đường trong h�
 
 Mỗi dòng là một câu hỏi ngược: "đạo hàm hàm nào ra được vế trái?". Tìm được hàm đó $\to$ thêm $+C$ $\to$ xong.
 
-🔁 **Dừng lại tự kiểm tra — "đoán ngược"**. Với mỗi $f$, đoán $F$ rồi đạo hàm lại để kiểm:
+🔁 **Thực hành — "đoán ngược"**. Với mỗi $f$, đoán $F$ rồi đạo hàm lại để kiểm:
 
 1. $f(x) = 4x^3$ → $F = \,?$
 2. $f(x) = e^x + \cos x$ → $F = \,?$
@@ -139,7 +139,7 @@ Mỗi dòng là một câu hỏi ngược: "đạo hàm hàm nào ra được v�
 
 ⚠ **Lỗi thường gặp — quên `+C`**. Viết $\int 2x\,dx = x^2$ là **thiếu**. Mọi nguyên hàm bất định phải có `+C`. Đây là lỗi #1 của người mới học tích phân.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int 3x^2\,dx = \,?$ (nhớ `+C`). Kiểm bằng đạo hàm.
 2. $F(x) = x^2 + 5$ và $G(x) = x^2 - 3$ đều là nguyên hàm của hàm nào?
@@ -221,7 +221,7 @@ Cả hai miền cùng ra $\frac{1}{x}$ → $\ln\lvert x\rvert$ mới là nguyên
 - *"Vì sao $\int x^n\,dx$ loại trừ $n = -1$?"* Vì công thức $\frac{x^{n+1}}{n+1}$ chia cho $n+1 = 0$ khi $n = -1$ → vô nghĩa. Trường hợp $n = -1$ (tức $\int \frac{1}{x}$) có nguyên hàm riêng là $\ln|x| + C$ — một ngoại lệ đặc biệt.
 - *"$\int \sin x = -\cos x$ sao lại có dấu trừ?"* Vì $(\cos x)' = -\sin x$, nên để đạo hàm ra $+\sin x$ cần $-\cos x$. Đây là chỗ rất hay sai dấu — kiểm bằng đạo hàm ngược là chắc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int \cos x\,dx = \,?$ $\int \sin x\,dx = \,?$ (chú ý dấu)
 2. $\int x^3\,dx = \,?$
@@ -284,7 +284,7 @@ $$\begin{aligned}
 | **Hàm hợp** | $f(g)' = f'(g)g'$ (chain rule) | **không** tự động → đổi biến nếu may mắn có $g'$ |
 | Thuật toán | cơ học, luôn ra | không tổng quát, phải nhận dạng |
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int (4x^3 - 6x + 2)\,dx = \,?$
 2. $\int x^2\cdot\cos x\,dx$ — tách thành $\int x^2 \cdot \int \cos x$ được không?
@@ -348,7 +348,7 @@ $$\int f(g(x))\cdot g'(x)\,dx = \int f(u)\,du \qquad (\text{đặt } u = g(x),\ 
 
 ⚠ **Lỗi thường gặp — quên đổi $dx$ hoặc để sót $x$**. $\int 2x\cdot\cos(x^2)\,dx$: nếu chỉ thay $\cos(x^2) \to \cos u$ mà giữ $2x\,dx$ thì sai. Phải dùng $du = 2x\,dx$ để **nuốt trọn** $2x\,dx$, kết quả $\int \cos u\,du$. Nếu sau khi đặt còn $x$ lẻ loi → chọn $u$ chưa đúng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int 3x^2\cdot(x^3+1)^5\,dx$ — đặt $u = \,?$
 2. Kiểm $\int e^{3x}\,dx = \frac{1}{3}e^{3x} + C$ bằng đạo hàm.
@@ -416,7 +416,7 @@ $$\int u\,dv = u\cdot v - \int v\,du$$
 
 ⚠ **Lỗi thường gặp — chọn $u, dv$ ngược làm bài khó hơn**. $\int x\cdot e^x\,dx$: nếu chọn $u = e^x$, $dv = x\,dx$ thì $\int v\,du = \int \frac{x^2}{2}e^x\,dx$ — **phức tạp hơn** ban đầu. Đúng phải chọn $u = x$ (theo LIATE: A trước E) để $du = dx$ làm tích phân teo lại.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int x\cdot e^{2x}\,dx = \,?$ (chọn $u = x$, $dv = e^{2x}\,dx$).
 2. Trong $\int \ln x\,dx$, vì sao đặt $dv = dx$?
@@ -477,7 +477,7 @@ $$= -\ln|\cos x| + C$$
 
 ⚠ **Lỗi thường gặp — thiếu hệ số $\frac{1}{a}$**. $\int \frac{1}{x^2+4}\,dx = \frac{1}{2}\arctan\frac{x}{2}$, KHÔNG phải $\arctan\frac{x}{2}$. Hệ số $\frac{1}{a}$ (ở đây $a=2$) rất dễ rơi rớt — verify bằng đạo hàm sẽ phát hiện ngay.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int \frac{1}{x^2+9}\,dx = \,?$
 2. $\int \frac{1}{2x+5}\,dx = \,?$
@@ -559,7 +559,7 @@ Mô hình tăng trưởng: $P'(t) = 2e^{t}$ (tốc độ tăng dân số), biế
 
 ⚠ **Lỗi thường gặp — quên `+C` rồi không giải được $C$**. Nếu ở bước 1 viết $y = x^3 - 2x^2$ (thiếu $C$), thì bước 2 không có gì để giải, và nghiệm sai khi $y(1) \neq$ giá trị cho trước. `+C` ở đây **không** phải trang trí — nó chính là biến cần tìm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm $y$ biết $y' = 6x$ và $y(0) = -4$.
 2. Vật ném lên có $v' = -9.8$, $v(0) = 20$ m/s. Tìm $v(t)$ và thời điểm $v = 0$ (đỉnh).

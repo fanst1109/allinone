@@ -203,7 +203,7 @@ So với thật $\frac13 \approx 0.3333$: cận phải cho $0.46875$ — cao hơ
 
 ⚠ **Lỗi thường gặp — quên nhân $\Delta x$**. Tổng Riemann là $\sum f(x_i) \cdot \Delta x$, KHÔNG phải $\sum f(x_i)$. Thiếu $\Delta x$ (= bề rộng hình chữ nhật) thì kết quả không phải diện tích. Vd quên $1/n$ ở trên sẽ ra $\infty$ thay vì $\frac{1}{3}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với $\int_0^1 x^2\,dx$, công thức $S_n = (1+1/n)(2+1/n)/6$. Tính $S_n$ khi $n = 2$.
 2. Khi $n \to \infty$, mỗi hình chữ nhật rộng $\Delta x$ tiến về đâu?
@@ -307,7 +307,7 @@ Mỗi ví dụ: (1) tìm nguyên hàm $F$ — kiểm bằng cách đạo hàm ng
 
 - **Dùng $\frac{x^{n+1}}{n+1}$ cho $n = -1$**: mẫu $n+1 = 0$ vô nghĩa — nguyên hàm của $\frac{1}{x}$ là $\ln|x|$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int_0^2 3x^2\,dx = ?$ (dùng FTC2).
 2. $\int_1^3 (1/x)\,dx = ?$
@@ -410,7 +410,7 @@ Nếu muốn **diện tích thật**: $\int_0^{2\pi} |\sin x|\,dx = 4$.
 
 ⚠ **Lỗi thường gặp — lẫn tích phân với diện tích thật**. Để tính **diện tích** giữa đường và trục khi hàm đổi dấu, phải lấy $\int|f|$ (chia đoạn theo dấu), KHÔNG phải $\int f$. Vd diện tích của $\sin x$ trên $[0, 2\pi]$ là $4$, không phải $0$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int_{-1}^1 x\,dx = ?$ Giải thích.
 2. Tách $\int_0^4 f\,dx$ qua điểm $c = 2$ như thế nào?
@@ -472,7 +472,7 @@ $$\int_a^b f(g(x)) \cdot g'(x)\,dx = \int_{g(a)}^{g(b)} f(u)\,du$$
 
 ⚠ **Lỗi thường gặp — đổi biến nhưng giữ nguyên cận $x$**. $\int_0^1 2x \cdot e^{x^2}\,dx$: sau khi đặt $u = x^2$, nếu vẫn viết $\int_0^1 e^u\,du$ với cận $x$ cũ thì... ở đây trùng hợp $0 \to 0, 1 \to 1$ nên đúng; nhưng $\int_1^2 2x \cdot e^{x^2}\,dx$ thì $u$ chạy $1 \to 4$, giữ cận $1 \to 2$ sẽ sai. Luôn đổi cận theo $u = g(x)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int_0^2 2x \cdot e^{x^2}\,dx$ — cận $u$ mới là gì? Tính kết quả.
 2. Vì sao đổi cận tiện hơn thay $u$ về $x$?
@@ -514,7 +514,7 @@ $$\int_a^b u\,dv = \left[u \cdot v\right]_a^b - \int_a^b v\,du$$
 
 ⚠ **Lỗi thường gặp — quên đánh giá phần $\left[uv\right]$ tại cận**. Viết $\int_0^\pi x \sin x\,dx = -\int_0^\pi \cos x\,dx$ (bỏ luôn $\left[-x \cos x\right]_0^\pi$) là thiếu hẳn một phần. Cả $\left[uv\right]_a^b$ lẫn $\int v\,du$ đều phải đánh giá tại cận.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\int_0^1 x \cdot e^x\,dx = ?$
 2. Tính $\left[x \cdot \sin x\right]_0^{\pi/2}$.

@@ -32,7 +32,7 @@
 
 ⚠ **Lỗi thường gặp**: nghĩ "mọi phép biến hình đều giữ kích thước". Sai — **vị tự** ($k\neq\pm 1$) phóng to/thu nhỏ, không giữ khoảng cách. Phản ví dụ: vị tự $k=3$ biến đoạn dài 2 thành đoạn dài 6 ($A'B' = 3\cdot AB$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phép nào trong số: tịnh tiến, quay, vị tự (k=2) — KHÔNG phải phép dời hình?
 2. Phép dời hình có giữ diện tích hình không?
@@ -151,7 +151,7 @@ Kiểm tra bằng vector tổng: $u + w = (3-1,\ -2+5) = (2, 3)$, nên $T_w \cir
 
 ⚠ **Lỗi thường gặp**: trừ thay vì cộng vector. $T_v$ biến $(x,y) \to (x+a, y+b)$, **cộng** từng thành phần. Phản ví dụ: $v=(3,-2)$, $M(1,5) \to (1+3, 5+(-2)) = (4,3)$, không phải $(1-3, 5+2) = (-2,7)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tịnh tiến v = (−4, 6) biến M(5, 1) thành điểm nào?
 2. Tịnh tiến nào biến gốc O(0,0) về điểm (7, −3)?
@@ -283,7 +283,7 @@ Về đúng điểm gốc. Bằng ma trận: $\begin{bmatrix} 1 & 0 \\ 0 & -1 \e
 
 ⚠ **Lỗi thường gặp**: lẫn đối xứng qua Ox với qua Oy. Qua **Ox** (trục ngang) giữ x, đổi dấu **y**; qua **Oy** (trục dọc) giữ y, đổi dấu **x**. Phản ví dụ: $M(3,5)$ qua Ox $= (3,-5)$, KHÔNG phải $(-3,5)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. M(−2, 7). Tìm ảnh qua Oy và qua tâm O.
 2. M(4, 1) đối xứng qua y = x thành điểm nào?
@@ -432,7 +432,7 @@ $$\begin{aligned}
 - *"Quay 90° rồi 90° nữa có bằng quay 180°?"* Có — ghép 2 phép quay = cộng góc ($R(\alpha)\cdot R(\beta) = R(\alpha+\beta)$). Đây là sức mạnh của biểu diễn ma trận.
 - *"Quay có giữ kích thước không?"* Có — quay là phép dời hình, mọi điểm giữ nguyên khoảng cách tới tâm quay ($|3+4i| = 5$ trước và sau khi quay).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Quay điểm (0, 1) góc 90° quanh O thành điểm nào?
 2. Quay điểm (2, 0) góc 180° quanh O thành điểm nào?
@@ -545,7 +545,7 @@ $\begin{bmatrix} k & 0 \\ 0 & k \end{bmatrix}\begin{bmatrix} x \\ y \end{bmatrix
 
 ⚠ **Lỗi thường gặp**: cho rằng diện tích nhân k (thay vì $k^2$) hoặc quên đổi cả bán kính khi vị tự đường tròn. Phản ví dụ: vị tự $k=2$ đường tròn $R=3 \to R'=6$ ($\times k$), nhưng diện tích $\times k^2 = 4$. Lỗi: tâm I của đường tròn cũng phải vị tự ($I \to k\cdot I$ khi tâm vị tự là O).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vị tự tâm O, k=3 biến điểm (2, −1) thành điểm nào?
 2. Vị tự k=2 biến đường tròn bán kính 4 thành đường tròn bán kính bao nhiêu? Diện tích tăng mấy lần?
@@ -617,7 +617,7 @@ Chứng minh:
 
 ⚠ **Lỗi thường gặp**: lẫn vector chỉ phương ($\parallel$ đường) với vector pháp tuyến ($\perp$ đường). Nếu d: $Ax+By+C=0$ thì $n = (A, B)$ là **pháp tuyến**, còn chỉ phương là $(-B, A)$ (hoặc $(B,-A)$). Phản ví dụ: đường $2x+3y-1=0$ có pháp $(2,3)$, chỉ phương $(-3,2)$ — không phải $(2,3)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho A(2,1), B(5,5). Tính $\vec{AB}$ và $|\vec{AB}|$.
 2. $u = (3, 1)$, $v = (-1, 4)$. Tính u + v và 2u.
@@ -703,7 +703,7 @@ $$= \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = R(90°)$$ ✓
 - *"Có phải mọi tổ hợp biến đổi đều ra 1 ma trận 2×2 không?"* Đúng với quay/đối xứng/vị tự quanh O. Riêng **tịnh tiến** cần ma trận affine 3×3 (Mục 2) vì không biểu diễn được bằng 2×2 — khi ghép có tịnh tiến, dùng 3×3 cho đồng nhất.
 - *"Ghép vị tự $k$ với quay $\alpha$ ra gì?"* Ra phép "quay-co giãn" (spiral similarity), ma trận $k\cdot R(\alpha) = \begin{bmatrix} k\cos\alpha & -k\sin\alpha \\ k\sin\alpha & k\cos\alpha \end{bmatrix}$ — vừa xoay vừa phóng to, đồng dạng tỉ số $k$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đối xứng qua Oy có ma trận $\begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix}$. Tính ma trận "đối xứng Oy rồi đối xứng Ox" (tích $S_{Ox} \cdot S_{Oy}$). Nó là phép gì?
 2. $R(90°) \cdot R(90°) = ?$ Phép gì?

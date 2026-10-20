@@ -82,7 +82,7 @@ Thêm hai ví dụ ngoài bài (để thấy độ phổ quát): **đua vũ tran
 - *"Vì sao không giải lần lượt từng biến cho gọn?"* Vì $\\frac{dx}{dt}$ cần biết $y$ *tại cùng thời điểm*, mà $y$ lại đang thay đổi theo $\\frac{dy}{dt}$ vốn cần biết $x$. Hai biến tiến hóa **đồng thời, khóa nhau** — đóng băng một biến để giải biến kia sẽ cho kết quả sai.
 - *"Mặt phẳng pha khác đồ thị $x(t)$ thế nào?"* Đồ thị $x(t)$ và $y(t)$ là **hai đường riêng** theo trục thời gian (thấy "khi nào đỉnh"). Mặt phẳng pha gộp lại thành **một** đường trong không gian $(x,y)$ (thấy "hình dạng tương tác": vòng kín? xoáy? thẳng?). Hai cách nhìn bổ trợ nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hệ $\\frac{dx}{dt} = -x$, $\\frac{dy}{dt} = -2y$ có phải "hệ tương tác" thực sự không?
 
@@ -291,7 +291,7 @@ $a_{12}$ = mức loài $y$ lấn vào "phần ăn" của loài $x$. **Kết cụ
 - **Bỏ số hạng $xy$**: viết $\\frac{dx}{dt} = \\alpha x$, $\\frac{dy}{dt} = -\\gamma y$ → hai phương trình **rời nhau**, mồi bùng nổ mũ còn thú tắt mũ, **mất hoàn toàn** sự đuổi nhau. Số hạng $xy$ chính *là* tương tác — bỏ nó là bỏ cả mô hình.
 - **Nhầm dấu**: mồi *bị ăn* nên phải là $-\\beta xy$ (giảm $x$); thú *được lợi* nên phải là $+\\delta xy$ (tăng $y$). Đảo dấu (cho mồi $+\\beta xy$, thú $-\\delta xy$) là mô tả "mồi sinh ra nhờ gặp thú" — vô nghĩa sinh học, và mô hình sẽ cho hành vi sai (cả hai cùng bùng nổ). **Mẹo nhớ**: ai bị hại thì dấu $-$, ai hưởng lợi thì dấu $+$ ở số hạng $xy$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với $\\alpha=1$, $\\beta=0.1$, $\\delta=0.075$, $\\gamma=1.5$, nếu hệ đang ở đúng $(x^*, y^*) = (20, 10)$ thì điều gì xảy ra theo thời gian?
 
@@ -493,7 +493,7 @@ $1/\\sigma$ = thời gian ủ trung bình. SEIR cho **đỉnh muộn hơn, tho�
 
 - **Viết số hạng lây là $\\beta S$ thay vì $\\beta SI/N$**: lây phải tỉ lệ cả $S$ lẫn $I$ (số hạng tích như Lotka–Volterra). Kiểm: $I=0$ thì không được có ca mới — $\\beta SI/N = 0$ ✓ còn $\\beta S \\neq 0$ ✗. Chia $N$ để $\\beta$ không phụ thuộc quy mô.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một bệnh có $\\beta = 0.2$, $\\gamma = 0.1$. Tính $R_0$ và cho biết dịch có bùng không. Ngưỡng miễn dịch cộng đồng?
 
@@ -570,7 +570,7 @@ Với số bài ($\\alpha=1$, $\\gamma=1.5$): $\\lambda = \\pm i\\sqrt{1.5} \\ap
 - *"Vì sao phải tuyến tính hóa, không xét thẳng hệ phi tuyến?"* Vì hệ phi tuyến nói chung **không giải đóng** được. Nhưng *gần* điểm cân bằng, lệch nhỏ tiến hóa gần như tuyến tính ($J$) — và hệ tuyến tính thì trị riêng giải xong hành vi. Đây là kỹ thuật chủ lực của lý thuyết hệ động lực.
 - *"Trị riêng thuần ảo thì kết luận có chắc không?"* **Không hoàn toàn** — đây là ca biên: tuyến tính hóa nói "tâm/vòng kín", nhưng số hạng phi tuyến *có thể* biến nó thành xoáy vào/ra. Lotka–Volterra may mắn có đại lượng bảo toàn nên đúng là vòng kín; nói chung ca thuần ảo cần phân tích sâu hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một điểm cân bằng có Jacobian với trị riêng $\\lambda_1 = -2$, $\\lambda_2 = -0.5$. Ổn định hay không? Kiểu gì?
 

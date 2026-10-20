@@ -64,7 +64,7 @@ Quan sát hàng $a = 5, b = 9$ (số bị chia **nhỏ hơn** số chia): $q = 0
 
 ⚠ **Lỗi thường gặp**: lẫn "**$b \\mid a$**" (b chia hết a) với "**$a / b$**" (a chia b). Ký hiệu $6 \\mid 18$ đọc là "6 là ước của 18" — số nhỏ đứng trước. Viết ngược $18 \\mid 6$ là SAI (6 không phải bội của 18). Phản ví dụ: $3 \\mid 12$ đúng, $12 \\mid 3$ sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm q, r của $38 \\div 5$.
 2. $4 \\mid 0$ đúng hay sai?
@@ -133,7 +133,7 @@ Vậy $9 \\mid N \\iff 9 \\mid \\sum_i d_i$. Quy tắc chia 3 chứng minh y h�
 
 ⚠ **Lỗi thường gặp**: nhầm dấu hiệu chia 4 thành "chữ số cuối chia hết 4". SAI. Phản ví dụ: $N = 12$ có chữ cuối $2$ ($4 \\nmid 2$) nhưng $4 \\mid 12$; ngược lại $N = 14$ chữ cuối $4$ ($4 \\mid 4$) nhưng $4 \\nmid 14$. Phải xét **hai** chữ số cuối ($\\overline{d_1 d_0}$) vì $100 \\equiv 0 \\pmod 4$ chứ $10 \\not\\equiv 0$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Biết $7 \\mid 21$ và $7 \\mid 49$, suy ra $7$ chia hết số nào: $21+49$? $49-21$? $21 \\cdot 5$?
 2. Đúng hay sai: $4 \\mid 12 \\to 4 \\mid 3$?
@@ -252,7 +252,7 @@ $r = 0$ tại bước 3, số chia cuối khác 0 là $6$ → $\\gcd(48, 18) = \
 
 Số bước Euclid $\\le 5 \\cdot \\log_{10}(\\min(a,b))$. Cực nhanh — $O(\\log n)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Chạy Euclid tính $\\gcd(48, 18)$ từng bước.
 2. $\\gcd(17, 0) = ?$
@@ -352,7 +352,7 @@ Lùi: $1 = 5 - 2\\cdot 2 = 5 - 2\\cdot(17 - 3\\cdot 5) = 7\\cdot 5 - 2\\cdot 17$
 
 ⚠ **Lỗi thường gặp**: tưởng $ax + by = c$ luôn giải được với mọi $c$. Chỉ giải được khi $\\gcd(a,b) \\mid c$. Phản ví dụ: $4x + 6y = 5$ vô nghiệm (vế trái luôn chẵn, 5 lẻ); $\\gcd(4,6)=2 \\nmid 5$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $15x + 25y = 10$ có nghiệm nguyên không?
 2. $15x + 25y = 7$ có nghiệm nguyên không?
@@ -412,7 +412,7 @@ $$24 = 2^3 \\cdot 3^1, \\qquad 90 = 2^1 \\cdot 3^2 \\cdot 5^1.$$
 
 ⚠ **Lỗi thường gặp**: tưởng $\\operatorname{lcm}(a, b) = a \\cdot b$ luôn luôn. SAI khi $a, b$ có ước chung. Phản ví dụ: $\\operatorname{lcm}(4, 6) = 12$, KHÔNG phải $24$. Chỉ bằng tích khi coprime.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\operatorname{lcm}(9, 12) = ?$ (gợi ý: tính gcd trước).
 2. Hai đèn nhấp nháy mỗi 10s và 15s, cùng sáng tại $t=0$. Lần kế tiếp cùng sáng?
@@ -454,7 +454,7 @@ $a, b$ coprime $\\iff \\exists\\, x, y: ax + by = 1$.
 
 ⚠ **Lỗi thường gặp**: tưởng "nguyên tố cùng nhau" = "cả hai phải là số nguyên tố". SAI. Phản ví dụ: $4$ và $9$ coprime ($\\gcd = 1$) nhưng cả hai là hợp số; ngược lại $2$ và $2$ đều nguyên tố nhưng $\\gcd = 2 \\neq 1$ → KHÔNG coprime.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $14$ và $25$ có coprime không?
 2. $21$ và $35$ có coprime không?

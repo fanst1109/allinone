@@ -155,7 +155,7 @@ Hai cột tô đậm trùng nhau $(F, F, F, T)$ → tương đương ✓. (Phầ
 
 - **Nhầm $\to$ với $\leftrightarrow$**: "mưa $\to$ ướt đường" đúng nhưng "mưa $\leftrightarrow$ ướt đường" sai (đường ướt do tưới cây). Dòng $p{=}F, q{=}T$: $p\to q = T$ còn $p \leftrightarrow q = F$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng De Morgan, viết lại $\neg(p \land \neg q)$.
 2. Mệnh đề "Nếu 2 > 3 thì mặt trời lạnh" đúng hay sai?
@@ -241,7 +241,7 @@ $\Rightarrow \exists x: (x>0) \land (x^2 \le 0)$. Gốc đúng → phủ định
 
 ⚠ **Lỗi thường gặp — phủ định lượng từ sai (không đổi $\forall \leftrightarrow \exists$)**. Phủ định "mọi sinh viên đều đậu" KHÔNG phải "mọi sinh viên đều rớt", mà là "**tồn tại** 1 sinh viên rớt". Phản ví dụ minh hoạ: lớp 10 người, 9 đậu 1 rớt → "mọi người đậu" sai, "mọi người rớt" cũng sai, chỉ "tồn tại người rớt" mới đúng là phủ định.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phủ định "Mọi số chẵn đều chia hết cho 4".
 2. Phủ định "Tồn tại học sinh đạt điểm 10".
@@ -415,7 +415,7 @@ $$|A \cup B| = |A| + |B| - |A \cap B|$$
 
 ⚠ **Lỗi thường gặp — lẫn $\in$ (phần tử) và $\subset$ (tập con)**. Phản ví dụ: với $A = \{1,2,3\}$, viết $1 \subset A$ là SAI (1 không phải tập), phải $1 \in A$ hoặc $\{1\} \subset A$. Phần tử dùng $\in$, tập con dùng $\subset$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $A = \{1,2,3,4\}$, $B = \{3,4,5\}$. Tính $A \cap B$, $A \cup B$, $A \setminus B$.
 2. $\emptyset$ có bao nhiêu tập con?
@@ -463,7 +463,7 @@ $$|A \cup B| = |A| + |B| - |A \cap B|$$
 
 ⚠ **Lỗi thường gặp**: tưởng "$\le$" đối xứng. Sai — $2 \le 5$ đúng nhưng $5 \le 2$ sai. "$\le$" là **thứ tự bộ phận** (phản xạ + bắc cầu + phản đối xứng), không phải quan hệ tương đương.
 
-🔁 **Dừng lại tự kiểm tra**: quan hệ "$a$ và $b$ cùng dấu" trên $\mathbb{R}\setminus\{0\}$ có là quan hệ tương đương không?
+🔁 **Thực hành**: quan hệ "$a$ và $b$ cùng dấu" trên $\mathbb{R}\setminus\{0\}$ có là quan hệ tương đương không?
 
 <details><summary>Đáp án</summary>
 
@@ -630,7 +630,7 @@ Kết luận: đơn ánh nhưng không toàn ánh (vì miền đích $\mathbb{Z}
 
 ⚠ **Lỗi thường gặp — kết luận song ánh chỉ nhìn công thức, bỏ qua tập nguồn/đích**. Phản ví dụ: $f(x) = x^2$ "có vẻ" 1-1 nhưng trên $\mathbb{R}$ thì KHÔNG đơn ánh ($f(3)=f(-3)=9$) và KHÔNG toàn ánh ($f(x)=-4$ vô nghiệm). Phải xét rõ A và B mới kết luận được.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f: \mathbb{R} \to \mathbb{R}, f(x) = x + 5$. Song ánh không? Hàm ngược?
 2. $f: \mathbb{N} \to \mathbb{N}, f(n) = n + 1$. Đơn ánh? Toàn ánh?
@@ -765,7 +765,7 @@ Mọi phân số đều "đến lượt" sau hữu hạn bước → đánh số
 - *"Số chẵn ít hơn $\mathbb{N}$, sao lại cùng lực lượng?"* Vì có song ánh $n \mapsto 2n$ ghép 1-1 hết. Với vô hạn, "tập con thực sự cùng lực lượng với toàn thể" là chuyện bình thường (nghịch lý khách sạn Hilbert).
 - *"Đường chéo Cantor 'tạo ra' số mới ở đâu?"* Nó dựng một số khác **từng số** trong danh sách giả định ở đúng vị trí chéo → không thể nằm trong danh sách → danh sách không thể đầy đủ.
 
-🔁 **Dừng lại tự kiểm tra**: tập các số tự nhiên lẻ $\{1,3,5,\dots\}$ đếm được không? Cho song ánh với $\mathbb{N}$.
+🔁 **Thực hành**: tập các số tự nhiên lẻ $\{1,3,5,\dots\}$ đếm được không? Cho song ánh với $\mathbb{N}$.
 
 <details><summary>Đáp án</summary>
 

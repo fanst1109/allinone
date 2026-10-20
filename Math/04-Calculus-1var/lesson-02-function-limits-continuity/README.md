@@ -109,7 +109,7 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 
 ⚠ **Lỗi thường gặp — tưởng $\lim_{x \to a} f(x) = f(a)$ luôn đúng**. Sai cho hàm gián đoạn. Phản ví dụ: $f(x) = \frac{x^2-1}{x-1}$ có $f(1)$ không xác định nhưng $\lim = 2$; hay $f(x) = \lfloor x \rfloor$ có $f(2) = 2$ nhưng $\lim_{x \to 2^-} = 1$. Thay trực tiếp chỉ hợp lệ khi đã biết hàm liên tục tại đó.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\lim_{x \to 1} \frac{x^3 - 1}{x - 1} = ?$
 2. Giá trị $f(2)$ có ảnh hưởng tới $\lim_{x \to 2} f(x)$ không?
@@ -197,7 +197,7 @@ Hai mép `o` ở hai độ cao khác nhau → không có giá trị duy nhất �
 
 ⚠ **Lỗi thường gặp — kết luận có giới hạn khi mới xét 1 bên**. Tính $\lim_{x \to 0^+} \frac{1}{x} = +\infty$ rồi vội nói "$\lim = +\infty$" là sai: $\lim_{x \to 0^-} \frac{1}{x} = -\infty$. Hai bên lệch → giới hạn hai bên KHÔNG tồn tại. Luôn kiểm tra cả hai phía ở điểm nghi ngờ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^2$ với $x < 1$, $f(x) = x + 3$ với $x \ge 1$. $\lim_{x \to 1} f(x)$ có tồn tại không?
 2. $\lim_{x \to 0^-} \frac{|x|}{x} = ?$
@@ -248,7 +248,7 @@ Verify 3 trường hợp:
 
 ⚠ **Lỗi thường gặp — nhầm tiệm cận đứng với ngang**. $\frac{1}{x}$: tại $x \to 0$ ra $\pm\infty$ (tiệm cận **đứng** $x = 0$); tại $x \to \infty$ ra $0$ (tiệm cận **ngang** $y = 0$). Hai câu hỏi hoàn toàn khác nhau, đừng trộn lẫn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\lim_{x \to \infty} \frac{2x^3 + x}{5x^3 - 1} = ?$
 2. $\lim_{x \to 0} \frac{1}{x^2} = ?$ (cẩn thận hai bên)
@@ -373,7 +373,7 @@ Verify số: $x = 0.001 \to \frac{e^{0.001}-1}{0.001} = \frac{0.0010005}{0.001} 
 
 ⚠ **Lỗi thường gặp — kết luận $\frac{0}{0} = 1$ hoặc $\frac{0}{0} = 0$**. Phản ví dụ ngay: $\lim_{x \to 0} \frac{2x}{x} = 2$ (không phải 1 hay 0), $\lim_{x \to 0} \frac{x^2}{x} = 0$, $\lim_{x \to 0} \frac{x}{x^2} = \infty$. Ba kết quả khác nhau cho cùng dạng $\frac{0}{0} \to$ bắt buộc biến đổi.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\lim_{x \to 3} \frac{x^2-9}{x-3} = ?$
 2. $\lim_{x \to 0} \frac{\sqrt{4+x} - 2}{x} = ?$
@@ -437,7 +437,7 @@ Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2)
 
 ⚠ **Lỗi thường gặp — chỉ kiểm $f(a)$ xác định rồi kết luận liên tục**. $f(x) = \lfloor x \rfloor$ có $f(2) = 2$ (xác định) nhưng vẫn gián đoạn tại 2 vì $\lim$ không tồn tại. Phải kiểm đủ **cả ba** điều kiện, không chỉ điều kiện (1).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = \frac{x-2}{x-2}$ với $x \neq 2$, không định nghĩa tại 2. Liên tục tại 2 không?
 2. $f(x) = x^2$ nếu $x \le 1$, $f(x) = 2x$ nếu $x > 1$. Liên tục tại 1?
@@ -520,7 +520,7 @@ Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2)
 
 ⚠ **Lỗi thường gặp — gọi mọi gián đoạn là 'bỏ được'**. Chỉ gián đoạn bỏ được mới cần $\lim$ hai bên tồn tại và bằng nhau. $\frac{1}{x}$ tại 0 là gián đoạn **vô hạn** — không bỏ được; gọi nhầm là bỏ được rồi "lấp" sẽ sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = \frac{\sin(x)}{x}$ (không định nghĩa tại 0). Loại gián đoạn nào?
 2. $f(x) = \lfloor x \rfloor$ tại $x = 3$. Loại nào?
@@ -559,7 +559,7 @@ Các hàm sau **liên tục trên toàn miền xác định**:
 
 ⚠ **Lỗi thường gặp — quên loại trừ điểm mẫu bằng 0 / ngoài miền**. Nói "$\ln x$ liên tục trên $\mathbb{R}$" là sai — $\ln x$ chỉ xác định và liên tục trên $(0, \infty)$. Luôn kèm miền xác định khi phát biểu tính liên tục.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = \frac{x^2}{x-2}$ gián đoạn tại đâu?
 2. $f(x) = \sqrt{x} + \cos x$ liên tục trên miền nào?
@@ -647,7 +647,7 @@ Trực giác IVT — đường liền nét đi từ $f(a)$ tới $f(b)$ **buộc
 
 ⚠ **Lỗi thường gặp — dùng Bolzano khi $f(a) \cdot f(b) > 0$**. Cùng dấu KHÔNG kết luận được gì: $f(x) = x^2-1$ trên $[-2, 2]$ có $f(-2) = f(2) = 3 > 0$ nhưng vẫn có **hai** nghiệm $\pm 1$ ở giữa. Bolzano chỉ cho chiều "đổi dấu $\implies$ có nghiệm", không cho chiều ngược.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. PT $\cos x = x$ có nghiệm trong $(0, 1)$ không? (Đặt $f(x) = \cos x - x$.)
 2. $f(x) = \frac{1}{x}$ trên $[-1, 1]$ đi từ $-1$ lên $1$, có nhận giá trị $0$ không? IVT áp dụng được không?

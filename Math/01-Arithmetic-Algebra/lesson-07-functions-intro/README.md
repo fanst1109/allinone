@@ -304,7 +304,7 @@ Cho $f(x) = \sqrt{x}$ (domain $x \geq 0$), $g(x) = x - 1$. Tính $(f\circ g)(x)$
 - *"$(f\circ g)$ và $(g\circ f)$ có bao giờ bằng nhau không?"* Có, trường hợp đặc biệt — ví dụ khi $g = f^{-1}$ thì cả hai bằng $x$. Nhưng nói chung khác nhau.
 - *"Hàm có nhất thiết phải có công thức không?"* Không — chỉ cần quy tắc "input → 1 output". Có thể mô tả bằng bảng, đồ thị, hay lời (xem mục 1.1c).
 
-🔁 **Dừng lại tự kiểm tra**: cho $f(x) = 2x$, $g(x) = x+3$. Tính $(f\circ g)(1)$ và $(g\circ f)(1)$.
+🔁 **Thực hành**: cho $f(x) = 2x$, $g(x) = x+3$. Tính $(f\circ g)(1)$ và $(g\circ f)(1)$.
 
 <details><summary>Đáp án</summary>
 
@@ -312,7 +312,7 @@ $(f\circ g)(1) = f(4) = 8$; $(g\circ f)(1) = g(2) = 5$. Khác nhau → $f\circ g
 
 </details>
 
-🔁 **Dừng lại tự kiểm tra (domain/range)**: (1) tìm domain của $f(x) = \sqrt{x^2 - 9}$; (2) tìm range của $h(x) = 3 - x^2$.
+🔁 **Thực hành (domain/range)**: (1) tìm domain của $f(x) = \sqrt{x^2 - 9}$; (2) tìm range của $h(x) = 3 - x^2$.
 
 <details><summary>Đáp án</summary>
 
@@ -409,7 +409,7 @@ Một đường cong trên mặt phẳng là đồ thị của 1 hàm số $\iff
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Vì sao 'đường thẳng đứng' lại là phép thử?"* Vì đường thẳng đứng $x = c$ gom tất cả các điểm có **cùng** $x = c$. Nếu nó cắt đồ thị ở 2 điểm → có 2 giá trị y cho cùng 1 x → vi phạm tính "duy nhất" → không phải hàm.
 
-🔁 **Dừng lại tự kiểm tra**: parabol nằm ngang $x = y^2$ có phải đồ thị hàm $y = f(x)$ không?
+🔁 **Thực hành**: parabol nằm ngang $x = y^2$ có phải đồ thị hàm $y = f(x)$ không?
 
 <details><summary>Đáp án</summary>
 
@@ -586,7 +586,7 @@ Cặp điểm tương ứng (đối xứng qua $y = x$, nối bằng nét đứt
 
 Lật tờ giấy theo đường chéo $y = x$, đồ thị $f$ trùng đồ thị $f^{-1}$. Tương tự: $e^x$ và $\ln x$ đối xứng qua $y = x$; $x^3$ và $\sqrt[3]{x}$ cũng vậy.
 
-🔁 **Dừng lại tự kiểm tra**: $f(x) = 2x + 1$ có song ánh không? Hàm ngược?
+🔁 **Thực hành**: $f(x) = 2x + 1$ có song ánh không? Hàm ngược?
 
 <details><summary>Đáp án</summary>
 
@@ -631,7 +631,7 @@ Dùng 100 kWh: $x>50$ → $75000 + 2500\cdot 50 = 200000$ đồng.
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Hàm từng khúc có còn là 'một hàm' không?"* Có — vẫn mỗi x cho đúng 1 y, chỉ là quy tắc tính đổi theo vùng. Test đường thẳng đứng vẫn qua.
 
-🔁 **Dừng lại tự kiểm tra**: $f(x)=x^2$ chẵn hay lẻ? Còn $f(x)=x^3-x$?
+🔁 **Thực hành**: $f(x)=x^2$ chẵn hay lẻ? Còn $f(x)=x^3-x$?
 
 <details><summary>Đáp án</summary>
 

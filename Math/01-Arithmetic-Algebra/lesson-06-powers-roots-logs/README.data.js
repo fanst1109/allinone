@@ -166,7 +166,7 @@ $$2^3 = 8,\\quad 2^{3.1}\\approx 8.574,\\quad 2^{3.14}\\approx 8.815,\\quad 2^{3
 
 Dãy hội tụ về một số cụ thể; mọi quy luật lũy thừa vẫn giữ. Đó là vẻ đẹp: lũy thừa "mở rộng liên tục" từ số nguyên ra **mọi số thực**.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $5^{-2}$ và $(-2)^4$.
 2. Rút gọn $x^7\\cdot x^{-3}$.
@@ -238,7 +238,7 @@ Thêm 3 ví dụ: $\\sqrt{48} = \\sqrt{16\\cdot 3} = 4\\sqrt{3}$; $\\sqrt{50} = 
 - *"Căn bậc chẵn của số âm có không?"* Trong $\\mathbb{R}$ thì **không** (vd $\\sqrt{-4}$ không có nghiệm thực, vì không số thực nào bình phương ra âm). Phải lên số phức (Tier 03) mới có. Nhưng căn bậc **lẻ** của số âm thì có: $\\sqrt[3]{-8} = -2$ vì $(-2)^3 = -8$.
 - *"$a^{p/q}$ nên lấy căn trước hay nâng mũ trước?"* Kết quả như nhau, nhưng **lấy căn trước thường dễ tính hơn**: $27^{2/3} = (\\sqrt[3]{27})^2 = 3^2 = 9$ gọn hơn $\\sqrt[3]{27^2} = \\sqrt[3]{729} = 9$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\sqrt{(-5)^2} = ?$
 2. $\\sqrt{16 + 9} = ?$ (cẩn thận!)
@@ -446,7 +446,7 @@ Hữu ích vì máy tính/thư viện chỉ có nút $\\ln$ và $\\log_{10}$; mu
 - $\\log(2 \\times 50) = \\log(2) + \\log(50) \\approx 0.301 + 1.699 = 2$ ✓.
 - $\\log_3(1/9) = -2$ (vì $3^{-2} = 1/9$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\log_2(64) = ?$
 2. Đúng hay sai: $\\log(8) = \\log(5) + \\log(3)$?

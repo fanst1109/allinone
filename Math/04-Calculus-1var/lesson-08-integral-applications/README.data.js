@@ -115,7 +115,7 @@ Nếu cố cắt dải dọc ($dx$) thì phải tách $x = y^2$ thành hai nhán
 
 - **Quên chia đoạn khi hai đường giao $\\ge 3$ lần**: như Ví dụ 3, tính thẳng từ $-1$ tới $1$ ra $0$ (âm dương triệt tiêu) trong khi diện tích thật $\\frac{1}{2}$. Giải $f = g$ tìm **hết** giao điểm trước khi đặt cận.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Diện tích giữa $y = x$ và $y = x^3$ trên $[0, 1]$ (đường nào trên?).
 2. Cận tích phân của diện tích giữa $y = x^2$ và $y = 2x$ là gì? Tính luôn diện tích.
@@ -244,7 +244,7 @@ $$V = \\pi\\int_0^1 \\big[(\\sqrt{x})^2 - (x^2)^2\\big]\\,dx = \\pi\\int_0^1 (x 
 
 ⚠ **Lỗi thường gặp — quên bình phương $f(x)$**. Viết $V = \\pi\\int f(x)\\,dx$ (thiếu bình phương) là sai — đó là công thức diện tích, không phải thể tích. Đĩa cần $\\pi\\cdot f(x)^2$. Vd quay $y=\\sqrt{x}$ trên $[0,4]$: đúng $\\pi\\int_0^4 (\\sqrt{x})^2\\,dx = \\pi\\int x\\,dx = 8\\pi$; nếu quên bình phương ra $\\pi\\int \\sqrt{x}\\,dx = \\frac{16}{3}\\pi$ — sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Quay $y = x$ trên $[0, 3]$ quanh Ox. $V = ?$ (kiểm bằng công thức nón).
 2. Vì sao lát cắt vuông góc Ox lại là hình tròn?
@@ -317,7 +317,7 @@ $$V = 2\\pi\\cdot\\int_a^b x\\cdot f(x)\\,dx$$
 
 ⚠ **Lỗi thường gặp — lẫn công thức đĩa và vỏ trụ**. Đĩa (quanh Ox): $\\pi\\int f^2\\,dx$. Vỏ trụ (quanh Oy): $2\\pi\\int x\\cdot f(x)\\,dx$. Dùng nhầm đĩa cho trục Oy hoặc quên thừa số $2\\pi$ đều ra sai. Xác định **trục quay** trước khi chọn công thức.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Quay $y = x^2$ trên $[0, 2]$ quanh Oy bằng vỏ trụ. $V = ?$
 2. Thừa số $2\\pi x$ trong công thức vỏ trụ biểu thị gì?
@@ -396,7 +396,7 @@ Cộng dồn mọi đoạn → tổng độ dài cung.
 
 ⚠ **Lỗi thường gặp — quên số $1$ dưới căn**. Công thức là $\\sqrt{1 + (f')^2}$, KHÔNG phải $\\sqrt{(f')^2} = |f'|$. Bỏ số 1 sẽ cho kết quả sai (thiếu đóng góp chiều ngang $dx$). Vd $y = 2x$ trên $[0,3]$: đúng $\\int\\sqrt{1+4}\\,dx = 3\\sqrt{5}$; quên số 1 ra $\\int\\sqrt{4}\\,dx = 6$ — sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Độ dài $y = 3x$ từ $x=0$ đến $x=4$ (kiểm bằng khoảng cách hai điểm).
 2. Vì sao đoạn cung nhỏ dài $\\sqrt{1+(f')^2}\\cdot dx$?
@@ -477,7 +477,7 @@ $$f_{tb} = \\frac{1}{b-a}\\cdot\\int_a^b f(x)\\,dx$$
 
 ⚠ **Lỗi thường gặp — quên chia cho $(b-a)$**. $f_{tb} = \\frac{\\int_a^b f\\,dx}{b-a}$, KHÔNG phải chỉ $\\int_a^b f\\,dx$. Vd trung bình của $x^2$ trên $[0,2]$: đúng $\\frac{1}{2}\\int_0^2 x^2\\,dx = \\frac{1}{2}\\cdot\\frac{8}{3} = \\frac{4}{3}$; quên chia ra $\\frac{8}{3}$ — sai (và lớn hơn cả giá trị max $4$, vô lý).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giá trị trung bình của $f(x) = x$ trên $[0, 4]$.
 2. Giá trị trung bình của hàm hằng $f(x) = 7$ trên $[2, 9]$?
@@ -562,7 +562,7 @@ $$P(a \\le X \\le b) = \\int_a^b f(x)\\,dx.$$
 
 ⚠ **Lỗi thường gặp — dùng $W = F\\cdot d$ khi lực biến thiên**. Công thức $W = F\\cdot d$ chỉ đúng khi $F$ **hằng**. Với $F(x)$ thay đổi (lò xo, hấp dẫn theo độ cao) phải $W = \\int F\\,dx$. Vd lò xo $F=kx$: dùng $F\\cdot d = kx\\cdot x = kx^2$ ra **gấp đôi** giá trị đúng $\\frac{1}{2}kx^2$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lực $F(x) = 6x$ N kéo vật từ $x=0$ đến $x=2$ m. Công?
 2. Vận tốc $v(t) = 3t^2$. Độ dời từ $t=0$ đến $t=2$?

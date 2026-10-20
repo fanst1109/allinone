@@ -67,7 +67,7 @@ $$P(A \\mid B) = \\frac{P(B \\mid A)\\cdot P(A)}{P(B)}$$
 
 ⚠ **Lỗi thường gặp — cộng xác suất khi 2 biến cố không xung khắc**. $P(A\\cup B) = P(A) + P(B) - P(A\\cap B)$; chỉ bỏ được $P(A\\cap B)$ khi xung khắc. Phản ví dụ: tung xúc xắc, $A$ = chẵn ($1/2$), $B = \\ge 4$ ($1/2$). $P(A\\cup B) \\neq 1/2+1/2 = 1$; đúng là $1/2 + 1/2 - P(\\text{chẵn và} \\ge 4 = \\{4,6\\}) = 1 - 2/6 = \\mathbf{2/3}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tung 2 xúc xắc. $P(\\text{tổng} = 7)$?
 2. $P(A) = 0.3$, $P(B) = 0.4$, $A$ và $B$ độc lập. $P(A\\cap B)$?
@@ -184,7 +184,7 @@ Không bước nào "lươn lẹo" — mỗi dòng chỉ dùng $E[aX+b] = aE[X]+
 
 - **Nhầm xác suất với mật độ (biến liên tục)**: $f(x)$ là mật độ, có thể $> 1$ ($\\text{Uniform}(0, 0.5)$ có $f = 2$) và $P(X = x_0) = 0$; chỉ **diện tích** $\\int_a^b f\\,dx$ mới là xác suất — $P(0.1 \\le X \\le 0.3) = 0.4$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $X$ nhận giá trị 0 (xác suất 0.5) và 10 (xác suất 0.5). Tính $E[X]$ và $\\operatorname{Var}(X)$.
 2. Xúc xắc 4 mặt đều $\\{1,2,3,4\\}$. Tính $E[X]$, $E[X^2]$, $\\operatorname{Var}(X)$.
@@ -238,7 +238,7 @@ np(1-p) &= 3\\cdot 0.5\\cdot 0.5 = 0.75 \\ \\checkmark
 
 ⚠ **Lỗi thường gặp — quên hệ số $\\binom{n}{k}$**. $P(X=k)$ phải nhân $\\binom{n}{k}$ vì có nhiều **thứ tự** cho $k$ thành công. Phản ví dụ: tung 2 xu, $P(\\text{đúng 1 ngửa}) = \\binom{2}{1}\\cdot 0.5\\cdot 0.5 = 2\\cdot 0.25 = \\mathbf{0.5}$, KHÔNG phải $0.5\\cdot 0.5 = 0.25$ (bỏ $\\binom{2}{1}$ quên 2 thứ tự HT và TH).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tung 4 đồng xu công bằng. $P(\\text{đúng 2 mặt ngửa})$?
 
@@ -373,7 +373,7 @@ Tra bảng chuẩn tắc (hàm phân phối tích lũy $\\Phi$): $\\Phi(1.5) \\a
 
 ⚠ **Lỗi thường gặp — chia đôi sai khi tính xác suất 1 đuôi**. $P(X > \\mu+2\\sigma) = (1 - 0.95)/2 = 2.5\\%$, KHÔNG phải 5%. Vùng 5% là **cả 2 đuôi** ngoài $2\\sigma$; mỗi đuôi 2.5%. Quên chia đôi → sai gấp 2.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $X \\sim N(50, 10^2)$. $P(40 \\le X \\le 60)$?
 2. $P(X < 30)$?
@@ -429,7 +429,7 @@ Khớp Binomial tới 3 chữ số — đó là lý do Poisson gọi là "luật
 
 ⚠ **Lỗi thường gặp — quên $e^{-\\lambda}$ hoặc dùng sai $\\lambda$ cho khoảng khác**. Nếu $\\lambda = 2$/phút mà hỏi trong 3 phút thì $\\lambda' = 6$ (nhân theo khoảng). Phản ví dụ: tính $P$ trong 3 phút mà vẫn dùng $\\lambda = 2$ → sai (phải đổi $\\lambda = 6$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\lambda = 3$ lỗi/trang. $P(1\\text{ trang có 0 lỗi})$?
 
@@ -515,7 +515,7 @@ So sánh: cùng $\\bar{x} = 5$ nhưng $s = 3.16 > 2.65$ → mẫu này "trải r
 - *"Vì sao phương sai mẫu chia $(n-1)$ chứ không $n$?"* Vì dùng $\\bar{x}$ (tính từ chính mẫu) làm "tâm" khiến tổng bình phương hơi nhỏ đi (thiên lệch). Chia $(n-1)$ thay vì $n$ **hiệu chỉnh** thiên lệch (gọi là hiệu chỉnh Bessel). Phương sai **tổng thể** thì chia $n$.
 - *"Khi nào dùng trung vị thay trung bình?"* Khi dữ liệu lệch hoặc có giá trị ngoại lai (lương, giá nhà). Trung vị "miễn nhiễm" với vài giá trị cực trị.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mẫu: 1, 3, 5, 7. Tính trung bình và trung vị.
 

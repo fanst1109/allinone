@@ -96,7 +96,7 @@ Với cơ số khác $a$: $a^h = e^{h\ln a}$ nên $\lim\limits_{h\to 0}\dfrac{a^
 
 ⚠ **Lỗi thường gặp — $(x^n)' = n\cdot x^{n-1}$ nhưng $(a^x)' \neq x\cdot a^{x-1}$**. Khi **biến nằm ở số mũ** (như $2^x$), KHÔNG dùng quy tắc lũy thừa. $(2^x)' = 2^x\cdot \ln 2$, không phải $x\cdot 2^{x-1}$. Phân biệt "biến ở cơ số" ($x^n$) với "biến ở số mũ" ($a^x$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $(x^{-3})' = ?$
 2. $(3^x)' = ?$ và $(x^3)' = ?$ — khác nhau thế nào?
@@ -296,7 +296,7 @@ $$\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial f_n}\cdot\frac{\p
 
 ⚠ **Lỗi thường gặp — quên đạo hàm lớp trong của chain rule**. Viết $(\sin(2x))' = \cos(2x)$ là **thiếu** — đúng phải $\cos(2x)\cdot 2 = 2\cos(2x)$. Verify: tại $x=0$, định nghĩa cho slope $\approx \frac{\sin(0.002)-0}{0.001} = 2$, khớp $2\cos 0 = 2$, không phải $\cos 0 = 1$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $(x^3\cdot e^x)' = ?$
 2. $(e^{x^2})' = ?$ (đừng quên lớp trong)
@@ -338,7 +338,7 @@ $$(f^{-1})'(y) = \frac{1}{f'(x)}$$
 
 ⚠ **Lỗi thường gặp — quên $f'$ phải tính tại $x$ chứ không tại $y$**. Viết $(f^{-1})'(y) = \dfrac{1}{f'(y)}$ là sai. Phải tìm $x = f^{-1}(y)$ trước rồi mới thay vào $f'$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $(\arctan x)'$ — dùng $y = \arctan x \iff x = \tan y$ và $(\tan y)' = \dfrac{1}{\cos^2 y}$.
 2. $f(x) = x^3$, $f^{-1}(y) = \sqrt[3]{y}$. Tính $(f^{-1})'(8)$ qua công thức hàm ngược.
@@ -383,7 +383,7 @@ $f''(x) = (f'(x))'$. Đạo hàm của đạo hàm.
 
 ⚠ **Lỗi thường gặp — tính $f''$ mà bỏ quy tắc tích/chuỗi ở bước hai**. $f'$ thường vẫn là tích/hợp, nên đạo hàm tiếp phải áp lại đầy đủ quy tắc. Vd $f = x\cdot e^x$ → $f' = e^x(x+1)$ (tích) → $f'' = e^x(x+1) + e^x = e^x(x+2)$ — bước hai vẫn cần product rule, không "đạo hàm thẳng".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^5$. Tính $f'''(x)$.
 2. $f(x) = \sin x$. $f''(x) = ?$ và $f^{(4)}(x) = ?$
@@ -433,7 +433,7 @@ Gọn hơn dùng định nghĩa giới hạn — đây là lý do đạo hàm �
 
 ⚠ **Lỗi thường gặp — quên nhân $y'$ khi đạo hàm số hạng chứa $y$**. Viết $\dfrac{d}{dx}[y^3] = 3y^2$ là **thiếu** — đúng phải $3y^2\,y'$. Triệu chứng: phương trình sau khi đạo hàm không còn $y'$ để giải. Nếu thấy "không có $y'$ nào để giải" → chắc chắn đã quên chain rule.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $x^2 + xy + y^2 = 7$. Tính $y'$.
 2. Cho $\sin(xy) = x$. Tính $y'$.

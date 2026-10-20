@@ -43,7 +43,7 @@ $$x(t) = A\\cos(\\omega t + \\varphi)$$
 - *"Dùng cos hay sin để mô tả dao động?"* Cả hai đều được — chỉ khác pha π/2. Quy ước phổ biến dùng cos vì tại t=0 cho ngay biên độ. $\\sin(\\omega t) = \\cos\\left(\\omega t - \\dfrac{\\pi}{2}\\right)$.
 - *"Chu kỳ T và tần số f liên hệ sao?"* $f = \\dfrac{1}{T}$ (số dao động mỗi giây) và $\\omega = \\dfrac{2\\pi}{T} = 2\\pi f$. Ba đại lượng quy về nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dao động $x(t) = 3\\cos(4\\pi t)$. Chu kỳ và tần số?
 2. Con lắc lò xo $k = 100$, $m = 0.25$. $\\omega$ bằng mấy?
@@ -83,7 +83,7 @@ R &= \\sqrt{3^2 + 4^2} = 5, \\quad \\tan\\delta = \\dfrac{4}{3} \\Rightarrow \\d
 \\end{aligned}$$
 → $x(t) = 5\\cos(2t - 53.13^\\circ)$. Vậy $A = 5$, $\\omega = 2$, $\\varphi = -53.13^\\circ \\approx -0.927$ rad, $T = \\pi \\approx 3.14$ s. Verify $t=0$: dạng gốc cho $3 + 0 = 3$; dạng gộp cho $5\\cos(-53.13^\\circ) = 5\\cdot 0.6 = 3$ ✓.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $x(t) = 6\\cos\\left(\\dfrac{\\pi}{2}t\\right)$. Đọc A, ω, T, f.
 2. Gộp $x(t) = \\cos(\\omega t) + \\sqrt{3}\\sin(\\omega t)$ về dạng $R\\cos(\\omega t - \\delta)$.
@@ -139,7 +139,7 @@ R &= \\sqrt{3^2 + 4^2} = 5, \\quad \\tan\\delta = \\dfrac{4}{3} \\Rightarrow \\d
 - *"Hai dao động khác tần số có dùng phasor được không?"* **Không** trực tiếp — phasor chỉ gọn khi cùng ω. Khác tần số phải xử lý riêng (hoặc Fourier).
 - *"Khi nào tổng hai dao động cùng biên độ bằng 0?"* Khi ngược pha (lệch π) và cùng biên độ: $A\\cos(\\omega t) + A\\cos(\\omega t+\\pi) = A - A = 0$ (giao thoa triệt tiêu).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phasor của $6\\cos\\left(\\omega t + \\dfrac{\\pi}{2}\\right)$ là gì?
 2. Cộng $x_1 = 5\\cos(\\omega t)$ và $x_2 = 5\\cos(\\omega t + \\pi)$. Biên độ tổng?
@@ -180,7 +180,7 @@ $$y(x, t) = A\\sin(kx - \\omega t + \\varphi)$$
 - *"Tần số cao thì bước sóng dài hay ngắn?"* Ngắn. Vì $\\lambda = \\dfrac{v}{f}$ (v cố định), f tăng → λ giảm. Nốt cao (f lớn) có bước sóng ngắn.
 - *"Vì sao trong $kx - \\omega t$ lại có dấu trừ?"* Dấu trừ cho sóng chạy **sang phải** (chiều +x). Dấu cộng ($kx + \\omega t$) cho sóng chạy sang trái.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Sóng âm 170 Hz trong không khí ($v = 340$ m/s). Bước sóng?
 2. Bước sóng 2m, vận tốc 340 m/s. Tần số bao nhiêu?
@@ -234,7 +234,7 @@ $$f(x) = \\frac{4}{\\pi}\\left[\\sin x + \\frac{1}{3}\\sin 3x + \\frac{1}{5}\\si
 - *"Vì sao hàm lẻ chỉ có sin, hàm chẵn chỉ có cos?"* Hàm lẻ ($f(-x) = -f(x)$) đối xứng tâm như sin → các hệ số $a_n$ (của cos, vốn chẵn) đều bằng 0. Ngược lại hàm chẵn chỉ còn cos. Mẹo này giảm nửa khối lượng tính.
 - *"'Đủ tốt' nghĩa là gì?"* Điều kiện Dirichlet: hàm bị chặn, có hữu hạn cực trị và điểm gián đoạn trong một chu kỳ. Hầu hết tín hiệu thực tế đều thỏa.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hàm $f(x) = x$ trên $[-\\pi, \\pi]$ là chẵn hay lẻ? Chuỗi Fourier chỉ chứa sin hay cos?
 2. Trong khai triển sóng vuông, hệ số của $\\sin 5x$ là bao nhiêu?
@@ -431,7 +431,7 @@ Ví dụ kéo vali bằng lực $F = 100$ N, tay cầm nghiêng $\\theta = 30°$
 
 ⚠ **Lỗi thường gặp #4 — gắn $\\cos$ cho đứng, $\\sin$ cho ngang**. Quy ước chuẩn: thành phần **cùng phương với cạnh kề góc** dùng $\\cos$, thành phần **đối góc** dùng $\\sin$. Khi $\\theta$ đo từ phương ngang → ngang là cạnh kề → $F_x = F\\cos\\theta$. Nếu lỡ đo $\\theta$ từ phương đứng thì đảo lại — luôn vẽ hình trước.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đứng cách cột cờ $d = 30$ m, góc nâng đỉnh $40°$. Cột cao bao nhiêu (bỏ qua chiều cao mắt)?
 2. Tam giác có $a = 5$, $b = 7$, $\\angle C = 60°$ (góc xen giữa). Tìm cạnh $c$.

@@ -182,7 +182,7 @@ $$a = \frac{\Delta y}{\Delta x} = \frac{y_2 - y_1}{x_2 - x_1} \quad (x_1 \ne x_2
 
 ⚠ **Lỗi thường gặp**: quên bình phương, viết $d = |\Delta x| + |\Delta y|$ (đó là khoảng cách "taxi", không phải đường chim bay). Phản ví dụ: A(0,0), B(3,4) — đường chim bay = 5, nhưng $|3|+|4| = 7$ (đi theo lưới đường). Lỗi khác: trừ sai thứ tự trong trung điểm (trung điểm dùng **cộng** rồi chia 2, không phải trừ).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. A(1,2), B(7,10). Tính khoảng cách AB và trung điểm.
 2. Khoảng cách từ gốc O đến điểm (−6, 8) là bao nhiêu?
@@ -304,7 +304,7 @@ $$\frac{y - y_1}{x - x_1} = \frac{y_2 - y_1}{x_2 - x_1}$$
 
 ⚠ **Lỗi thường gặp**: cho 2 đường song song khi $a_1\cdot a_2 = -1$ (đó là **vuông góc**). Song song là $a_1 = a_2$. Phản ví dụ: $y = 2x+1$ và $y = 2x-3$ song song (cùng $a=2$); $y = 2x+1$ và $y = -0.5x$ vuông góc ($2\cdot(-0.5) = -1$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết PT đường thẳng qua A(0, 3) với hệ số góc −2.
 2. Đường y = 3x + 1 và y = ax − 2 vuông góc. Tìm a.
@@ -383,7 +383,7 @@ $$(x - x_0)^2 + (y - y_0)^2 = R^2$$
 
 ⚠ **Lỗi thường gặp (đường tròn)**: (1) quên bình phương bán kính — vế phải là $R^2$ chứ không phải $R$ (vd $R=4 \to 16$, không phải 4). (2) sai dấu trong ngoặc — tâm $I(2,-3)$ cho $(x-2)^2 + (y+3)^2$, **trừ tọa độ tâm** nên $y - (-3) = y + 3$.
 
-🔁 **Dừng lại tự kiểm tra (đường tròn)**
+🔁 **Thực hành (đường tròn)**
 
 1. Viết PT đường tròn tâm $I(0, 0)$, bán kính 7.
 2. Đường tròn $(x-3)^2 + (y+1)^2 = 36$ có tâm và bán kính bao nhiêu?
@@ -691,7 +691,7 @@ $$\frac{x^2}{a^2} - \frac{y^2}{b^2} = 1$$
 
 **Lỗi 3 — quên bình phương khi đọc bán kính/đỉnh.** Mẫu là $a^2$, không phải $a$: $\frac{x^2}{16} - \frac{y^2}{9}=1$ có $a = \sqrt{16} = 4$ (đỉnh tại $\pm 4$), không phải 16.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ellipse $\frac{x^2}{16} + \frac{y^2}{4} = 1$. Tìm a, b, c và tâm sai.
 2. Hyperbola $\frac{x^2}{9} - \frac{y^2}{16} = 1$. Tìm a, b, c và phương trình tiệm cận.

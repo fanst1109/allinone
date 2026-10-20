@@ -33,7 +33,7 @@ Lúc đầu coi là "ảo" (imaginary), nhưng hóa ra **$i$ thật sự có ý 
 
 ⚠ **Lỗi thường gặp — viết $\sqrt{-4} = \sqrt{4}\cdot\sqrt{-1} = 2i$ rồi áp luật $\sqrt{a}\cdot\sqrt{b} = \sqrt{ab}$ bừa bãi**. Luật $\sqrt{a}\cdot\sqrt{b} = \sqrt{ab}$ CHỈ đúng cho $a, b \ge 0$. Phản ví dụ sai: $\sqrt{-1}\cdot\sqrt{-1}$ nếu áp luật ra $\sqrt{(-1)(-1)} = \sqrt{1} = 1$, nhưng đúng phải là $i\cdot i = i^2 = -1$. Khác dấu hoàn toàn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. PT $x^2 + 1 = 0$ có nghiệm thực không? Có nghiệm phức không?
 2. Theo định lý Gauss, PT bậc 5 có mấy nghiệm phức (kể cả bội)?
@@ -92,7 +92,7 @@ $$z = a + bi$$
 - *"Số phức có 'lớn hơn / nhỏ hơn' không?"* **Không** có thứ tự như số thực — không nói $2+3i > 1+i$ được. Chỉ so sánh **độ lớn** qua mô-đun $|z|$.
 - *"Hai số phức bằng nhau khi nào?"* Khi **cả phần thực lẫn phần ảo** bằng nhau: $a+bi = c+di \iff a=c$ VÀ $b=d$. Một PT số phức tương đương hai PT số thực.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $z = -5 + 2i$. $\operatorname{Re}(z)$, $\operatorname{Im}(z)$?
 2. $z = 6$ là số phức không? $\operatorname{Im}$ của nó?
@@ -244,7 +244,7 @@ $$z^{-1} = \frac{1+2i}{5} = \frac{1}{5} + \frac{2}{5}i$$
 - *"Số phức nào KHÔNG có nghịch đảo?"* Chỉ **$z = 0$** — vì $|z|^2 = 0$ làm mẫu bằng 0. Mọi $z \neq 0$ đều có nghịch đảo duy nhất. (Đây là tính chất "trường" — field — của $\mathbb{C}$, giống $\mathbb{R}$.)
 - *"Khi nào $\bar{z} = z^{-1}$?"* Khi $|z|^2 = 1$, tức $z$ nằm trên **đường tròn đơn vị** (mô-đun bằng 1). Vd $z=i$: $\bar{z}=-i=z^{-1}$ ✓.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $z = -1 + 2i$. Tính $|z|$ và $\bar{z}$.
 2. $z\cdot\bar{z}$ của $z = 5i$ bằng mấy?
@@ -378,7 +378,7 @@ $$\frac{a+bi}{c+di} = \frac{(a+bi)(c-di)}{(c+di)(c-di)} = \frac{(a+bi)(c-di)}{c^
 - *"Vì sao nhân tử & mẫu với liên hợp lại khử được ảo ở mẫu?"* Vì $(c+di)(c-di) = c^2 + d^2$ — luôn là số **thực** (theo $z\cdot\bar{z} = |z|^2$). Mẫu thành thực thì kết quả tách được phần thực/ảo rõ ràng.
 - *"Cộng số phức có ý nghĩa hình học gì?"* Là **cộng vector**: nối hai mũi tên đầu-đuôi (quy tắc hình bình hành). Nhân thì là quay + co giãn (xem L06).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $(2 + 3i) + (4 - i)$ và $(2 + 3i)(4 - i)$.
 2. Tính $\dfrac{2 + i}{1 - i}$.
@@ -466,7 +466,7 @@ $$\frac{a+bi}{c+di} = \frac{(a+bi)(c-di)}{(c+di)(c-di)} = \frac{(a+bi)(c-di)}{c^
 - *"$i$ mũ âm tính sao?"* Dùng chu kỳ 4 luôn: $i^{-n} = i^{(-n) \bmod 4}$. Vd $i^{-2} = i^2 = -1$ (vì $-2 \equiv 2 \bmod 4$). Hoặc $i^{-n} = \dfrac{1}{i^n}$.
 - *"Vì sao chu kỳ đúng bằng 4, không phải 2?"* Vì một vòng quay đầy (360°) cần 4 lần quay 90°. Sau 2 lần ($i^2=-1$) chưa về chỗ cũ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $i^{50} = ?$
 2. $i^7 + i^5 = ?$
@@ -523,7 +523,7 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 - *"Vì sao hai nghiệm luôn liên hợp khi hệ số là số thực?"* Vì $\sqrt{\Delta}$ đi với $\pm$, một nghiệm $+$, một $-$ phần ảo → $p + qi$ và $p - qi$. Định lý: đa thức hệ số thực có nghiệm phức thì nghiệm liên hợp cũng là nghiệm.
 - *"Tổng và tích hai nghiệm phức có còn theo Vieta không?"* Còn nguyên. Vd ở trên: tổng $(-2+3i)+(-2-3i) = -4 = -\dfrac{b}{a}$ ✓; tích $(-2)^2+3^2 = 13 = \dfrac{c}{a}$ ✓.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $x^2 + 2x + 5 = 0$ trong $\mathbb{C}$.
 2. Hai nghiệm đó có liên hợp nhau không?
@@ -566,7 +566,7 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 - *"Vậy còn cần phát minh số nào cao hơn $\mathbb{C}$ để giải đa thức không?"* **Không** — đó chính là điểm mạnh của định lý: $\mathbb{C}$ đã đủ. Mọi đa thức hệ số phức đều phân tích hết được trong $\mathbb{C}$.
 - *"Đa thức hệ số thực có thể có nghiệm phức không?"* Có (vd $x^2+1$), nhưng chúng luôn đi theo **cặp liên hợp**, nên số nghiệm phức không-thực luôn chẵn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. PT $x^3 + x = 0$ có mấy nghiệm trong $\mathbb{C}$? Liệt kê.
 2. $(x^2+4)(x-1) = 0$ có mấy nghiệm?

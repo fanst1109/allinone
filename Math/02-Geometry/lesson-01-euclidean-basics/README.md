@@ -98,7 +98,7 @@ Ký hiệu: $\angle AOB$ (hoặc $\widehat{AOB}$), **đỉnh viết ở giữa**
 
 ⚠ **Lỗi thường gặp**: lẫn lộn **đoạn thẳng AB** với **đường thẳng AB**. Đoạn AB có độ dài cụ thể (vd 5 cm), đường thẳng AB là vô hạn không có độ dài. Cũng hay nhầm tia OA và tia AO: tia OA gốc tại O đi qua A, tia AO gốc tại A đi qua O — hai tia ngược chiều, chỉ trùng phần chung là đoạn OA.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tia Ox và tia Oy chung gốc O nhưng đi 2 hướng ngược nhau hợp thành hình gì?
 2. Có 3 điểm A, B, C không thẳng hàng. Vẽ được bao nhiêu đường thẳng đi qua đúng 2 trong 3 điểm đó?
@@ -201,7 +201,7 @@ Ví dụ số trên mặt cầu: tam giác có 3 đỉnh là Bắc Cực + 2 đi
 
 ⚠ **Lỗi thường gặp**: tưởng "qua 1 điểm ngoài đường thẳng vẽ được nhiều đường song song". Trong hình học Euclid phẳng chỉ có **đúng 1**. (Vẽ "nhiều đường gần như song song" là sai — chúng sẽ cắt đường gốc ở đâu đó nếu không thực sự cùng hệ số góc.)
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tiên đề nào của Euclid đảm bảo "vẽ được đường tròn tâm bất kỳ, bán kính bất kỳ"?
 2. Trên mặt cầu, tổng 3 góc của một tam giác lớn hơn hay nhỏ hơn $180^\circ$?
@@ -468,7 +468,7 @@ Kiểm tra góc phụ: $2(40)-30 = 50^\circ$, và $40 + 50 = 90^\circ$ ✓. Góc
 
 - **Giả định song song khi đề chưa cho**: "so le trong bằng nhau", "đồng vị bằng nhau" chỉ đúng khi $a \parallel b$. Hình vẽ "trông có vẻ song song" không phải căn cứ — cần dấu $\parallel$ hoặc điều kiện suy ra được (vd cùng vuông góc với $c$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Góc $63^\circ$ có góc bù và góc phụ là bao nhiêu?
 2. $a \parallel b$ bị cắt bởi c. Một góc trong cùng phía bằng $130^\circ$. Góc trong cùng phía còn lại bằng bao nhiêu?
@@ -576,7 +576,7 @@ Kiểm tra góc phụ: $2(40)-30 = 50^\circ$, và $40 + 50 = 90^\circ$ ✓. Góc
 
 ⚠ **Lỗi thường gặp**: tưởng "2 đường không cắt nhau thì song song". Đúng trong mặt phẳng, nhưng **sai trong không gian** — 2 đường chéo nhau (skew) cũng không cắt nhau mà không song song. Trong mặt phẳng phẳng thì phát biểu này mới đúng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đường a vuông góc với c, đường b cũng vuông góc với c (cùng trong 1 mặt phẳng). Quan hệ giữa a và b?
 2. Ký hiệu $\perp$ và $\parallel$ lần lượt nghĩa là gì?

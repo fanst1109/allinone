@@ -150,7 +150,7 @@ Hai phía cùng **hội tụ về $2$** ⟶ slope tiếp tuyến tại $x=1$ là
 
 ⚠ **Lỗi thường gặp — nhầm vận tốc trung bình với tức thời**. $v_{tb} = \frac{\Delta s}{\Delta t}$ là trung bình trên cả khoảng; vận tốc tức thời là giới hạn khi $\Delta t \to 0$. Vd $s(t) = t^2$: từ $t=2$ đến $t=3$, $v_{tb} = \frac{9-4}{1} = 5$, nhưng vận tốc tức thời tại $t=2$ là $s'(2) = 4$ — khác nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $s(t) = t^2$. Vận tốc trung bình từ $t = 1$ đến $t = 1.1$ là bao nhiêu? Đoán vận tốc tức thời tại $t = 1$.
 2. Cát tuyến qua hai điểm trên đồ thị trở thành gì khi hai điểm trùng nhau?
@@ -228,7 +228,7 @@ Dấu và độ lớn của $f'$ nói lên hành vi tức thời của hàm:
 3. **Sinh học**: $P(t)$ dân số → $P'(t)$ = tốc độ tăng dân tức thời (cá thể/năm).
 4. **ML / tối ưu**: $L(w)$ hàm mất mát theo trọng số $w$ → $L'(w)$ cho biết chỉnh $w$ tăng hay giảm để $L$ giảm (nền tảng gradient descent — học kỹ sau).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f'(5) = 0$ và $f'(4) > 0$, $f'(6) < 0$. Tại $x = 5$ hàm đang làm gì?
 2. Chi phí $C(q) = q^2$ (nghìn đồng). Chi phí biên tại $q = 10$ là bao nhiêu (dùng $C'(q) = 2q$)?
@@ -247,7 +247,7 @@ Dấu và độ lớn của $f'$ nói lên hành vi tức thời của hàm:
 
 ⚠ **Lỗi thường gặp — quên rằng $f'(a)$ có thể không tồn tại**. Đạo hàm là một giới hạn; giới hạn này có thể không tồn tại (góc nhọn như $|x|$ tại 0, hoặc tiếp tuyến đứng như $\sqrt[3]{x}$ tại 0). Không phải hàm nào cũng khả vi tại mọi điểm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^2$. Viết phương trình tiếp tuyến tại $x = 1$.
 2. $f'(2) = 12$ cho hàm $x^3$ — nghĩa hình học của số $12$ này là gì?
@@ -350,7 +350,7 @@ Mọi slope số xấp xỉ rất sát giá trị lý thuyết — bằng chứn
 
 ⚠ **Lỗi thường gặp — cho $h = 0$ quá sớm**. Nếu thay $h = 0$ ngay vào $\frac{(x+h)^2-x^2}{h}$ được $\frac{0}{0}$ vô nghĩa. Phải khai triển và rút gọn $h$ ($= 2x + h$) **trước**, rồi mới cho $h \to 0$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng định nghĩa, chứng minh $(x^3)' = 3x^2$ (gợi ý $(x+h)^3 = x^3 + 3x^2h + 3xh^2 + h^3$).
 2. Trong bước rút gọn của $(\sqrt{x})'$, vì sao phải nhân liên hợp?
@@ -399,7 +399,7 @@ Với $y = f(x) = x^2$, bốn dòng sau **nói cùng một điều** ($\frac{d y
 - *"$\frac{dy}{dx}$ có phải phân số $dy$ chia $dx$ không?"* Theo nghĩa chặt, đây là **ký hiệu cho một giới hạn**, không phải phép chia thật. Nhưng nó "cư xử như" phân số trong nhiều trường hợp (đổi biến, chain rule) — đó là lý do Leibniz chọn ký hiệu này, rất tiện thao tác.
 - *"$f''(x)$ nghĩa là gì?"* Đạo hàm của đạo hàm — tốc độ thay đổi của slope. Vd $s''(t)$ = gia tốc (tốc độ thay đổi của vận tốc). Sẽ dùng nhiều ở L04, L05.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết đạo hàm cấp 2 của $y$ theo $x$ bằng cả ký hiệu Lagrange và Leibniz.
 2. $\frac{dy}{dt}$ khác $\frac{dy}{dx}$ ở chỗ nào?
@@ -499,7 +499,7 @@ Bên phải tỉ số **luôn $+1$**, bên trái **luôn $-1$** — hai phía kh
 - *"Vì sao khả vi LẠI kéo theo liên tục?"* Chứng minh từng bước: ta cần $\lim_{h \to 0} [f(a+h) - f(a)] = 0$ (định nghĩa liên tục). Viết $f(a+h) - f(a) = \frac{f(a+h)-f(a)}{h} \cdot h$. Cho $h \to 0$: thừa số đầu → $f'(a)$ (hữu hạn vì khả vi), thừa số sau $h \to 0$. Tích $= f'(a) \cdot 0 = 0$. Vậy $\lim f(a+h) = f(a)$ → liên tục. (Mấu chốt: $f'(a)$ hữu hạn nên không "kéo" tích đi đâu được.)
 - *"Có hàm liên tục mà không khả vi tại nhiều điểm không?"* Có. $|\sin x|$ có góc nhọn tại mọi $x = k\pi$ — liên tục khắp nơi, không khả vi tại vô số điểm. Cực đoan hơn là hàm Weierstrass (không khả vi tại **mọi** điểm).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = |x - 3|$. Khả vi tại $x = 3$ không? Tại $x = 5$ không?
 2. Một hàm khả vi tại $a$ thì có chắc liên tục tại $a$ không?
@@ -588,7 +588,7 @@ So sánh bằng hình:
 
 ⚠ **Lỗi thường gặp — chỉ so hai công thức đạo hàm mà quên kiểm liên tục**. Vd $f(x) = x^2$ nếu $x<1$, $f(x) = 2x$ nếu $x\ge 1$: hai nhánh có $f'$ lần lượt $2x \to 2$ và $2$, "bằng nhau", nhưng hàm **gián đoạn** tại 1 ($1 \neq 2$) → KHÔNG khả vi. Phải kiểm liên tục tại $a$ trước.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^2$ nếu $x \le 1$, $f(x) = 2x - 1$ nếu $x > 1$. Khả vi tại $x = 1$ không?
 2. Đạo hàm một bên của $f(x) = |x|$ tại 0 là gì?

@@ -65,7 +65,7 @@ $$\\begin{aligned}
 
 ⚠ **Lỗi thường gặp — để máy tính sai chế độ DEG/RAD**. Phản ví dụ bằng số: muốn tính $\\sin(\\frac{\\pi}{6}) = 0.5$ nhưng máy đang ở DEG, bạn gõ $\\sin(0.5236)$ → máy hiểu là $\\sin(0.5236^\\circ) = 0.00914$, sai hoàn toàn so với $0.5$. Luôn kiểm tra biểu tượng DEG/RAD trên màn hình trước khi tính.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. 1 vòng tròn bằng bao nhiêu rad? Nửa vòng?
 2. Góc 2 rad lớn hơn hay nhỏ hơn $90^\\circ$?
@@ -200,7 +200,7 @@ Khi tử có hệ số (vd $\\frac{2\\pi}{3}$): tính như $\\frac{2\\cdot 180}{
 - *"Vì sao kết quả hay để ở dạng $\\frac{\\pi}{6}$ mà không phải số thập phân $0.5236$?"* Vì dạng $\\frac{\\pi}{6}$ **chính xác tuyệt đối**, còn $0.5236$ đã làm tròn. Trong toán ưu tiên dạng phân số của $\\pi$; chỉ đổi sang thập phân khi cần con số đo đạc cụ thể.
 - *"Góc âm như $-\\frac{\\pi}{3}$ đổi ra độ thế nào?"* Dấu giữ nguyên: $-\\frac{\\pi}{3} \\cdot \\frac{180}{\\pi} = -60^\\circ$. Góc âm = quay theo chiều kim đồng hồ (xem mục 4).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đổi $120^\\circ$ sang radian.
 2. Đổi $\\frac{7\\pi}{6}$ rad sang độ.
@@ -310,7 +310,7 @@ Khóa học này dùng **độ thập phân** ($12.5822^\\circ$), không dùng p
 
 ⚠ **Lỗi thường gặp — đảo vai trò cos và sin**. cos = **hoành độ** (x, đi ngang), sin = **tung độ** (y, đi dọc). Phản ví dụ: tại $\\theta = \\frac{\\pi}{2}$ (điểm trên cùng $(0, 1)$), người mới hay viết $\\cos\\frac{\\pi}{2} = 1$ (nhầm) — sai, vì hoành độ điểm đó là 0 → $\\cos\\frac{\\pi}{2} = 0$, còn $\\sin\\frac{\\pi}{2} = 1$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Điểm ứng với $\\theta = \\pi$ nằm ở đâu? $\\cos\\pi$ và $\\sin\\pi$ bằng mấy?
 2. Một điểm trên đường tròn đơn vị có hoành độ 0.6. Tung độ có thể bằng mấy?
@@ -440,7 +440,7 @@ Ví dụ với $\\theta_0 = 30^\\circ$: $\\{\\ldots, -690^\\circ, -330^\\circ, 3
 - $\\frac{2\\pi}{3} = 120^\\circ$: trong $(90^\\circ, 180^\\circ)$ → **phần tư II** (cos $-$, sin $+$).
 - $480^\\circ$: đồng cuối $480 - 360 = 120^\\circ$ → **phần tư II**.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đưa góc $800^\\circ$ về khoảng $[0^\\circ, 360^\\circ)$.
 2. Góc $-\\frac{\\pi}{3}$ tương đương góc dương nào trong $[0, 2\\pi)$?
@@ -502,7 +502,7 @@ $$S = \\frac{1}{2}\\cdot 10^2\\cdot 2 = \\frac{1}{2}\\cdot 100\\cdot 2 = 100$$
 - *"Tại sao diện tích quạt có ½ mà độ dài cung thì không?"* Vì quạt là "tam giác cong": diện tích ~ ½·đáy·cao, ở đây đóng vai như $\\frac{1}{2}\\cdot$(cung)$\\cdot$(bán kính) $= \\frac{1}{2}\\cdot(r\\theta)\\cdot r = \\frac{1}{2}r^2\\theta$. Hệ số ½ là dấu vết của diện tích tam giác.
 - *"Cung và dây cung khác nhau không?"* Khác. **Cung** = phần đường tròn (cong), dài $r\\theta$. **Dây cung** = đoạn thẳng nối 2 đầu (thẳng), dài $2r\\cdot\\sin(\\frac{\\theta}{2})$. Với $\\theta$ nhỏ hai cái xấp xỉ nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bánh xe bán kính 0.3 m quay góc 4 rad. Một điểm trên vành đi được quãng đường bao nhiêu?
 2. Quạt tròn $r = 6$, góc $90^\\circ$. Diện tích?

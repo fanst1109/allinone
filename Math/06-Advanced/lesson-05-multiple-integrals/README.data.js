@@ -87,7 +87,7 @@ Mỗi lần tăng 1 chiều: miền tăng 1 chiều, và khi $f=1$ thì kết qu
 
 ⚠ **Lỗi thường gặp — quên $dA = dx\\cdot dy$ (hệ tọa độ Descartes), nhầm sang cực mà bỏ r**. Trong tọa độ cực $dA = \\mathbf{r\\cdot dr\\cdot d\\theta}$ (có thừa số $r$), KHÔNG phải $dr\\cdot d\\theta$. Phản ví dụ: diện tích đĩa bán kính 3 $= \\iint r\\,dr\\,d\\theta = 9\\pi$; nếu quên $r$: $\\iint dr\\,d\\theta = 3\\cdot 2\\pi = 6\\pi$ (sai).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\iint_D 1\\,dA$ với $D$ = hình chữ nhật $[0,2]\\times[0,3]$ bằng bao nhiêu?
 
@@ -194,7 +194,7 @@ Chạy đủ 2 bước (trong → ngoài) trên miền chữ nhật, để thấ
 
 ⚠ **Lỗi thường gặp — coi biến ngoài là hằng nhưng quên thế cận đúng**. Khi tính tích phân trong, biến ngoài là **hằng** (giữ nguyên trong biểu thức), nhưng cận của tích phân trong có thể **phụ thuộc** biến ngoài (miền cong). Trên hình chữ nhật thì cận là số cố định.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $\\int_0^1 \\int_0^1 (x + y)\\,dy\\,dx$.
 
@@ -372,7 +372,7 @@ Mỗi ví dụ: **(i)** vẽ/mô tả miền, **(ii)** quét cột tìm cận bi
 
 ⚠ **Lỗi thường gặp — đặt cận biến trong là hằng số thay vì hàm**. Trên miền cong, cận tích phân **trong** phải là hàm của biến ngoài. Phản ví dụ: tam giác $T$ ở trên, nếu đặt nhầm $0 \\le y \\le 1$ (cố định) thì tính ra diện tích hình vuông, không phải tam giác → sai miền.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mô tả cận cho miền $D$ dưới parabol $y = x^2$, trên trục Ox, từ $x = 0$ đến $x = 2$.
 
@@ -505,7 +505,7 @@ $$\\int_0^y e^{y^2}\\,dx = e^{y^2}\\left[x\\right]_0^y = y\\,e^{y^2}.$$
 - *"Làm sao biết khi nào nên đổi thứ tự?"* Ba dấu hiệu: (1) tích phân trong không có nguyên hàm sơ cấp ($e^{y^2}$, $\\sin(y^2)$, $\\frac{\\sin y}{y}$...); (2) cận thứ tự hiện tại buộc tách miền thành nhiều mảnh; (3) cận biến trong xấu, đổi sang thì gọn.
 - *"Đổi thứ tự có làm đổi đáp số không?"* **Không** — cùng miền, cùng $f$ → cùng thể tích (Fubini). Chỉ đổi cách tính. Nếu hai cách ra hai số khác nhau, chắc chắn đọc sai cận một bên.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết lại $\\displaystyle\\int_0^2\\int_0^{x} f\\,dy\\,dx$ theo thứ tự $dx\\,dy$.
 
@@ -581,7 +581,7 @@ $$I^2 = \\int_0^{2\\pi}\\int_0^{\\infty} e^{-r^2}\\cdot r\\,dr\\,d\\theta.$$
 
 ⚠ **Lỗi thường gặp — quên thừa số $r$**. Đây là lỗi #1 với tọa độ cực. Phản ví dụ: diện tích đĩa bán kính $R = \\iint r\\,dr\\,d\\theta = \\pi R^2$. Nếu quên $r$: $\\iint dr\\,d\\theta = R\\cdot 2\\pi = 2\\pi R$ (sai cả thứ nguyên — ra chu vi-ish chứ không phải diện tích).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính diện tích đĩa bán kính 2 bằng tọa độ cực.
 
@@ -662,7 +662,7 @@ $$V = \\int_0^h\\int_0^{2\\pi}\\int_0^a r\\,dr\\,d\\theta\\,dz.$$
 
 ⚠ **Lỗi thường gặp — dùng nhầm Jacobian giữa trụ và cầu**. $dV$ cầu là $\\rho^2\\sin\\varphi\\,d\\rho\\,d\\varphi\\,d\\theta$, KHÔNG phải $\\rho\\cdot...$ Phản ví dụ: tính thể tích cầu mà dùng Jacobian $= \\rho$ (như trụ) → ra $(\\pi R^3)\\cdot...$ sai hệ số, không khớp $\\frac{4}{3}\\pi R^3$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Jacobian (dV) trong tọa độ cầu là gì?
 
@@ -720,7 +720,7 @@ Khối lượng đĩa $M = \\rho\\cdot\\pi R^2$, nên $I_z = \\frac{\\pi\\rho R^
 
 ⚠ **Lỗi thường gặp — quên chia cho tổng khối lượng khi tính khối tâm**. $\\bar{x} = \\dfrac{\\iint x\\rho\\,dA}{\\iint \\rho\\,dA}$. Quên mẫu số → ra "momen" chứ không phải tọa độ (sai thứ nguyên). Ví dụ trên: nếu chỉ tính tử $\\frac{1}{3}$ rồi báo "$\\bar{x} = \\frac{1}{3}$" là sai — phải chia cho $M = \\frac{1}{2}$ ra $\\frac{2}{3}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Khối tâm của hình vuông [0,2]×[0,2] mật độ đều nằm ở đâu?
 

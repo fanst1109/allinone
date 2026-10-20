@@ -393,7 +393,7 @@ Lặp tiếp (làm tròn về số nguyên gần nhất để dễ đọc):
 3. **$\\beta, \\gamma$ cố định.** Thực tế khi dịch bùng, người dân đeo khẩu trang, giãn cách → $\\beta$ *giảm theo thời gian*. Hậu quả: SIR cố định dự báo đỉnh *cao và sớm hơn* thực tế. Sửa: cho $\\beta(t)$ giảm sau mốc can thiệp.
 4. **Bỏ ngẫu nhiên.** Với $I_0 = 10$ nhỏ, dịch có thể *tình cờ tắt* dù $R_0 > 1$. Sửa: bọc bằng **Monte Carlo / mô hình ngẫu nhiên** ([L07](../lesson-07-stochastic-monte-carlo/)) — chạy 1000 kịch bản để ra *xác suất bùng phát* và *khoảng* đỉnh, thay vì một con số.
 
-🔁 **Dừng lại tự kiểm tra (SIR):** nếu giữ $\\gamma = 0.2$ nhưng hạ $\\beta = 0.15$/ngày, dịch có bùng phát không? Đỉnh thay đổi ra sao về định tính?
+🔁 **Thực hành (SIR):** nếu giữ $\\gamma = 0.2$ nhưng hạ $\\beta = 0.15$/ngày, dịch có bùng phát không? Đỉnh thay đổi ra sao về định tính?
 
 <details><summary>Đáp án</summary>
 

@@ -318,7 +318,7 @@ Mỗi mục lớn (`## N. ...`) trong `README.md` của một lesson nên có c�
 | **💡 Trực giác / Hình dung** | Trước MỌI định nghĩa hình thức — analogy đời sống | Mở đầu mục con |
 | **❓ Câu hỏi tự nhiên của người đọc** | Anticipate 2-3 câu hỏi của người mới. **Tối đa 1 khối mỗi mục lớn**, đặt gần cuối mục | Cuối mục lớn |
 | **⚠ Lỗi thường gặp** | Sai lầm phổ thông + phản ví dụ. **≥ 2 lỗi trong cùng mục → GỘP thành 1 khối bullet** ("⚠ Các lỗi thường gặp"), không rải nhiều khối liên tiếp | Sau quy tắc/công thức |
-| **🔁 Dừng lại tự kiểm tra** | Sau mỗi mục con quan trọng, 1-2 câu hỏi + đáp án `<details>` | Cuối mục con |
+| **🔁 Thực hành** | Sau mỗi mục con quan trọng: ≥1 bài tính bằng số thật (câu khái niệm chỉ làm câu phụ) + lời giải 3 phần trong `<details>`: **Hướng dẫn** (nhìn gì, dùng công thức nào) → các bước tính → đáp số + kiểm chứng | Cuối mục con |
 | **📝 Tóm tắt mục N** | Cuối mỗi mục lớn, 3-5 điểm chốt dạng bullet | Cuối mục lớn |
 
 ### Quy tắc chống trùng lặp & nhịp đọc (rút từ feedback "đọc không thoải mái")

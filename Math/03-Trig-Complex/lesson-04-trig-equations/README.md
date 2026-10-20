@@ -100,7 +100,7 @@ Vì sao thêm $k\cdot 2\pi$? Vì quay thêm trọn $k$ vòng ($k$ nguyên, dươ
 - *"Khi nào hai họ nghiệm trùng làm một?"* Khi $a = \pm 1$. Vd $\sin x = 1$: $\alpha = \frac{\pi}{2}$ và $\pi - \frac{\pi}{2} = \frac{\pi}{2}$ — trùng → chỉ 1 họ $x = \frac{\pi}{2} + k2\pi$.
 - *"Đề chỉ hỏi nghiệm trong $[0, 2\pi)$ thì sao?"* Giải nghiệm tổng quát rồi quét $k$ lấy các nghiệm lọt khoảng — có quy trình và walk-through riêng ở **mục 8**.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $\sin x = -\frac{1}{2}$ (nghiệm tổng quát).
 2. $\sin x = 1.5$ có nghiệm không?
@@ -168,7 +168,7 @@ $$x = \pm\alpha + k\cdot 2\pi \quad (k \in \mathbb{Z})$$
 - *"Vì sao cos dùng $\pm\alpha$ còn sin dùng $\alpha, \pi-\alpha$?"* Vì cos đối xứng qua trục hoành (Ox), nên hai nghiệm là $+\alpha, -\alpha$. sin đối xứng qua trục tung (Oy), nên hai nghiệm là $\alpha, \pi-\alpha$. Khác trục đối xứng.
 - *"$-\alpha + k2\pi$ có khác $(2\pi - \alpha) + k2\pi$ không?"* Không khác về tập nghiệm — chỉ là chọn đại diện k khác. $-\frac{\pi}{3}$ và $\frac{5\pi}{3}$ là cùng vị trí.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $\cos x = \frac{\sqrt{3}}{2}$.
 2. $\cos x = -\frac{1}{2}$ có nghiệm nào trong $[0, 2\pi)$?
@@ -235,7 +235,7 @@ $$x = \alpha + k\cdot\pi \quad (k \in \mathbb{Z})$$
 - *"Vì sao tan chỉ một họ mà sin/cos hai họ?"* Vì chu kỳ tan là $\pi$, đã "gói" cả hai điểm đối tâm vào một bước nhảy. sin/cos chu kỳ $2\pi$ nên trong một chu kỳ có hai nghiệm riêng.
 - *"$\tan x = a$ luôn có nghiệm với mọi a?"* Đúng, vì tan: $\mathbb{R} \to \mathbb{R}$ phủ hết trục số (trừ các điểm gián đoạn). Không có ràng buộc $|a| \le 1$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $\tan x = \frac{\sqrt{3}}{3}$.
 2. $\tan x = -1$ có nghiệm nào trong $[0, 2\pi)$?
@@ -277,7 +277,7 @@ $$x = \alpha + k\cdot\pi \quad (k \in \mathbb{Z})$$
 - *"Vì sao $\sin x = 1$ chỉ $+k2\pi$ mà $\sin x = 0$ lại $k\pi$?"* Vì $\sin = 0$ xảy ra **hai lần** mỗi vòng (tại 0 và $\pi$) → gộp thành bước $\pi$. Còn $\sin = 1$ chỉ **một lần** mỗi vòng (tại $\frac{\pi}{2}$) → bước $2\pi$.
 - *"$\cos x = 0$ viết $\pm\frac{\pi}{2} + k2\pi$ hay $\frac{\pi}{2} + k\pi$?"* Hai cách cho cùng tập nghiệm; $\frac{\pi}{2} + k\pi$ gọn hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Nghiệm của $\cos x = 1$ là gì?
 2. $\sin x = -1$ có nghiệm nào trong $[0, 2\pi)$?
@@ -340,7 +340,7 @@ $$\begin{aligned}
 - *"Khi nào đặt ẩn phụ được?"* Khi PT chỉ chứa một hàm lượng giác (hoặc quy được về một hàm nhờ $\sin^2 + \cos^2 = 1$). Nếu lẫn $\sin x \cos x$ thì cân nhắc công thức nhân đôi.
 - *"Sau khi đặt t, có cần đổi miền k không?"* Không, k vẫn chạy $\mathbb{Z}$. Chỉ cần với mỗi t hợp lệ, viết đủ các họ nghiệm của PT cơ bản tương ứng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $2\cos^2 x - 3\cos x + 1 = 0$.
 2. Trong PT $t^2 - t - 6 = 0$ (với $t = \sin x$), nghiệm nào bị loại?
@@ -407,7 +407,7 @@ $$\begin{aligned}
 - *"Vì sao điều kiện có nghiệm là $c^2 \le a^2+b^2$?"* Vì $a \sin x + b \cos x$ có biên độ $R = \sqrt{a^2+b^2}$, tức luôn nằm trong $[-R, R]$. PT $= c$ chỉ giải được khi $|c| \le R$, tức $c^2 \le a^2+b^2$.
 - *"Có cách nào khác ngoài $R\cdot\sin(x+\varphi)$?"* Có: chia cả hai vế cho $\sqrt{a^2+b^2}$, hoặc dùng phép thế $t = \tan(\frac{x}{2})$ (Weierstrass). Nhưng $R\cdot\sin(x+\varphi)$ trực quan nhất.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $3 \sin x + 4 \cos x = 6$ có nghiệm không?
 2. $\sin x - \sqrt{3} \cos x = 1$: tìm R và đưa về PT cơ bản.
@@ -474,7 +474,7 @@ $$\begin{aligned}
 - *"$\sin A = \sin B$ giải thế nào nhanh?"* Dùng tính chất: $\sin A = \sin B \iff A = B + k2\pi$ HOẶC $A = \pi - B + k2\pi$. Tương đương với chuyển vế rồi tổng→tích.
 - *"Vì sao đôi khi hai họ nghiệm gộp lại được?"* Vì một họ có thể là tập con của họ kia. Vd $x = \frac{k\pi}{2}$ đã chứa cả $x = \frac{\pi}{2} + k\pi$. Nên kiểm tra trùng lặp khi gộp.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $\cos 3x = \cos x$ (gợi ý: chuyển vế, dùng cos a − cos b).
 2. $\sin 2x + \sin x = 0$ cho ra những PT cơ bản nào?
@@ -561,7 +561,7 @@ k=0:\ x=\tfrac{\pi}{3}\approx 1.05 \in (-\pi,\pi)\ \checkmark \\
 - *"Làm sao biết quét $k$ tới đâu thì dừng?"* Cứ tăng/giảm $k$ đến khi $x$ vượt **ra ngoài** hai đầu khoảng là dừng — mỗi họ chỉ cho hữu hạn nghiệm trong một khoảng hữu hạn.
 - *"Khoảng rộng $4\pi$ thì mỗi họ cho mấy nghiệm?"* Họ chu kỳ $2\pi$ → khoảng $4\pi$ chứa khoảng 2 nghiệm/họ; họ chu kỳ $\pi$ (tan) → chứa khoảng 4 nghiệm. Quét $k$ tuần tự để không sót.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm mọi nghiệm của $\cos x = \frac{1}{2}$ trong $[0, 2\pi)$.
 2. Tìm mọi nghiệm của $\sin x = -1$ trong $[-2\pi, 2\pi]$.

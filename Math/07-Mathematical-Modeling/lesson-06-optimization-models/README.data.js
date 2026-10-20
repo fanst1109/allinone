@@ -56,7 +56,7 @@ $$\\max_{x}\\ f(x) \\quad \\text{(hoặc } \\min_x f(x)\\text{)} \\qquad \\text{
 - *"Sao không cứ thử hết mọi phương án rồi chọn cái tốt nhất?"* Vì biến thường **liên tục** (giá có thể là 99.000 hay 99.001...) → vô hạn phương án, không thử hết được. Tối ưu cho ta cách *tính thẳng* ra điểm tốt nhất.
 - *"Bài toán có chắc luôn có nghiệm không?"* Không. Nếu miền khả thi rỗng (ràng buộc mâu thuẫn) → **vô nghiệm**; nếu mục tiêu tăng mãi không chặn → **vô cực (unbounded)**. Mô hình tốt phải tránh hai trường hợp này.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phân loại các bài sau dùng công cụ nào: (a) "đặt giá vé bao nhiêu để doanh thu lớn nhất, không giới hạn"; (b) "trộn 2 nguyên liệu rẻ nhất, mỗi chất ít nhất X"; (c) "diện tích lớn nhất với chu vi cố định 40".
 
@@ -121,7 +121,7 @@ $$C(q) = \\frac{36000}{q} + 3q, \\qquad q > 0$$
 
 ⚠ **Lỗi thường gặp — quên kiểm $f''$ (hoặc quên biên).** Giải $f'(x)=0$ mới chỉ tìm *điểm dừng*, **chưa** biết max hay min. Ví dụ $f(x) = x^3$ có $f'(0)=0$ nhưng $x=0$ **không** là cực trị (điểm uốn). Luôn kiểm $f''$ hoặc dấu $f'$. Ngoài ra nếu $x$ bị chặn (vd $0 \\le q \\le 100$) mà điểm dừng nằm ngoài đoạn, cực trị rơi vào **đầu mút** — phải so cả hai biên.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cực đại $P(q) = 30q - 0{,}25q^2 - 100$ (lợi nhuận theo sản lượng $q \\ge 0$). Tìm $q$ và $P$ tối ưu.
 
@@ -320,7 +320,7 @@ $$\\min\\ C = 2x + 3y \\quad\\text{với}\\quad 3x + y \\ge 12,\\ \\ x + 2y \\ge
 
 ⚠ **Lỗi thường gặp — quên ràng buộc $x, y \\ge 0$.** Bỏ ràng buộc không âm → miền khả thi sai, có thể ra nghiệm "sản xuất $-5$ cái". Luôn kèm $x \\ge 0, y \\ge 0$ cho biến vật lý.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với bài trên, nếu lời mỗi **bàn** tăng lên 60 ($P = 60x + 30y$), đỉnh $(20,0)$ cho $P$ bao nhiêu? So với $(15,10)$.
 
@@ -359,7 +359,7 @@ $(20,0)$: $P = 60 \\cdot 20 = $ **1200**. $(15,10)$: $P = 60 \\cdot 15 + 30 \\cd
 
 ⚠ **Lỗi thường gặp — quên phương trình ràng buộc $g = c$.** Hệ Lagrange gồm $\\nabla f = \\lambda \\nabla g$ *và* $g = c$ (đủ phương trình cho $x, y, \\lambda$). Chỉ giải $\\nabla f = \\lambda \\nabla g$ là thiếu, ra vô số nghiệm theo $\\lambda$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cực đại $f = x \\cdot y$ với $x + y = 20$. Tìm $x, y$, diện tích và $\\lambda$.
 

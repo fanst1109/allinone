@@ -84,7 +84,7 @@ Lưu ý $A(3,4)$ là bộ ba Pythagore $3$-$4$-$5$ kinh điển — luôn nằm 
 
 ⚠ **Lỗi thường gặp**: nhầm **bán kính** R với **đường kính** D. Nhớ $D = 2R$. Phản ví dụ: đường tròn "rộng 10 cm" (đường kính 10) thì $R = 5$, chu vi $= 2\pi\cdot 5 = 10\pi$ — nếu lấy $R = 10$ sẽ ra $20\pi$, sai gấp đôi. Mẹo kiểm tra nhanh: nếu đề cho "đường kính / bề rộng / khoảng cách 2 mép" → đó là $D$, phải chia 2 trước khi dùng vào công thức cần R.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đường tròn ($O$, $R=5$). Điểm M cách O 5 đơn vị nằm ở đâu? Điểm N cách O 7 đơn vị?
 2. Dây cung dài nhất của đường tròn gọi là gì, dài bao nhiêu nếu $R = 6$?
@@ -141,7 +141,7 @@ trong đó **$\pi \approx 3.14159$**.
 
 ⚠ **Lỗi thường gặp**: dùng đường kính vào công thức $S = \pi R^2$. Phản ví dụ: đường kính 10, nếu thay $R = 10$ → $S = 100\pi$ (sai); đúng phải $R = 5$ → $S = 25\pi$. Lỗi thứ 2: quên bình phương R trong diện tích (viết $\pi R$ thay vì $\pi R^2$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đường tròn đường kính 14. Tính chu vi (lấy $\pi \approx 22/7$).
 2. Tăng bán kính gấp 3 thì diện tích tăng mấy lần?
@@ -215,7 +215,7 @@ $$S_\text{quạt} = \tfrac12 R^2\theta = \tfrac12\cdot 16\cdot \frac{\pi}{2} = 4
 
 ⚠ **Lỗi thường gặp**: dùng $\ell = R\theta$ với $\theta$ tính bằng **độ**. Phản ví dụ: $R = 6$, $\theta = 60^\circ$ — nếu thay thẳng $\ell = 6\cdot 60 = 360$ (sai, vô lý vì lớn hơn cả chu vi $12\pi \approx 37.7$!). Đúng: hoặc đổi $60^\circ = \pi/3$ rad rồi $\ell = 6\cdot\pi/3 = 2\pi$, hoặc dùng công thức độ $\frac{60}{360}\cdot 12\pi = 2\pi$. Công thức $R\theta$ **bắt buộc** radian.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $R = 9$, $\theta = 40^\circ$. Tính độ dài cung.
 2. $R = 5$, hình quạt có góc ở tâm $\pi/5$ rad. Tính diện tích quạt.
@@ -348,7 +348,7 @@ Dòng $d = 0$ xác nhận: dây đi qua tâm dài nhất, bằng đường kính
 
 ⚠ **Lỗi thường gặp**: tưởng tiếp tuyến "song song với bán kính". Sai — tiếp tuyến **vuông góc** với bán kính tại điểm tiếp xúc. Phản ví dụ: nếu tiếp tuyến song song bán kính thì nó sẽ cắt đường tròn ở 2 điểm (thành cát tuyến), mâu thuẫn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đường thẳng cách tâm 4, R = 4. Đường thẳng là loại gì?
 2. Tiếp tuyến tạo với bán kính (tại tiếp điểm) góc bao nhiêu?
@@ -527,7 +527,7 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 2. Nhân/chia 2 sai chiều — nếu biết góc nội tiếp $30^\circ$ thì góc ở tâm $= 60^\circ$ ($\times 2$), không phải $15^\circ$. Quy tắc nhớ: **tâm to gấp đôi, nội tiếp nhỏ một nửa**.
 3. Quên rằng góc nội tiếp **chắn nửa đường tròn (đường kính)** thì **= $90^\circ$**, không phải $180^\circ$. Phản ví dụ: AB là đường kính, C trên viền → $\widehat{ACB} = 90^\circ$ (vì cung nửa $= 180^\circ$, chia 2). Nhiều người viết nhầm $180^\circ$ vì lẫn với số đo cung.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Góc ở tâm chắn cung $AB = 70^\circ$. Góc nội tiếp chắn cùng cung AB bằng bao nhiêu?
 2. AB là đường kính, C trên đường tròn. Góc ACB bằng bao nhiêu?
@@ -568,7 +568,7 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 
 ⚠ **Lỗi thường gặp**: nghĩ tổng 2 góc **kề** (không đối) $= 180^\circ$. Sai — định lý nói 2 góc **đối diện** mới bù nhau. Phản ví dụ: tứ giác nội tiếp $A=85$, $B=110$, $C=95$, $D=70$ — A và C đối ($85+95=180$ ✓), nhưng A và B kề ($85+110=195 \neq 180$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tứ giác ABCD nội tiếp, góc $B = 95^\circ$. Góc D bằng bao nhiêu?
 2. Hình thoi (không vuông) có nội tiếp đường tròn được không?
@@ -611,7 +611,7 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 
 ⚠ **Lỗi thường gặp**: lẫn "trung trực" (đường tròn ngoại tiếp) với "phân giác" (nội tiếp). Mẹo: ngoạ**i** tiếp ↔ trung trực (đỉnh ở ngoài viền); nộ**i** tiếp ↔ phân giác (chạm cạnh bên trong). Lỗi thứ 2: tưởng $R_\text{ngoại} = R_\text{nội}$ — với tam giác đều $R_\text{ngoại} = 2\cdot R_\text{nội}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tâm đường tròn ngoại tiếp tam giác **vuông** nằm ở đâu?
 2. Tam giác đều có quan hệ gì giữa R ngoại tiếp và r nội tiếp?
@@ -749,7 +749,7 @@ $$PT^2 = PA\cdot PB = 2\cdot 8 = 16 \Rightarrow PT = \mathbf{4}.$$
 - *"Vì sao tích luôn bằng nhau?"* Vì các tam giác tạo bởi 2 cát tuyến **đồng dạng** (chung góc tại P, và 2 góc nội tiếp cùng chắn 1 cung bằng nhau — mục 4). Tỉ lệ cạnh đồng dạng dẫn thẳng tới $PA\cdot PB = PC\cdot PD$.
 - *"Phương tích âm hay dương?"* Với P **ngoài**: $d^2 - R^2 > 0$ (dương). P **trên** đường tròn: $= 0$. P **trong**: $< 0$ (khi đó dùng giá trị tuyệt đối cho tích 2 đoạn dây).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Từ P kẻ tiếp tuyến $PT = 6$ và cát tuyến cắt tại A, B với $PA = 4$. Tìm $PB$.
 2. P cách tâm $d = 10$, $R = 6$. Độ dài tiếp tuyến từ P?
@@ -860,7 +860,7 @@ $$\Rightarrow (x-3)^2 + (y-5)^2 = 13.$$
 2. Sai dấu tâm: thấy $(x + 3)^2$ lại ghi tâm $a = 3$. Đúng là $a = -3$.
 3. Hoàn thành bình phương chỉ thêm vào 1 vế. Phải thêm số vào **cả hai vế** để giữ đẳng thức (xem Ví dụ 3).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm tâm & bán kính của $(x - 4)^2 + (y + 1)^2 = 49$.
 2. Đưa $x^2 + y^2 + 2x - 8y + 8 = 0$ về dạng chính tắc.

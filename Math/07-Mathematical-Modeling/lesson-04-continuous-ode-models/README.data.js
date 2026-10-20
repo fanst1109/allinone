@@ -133,7 +133,7 @@ Cùng $r$, đổi $N_0$ chỉ dịch đường; đổi $r$ đổi độ cong:
 
 - **Quên điều kiện đầu $N_0$**: nghiệm tổng quát $N = A\\,e^{rt}$ còn hằng $A$; phải chốt $A = N_0$ từ $N(0)$. Viết ngay "$N = e^{rt}$" chỉ đúng khi tình cờ $N_0 = 1$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một liều caffeine 200 mg, $T_{1/2} = 5$h. Còn bao nhiêu sau 15h?
 2. Đồng vị có $\\lambda = 0.1$/ngày. Chu kỳ bán rã?
@@ -358,7 +358,7 @@ Trường hướng (slope field) của logistic, gạch = dấu/độ lớn củ
 
 ⚠ **Lỗi thường gặp — tưởng logistic "vượt $K$ rồi vọt lố".** Nghiệm *liên tục* xuất phát dưới $K$ **không bao giờ vượt** $K$: khi $N\\to K$ thì $\\frac{dN}{dt}\\to 0$, tốc độ tắt dần đúng lúc chạm trần → tiệm cận từ dưới, không "đâm qua". Chỉ bản **rời rạc** (L03) hoặc Euler bước lớn (mục 5) mới vọt lố qua $K$ rồi nảy — đó là *artefact rời rạc hóa*, không phải hành vi của ODE. Đừng vẽ đường logistic liên tục nhô lên trên $K$ rồi tụt xuống.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Logistic $K = 500$, $N_0 = 500$. $N(t)$ bằng gì với mọi $t$?
 2. Vì sao $N = 0$ là cân bằng *không ổn định* của logistic?
@@ -448,7 +448,7 @@ Nguội Newton: chênh lệch tắt theo mũ, tiệm cận $T_p$:
 
 ⚠ **Lỗi thường gặp — quên rằng nồng độ ra dùng S hiện tại, không phải S vào.** Tốc độ ra $= (S/V)\\cdot$(lưu lượng ra), với $S/V$ là nồng độ *trong bồn* (thay đổi theo $t$), không phải nồng độ dòng vào. Lẫn hai cái → sai ODE.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bồn trên, sau bao lâu muối đạt 40 kg?
 

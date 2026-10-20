@@ -244,7 +244,7 @@ $$\\text{Tổng góc ngoài (bất kỳ đa giác lồi)} = 360^\\circ$$
 
 ⚠ **Lỗi thường gặp**: quên trừ 2, viết "tổng góc trong $= n\\cdot 180^\\circ$". Phản ví dụ: tứ giác ($n=4$) nếu lấy $4\\cdot 180 = 720^\\circ$ là sai; đúng là $(4-2)\\cdot 180 = 360^\\circ$. Lỗi thứ 2: lấy "mỗi góc đa giác đều = tổng/n" mà quên tính tổng trước — ngũ giác đều mỗi góc $= 540/5 = 108^\\circ$, không phải $180/5$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tổng góc trong của lục giác (6 cạnh) là bao nhiêu? Mỗi góc nếu là lục giác đều?
 2. Đa giác đều có mỗi góc trong $150^\\circ$. Đa giác có mấy cạnh?
@@ -570,7 +570,7 @@ $$S = \\frac{1}{2}\\left|32 - 3\\right| = \\frac{1}{2}\\cdot 29 = \\mathbf{14.5}
 
 **Lỗi 4 — sai đơn vị.** Diện tích luôn là đơn vị **bình phương**. Nếu cạnh đo bằng cm thì diện tích là cm², không phải cm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hình thang 2 đáy 3 và 7, cao 5. Diện tích?
 2. Hình thoi có cạnh 5, một đường chéo 6. Diện tích? (gợi ý: 2 đường chéo vuông góc tại trung điểm)

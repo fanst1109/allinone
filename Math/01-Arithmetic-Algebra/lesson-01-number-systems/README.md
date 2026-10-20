@@ -101,7 +101,7 @@ Walk-through cho $\mathbb{N}$ — kiểm tra từng phép bằng số thật:
 - *"$\mathbb{N}$ có vô hạn không?"* Có — vô hạn "đếm được": với mọi $n$ luôn còn $n+1$. Khi gặp $\mathbb{R}$ (§4) ta sẽ thấy $\mathbb{R}$ "vô hạn nhiều hơn" $\mathbb{N}$ (kết quả Cantor).
 - *"`int` trong Go có phải là $\mathbb{N}$/$\mathbb{Z}$ không?"* Không hẳn — `int64` bị chặn ($-2^{63}$ tới $2^{63}-1$), còn $\mathbb{N}$, $\mathbb{Z}$ vô hạn không chặn. Tính giai thừa lớn → `int` bị tràn (overflow), $\mathbb{N}$ thì không.
 
-🔁 **Dừng lại tự kiểm tra**: số nào thuộc $\mathbb{N}$: $7$, $-2$, $0$, $3.14$, $\sqrt{9}$, $0.5$? $\mathbb{N}$ có đóng dưới lũy thừa $a^b$ không?
+🔁 **Thực hành**: số nào thuộc $\mathbb{N}$: $7$, $-2$, $0$, $3.14$, $\sqrt{9}$, $0.5$? $\mathbb{N}$ có đóng dưới lũy thừa $a^b$ không?
 
 <details><summary>Đáp án</summary>
 
@@ -162,7 +162,7 @@ $$\begin{aligned}
 
 - *"Vì sao ký hiệu $\mathbb{Z}$ chứ không phải $I$ (Integer)?"* Vì $I$ thường để dành cho ma trận đơn vị (identity). Người Đức (Dedekind, Kronecker) dùng $Z$ từ *Zahlen* — thành chuẩn quốc tế.
 
-🔁 **Dừng lại tự kiểm tra**: tính $(-4) \times (-5) + (-2) \times 3 - (-1)$.
+🔁 **Thực hành**: tính $(-4) \times (-5) + (-2) \times 3 - (-1)$.
 
 <details><summary>Đáp án</summary>
 
@@ -283,7 +283,7 @@ Vế phải chia hết cho 2 → $q^2$ chẵn → (dùng lại bổ đề) → $
 - **Nhầm $0$ không phải hữu tỉ.** Sai: $0 = \frac{0}{1}$.
 - **Nhầm "phân số tối giản là cách viết duy nhất".** Một hữu tỉ có vô hạn cách viết: $\frac{1}{2} = \frac{2}{4} = \frac{3}{6} = \ldots$; tối giản chỉ là cách **chính tắc**.
 
-🔁 **Dừng lại tự kiểm tra**: $0.625$ có hữu tỉ không, viết $p/q$ tối giản? $\frac{1}{11}$ thập phân ra gì?
+🔁 **Thực hành**: $0.625$ có hữu tỉ không, viết $p/q$ tối giản? $\frac{1}{11}$ thập phân ra gì?
 
 <details><summary>Đáp án</summary>
 
@@ -387,7 +387,7 @@ Mỗi tập sau bao gồm tập trước. $\mathbb{R} \setminus \mathbb{Q}$ = t�
 - *"$0.999\ldots = 1$ thật à?"* Đúng, **bằng nhau** (không phải xấp xỉ). Vì $1/3 = 0.333\ldots$, nhân 3: $1 = 0.999\ldots$. Đây là 2 cách viết của cùng một số.
 - *"Có 'nhiều' số vô tỉ hơn hữu tỉ không?"* Có — $\mathbb{Q}$ đếm được còn $\mathbb{R}$ thì không, nên số vô tỉ "nhiều hơn vô hạn lần". Hầu hết số thực là vô tỉ.
 
-🔁 **Dừng lại tự kiểm tra**: $\sqrt{4}$ là số gì (hữu tỉ hay vô tỉ)? Còn $\sqrt{5}$?
+🔁 **Thực hành**: $\sqrt{4}$ là số gì (hữu tỉ hay vô tỉ)? Còn $\sqrt{5}$?
 
 <details><summary>Đáp án</summary>
 
@@ -542,7 +542,7 @@ Walk-through bất đẳng thức tam giác:
 - *"Quan hệ với $\sqrt{x^2}$?"* $\lvert x \rvert = \sqrt{x^2}$ (căn quy ước trả về giá trị không âm). Vd $\sqrt{(-3)^2} = \sqrt{9} = 3 = \lvert -3 \rvert$.
 - *"$\lvert \cdot \rvert$ trong code Go?"* Dùng `math.Abs(x)` cho `float64`; với `int` viết tay `if x < 0 { x = -x }`.
 
-🔁 **Dừng lại tự kiểm tra**: bất đẳng thức $\lvert x - 5 \rvert < 2$ mô tả tập số nào?
+🔁 **Thực hành**: bất đẳng thức $\lvert x - 5 \rvert < 2$ mô tả tập số nào?
 
 <details><summary>Đáp án</summary>
 
@@ -615,7 +615,7 @@ Bốn ví dụ: $\text{lcm}(4,6) = \frac{24}{2} = 12$; $\text{lcm}(5,7) = \frac{
 
 **Ứng dụng quy đồng**: cộng $\frac{1}{12} + \frac{1}{18}$, mẫu chung là $\text{lcm} = 36$: $\frac{3}{36} + \frac{2}{36} = \frac{5}{36}$.
 
-🔁 **Dừng lại tự kiểm tra**: tính $\gcd(24, 36)$ và $\text{lcm}(24, 36)$.
+🔁 **Thực hành**: tính $\gcd(24, 36)$ và $\text{lcm}(24, 36)$.
 
 <details><summary>Đáp án</summary>
 
@@ -694,7 +694,7 @@ func almostEqual(a, b, eps float64) bool {
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Số nào trong float là chính xác?"* Số viết được dạng $m \times 2^e$ ($m, e$ nguyên, $m$ vừa 53 bit): $0.5 = 2^{-1}$, $0.25 = 2^{-2}$, $0.75 = 3\cdot 2^{-2}$ đều chính xác. $0.1, 0.2, 0.3, \frac{1}{3}$ thì không.
 
-🔁 **Dừng lại tự kiểm tra**: `0.5 + 0.25 == 0.75` trả về gì trong Go? `0.1 + 0.1 + 0.1 == 0.3`?
+🔁 **Thực hành**: `0.5 + 0.25 == 0.75` trả về gì trong Go? `0.1 + 0.1 + 0.1 == 0.3`?
 
 <details><summary>Đáp án</summary>
 

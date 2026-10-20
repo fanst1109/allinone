@@ -121,7 +121,7 @@ Vector riêng $(1,1)$: sau khi qua $A$ vẫn nằm trên **cùng tia** đi qua g
 
 ⚠ **Lỗi thường gặp — tưởng $A\\cdot\\vec{v} = \\lambda\\cdot\\vec{v}$ đúng với mọi $\\vec{v}$**. Chỉ đúng với **vector riêng**. Phản ví dụ: $A = \\begin{bmatrix} 3 & 1 \\\\ 0 & 2 \\end{bmatrix}$, lấy $\\vec{v} = (1,1)$ (không phải eigenvector): $A\\cdot\\vec{v} = (4, 2)$. Có là bội của $(1,1)$ không? $(4,2) = k(1,1)$ đòi $k=4$ và $k=2$ — mâu thuẫn → KHÔNG phải eigenvector.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $A = \\begin{bmatrix} 5 & 0 \\\\ 0 & 3 \\end{bmatrix}$. $(1,0)$ có phải eigenvector? Trị riêng?
 2. Nếu $\\vec{v}$ là eigenvector của $A$ với $\\lambda = 2$, thì $3\\vec{v}$ có phải eigenvector? Trị riêng?
@@ -233,7 +233,7 @@ $$\\det(A - \\lambda I) = (7-\\lambda)(3-\\lambda)(-1-\\lambda) = 0 \\to \\lambd
 
 ⚠ **Lỗi thường gặp — trừ $\\lambda$ khỏi cả ma trận thay vì chỉ đường chéo**. $A - \\lambda I$ chỉ trừ $\\lambda$ ở **đường chéo**, các ô khác giữ nguyên. Phản ví dụ: $A = \\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \\end{bmatrix}$, $A - \\lambda I = \\begin{bmatrix} 2-\\lambda & 1 \\\\ 1 & 2-\\lambda \\end{bmatrix}$ — ô góc trên-phải vẫn là 1, KHÔNG phải $1-\\lambda$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lập PT đặc trưng của $A = \\begin{bmatrix} 1 & 2 \\\\ 2 & 1 \\end{bmatrix}$.
 2. $(A - \\lambda I)$ tại $\\lambda = 3$ cho $A = \\begin{bmatrix} 3 & 1 \\\\ 0 & 2 \\end{bmatrix}$ là ma trận nào?
@@ -351,7 +351,7 @@ Cùng một biến đổi $A$ trông rối (off-diagonal $\\neq 0$) ở hệ tr�
 
 - **Quên chuẩn hóa khi cần $Q$ trực giao**: chéo hóa thường không bắt buộc, nhưng dạng phổ $A = QDQ^\\top$ ($Q^{-1} = Q^\\top$) của ma trận đối xứng đòi chia mỗi $\\vec{v}$ cho độ dài — $(1,1)$ phải thành $(1/\\sqrt{2}, 1/\\sqrt{2})$, bỏ qua thì $Q^\\top \\neq Q^{-1}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $A$ có $\\lambda = 2, 4$. Tính các trị riêng của $A^3$ (không cần chéo hóa).
 2. Cho $A = PDP^{-1}$ với $D = \\text{diag}(0.5, 2)$. Khi $n \\to \\infty$, $A^n$ tiến về đâu (về mặt trị riêng)?
@@ -404,7 +404,7 @@ Giả sử sau khi center dữ liệu, ma trận hiệp phương sai (covariance
 
 ⚠ **Lỗi thường gặp — quên chuẩn hóa dữ liệu trước PCA**. Nếu các biến khác đơn vị (vd cm và kg), biến có giá trị lớn sẽ "lấn át" phương sai → trục chính bị lệch. Phải chuẩn hóa (trừ trung bình, chia độ lệch chuẩn) trước.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ma trận hiệp phương sai có trị riêng 8, 1.5, 0.5. Giữ 1 thành phần thì giữ được bao nhiêu % phương sai?
 
@@ -441,7 +441,7 @@ Tổng = 8 + 1.5 + 0.5 = 10. Giữ trị riêng lớn nhất (8) → 8/10 = **80
 
 ⚠ **Lỗi thường gặp — tưởng eigenvector mọi ma trận đều trực giao**. Chỉ **ma trận đối xứng** mới đảm bảo eigenvector trực giao. Phản ví dụ: $A = \\begin{bmatrix} 3 & 1 \\\\ 0 & 2 \\end{bmatrix}$ (không đối xứng) có eigenvector $(1,0)$ và $(1,-1)$; tích vô hướng $= 1 \\neq 0 \\to$ KHÔNG trực giao.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $A$ là $2\\times 2$, trace $= 7$, $\\det = 12$. Tìm 2 trị riêng.
 
@@ -511,7 +511,7 @@ Trong thực tế Google thêm **damping factor** $d = 0.85$: $M' = dM + \\tfrac
 
 Với $\\theta = 90°$: $\\lambda = \\pm i$ (như Bài 5). Với $\\theta = 60°$: $\\lambda = \\tfrac{1}{2} \\pm i\\tfrac{\\sqrt{3}}{2}$. Ý nghĩa: $|\\lambda| = 1$ luôn (quay không co giãn độ dài), phần ảo $\\sin\\theta$ mã hóa **góc quay**. Không có vector thực nào thoả $R\\vec{v} = \\lambda\\vec{v}$ với $\\lambda$ thực vì mọi vector đều bị xoay.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ma trận chuyển PageRank 2 trang A↔B (A→B, B→A) là gì? Tìm $\\vec{\\pi}$.
 2. $A$ có trị riêng $0.9$ và $-0.5$. Hệ $\\vec{x}_{k+1} = A\\vec{x}_k$ ổn định không?

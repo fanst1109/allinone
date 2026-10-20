@@ -126,7 +126,7 @@ $f(x, y) = c$ (hằng số) → đường cong trong mặt phẳng xy.
 
 ⚠ **Lỗi thường gặp — nhầm đồ thị với đường mức**. Đồ thị $f(x,y)$ sống trong **3D** (mặt cong). Đường mức sống trong **2D** (mặt phẳng xy), là "lát cắt nằm ngang" của đồ thị chiếu xuống. Vd với $f = x^2+y^2$: đồ thị là chén parabol, đường mức là các vòng tròn đồng tâm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x,y) = x^2 - y^2$. Tính $f(3,1)$.
 2. Đường mức $f = 4$ của $f(x,y) = x + y$ là hình gì?
@@ -207,7 +207,7 @@ $\\frac{\\partial f}{\\partial x}$ tại $(a, b)$ = slope của giao cắt với
 
 ⚠ **Lỗi thường gặp — lẫn $\\partial$ (riêng) với $d$ (toàn phần)**. Khi lấy $\\frac{\\partial f}{\\partial x}$, biến y **bất biến** (đứng yên). Nếu viết $d/dx$ mà coi $y = y(x)$ phụ thuộc x thì khác hẳn (đó là đạo hàm toàn phần, có thêm số hạng $\\frac{\\partial f}{\\partial y} \\cdot \\frac{dy}{dx}$). Phản ví dụ: $f = xy$, $\\frac{\\partial f}{\\partial x} = y$ (coi y hằng); nhưng nếu $y = x$ thì $\\frac{df}{dx}$ của $f = x\\cdot x = x^2$ là $2x \\neq y$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x,y) = 3x^2y + y^3$. Tính $\\frac{\\partial f}{\\partial x}$ và $\\frac{\\partial f}{\\partial y}$.
 2. Đánh giá $\\frac{\\partial f}{\\partial x}$ tại $(1, 2)$.
@@ -315,7 +315,7 @@ $= \\mathbf{-\\nabla f}$. Đây là nền tảng của **Gradient Descent** tron
 
 ⚠ **Lỗi thường gặp — tưởng $\\nabla f$ là 1 số**. Gradient là **vector** (gồm các đạo hàm riêng), không phải số. Phản ví dụ: $f = x^2+y^2$ tại $(3,4)$ cho $\\nabla f = \\mathbf{(6, 8)}$ (vector 2 thành phần), còn $\\lVert\\nabla f\\rVert = 10$ mới là số (độ lớn). Lẫn 2 thứ → sai khi áp dụng gradient descent.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x,y) = x^2 + 3y^2$. Tính $\\nabla f$ tại $(1, 1)$ và $\\lVert\\nabla f\\rVert$.
 2. Hướng giảm nhanh nhất của $f$ tại $(1,1)$ là hướng nào?
@@ -365,7 +365,7 @@ $$H = \\begin{bmatrix} \\dfrac{\\partial^2 f}{\\partial x^2} & \\dfrac{\\partial
 
 ⚠ **Lỗi thường gặp — nhầm $\\frac{\\partial^2 f}{\\partial x^2}$ với $\\left(\\frac{\\partial f}{\\partial x}\\right)^2$**. $\\frac{\\partial^2 f}{\\partial x^2}$ là đạo hàm **hai lần** (lấy đạo hàm của đạo hàm). Phản ví dụ: $f = x^2$, $\\frac{\\partial f}{\\partial x} = 2x$. $\\frac{\\partial^2 f}{\\partial x^2} = 2$ (đạo hàm lần nữa), KHÁC $\\left(\\frac{\\partial f}{\\partial x}\\right)^2 = (2x)^2 = 4x^2$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f = x^2y$. Tính ma trận Hessian.
 
@@ -514,7 +514,7 @@ Bước 3 & 4 — phân loại từng điểm:
 
 Vì sao $\\det > 0$ thôi chưa đủ phân biệt min/max? Vì cả "cùng dương" lẫn "cùng âm" đều cho $\\det > 0$ — nên cần thêm dấu $f_{xx}$ (hoặc dấu một eigenvalue) để biết lõm lên hay vồng xuống.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f = x^2 + y^2$. Tìm điểm dừng và phân loại.
 2. $f = 4xy - x^4 - y^4$. Tại điểm dừng $(1, 1)$, $H = \\begin{bmatrix} -12 & 4 \\\\ 4 & -12 \\end{bmatrix}$. Đây là loại điểm gì?
@@ -607,7 +607,7 @@ Hai bài học từ lời giải: **(i)** tích bị thừa số nhỏ kéo xu�
 
 ⚠ **Lỗi thường gặp — quên phương trình ràng buộc**. Hệ Lagrange có **3 phương trình** (2 từ $\\nabla f = \\lambda\\nabla g$ + 1 là $g = c$). Bỏ phương trình ràng buộc → thiếu thông tin, không giải ra $\\lambda$. Phản ví dụ: chỉ giải $y = \\lambda, x = \\lambda$ ở walk-through 1 cho $x = y$ nhưng không ra số cụ thể; phải thêm $x + y = 10$ mới khóa được $\\lambda = 5$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tối đa $f = xy$ với $x^2 + y^2 = 8$. (Gợi ý: $g = x^2+y^2$, $\\nabla g = (2x, 2y)$.)
 

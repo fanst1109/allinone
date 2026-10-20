@@ -46,7 +46,7 @@
 - *"Tất định và ngẫu nhiên loại trừ nhau à?"* Không. Phần lớn mô hình thực có **cả hai**: phần xu hướng tất định ($\mu \Delta t$ — độ trôi) + phần nhiễu ngẫu nhiên ($\sigma \sqrt{\Delta t}\, Z$). Giá cổ phiếu ở trên là ví dụ: trôi lên trung bình + dao động ngẫu nhiên quanh đó.
 - *"Sao không cứ chạy mô hình tất định nhiều lần với đầu vào hơi khác nhau?"* Đó *chính là* tinh thần mô phỏng ngẫu nhiên — nhưng phải sinh đầu vào theo *đúng phân phối* của nguồn bất định, rồi tổng hợp thành phân phối kết cục, chứ không chọn vài giá trị tùy tiện.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một xưởng dự báo "tháng sau bán đúng 1000 sản phẩm" rồi đặt nguyên liệu cho đúng 1000. Vì sao đây là tư duy tất định nguy hiểm? Mô hình ngẫu nhiên giúp gì?
 
@@ -287,7 +287,7 @@ Quan sát: mỗi lần $N$ tăng $\times 100$, sai lệch giảm khoảng $\time
 
 **Lỗi 3 — mẫu không độc lập / seed cố định nhầm.** Nếu các mẫu bị tương quan (PRNG xấu, hoặc vô tình tái dùng cùng số), luật số lớn *không* áp dụng đúng → sai số không giảm như $1/\sqrt{N}$ dù $N$ lớn. Ngược lại, cố định seed là *tốt* để tái lập, nhưng đừng báo cáo *một* lần chạy seed cố định như thể đó là kết quả tổng quát — hãy chạy nhiều seed để thấy dao động.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Monte Carlo ước lượng $\pi$: gieo 2000 điểm, 1561 rơi trong cung. Ước lượng $\pi$?
 
@@ -338,7 +338,7 @@ Mỗi lần $N \times 100$, sai lệch $\div 10$ — lại đúng $1/\sqrt{N}$.
 
 ❓ **Câu hỏi tự nhiên.** *"Tích phân 1 biến đã có công thức / hình thang nhanh hơn, sao dùng Monte Carlo?"* Đúng — với 1–3 chiều, lưới (Simpson, hình thang) chính xác hơn. **Ưu thế Monte Carlo lộ ra khi nhiều chiều**: tích phân 20 chiều bằng lưới $10$ điểm/chiều cần $10^{20}$ điểm (bất khả thi), còn Monte Carlo vẫn chỉ cần $N$ mẫu với sai số $1/\sqrt{N}$ *bất kể số chiều*. Đó là lý do định giá quyền chọn nhiều tài sản, vật lý hạt, đồ họa (path tracing) đều dùng Monte Carlo.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng 4 điểm $x = 0.2, 0.5, 0.7, 0.9$ ước lượng $\int_0^1 x^2\,dx$ (coi như mẫu). Kết quả?
 
@@ -469,7 +469,7 @@ Kết thúc ở $S_{10} = +2$. (Lý thuyết: $E[S_{10}]=0$, độ lệch chuẩ
 
 ⚠ **Lỗi thường gặp.** Tưởng "đi 100 bước thì lạc xa ~100 đơn vị". Sai — vì các bước triệt tiêu nhau, độ tản chỉ $\sim\sqrt{100}=10$. Nhầm lẫn $n$ với $\sqrt{n}$ ở đây là lỗi kinh điển.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Random walk 1D, sau 400 bước, "khoảng cách điển hình" tới gốc cỡ bao nhiêu? Sau 1600 bước thì gấp mấy lần?
 
@@ -517,7 +517,7 @@ $\sqrt{400}=20$ đơn vị. Sau 1600 bước: $\sqrt{1600}=40$ → **gấp 2 l�
 
 ⚠ **Lỗi thường gặp — lẫn hàng/cột của ma trận chuyển, hoặc hàng không cộng $= 1$.** Quy ước phổ biến: hàng $i = $ "từ trạng thái $i$", các cột là "tới", mỗi *hàng* cộng $= 1$. Sai quy ước → nhân ma trận sai chiều. Luôn kiểm mỗi hàng tổng $= 1$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Khách hàng: trung thành (T)/rời (R). $P(T \to T) = 0.9$, $P(R \to T) = 0.5$. Tìm phân phối dừng.
 

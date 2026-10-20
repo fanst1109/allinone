@@ -125,7 +125,7 @@ Số hạng **không chứa $x$** (số hạng tự do) ứng với $4 - 2k = 0 
 
 ⚠ **Lỗi thường gặp — đếm số hạng từ $1$ rồi nhầm với $k$**. Số hạng tổng quát là $T_{k+1}$, tức **số hạng thứ $5$** ứng với $k=4$ (không phải $k=5$). Phản ví dụ: trong $(x+2)^4$, "số hạng thứ 3" là $C(4,2)x^2 2^2 = 24x^2$, ứng $k=2$ — nếu lấy $k=3$ sẽ ra nhầm $32x$ (số hạng thứ 4).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Khai triển $(a+b)^2$ bằng nhị thức, đối chiếu hằng đẳng thức quen.
 2. Tính tổng các hệ số trong khai triển $(a+b)^4$ (gợi ý: cho $a = b = 1$).
@@ -312,7 +312,7 @@ Vì mỗi ô tam giác là $C(n,k)$, mọi tính chất tổ hợp ở [Lesson 0
 
 ⚠ **Lỗi thường gặp — đánh số tầng/cột bắt đầu từ 1 thay vì 0**. Tầng trên cùng là **tầng 0** (chỉ có số 1 $= C(0,0)$); trong mỗi tầng, vị trí trái nhất là **cột 0**. Phản ví dụ: số thứ 3 (từ trái, đếm từ 0 → vị trí 2) ở tầng 5 là $C(5,2) = 10$, KHÔNG phải $C(5,3)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết tầng 7 của tam giác Pascal.
 2. Tổng các số ở tầng 6 bằng bao nhiêu?
@@ -403,7 +403,7 @@ $$(1+x)^n \\approx 1 + nx \\quad (x \\text{ rất nhỏ})$$
 
 ⚠ **Lỗi thường gặp**: tìm hệ số nhưng quên phần lũy thừa của hằng số. Phản ví dụ: hệ số $x^4$ trong $(2x-3)^7$ KHÔNG phải $C(7,3) = 35$ — phải nhân thêm $2^4 \\cdot (-3)^3$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hệ số của $x^2$ trong $(1+x)^6$.
 2. Số tập con khác rỗng của tập 4 phần tử.
@@ -467,7 +467,7 @@ Kiểm số tại $x=y=z=1$: vế trái $3^3 = 27$; vế phải $3\\cdot 1 + 3\\
 
 ⚠ **Lỗi thường gặp**: quên hệ số chéo ($2ab$...) khi khai triển $(a+b+c)^2$. Phản ví dụ: $(a+b+c)^2 \\neq a^2+b^2+c^2$ — thiếu $2ab+2bc+2ca$. Kiểm số: $(1+1+1)^2 = 9$, còn $1+1+1 = 3 \\neq 9$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hệ số của $a^2 b$ trong $(a+b)^3$ (dùng binomial).
 2. Hệ số của $xyz$ trong $(x+y+z)^3$.

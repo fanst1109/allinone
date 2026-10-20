@@ -63,7 +63,7 @@ Dấu $f'$ đọc thành "hình dáng" đồ thị: lên–đỉnh–xuống–�
 
 ⚠ **Lỗi thường gặp — kết luận biến thiên chỉ từ dấu $f'$ tại MỘT điểm**. $f(x) = x^3 - 3x$: nhìn $f'(0) = -3 < 0$ rồi nói "f giảm" là phiến diện — phải xét dấu $f'$ trên từng khoảng $(-\\infty,-1), (-1,1), (1,\\infty)$ mới đủ. Luôn lập bảng dấu, không thay một điểm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^2 - 4x$. Khoảng đồng biến, nghịch biến?
 2. $f(x) = e^x$. Đồng hay nghịch biến trên $\\mathbb{R}$?
@@ -169,7 +169,7 @@ $$f(x_2) - f(x_1) = f'(c)\\,(x_2 - x_1) > 0$$
 - *"Camera đo trung bình 120 nhưng tôi cãi 'có lúc nào tốc độ đúng 120 đâu'?"* — MVT bác bỏ: quãng đường là hàm liên tục, khả vi (xe không dịch chuyển tức thời), nên chắc chắn tồn tại khoảnh khắc tốc độ tức thời đúng bằng 120.
 - *"Rolle và Lagrange, cái nào tổng quát hơn?"* — Lagrange. Rolle là Lagrange với $f(a) = f(b)$ (cát tuyến nằm ngang). Nhưng chứng minh Lagrange lại dựa vào Rolle (mục 2.2) — nghiêng hệ trục cho cát tuyến nằm ngang.
 
-🔁 **Dừng lại tự kiểm tra**: $f(x) = x^2 - 2x$ trên $[0, 3]$ — tìm $c$ của MVT.
+🔁 **Thực hành**: $f(x) = x^2 - 2x$ trên $[0, 3]$ — tìm $c$ của MVT.
 
 <details><summary>Đáp án</summary>
 
@@ -252,7 +252,7 @@ Nếu $f'(x_0) = 0$:
 
 ⚠ **Lỗi thường gặp — quên kiểm hai đầu mút khi tìm max/min trên $[a,b]$**. Tìm min của $f(x) = x^2$ trên $[1, 3]$: $f'=0$ cho $x=0$ **nằm ngoài** đoạn → bỏ; min thực ra tại mút $x=1$ ($f=1$). Chỉ giải $f'=0$ rồi quên mút sẽ ra kết quả sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^2 - 6x + 1$. Tìm cực trị (loại gì, giá trị).
 2. $f(x) = x^4$. $f''(0) = 0$ — làm sao biết $x=0$ là cực tiểu?
@@ -319,7 +319,7 @@ Nếu $f'(x_0) = 0$:
 
 ⚠ **Lỗi thường gặp — gọi mọi nghiệm $f''=0$ là điểm uốn**. Phản ví dụ $x^4$ ở trên: $f''(0)=0$ nhưng không đổi dấu → không uốn. Điều kiện đủ: $f''(x_0)=0$ **và** $f''$ đổi dấu qua $x_0$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $f(x) = x^2$. Lồi hay lõm? Có điểm uốn không?
 2. $f(x) = x^3 - 3x$. Tìm điểm uốn.
@@ -478,7 +478,7 @@ Nhánh trái ($x<1$): lõm, có cực đại $(0,0)$, lao xuống $-\\infty$ khi
 
 ⚠ **Lỗi thường gặp — quên xét miền xác định trước**. Khảo sát $f(x) = \\ln x$ mà quên $x > 0$ sẽ vẽ cả phần $x < 0$ (không tồn tại). Bước 1 (miền xác định) phải làm **đầu tiên**, mọi bước sau chỉ xét trong miền.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hàm $f(x) = 1/(x-1)$ có tiệm cận đứng và ngang ở đâu?
 2. Bước nào trong 7 bước phát hiện cực trị?
@@ -539,7 +539,7 @@ $$\\lim_{x\\to0^+} x\\ln x = \\lim_{x\\to0^+} \\frac{\\ln x}{1/x} \\quad (\\text
 - *"l'Hôpital có phải đạo hàm thương $(f/g)'$?"* KHÔNG. Đây là $f'/g'$ (đạo hàm riêng tử và mẫu rồi chia), không phải quy tắc thương $(f'g-fg')/g^2$. Lẫn hai cái là lỗi rất phổ biến.
 - *"Dạng $0\\cdot\\infty$ hay $\\infty-\\infty$ dùng được không?"* Phải **biến đổi về $0/0$ hoặc $\\infty/\\infty$** trước. Vd $x\\cdot\\ln x$ ($0\\cdot\\infty$ khi $x\\to0^+$) → viết $\\ln x/(1/x)$ (dạng $\\infty/\\infty$) rồi l'Hôpital.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\lim_{x \\to 0} (e^x - 1 - x)/x^2 = ?$
 2. Có được dùng l'Hôpital cho $\\lim_{x \\to 1} (x^2+1)/(x+3)$ không?
@@ -620,7 +620,7 @@ Người cứu hộ ở bờ, điểm $A$ cách mép nước $0$ (ngay bờ), ng
 
 ⚠ **Lỗi thường gặp — quên ràng buộc miền của biến**. Tối ưu mà để biến chạy tự do vô hạn dễ ra nghiệm vô lý (cạnh âm, kích thước lớn hơn vật liệu). Luôn xác định miền hợp lệ (vd $0 < x < 6$) **trước** khi tìm cực trị.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Chu vi hình chữ nhật $= 20$. Diện tích lớn nhất là bao nhiêu, đạt khi nào?
 2. Trong bài hộp, vì sao $V(2)$ lớn hơn $V$ tại hai biên $x\\to0$ và $x\\to6$?
@@ -675,7 +675,7 @@ Thang dài $10$ m dựa tường. Chân thang trượt xa tường với tốc �
 
 ⚠ **Lỗi thường gặp — thay số TRƯỚC khi đạo hàm**. Nếu thay $x=6$ vào ràng buộc $x^2+y^2=100$ ngay từ đầu thành "$36 + y^2 = 100$" rồi mới đạo hàm, $x$ trở thành hằng số → mất hạng tử $2x\\frac{dx}{dt}$ → sai. **Phải đạo hàm khi mọi biến còn là hàm của $t$, rồi mới thay số.**
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Nước chảy vào bể trụ (bán kính đáy $2$ m) với $3$ m³/phút. Mực nước dâng nhanh cỡ nào?
 2. Trong ví dụ thang, khi $x=8$ thì $\\frac{dy}{dt}$ là bao nhiêu?
@@ -730,7 +730,7 @@ Thật: $\\sin 0.1 = 0.09983\\ldots$ → cơ sở của xấp xỉ $\\sin x \\ap
 
 ⚠ **Lỗi thường gặp — dùng cho $x$ xa $a$**. Xấp xỉ chỉ tốt khi $|x-a|$ nhỏ. Vd $\\sqrt{9}$ từ $a=4$: $L(9) = 2 + \\frac14(5) = 3.25$ nhưng thật $\\sqrt9 = 3$ → sai $0.25$. Càng xa, độ cong $f''$ kéo đồ thị rời tiếp tuyến → sai lớn. Chọn $a$ là điểm "đẹp" **gần** $x$ nhất.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Xấp xỉ $\\sqrt{25.3}$ dùng $a = 25$.
 2. Xấp xỉ $e^{0.02}$ dùng $a = 0$.

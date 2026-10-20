@@ -341,7 +341,7 @@ Giải xong **luôn thế nghiệm vào phương trình gốc** để chắc. Vd
 - *"Nhân 2 vế cho số âm có đổi chiều không?"* **Phương trình thì KHÔNG** (dấu $=$ không có "chiều"). $-3 = -3$ vẫn vậy. Chỉ **bất đẳng thức** ($<, >$) mới phải đổi chiều khi nhân số âm. Đây là chỗ hay nhầm.
 - *"Bình phương 2 vế có phải biến đổi tương đương?"* **Không hẳn** — có thể thêm nghiệm lạ. $x = 2$ có 1 nghiệm nhưng $x^2 = 4$ có 2 nghiệm $\\pm 2$. Bài này chỉ dùng cộng/trừ/nhân/chia nên an toàn.
 
-🔁 **Dừng lại tự kiểm tra**: giải $3x - 5 = x + 7$.
+🔁 **Thực hành**: giải $3x - 5 = x + 7$.
 
 <details><summary>Đáp án</summary>
 
@@ -349,7 +349,7 @@ $3x - x = 7 + 5 \\to 2x = 12 \\to x = 6$. Thế lại: $3\\cdot 6-5 = 13$, $6+7 
 
 </details>
 
-🔁 **Dừng lại tự kiểm tra (3 trường hợp)**: mỗi PT sau là nghiệm duy nhất, vô nghiệm, hay vô số nghiệm?
+🔁 **Thực hành (3 trường hợp)**: mỗi PT sau là nghiệm duy nhất, vô nghiệm, hay vô số nghiệm?
 (1) $4x - 1 = 4x + 3$; (2) $2(x - 3) = 2x - 6$; (3) $5x + 2 = 17$.
 
 <details><summary>Đáp án</summary>
@@ -491,7 +491,7 @@ b &= 3 - 2 = 1 &&\\text{(giải phương trình bậc 1 ẩn } b)
 - *"$y = mx + b$ liên quan gì tới $ax + b = 0$ ở Mục 1?"* Giải $mx + b = 0$ (cho $y = 0$) chính là tìm **giao điểm với trục $Ox$** — nghiệm của phương trình bậc 1 là **hoành độ giao điểm** với trục ngang.
 - *"Hai đường có cùng $m$ thì sao?"* **Song song** (cùng độ dốc, không gặp nhau) nếu khác $b$; **trùng nhau** nếu cùng cả $m$ và $b$. Đây chính là 2 trong 3 trường hợp của hệ phương trình ở Mục 3.
 
-🔁 **Dừng lại tự kiểm tra**: viết phương trình đường thẳng qua $(0, -2)$ và $(2, 4)$; tìm giao điểm với trục $Ox$.
+🔁 **Thực hành**: viết phương trình đường thẳng qua $(0, -2)$ và $(2, 4)$; tìm giao điểm với trục $Ox$.
 
 <details><summary>Đáp án</summary>
 
@@ -632,7 +632,7 @@ Hai slope **khác nhau** ($-1 \\neq 2$) → hai đường **cắt nhau** → đ�
 
 **Ví dụ vô số nghiệm** (trùng nhau): $\\begin{cases} x + y = 3 \\\\ 2x + 2y = 6 \\end{cases}$ — PT (2) là PT (1) nhân đôi. Trừ $2\\times$(1) khỏi (2): $0 = 0$ (đúng) → **vô số nghiệm** (mọi điểm trên đường $x + y = 3$).
 
-🔁 **Dừng lại tự kiểm tra**: giải hệ $x + y = 5$, $x - y = 1$.
+🔁 **Thực hành**: giải hệ $x + y = 5$, $x - y = 1$.
 
 <details><summary>Đáp án</summary>
 
@@ -640,7 +640,7 @@ Cộng 2 PT: $2x = 6 \\to x = 3$. Thế: $y = 5 - 3 = 2$. → $(3, 2)$. Kiểm: 
 
 </details>
 
-🔁 **Dừng lại tự kiểm tra (phân loại)**: hệ $\\begin{cases} 2x - y = 1 \\\\ 4x - 2y = 7 \\end{cases}$ có bao nhiêu nghiệm?
+🔁 **Thực hành (phân loại)**: hệ $\\begin{cases} 2x - y = 1 \\\\ 4x - 2y = 7 \\end{cases}$ có bao nhiêu nghiệm?
 
 <details><summary>Đáp án</summary>
 

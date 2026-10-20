@@ -82,7 +82,7 @@ Cốt lõi: **đếm so sánh**. Nếu mỗi chuồng "chịu" tối đa 1 con t
 
 - **Đếm "hộp" sai số lượng**: số dư chia $m$ có đúng **$m$** lớp ($0..m-1$); chia 12 → 12 hộp, cần 13 số mới chắc trùng dư.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. 100 người, 12 tháng. Ít nhất bao nhiêu người cùng tháng?
 2. Chọn 5 số bất kỳ từ $\\{1,\\dots,8\\}$. Vì sao chắc chắn có 2 số tổng bằng 9?
@@ -166,7 +166,7 @@ Chọn bất kỳ $n+1$ số từ $\\{1, 2, \\dots, 2n\\}$. Chứng minh có 2 s
 
 ⟶ Đây là minh họa rõ nhất cho ý "bài khó = **thiết kế hộp**": hộp không phải lúc nào cũng hiển nhiên (tháng, màu, số dư) — đôi khi phải tự dựng (cặp liên tiếp).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong 50 người, chắc chắn có ít nhất bao nhiêu người cùng tháng sinh?
 2. Trong 8 số nguyên bất kỳ, vì sao có 2 số cùng số dư khi chia 7?
@@ -326,7 +326,7 @@ $$\\left|\\bigcup_{i=1}^{n} A_i\\right| = \\sum_{\\emptyset \\neq S \\subseteq \
 
 - **Nhầm "đúng $k$ tập" với "ít nhất $k$ tập"**: "$|A\\cap B| = 15$" thường là **ít nhất** A và B; số học **đúng** Toán+Lý $= 15 - |T\\cap L\\cap H| = 15 - 5 = 10$. Đọc kỹ đề.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. 60 người: 35 biết tiếng Anh, 25 biết tiếng Pháp, 10 biết cả hai. Bao nhiêu người biết ít nhất 1 thứ tiếng? Không biết thứ nào?
 2. Số từ 1–30 chia hết cho 2 hoặc 3?
@@ -354,7 +354,7 @@ $$\\left|\\bigcup_{i=1}^{n} A_i\\right| = \\sum_{\\emptyset \\neq S \\subseteq \
 
 ⚠ **Lỗi 4 — quên rằng "phần bù" cũng cần bù trừ**. Khi đếm "thiếu ít nhất 1 người", các sự kiện $A_i$ **chồng nhau** (thiếu người 1 và thiếu người 2 có thể cùng xảy ra) → phải áp I-E cho chúng, không cộng thẳng $3\\cdot16 = 48$ (sẽ đếm trùng phần "thiếu 2 người").
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Có bao nhiêu cách gán 3 món quà khác nhau cho 2 người sao cho ai cũng có ít nhất 1 món?
 2. Có bao nhiêu số trong $1..20$ KHÔNG chia hết cho cả 2 lẫn 3 (tránh cả hai)?
@@ -411,7 +411,7 @@ $$\\varphi(n) = n \\cdot \\prod_{i=1}^{k} \\left(1 - \\frac{1}{p_i}\\right)$$
 
 ⚠ **Lỗi thường gặp**: dùng $(p-1)(q-1)$ khi p, q KHÔNG phân biệt hoặc n có mũ. Phản ví dụ: $\\varphi(12) \\neq (2-1)(\\dots)$ ngây thơ — phải $12 \\cdot (1-1/2) \\cdot (1-1/3) = 4$ ($12 = 2^2 \\cdot 3$, chỉ nhân theo nguyên tố phân biệt 2 và 3).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\varphi(20) = ?$ ($20 = 2^2 \\cdot 5$).
 2. Đếm số $\\le 10$ coprime với 10, đối chiếu $\\varphi(10)$.
@@ -487,7 +487,7 @@ Từ $n = 4$ trở đi tỉ lệ đã dao động rất sát $1/e$ — đó là 
 
 ⚠ **Lỗi thường gặp**: tưởng $D_n$ tăng tỉ lệ giảm dần về 0% khi n lớn. SAI — tỉ lệ derangement $D_n/n!$ hội tụ về $1/e \\approx 36.8\\%$, KHÔNG về 0. Phản ví dụ: $D_4/4! = 9/24 = 37.5\\%$, $D_5/5! = 44/120 = 36.7\\%$ — ổn định quanh 37%.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $D_5 = ?$
 2. 3 người ngẫu nhiên nhận lại 3 chiếc mũ. Xác suất không ai nhận đúng mũ mình?

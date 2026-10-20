@@ -170,7 +170,7 @@ $$\\begin{aligned}
 
 ⚠ **Lỗi thường gặp — nhầm tích vô hướng với nhân từng phần tử**. $\\vec{u}\\cdot\\vec{v}$ là **1 số** (cộng tất cả các tích), KHÔNG phải vector. Phản ví dụ: $(1,2)\\cdot(3,4) = 1\\cdot 3 + 2\\cdot 4 = \\mathbf{11}$ (một số), không phải $(3, 8)$. Phép "nhân từng phần tử" $(3, 8)$ tồn tại nhưng gọi là tích Hadamard, khác hẳn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $\\vec{a} = (2, -1)$, $\\vec{b} = (1, 2)$. Tính $\\vec{a}\\cdot\\vec{b}$. Hai vector này có vuông góc không?
 2. Tính $\\lVert(3, 4)\\rVert$.
@@ -375,7 +375,7 @@ Cùng tập số nhưng sắp khác. Lý do trực giác: $B$ ở đây là "ho�
 - *"Vì sao quy tắc nhân ma trận 'rối' thế, sao không nhân từng ô như cộng?"* Vì nhân ma trận được **thiết kế để = ghép biến đổi**. Muốn "(A rồi B)$\\cdot\\vec{x}$ = A$\\cdot$(B$\\cdot\\vec{x}$)" đúng thì buộc phải dùng quy tắc hàng·cột này. Nhân từng ô không cho tính chất đó.
 - *"AB tốn bao nhiêu phép tính?"* Với 2 ma trận $n \\times n$: mỗi ô cần n phép nhân, có $n^2$ ô → $n^3$ phép nhân. Vd $n=2$ → 8 phép nhân (khớp 4 ô × 2 tích mỗi ô ở trên).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $A = \\begin{bmatrix} 2 & 0 \\\\ 0 & 3 \\end{bmatrix}$, $\\vec{x} = (1, 1)$. Tính $A\\vec{x}$.
 2. A là $3 \\times 2$, B là $2 \\times 4$. $AB$ là ma trận cỡ nào? $BA$ có tồn tại không?
@@ -441,7 +441,7 @@ Ma trận $k\\cdot I = \\begin{bmatrix} k & 0 \\\\ 0 & k \\end{bmatrix}$ biến 
 
 ⚠ **Lỗi thường gặp — tưởng phép quay rồi co bằng phép co rồi quay**. Quay/co riêng lẻ thì tráo thứ tự cho cùng kết quả (vì vị tự đều $k\\cdot I$ giao hoán với mọi ma trận), nhưng co **không đều** thì không: co theo x rồi quay $\\neq$ quay rồi co theo x. Liên hệ trực tiếp với $AB \\neq BA$ ở mục 2.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ma trận quay 90° $R = \\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix}$ biến $(1,0)$ thành vector nào?
 2. $T(\\vec{x}) = A\\cdot\\vec{x}$ với $A = \\begin{bmatrix} 3 & 0 \\\\ 0 & 3 \\end{bmatrix}$. Đây là phép gì?
@@ -484,7 +484,7 @@ Ma trận $k\\cdot I = \\begin{bmatrix} k & 0 \\\\ 0 & k \\end{bmatrix}$ biến 
 
 ⚠ **Lỗi thường gặp — tưởng $(A^T)_{ij} = a_{ij}$**. Chuyển vị **tráo chỉ số**: $(A^T)_{ij} = a_{ji}$. Phản ví dụ: $A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}$, $a_{12} = 2$ nhưng $(A^T)_{12} = a_{21} = \\mathbf{3}$, không phải 2.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết chuyển vị của $\\begin{bmatrix} 2 & 5 \\\\ 0 & 7 \\end{bmatrix}$.
 2. Ma trận đối xứng $2\\times 2$ tổng quát có dạng nào?
@@ -526,7 +526,7 @@ Ma trận $k\\cdot I = \\begin{bmatrix} k & 0 \\\\ 0 & k \\end{bmatrix}$ biến 
 
 ⚠ **Lỗi thường gặp — áp dụng $(AB)^2 = A^2B^2$**. Sai vì $(AB)^2 = ABAB$, mà $BA \\neq AB$ nên không gom thành $A^2B^2$. Chỉ đúng khi $A, B$ giao hoán. Phản ví dụ: $A=\\begin{bmatrix} 1 & 1 \\\\ 0 & 1 \\end{bmatrix}$, $B=\\begin{bmatrix} 1 & 0 \\\\ 1 & 1 \\end{bmatrix} \\to (AB)^2 \\neq A^2B^2$ (tự nhân kiểm chứng).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Rút gọn $(ABC)^T$.
 2. Đúng/sai: $A(B+C) = AB + AC$?
@@ -612,7 +612,7 @@ Kiểm: $(AA^{-1})_{11} = 1\\cdot(-2) + 2\\cdot 1.5 = -2 + 3 = 1$; $(AA^{-1})_{1
 
 > 🤖 **Liên hệ ML**: hạng đo "thông tin thực" trong ma trận dữ liệu. Nén ảnh / giảm chiều (PCA, SVD) = xấp xỉ ma trận bằng một ma trận **hạng thấp** giữ phần lớn thông tin nhưng ít số hơn. Ma trận đặc trưng hạng thấp → các đặc trưng dư thừa (tương quan cao).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $A = \\begin{bmatrix} 3 & 0 \\\\ 0 & 2 \\end{bmatrix}$ có khả nghịch không? Nếu có, tính $A^{-1}$.
 2. Hạng của $\\begin{bmatrix} 2 & 4 \\\\ 1 & 2 \\end{bmatrix}$ là bao nhiêu?

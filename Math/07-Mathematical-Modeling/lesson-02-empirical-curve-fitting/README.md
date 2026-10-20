@@ -155,7 +155,7 @@ Nội suy Lagrange là công cụ đứng sau bảng tra giá trị hàm, đư�
 - *"Vậy nội suy luôn tệ?"* Không. Khi dữ liệu *thật sự chính xác* (vd tọa độ điểm điều khiển trong đồ họa, bảng giá trị hàm toán) thì nội suy đúng việc. Chỉ tệ khi dữ liệu có nhiễu mà ta lại ép đi qua hết.
 - *"Làm sao biết nên nội suy hay hồi quy?"* Hỏi: *dữ liệu của tôi có nhiễu không?* Đo vật lý/khảo sát → có nhiễu → hồi quy. Giá trị định nghĩa/thiết kế chính xác → nội suy.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bạn có 50 điểm đo nhiệt độ ngoài trời theo giờ (có sai số ±0.5°C). Nên nội suy đa thức bậc 49 hay hồi quy? Vì sao?
 
@@ -278,7 +278,7 @@ $$b = \frac{20 - 0.9\cdot 15}{5} = \frac{20 - 13.5}{5} = \frac{6.5}{5} = 1.3$$
 
 ⚠ **Lỗi thường gặp — lẫn $\sum x^2$ với $(\sum x)^2$.** $\sum x^2 =$ tổng của các bình phương (ở ví dụ: 55); $(\sum x)^2 =$ bình phương của tổng ($15^2 = 225$). Hai số khác hẳn nhau. Lẫn chúng → sai $a$ hoàn toàn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho 3 điểm (0, 1), (1, 3), (2, 5). Tính a, b. (Gợi ý: các điểm thẳng hàng hoàn hảo.)
 
@@ -344,7 +344,7 @@ $b = (9 - 2\cdot 3)/3 = 3/3 =$ **1**. → $\hat{y} = 2x + 1$. Thẳng hàng hoà
 
 ⚠ **Lỗi thường gặp — chỉ nhìn $R^2$ mà không vẽ đồ thị.** Bộ dữ liệu Anscombe nổi tiếng: 4 tập dữ liệu rất khác nhau (một thẳng, một cong, một có outlier) lại có *cùng* $a$, $b$, $R^2$. Luôn **vẽ điểm + đường + phần dư**, đừng tin mỗi con số $R^2$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một mô hình cho $SS_{\text{res}} = 2$, $SS_{\text{tot}} = 8$. Tính $R^2$. Diễn giải.
 
@@ -440,7 +440,7 @@ Hai điểm cách đều: từ $(0, 1.589)$ đến $(1.386, 4.362)$, độ dốc
 
 - **Lẫn semi-log với log–log**: mũ → chỉ log $y$; lũy thừa → log cả hai. Dùng nhầm thì đường không thẳng — kiểm bằng "đường nào thẳng nhất" (mục 6.4).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mô hình lũy thừa $y = A\cdot x^n$. Lấy log hai vế cho ra quan hệ tuyến tính giữa hai đại lượng nào?
 
@@ -524,7 +524,7 @@ Mỗi bộ dữ liệu dưới đây minh họa "dấu hiệu" để chọn đú
 - *"Mũ và lũy thừa khác nhau thế nào? Nhìn scatter dễ lẫn."* Mũ $e^{kx}$: $x$ ở *số mũ* → tăng "bùng nổ", tỉ số liên tiếp hằng. Lũy thừa $x^n$: $x$ ở *cơ số* → tăng "đa thức", thẳng trên log–log. Cách phân biệt chắc nhất: thử cả semi-log lẫn log–log, xem cái nào thẳng.
 - *"Nếu hai mô hình cùng $R^2$ cao thì chọn cái nào?"* Chọn cái **đơn giản hơn** (ít tham số hơn) — dao cạo Occam (mục 8). Và cái nào có *ý nghĩa cơ chế* (vd ném xiên thì bậc 2 hợp lý hơn bậc 5 dù bậc 5 khớp hơn vài phần nghìn).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dữ liệu (1, 3), (2, 6), (3, 12), (4, 24). Mô hình gì? Tìm tham số.
 

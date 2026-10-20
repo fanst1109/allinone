@@ -112,7 +112,7 @@ Mỗi mũi tên là **một lần áp dụng** $f$. Viết gọn: $x_n = f^{(n)}
 - *"'Bậc' của phương trình sai phân là gì?"* Là khoảng lùi xa nhất: $x_{n+1} = f(x_n)$ là bậc 1; Fibonacci nhìn lại 2 bước → bậc 2. Bậc $k$ cần $k$ điều kiện đầu.
 - *"Quỹ đạo có nhất thiết phải hội tụ không?"* **Không.** Bốn kết cục điển hình: (1) **hội tụ** về một điểm cân bằng (vd $2.5x(1-x)$ → 0.6); (2) **phân kỳ** ra $\\pm\\infty$ (vd $1.5x$); (3) **chu kỳ** lắc qua hữu hạn giá trị (vd $3.2x(1-x)$); (4) **hỗn loạn** không lặp (vd $3.9x(1-x)$). Mục 3–4 sẽ phân loại theo điểm cân bằng và độ dốc $f'$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $x_{n+1} = 0.5x_n + 1$, $x_0 = 0$. Lăn 4 bước. Dãy có vẻ tiến tới đâu?
 
@@ -235,7 +235,7 @@ Dạng tuyến tính bao trùm nhiều bài toán đời sống — chỉ cần 
 
 ⚠ **Lỗi thường gặp — dùng công thức cân bằng $x^* = b/(1-a)$ khi $a = 1$.** Khi $a = 1$, mẫu $1-a = 0$, công thức vô nghĩa. Lúc đó $x_{n+1} = x_n + b$ là **cấp số cộng**: $x_n = x_0 + n\\cdot b$ (tăng đều mãi, không có cân bằng hữu hạn). Phản ví dụ: $x_{n+1} = x_n + 3$ → $x_n = x_0 + 3n$, không hội tụ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $x_{n+1} = 0.5\\cdot x_n + 4$ với $x_0 = 10$. Tìm $x^*$ và công thức $x_n$. Dãy tiến tới đâu?
 
@@ -391,7 +391,7 @@ $x^* = 4/(1-0.5) = 8$. $x_n = (10-8)\\cdot 0.5^n + 8 =$ **$2\\cdot(0.5)^n + 8$**
 
 - **Bỏ sót điểm cân bằng khác**: logistic có cả $x^*=0$ và $x^*=1-1/r$. Với $r=2$: $f'(0)=2>1$ (đẩy ra), $f'(0.5)=0$ (hút vào) — bỏ $x^*=0$ thì không hiểu vì sao dãy rời khỏi 0.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Xét $x_{n+1} = 1.2\\cdot x_n - 1$. Tìm $x^*$, xét ổn định, mô tả hành vi nếu $x_0 = 4$ và nếu $x_0 = 5$.
 
@@ -518,7 +518,7 @@ Lấy $r = 3.9$ (vùng hỗn loạn), so hai quỹ đạo xuất phát *gần nh
 
 ⚠ **Lỗi thường gặp — coi logistic rời rạc và logistic liên tục giống nhau.** ODE logistic $dN/dt = rN(1-N/K)$ ([L04](../lesson-04-continuous-ode-models/)) *luôn* hội tụ mượt về $K$ — **không** có chu kỳ hay hỗn loạn. Bản rời rạc thì có, do "bước nhảy" rời rạc có thể vọt lố qua cân bằng. Đừng giả định hành vi liên tục cho mô hình rời rạc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với $r = 2.5$, tìm điểm cân bằng dương $x^*$ và xét nó ổn định không.
 
@@ -559,7 +559,7 @@ $$F_n = \\frac{\\varphi^n - \\psi^n}{\\sqrt 5}\\quad(\\text{công thức Binet})
 
 ⚠ **Lỗi thường gặp — quên nghiệm bậc 2 cần $k$ điều kiện đầu.** Hệ bậc 2 cần **hai** giá trị đầu ($x_0$ và $x_1$) mới xác định dãy; chỉ cho $x_0$ là chưa đủ. Cũng như nghiệm tổng quát có **hai** hằng số $A, B$ — phải dùng cả hai điều kiện để khớp.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $x_{n+1} = 5x_n - 6x_{n-1}$ với $x_0 = 0, x_1 = 1$. Tìm phương trình đặc trưng và $x_n$.
 

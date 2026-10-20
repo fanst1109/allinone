@@ -84,7 +84,7 @@ Mỗi cái là một dãy domino riêng; quy nạp là cùng một "máy chứng
 
 ⚠ **Lỗi thường gặp — bỏ qua bước cơ sở**. Chỉ chứng minh $P(k) \\implies P(k+1)$ mà không kiểm $P(n_0)$ thì vô nghĩa: domino đổ dây chuyền nhưng nếu không ai đẩy quân đầu thì chẳng quân nào đổ. Phản ví dụ (mục 7): "mọi số tự nhiên bằng nhau" có bước quy nạp hình thức nhưng cơ sở sai → mệnh đề sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hai thành phần bắt buộc của một chứng minh quy nạp là gì?
 2. Trong analogy domino, "bước cơ sở" tương ứng điều gì?
@@ -156,7 +156,7 @@ Vậy $P(n)$ đúng $\\forall n \\ge 1$. □ — Để ý 4 mảnh tách bạch 
 - *"Trong bước quy nạp, dùng giả thuyết ở đâu?"* Phải dùng ở 1 chỗ rõ ràng (đánh dấu "theo giả thuyết quy nạp"). Nếu chứng minh $P(k+1)$ mà KHÔNG dùng $P(k)$ thì đó không phải quy nạp (và thường là sai sót).
 - *"Đi từ $P(k+1)$ về $P(k)$ hay từ $P(k)$ tiến lên $P(k+1)$?"* Cả hai hướng đều hợp lệ. Cách an toàn nhất: **viết vế trái của $P(k+1)$ rồi tách hạng tử cuối** để lộ vế trái của $P(k)$ (như mẫu trên tách $(2k+1)$ ra). Tránh kiểu "xuất phát từ điều cần chứng minh rồi biến đổi xuống điều đúng" mà không ghi rõ mỗi bước là tương đương — dễ thành lập luận ngược sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết bước cơ sở cho mệnh đề $1+3+5+\\dots+(2n-1) = n^2$ với $n_0 = 1$.
 2. Trong bước quy nạp của tổng $1+2+\\dots+n$, ta cộng thêm hạng tử nào để đi từ k tới k+1?
@@ -266,7 +266,7 @@ Vế phải đúng dạng $\\frac{(k+1)(k+2)}{2}$ của $P(k+1)$. Vậy $P(n)$ �
 - *"Bước cơ sở dùng $n=1$ hay $n=0$?"* Tùy quy ước tổng rỗng. Nếu định nghĩa $S_0 = 0$ (tổng không hạng tử), thì $\\frac{0\\cdot 1}{2}=0$ cũng đúng → có thể lấy $n_0 = 0$. Lấy $n_0 = 1$ là phổ biến và an toàn nhất.
 - *"Vì sao biến đổi vế trái mà không phải vế phải?"* Để **dùng được giả thuyết**: giả thuyết cho ta giá trị của $1+\\dots+k$, nên ta phải làm xuất hiện nó — và nó nằm bên vế trái của $P(k+1)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong bước ④, sau khi thay giả thuyết, ta đặt **nhân tử chung** nào ra ngoài?
 2. Tính nhanh $1+2+\\dots+20$ bằng công thức.
@@ -340,7 +340,7 @@ Chuỗi $2^{k+1} > 2k = k+k \\ge k+5 > k+1$ cho $2^{k+1} > k+1$. Vậy $P(n)$ đ
 - *"Vì sao được phép nhân giả thuyết với 2?"* Vì $2 > 0$: nhân một số dương vào cả hai vế của bất đẳng thức giữ nguyên chiều. Nếu nhân số âm phải đảo chiều — đó là lỗi hay gặp khi quy nạp bất đẳng thức có hệ số âm.
 - *"Chỗ '$\\ge k+5$' và '$> k+1$' nối nhau thế nào?"* Đây là chuỗi bắc cầu (transitivity): $A > B \\ge C > D \\implies A > D$. Mỗi mắt xích phải hợp lệ; chỉ cần **một** dấu là "$>$" (chặt) thì cả chuỗi cho "$>$".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong bước ④, ta dùng điều kiện $k \\ge 5$ ở chỗ nào?
 2. Vì sao không thể lấy cơ sở $n_0 = 1$ cho mệnh đề $2^n > n^2$?
@@ -388,7 +388,7 @@ Chuỗi $2^{k+1} > 2k = k+k \\ge k+5 > k+1$ cho $2^{k+1} > k+1$. Vậy $P(n)$ đ
 - *"Vì sao tách $8^{k+1} - 1 = 8\\cdot(8^k-1) + 7$?"* Để **lộ ra** $(8^k - 1)$ — đúng cái giả thuyết quy nạp cho ta. Đây là kỹ thuật chung: cố biến đổi biểu thức bước k+1 để xuất hiện biểu thức bước k.
 - *"Bài tổng (mục 3), bất đẳng thức (mục 4), chia hết (mục 5) khác nhau chỗ nào?"* Cấu trúc 2 bước giống hệt; chỉ khác **cách dùng giả thuyết**: tổng → thay thế; bất đẳng thức → chặn trên/dưới; chia hết → tách phần chia hết.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong bước quy nạp $3 \\mid (4^n - 1)$, tách $4^{k+1} - 1$ thế nào?
 2. Cơ sở n=1 của $7 \\mid (8^n - 1)$ cho giá trị gì?
@@ -518,7 +518,7 @@ Vậy $F_n \\le 2^n$ với mọi $n \\ge 1$. □
 
 ⚠ **Lỗi thường gặp**: dùng quy nạp yếu cho bài cần nhiều bước trước. Phản ví dụ: CM số Fibonacci $F_n \\le 2^n$ — bước $F_{k+1} = F_k + F_{k-1}$ cần CẢ $P(k)$ và $P(k-1)$. Chỉ giả sử $P(k)$ (quy nạp yếu) là **thiếu** → phải dùng quy nạp mạnh (và cần 2 cơ sở: n=1 và n=2).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vì sao chứng minh "mọi $n \\ge 2$ phân tích được thành tích nguyên tố" cần quy nạp mạnh?
 2. Quy nạp mạnh cần mấy bước cơ sở cho bài Fibonacci $F_n \\le 2^n$?
@@ -596,7 +596,7 @@ Mệnh đề (sai) cần "chứng minh": **"Mọi tập gồm $n$ con ngựa đ�
 - *"Làm sao biết bước quy nạp 'lươn lẹo'?"* Kiểm tra nó tại **k nhỏ nhất** (thường $k = n_0$). Bài "ngựa cùng màu" sập vì khi k=1, lập luận "lấy ra 1 con, 2 nhóm con giao nhau" không còn giao → bước k→k+1 sai tại k=1.
 - *"Kiểm vài giá trị đầu đúng có đủ kết luận không?"* **Không bao giờ đủ**. Xem mệnh đề $n^2+n+41$: đúng từ n=0 tới 39 nhưng sai tại n=40. Quan sát $\\neq$ chứng minh.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. "Chứng minh" mọi nhóm n người có cùng chiều cao sai ở bước nào?
 2. $n^2 + n + 41$ nguyên tố với n = 0,1,2 — kết luận "đúng mọi n" sai vì sao?

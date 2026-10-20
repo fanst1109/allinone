@@ -216,7 +216,7 @@ Tập nghiệm là khoảng → **thử 1 điểm trong và 1 điểm ngoài** �
 - *"Khi chỉ CỘNG/TRỪ thì có bao giờ phải đảo không?"* **Không.** Đảo dấu chỉ xảy ra khi **nhân hoặc chia** với số **âm**. Cộng/trừ luôn giữ nguyên chiều — vì dịch cả 2 đĩa cân cùng một lượng không làm đổi bên nào nặng hơn.
 - *"Nếu nhân với một biểu thức chứa x (vd $x-1$) thì sao?"* **Rất nguy hiểm** — vì $x-1$ có thể âm hoặc dương tùy x, ta không biết có đảo dấu hay không. Đây là lỗi kinh điển ở BPT có mẫu (xem mục 4 và ⚠ ở đó). Cách an toàn: **chuyển hết về một vế rồi xét dấu**, không nhân chéo.
 
-🔁 **Dừng lại tự kiểm tra**: giải $-2x + 1 \ge 7$.
+🔁 **Thực hành**: giải $-2x + 1 \ge 7$.
 
 <details><summary>Đáp án</summary>
 
@@ -380,7 +380,7 @@ Khớp "trong dương (+), ngoài âm (−)" vì $a < 0$ — đảo lại so v�
 - *"Lấy 'trong' hay 'ngoài'?"* Nhìn dấu BPT: cần $f(x)<0$ → lấy vùng dấu $-$; cần $f(x)>0$ → lấy vùng dấu $+$. Đừng quan tâm "trong/ngoài" trừu tượng — quan tâm **dấu** mình cần rồi khoanh vùng có dấu đó.
 - *"Vì sao nghiệm kép cho ra điểm hoặc tập rỗng?"* Vì $(x-x_0)^2 \ge 0$ luôn: nó chạm 0 đúng tại $x_0$ và dương mọi nơi khác. Nên $\le 0$ chỉ tại 1 điểm, $< 0$ không bao giờ, $\ge 0$ mọi nơi.
 
-🔁 **Dừng lại tự kiểm tra**: giải $x^2 - x - 6 > 0$.
+🔁 **Thực hành**: giải $x^2 - x - 6 > 0$.
 
 <details><summary>Đáp án</summary>
 
@@ -553,7 +553,7 @@ Tập nghiệm: $(-\infty, -1] \cup [5, +\infty)$. Trục số:
 - *"$|x-2|$ nghĩa là gì?"* Là **khoảng cách từ x tới 2**. $|x-2| \le 5$ = "các x cách 2 không quá 5 đơn vị" = $[-3, 7]$.
 - *"Vì sao $|x|<k$ là MỘT khoảng còn $|x|>k$ là HAI?"* Vì "gần 0" là một vùng liền quanh 0; "xa 0" tách thành hai phía (trái và phải), ở giữa bị loại.
 
-🔁 **Dừng lại tự kiểm tra**: giải $|x + 1| < 4$.
+🔁 **Thực hành**: giải $|x + 1| < 4$.
 
 <details><summary>Đáp án</summary>
 
@@ -677,7 +677,7 @@ Cần $\ge 0$ → lấy vùng $+$ và nghiệm tử: $-2 < x \le 1$ hoặc $x \g
 - *"Tại sao nghiệm mẫu không bao giờ lấy nhưng nghiệm tử thì có thể?"* Nghiệm mẫu làm biểu thức **không xác định** (chia 0) → luôn loại. Nghiệm tử làm biểu thức $= 0$ → lấy nếu dấu BPT là $\le$ hoặc $\ge$ (vì $0$ thỏa "$\le 0$").
 - *"Bao nhiêu cột trong bảng?"* Bằng số mốc cộng 1 khoảng cuối; mỗi mốc tạo ranh giới giữa 2 vùng. 2 mốc → 3 vùng, 3 mốc → 4 vùng.
 
-🔁 **Dừng lại tự kiểm tra**: giải $\dfrac{x+2}{x-1} > 0$.
+🔁 **Thực hành**: giải $\dfrac{x+2}{x-1} > 0$.
 
 <details><summary>Đáp án</summary>
 
@@ -824,7 +824,7 @@ Tập nghiệm: **$(1, 2]$**. Verify: $x=1.5$: $1.5^2-4=-1.75\le0$ ✓ và $1.5-
 - *"Hệ khác gì BPT $|x|>k$ ra 2 khoảng?"* $|x|>k$ là **một** BPT mà nghiệm rời thành 2 khoảng (bản chất là "hoặc", hợp). Hệ là **nhiều** BPT nối "và" (giao). Đừng lẫn.
 - *"Nếu một BPT trong hệ vô nghiệm thì sao?"* Nếu một điều kiện đã $\varnothing$ thì giao với bất cứ gì cũng $\varnothing$ → cả hệ vô nghiệm.
 
-🔁 **Dừng lại tự kiểm tra**: giải hệ $\begin{cases} 3x + 1 \ge 4 \\ -2x > -8 \end{cases}$.
+🔁 **Thực hành**: giải hệ $\begin{cases} 3x + 1 \ge 4 \\ -2x > -8 \end{cases}$.
 
 <details><summary>Đáp án</summary>
 

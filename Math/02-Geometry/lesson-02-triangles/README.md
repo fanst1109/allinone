@@ -160,7 +160,7 @@ $$\hat{B} + \hat{A} + \hat{C} = 180^\circ \quad ✓$$
 
 ⚠ **Lỗi thường gặp**: chỉ kiểm 1 bất đẳng thức rồi kết luận. Phải kiểm **cạnh lớn nhất $<$ tổng 2 cạnh còn lại** (đủ). Phản ví dụ: cạnh 2, 3, 6 — nếu chỉ xét $3+6=9 > 2$ thì tưởng được, nhưng cạnh lớn nhất 6 so với $2+3=5 < 6$ → **KHÔNG** vẽ được.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bộ cạnh nào tạo được tam giác: (a) 4, 5, 8; (b) 3, 4, 7; (c) 2, 2, 5?
 2. Tam giác có 2 góc $50^\circ$ và $70^\circ$. Góc thứ 3 bằng bao nhiêu?
@@ -280,7 +280,7 @@ Lưu ý ví dụ thứ 2 vs thứ 3: cùng là tam giác **cân** đáy khác nh
 
 ⚠ **Lỗi thường gặp**: nghĩ "tam giác có 1 góc nhọn là tam giác nhọn". Sai — **nhọn** đòi hỏi **cả 3** góc $< 90^\circ$. Phản ví dụ: tam giác $100^\circ, 50^\circ, 30^\circ$ có 2 góc nhọn nhưng vẫn là tam giác **tù** (vì có góc $100^\circ$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tam giác có góc $90^\circ, 45^\circ, 45^\circ$ thuộc loại nào (theo cả cạnh và góc)?
 2. Tam giác có thể vừa đều vừa vuông không?
@@ -387,7 +387,7 @@ Có thêm: **AAS** (2 góc + 1 cạnh không kẹp giữa — vẫn xác định
 
 ⚠ **Lỗi thường gặp**: dùng "SSA" để kết luận bằng nhau. Phản ví dụ: 2 tam giác cùng có cạnh 5, cạnh 7 và góc $30^\circ$ (không kẹp giữa) có thể khác nhau hoàn toàn — cạnh thứ 3 ra 2 giá trị. Phải có góc **kẹp giữa** (SAS) mới chắc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Biết 2 tam giác có 2 cạnh 6 và 8, góc kẹp giữa chúng đều $50^\circ$. Chúng có bằng nhau không? Theo trường hợp nào?
 2. Hai tam giác có 3 cặp góc bằng nhau. Bằng nhau hay chỉ đồng dạng?
@@ -513,7 +513,7 @@ Bước 3. $DE = k \cdot BC = 0.4 \cdot 15 = \textbf{6}$.
 
 Phản ví dụ: 2 tam giác cùng 3 góc $\{40^\circ, 60^\circ, 80^\circ\}$ là **đồng dạng** (AA) nhưng **không** chắc bằng nhau — một cái có thể cạnh 4-6-8, cái kia 8-12-16. Ngược lại, hễ **bằng nhau** thì luôn **đồng dạng** (với $k = 1$), nhưng đồng dạng KHÔNG suy ra bằng nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hai tam giác đồng dạng, tỉ số cạnh 5:2. Tỉ số diện tích là bao nhiêu?
 2. Tam giác có góc $40^\circ$ và $60^\circ$, tam giác kia có góc $60^\circ$ và $80^\circ$. Đồng dạng không?
@@ -656,7 +656,7 @@ Nếu $c^2 = a^2 + b^2$ (với $c$ là cạnh dài nhất) thì tam giác **vuô
 
 ⚠ **Lỗi thường gặp**: cộng cạnh thay vì cộng bình phương — viết "$c = a + b$". Phản ví dụ: $a=3$, $b=4$ → $c = 7$ là **sai**, đúng phải $c = \sqrt{9+16} = 5$. Lỗi thứ 2: gán nhầm cạnh huyền — với $a=6$, $b=8$ mà tính $6^2 + 10^2$ rồi lấy 8 làm huyền là sai (8 không phải dài nhất).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tam giác vuông có 2 cạnh góc vuông 9 và 12. Cạnh huyền bằng bao nhiêu?
 2. Tam giác cạnh 7, 24, 25 có vuông không?
@@ -800,7 +800,7 @@ $$S = \tfrac{1}{2}\cdot 4\cdot 4\cdot \tfrac{\sqrt3}{2} = 4\sqrt3 \approx \textb
 
 ⚠ **Lỗi thường gặp**: quên đơn vị bình phương — viết diện tích là "24 cm" thay vì "24 cm²". Lỗi thứ 2: dùng cạnh bên làm "chiều cao". Chiều cao phải **vuông góc** với đáy, không phải cạnh xiên. Phản ví dụ: tam giác đáy 6, cạnh bên 5 nghiêng — $S \neq \frac{1}{2}\cdot 6\cdot 5$ trừ khi cạnh 5 đó vuông góc với đáy.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tam giác có 3 cạnh 13, 14, 15. Tính diện tích bằng Heron.
 2. Tam giác có 2 cạnh 10 và 6, góc kẹp $30^\circ$. Diện tích?
@@ -959,7 +959,7 @@ Mỗi tam giác có 4 họ "đường đặc biệt", mỗi họ gồm 3 đườ
 
 ⚠ **Lỗi thường gặp — nhầm trung tuyến với đường cao**: trung tuyến đi tới **trung điểm** cạnh đối; đường cao đi **vuông góc** xuống cạnh đối. Chúng **trùng nhau chỉ trong tam giác cân** (đường từ đỉnh cân) hoặc tam giác đều (cả 4 đường trùng). Phản ví dụ: tam giác thường $A(2,4)$, $B(0,0)$, $C(6,0)$ — trung tuyến từ $A$ tới $(3,0)$, còn đường cao từ $A$ hạ vuông góc xuống $(2,0)$ — **hai điểm khác nhau**.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đường nào đảm bảo chia tam giác thành 2 phần có **diện tích bằng nhau**?
 2. Trong tam giác đều, có bao nhiêu đường đặc biệt khác nhau xuất phát từ 1 đỉnh?
@@ -1057,7 +1057,7 @@ $$R = \frac{abc}{4S}$$
 
 ⚠ **Lỗi thường gặp — nhầm trọng tâm với tâm ngoại tiếp**: trọng tâm là trung bình **tọa độ 3 đỉnh** (luôn trong tam giác); tâm ngoại tiếp cách đều **3 đỉnh** (có thể nằm ngoài, vd tam giác tù). Chúng chỉ trùng trong tam giác đều. Phản ví dụ: tam giác vuông 3-4-5 có $O$ tại trung điểm cạnh huyền (trên cạnh), còn $G$ ở bên trong — khác nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trọng tâm của tam giác đỉnh $(0,0)$, $(9,0)$, $(0,6)$ ở đâu?
 2. Bán kính đường tròn ngoại tiếp tam giác 6-8-10?

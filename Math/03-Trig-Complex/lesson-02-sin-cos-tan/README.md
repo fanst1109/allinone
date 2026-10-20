@@ -88,7 +88,7 @@ Cho điểm M trên đường tròn đơn vị, ứng với góc $\theta$:
 - *"sin và cos có thể lớn hơn 1 không?"* **Không**. Vì là toạ độ điểm trên đường tròn bán kính 1, luôn $-1 \le \sin\theta \le 1$ và $-1 \le \cos\theta \le 1$. Nếu tính ra $\sin x = 1.2$ thì chắc chắn sai ở đâu đó. Riêng **tan** thì không bị chặn (chạy khắp $\mathbb{R}$).
 - *"Định nghĩa tam giác vuông và định nghĩa đường tròn có mâu thuẫn không?"* Không — chúng **trùng nhau** trong khoảng $0 < \theta < \frac{\pi}{2}$ (xem mục 5). Đường tròn chỉ **mở rộng** ra mọi góc, không thay thế.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tại $\theta = \frac{3\pi}{2}$, điểm M ở đâu? cos và sin bằng mấy?
 2. Có góc nào mà $\sin\theta = \cos\theta = 0.8$ cùng lúc không?
@@ -237,7 +237,7 @@ Từ 3 góc lõi cộng quy tắc dấu (mục 6), suy ra tọa độ điểm M 
 - *"Vì sao $\sin 30^\circ = \cos 60^\circ$ và $\sin 60^\circ = \cos 30^\circ$?"* Vì 30° và 60° là hai góc **phụ nhau** (cộng lại 90°), mà $\sin\theta = \cos(90^\circ - \theta)$. Đây cũng là gốc chữ "co" trong cosine = "complement" (phụ).
 - *"Phải học thuộc cả bảng không?"* Nên thuộc cột 30°, 45°, 60° (ba góc lõi); các góc 120°, 135°... suy ra bằng quy tắc dấu + góc bù (mục 6).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\cos 45^\circ$ bằng mấy? So với $\cos 30^\circ$ lớn hơn hay nhỏ hơn?
 2. $\tan 60^\circ$ bằng mấy? (gợi ý: sin/cos)
@@ -437,7 +437,7 @@ tan lao từ $-\infty$ lên $+\infty$ trong mỗi khoảng rộng $\pi$, đứt 
 
 ⚠ **Lỗi thường gặp — nhầm tính chẵn/lẻ giữa sin và cos**. cos là hàm **chẵn** ($\cos(-x) = \cos x$), sin là hàm **lẻ** ($\sin(-x) = -\sin x$). Phản ví dụ: viết $\cos(-\frac{\pi}{3}) = -\cos(\frac{\pi}{3}) = -\frac{1}{2}$ là **sai**; đúng là $\cos(-\frac{\pi}{3}) = \cos(\frac{\pi}{3}) = +\frac{1}{2}$ (cos không đổi dấu khi đảo góc). Còn $\sin(-\frac{\pi}{3}) = -\sin(\frac{\pi}{3}) = -\frac{\sqrt{3}}{2}$ mới đúng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đồ thị $y = \cos x$ đạt cực đại ($= 1$) tại những x nào?
 2. Hàm tan có tiệm cận đứng tại đâu trong khoảng $(0, 2\pi)$?
@@ -486,7 +486,7 @@ $$y = A\cdot\sin(\omega\cdot x + \varphi) + k$$
 - *"$\varphi$ dịch sang trái hay phải, và bao nhiêu?"* Viết lại $A\cdot\sin(\omega(x + \frac{\varphi}{\omega}))$ → dịch **sang trái** $\frac{\varphi}{\omega}$ đơn vị (khi $\varphi > 0$). Vd $\sin(2x + \frac{\pi}{4})$ dịch trái $\frac{\pi/4}{2} = \frac{\pi}{8}$.
 - *"A âm thì sao?"* $A = -3$ thì biên độ vẫn là $|A| = 3$, nhưng sóng bị **lật ngược** (đỉnh thành đáy). Tương đương thêm pha $\pi$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $y = 4\cdot\sin(\pi x)$ có biên độ và chu kỳ bao nhiêu?
 2. Giá trị lớn nhất và nhỏ nhất của $y = 2\cdot\sin(x) + 5$ là bao nhiêu?
@@ -566,7 +566,7 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\theta$; c�
 - *"Định nghĩa này dùng được cho góc tù (>90°) không?"* Không — tam giác vuông không có góc >90°. Với góc tù phải quay lại định nghĩa đường tròn. Đó chính là lý do ta cần đường tròn.
 - *"SOH-CAH-TOA là gì?"* Mẹo nhớ tiếng Anh: **S**in = **O**pposite/**H**ypotenuse, **C**os = **A**djacent/**H**ypotenuse, **T**an = **O**pposite/**A**djacent.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tam giác vuông có cạnh đối $\theta = 5$, huyền = 13. $\sin\theta$, $\cos\theta$?
 2. $\tan\theta$ trong tam giác đó?
@@ -659,7 +659,7 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\theta$; c�
 - *"Biết $\sin x = 0.6$ và x ở phần tư II thì $\cos x$ dấu gì?"* Phần tư II → cos **âm**. $\cos x = -\sqrt{1-0.36} = -0.8$.
 - *"Vì sao tan dương ở cả phần tư I và III?"* Vì tan = sin/cos. Ở I cả hai dương → dương; ở III cả hai âm → âm/âm = dương. Cùng dấu thì thương dương.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Góc 200° nằm ở phần tư nào? Dấu của sin, cos, tan?
 2. $\cos x > 0$ và $\sin x < 0$ thì x ở phần tư nào?
@@ -712,7 +712,7 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\theta$; c�
 - *"Vì sao miền của arccos là $[0, 180^\circ]$ mà arcsin lại là $[-90^\circ, 90^\circ]$?"* Vì phải chọn một khoảng mà hàm gốc **đơn điệu** (tăng hoặc giảm liên tục, không lặp) để mỗi giá trị ứng đúng 1 góc. cos giảm đều trên $[0, 180^\circ]$; sin tăng đều trên $[-90^\circ, 90^\circ]$. Mỗi hàm có khoảng đẹp riêng.
 - *"$\arcsin(2)$ bằng mấy?"* **Không tồn tại**. Vì $\sin\theta$ luôn trong $[-1, 1]$, không góc nào cho $\sin = 2$. Miền xác định của arcsin/arccos là $[-1, 1]$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\arccos(-1)$ bằng mấy?
 2. Giải $\cos x = \frac{\sqrt{2}}{2}$ trong $[0, 2\pi]$ — có mấy nghiệm, là những góc nào?

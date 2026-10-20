@@ -70,7 +70,7 @@ $$S_N = \\left(1 - \\tfrac12\\right) + \\left(\\tfrac12 - \\tfrac13\\right) + \\
 
 ⚠ **Lỗi thường gặp — kết luận hội tụ chỉ vì các số hạng nhỏ dần**. Phản ví dụ: $\\sum 1/n$ có số hạng nhỏ dần về 0 nhưng tổng $\\to \\infty$ (phân kỳ). Tốc độ nhỏ dần phải **đủ nhanh** (như $1/n^2$ hoặc $r^n$ với $|r|<1$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\sum (1/4)^n$ ($n$ từ 0) hội tụ về bao nhiêu?
 2. $\\sum 1/n^{1/2}$ hội tụ hay phân kỳ?
@@ -148,7 +148,7 @@ $L = \\lim \\sqrt[n]{|a_n|}$. $L < 1$: hội tụ; $L > 1$: phân kỳ.
 
 ⚠ **Lỗi thường gặp — quên lấy trị tuyệt đối**. Tiêu chí tỉ số dùng $\\left|\\frac{a_{n+1}}{a_n}\\right|$, không phải $\\frac{a_{n+1}}{a_n}$. Với chuỗi đan dấu (vd $(-1)^n/n$), bỏ trị tuyệt đối sẽ ra số âm và kết luận sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng tiêu chí tỉ số cho $\\sum 1/n!$. Hội tụ?
 
@@ -204,7 +204,7 @@ Hội tụ với **mọi** $x$ (giai thừa luôn thắng). Đây là $e^{2x}$.
 
 ⚠ **Lỗi thường gặp — nhầm $1/R$ với $R$**. Công thức cho **$1/R$** $= \\lim\\left|\\frac{a_{n+1}}{a_n}\\right|$, phải nghịch đảo để ra $R$. Phản ví dụ: $\\sum n!x^n$ cho $\\lim = \\infty = 1/R \\to R = 0$ (KHÔNG phải $R = \\infty$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm bán kính hội tụ của $\\sum x^n/2^n$.
 
@@ -465,7 +465,7 @@ Chuỗi biến giới hạn khó thành "đọc hệ số" — nhanh hơn L'Hôp
 $$1 - \\cos x = 1 - \\left(1 - \\frac{x^2}{2} + \\frac{x^4}{24} - \\dots\\right) = \\frac{x^2}{2} - \\frac{x^4}{24} + \\dots$$
 $$\\frac{1 - \\cos x}{x^2} = \\frac{1}{2} - \\frac{x^2}{24} + \\dots \\xrightarrow{x\\to 0} \\mathbf{\\frac{1}{2}}.$$
 
-🔁 **Dừng lại tự kiểm tra (ứng dụng)**
+🔁 **Thực hành (ứng dụng)**
 
 1. Dùng chuỗi tính $\\displaystyle\\lim_{x\\to 0}\\frac{e^x - 1 - x}{x^2}$.
 2. Xấp xỉ $e^{-0.1}$ bằng 3 số hạng đầu.
@@ -493,7 +493,7 @@ $$\\frac{1 - \\cos x}{x^2} = \\frac{1}{2} - \\frac{x^2}{24} + \\dots \\xrightarr
 
 **Lỗi 4 — nhầm bậc đa thức với số số hạng khác 0**. $\\cos x$ "đến bậc 4" là $1 - \\frac{x^2}{2} + \\frac{x^4}{24}$ — chỉ **3** số hạng khác 0 (bậc 1, 3 bằng 0). Đếm nhầm thành 5 số hạng sẽ thêm số hạng sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết 3 số hạng đầu của $e^x$ và tính $e^{0.1}$.
 2. $\\cos x$ đến bậc 4 là gì?
@@ -542,7 +542,7 @@ e^{i\\theta} &= 1 + i\\theta + \\frac{(i\\theta)^2}{2!} + \\frac{(i\\theta)^3}{3
 
 ⚠ **Lỗi thường gặp — quên $(i\\theta)^2 = -\\theta^2$**, viết thành $+\\theta^2$. Phản ví dụ: nếu $(i\\theta)^2 = +\\theta^2$ thì phần thực thành $1 + \\frac{\\theta^2}{2} + \\dots = \\cosh\\theta$ (sai), không ra $\\cos\\theta$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $e^{i\\pi/2}$ bằng công thức Euler.
 

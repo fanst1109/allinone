@@ -243,7 +243,7 @@ $$y = ax + b$$
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Đường thẳng cắt trục x ở đâu?"* Giải $ax+b=0$ → $x = -b/a$. Vd $2x-3=0$ → $x = 1.5$.
 
-🔁 **Dừng lại tự kiểm tra**: $y = -x + 4$ đồng biến hay nghịch biến? Cắt trục y ở đâu?
+🔁 **Thực hành**: $y = -x + 4$ đồng biến hay nghịch biến? Cắt trục y ở đâu?
 
 <details><summary>Đáp án</summary>
 
@@ -336,7 +336,7 @@ $$y = ax^2 + bx + c$$
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Đỉnh là max hay min?"* Nếu $a>0$ (mở lên) → đỉnh là **điểm thấp nhất (min)**; nếu $a<0$ (mở xuống) → đỉnh là **max**.
 
-🔁 **Dừng lại tự kiểm tra**: tìm đỉnh của $y = x^2 - 6x + 5$.
+🔁 **Thực hành**: tìm đỉnh của $y = x^2 - 6x + 5$.
 
 <details><summary>Đáp án</summary>
 
@@ -430,7 +430,7 @@ $$y = a_n x^n + a_{n-1} x^{n-1} + \\dots + a_1 x + a_0 \\quad (a_n \\neq 0)$$
 
 ⚠ **Lỗi thường gặp**: tưởng "bậc $n$ thì lượn $n$ khúc". Sai — lượn **tối đa $n-1$** khúc (tối đa $n-1$ điểm cực trị). $x^3$ bậc 3 nhưng lượn $0$ khúc.
 
-🔁 **Dừng lại tự kiểm tra**: $y = x^4$ có bao nhiêu khúc lượn? Hai đuôi hướng nào?
+🔁 **Thực hành**: $y = x^4$ có bao nhiêu khúc lượn? Hai đuôi hướng nào?
 
 <details><summary>Đáp án</summary>
 
@@ -520,7 +520,7 @@ Hai nhánh: x>0 ở góc phần tư I, x<0 ở góc III. Đây là **hàm lẻ**
 
 ⚠ **Lỗi thường gặp**: tưởng "đồ thị không bao giờ cắt tiệm cận ngang". Sai — tiệm cận ngang nói về **đuôi** ($x\\to\\pm\\infty$); ở giữa đồ thị có thể cắt qua. Vd $y=x/(x^2+1)$ cắt $y=0$ tại $x=0$. (Tiệm cận **đứng** thì thật sự không bao giờ chạm.)
 
-🔁 **Dừng lại tự kiểm tra**: tìm domain và tiệm cận đứng của $y = \\dfrac{x+1}{x^2-9}$.
+🔁 **Thực hành**: tìm domain và tiệm cận đứng của $y = \\dfrac{x+1}{x^2-9}$.
 
 <details><summary>Đáp án</summary>
 
@@ -615,7 +615,7 @@ So sánh **tốc độ** $2^x$ vs $x^2$: tại $x=2$ bằng nhau (4=4); $x=4$: $
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Vì sao $a^x > 0$ luôn, đồ thị không chạm trục x?"* Vì nhân số dương $a$ với chính nó (kể cả mũ âm = nghịch đảo) **không bao giờ ra 0 hay âm**. $2^{-10} = 1/1024$ rất nhỏ nhưng vẫn dương → đồ thị tiệm cận trục x chứ không cắt.
 
-🔁 **Dừng lại tự kiểm tra**: $y = 3^x$, tính $y(0), y(2), y(-1)$.
+🔁 **Thực hành**: $y = 3^x$, tính $y(0), y(2), y(-1)$.
 
 <details><summary>Đáp án</summary>
 
@@ -713,7 +713,7 @@ So với $2^x$ ở mục 4: bảng này chính là bảng của $2^x$ **đổi c
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Vì sao log tăng 'chậm'?"* Vì để $y$ tăng thêm 1, $x$ phải **nhân** thêm $a$ lần. $\\log_{10}$: từ $y=2$ lên $y=3$, x phải nhảy từ 100 lên 1000. x tăng gấp 10 mà y chỉ +1 → cảm giác "chậm".
 
-🔁 **Dừng lại tự kiểm tra**: $y = \\log_2(x)$, tính $y(1), y(16), y(1/2)$.
+🔁 **Thực hành**: $y = \\log_2(x)$, tính $y(1), y(16), y(1/2)$.
 
 <details><summary>Đáp án</summary>
 
@@ -848,7 +848,7 @@ $$|x| = \\begin{cases} x & \\text{nếu } x \\ge 0 \\\\ -x & \\text{nếu } x < 
 
 **Dùng ở đâu**: chia trang ($\\lceil n/k\\rceil$ trang cho n mục, k mục/trang), giá cước bậc thang, lập chỉ mục mảng, phân ô lưới.
 
-🔁 **Dừng lại tự kiểm tra**: tính $\\lfloor 3.9\\rfloor$, $\\lceil 3.1\\rceil$, $\\lfloor -2.5\\rfloor$, $|{-4}|+|3|$.
+🔁 **Thực hành**: tính $\\lfloor 3.9\\rfloor$, $\\lceil 3.1\\rceil$, $\\lfloor -2.5\\rfloor$, $|{-4}|+|3|$.
 
 <details><summary>Đáp án</summary>
 
@@ -903,7 +903,7 @@ $\\lfloor 3.9\\rfloor=3$, $\\lceil 3.1\\rceil=4$, $\\lfloor -2.5\\rfloor=-3$ (v�
 
 ❓ **Câu hỏi tự nhiên của người đọc**: *"Khi vừa dịch vừa co giãn, làm theo thứ tự nào?"* Với $y=a\\,f(x-h)+k$: làm **trong ra ngoài** — dịch ngang $h$, rồi co giãn dọc $a$ (và lật nếu $a<0$), cuối cùng dịch dọc $k$. Đổi thứ tự co giãn và dịch dọc cho kết quả khác.
 
-🔁 **Dừng lại tự kiểm tra**: đồ thị $y=(x+2)^2-1$ là parabol đỉnh ở đâu, mở hướng nào? Còn $y=-(x-1)^2$?
+🔁 **Thực hành**: đồ thị $y=(x+2)^2-1$ là parabol đỉnh ở đâu, mở hướng nào? Còn $y=-(x-1)^2$?
 
 <details><summary>Đáp án</summary>
 

@@ -87,7 +87,7 @@ Bình phương khử dấu âm → góc ở phần tư nào cũng cho tổng $= 
 - *"góc bù và góc phụ khác nhau ra sao?"* **Bù** = cộng lại bằng $\\pi$ (180°), liên quan $\\sin(\\pi-x)=\\sin x$. **Phụ** = cộng lại bằng $\\frac{\\pi}{2}$ (90°), liên quan $\\sin(\\frac{\\pi}{2}-x)=\\cos x$. Đừng lẫn hai cái.
 - *"$\\cos(\\pi-x) = -\\cos x$ có dấu trừ, vì sao sin thì không?"* Vì góc $\\pi-x$ đối xứng với x qua **trục tung**: tung độ (sin) giữ nguyên, hoành độ (cos) đổi dấu. Hình học quyết định dấu.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $\\sin x = 0.6$. Tính $\\cos^2 x$ rồi $\\cos x$ (giả sử x phần tư I).
 2. $\\sin(\\pi - \\frac{\\pi}{6})$ bằng mấy?
@@ -191,7 +191,7 @@ $$\\sin(a+b) = \\frac{3}{5}\\cdot\\frac{12}{13} + \\frac{4}{5}\\cdot\\frac{5}{13
 - *"Cần thuộc cả 5 công thức không?"* Thuộc kỹ $\\sin(a+b)$ và $\\cos(a+b)$. Bốn cái còn lại suy ra: thay $b\\to-b$ (dùng chẵn/lẻ) cho dạng "trừ", và tan = sin/cos cho tan.
 - *"Vì sao $\\tan(a+b)$ lại có mẫu $1 - \\tan a\\cdot\\tan b$?"* Vì chia $\\frac{\\sin(a+b)}{\\cos(a+b)}$ rồi chia tử & mẫu cho $\\cos a\\cdot\\cos b$. Mẫu thành $1 - \\tan a \\tan b$. Nó **không xác định** khi $\\tan a\\cdot\\tan b = 1$ (vd a = b = 45°, vì a+b = 90°).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng công thức cộng tính $\\sin 15^\\circ$ (gợi ý: 45° − 30°).
 2. $\\cos(x + \\frac{\\pi}{2})$ rút gọn bằng gì?
@@ -243,7 +243,7 @@ $$\\begin{aligned}
 - *"Vì sao $\\cos 2a$ có tới 3 dạng?"* Vì dùng $\\sin^2 + \\cos^2 = 1$ để thay qua lại. Mỗi dạng tiện cho một mục đích: dạng $1 - 2\\sin^2 a$ để khử sin, dạng $2\\cos^2 a - 1$ để khử cos (rất hữu ích khi hạ bậc, mục 4).
 - *"Có công thức nhân ba không?"* Có: $\\sin 3a = 3 \\sin a - 4 \\sin^3 a$, $\\cos 3a = 4 \\cos^3 a - 3 \\cos a$ (suy từ De Moivre, học ở Lesson 07).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cho $\\sin a = \\frac{3}{5}$, a phần tư I. Tính $\\sin 2a$.
 2. Cho $\\cos a = 0.6$. Tính $\\cos 2a$ (dùng dạng tiện nhất).
@@ -290,7 +290,7 @@ $$\\begin{aligned}
 - *"Vì sao tích phân $\\sin^2 x$ lại cần hạ bậc?"* Vì $\\int\\sin^2 x \\, dx$ không có nguyên hàm sơ cấp ở dạng $\\sin^2$. Hạ bậc biến nó thành $\\int\\frac{1-\\cos 2x}{2} \\, dx$ — chỉ còn tích phân hằng và cos, dễ.
 - *"Giá trị trung bình của $\\sin^2 x$ trên một chu kỳ là bao nhiêu?"* Đúng **$\\frac{1}{2}$** (vì $\\cos 2x$ trung bình bằng 0). Đây là gốc của "giá trị hiệu dụng" trong điện AC.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết $\\cos^2 x$ theo $\\cos 2x$ rồi tính tại $x = \\frac{\\pi}{4}$.
 2. Tính $\\int \\cos^2 x \\, dx$.
@@ -333,7 +333,7 @@ $$\\begin{aligned}
 - *"Khi nào dùng tích→tổng thay vì hạ bậc?"* Hạ bậc cho $\\sin^2$, $\\cos^2$ (cùng góc). Tích→tổng cho tích **hai góc khác nhau** như $\\sin 3x \\cos x$. Khác mục đích.
 - *"Có gì liên hệ với hiện tượng 'beat' trong âm thanh?"* Có. Hai âm tần số gần nhau nhân/cộng lại tạo dao động biên độ chậm (beat) — chính là công thức tích↔tổng (mục 6).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết $2 \\sin 5x \\cos 3x$ thành tổng.
 2. $\\cos x \\cos 2x$ bằng tổng nào?
@@ -375,7 +375,7 @@ $$\\begin{aligned}
 - *"Vì sao công thức có $\\frac{a+b}{2}$ và $\\frac{a-b}{2}$?"* Vì đặt $p = \\frac{a+b}{2}$, $q = \\frac{a-b}{2}$ thì $a = p+q$, $b = p-q$. Khai triển $\\sin(p+q) + \\sin(p-q)$ cho ra $2 \\sin p \\cos q$ — chính là công thức.
 - *"Dùng để giải PT thế nào?"* Vd $\\sin 3x + \\sin x = 0$ → $2 \\sin 2x \\cos x = 0$ → $\\sin 2x = 0$ HOẶC $\\cos x = 0$. Tích bằng 0 tách thành hai PT cơ bản.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết $\\cos 5x + \\cos x$ thành tích.
 2. $\\sin 4x - \\sin 2x$ bằng tích nào?
@@ -423,7 +423,7 @@ trong đó:
 - *"Khi xác định $\\varphi$ từ $\\tan\\varphi = \\frac{b}{a}$, có nguy cơ sai phần tư không?"* Có. $\\tan\\varphi = \\frac{b}{a}$ cho hai $\\varphi$ cách nhau $\\pi$. Phải dùng dấu của $a = R \\cos\\varphi$ và $b = R \\sin\\varphi$ để chọn đúng phần tư của $\\varphi$ (giống \`atan2\`).
 - *"Có viết được dạng $R \\cos(x - \\psi)$ không?"* Được. $a \\sin x + b \\cos x$ cũng $= R \\cos(x - \\psi)$ với $R$ y hệt và $\\tan\\psi = \\frac{a}{b}$. Hai cách tương đương, chọn cái tiện.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Biên độ của $5 \\sin x + 12 \\cos x$ là bao nhiêu?
 2. Đưa $\\sin x + \\cos x$ về dạng $R \\sin(x+\\varphi)$.
@@ -534,7 +534,7 @@ $$25 = 9 + 16 - 24\\cos C \\;\\Rightarrow\\; 25 = 25 - 24\\cos C \\;\\Rightarrow
 - *"Biết 3 cạnh thì chắc gì tạo được tam giác?"* Phải thỏa **bất đẳng thức tam giác**: mỗi cạnh nhỏ hơn tổng hai cạnh kia. Nếu vi phạm, định lý cosin cho $|\\cos C| > 1$ (vô lý) → báo ngay dữ liệu sai. Vd $a=1,b=1,c=5$: $\\cos C = \\frac{1+1-25}{2} = -11.5 \\notin [-1,1]$ → tam giác không tồn tại.
 - *"Khi nào dùng cosin, khi nào dùng sin (Mục 9)?"* Cosin khi biết **2 cạnh + góc xen** (SAS) hoặc **3 cạnh** (SSS). Định lý sin khi biết **2 góc + 1 cạnh** (AAS/ASA) hoặc **2 cạnh + góc đối** (SSA).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tam giác có $a = 8, b = 6, C = 90°$. Tính $c$.
 2. Tam giác có 3 cạnh $a = 7, b = 8, c = 9$. Tính $\\cos B$.
@@ -597,7 +597,7 @@ $$\\frac{a}{\\sin A} = \\frac{b}{\\sin B} \\;\\Rightarrow\\; \\sin B = \\frac{b\
 - *"Định lý sin và cosin trùng vai trò không?"* Không, **bù trừ**. Cosin cần (và cho) một góc xen 2 cạnh hoặc cả 3 cạnh; sin cần một **cặp cạnh–góc đối** đã biết. Nếu chỉ có SAS hoặc SSS thì sin bí (không có cặp đối nào trọn vẹn) → phải khởi đầu bằng cosin.
 - *"Vì sao tỉ số bằng $2R$ chứ không phải $R$?"* Vì với một dây cung, góc nội tiếp chắn cung bằng nửa góc ở tâm; suy ra cạnh $= 2R\\sin(\\text{góc đối})$. Chi tiết học ở hình học đường tròn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tam giác có $A = 45°, B = 60°, a = 12$. Tính $b$.
 2. Tam giác có $a = 14, A = 30°$. Tính $2R$ và $R$.

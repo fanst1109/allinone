@@ -46,7 +46,7 @@
 - *"Kiểm tra $n$ có nguyên tố không thì thử chia tới đâu?"* Chỉ cần thử các ước $\le \sqrt{n}$. Vì nếu $n = a \cdot b$ với cả $a, b > \sqrt{n}$ thì $a \cdot b > n$ (vô lý) — nên một trong hai ước phải $\le \sqrt{n}$. Vd kiểm 97: chỉ thử tới $\sqrt{97} \approx 9.8$, tức 2,3,5,7 — không cái nào chia hết → 97 nguyên tố.
 - *"Vì sao 2 là nguyên tố chẵn duy nhất?"* Mọi số chẵn khác (4, 6, 8...) đều chia hết cho 2 → có ước 2 ngoài 1 và chính nó → hợp số.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $91$ có nguyên tố không?
 2. Để kiểm $131$ nguyên tố, cần thử chia cho những số nào?
@@ -123,7 +123,7 @@ Cho $a = \prod p_i^{a_i}$, $b = \prod p_i^{b_i}$:
 
 ⚠ **Lỗi thường gặp**: khi tính gcd bằng phân tích, lấy nhầm nguyên tố chỉ xuất hiện ở 1 số. Phản ví dụ: $\gcd(360, 84)$ — đừng lấy 5 (chỉ có ở 360) hay 7 (chỉ có ở 84). Nguyên tố không chung → số mũ min = 0 → bỏ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phân tích $72$ ra thừa số nguyên tố.
 2. Dùng phân tích tính $\gcd(72, 120)$ và $\operatorname{lcm}(72, 120)$.
@@ -186,7 +186,7 @@ Mật độ giảm (định lý số nguyên tố: $\approx 1/\ln N$) nhưng t�
 
 ⚠ **Lỗi thường gặp**: kết luận "vậy $N$ là số nguyên tố mới". SAI — xem phản ví dụ 30031 ở trên. Lập luận đúng chỉ là: $N$ **có ước nguyên tố** không trong danh sách hữu hạn → mâu thuẫn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $N = 2 \cdot 3 \cdot 5 + 1$. Nó có nguyên tố không?
 2. Tính $N = 2 \cdot 3 \cdot 5 \cdot 7 + 1$. Nó có nguyên tố không?
@@ -269,7 +269,7 @@ Bước 4 — số `.` kế tiếp là **7**, nhưng $7 > \sqrt{30}$ → DỪNG.
 
 ⚠ **Lỗi thường gặp**: gạch cả số 1 hoặc quên 2 là nguyên tố. Sàng bắt đầu từ 2 (không từ 1, vì 1 không nguyên tố). Phản ví dụ: nếu liệt kê từ 1 và "giữ" 1 lại → đếm sai (1 không phải nguyên tố).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Có bao nhiêu số nguyên tố $\le 20$?
 2. Khi sàng tới $N = 50$, cần gạch bội của những nguyên tố nào?
@@ -439,7 +439,7 @@ Không cần tính $7^{100}$ (số khổng lồ).
 
 ⚠ **Lỗi thường gặp — lẫn "chia hết" và "đồng dư"**. $m \mid a$ ($a$ chia hết cho $m$) khác $a \equiv b \pmod{m}$. $m \mid a$ chỉ là trường hợp đặc biệt $a \equiv 0 \pmod{m}$. Phản ví dụ: $17 \equiv 2 \pmod{5}$ đúng, nhưng $5 \nmid 17$ (17 không chia hết 5). Đừng đọc "17 đồng dư 2 mod 5" thành "5 chia hết 17".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $2^{10} \bmod 3 = ?$ (gợi ý: $2 \equiv -1 \pmod 3$).
 2. Hôm nay thứ Ba. 100 ngày nữa là thứ mấy?
@@ -525,7 +525,7 @@ Verify: $17 \cdot 53 = 901 = 9 \cdot 100 + 1 \equiv 1$ ✓.
 
 ⚠ **Lỗi thường gặp — "chia hai vế" trong mod mà không dùng nghịch đảo**. Trong mod, $a c \equiv b c \pmod n$ KHÔNG suy ra $a \equiv b$ trừ khi $\gcd(c, n) = 1$. Phản ví dụ: $2 \cdot 3 \equiv 2 \cdot 0 \pmod 6$ (cả hai $\equiv 0$) nhưng $3 \not\equiv 0 \pmod 6$ — không được "chia 2" vì $\gcd(2,6) = 2 \ne 1$. Muốn chia phải nhân nghịch đảo, và nghịch đảo chỉ tồn tại khi coprime.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm $11^{-1} \bmod 26$ bằng Euclid mở rộng.
 2. $6^{-1} \bmod 9$ có tồn tại không? Vì sao?
@@ -602,7 +602,7 @@ bit 0 (=1):  6^2 = 36 mod 7 = 1  → ×3 = 3 mod 7 = 3
 
 ⚠ **Lỗi thường gặp — quên mod ở bước bình phương**. Nếu chỉ mod ở cuối mà không mod sau mỗi `result^2`, số trung gian phình to ngay → mất hết lợi ích. Phải mod sau CẢ bước square LẪN bước multiply.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $2^{10} \bmod 1000$ bằng square-and-multiply.
 2. $5 = 101_2$ — liệt kê các bước tính $a^5$.
@@ -687,7 +687,7 @@ $$\varphi(n) = n \cdot \prod\left(1 - \frac{1}{p_i}\right)$$
 
 ⚠ **Lỗi thường gặp**: dùng $a^{n-1} \equiv 1 \pmod{n}$ với $n$ **hợp số**. SAI. Phản ví dụ: $2^{10-1} = 2^9 = 512 \bmod 10 = 2 \neq 1$ (vì 10 không nguyên tố). Phải dùng $a^{\varphi(10)} = a^4$: $2^4 = 16 \equiv 6$... nhưng $\gcd(2,10) \neq 1$ nên Euler cũng không áp dụng. Chọn $a$ coprime: $3^4 = 81 \equiv 1 \pmod{10}$ ✓.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $2^{100} \bmod 5$ bằng Fermat.
 2. $\varphi(15) = ?$

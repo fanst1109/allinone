@@ -96,7 +96,7 @@ Nhân tất cả: $26 \\cdot 10 \\cdot 10 \\cdot 10 \\cdot 10 = 26 \\cdot 10^4 =
 
 ⚠ **Lỗi thường gặp**: nhân khi đáng lẽ cộng (hoặc ngược lại). Phản ví dụ: "chọn 1 món ăn từ thực đơn 3 món Việt HOẶC 4 món Nhật" → $3+4 = 7$ (cộng, vì chỉ chọn 1 món), KHÔNG phải $3 \\cdot 4 = 12$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Biển số có 1 chữ cái (26) rồi 3 chữ số (0–9). Bao nhiêu biển?
 2. Đi làm bằng (xe buýt: 2 tuyến) HOẶC (tàu: 1 tuyến). Bao nhiêu cách?
@@ -230,7 +230,7 @@ Tổng quát (hoán vị lặp / multinomial): $n$ vật với các nhóm trùng
 
 ⚠ **Lỗi thường gặp**: dùng $n!$ khi có phần tử lặp. Phản ví dụ: số cách sắp chữ "AAB" KHÔNG phải $3! = 6$ mà là $3!/2! = 3$ (AAB, ABA, BAA) — vì 2 chữ A giống nhau, đổi chỗ chúng không tạo cách mới.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bao nhiêu cách sắp 6 người vào 6 ghế hàng ngang?
 2. Bao nhiêu "từ" khác nhau từ các chữ của "BOOK"?
@@ -283,7 +283,7 @@ $$A(n, k) = \\frac{n!}{(n-k)!} = n \\cdot (n-1) \\cdot \\ldots \\cdot (n-k+1)$$
 
 ⚠ **Lỗi thường gặp**: dùng chỉnh hợp (A) khi thứ tự KHÔNG quan trọng (đáng lẽ dùng tổ hợp C). Phản ví dụ: "chọn 3 người vào ban kiểm tra (vai như nhau)" KHÔNG phải $A(10,3) = 720$ mà là $C(10,3) = 120$ — vì ABC, ACB... cùng 1 ban.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Từ 8 ngựa, có bao nhiêu cách xếp hạng nhất–nhì–ba?
 2. $A(6, 2) = ?$
@@ -371,7 +371,7 @@ Tổng quát: mỗi nhóm $k$ phần tử có $k!$ cách sắp thứ tự; chỉ
 
 ⚠ **Lỗi thường gặp — lẫn tổ hợp C (không thứ tự) với chỉnh hợp A (có thứ tự)**. Hỏi "chọn 2 trong 4 để **bắt tay**" → tổ hợp $C(4,2) = 6$ (bắt tay A-B = B-A). Hỏi "chọn 2 trong 4 làm **chủ tịch + phó**" → chỉnh hợp $A(4,2) = 12$ (A chủ tịch khác B chủ tịch). Cùng "chọn 2 trong 4" nhưng đáp án khác nhau gấp đôi vì thứ tự!
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $C(7, 5) = ?$ (mẹo: dùng đối xứng).
 2. 6 đội bóng đá vòng tròn, mỗi cặp đá 1 trận. Bao nhiêu trận?
@@ -530,7 +530,7 @@ Mỗi cách mua ↔ một cách sắp $k$ sao và $n-1$ vách trên hàng $k+(n-
 
 ⚠ **Lỗi thường gặp — dùng $n^k$ thay vì $C(n+k-1,k)$**. $n^k$ là khi **có thứ tự** (vị trí phân biệt, vd mã PIN); tổ hợp lặp là khi **không thứ tự** (giỏ hàng — "2 bánh A rồi 1 B" giống "1 B rồi 2 A"). Mua 3 bánh từ 3 loại: tổ hợp lặp $C(5,3)=10$, KHÔNG phải $3^3 = 27$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Khoá số 4 chữ số (0–9), cho phép lặp. Bao nhiêu mã?
 2. Xếp 4 người khác nhau thành 1 hàng. Bao nhiêu cách?
@@ -616,7 +616,7 @@ Cộng (HOẶC): $75 + 200 + 150 + 30 + 1 = \\mathbf{456}$ ✓ — khớp Cách 
 
 ⚠ **Lỗi thường gặp — đếm trùng khi xử lý "ít nhất 1"**. Cách *sai* hay thấy: "chọn 1 nữ chắc chắn ($C(5,1)=5$) RỒI chọn 4 người bất kỳ từ 10 còn lại ($C(10,4)=210$) → $5 \\cdot 210 = 1050$". Sai vì đếm trùng: ban {nữ A, nữ B, 3 nam} bị đếm 2 lần (lần "ghim nữ A", lần "ghim nữ B"). Luôn dùng **phần bù** hoặc **chia trường hợp rời nhau** cho dạng "ít nhất".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lớp 7 nam, 4 nữ. Lập ban 3 người gồm đúng 1 nữ. Bao nhiêu cách?
 2. Có bao nhiêu số có 4 chữ số khác nhau lập từ {0,1,2,3,4,5} (chữ số đầu khác 0)?
@@ -658,7 +658,7 @@ $$\\begin{aligned}
 - *"Khi nào dùng công thức đếm cho xác suất, khi nào không?"* Chỉ khi các kết cục **đồng khả năng** (xúc xắc cân, rút bài ngẫu nhiên, xổ số). Nếu không đồng khả năng (xúc xắc thiên lệch), phải dùng xác suất gốc của từng kết cục, đếm không đủ.
 - *"Tử và mẫu phải đếm cùng kiểu (cùng có/không thứ tự)?"* Đúng — bắt buộc nhất quán. Đếm mẫu bằng tổ hợp thì tử cũng bằng tổ hợp; nếu mẫu có thứ tự thì tử cũng phải có. Trộn lẫn → sai.
 
-🔁 **Dừng lại tự kiểm tra**: Một hộp có 4 bi đỏ, 6 bi xanh. Lấy ngẫu nhiên 3 bi cùng lúc. Xác suất được đúng 2 đỏ?
+🔁 **Thực hành**: Một hộp có 4 bi đỏ, 6 bi xanh. Lấy ngẫu nhiên 3 bi cùng lúc. Xác suất được đúng 2 đỏ?
 
 <details><summary>Đáp án</summary>
 

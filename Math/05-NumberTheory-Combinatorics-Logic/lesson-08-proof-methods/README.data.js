@@ -34,7 +34,7 @@ window.README_MD = `# Lesson 08 — Phương pháp chứng minh
 
 ⚠ **Lỗi thường gặp — chọn vũ khí trước khi đọc dạng mệnh đề.** Người mới hay "thử phản chứng" vô tội vạ vì nghe "kêu". Nhưng nếu mệnh đề là $\\exists$ thì một dòng xây dựng ($6 = 3+3$) thắng cả trang phản chứng. **Luôn phân loại dạng logic trước.**
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. "Mọi số nguyên tố đều lẻ" — bác bằng phương pháp nào?
 2. "Tồn tại số tự nhiên là tổng 3 lập phương" — phương pháp nào?
@@ -117,7 +117,7 @@ ab &= (2m+1)(2n+1) \\\\
 
 ⚠ **Lỗi thường gặp — "chứng minh ngược" (giả định điều cần chứng minh).** Để CM $a+b$ chẵn, KHÔNG được bắt đầu bằng "Giả sử $a+b = 2k$…" rồi suy ngược — đó là dùng chính kết luận làm giả thiết. Chứng minh trực tiếp phải đi **từ giả thiết $P$ tới $Q$**, không phải từ $Q$ đi lùi. (Trừ phi mỗi bước **tương đương hai chiều** $\\iff$ — khi đó đi ngược cũng hợp lệ, nhưng phải nói rõ.)
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. CM trực tiếp: tổng hai số lẻ là số chẵn.
 2. CM trực tiếp: nếu $a$ chia hết cho 3 thì $a^2$ chia hết cho 9.
@@ -192,7 +192,7 @@ Trực tiếp sẽ phải xét "hoặc" rối rắm; phản đảo biến nó th
 
 ⚠ **Lỗi thường gặp — lấy đảo $Q \\to P$ thay vì phản đảo $\\neg Q \\to \\neg P$**. Chỉ phản đảo mới tương đương với $P \\to Q$. Phản ví dụ: "n chia hết 4 → n chẵn" đúng; đảo "n chẵn → n chia hết 4" SAI (n=6); nhưng phản đảo "n lẻ → n không chia hết 4" đúng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết phản đảo của "Nếu $x^2 \\neq 0$ thì $x \\neq 0$".
 2. CM bằng phản đảo: "Nếu $3 \\nmid n$ thì $3 \\nmid n^2$" — không, lập phản đảo của "$3\\mid n^2 \\Rightarrow 3\\mid n$".
@@ -295,7 +295,7 @@ Vậy không tồn tại số hữu tỉ dương nhỏ nhất. $\\square$ (Đây
 
 ⚠ **Lỗi thường gặp — quên giả định "tối giản" hoặc dùng sai mâu thuẫn**. Trong CM √2 vô tỉ, BẮT BUỘC giả sử $a/b$ tối giản ($\\gcd(a,b)=1$); mâu thuẫn chính là "cả a, b đều chẵn → $\\gcd \\ge 2$". Bỏ điều kiện tối giản thì không có mâu thuẫn → chứng minh hỏng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong CM √2 vô tỉ, từ $a^2 = 2b^2$ suy ra a chẵn thế nào?
 2. Mâu thuẫn cuối cùng của chứng minh √2 vô tỉ là gì?
@@ -363,7 +363,7 @@ Xét $N = 4\\cdot p_1\\cdot p_2\\cdot\\ldots\\cdot p_n - 1$. N có dạng 4k+3 (
 
 ⚠ **Lỗi thường gặp**: với mệnh đề $\\exists$, đi chứng minh trừu tượng dài dòng trong khi chỉ cần 1 ví dụ. Phản ví dụ: "tồn tại số nguyên tố chẵn" — chỉ cần nói **2** là xong, không cần lý luận gì thêm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. CM xây dựng: tồn tại số tự nhiên vừa là bình phương vừa là lập phương.
 
@@ -423,7 +423,7 @@ Phổ biến dùng **phản chứng**: giả sử tồn tại → mâu thuẫn.
 
 ⚠ **Lỗi thường gặp**: liệt kê thiếu các số dư khả dĩ. Phải kiểm **mọi** trường hợp. Phản ví dụ tư duy: nếu chỉ xét x chẵn (bỏ x lẻ) thì kết luận sai. Ở đây $x^2 \\in \\{0,1\\}$, $y^2 \\in \\{0,1\\}$ → tổng $\\in \\{0,1,2\\}$ đã đủ MỌI tổ hợp.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Các giá trị $x^2 \\bmod 4$ có thể nhận?
 2. Vì sao $x^2 + y^2 = 4z + 3$ vô nghiệm nhưng $x^2 + y^2 = 4z + 2$ thì có?
@@ -473,7 +473,7 @@ Vì $1681 = 41 \\times 41$ là hợp số → mệnh đề sai. $\\square$
 
 ⚠ **Lỗi thường gặp — dùng phản ví dụ sai chỗ**. Phản ví dụ **chỉ bác được** mệnh đề $\\forall$ ("mọi"). Nó **KHÔNG** bác được mệnh đề $\\exists$ ("tồn tại"): muốn bác "$\\exists x: P(x)$" thì phải chứng minh "$\\forall x: \\neg P(x)$" — tức là phải xét **mọi** $x$ (thường bằng phản chứng), một ví dụ lẻ không đủ. Vd: để bác "tồn tại nghiệm nguyên của $x^2+y^2 = 4z+3$", chỉ ra "$x=1, y=1$ không thoả" là **vô nghĩa** — phải dùng modular argument loại **mọi** bộ (mục 6).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bác mệnh đề "tổng hai số vô tỉ luôn vô tỉ".
 2. Bác mệnh đề "nếu $a \\mid bc$ thì $a \\mid b$ hoặc $a \\mid c$".
@@ -549,7 +549,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 
 ⚠ **Lỗi thường gặp — chỉ chứng minh một nửa.** Tìm được $x_0 = -3$ rồi tuyên bố "vậy duy nhất" là **thiếu**: tồn tại không kéo theo duy nhất (vd $x^2 = 4$ tồn tại nghiệm nhưng có **hai**: $\\pm 2$). Phải làm tách bạch cả hai phần.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. CM bằng vét cạn: với mọi $n$, $n^2 \\bmod 4 \\in \\{0, 1\\}$.
 2. Vì sao "$x^2 = 9$ có nghiệm" không kéo theo "nghiệm duy nhất"?
@@ -599,7 +599,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 - *"Khi nào được viết 'tương tự'?"* Chỉ khi bước lặp lại **y hệt** một bước đã viết đầy đủ ở trên (vd "TH $n$ lẻ chứng minh tương tự TH $n$ chẵn, thay $2k$ bằng $2k+1$"). Cấm dùng "tương tự"/"dễ thấy" để **giấu** một bước thực sự khó.
 - *"$\\square$ và Q.E.D. khác gì?"* Giống nhau — đều đánh dấu kết thúc chứng minh. $\\square$ (hình vuông Halmos) là ký hiệu hiện đại; Q.E.D. (quod erat demonstrandum — "điều phải chứng minh") là cách cổ điển.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm lỗi: "CM mọi số chẵn $> 2$ là hợp số: $4 = 2\\cdot 2$, $6 = 2\\cdot 3$, $8 = 2\\cdot 4$, vậy đúng."
 2. Tìm lỗi: "Vì $(-2)^2 = 2^2$ nên $-2 = 2$."
@@ -646,7 +646,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 - *"Một mệnh đề có thể chứng minh bằng nhiều cách không?"* Có. $\\sqrt{2}$ vô tỉ thường dùng phản chứng, nhưng cũng chứng minh được bằng định lý nghiệm hữu tỉ. Chọn cách **gọn và rõ** nhất.
 - *"Gặp 'không tồn tại nghiệm' nên dùng gì đầu tiên?"* Thử modular argument (mục 6) hoặc phản chứng — hai vũ khí mạnh nhất cho mệnh đề phủ định.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mệnh đề "$\\exists$ số vô tỉ a, b: $a^b$ hữu tỉ" nên thử phương pháp nào?
 2. "Nếu n² chẵn thì n chẵn" — phương pháp gọn nhất?

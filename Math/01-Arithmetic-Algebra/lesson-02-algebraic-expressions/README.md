@@ -136,7 +136,7 @@ Vd: với $x = 3$, biểu thức $2x + 5$ = $2\cdot 3 + 5$ = **11**.
 - **Gom nhầm lũy thừa**: $x^2 + x = x^3$ hay $= 2x$ đều sai — $x^2$ và $x$ khác bậc, không cộng được. Phản chứng $x = 3$: $x^2 + x = 12$, nhưng $x^3 = 27$, $2x = 6$ — cả hai đều khác.
 - **Bỏ quên dấu của hạng tử**: trong $3x - 5y$, hạng tử thứ hai là $-5y$ (mang dấu trừ), không phải $5y$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đánh giá $3x^2 - x$ tại $x = 2$.
 2. Liệt kê hạng tử và hệ số của $-2x^3 + x^2 - x + 7$.
@@ -320,7 +320,7 @@ Bốn ví dụ FOIL:
 - **Sai dấu khi phân phối dấu trừ**: $-(a-b) = -a - b$ (sai). Đúng: $-a + b$.
 - **FOIL quên hạng tử giữa**: $(x+2)(x+3) = x^2 + 6$ (sai, quên O+I). Đúng: $x^2 + 5x + 6$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vì sao $8 - 3 + 2 = 7$ chứ không phải $3$?
 2. Khai triển $-2(3x-5)$ và $(2a-1)(a+3)$.
@@ -376,7 +376,7 @@ Cách kiểm tra khai triển không sai: **thay 1 giá trị x cụ thể vào 
 - *"Bậc của tích 2 đa thức bằng bao nhiêu?"* Bằng **tổng** 2 bậc: bậc 2 × bậc 3 = bậc 5. Vd $(x^2+1)(x^3-x)$ có bậc $2+3 = 5$.
 - *"Hằng số (vd số 7) có phải đa thức không?"* Có — là đa thức **bậc 0** ($7 = 7x^0$). Số 0 là đa thức đặc biệt không có bậc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bậc của $5x^4 - x^6 + 2$ là mấy?
 2. Rút gọn $(x^2+3x) + (2x^2-x)$.
@@ -543,7 +543,7 @@ Tính nhanh $97 \cdot 103$ mà không cần máy tính:
 - *"Làm sao nhớ dấu trong $a^3-b^3$ và $a^3+b^3$?"* Mẹo "SOAP": với $a^3\pm b^3$, ngoặc đầu **S**ame dấu ($a\pm b$), ngoặc sau là $a^2$ **O**pposite dấu $ab$ **A**lways **P**lus $b^2$. Vd $a^3-b^3 = (a-b)(a^2+ab+b^2)$.
 - *"7 hằng đẳng thức này lấy đâu ra?"* Tất cả chỉ là **khai triển phép nhân** rồi rút gọn — không phải công thức trên trời. $(a+b)^2$ chính là $(a+b)(a+b)$ nhân ra.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Khai triển $(x-5)^2$.
 2. Đúng/sai: $(x+3)^2 = x^2 + 9$?
@@ -622,7 +622,7 @@ Nhân ngược lại phải ra đa thức ban đầu: $(x+2)(x+3) = x^2+5x+6$ �
 - *"Có phải đa thức nào cũng phân tích được không?"* Trên $\mathbb{R}$ thì **không**. Vd $x^2+1$ không phân tích được thành tích bậc 1 hệ số thực (vì vô nghiệm thực — $\Delta<0$). Phải lên số phức (Tier 03) mới tách được.
 - *"Tổng-tích khi $c$ âm thì sao?"* Hai số $p, q$ **trái dấu**. Vd $x^2-x-6$: cần $p+q=-1, pq=-6$ → $p=-3, q=2$ → $(x-3)(x+2)$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phân tích $x^2 - 16$.
 2. Phân tích $3x^2 - 12$.

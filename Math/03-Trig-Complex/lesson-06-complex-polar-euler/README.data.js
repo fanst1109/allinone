@@ -153,7 +153,7 @@ Dạng lượng giác và dạng mũ chỉ là **hai cách viết một thứ** 
 
 - **Lấy nhầm $r$ là một thành phần**: $r$ là **cạnh huyền** $\\sqrt{a^2+b^2}$, không phải $a$ hay $b$. $z = 3 + 4i$ có $r = 5$ (không phải 3 hay 4).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết $z = \\sqrt{3} + i$ dưới dạng lượng giác.
 2. Mô-đun và argument của $z = -2i$?
@@ -301,7 +301,7 @@ Năm "người lạ" từ năm thành phố khác nhau, vậy mà ráp lại v�
 - *"Vì sao mũ (tăng trưởng) lại biến thành cos/sin (dao động)?"* Vì nhân với $i$ = quay 90°. Khi mũ "đẩy" theo hướng vuông góc liên tục, quỹ đạo không phình ra mà **cuộn tròn** → ra dao động. Chứng minh chặt là khai triển Taylor ở trên.
 - *"$e^{i\\theta}$ có thể bằng số thực không?"* Có, khi $\\sin\\theta = 0$, tức $\\theta = k\\pi$: $e^{i\\cdot 0} = 1$, $e^{i\\pi} = -1$, $e^{i\\cdot 2\\pi} = 1\\ldots$
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $e^{i\\pi/2}$ bằng số phức nào?
 2. $|e^{i\\cdot 1.234}|$ bằng mấy?
@@ -403,7 +403,7 @@ z_1 \\cdot z_2 &= r_1 r_2 \\, e^{i(\\theta_1 + \\theta_2)} \\\\
 - *"Nếu argument cộng vượt quá 2π thì sao?"* Trừ bớt 2π để đưa về $(-\\pi, \\pi]$. Vd $\\theta = \\dfrac{7\\pi}{4} \\equiv \\dfrac{7\\pi}{4} - 2\\pi = -\\dfrac{\\pi}{4}$. Cùng điểm.
 - *"Dạng lượng giác có lợi hơn đại số nhiều không?"* Cho **cộng/trừ** thì dạng đại số tiện hơn (cộng từng phần). Cho **nhân/chia/lũy thừa/căn** thì dạng cực vượt trội. Chọn dạng theo phép toán.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $z_1 = 4e^{i\\pi/2}$, $z_2 = 2e^{i\\pi/4}$. Tính $z_1\\cdot z_2$ và $\\dfrac{z_1}{z_2}$ dạng cực.
 2. $(3e^{i\\pi/3})\\cdot(e^{i\\cdot 2\\pi/3})$ bằng gì?
@@ -466,7 +466,7 @@ Khớp với công thức quay ở L08-T2: $(x,y) \\to (-y, x)$. ✓ Để ý đ
 - *"Nhân với số thực dương k thì sao?"* $k = ke^{i\\cdot 0}$ → quay 0° (không quay), chỉ **phóng to k lần**. Khớp trực giác: nhân với 2 làm vector dài gấp đôi.
 - *"Quay theo chiều kim đồng hồ thì nhân với gì?"* Nhân với $e^{-i\\theta}$ (argument âm). Vd quay −90° = nhân với $-i$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Nhân $z = 2 + i$ với $i$. Kết quả? Ý nghĩa hình học?
 2. Muốn quay một điểm 180° quanh O thì nhân với số nào?

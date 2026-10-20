@@ -204,7 +204,7 @@ Chỉ có **5 khối đa diện đều** trong không gian 3D:
 
 ⚠ **Lỗi thường gặp**: đếm trùng cạnh hoặc đỉnh khi áp Euler. Phản ví dụ: lập phương có 12 cạnh (không phải $6\cdot 4=24$ — vì mỗi cạnh chung 2 mặt nên chia đôi: $24/2=12$). Kiểm: $V-E+F = 8-12+6 = 2$ ✓; nếu lỡ lấy $E=24$ thì $8-24+6 = -10 \neq 2$ → biết đếm sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lăng trụ tam giác có V=6, F=5. Tính E bằng công thức Euler.
 2. Bát diện đều có 8 mặt tam giác, 6 đỉnh. Số cạnh?
@@ -367,7 +367,7 @@ Nếu quên ⅓ sẽ ra $360$ (gấp 3 lần — sai).
 
 **Lỗi 4 — sai đơn vị (cm² vs cm³).** Thể tích luôn là đơn vị **lập phương** (cm³, m³), KHÔNG phải cm². Ghi "$V=27$ cm²" là sai — phải "$27$ cm³". Trực giác: cạnh nhân 3 lần (dài × rộng × cao) → đơn vị mũ 3.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Chóp đáy vuông cạnh 6, cao 10. Thể tích?
 2. Hình cầu bán kính 3. Thể tích?
@@ -512,7 +512,7 @@ Cầu không có "xung quanh/toàn phần" riêng — chỉ 1 mặt cong duy nh�
 
 **Lỗi 3 — lẫn diện tích (mũ 2) với thể tích (mũ 3).** Diện tích đơn vị **vuông** (cm²); thể tích đơn vị **lập phương** (cm³). Lập phương cạnh 4: $S=96$ cm² nhưng $V=64$ cm³ — khác cả số lẫn đơn vị.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lập phương cạnh 4. Diện tích bề mặt?
 2. Nón R = 6, h = 8. Tính đường sinh l rồi diện tích xung quanh ($\pi R l$).
@@ -600,7 +600,7 @@ $$r = \sqrt{R^2 - d^2} = \sqrt{25 - 9} = \sqrt{16} = 4$$
 - *"Cùng 1 khối mà sao nhiều hình cắt khác nhau?"* Vì hình cắt phụ thuộc **hướng** mặt phẳng. Cắt lập phương: ngang → hình vuông; chéo qua 4 cạnh → tam giác hoặc lục giác.
 - *"Mặt cắt liên quan gì tới thể tích?"* Nguyên lý Cavalieri: nếu 2 khối có **mọi lát cắt ngang cùng độ cao đều cùng diện tích**, thì thể tích bằng nhau. Đây là ý tưởng gốc của tích phân thể tích.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cắt hình trụ $R=4$ vuông góc trục — mặt cắt là hình gì, diện tích bao nhiêu?
 2. Cầu $R=13$, cắt cách tâm $d=5$ — bán kính lát cắt?

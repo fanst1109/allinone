@@ -102,7 +102,7 @@ Sáu bước:
 - *"Khi nào dừng vòng lặp?"* Khi mô hình **đủ tốt cho mục đích**: sai số nằm trong ngưỡng chấp nhận, và thêm độ phức tạp không đáng so với lợi ích. Đây là đánh đổi *độ chính xác ↔ độ đơn giản*.
 - *"Có phải lúc nào cũng lặp nhiều vòng?"* Không nhất thiết. Bài đơn giản có thể 1 vòng là đạt. Nhưng tâm thế "sẵn sàng quay lại bước 2" là cốt lõi.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một bạn lập mô hình dự báo doanh thu, giải ra phương trình, in đồ thị đẹp rồi nộp. Bạn ấy bỏ qua bước nào quan trọng?
 2. Trong 6 bước, bước nào quyết định mô hình "đơn giản" hay "phức tạp"?
@@ -138,7 +138,7 @@ Các loại giả định thường gặp:
 
 > 🧪 **Toy model & phiên bản thật.** Mô hình ném bóng $h(t) = v_0 t - \\frac{1}{2}gt^2$ (bỏ sức cản) là *toy model* tốt cho minh họa. Phiên bản thật thêm lực cản tỉ lệ $v$ hoặc $v^2$: $m \\cdot \\frac{dv}{dt} = -mg - k \\cdot v^2$, không còn giải tay gọn được, phải mô phỏng số. Quy tắc: nêu toy model để hiểu cơ chế, **cảnh báo hạn chế**, rồi chỉ ra phiên bản thật ở đâu.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bạn mô hình hóa thời gian rơi của một tờ giấy phẳng từ độ cao 2m. Giả định "bỏ qua sức cản không khí" có hợp lý không?
 
@@ -250,7 +250,7 @@ Vậy $T = C \\cdot \\ell^{1/2} \\cdot g^{-1/2} = C\\sqrt{\\ell/g}$. So với c�
 
 ⚠ **Lỗi thường gặp — đưa đại lượng có thứ nguyên vào exp/sin.** Viết $N(t) = N_0 \\cdot e^{-t}$ với $t$ tính bằng giây là *thiếu hằng số tốc độ*: phải $e^{-t/\\tau}$ hoặc $e^{-kt}$ với $[\\tau] = T$, $[k] = T^{-1}$ để mũ không thứ nguyên. Phản ví dụ: $e^{-5 \\text{ giây}}$ không có nghĩa; $e^{-5s / 2s} = e^{-2.5}$ mới đúng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Kiểm tra thứ nguyên công thức động lượng $p = m\\cdot v$. Cho biết $[p]$.
 2. Một công thức cho ra "năng lượng" nhưng bạn tính được thứ nguyên vế phải là $M\\cdot L\\cdot T^{-2}$. Có vấn đề gì?
@@ -347,7 +347,7 @@ Tìm $t$ khi $T = 60$°C:
 
 ⚠ **Lỗi thường gặp — coi tham số là hằng số phổ quát.** Hiệu chỉnh $k = 0.0736$ cho *một* cốc rồi dùng lại cho cốc sứ dày là sai — $k$ là tham số *của tình huống đó*. Phản ví dụ: cốc giữ nhiệt có $k$ nhỏ hơn nhiều; dùng nhầm $k$ → dự báo nguội nhanh gấp đôi thực tế.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong mô hình lãi kép $A(t) = P(1 + r)^t$, hãy gắn nhãn biến độc lập, biến phụ thuộc, tham số.
 2. Số $e$ trong $e^{-kt}$ là biến, tham số hay hằng số?
@@ -412,7 +412,7 @@ Một mô hình mang **một nhãn trên mỗi trục** (vd "tất định, liê
 
 ⚠ **Lỗi thường gặp — ép sai loại.** Dùng ODE liên tục cho quần thể chỉ còn 3 cá thể — mô hình nói "còn 2.4 cá thể", vô nghĩa. Tệ hơn, nó bỏ sót *tuyệt chủng do ngẫu nhiên*: 3 con xui rủi chết hết, điều mô hình tất định không bao giờ thấy. Hệ nhỏ nên cân nhắc rời rạc + ngẫu nhiên. Chiều ngược lại cũng sai: mô phỏng ngẫu nhiên từng phân tử khí cho 1 mol ($6\\times10^{23}$ hạt) là phí phạm. Số hạt lớn thì trung bình rất ổn định — mô hình liên tục tất định (nhiệt động lực học) đủ dùng và rẻ hơn vô vàn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phân loại theo cả 3 trục: *"số người xếp hàng ở quầy ATM theo thời gian"*.
 2. Mô hình tìm *giá thuê nhà cân bằng* ở một khu (không quan tâm nó tới đó ra sao) — tĩnh hay động?
@@ -507,7 +507,7 @@ Trước cả khi tính MAE, chạy các kiểm tra rẻ tiền bắt lỗi thô
 
 ⚠ **Lỗi thường gặp — bỏ qua sniff test, lao thẳng vào tính.** Một mô hình cho "xác suất khỏi bệnh = 1.4" hay "thời gian rơi âm" là sai *về chất*, bắt được trong 2 giây bằng kiểm dấu/miền — không cần MAE. Luôn chạy sniff test trước.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vì sao đo sai số trên *chính* dữ liệu đã dùng hiệu chỉnh lại cho kết quả lạc quan giả?
 2. Sai số mô hình (structural) và sai số tham số khác nhau ở chỗ "thêm dữ liệu có giúp không"?

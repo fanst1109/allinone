@@ -220,7 +220,7 @@ $$\\Delta = (-2)^2 - 4\\cdot 1\\cdot(-8) = 4 + 32 = 36,\\quad \\sqrt{\\Delta} = 
 - *"Tính $\\Delta$ có đắt không, có cách nhanh hơn không?"* Δ chỉ là một phép tính số học nhỏ. Nhưng nếu nghiệm "đẹp" (nguyên), thường **nhẩm bằng Viète** (mục 2) hoặc **phân tích nhân tử** (mục 1.7) còn nhanh hơn cả tính Δ.
 - *"Công thức nghiệm có luôn dùng được không?"* Có — đây là phương pháp **vạn năng**, chạy cho MỌI PT bậc 2 (kể cả hệ số xấu). Factoring/Viète chỉ tiện khi nghiệm đẹp. Khi bí, luôn quay về công thức nghiệm.
 
-🔁 **Dừng lại tự kiểm tra**: giải $x^2 - 6x + 8 = 0$ và $3x^2 - 2x - 1 = 0$ bằng công thức.
+🔁 **Thực hành**: giải $x^2 - 6x + 8 = 0$ và $3x^2 - 2x - 1 = 0$ bằng công thức.
 
 <details><summary>Đáp án</summary>
 
@@ -323,7 +323,7 @@ Không bước nào "dễ thấy" — mọi phép biến đổi đều hiện r�
 - *"Viète có đúng khi Δ < 0 không?"* Có — đúng cả với 2 nghiệm phức (tổng và tích vẫn là số thực $-b/a$, $c/a$). Nhưng lúc đó không nhẩm ra cặp số **thực** được.
 - *"$a \\neq 1$ thì còn nhẩm được không?"* Được, nhưng phải nhẩm theo $-b/a$ và $c/a$. Mẹo thực dụng: chia PT cho $a$ trước để về dạng $x^2 + px + q = 0$ rồi nhẩm tổng $-p$, tích $q$.
 
-🔁 **Dừng lại tự kiểm tra**: (1) dùng Viète nhẩm nghiệm $x^2 - 7x + 10 = 0$; (2) nhẩm nghiệm $2x^2 - 8x + 6 = 0$.
+🔁 **Thực hành**: (1) dùng Viète nhẩm nghiệm $x^2 - 7x + 10 = 0$; (2) nhẩm nghiệm $2x^2 - 8x + 6 = 0$.
 
 <details><summary>Đáp án</summary>
 
@@ -422,7 +422,7 @@ y &= 2(x^2 + 4x) + 5 \\\\
 
 ❓ *"Đỉnh để làm gì ngoài vẽ đồ thị?"* Đỉnh là **điểm tối ưu** — bài toán "diện tích lớn nhất với chu vi cho trước", "lợi nhuận max", "tầm xa của vật ném" đều quy về tìm đỉnh parabol. Trong ML, cực tiểu của MSE loss (một parabol theo tham số) chính là nghiệm hồi quy — xem [Vectors/01-Algebra/lesson-06](../../../Vectors/01-Algebra/lesson-06-linear-quadratic/).
 
-🔁 **Dừng lại tự kiểm tra**: tìm đỉnh và giá trị nhỏ nhất của $y = x^2 - 8x + 20$.
+🔁 **Thực hành**: tìm đỉnh và giá trị nhỏ nhất của $y = x^2 - 8x + 20$.
 
 <details><summary>Đáp án</summary>
 

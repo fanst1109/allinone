@@ -77,10 +77,10 @@ Hai cách ra **cùng số**. Cách A nhanh hơn vì không phải thế $u$ về
 
 > ⚠ **Lỗi thường gặp #2 — quên đổi cận.** Khi đổi biến trong tích phân **xác định**, phải đổi luôn **cận** theo $u$ (ví dụ 4 ở trên: $x$ từ $0\to1$ thành $u$ từ $0\to1$ — tình cờ trùng nên dễ tưởng "không cần đổi"; ví dụ $1.1$ thì $0,2 \to 1,5$ khác hẳn), hoặc thế ngược về $x$ trước khi thay cận. Quên đổi cận → sai số.
 
-> 🔁 **Dừng lại tự kiểm tra (bất định).** Tính $\int 3x^2\cos(x^3)\,dx$.
+> 🔁 **Thực hành (bất định).** Tính $\int 3x^2\cos(x^3)\,dx$.
 > <details><summary>Đáp án</summary>Thấy "cụm $x^3$ + đạo hàm $3x^2$" → đặt $u=x^3$, $du=3x^2\,dx$. $\Rightarrow \int\cos u\,du = \sin u + C = \sin(x^3) + C$. Verify: $\frac{d}{dx}\sin(x^3) = 3x^2\cos(x^3)$ ✓.</details>
 
-> 🔁 **Dừng lại tự kiểm tra (xác định — phải đổi cận).** Tính $\int_0^1 \frac{x}{(x^2+1)^2}\,dx$.
+> 🔁 **Thực hành (xác định — phải đổi cận).** Tính $\int_0^1 \frac{x}{(x^2+1)^2}\,dx$.
 > <details><summary>Đáp án</summary>$u = x^2+1$, $du = 2x\,dx \Rightarrow x\,dx = \frac{1}{2}du$. Đổi cận: $x=0 \Rightarrow u=1$; $x=1 \Rightarrow u=2$. $\Rightarrow \frac{1}{2}\int_1^2 u^{-2}\,du = \frac{1}{2}\big[-u^{-1}\big]_1^2 = \frac{1}{2}\big(-\frac{1}{2}+1\big) = \frac{1}{4} = 0.25$. *Lưu ý cận đã đổi sang $1, 2$ — không phải $0, 1$.*</details>
 
 > 📝 **Tóm tắt mục 1.** Đổi biến = **chain rule chạy ngược**. Nhận diện mẫu "**một cụm + đạo hàm của cụm**" (cụm thường nằm trong căn / mũ / mẫu / $\sin\cos$), đặt cụm đó là $u$. Ba bước: (1) đặt $u=g(x)$, (2) thay $g'(x)\,dx = du$ và tích phân theo $u$, (3) thế $u$ về $x$ (bất định) **hoặc** đổi cận theo $u$ (xác định). Với tích phân **xác định**: đổi sang $u$ thì cận cũng phải là cận của $u$ — đừng trộn lẫn cận $x$ với biến $u$.
@@ -200,7 +200,7 @@ Nhân chéo (đường chéo xuống) kèm dấu: $(+)\,x^2 e^x + (-)\,2x\,e^x +
 
 > ⚠ **Lỗi thường gặp.** Sau khi tính xong theo $\theta$, phải **đổi ngược về $x$** (dùng tam giác: $\sin\theta = \frac{x}{a} \Rightarrow \cos\theta = \frac{\sqrt{a^2-x^2}}{a}$...). Để nguyên $\theta$ là chưa xong.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính $\int \frac{1}{\sqrt{4-x^2}}\,dx$.
+> 🔁 **Thực hành.** Tính $\int \frac{1}{\sqrt{4-x^2}}\,dx$.
 > <details><summary>Đáp án</summary>Dạng $\sqrt{a^2-x^2}$ với $a=2$ → đặt $x=2\sin\theta$, $dx=2\cos\theta\,d\theta$, $\sqrt{4-x^2}=2\cos\theta$. $\Rightarrow \int\frac{2\cos\theta}{2\cos\theta}\,d\theta = \int d\theta = \theta + C = \arcsin\frac{x}{2} + C$. Verify: $\frac{d}{dx}\arcsin\frac{x}{2} = \frac{1/2}{\sqrt{1-x^2/4}} = \frac{1}{\sqrt{4-x^2}}$ ✓.</details>
 
 > 📝 **Tóm tắt mục 3.** Ba dạng căn → ba phép đặt: $\sqrt{a^2-x^2}\to a\sin\theta$, $\sqrt{a^2+x^2}\to a\tan\theta$, $\sqrt{x^2-a^2}\to a\sec\theta$. Đồng nhất thức Pythagoras khử căn. Nhớ **đổi ngược về $x$** bằng tam giác vuông.
@@ -258,10 +258,10 @@ Lưu ý $\int \frac{B}{x^2}\,dx = \int -x^{-2}\,dx = +\frac{1}{x}$ — mảnh b�
 
 > ⚠ **Bậc tử ≥ bậc mẫu?** Phải **chia đa thức trước** để tách phần nguyên, rồi mới phân tích phần dư. Ví dụ $\frac{x^2}{x^2-1} = 1 + \frac{1}{x^2-1}$.
 
-> 🔁 **Dừng lại tự kiểm tra (nghiệm đơn).** Tách rồi tính $\int \frac{5}{(x-2)(x+3)}\,dx$.
+> 🔁 **Thực hành (nghiệm đơn).** Tách rồi tính $\int \frac{5}{(x-2)(x+3)}\,dx$.
 > <details><summary>Đáp án</summary>Cover-up: hệ số của $\frac{1}{x-2}$ = $\frac{5}{x+3}\big|_{x=2} = \frac{5}{5} = 1$; của $\frac{1}{x+3}$ = $\frac{5}{x-2}\big|_{x=-3} = \frac{5}{-5} = -1$. $\Rightarrow \int\left(\frac{1}{x-2} - \frac{1}{x+3}\right)dx = \ln|x-2| - \ln|x+3| + C = \ln\left|\frac{x-2}{x+3}\right| + C$.</details>
 
-> 🔁 **Dừng lại tự kiểm tra (nghiệm bội).** Tách $\frac{1}{x(x+1)^2}$ thành tổng các phân thức đơn.
+> 🔁 **Thực hành (nghiệm bội).** Tách $\frac{1}{x(x+1)^2}$ thành tổng các phân thức đơn.
 > <details><summary>Đáp án</summary>$\frac{1}{x(x+1)^2} = \frac{A}{x} + \frac{B}{x+1} + \frac{C}{(x+1)^2}$. Quy đồng: $1 = A(x+1)^2 + Bx(x+1) + Cx$. $x=0: 1 = A$. $x=-1: 1 = C(-1) \Rightarrow C=-1$. So hệ số $x^2: 0 = A+B \Rightarrow B=-1$. Vậy $\frac{1}{x} - \frac{1}{x+1} - \frac{1}{(x+1)^2}$. Tích phân: $\ln|x| - \ln|x+1| + \frac{1}{x+1} + C$.</details>
 
 > 📝 **Tóm tắt mục 4.** Phân thức hữu tỉ (bậc tử < mẫu) tách thành tổng các mảnh: nghiệm đơn $\to \frac{A}{x-r}$ (ra $A\ln|x-r|$); nghiệm bội $(x-r)^k \to \frac{A_1}{x-r}+\dots+\frac{A_k}{(x-r)^k}$; nhân tử bậc 2 vô nghiệm $\to \frac{Bx+C}{x^2+\dots}$ (ra $\ln + \arctan$). **Cover-up** tìm hệ số nhanh cho nghiệm đơn; nghiệm bội/bậc 2 phải quy đồng & so hệ số. Bậc tử ≥ mẫu → **chia đa thức trước**. Nếu tử đúng bằng đạo hàm của mẫu → đổi biến gọn hơn tách.
@@ -292,7 +292,7 @@ Nếu giới hạn hữu hạn → **hội tụ**; nếu $= \infty$ hoặc khôn
 
 > ❓ **"Sao chỗ thì $p>1$ hội tụ, chỗ thì $p<1$ hội tụ?"** Khác cận! Tại **$\infty$** cần hàm tắt nhanh $\Rightarrow p>1$. Tại **điểm kỳ dị 0** cần hàm không quá nhọn $\Rightarrow p<1$. Hai bài toán đối xứng nhau.
 
-> 🔁 **Dừng lại tự kiểm tra.** $\int_1^\infty \frac{1}{x^{1.5}}\,dx$ hội tụ hay phân kỳ? Nếu hội tụ, bằng bao nhiêu?
+> 🔁 **Thực hành.** $\int_1^\infty \frac{1}{x^{1.5}}\,dx$ hội tụ hay phân kỳ? Nếu hội tụ, bằng bao nhiêu?
 > <details><summary>Đáp án</summary>$p = 1.5 > 1$ → **hội tụ**, giá trị $= \frac{1}{p-1} = \frac{1}{0.5} = 2$. Kiểm tra: $\int_1^b x^{-1.5}dx = [-2x^{-0.5}]_1^b = -\frac{2}{\sqrt{b}} + 2 \to 2$ khi $b\to\infty$ ✓.</details>
 
 > 📝 **Tóm tắt mục 5.** Tích phân suy rộng = **giới hạn** của tích phân thường (cận $\infty$ hoặc hàm vọt vô cực). Hữu hạn → hội tụ; ngược lại → phân kỳ. **p-test**: tại $\infty$ cần $p>1$; tại điểm kỳ dị (vd $0$) cần $p<1$ — hai điều kiện đối xứng.
@@ -319,7 +319,7 @@ Nếu giới hạn hữu hạn → **hội tụ**; nếu $= \infty$ hoặc khôn
 
 ❓ **"Một bài có thể cần nhiều kỹ thuật không?"** Rất thường. Ví dụ $\int\arctan x\,dx$ (mục 2.1 self-check): **từng phần** trước, rồi tích phân còn lại cần **đổi biến**. Hay $\int\frac{1}{x^2\sqrt{x^2-1}}dx$: **trig sub** rồi mới ra trig đơn giản. Quy tắc: chọn kỹ thuật làm tích phân **đơn giản đi một bậc**, rồi lặp lại quy trình nhận diện trên phần còn lại.
 
-> 🔁 **Dừng lại tự kiểm tra (chọn kỹ thuật, chưa cần tính).** Mỗi tích phân dưới nên thử kỹ thuật nào trước? (a) $\int x^2 e^{x^3}dx$; (b) $\int x\ln x\,dx$; (c) $\int\frac{dx}{\sqrt{9-x^2}}$; (d) $\int\frac{3}{(x-1)(x+2)}dx$.
+> 🔁 **Thực hành (chọn kỹ thuật, chưa cần tính).** Mỗi tích phân dưới nên thử kỹ thuật nào trước? (a) $\int x^2 e^{x^3}dx$; (b) $\int x\ln x\,dx$; (c) $\int\frac{dx}{\sqrt{9-x^2}}$; (d) $\int\frac{3}{(x-1)(x+2)}dx$.
 > <details><summary>Đáp án</summary>(a) **Đổi biến** $u=x^3$ ($du=3x^2dx$ — có sẵn $x^2$). (b) **Từng phần**, $u=\ln x$ (LIATE: L trước A). (c) **Trig sub** $x=3\sin\theta$ (dạng $\sqrt{a^2-x^2}$, $a=3$). (d) **Phân thức đơn giản** (mẫu tách sẵn, bậc tử 0 < bậc mẫu 2).</details>
 
 > 📝 **Tóm tắt.** Bốn kỹ thuật = bốn cách "biến lạ về quen": đổi biến (hàm hợp ngược), từng phần (tích ngược), lượng giác hoá (khử căn), phân thức (tách phân số). Suy rộng = tích phân + giới hạn. p-test: $\infty$ cần $p>1$, kỳ dị tại 0 cần $p<1$.

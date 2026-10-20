@@ -206,7 +206,7 @@ $$\begin{aligned}
 
 - **Nhầm dot với cross**: dot ra **một số** (tìm góc, kiểm vuông góc), cross ra **một vector** (pháp tuyến, diện tích). $u=(1,2,3), v=(4,5,6)$: $u\cdot v = 32$ còn $u\times v = (-3,6,-3)$ — hai loại khác hẳn.
 
-🔁 **Dừng lại tự kiểm tra (cross product)**
+🔁 **Thực hành (cross product)**
 
 1. Tính $(0,1,0)\times(0,0,1)$.
 2. Diện tích hình bình hành căng bởi $u=(2,0,0)$ và $v=(0,3,0)$ là bao nhiêu?
@@ -226,7 +226,7 @@ $$\begin{aligned}
 
 ⚠ **Lỗi thường gặp**: quên căn bậc 2 hoặc thiếu 1 thành phần z. Phản ví dụ: A(0,0,0), B(2,3,6) — nếu chỉ tính $\sqrt{4+9} = \sqrt{13}$ (quên z) là sai; đúng phải gồm cả $6^2 = 36 \to \sqrt{49} = 7$. Lỗi tích vô hướng: nhân chéo thay vì nhân cùng thành phần.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. A(1,2,3), B(3,5,3). Tính khoảng cách AB.
 2. $u = (1,2,2)$, $v = (2,-2,1)$. Tính $u\cdot v$. Hai vector có vuông góc không?
@@ -324,7 +324,7 @@ $$d = \frac{|Ax_0 + By_0 + Cz_0 + D|}{\sqrt{A^2 + B^2 + C^2}}$$
 
 ⚠ **Lỗi thường gặp**: quên chuẩn hóa (chia cho $\sqrt{A^2+B^2+C^2}$) khi tính khoảng cách, hoặc dùng sai dấu D. Phản ví dụ: khoảng cách từ O tới $2x+y+2z-6=0$ $= \frac{|-6|}{\sqrt{4+1+4}} = \frac{6}{3} = $ **2**; nếu quên chia $\sqrt{9}$ thì ra 6 (sai gấp 3). Lỗi khác: lẫn vector pháp tuyến $(A,B,C)$ với 1 điểm trên mặt.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mặt phẳng $x - 2y + 2z + 3 = 0$. Vector pháp tuyến là gì?
 2. Khoảng cách từ O(0,0,0) tới mặt phẳng đó?
@@ -373,7 +373,7 @@ $$\frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}$$
 
 ⚠ **Lỗi thường gặp**: lẫn vector chỉ phương ($\parallel$ đường) với vector pháp tuyến ($\perp$ mặt). Đường thẳng dùng **chỉ phương**, mặt phẳng dùng **pháp tuyến**. Phản ví dụ: PT mặt $2x+y+2z=6$ có pháp $(2,1,2)$; đường vuông góc mặt này nhận đúng $(2,1,2)$ làm **chỉ phương** (vì $u \parallel n$ khi đường $\perp$ mặt).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết PT tham số đường thẳng qua A(2,0,1) với vector chỉ phương $(1,-1,2)$.
 2. Điểm $(4,-2,5)$ có nằm trên đường đó không?
@@ -425,7 +425,7 @@ $$\frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}$$
 
 ⚠ **Lỗi thường gặp**: cho rằng "2 đường không cắt thì song song" (đúng ở 2D, sai ở 3D). Phản ví dụ: đường $x=t,y=0,z=0$ (trục Ox) và đường $x=0,y=1,z=s$ — không cắt (đường 2 luôn có $y=1\neq 0$), nhưng chỉ phương $(1,0,0)$ và $(0,0,1)$ không $\parallel$ → **chéo nhau**, không song song.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đường có chỉ phương $u=(2,1,2)$, mặt phẳng có pháp tuyến $n=(2,1,2)$. Đường và mặt quan hệ gì?
 2. 2D có khả năng "chéo nhau" giữa 2 đường không?
@@ -481,7 +481,7 @@ So sánh $d$ (khoảng cách từ tâm I tới mặt phẳng) với $R$:
 
 ⚠ **Lỗi thường gặp — quên bình phương R, hoặc sai dấu khi moi tâm**: trong dạng tổng quát hệ số là $-2a$, nên tâm $a = -\frac{\text{hệ số } x}{2}$. Phản ví dụ: $x^2+y^2+z^2 - 2x = 0$ có $-2a = -2 \to a = 1$ (KHÔNG phải $-1$), tâm $(1,0,0)$, $R = \sqrt{1-0} = 1$. Lỗi khác: viết vế phải là $R$ thay vì $R^2$ — với $R=5$ phải là 25, không phải 5.
 
-🔁 **Dừng lại tự kiểm tra (mặt cầu)**
+🔁 **Thực hành (mặt cầu)**
 
 1. Lập PT mặt cầu tâm $I(2,-1,0)$, bán kính $R=4$.
 2. Cho $x^2+y^2+z^2 - 4x + 2y - 4 = 0$. Tìm tâm và bán kính.

@@ -150,10 +150,10 @@ $$\frac{d^2y}{dx^2} = \frac{\dfrac{d}{dt}\!\left(\dfrac{dy}{dx}\right)}{\dfrac{d
 
 > ⚠ **Lỗi thường gặp 2.** Chỉ được dùng $\frac{dy}{dx} = \frac{dy/dt}{dx/dt}$ ở **đạo hàm bậc một**, và phải kiểm tra $\frac{dx}{dt} \neq 0$. Khi $\frac{dx}{dt} = 0$ mà $\frac{dy}{dt} \neq 0$ → tiếp tuyến *thẳng đứng* (độ dốc $\to\infty$), không phải "không có tiếp tuyến".
 
-> 🔁 **Dừng lại tự kiểm tra.** Đường cong $x = t^3, y = t^2$. Tính $\frac{dy}{dx}$ tại $t = 1$.
+> 🔁 **Thực hành.** Đường cong $x = t^3, y = t^2$. Tính $\frac{dy}{dx}$ tại $t = 1$.
 > <details><summary>Đáp án</summary>$\frac{dx}{dt} = 3t^2$, $\frac{dy}{dt} = 2t$ $\Rightarrow \frac{dy}{dx} = \frac{2t}{3t^2} = \frac{2}{3t}$. Tại $t=1$: $\frac{2}{3}$.</details>
 
-> 🔁 **Dừng lại tự kiểm tra 2.** Với $x = t^2,\ y = t^3$, tìm các điểm có tiếp tuyến *thẳng đứng*.
+> 🔁 **Thực hành 2.** Với $x = t^2,\ y = t^3$, tìm các điểm có tiếp tuyến *thẳng đứng*.
 > <details><summary>Đáp án</summary>Tiếp tuyến đứng khi $\frac{dx}{dt} = 0$ và $\frac{dy}{dt} \neq 0$. $\frac{dx}{dt} = 2t = 0 \Rightarrow t = 0$; tại đó $\frac{dy}{dt} = 3t^2 = 0$ → **cả hai bằng 0** (dạng $0/0$), nên đây là điểm nhọn (cusp) tại gốc, không phải tiếp tuyến đứng đơn thuần. Đường cong này không có tiếp tuyến đứng "sạch" nào.</details>
 
 > 📝 **Tóm tắt mục 1.** $\frac{dy}{dx} = \dfrac{dy/dt}{dx/dt}$ (với $dx/dt \neq 0$) — coi $t$ là thời gian, đây là độ dốc *hình học* của đường đi, suy ra từ chain rule. $\frac{dx}{dt}=0,\ \frac{dy}{dt}\neq0$ → tiếp tuyến đứng. Đạo hàm bậc hai **không** chia trực tiếp $\frac{d^2y/dt^2}{d^2x/dt^2}$ mà phải lấy $\frac{d}{dt}(\frac{dy}{dx}) \div \frac{dx}{dt}$.
@@ -226,7 +226,7 @@ So với đáp số đúng $1.5708$: sai số chỉ $\approx 0.6\%$ với **ch�
 
 > ⚠ **Lỗi thường gặp.** Khi rút gọn căn phải **giữ trị tuyệt đối**: $\sqrt{4\sin^2(t/2)} = 2|\sin(t/2)|$, không phải $2\sin(t/2)$. Trên $t\in[0,2\pi]$ thì $\sin(t/2)\ge0$ nên bỏ được, nhưng trên khoảng khác $\sin(t/2)$ có thể âm → bỏ dấu trị tuyệt đối làm độ dài ra âm/sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Độ dài đoạn $x = 3t, y = 4t$ với $t\in[0,2]$.
+> 🔁 **Thực hành.** Độ dài đoạn $x = 3t, y = 4t$ với $t\in[0,2]$.
 > <details><summary>Đáp án</summary>$x'=3, y'=4$, $\sqrt{9+16}=5$ $\Rightarrow L = \int_0^2 5\,dt = 10$. Khớp khoảng cách hình học: điểm đi từ $(0,0)$ tới $(6,8)$, $\sqrt{6^2+8^2}=10$ ✓.</details>
 
 > 📝 **Tóm tắt mục 2.** $L = \int_\alpha^\beta \sqrt{(x')^2 + (y')^2}\,dt$ — Pythagoras cho vận tốc, cộng dồn theo thời gian. Cycloid $L = 8$ (không dính $\pi$); ellipse → tích phân elliptic, phải tính số.
@@ -328,10 +328,10 @@ Ba đồ thị tiêu biểu (nhìn để có hình dung trước khi tính diệ
 
 > ⚠ **Lỗi thường gặp 2 — sai phần tư.** Đây là lỗi #1 ở chiều Descartes → cực. $(x,y) = (-1, -1)$ nằm phần tư **III** nên $\theta = \frac{5\pi}{4}$ (hoặc $-\frac{3\pi}{4}$), **không** phải $\frac{\pi}{4}$ dù $\arctan\frac{-1}{-1} = \arctan 1 = \frac{\pi}{4}$. Máy tính bấm $\arctan$ sẽ "ăn gian" trả $\frac{\pi}{4}$ — luôn vẽ điểm ra giấy để xác định phần tư trước khi chốt $\theta$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Điểm cực $(r, \theta) = (2, \frac{\pi}{3})$ có toạ độ Descartes là gì?
+> 🔁 **Thực hành.** Điểm cực $(r, \theta) = (2, \frac{\pi}{3})$ có toạ độ Descartes là gì?
 > <details><summary>Đáp án</summary>$x = r\cos\theta = 2\cos\frac{\pi}{3} = 2\cdot\frac{1}{2} = 1$; $y = r\sin\theta = 2\sin\frac{\pi}{3} = 2\cdot\frac{\sqrt{3}}{2} = \sqrt{3}$. Vậy $(1, \sqrt{3})$.</details>
 
-> 🔁 **Dừng lại tự kiểm tra 2.** Đổi $(x, y) = (0, 4)$ và $(x, y) = (-3, 0)$ sang cực.
+> 🔁 **Thực hành 2.** Đổi $(x, y) = (0, 4)$ và $(x, y) = (-3, 0)$ sang cực.
 > <details><summary>Đáp án</summary>$(0,4)$: $r = 4$, nằm trên Oy dương → $\theta = \frac{\pi}{2}$ → $(4, \frac{\pi}{2})$. $(-3, 0)$: $r = 3$, trên Ox âm → $\theta = \pi$ → $(3, \pi)$. (Lưu ý: với điểm trên trục, đừng dùng $\arctan(y/x)$ vì có thể chia cho 0 — đọc thẳng từ vị trí.)</details>
 
 > 📝 **Tóm tắt mục 3.** Cực = "**quay góc $\theta$, đi xa $r$**": $x = r\cos\theta$, $y = r\sin\theta$; ngược lại $r = \sqrt{x^2+y^2}$, $\theta = \operatorname{atan2}(y,x)$. Một điểm ứng với nhiều $(r,\theta)$ (bội $2\pi$, $r$ âm, gốc $O$). Đổi Descartes → cực phải **chỉnh góc theo phần tư**. Đường tròn, cardioid, hoa hồng — khó viết $y=f(x)$ — lại rất gọn trong cực.
@@ -398,10 +398,10 @@ $$A = \frac{1}{2}\int_{\alpha}^{\beta}\big(r_{\text{ngoài}}^2 - r_{\text{trong}
 
 > ❓ **"Sao là ½r² chứ không phải r²?"** Vì diện tích một hình quạt bán kính $r$, góc nhỏ $d\theta$ là $\frac{1}{2}r^2\,d\theta$ (giống $\frac{1}{2}\cdot$đáy$\cdot$cao của tam giác hẹp), không phải $r\,d\theta$ (cái đó là *độ dài cung*). Nhầm hai cái là lỗi phổ biến nhất ở phần này. *(Callout này lặp lại từ mục dưới để đứng cạnh chỗ dễ sai — đọc một mình vẫn hiểu.)*
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính diện tích bao bởi đường tròn $r = 2\cos\theta$ (cho $\theta\in[-\frac{\pi}{2}, \frac{\pi}{2}]$).
+> 🔁 **Thực hành.** Tính diện tích bao bởi đường tròn $r = 2\cos\theta$ (cho $\theta\in[-\frac{\pi}{2}, \frac{\pi}{2}]$).
 > <details><summary>Đáp án</summary>$A = \frac{1}{2}\int_{-\pi/2}^{\pi/2}(2\cos\theta)^2\,d\theta = \frac{1}{2}\int_{-\pi/2}^{\pi/2}4\cos^2\theta\,d\theta = 2\int_{-\pi/2}^{\pi/2}\cos^2\theta\,d\theta = 2\cdot\frac{\pi}{2} = \pi$. Kiểm tra: $r=2\cos\theta$ là đường tròn bán kính $1$ tâm $(1,0)$ → diện tích $\pi\cdot1^2 = \pi$ ✓.</details>
 
-> 🔁 **Dừng lại tự kiểm tra 2.** Vì sao cận của đường tròn $r = 2\cos\theta$ chỉ là $[-\frac{\pi}{2}, \frac{\pi}{2}]$ mà không phải $[0, 2\pi]$?
+> 🔁 **Thực hành 2.** Vì sao cận của đường tròn $r = 2\cos\theta$ chỉ là $[-\frac{\pi}{2}, \frac{\pi}{2}]$ mà không phải $[0, 2\pi]$?
 > <details><summary>Đáp án</summary>Trên $[-\frac{\pi}{2}, \frac{\pi}{2}]$ thì $\cos\theta \ge 0$ nên $r \ge 0$ và đường vẽ trọn cả vòng tròn nhỏ một lần. Nếu chạy $[0, 2\pi]$, khi $\theta \in (\frac{\pi}{2}, \frac{3\pi}{2})$ thì $\cos\theta < 0 \Rightarrow r < 0$ — đường được vẽ **lại lần hai** (chồng lên chính nó), tính diện tích sẽ ra $2\pi$ (gấp đôi). Đây đúng là cái bẫy "chọn sai khoảng $\theta$".</details>
 
 > 📝 **Tóm tắt mục 4.** $A = \frac{1}{2}\int_\alpha^\beta r(\theta)^2\,d\theta$ — cộng dồn các **hình quạt mảnh** $\frac{1}{2}r^2\,d\theta$. Giữa hai đường: $\frac12\int(r_{\text{ngoài}}^2 - r_{\text{trong}}^2)\,d\theta$ (hiệu hai *bình phương*, không bình phương hiệu). Hệ số $\frac{1}{2}$ là chỗ dễ quên nhất; chọn cận $\theta$ phải khớp đúng phạm vi cần tính.
@@ -452,7 +452,7 @@ $$L = \int_{\alpha}^{\beta} \sqrt{r^2 + \left(\tfrac{dr}{d\theta}\right)^2}\,d\t
 
 > ⚠ **Lỗi thường gặp.** Khi rút gọn căn phải **giữ trị tuyệt đối**: $\sqrt{4\cos^2(\theta/2)} = 2|\cos(\theta/2)|$. Trên $[0, 2\pi]$ thì $\cos(\theta/2) \ge 0$ nên bỏ được dấu trị tuyệt đối; trên khoảng khác bỏ ẩu sẽ ra độ dài âm — vô lý.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao đường tròn $r=a$ cho $L = 2\pi a$ mà không cần $\frac{dr}{d\theta}$?
+> 🔁 **Thực hành.** Vì sao đường tròn $r=a$ cho $L = 2\pi a$ mà không cần $\frac{dr}{d\theta}$?
 > <details><summary>Đáp án</summary>Vì $r$ hằng nên $\frac{dr}{d\theta}=0$, công thức rút về $L = \int_0^{2\pi} r\,d\theta = \int_0^{2\pi} a\,d\theta = 2\pi a$. Đúng là "đi hết một vòng với bán kính cố định" = chu vi.</details>
 
 > 📝 **Tóm tắt mục 5.** $L = \int_\alpha^\beta \sqrt{r^2 + (r')^2}\,d\theta$ — Pythagoras của hai dịch chuyển vuông góc (bán kính $dr$, tiếp tuyến $r\,d\theta$). $r^2$ là phần "quét vòng", $(r')^2$ là phần "ra/vào gốc". Cardioid $L=8$; nhiều đường (xoắn ốc) phải tính số.
@@ -481,7 +481,7 @@ $$\frac{dy}{dx} = \frac{\dfrac{dr}{d\theta}\sin\theta + r\cos\theta}{\dfrac{dr}{
 
 **Ví dụ 3 — tiếp tuyến tại gốc.** Khi $r(\theta_0) = 0$ (đường đi qua gốc), công thức gọn lại: tiếp tuyến tại gốc chính là **tia $\theta = \theta_0$**. Với cardioid $r = 1 + \cos\theta$, $r = 0 \Leftrightarrow \cos\theta = -1 \Leftrightarrow \theta = \pi$ → tiếp tuyến tại gốc là tia $\theta = \pi$ (trục Ox âm), khớp với hình "trái tim" nhọn về phía trái.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với đường tròn $r = 2$ (hằng), tính $\frac{dy}{dx}$ tại $\theta = 0$.
+> 🔁 **Thực hành.** Với đường tròn $r = 2$ (hằng), tính $\frac{dy}{dx}$ tại $\theta = 0$.
 > <details><summary>Đáp án</summary>$r = 2$, $\frac{dr}{d\theta} = 0$. Tử $= 0\cdot\sin 0 + 2\cos 0 = 2$; mẫu $= 0\cdot\cos 0 - 2\sin 0 = 0$. $\frac{dy}{dx} = \frac{2}{0}$ → tiếp tuyến **thẳng đứng**. Đúng: điểm $\theta=0$ là $(2,0)$ ở mép phải đường tròn, tiếp tuyến dựng đứng ✓.</details>
 
 > 📝 **Tóm tắt mục 6.** Đường cực = tham số với $x = r\cos\theta, y = r\sin\theta$; dùng $\frac{dy}{dx} = \frac{dy/d\theta}{dx/d\theta}$. **Không** nhầm với $\frac{dr}{d\theta}$ (chỉ là tốc độ nở bán kính).

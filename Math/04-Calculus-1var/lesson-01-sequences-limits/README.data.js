@@ -37,7 +37,7 @@ window.README_MD = `# Lesson 01 — Dãy số & Giới hạn dãy
 
 ⚠ **Lỗi thường gặp — "vài số hạng đầu giống nhau" KHÔNG có nghĩa hai dãy bằng nhau**. Dãy $a_n = n$ cho $1, 2, 3, 4, \\ldots$ và dãy $b_n = n + (n-1)(n-2)(n-3)(n-4)$ cũng cho $1, 2, 3, 4$ ở 4 số hạng đầu, nhưng $b_5 = 5 + 24 = 29 \\neq 5$. Nhìn vài số đầu rồi "đoán quy luật" là không chặt chẽ — luôn cần công thức/định nghĩa rõ ràng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết 4 số hạng đầu của dãy $a_n = \\frac{(-1)^n}{n}$.
 2. Dãy $a_n = 2^n$ tiến về đâu khi $n \\to \\infty$?
@@ -119,7 +119,7 @@ Người đòi $\\varepsilon$ nhỏ tới đâu, ta luôn có công thức $N = 
 
 ⚠ **Lỗi thường gặp — nhầm "có vô hạn số hạng gần $L$" với "hội tụ về $L$"**. Dãy $0, 1, 0, \\frac{1}{2}, 0, \\frac{1}{3}, \\ldots$ (các số hạng lẻ $= 0$, chẵn $= \\frac{1}{k}$) có vô hạn số hạng bằng 0, nhưng KHÔNG hội tụ về 0: với $\\varepsilon = 0.4$, dãy vẫn có vô hạn số hạng (các $\\frac{1}{k}$ đầu) nằm ngoài $(-0.4, 0.4)$. Hội tụ đòi hỏi **từ $N$ trở đi TẤT CẢ** nằm trong, không phải "có nhiều".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với dãy $a_n = \\frac{1}{n}$ và $\\varepsilon = 0.02$, mốc $N$ nhỏ nhất thoả $|a_n| < \\varepsilon$ với mọi $n \\ge N$ là bao nhiêu?
 2. Dãy hằng $a_n = 7$ có hội tụ không? Về đâu?
@@ -156,7 +156,7 @@ Người đòi $\\varepsilon$ nhỏ tới đâu, ta luôn có công thức $N = 
 
 ⚠ **Lỗi thường gặp — tưởng "bị chặn" thì "hội tụ"**. $(-1)^n$ bị chặn (luôn nằm trong $[-1, 1]$) nhưng KHÔNG hội tụ. Bị chặn chỉ là điều kiện cần, không đủ. (Điều kiện đủ kinh điển: bị chặn **và** đơn điệu → hội tụ.)
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dãy $a_n = (-1)^n \\cdot \\frac{1}{n}$ ($-1, \\frac{1}{2}, -\\frac{1}{3}, \\ldots$) thuộc loại nào?
 2. Dãy $a_n = n - \\frac{1}{n}$ thuộc loại nào?
@@ -250,7 +250,7 @@ Verify $n=1000$: $0.999^{1000} \\approx 0.3677 \\to \\frac1e$ ✓. (Đối lập
 | bậc $P$ = bậc $Q$ | tỉ số hệ số đầu | $\\frac{3n^2+2n}{5n^2-1} \\to \\frac{3}{5}$ |
 | bậc $P$ > bậc $Q$ | $\\pm\\infty$ (phân kỳ) | $\\frac{n^2+1}{2n+3} \\to +\\infty$ |
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $\\lim (5 - \\frac{3}{n})(2 + \\frac{1}{n})$.
 2. Dạng của $\\lim (n^2 - n)$ khi $n \\to \\infty$ là gì, và bằng bao nhiêu?
@@ -306,7 +306,7 @@ $$\\lim \\frac{\\sin x}{x} = 1 \\quad \\text{khi } x \\to 0$$
 
 ⚠ **Lỗi thường gặp — dùng độ thay vì radian cho $\\frac{\\sin x}{x}$**. Nếu $x$ tính bằng độ, $\\frac{\\sin(1^\\circ)}{1} = \\frac{0.01745\\ldots}{1} \\approx 0.01745$, KHÔNG tiến về 1. Giới hạn $\\frac{\\sin x}{x} \\to 1$ chỉ đúng với **radian** — đây là một trong các lý do giải tích luôn dùng radian.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\lim \\left(1 + \\frac{1}{n}\\right)^{2n} = ?$
 2. $\\lim_{x \\to 0} \\frac{\\sin(5x)}{x} = ?$
@@ -343,7 +343,7 @@ Nếu $a_n \\le b_n \\le c_n$ và $\\lim a_n = \\lim c_n = L$, thì **$\\lim b_n
 
 ⚠ **Lỗi thường gặp — chặn không đúng chiều hoặc hai cận khác giới hạn**. Muốn kẹp $b_n$, phải có $a_n \\le b_n \\le c_n$ **đúng từ một mốc trở đi** và $\\lim a_n = \\lim c_n$. Vd chặn $\\frac{\\sin(n)}{n}$ bằng $-1 \\le \\frac{\\sin(n)}{n} \\le 1$ là vô dụng (hai cận $-1, 1$ không bằng nhau) — phải chia thêm $n$ để có $-\\frac{1}{n} \\le \\ldots \\le \\frac{1}{n}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng định lý kẹp tính $\\lim \\frac{\\cos(n^2)}{n}$.
 2. Tại sao không kẹp được $\\lim \\sin(n)$ (không chia $n$)?
@@ -394,7 +394,7 @@ Nếu $a_n \\le b_n \\le c_n$ và $\\lim a_n = \\lim c_n = L$, thì **$\\lim b_n
 - Chỉ **tăng** mà **không chặn**: $a_n = n$ tăng nhưng $\\to +\\infty$, **không hội tụ**.
 - Chỉ **bị chặn** mà **không đơn điệu**: $(-1)^n$ bị chặn trong $[-1,1]$ nhưng dao động, **không hội tụ** (đã gặp ở mục 3). → Cần **CẢ HAI** điều kiện; thiếu một là phản ví dụ ngay.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dãy $a_n = \\frac{2n-1}{n}$ có đơn điệu và bị chặn không? Hội tụ về đâu?
 2. Dãy đệ quy $a_1 = 2,\\ a_{n+1} = \\frac{a_n}{2} + 1$ — chứng minh hội tụ rồi tìm $\\lim$.
@@ -442,7 +442,7 @@ Nếu $a_n \\le b_n \\le c_n$ và $\\lim a_n = \\lim c_n = L$, thì **$\\lim b_n
 
 ⚠ **Lỗi thường gặp — tưởng "có MỘT dãy con hội tụ thì dãy gốc hội tụ".** Sai. $(-1)^n$ có dãy con chẵn hội tụ về $1$ nhưng bản thân nó phân kỳ. Một dãy con hội tụ chỉ chứng minh "tồn tại điểm tụ", không chứng minh dãy gốc hội tụ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng dãy con chứng minh $a_n = \\cos(n\\pi)$ phân kỳ.
 2. Dãy $a_n = \\frac{(-1)^n n}{n+1}$ có hội tụ không?
@@ -523,7 +523,7 @@ S_n - rS_n &= a_1 - a_1 r^n
 
 ⚠ **Lỗi thường gặp — áp công thức tổng vô hạn khi $|r| \\ge 1$.** $1 + 2 + 4 + 8 + \\cdots$ có $r = 2$; viết "$\\frac{1}{1-2} = -1$" là **sai bét** (tổng các số dương không thể âm). Công thức $\\frac{a_1}{1-r}$ **chỉ** hợp lệ khi $|r| < 1$. Luôn kiểm tra $|r|$ trước.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cấp số cộng $a_1 = 3, d = 4$. Tính $a_{10}$ và $S_{10}$.
 2. Cấp số nhân $a_1 = 2, r = \\frac13$. Tính tổng vô hạn.

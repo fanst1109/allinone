@@ -89,7 +89,7 @@ Mỗi khi cần tính lũy thừa số phức, đừng nhân trực tiếp. Ch�
 - *"De Moivre đúng với n âm hay phân số không?"* Với **n nguyên** (cả âm) luôn đúng. Với n phân số ($1/k$) thì cho **một** trong nhiều căn — phải dùng công thức căn (mục 4) để lấy đủ tất cả nghiệm.
 - *"Vì sao De Moivre nhanh hơn nhân trực tiếp?"* Nhân $(a+bi)^{10}$ trực tiếp phải khai triển 10 lần, bùng nổ số hạng. De Moivre chỉ cần $r^{10}$ và $10\\theta$ — 3 dòng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $(\\cos 20^\\circ + i\\sin 20^\\circ)^9$.
 2. Tính $(2e^{i\\pi/6})^3$.
@@ -180,7 +180,7 @@ $$\\cos 3\\theta = \\cos^3\\theta - 3\\cos\\theta(1-\\cos^2\\theta) = 4\\cos^3\\
 - *"$i^k$ trong nhị thức xử lý sao?"* Dùng chu kỳ 4 của i: $i^0=1, i^1=i, i^2=-1, i^3=-i$. Các số hạng $i^{\\text{chẵn}}$ cho phần thực, $i^{\\text{lẻ}}$ cho phần ảo.
 - *"Có cần thuộc công thức nhân ba?"* Không bắt buộc — nhớ cách **suy ra** từ De Moivre quan trọng hơn thuộc lòng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phần ảo khi khai triển $(\\cos\\theta + i\\sin\\theta)^2$ cho công thức nào?
 2. $\\sin 3\\theta$ viết qua $\\sin\\theta$ là gì?
@@ -332,7 +332,7 @@ $$z_k = \\omega^k, \\quad k = 0, 1, \\ldots, n-1 \\quad\\Rightarrow\\quad \\{1, 
 - *"Tổng tất cả n căn bậc n của 1 bằng mấy?"* Bằng **0** (với $n \\ge 2$) — vì các đỉnh đa giác đều phân bố đối xứng quanh tâm, vector cộng triệt tiêu. Vd n=3: $1 + \\left(-\\dfrac{1}{2}+\\dfrac{\\sqrt{3}}{2}i\\right) + \\left(-\\dfrac{1}{2}-\\dfrac{\\sqrt{3}}{2}i\\right) = 0$.
 - *"Căn bậc n của 1 dùng để làm gì thực tế?"* Là "root of unity" — nền tảng của **FFT** (biến đổi Fourier nhanh, dùng trong nén ảnh/nhạc, xử lý tín hiệu).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Liệt kê 4 căn bậc 4 của 1.
 2. Tổng 4 căn đó bằng mấy?
@@ -452,7 +452,7 @@ So với căn của 1 (mục 3): chỉ khác ở **bán kính** ($R^{1/n}$ thay 
 - *"Vì sao mô-đun tất cả các căn bằng nhau?"* Vì $|z_k| = R^{1/n}$ không phụ thuộc k — chỉ argument thay đổi. Nên chúng nằm trên cùng một đường tròn.
 - *"Khoảng cách góc giữa hai căn liên tiếp là bao nhiêu?"* Đúng $\\dfrac{2\\pi}{n}$ (chia đều vòng tròn). Vd căn bậc 3 cách nhau 120°.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm các căn bậc 2 của $i$.
 2. Mô-đun chung của các căn bậc 4 của $16$ là bao nhiêu?
@@ -515,7 +515,7 @@ $$\\begin{aligned}
 - *"Hai công thức này dùng ở đâu?"* Trong tích phân (biến $\\cos$ thành mũ dễ tích phân hơn), và trong **biến đổi Fourier** — phân tích tín hiệu thành tổng $e^{i\\omega t}$.
 - *"Có công thức tương tự cho tan không?"* Có, suy ra: $\\tan\\theta = \\dfrac{e^{i\\theta}-e^{-i\\theta}}{i(e^{i\\theta}+e^{-i\\theta})}$, nhưng ít dùng vì rườm rà.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng công thức mũ, tính $\\cos 0$.
 2. Viết $2\\cos\\theta$ qua $e^{i\\theta}$.

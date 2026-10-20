@@ -83,7 +83,7 @@ $|\\det(A)|$ = **tỉ lệ phóng đại diện tích** khi $A$ biến đổi m�
 
 ⚠ **Lỗi thường gặp — nhầm thứ tự thành $bc - ad$ hoặc $ab - cd$**. Đúng là $\\mathbf{ad - bc}$: nhân **đường chéo chính** ($a\\cdot d$) trừ **đường chéo phụ** ($b\\cdot c$). Phản ví dụ: $\\det\\begin{vmatrix} 1 & 2 \\\\ 3 & 4 \\end{vmatrix} = 1\\cdot 4 - 2\\cdot 3 = -2$, KHÔNG phải $1\\cdot 2 - 3\\cdot 4 = -10$ (nhầm nhân theo hàng).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $\\det\\begin{vmatrix} 5 & 2 \\\\ 3 & 1 \\end{vmatrix}$.
 2. $\\det = 0$ nói lên điều gì về ma trận?
@@ -184,7 +184,7 @@ $$\\det = (aei + bfg + cdh) - (ceg + afh + bdi)$$
 
 ⚠ **Lỗi thường gặp — quên dấu trừ ở hạng tử giữa**. Hạng tử $b$ mang dấu **−**. Phản ví dụ: nếu cộng nhầm thành $a(ei-fh) + b(di-fg) + c(dh-eg)$ cho ma trận trên $= -24 - 40 - 15 = -79 \\neq 1$. Sai hoàn toàn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $\\det$ của ma trận đường chéo $\\begin{vmatrix} 2 & 0 & 0 \\\\ 0 & 3 & 0 \\\\ 0 & 0 & 4 \\end{vmatrix}$.
 2. Một ma trận $3\\times 3$ có 1 hàng toàn 0 thì $\\det$ bằng bao nhiêu?
@@ -228,7 +228,7 @@ $$\\det = (aei + bfg + cdh) - (ceg + afh + bdi)$$
 
 ⚠ **Lỗi thường gặp — quên số mũ n trong $\\det(cA)$**. Nhiều người viết $\\det(cA) = c\\cdot\\det A$. Sai: phải là $\\mathbf{c^n}$. Phản ví dụ $3\\times 3$: $\\det(2I_3) = 2^3\\cdot 1 = 8$, không phải $2\\cdot 1 = 2$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\det A = 5$. Tính $\\det(A^2)$ và $\\det(A^{-1})$.
 2. $A$ là $3\\times 3$, $\\det A = 4$. Tính $\\det(2A)$.
@@ -330,7 +330,7 @@ $A = \\begin{bmatrix} 1 & 1 & 1 \\\\ 2 & -1 & 1 \\\\ 1 & 2 & -1 \\end{bmatrix}$,
 
 ⚠ **Lỗi thường gặp — thay nhầm cột hoặc quên chia cho $\\det(A)$**. $x_i = \\det(A_i)/\\det(A)$, trong đó $A_i$ thay **cột i** (không phải hàng i) bằng $\\vec{b}$. Phản ví dụ: ở trên nếu quên chia $\\det(A)=5$, sẽ ra $x = 5$ (sai), đáp số đúng $x = 5/5 = 1$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Dùng Cramer giải: $x + y = 3$, $x - y = 1$.
 
@@ -420,7 +420,7 @@ $$\\left[\\begin{array}{ccc|c} 1 & 2 & -1 & 2 \\\\ 0 & -3 & 3 & 1 \\\\ 0 & 0 & 4
 
 ⚠ **Lỗi thường gặp — chỉ trừ hệ số mà quên trừ vế phải b**. Mỗi phép cộng/trừ hàng phải áp dụng cho **toàn bộ hàng kể cả cột b**. Phản ví dụ: nếu khử "hàng 2 − hàng 1" mà quên cập nhật vế phải ($11 - 2.5 = 8.5$), $z$ sẽ ra sai hoàn toàn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải bằng Gauss: $x + y = 4$; $2x + y = 5$.
 
@@ -459,7 +459,7 @@ Hàng 2 − 2·hàng 1: $(2x+y) - 2(x+y) = 5 - 8 \\to -y = -3 \\to y = 3$. Thế
 
 ⚠ **Lỗi thường gặp — kết luận "vô nghiệm" ngay khi thấy $\\det = 0$**. $\\det = 0$ chỉ loại bỏ "1 nghiệm duy nhất"; vẫn có thể là **vô số** nghiệm. Phải kiểm thêm bằng Gauss như trên.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hệ $2x+2y=4$, $x+y=2$ có bao nhiêu nghiệm?
 
@@ -556,7 +556,7 @@ Phần trái = $I$ → $A^{-1} = \\begin{bmatrix} -1 & 0 & 2 \\\\ -1 & 1 & 1 \\\
 
 ⚠ **Lỗi thường gặp — chỉ biến đổi phần trái mà quên áp cùng phép lên phần phải**. Mọi phép hàng phải áp cho **cả** $[A \\mid I]$ (cả 2 phần). Phản ví dụ: ở Bước 1 nếu $R_3 \\leftarrow R_3 - R_1$ chỉ trừ phần $A$ mà quên trừ phần $I$ → phần phải ra sai, không phải $A^{-1}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 1. Tìm $A^{-1}$ với $A = \\begin{bmatrix} 4 & 7 \\\\ 2 & 6 \\end{bmatrix}$ bằng công thức adjugate.
 2. $\\det A = 0$ thì $A^{-1}$ có tồn tại không? Vì sao?
 

@@ -190,7 +190,7 @@ Trường hướng (mỗi gạch = độ dốc tại điểm đó), nghiệm $y 
 
 ⚠ **Lỗi thường gặp — quên hằng số C khi giải**. Mỗi lần tích phân sinh 1 hằng số. ODE bậc 1 → 1 hằng số; bậc 2 → 2 hằng số. Phản ví dụ: $y' = 2x \\to$ viết $y = x^2$ (thiếu $C$) là sai; phải $y = x^2 + C$, rồi dùng điều kiện đầu tìm $C$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $y = 3e^{2x}$ có là nghiệm của $y' = 2y$ không?
 2. Bậc của $y''' + y' = x$ là mấy?
@@ -362,7 +362,7 @@ Verify (cà phê $T_0 = 90°$C, phòng $T_s = 25°$C, $k = 0.1$/phút): $t=0 \\t
 
 - **Chia cho 0 đánh rơi nghiệm hằng**: $y' = y(y-1)$ — chia cho $y(y-1)$ làm mất hai nghiệm $y \\equiv 0$, $y \\equiv 1$. Logistic mất $N \\equiv 0$ và $N \\equiv K$. **Quy tắc**: trước khi chia $g(y)$, giải $g(y) = 0$ ghi các nghiệm hằng ra trước.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $\\frac{dy}{dx} = 3y$ với $y(0) = 2$.
 2. Cà phê $90°$C trong phòng $25°$C, $k = 0.1$/phút. Sau bao lâu còn $60°$C?
@@ -449,7 +449,7 @@ Verify ($C = 0$): $y = x^2/3$, $y' = 2x/3$; $xy' + y = \\frac{2x^2}{3} + \\frac{
 
 - **Quên chuẩn dạng**: $2y' + 4y = 8$ phải chia 2 thành $y' + 2y = 4$ trước ($P = 2$, không phải 4). Lấy nhầm $P$ → $\\mu$ sai → cả nghiệm sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tìm thừa số tích phân $\\mu$ cho $y' + 3y = x$.
 2. Giải $y' + y = e^{x}$ với $y(0) = 1$ (chú ý: viết $+C$ trước rồi mới chốt).
@@ -594,7 +594,7 @@ Dao động tắt dần ($e^{-x}$ bao ngoài, sin/cos lượn trong):
 
 ⚠ **Lỗi thường gặp — dùng nhầm công thức nghiệm khi $\\Delta = 0$**. Nghiệm kép KHÔNG phải $y = C_1 e^{rx} + C_2 e^{rx}$ (gộp thành 1 hằng số, mất nghiệm). Phải có **nhân $x$**: $y = (C_1 + C_2\\cdot x)e^{rx}$. Phản ví dụ: $y''-4y'+4y=0$, nếu viết $y = Ce^{2x}$ thì chỉ 1 hằng số, không đủ cho bài toán 2 điều kiện đầu.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giải $y'' - 5y' + 6y = 0$.
 2. Phân loại 3 trường hợp $\\Delta$ cho: a) $y'' + 6y' + 9y = 0$; b) $y'' + y = 0$.
@@ -663,7 +663,7 @@ Họ nghiệm $y = Ce^x$ (mỗi $C$ một đường), điều kiện $y(0)=1$ ch
 
 ⚠ **Lỗi thường gặp — áp điều kiện $y'(0)$ vào $y$ thay vì vào $y'$**. Với bậc 2, điều kiện thứ hai là về **đạo hàm** $y'(x_0)$ — phải lấy đạo hàm nghiệm tổng quát trước rồi mới thay. Phản ví dụ: $y = C_1\\cos 2x + C_2\\sin 2x$, $y'(0) = 4$. Sai: thay $x=0$ vào $y$ ra $C_1$. Đúng: $y' = -2C_1\\sin 2x + 2C_2\\cos 2x$, $y'(0) = 2C_2 = 4 \\to C_2 = 2$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $y'' + 4y = 0$, $y(0) = 0$, $y'(0) = 6$. Tìm nghiệm.
 
@@ -755,7 +755,7 @@ Verify ($q_0 = 5$ mC, $\\tau = 1$s): $t = 0 \\to q = 5$ mC ✓; $t = 1 \\to q = 
 
 ❓ **Vì sao nạp và xả cùng thời hằng $\\tau = RC$?** Vì cả hai đều do **cùng** mạch $R$–$C$ điều khiển: $\\tau$ là đặc trưng của linh kiện, không phụ thuộc chiều dòng. Đổi $V$ chỉ đổi mức bão hòa $CV$, không đổi tốc độ tiến tới nó.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mạch RC có $\\tau = 2$s, $V = 10$V, $C = 1$mF. Tính $q$ tại $t = 2$s.
 2. Tụ nạp đầy $q_0 = 8$ mC, $\\tau = 4$s, bắt đầu xả. Còn bao nhiêu sau $4$s?

@@ -133,6 +133,8 @@ Số hạng **không chứa $x$** (số hạng tự do) ứng với $4 - 2k = 0 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhị thức Newton với $n=2$ phải khớp hằng đẳng thức đã thuộc.
+
 1. $C(2,0)a^2 + C(2,1)ab + C(2,2)b^2 = a^2 + 2ab + b^2$ ✓ (đúng hằng đẳng thức).
 2. $(1+1)^4 = 2^4 = 16$ ($= 1+4+6+4+1$).
 3. Số mũ $x$ trong $T_{k+1} = C(6,k)x^{6-k}(-2/x)^k$ là $6-k-k = 6-2k$; đặt $= 0 \\Rightarrow k=3$. Số hạng $= C(6,3)(-2)^3 = 20\\cdot(-8) = -160$.
@@ -321,6 +323,8 @@ Vì mỗi ô tam giác là $C(n,k)$, mọi tính chất tổ hợp ở [Lesson 0
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: mỗi ô bằng tổng hai ô trên; tổng tầng $n$ là $2^n$.
+
 1. Tầng 6 là \`1 6 15 20 15 6 1\` → tầng 7: \`1 7 21 35 35 21 7 1\` (cộng cặp kề).
 2. $2^6 = 64$ ($= 1+6+15+20+15+6+1$).
 3. $C(7,3) = C(6,2) + C(6,3) = 15 + 20 = 35$ ✓.
@@ -412,6 +416,8 @@ $$(1+x)^n \\approx 1 + nx \\quad (x \\text{ rất nhỏ})$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: hệ số của $x^k$ trong $(1+x)^n$ là $C(n,k)$; đếm tập con cũng là tổng các $C$.
+
 1. $C(6,2) = 15$.
 2. $2^4 - 1 = 15$.
 3. $T_{k+1} = C(9,k)x^{9-k}(-x^{-2})^k$, số mũ $x = 9-k-2k = 9-3k = 0 \\Rightarrow k=3$. Giá trị $= C(9,3)(-1)^3 = -84$.
@@ -473,6 +479,8 @@ Kiểm số tại $x=y=z=1$: vế trái $3^3 = 27$; vế phải $3\\cdot 1 + 3\\
 2. Hệ số của $xyz$ trong $(x+y+z)^3$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hệ số đa thức: chọn vị trí cho từng biến — $C(3,1)$ hay công thức đa thức $n!/(k_1!k_2!\\cdots)$.
 
 1. $C(3,1) = 3$ (số hạng $C(3,1)a^2 b$).
 2. $3!/(1!1!1!) = 6$.

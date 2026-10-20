@@ -91,6 +91,8 @@ Mỗi cái là một dãy domino riêng; quy nạp là cùng một "máy chứng
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhớ hai chân của quy nạp — thiếu một là sập (bài domino L01 Modeling).
+
 1. (1) Cơ sở $P(n_0)$ đúng; (2) Bước quy nạp $P(k) \\implies P(k+1)$.
 2. Quân domino đầu tiên đổ (có người đẩy).
 
@@ -162,6 +164,8 @@ Vậy $P(n)$ đúng $\\forall n \\ge 1$. □ — Để ý 4 mảnh tách bạch 
 2. Trong bước quy nạp của tổng $1+2+\\dots+n$, ta cộng thêm hạng tử nào để đi từ k tới k+1?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: cơ sở chỉ là thay $n_0$ vào hai vế và so.
 
 1. n = 1: VT = 1, VP = $1^2 = 1$ ✓.
 2. Cộng thêm $(k+1)$: $\\frac{k(k+1)}{2} + (k+1) = \\frac{(k+1)(k+2)}{2}$.
@@ -273,6 +277,8 @@ Vế phải đúng dạng $\\frac{(k+1)(k+2)}{2}$ của $P(k+1)$. Vậy $P(n)$ �
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: sau khi thay giả thuyết quy nạp, mục tiêu là nắn về dạng $P(k+1)$ — tìm nhân tử chung.
+
 1. Nhân tử chung $(k+1)$: $\\frac{k(k+1)}{2} + (k+1) = (k+1)\\left(\\frac{k}{2}+1\\right) = (k+1)\\cdot\\frac{k+2}{2}$.
 2. $\\frac{20\\cdot 21}{2} = \\frac{420}{2} = 210$.
 
@@ -347,6 +353,8 @@ Chuỗi $2^{k+1} > 2k = k+k \\ge k+5 > k+1$ cho $2^{k+1} > k+1$. Vậy $P(n)$ đ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đánh dấu chỗ nào dùng tới điều kiện $k \\ge n_0$ — đó là lý do cơ sở phải bắt đầu từ đó.
+
 1. Ở bước "$k + k \\ge k + 5$" — cần $k \\ge 5$ để nói $k \\ge 5$ (chính là điều giúp $2k > k+1$).
 2. Vì $2^n > n^2$ sai tại $n=2,3,4$ ($4=4, 8<9, 16=16$); cơ sở phải là $n_0=5$ ($32>25$).
 
@@ -394,6 +402,8 @@ Chuỗi $2^{k+1} > 2k = k+k \\ge k+5 > k+1$ cho $2^{k+1} > k+1$. Vậy $P(n)$ đ
 2. Cơ sở n=1 của $7 \\mid (8^n - 1)$ cho giá trị gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: mẹo chia hết: tách biểu thức mới = bội của biểu thức cũ + phần chia hết hiển nhiên.
 
 1. $4^{k+1} - 1 = 4\\cdot(4^k - 1) + 3$; phần đầu chia hết 3 (giả thuyết), phần $3$ hiển nhiên.
 2. $8^1 - 1 = 7$, và $7 \\mid 7$ ✓.
@@ -526,6 +536,8 @@ Vậy $F_n \\le 2^n$ với mọi $n \\ge 1$. □
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: quy nạp mạnh cho phép dùng TẤT CẢ các case trước, không chỉ $k$.
+
 1. Vì $k+1 = a\\cdot b$ với a, b bất kỳ trong $[2, k]$ — cần giả thuyết đúng cho **mọi** $m \\le k$, không riêng k.
 2. Hai cơ sở: $F_1 = 1 \\le 2$ và $F_2 = 1 \\le 4$ (vì bước dùng cả 2 giá trị trước).
 3. Ba cơ sở ($8, 9, 10$): bước quy nạp lùi 3 đơn vị ($k+1 = (k-2)+3$); để $k-2 \\ge 8$ chắc chắn nằm trong vùng đã phủ, cần phủ sẵn $8,9,10$.
@@ -602,6 +614,8 @@ Mệnh đề (sai) cần "chứng minh": **"Mọi tập gồm $n$ con ngựa đ�
 2. $n^2 + n + 41$ nguyên tố với n = 0,1,2 — kết luận "đúng mọi n" sai vì sao?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: soi kỹ bước $k \\to k+1$ tại giá trị NHỎ nhất — ngụy biện thường gãy ở đó.
 
 1. Giống "ngựa cùng màu": bước k→k+1 cần 2 nhóm con giao nhau, nhưng tại k=1 chúng không giao → đứt dây chuyền.
 2. Chỉ kiểm vài giá trị, không phải quy nạp. Thực tế sai tại n=40: $40^2+40+41 = 1681 = 41^2$.

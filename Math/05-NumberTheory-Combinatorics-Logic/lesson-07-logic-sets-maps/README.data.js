@@ -167,6 +167,8 @@ Hai cột tô đậm trùng nhau $(F, F, F, T)$ → tương đương ✓. (Phầ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: De Morgan: phủ định AND thành OR và ngược lại, phủ định chui vào từng vế.
+
 1. $\\neg p \\lor \\neg(\\neg q) = \\neg p \\lor q$.
 2. **Đúng** — vì p ("2 > 3") sai, nên $p \\to q$ đúng bất kể q.
 3. Bảng cho $\\neg p \\lor q$: dòng TT → $F \\lor T = T$; TF → $F \\lor F = F$; FT → $T \\lor T = T$; FF → $T \\lor F = T$. Cột $(T,F,T,T)$ = cột $p\\to q$ → tương đương ✓.
@@ -252,6 +254,8 @@ $\\Rightarrow \\exists x: (x>0) \\land (x^2 \\le 0)$. Gốc đúng → phủ đ�
 4. "$\\exists x\\ \\forall y: x + y = y$" đúng hay sai trên $\\mathbb{R}$? Phủ định nó.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phủ định lượng từ: $\\neg\\forall$ thành $\\exists$-không và ngược lại.
 
 1. "Tồn tại 1 số chẵn không chia hết cho 4" (vd 6 — đúng là phản ví dụ).
 2. "Mọi học sinh đều không đạt điểm 10".
@@ -427,6 +431,8 @@ $$|A \\cup B| = |A| + |B| - |A \\cap B|$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: vẽ nháp hai vòng Venn rồi đọc từng phép toán.
+
 1. $A \\cap B = \\{3,4\\}$; $A \\cup B = \\{1,2,3,4,5\\}$; $A \\setminus B = \\{1,2\\}$.
 2. $2^0 = 1$ (chỉ có chính nó — tập rỗng là tập con của mọi tập).
 3. $|A\\cup B| = 10 + 8 - 3 = 15$ (bao hàm–loại trừ).
@@ -469,6 +475,8 @@ $$|A \\cup B| = |A| + |B| - |A \\cap B|$$
 🔁 **Thực hành**: quan hệ "$a$ và $b$ cùng dấu" trên $\\mathbb{R}\\setminus\\{0\\}$ có là quan hệ tương đương không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: soát đủ 3 tính chất: phản xạ, đối xứng, bắc cầu.
 
 **Có.** Phản xạ ($a$ cùng dấu $a$ ✓), đối xứng (cùng dấu là quan hệ hai chiều ✓), bắc cầu (a,b cùng dấu và b,c cùng dấu → a,c cùng dấu ✓). Hai lớp tương đương: số dương, số âm.
 
@@ -640,6 +648,8 @@ Kết luận: đơn ánh nhưng không toàn ánh (vì miền đích $\\mathbb{Z
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: hàm bậc nhất hệ số khác 0 luôn song ánh; tìm ngược bằng giải $x$ theo $y$.
+
 1. **Song ánh** (hàm bậc 1, hệ số $\\neq 0$). $f^{-1}(y) = y - 5$.
 2. Đơn ánh ✓ ($n_1 \\neq n_2 \\to n_1+1 \\neq n_2+1$). Toàn ánh ✗ (số 0 không có nguồn: không $n \\in \\mathbb{N}$ nào cho $f(n)=0$).
 
@@ -771,6 +781,8 @@ Mọi phân số đều "đến lượt" sau hữu hạn bước → đánh số
 🔁 **Thực hành**: tập các số tự nhiên lẻ $\\{1,3,5,\\dots\\}$ đếm được không? Cho song ánh với $\\mathbb{N}$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đếm được = dựng được song ánh với $\\mathbb{N}$ — chỉ ra công thức ghép cặp.
 
 **Đếm được.** Song ánh $f:\\mathbb{N}\\to\\{\\text{lẻ}\\}$, $f(n) = 2n+1$: $f(0)=1, f(1)=3, f(2)=5,\\dots$ — đơn ánh và phủ hết số lẻ ✓.
 

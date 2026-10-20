@@ -56,6 +56,8 @@ window.README_MD = `# Lesson 02 — Số nguyên tố & Đồng dư
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chỉ cần thử chia cho các nguyên tố $\\le \\sqrt{n}$.
+
 1. $91 = 7 \\cdot 13$ → **hợp số**.
 2. Tới $\\sqrt{131} \\approx 11.4$: thử 2, 3, 5, 7, 11. Không cái nào chia hết → 131 nguyên tố.
 
@@ -133,6 +135,8 @@ Cho $a = \\prod p_i^{a_i}$, $b = \\prod p_i^{b_i}$:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chia dần cho nguyên tố nhỏ nhất; gcd lấy mũ MIN từng thừa số chung.
+
 1. $72 = 2^3 \\cdot 3^2$.
 2. $120 = 2^3 \\cdot 3 \\cdot 5$. $\\gcd = 2^3 \\cdot 3 = 24$ (min mũ). $\\operatorname{lcm} = 2^3 \\cdot 3^2 \\cdot 5 = 360$ (max mũ). Verify: $24 \\cdot 360 = 8640 = 72 \\cdot 120$ ✓.
 
@@ -195,6 +199,8 @@ Mật độ giảm (định lý số nguyên tố: $\\approx 1/\\ln N$) nhưng t
 2. Tính $N = 2 \\cdot 3 \\cdot 5 \\cdot 7 + 1$. Nó có nguyên tố không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đây là phép dựng của Euclid — $N$ không chia hết cho nguyên tố nào trong danh sách.
 
 1. $N = 31$ → nguyên tố.
 2. $N = 211$ → nguyên tố. (Hai ví dụ này tình cờ nguyên tố, nhưng $30031 = 59 \\cdot 509$ thì không — đừng tổng quát hoá.)
@@ -278,6 +284,8 @@ Bước 4 — số \`.\` kế tiếp là **7**, nhưng $7 > \\sqrt{30}$ → DỪ
 2. Khi sàng tới $N = 50$, cần gạch bội của những nguyên tố nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: liệt kê rồi đếm; sàng chỉ cần gạch bội của nguyên tố $\\le \\sqrt{N}$.
 
 1. $2,3,5,7,11,13,17,19$ → **8 số**.
 2. Các nguyên tố $\\le \\sqrt{50} \\approx 7.07$: tức $2, 3, 5, 7$.
@@ -449,6 +457,8 @@ Không cần tính $7^{100}$ (số khổng lồ).
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay cơ số bằng đồng dư gọn hơn ($2 \\equiv -1$) rồi lũy thừa.
+
 1. $2 \\equiv -1 \\pmod{3}$ → $2^{10} \\equiv (-1)^{10} = 1 \\pmod{3}$.
 2. $100 \\bmod 7 = 2$ → thứ Ba + 2 = **thứ Năm**.
 
@@ -535,6 +545,8 @@ Verify: $17 \\cdot 53 = 901 = 9 \\cdot 100 + 1 \\equiv 1$ ✓.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Euclid mở rộng lần ngược; nghịch đảo tồn tại ⟺ coprime với modulus.
+
 1. $26 = 2\\cdot 11 + 4$; $11 = 2\\cdot 4 + 3$; $4 = 1\\cdot 3 + 1$. Lùi: $1 = 4 - 3 = 4 - (11 - 2\\cdot 4) = 3\\cdot 4 - 11 = 3(26 - 2\\cdot 11) - 11 = 3\\cdot 26 - 7\\cdot 11$ → $11^{-1} \\equiv -7 \\equiv 19 \\pmod{26}$. Verify $11 \\cdot 19 = 209 = 8\\cdot 26 + 1$ ✓.
 2. **Không** — $\\gcd(6, 9) = 3 \\ne 1$. Không số nào nhân 6 ra $\\equiv 1 \\pmod 9$ (mọi bội của 6 mod 9 chỉ ra $\\{0,3,6\\}$).
 
@@ -611,6 +623,8 @@ bit 0 (=1):  6^2 = 36 mod 7 = 1  → ×3 = 3 mod 7 = 3
 2. $5 = 101_2$ — liệt kê các bước tính $a^5$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: viết mũ ra nhị phân, bình phương dồn và nhân khi gặp bit 1.
 
 1. $10 = 1010_2$. $base = 2$. bit3(=1): $1^2{=}1 \\to {\\times}2 = 2$; bit2(=0): $2^2 = 4$; bit1(=1): $4^2 = 16 \\to {\\times}2 = 32$; bit0(=0): $32^2 = 1024 \\bmod 1000 = 24$. → $2^{10} \\bmod 1000 = 24$. Verify $1024 \\bmod 1000 = 24$ ✓.
 2. bit2(=1): $1^2 \\to {\\times}a = a$; bit1(=0): $a^2$; bit0(=1): $(a^2)^2 = a^4 \\to {\\times}a = a^5$. → $a^5$ trong 2 phép nhân + 2 bình phương thay vì 4 phép nhân.
@@ -696,6 +710,8 @@ $$\\varphi(n) = n \\cdot \\prod\\left(1 - \\frac{1}{p_i}\\right)$$
 2. $\\varphi(15) = ?$
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Fermat nhỏ: $a^{p-1} \\equiv 1$ khi $p$ nguyên tố không chia $a$ — rút gọn mũ theo $p-1$.
 
 1. $\\varphi(5) = 4$, $100 = 4 \\cdot 25$ → $2^{100} = (2^4)^{25} \\equiv 1^{25} = 1 \\pmod{5}$.
 2. $15 = 3 \\cdot 5$ → $\\varphi(15) = 15 \\cdot (2/3) \\cdot (4/5) = 8$. (Hoặc $(3-1)(5-1) = 8$.)

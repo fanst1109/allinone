@@ -68,6 +68,8 @@ Quan sát hàng $a = 5, b = 9$ (số bị chia **nhỏ hơn** số chia): $q = 0
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chia lấy thương nguyên, phần còn lại là dư ($0 \le r <$ số chia); mọi số chia hết 0.
+
 1. $38 = 5 \cdot 7 + 3$ → $q = 7$, $r = 3$.
 2. **Đúng**: $0 = 4 \cdot 0$, mọi $b \neq 0$ đều chia hết 0.
 
@@ -137,6 +139,8 @@ Vậy $9 \mid N \iff 9 \mid \sum_i d_i$. Quy tắc chia 3 chứng minh y hệt (
 3. $123\,456$ có chia hết $3$ không? $9$ không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tính chất tuyến tính: $d$ chia hết hai số thì chia hết mọi tổ hợp cộng trừ của chúng.
 
 1. Cả ba: $7 \mid 70$, $7 \mid 28$, $7 \mid 105$ ($= 21 \cdot 5$).
 2. **Sai** — đây là bẫy chiều ngược. $4 \mid 12$ không kéo theo $4 \mid 3$ (3 còn nhỏ hơn 4).
@@ -256,6 +260,8 @@ Số bước Euclid $\le 5 \cdot \log_{10}(\min(a,b))$. Cực nhanh — $O(\log 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Euclid: thay cặp (a,b) bằng (b, a mod b) tới khi dư 0; $\gcd(a, 0) = a$.
+
 1. $48 = 2 \cdot 18 + 12$ → $\gcd(18,12)$; $18 = 1 \cdot 12 + 6$ → $\gcd(12,6)$; $12 = 2 \cdot 6 + 0$ → **gcd = 6**.
 2. $17$ (gcd với 0 là chính số kia).
 
@@ -356,6 +362,8 @@ Lùi: $1 = 5 - 2\cdot 2 = 5 - 2\cdot(17 - 3\cdot 5) = 7\cdot 5 - 2\cdot 17$. →
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: phương trình $ax+by=c$ có nghiệm nguyên ⟺ $\gcd(a,b) \mid c$.
+
 1. $\gcd(15,25) = 5$, $5 \mid 10$ → **có**. Vd chia 5: $3x + 5y = 2$, thử $x = -1, y = 1$: $-3+5 = 2$ ✓.
 2. $5 \nmid 7$ → **không**.
 
@@ -416,6 +424,8 @@ $$24 = 2^3 \cdot 3^1, \qquad 90 = 2^1 \cdot 3^2 \cdot 5^1.$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dùng $\text{lcm} = ab/\gcd$; bài đèn nhấp nháy chính là lcm trá hình.
+
 1. $\gcd(9,12) = 3$ → $\operatorname{lcm} = 9 \cdot 12/3 = 36$.
 2. $\operatorname{lcm}(10, 15) = 150/5 = 30$s.
 
@@ -457,6 +467,8 @@ $a, b$ coprime $\iff \exists\, x, y: ax + by = 1$.
 2. $21$ và $35$ có coprime không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phân tích thừa số rồi soi có thừa số chung không.
 
 1. $14 = 2 \cdot 7$, $25 = 5^2$ → không trùng → **coprime** ($\gcd = 1$).
 2. $21 = 3 \cdot 7$, $35 = 5 \cdot 7$ → chung thừa số 7 → $\gcd = 7$ → **KHÔNG** coprime.

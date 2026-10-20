@@ -89,6 +89,8 @@ Cốt lõi: **đếm so sánh**. Nếu mỗi chuồng "chịu" tối đa 1 con t
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: ngăn kéo: chia đều rồi lấy trần $\\lceil n/k \\rceil$.
+
 1. $\\lceil 100/12 \\rceil = \\lceil 8.33 \\rceil = 9$ người.
 2. Hộp = cặp tổng 9: $\\{1,8\\},\\{2,7\\},\\{3,6\\},\\{4,5\\}$ (4 hộp). Chọn 5 số → 2 cùng 1 hộp → tổng 9.
 
@@ -173,6 +175,8 @@ Chọn bất kỳ $n+1$ số từ $\\{1, 2, \\dots, 2n\\}$. Chứng minh có 2 s
 3. Chọn 6 số từ $\\{1,\\dots,10\\}$. Vì sao chắc chắn có 2 số liên tiếp?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: cùng công thức trần — đổi số liệu.
 
 1. $\\lceil 50/12 \\rceil = \\lceil 4.17 \\rceil = 5$ người.
 2. 7 lớp dư ($0..6$) là 7 hộp; 8 số → $\\lceil 8/7 \\rceil = 2$ → có 2 số cùng số dư.
@@ -333,6 +337,8 @@ $$\\left|\\bigcup_{i=1}^{n} A_i\\right| = \\sum_{\\emptyset \\neq S \\subseteq \
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: bù trừ 2 tập: cộng hai rồi trừ phần giao.
+
 1. $35+25-10 = 50$ biết ít nhất 1; $60-50 = 10$ không biết gì.
 2. Bội 2: 15. Bội 3: 10. Bội 6: 5. → $15+10-5 = 20$.
 
@@ -360,6 +366,8 @@ $$\\left|\\bigcup_{i=1}^{n} A_i\\right| = \\sum_{\\emptyset \\neq S \\subseteq \
 2. Có bao nhiêu số trong $1..20$ KHÔNG chia hết cho cả 2 lẫn 3 (tránh cả hai)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đếm phần bù: tổng trừ các trường hợp 'thiếu người' (bù trừ).
 
 1. Tổng $2^3 = 8$; thiếu người $i$: $1^3 = 1$, có 2 người → $2\\cdot1 = 2$ (giao 2 người $= 0^3 = 0$). Toàn ánh $= 8 - 2 = $ **6**.
 2. Tổng 20; bội 2 $=10$, bội 3 $=6$, bội 6 $=3$ → $|A\\cup B| = 10+6-3 = 13$; tránh cả hai $= 20 - 13 = $ **7**.
@@ -417,6 +425,8 @@ $$\\varphi(n) = n \\cdot \\prod_{i=1}^{k} \\left(1 - \\frac{1}{p_i}\\right)$$
 2. Đếm số $\\le 10$ coprime với 10, đối chiếu $\\varphi(10)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: công thức Euler: $n$ nhân $(1 - 1/p)$ cho từng thừa số nguyên tố.
 
 1. $20 \\cdot (1-1/2) \\cdot (1-1/5) = 20 \\cdot (1/2) \\cdot (4/5) = 8$.
 2. Coprime với 10: 1,3,7,9 → 4 số $= \\varphi(10) = 10 \\cdot (1/2) \\cdot (4/5) = 4$ ✓.
@@ -493,6 +503,8 @@ Từ $n = 4$ trở đi tỉ lệ đã dao động rất sát $1/e$ — đó là 
 2. 3 người ngẫu nhiên nhận lại 3 chiếc mũ. Xác suất không ai nhận đúng mũ mình?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: derangement $D_n = n!\\sum (-1)^k/k!$; xác suất là $D_n/n!$.
 
 1. $D_5 = 120\\cdot(1-1+\\frac{1}{2}-\\frac{1}{6}+\\frac{1}{24}-\\frac{1}{120}) = 120\\cdot\\frac{44}{120} = 44$.
 2. $D_3/3! = 2/6 = 1/3 \\approx 33.3\\%$.

@@ -103,6 +103,8 @@ Nhân tất cả: $26 \\cdot 10 \\cdot 10 \\cdot 10 \\cdot 10 = 26 \\cdot 10^4 =
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: quy tắc nhân cho chuỗi lựa chọn độc lập; quy tắc cộng cho các phương án loại trừ nhau.
+
 1. $26 \\cdot 10 \\cdot 10 \\cdot 10 = 26000$ (nhân, các giai đoạn).
 2. $2+1 = 3$ (cộng, loại trừ nhau).
 
@@ -237,6 +239,8 @@ Tổng quát (hoán vị lặp / multinomial): $n$ vật với các nhóm trùng
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: xếp tất cả = giai thừa.
+
 1. $6! = 720$.
 2. 4 chữ, 2 chữ O trùng → $4!/2! = 12$.
 
@@ -289,6 +293,8 @@ $$A(n, k) = \\frac{n!}{(n-k)!} = n \\cdot (n-1) \\cdot \\ldots \\cdot (n-k+1)$$
 2. $A(6, 2) = ?$
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: có thứ tự, không lặp → chỉnh hợp $A(n,k) = n(n-1)\\cdots$.
 
 1. $A(8,3) = 8 \\cdot 7 \\cdot 6 = 336$.
 2. $A(6,2) = 6 \\cdot 5 = 30$.
@@ -377,6 +383,8 @@ Tổng quát: mỗi nhóm $k$ phần tử có $k!$ cách sắp thứ tự; chỉ
 2. 6 đội bóng đá vòng tròn, mỗi cặp đá 1 trận. Bao nhiêu trận?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tổ hợp đối xứng $C(n,k) = C(n, n-k)$ — chọn cái NHỎ để tính; đấu vòng tròn là đếm cặp.
 
 1. $C(7,5) = C(7,2) = 21$.
 2. Chọn 2 đội (không thứ tự, A đá B = B đá A): $C(6,2) = 15$ trận.
@@ -537,6 +545,8 @@ Mỗi cách mua ↔ một cách sắp $k$ sao và $n-1$ vách trên hàng $k+(n-
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: hỏi hai câu: có thứ tự không? có lặp không? — rồi tra đúng ô công thức.
+
 1. Có thứ tự + có lặp → $10^4 = 10000$.
 2. Có thứ tự + không lặp + dùng hết → hoán vị $4! = 24$.
 
@@ -623,6 +633,8 @@ Cộng (HOẶC): $75 + 200 + 150 + 30 + 1 = \\mathbf{456}$ ✓ — khớp Cách 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: ràng buộc 'đúng k loại này' → chọn từng nhóm riêng rồi NHÂN.
+
 1. Chọn 1 nữ $C(4,1)=4$ VÀ 2 nam $C(7,2)=21$ → $4 \\cdot 21 = \\mathbf{84}$.
 2. Chia bước có ràng buộc: hàng nghìn $\\neq 0$ → 5 lựa chọn (1–5). Ba vị trí còn lại chọn từ 5 chữ số còn lại (kể cả 0), khác nhau → $5 \\cdot 4 \\cdot 3 = 60$. Nhân: $5 \\cdot 60 = \\mathbf{300}$ số.
 
@@ -661,6 +673,8 @@ $$\\begin{aligned}
 🔁 **Thực hành**: Một hộp có 4 bi đỏ, 6 bi xanh. Lấy ngẫu nhiên 3 bi cùng lúc. Xác suất được đúng 2 đỏ?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: xác suất cổ điển = số kết cục thuận / tổng kết cục, cả hai đếm bằng tổ hợp.
 
 Mẫu $C(10,3) = 120$. Tử: chọn 2 đỏ $C(4,2)=6$ VÀ 1 xanh $C(6,1)=6$ → $36$. Xác suất $= 36/120 = 0.3 = \\mathbf{30\\%}$.
 

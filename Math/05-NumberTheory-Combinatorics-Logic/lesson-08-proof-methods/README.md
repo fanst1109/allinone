@@ -38,6 +38,8 @@
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: bác $\forall$ chỉ cần MỘT phản ví dụ; chứng minh $\exists$ chỉ cần MỘT ví dụ.
+
 1. **Phản ví dụ**: $2$ là số nguyên tố nhưng chẵn → mệnh đề sai. (Một phản ví dụ là đủ.)
 2. **Xây dựng**: $36 = 1^3 + 2^3 + 3^3 = 1 + 8 + 27$. Chỉ ra số cụ thể là xong. □
 
@@ -121,6 +123,8 @@ ab &= (2m+1)(2n+1) \\
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: trực tiếp: đặt dạng tổng quát (số lẻ $= 2m+1$) rồi biến đổi thẳng tới kết luận.
+
 1. $a = 2m+1$, $b = 2n+1$ → $a+b = 2m+2n+2 = 2(m+n+1)$ → chẵn. $\square$
 2. $3 \mid a \Rightarrow a = 3k$ → $a^2 = 9k^2 = 9\cdot k^2$ → $9 \mid a^2$. $\square$ (Verify: $a=6 \Rightarrow a^2=36 = 9\cdot 4$ ✓.)
 
@@ -196,6 +200,8 @@ Trực tiếp sẽ phải xét "hoặc" rối rắm; phản đảo biến nó th
 3. CM bằng phản đảo: "Nếu $n^3$ chẵn thì $n$ chẵn".
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phản đảo: đổi chỗ và phủ định cả hai vế — tương đương logic với mệnh đề gốc.
 
 1. "Nếu $x = 0$ thì $x^2 = 0$" (đổi cả 2 vế thành phủ định và đảo chiều).
 2. Phản đảo: "Nếu $3 \nmid n$ thì $3 \nmid n^2$". $n \equiv 1$ hoặc $2 \pmod 3$ → $n^2 \equiv 1$ hoặc $4\equiv 1 \pmod 3$ → $n^2 \not\equiv 0$ → $3\nmid n^2$. $\square$
@@ -299,6 +305,8 @@ Vậy không tồn tại số hữu tỉ dương nhỏ nhất. $\square$ (Đây 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chuỗi suy luận chẵn/lẻ: bình phương số lẻ luôn lẻ nên $a^2$ chẵn ép $a$ chẵn.
+
 1. $a^2 = 2b^2$ chẵn → a² chẵn → a chẵn (vì bình phương số lẻ là lẻ).
 2. Cả a và b đều chẵn → $2 \mid \gcd(a,b)$, trái giả thiết $\gcd(a,b) = 1$.
 
@@ -366,6 +374,8 @@ Xét $N = 4\cdot p_1\cdot p_2\cdot\ldots\cdot p_n - 1$. N có dạng 4k+3 (vì $
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chứng minh tồn tại kiểu xây dựng: chỉ cần trưng ra một số cụ thể thỏa mãn.
+
 1. $64 = 8^2 = 4^3$ (hoặc $1 = 1^2 = 1^3$, hoặc $729 = 27^2 = 9^3$). □
 
 </details>
@@ -427,6 +437,8 @@ Phổ biến dùng **phản chứng**: giả sử tồn tại → mâu thuẫn.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: vét cạn theo mod: chỉ có 2 lớp chẵn/lẻ — thử cả hai.
+
 1. $\{0, 1\}$ (chẵn → 0, lẻ → 1).
 2. Tổng $x^2+y^2 \bmod 4 \in \{0,1,2\}$. $4z+3 \equiv 3$ không nằm trong → vô nghiệm. $4z+2 \equiv 2 \in$ tập → có thể có (vd x=y=1: $1+1=2$ ✓).
 
@@ -476,6 +488,8 @@ Vì $1681 = 41 \times 41$ là hợp số → mệnh đề sai. $\square$
 2. Bác mệnh đề "nếu $a \mid bc$ thì $a \mid b$ hoặc $a \mid c$".
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: chọn phản ví dụ "đối nhau" để tổng triệt tiêu phần vô tỉ.
 
 1. **Phản ví dụ**: $a = \sqrt 2$, $b = -\sqrt 2$ (đều vô tỉ) → $a + b = 0$ hữu tỉ. Mệnh đề sai. $\square$
 2. **Phản ví dụ**: $a = 4$, $b = 2$, $c = 2$ → $a \mid bc = 4$ ✓, nhưng $4 \nmid 2$. Mệnh đề sai. $\square$ (Nó chỉ đúng khi $a$ nguyên tố — bổ đề Euclid.)
@@ -553,6 +567,8 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\square$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: vét cạn hợp lệ khi số trường hợp HỮU HẠN và phủ kín.
+
 1. Hai TH: $n$ chẵn $= 2k$ → $n^2 = 4k^2 \equiv 0$; $n$ lẻ $= 2k+1$ → $n^2 = 4(k^2+k)+1 \equiv 1$. Phủ kín → $\{0,1\}$. $\square$
 2. Vì có **hai** nghiệm $x = 3$ và $x = -3$; tồn tại $\ne$ duy nhất. Phần "duy nhất" ở đây **sai**.
 
@@ -603,6 +619,8 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\square$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: ví dụ chỉ minh họa — $\forall$ đòi lập luận cho MỌI trường hợp.
+
 1. Lỗi **một ví dụ ≠ chứng minh $\forall$** — mới kiểm 3 số, chưa chứng minh "mọi". (Mệnh đề này **đúng** nhưng cần lập luận tổng quát: số chẵn $> 2$ là $2k$ với $k\ge 2$, có ước thực sự $2$.)
 2. Lỗi **khai căn mất dấu**: $a^2 = b^2$ chỉ cho $a = \pm b$, không phải $a = b$.
 
@@ -649,6 +667,8 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\square$
 2. "Nếu n² chẵn thì n chẵn" — phương pháp gọn nhất?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: mệnh đề $\exists$: thử dựng trực tiếp; không dựng nổi thì nghĩ chứng minh không-xây-dựng.
 
 1. Xây dựng / không-xây-dựng (đây là $\exists$) — xem bài 5.
 2. Phản đảo: "n lẻ → n² lẻ" ($n = 2k+1$ → $n^2 = 4k^2+4k+1$ lẻ). □

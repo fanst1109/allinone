@@ -170,6 +170,8 @@ Dãy hội tụ về một số cụ thể; mọi quy luật lũy thừa vẫn g
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: mũ âm là nghịch đảo; mũ chẵn của số âm ra dương. Câu 2 dùng luật cộng mũ khi nhân cùng cơ số.
+
 1. $5^{-2} = 1/25 = 0.04$; $(-2)^4 = 16$ (mũ chẵn → dương).
 2. $x^7\cdot x^{-3} = x^{7+(-3)} = x^4$.
 
@@ -241,6 +243,8 @@ Thêm 3 ví dụ: $\sqrt{48} = \sqrt{16\cdot 3} = 4\sqrt{3}$; $\sqrt{50} = \sqrt
 2. $\sqrt{16 + 9} = ?$ (cẩn thận!)
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: $\sqrt{x^2} = |x|$; và căn KHÔNG tách qua phép cộng — tính trong ngoặc trước.
 
 1. $\sqrt{25} = 5$ ($= |-5|$, không phải $-5$).
 2. $\sqrt{25} = 5$. Bẫy: KHÔNG phải $\sqrt{16} + \sqrt{9} = 4 + 3 = 7$.
@@ -450,6 +454,8 @@ Hữu ích vì máy tính/thư viện chỉ có nút $\ln$ và $\log_{10}$; mu�
 3. $\log_5(0.2) = ?$
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đọc $\log_b(x)$ là "$b$ mũ mấy ra $x$?"; luật cộng log ứng với NHÂN, không phải cộng.
 
 1. $6$ (vì $2^6 = 64$).
 2. **Sai**. $\log(5)+\log(3) = \log(5\cdot 3) = \log(15)$, không phải $\log(8)$. (Bẫy cộng→cộng.)

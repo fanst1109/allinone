@@ -223,6 +223,8 @@ Tập nghiệm là khoảng → **thử 1 điểm trong và 1 điểm ngoài** �
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: cô lập $x$; bước chia cho số âm là chỗ dễ sai — phải đảo chiều bất đẳng thức.
+
 $-2x \\ge 6$ → chia $-2$ (đảo dấu) → $x \\le -3$. Tập nghiệm $(-\\infty, -3]$. Verify: thử $x=-4$ (trong): $-2(-4)+1 = 9 \\ge 7$ ✓; thử $x=0$ (ngoài): $1 \\ge 7$ sai ✓.
 
 </details>
@@ -386,6 +388,8 @@ Khớp "trong dương (+), ngoài âm (−)" vì $a < 0$ — đảo lại so v�
 🔁 **Thực hành**: giải $x^2 - x - 6 > 0$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tìm nghiệm phương trình bằng 0 trước, rồi dùng quy tắc "trong–ngoài" theo dấu của $a$.
 
 Nghiệm $x^2-x-6=0$: $x = 3, x = -2$. $a>0$, cần $>0$ → lấy **ngoài**: $x < -2$ hoặc $x > 3$, tức $(-\\infty, -2) \\cup (3, +\\infty)$. Verify: thử $x=0$ (trong): $-6 > 0$ sai ✓ (đúng là loại); thử $x=-3$ (ngoài): $9+3-6=6>0$ ✓.
 
@@ -560,6 +564,8 @@ Tập nghiệm: $(-\\infty, -1] \\cup [5, +\\infty)$. Trục số:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: $|A| < r$ tháo thành kẹp $-r < A < r$, rồi trừ đều hai đầu.
+
 $-4 < x+1 < 4$ → $-5 < x < 3$, tức $(-5, 3)$. Verify: $x=0$: $|1|=1<4$ ✓; $x=4$: $|5|=5<4$ sai ✓.
 
 </details>
@@ -683,6 +689,8 @@ Cần $\\ge 0$ → lấy vùng $+$ và nghiệm tử: $-2 < x \\le 1$ hoặc $x 
 🔁 **Thực hành**: giải $\\dfrac{x+2}{x-1} > 0$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tìm mốc đổi dấu của cả tử lẫn mẫu, lập bảng dấu thương; nhớ mẫu bằng 0 thì cấm.
 
 Mốc: $-2$ (tử), $1$ (mẫu). Bảng dấu thương: $+$ khi $x<-2$, $-$ khi $-2<x<1$, $+$ khi $x>1$. Cần $>0$ (strict, không lấy mút) → $x < -2$ hoặc $x > 1$, tức **$(-\\infty, -2) \\cup (1, +\\infty)$**. Verify: $x=-3$: $\\frac{-1}{-4}>0$ ✓; $x=0$: $\\frac{2}{-1}<0$ loại ✓; $x=2$: $\\frac{4}{1}>0$ ✓.
 
@@ -830,6 +838,8 @@ Tập nghiệm: **$(1, 2]$**. Verify: $x=1.5$: $1.5^2-4=-1.75\\le0$ ✓ và $1.5
 🔁 **Thực hành**: giải hệ $\\begin{cases} 3x + 1 \\ge 4 \\\\ -2x > -8 \\end{cases}$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: giải riêng từng bất phương trình rồi GIAO hai tập nghiệm.
 
 (1): $3x \\ge 3 \\Rightarrow x \\ge 1$, tức $[1,+\\infty)$. (2): $-2x > -8 \\Rightarrow x < 4$ (chia $-2$, đảo dấu), tức $(-\\infty, 4)$. Giao: **$[1, 4)$**. Verify: $x=1$: $4\\ge4$ ✓ và $-2>-8$ ✓; $x=4$: $13\\ge4$ ✓ nhưng $-8>-8$ sai → loại mút 4 ✓.
 

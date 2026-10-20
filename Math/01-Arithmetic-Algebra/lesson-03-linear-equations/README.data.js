@@ -345,6 +345,8 @@ Giải xong **luôn thế nghiệm vào phương trình gốc** để chắc. Vd
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: gom $x$ về một vế, số về vế kia — mỗi lần chuyển vế nhớ đổi dấu.
+
 $3x - x = 7 + 5 \\to 2x = 12 \\to x = 6$. Thế lại: $3\\cdot 6-5 = 13$, $6+7 = 13$ ✓.
 
 </details>
@@ -495,6 +497,8 @@ b &= 3 - 2 = 1 &&\\text{(giải phương trình bậc 1 ẩn } b)
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: slope $m = \\Delta y/\\Delta x$ từ hai điểm; điểm $(0, -2)$ nằm trên trục tung nên chính là $b$; giao $Ox$ là chỗ $y = 0$.
+
 $m = \\dfrac{4 - (-2)}{2 - 0} = \\dfrac{6}{2} = 3$; qua $(0,-2)$ nên $b = -2$ → $y = 3x - 2$. Giao $Ox$: $0 = 3x - 2 \\to x = \\tfrac{2}{3}$ → $\\left(\\tfrac{2}{3}, 0\\right)$.
 
 </details>
@@ -635,6 +639,8 @@ Hai slope **khác nhau** ($-1 \\neq 2$) → hai đường **cắt nhau** → đ�
 🔁 **Thực hành**: giải hệ $x + y = 5$, $x - y = 1$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hai phương trình có $+y$ và $-y$ — cộng thẳng hai vế để khử $y$.
 
 Cộng 2 PT: $2x = 6 \\to x = 3$. Thế: $y = 5 - 3 = 2$. → $(3, 2)$. Kiểm: $3-2 = 1$ ✓.
 

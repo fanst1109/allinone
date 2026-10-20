@@ -311,6 +311,8 @@ Cho $f(x) = \\sqrt{x}$ (domain $x \\geq 0$), $g(x) = x - 1$. Tính $(f\\circ g)(
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: làm từ trong ra — tính hàm trong ngoặc trước rồi đưa kết quả vào hàm ngoài.
+
 $(f\\circ g)(1) = f(4) = 8$; $(g\\circ f)(1) = g(2) = 5$. Khác nhau → $f\\circ g \\neq g\\circ f$.
 
 </details>
@@ -415,6 +417,8 @@ Một đường cong trên mặt phẳng là đồ thị của 1 hàm số $\\if
 🔁 **Thực hành**: parabol nằm ngang $x = y^2$ có phải đồ thị hàm $y = f(x)$ không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: dùng phép thử đường thẳng đứng — một $x$ cho mấy giá trị $y$?
 
 **Không**. Vd $x=4$ cho $y=2$ và $y=-2$ → đường thẳng đứng cắt 2 điểm.
 
@@ -593,6 +597,8 @@ Lật tờ giấy theo đường chéo $y = x$, đồ thị $f$ trùng đồ th�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tìm hàm ngược bằng cách giải $x$ theo $y$ rồi hoán tên biến.
+
 Có (mọi hàm bậc 1 với $a\\neq 0$ đều song ánh). Ngược: $y = 2x+1 \\to x = (y-1)/2 \\to f^{-1}(x) = (x-1)/2$.
 
 </details>
@@ -637,6 +643,8 @@ Dùng 100 kWh: $x>50$ → $75000 + 2500\\cdot 50 = 200000$ đồng.
 🔁 **Thực hành**: $f(x)=x^2$ chẵn hay lẻ? Còn $f(x)=x^3-x$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: thay $-x$ vào, so kết quả với $f(x)$ (chẵn) hoặc $-f(x)$ (lẻ).
 
 $x^2$ **chẵn** ($(-x)^2=x^2$). $x^3-x$ **lẻ**: $f(-x)=-x^3+x = -(x^3-x) = -f(x)$.
 

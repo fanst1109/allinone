@@ -146,6 +146,8 @@ Vd: với $x = 3$, biểu thức $2x + 5$ = $2\\cdot 3 + 5$ = **11**.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay số rồi tính theo PEMDAS — lũy thừa trước, nhân sau, trừ cuối.
+
 1. $3\\cdot(2^2) - 2 = 3\\cdot 4 - 2 = 10$.
 2. $-2x^3$ (hệ số $-2$), $x^2$ (hệ số $1$), $-x$ (hệ số $-1$), $7$ (tự do).
 
@@ -330,6 +332,8 @@ Bốn ví dụ FOIL:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: câu 1 nhớ cộng và trừ cùng cấp ưu tiên; câu 2 phân phối từng hạng tử, cẩn thận dấu trừ.
+
 1. Cộng/trừ cùng cấp, làm trái→phải: $(8-3)+2 = 7$. Tính "cộng trước" cho $8-(3+2) = 3$ là sai PEMDAS.
 2. $-2(3x-5) = -6x + 10$ (dấu trừ áp cả $-5$). $(2a-1)(a+3) = 2a^2 + 6a - a - 3 = 2a^2 + 5a - 3$.
 
@@ -385,6 +389,8 @@ Cách kiểm tra khai triển không sai: **thay 1 giá trị x cụ thể vào 
 2. Rút gọn $(x^2+3x) + (2x^2-x)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: bậc là mũ cao nhất bất kể vị trí; rút gọn bằng cách gom hạng tử cùng phần biến.
 
 1. **6** (mũ cao nhất là $x^6$, thứ tự viết không quan trọng).
 2. $3x^2 + 2x$ (cộng cùng bậc: $1+2=3$ cho $x^2$, $3-1=2$ cho $x$).
@@ -553,6 +559,8 @@ Tính nhanh $97 \\cdot 103$ mà không cần máy tính:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: áp hằng đẳng thức $(a-b)^2 = a^2 - 2ab + b^2$; câu 2 là chính cái bẫy thiếu hạng tử giữa.
+
 1. $x^2 - 10x + 25$ (nhớ hạng tử giữa $-2\\cdot x\\cdot 5 = -10x$).
 2. **Sai**. Đúng là $x^2 + 6x + 9$ — thiếu $6x$.
 
@@ -631,6 +639,8 @@ Nhân ngược lại phải ra đa thức ban đầu: $(x+2)(x+3) = x^2+5x+6$ �
 2. Phân tích $3x^2 - 12$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhìn dạng — hiệu hai bình phương; câu 2 nhớ quy tắc vàng: đặt nhân tử chung TRƯỚC.
 
 1. $(x-4)(x+4)$ (hiệu 2 bình phương).
 2. Đặt 3 chung trước: $3(x^2-4) = 3(x-2)(x+2)$.

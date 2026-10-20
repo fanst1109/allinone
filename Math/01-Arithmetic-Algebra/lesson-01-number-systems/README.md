@@ -105,6 +105,8 @@ Walk-through cho $\mathbb{N}$ — kiểm tra từng phép bằng số thật:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: rút gọn từng số về dạng đơn giản nhất rồi mới xếp loại; kiểm tính đóng bằng vài cặp số thử.
+
 $7, 0, \sqrt{9}=3$ thuộc $\mathbb{N}$. $-2$ (âm), $3.14$ và $0.5$ (thập phân) thì không. Lũy thừa: **đóng** (với quy ước $0^0=1$) — vd $2^3=8$, $5^0=1$, $0^5=0$, đều $\in \mathbb{N}$.
 
 </details>
@@ -165,6 +167,8 @@ $$\begin{aligned}
 🔁 **Thực hành**: tính $(-4) \times (-5) + (-2) \times 3 - (-1)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: làm từng phép nhân trước (dấu: âm × âm ra dương), rồi mới cộng trừ trái sang phải.
 
 $= 20 + (-6) - (-1) = 20 - 6 + 1 = 15 \in \mathbb{Z}$.
 
@@ -287,6 +291,8 @@ Vế phải chia hết cho 2 → $q^2$ chẵn → (dùng lại bổ đề) → $
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thập phân dừng luôn viết được mẫu lũy thừa của 10 rồi rút gọn; còn $1/11$ thì chia tay vài bước xem chu kỳ.
+
 $0.625 = \frac{625}{1000} = \frac{5}{8}$ (mẫu $8 = 2^3$ → dừng). $\frac{1}{11} = 0.090909\ldots$ — tuần hoàn "09", hữu tỉ.
 
 </details>
@@ -371,7 +377,12 @@ Mỗi tập sau bao gồm tập trước. $\mathbb{R} \setminus \mathbb{Q}$ = t�
 | Vô tỉ | $\mathbb{R}\setminus\mathbb{Q}$ | $\sqrt{2}, \pi, e, \sqrt{3}+1$ | $0, 0.5, \frac{22}{7}$ |
 | Thực | $\mathbb{R}$ | tất cả phía trên | số phức $i = \sqrt{-1}$ |
 
-**Mẹo phân loại nhanh một số**: (1) rút gọn trước — $\sqrt{4} = 2 \in \mathbb{N}$, đừng nhìn dấu căn rồi vội xếp vô tỉ; (2) số nguyên không âm → $\mathbb{N}$; (3) nguyên có dấu âm → $\mathbb{Z}$; (4) phân số / thập phân dừng-hoặc-tuần-hoàn → $\mathbb{Q}$; (5) thập phân vô hạn không tuần hoàn → vô tỉ.
+**Mẹo phân loại nhanh một số:**
+
+- Rút gọn trước đã — $\sqrt{4} = 2 \in \mathbb{N}$, đừng thấy dấu căn mà vội xếp vô tỉ.
+- Nguyên không âm → $\mathbb{N}$; nguyên có dấu âm → $\mathbb{Z}$.
+- Phân số, hoặc thập phân dừng / tuần hoàn → $\mathbb{Q}$.
+- Thập phân vô hạn không tuần hoàn → vô tỉ.
 
 ### 4.4. Tính chất quan trọng
 
@@ -390,6 +401,8 @@ Mỗi tập sau bao gồm tập trước. $\mathbb{R} \setminus \mathbb{Q}$ = t�
 🔁 **Thực hành**: $\sqrt{4}$ là số gì (hữu tỉ hay vô tỉ)? Còn $\sqrt{5}$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: thử rút căn trước — ra số nguyên thì xong; không ra thì nghi vô tỉ.
 
 $\sqrt{4} = 2$ → **hữu tỉ** (số nguyên). $\sqrt{5} \approx 2.236\ldots$ không viết được $p/q$ → **vô tỉ** (chứng minh tương tự $\sqrt{2}$).
 
@@ -546,7 +559,9 @@ Walk-through bất đẳng thức tam giác:
 
 <details><summary>Đáp án</summary>
 
-"Khoảng cách từ $x$ tới $5$ nhỏ hơn 2" → $3 < x < 7$, tức khoảng $(3, 7)$.
+**Hướng dẫn**: đọc $\lvert x - a\rvert < r$ thành "cách $a$ chưa tới $r$" rồi dịch sang hai đầu mút.
+
+"Khoảng cách từ $x$ tới $5$ nhỏ hơn 2" → $3 < x < 7$, tức khoảng $(3, 7)$. **Kiểm chứng**: $x = 4$: $\lvert 4-5\rvert = 1 < 2$ ✓; $x = 7.5$: $\lvert 2.5\rvert > 2$ ✗ — đúng là ngoài khoảng.
 
 </details>
 
@@ -581,7 +596,7 @@ Walk-through bất đẳng thức tam giác:
 - $360 = 2^3 \times 3^2 \times 5$. Walk-through: $360 = 2\cdot 180 = 2\cdot 2\cdot 90 = 2\cdot 2\cdot 2\cdot 45 = 2^3 \cdot 9 \cdot 5 = 2^3 \cdot 3^2 \cdot 5$.
 - $84 = 2^2 \times 3 \times 7$; $100 = 2^2 \times 5^2$; $17 = 17$ (đã là nguyên tố).
 
-❓ **Câu hỏi tự nhiên của người đọc**: *"Có hữu hạn số nguyên tố không?"* Không — Euclid chứng minh có **vô hạn** số nguyên tố (phản chứng: nếu chỉ có hữu hạn $p_1,\ldots,p_n$, xét $N = p_1\cdots p_n + 1$; $N$ không chia hết cho bất kỳ $p_i$ nào → hoặc $N$ nguyên tố mới, hoặc có ước nguyên tố mới → mâu thuẫn).
+❓ **Câu hỏi tự nhiên của người đọc**: *"Có hữu hạn số nguyên tố không?"* Không — Euclid chứng minh có **vô hạn** số nguyên tố, bằng phản chứng. Giả sử chỉ có hữu hạn $p_1,\ldots,p_n$. Xét $N = p_1\cdots p_n + 1$: chia $N$ cho bất kỳ $p_i$ nào cũng dư 1. Vậy hoặc $N$ là nguyên tố mới, hoặc nó có ước nguyên tố nằm ngoài danh sách — đằng nào cũng mâu thuẫn với "đã liệt kê đủ".
 
 ### 6.3. GCD — ước chung lớn nhất
 
@@ -618,6 +633,8 @@ Bốn ví dụ: $\text{lcm}(4,6) = \frac{24}{2} = 12$; $\text{lcm}(5,7) = \frac{
 🔁 **Thực hành**: tính $\gcd(24, 36)$ và $\text{lcm}(24, 36)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: chạy thuật toán Euclid cho gcd, rồi dùng $\text{lcm} = \dfrac{a\cdot b}{\gcd}$.
 
 Euclid: $36 = 1\cdot 24 + 12$; $24 = 2\cdot 12 + 0 \to \gcd = 12$. $\text{lcm} = \frac{24\cdot 36}{12} = \frac{864}{12} = 72$.
 
@@ -697,6 +714,8 @@ func almostEqual(a, b, eps float64) bool {
 🔁 **Thực hành**: `0.5 + 0.25 == 0.75` trả về gì trong Go? `0.1 + 0.1 + 0.1 == 0.3`?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hỏi từng số — mẫu của nó có phải lũy thừa của 2 không? Có thì float lưu chính xác.
 
 `true` (cả ba đều là phân số mẫu lũy thừa của 2 → chính xác). `false` ($0.1$ không chính xác → cộng ra $0.30000000000000004 \neq 0.3$).
 

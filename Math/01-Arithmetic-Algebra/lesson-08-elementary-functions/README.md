@@ -244,6 +244,8 @@ $$y = ax + b$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dấu của hệ số $a$ quyết định chiều; cắt trục y tại $x = 0$.
+
 $a = -1 < 0$ → **nghịch biến** (giảm). Cắt trục y tại $(0, 4)$.
 
 </details>
@@ -336,6 +338,8 @@ $$y = ax^2 + bx + c$$
 🔁 **Thực hành**: tìm đỉnh của $y = x^2 - 6x + 5$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: $x_v = -b/(2a)$, rồi thay ngược tìm $y_v$.
 
 $x = 6/2 = 3$, $y(3) = 9-18+5 = -4$ → đỉnh $(3, -4)$, là **min** (vì $a>0$).
 
@@ -431,6 +435,8 @@ $$y = a_n x^n + a_{n-1} x^{n-1} + \dots + a_1 x + a_0 \quad (a_n \neq 0)$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đuôi do bậc + dấu hệ số đầu quyết định; khúc lượn đếm trên hình thật, tối đa $n-1$.
+
 Bậc chẵn $a_n=1>0$ → hai đuôi **cùng lên**. Đồ thị giống parabol bẹt đáy, lượn **1** khúc (chỉ một min tại O). (Tối đa $n-1=3$ nhưng thực tế chỉ 1.)
 
 </details>
@@ -520,6 +526,8 @@ Hai nhánh: x>0 ở góc phần tư I, x<0 ở góc III. Đây là **hàm lẻ**
 🔁 **Thực hành**: tìm domain và tiệm cận đứng của $y = \dfrac{x+1}{x^2-9}$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: domain loại các điểm làm mẫu bằng 0; tiệm cận đứng mọc đúng tại đó nếu tử khác 0.
 
 $x^2-9=0 \Rightarrow x=\pm3$ → $D=\mathbb{R}\setminus\{-3,3\}$. Tiệm cận đứng tại $x=-3$ và $x=3$ (tử khác 0 tại đó). Bậc tử < mẫu → tiệm cận ngang $y=0$.
 
@@ -616,7 +624,13 @@ So sánh **tốc độ** $2^x$ vs $x^2$: tại $x=2$ bằng nhau (4=4); $x=4$: $
 
 <details><summary>Đáp án</summary>
 
-$y(0)=1$, $y(2)=9$, $y(-1)=1/3$.
+**Hướng dẫn**: thay từng giá trị vào $y = 3^x$, nhớ hai quy ước — mũ 0 ra 1, mũ âm là nghịch đảo.
+
+- $y(0) = 3^0 = 1$ — mọi số (khác 0) mũ 0 đều bằng 1.
+- $y(2) = 3^2 = 3\cdot 3 = 9$.
+- $y(-1) = 3^{-1} = \dfrac{1}{3}$ — mũ âm lật phân số.
+
+**Kiểm chứng** bằng luật cộng mũ: $y(-1)\cdot y(2) = \tfrac{1}{3}\cdot 9 = 3 = 3^{-1+2} = y(1)$ ✓.
 
 </details>
 
@@ -714,7 +728,13 @@ So với $2^x$ ở mục 4: bảng này chính là bảng của $2^x$ **đổi c
 
 <details><summary>Đáp án</summary>
 
-$y(1)=0$, $y(16)=4$, $y(1/2)=-1$.
+**Hướng dẫn**: đọc $\log_2(x)$ là "2 mũ mấy thì ra $x$?".
+
+- $y(1) = 0$ vì $2^0 = 1$.
+- $y(16) = 4$ vì $2^4 = 16$.
+- $y(1/2) = -1$ vì $2^{-1} = 1/2$.
+
+**Kiểm chứng** bằng chiều ngược: $2^0 = 1$ ✓, $2^4 = 16$ ✓, $2^{-1} = 1/2$ ✓ — log trả đúng số mũ.
 
 </details>
 
@@ -849,6 +869,8 @@ $$|x| = \begin{cases} x & \text{nếu } x \ge 0 \\ -x & \text{nếu } x < 0 \end
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: sàn kéo XUỐNG (về $-\infty$), trần đẩy LÊN — số âm là chỗ dễ sai.
+
 $\lfloor 3.9\rfloor=3$, $\lceil 3.1\rceil=4$, $\lfloor -2.5\rfloor=-3$ (về phía $-\infty$), $|{-4}|+|3|=4+3=7$.
 
 </details>
@@ -903,6 +925,8 @@ $\lfloor 3.9\rfloor=3$, $\lceil 3.1\rceil=4$, $\lfloor -2.5\rfloor=-3$ (về ph�
 🔁 **Thực hành**: đồ thị $y=(x+2)^2-1$ là parabol đỉnh ở đâu, mở hướng nào? Còn $y=-(x-1)^2$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đọc dạng đỉnh $a(x-h)^2+k$ — đỉnh $(h,k)$, trong ngoặc $+$ nghĩa là dịch TRÁI; dấu của $a$ quyết định mở lên/xuống.
 
 $(x+2)^2-1$: dịch trái 2, xuống 1 → đỉnh $(-2,-1)$, mở **lên** ($a=1>0$). $-(x-1)^2$: dịch phải 1, lật trục x → đỉnh $(1,0)$, mở **xuống**.
 

@@ -103,7 +103,13 @@ $$x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}$$
   <text x="560" y="185" font-size="11.5" fill="#475569" text-anchor="middle">đỉnh TRÊN Ox · y_đỉnh &gt; 0</text>
 </svg>
 
-Mấu chốt: tung độ đỉnh là $y_v = -\\dfrac{\\Delta}{4a}$. Với $a > 0$: $\\Delta > 0 \\Rightarrow y_v < 0$ (đỉnh dưới Ox, parabol đi lên hai bên buộc phải cắt Ox 2 chỗ); $\\Delta = 0 \\Rightarrow y_v = 0$ (đỉnh nằm trên Ox → chạm 1 điểm); $\\Delta < 0 \\Rightarrow y_v > 0$ (đỉnh trên Ox, cả parabol lơ lửng → không chạm). Khi $a < 0$ parabol mở xuống, logic lật ngược nhưng **kết luận về số giao điểm giống hệt** — chỉ dấu của $\\Delta$ quyết định.
+Mấu chốt: tung độ đỉnh là $y_v = -\\dfrac{\\Delta}{4a}$. Với $a > 0$, chỉ cần nhìn **đỉnh parabol nằm đâu so với trục Ox** là biết số nghiệm:
+
+| Dấu của $\\Delta$ | Đỉnh nằm đâu | Số giao điểm với Ox |
+|---|---|---|
+| $\\Delta > 0$ | dưới trục ($y_v < 0$) | parabol mở lên nên phải cắt trục ở **2 điểm** |
+| $\\Delta = 0$ | ngay trên trục ($y_v = 0$) | **chạm đúng 1 điểm** |
+| $\\Delta < 0$ | trên trục ($y_v > 0$) | cả parabol lơ lửng — **không cắt** | Khi $a < 0$ parabol mở xuống, logic lật ngược nhưng **kết luận về số giao điểm giống hệt** — chỉ dấu của $\\Delta$ quyết định.
 
 ❓ **"Δ < 0 là vô nghiệm hẳn, hay nghiệm bị 'ẩn'?"** Vô nghiệm trong tập số thực $\\mathbb{R}$, nhưng có **2 nghiệm phức** (complex roots): $\\sqrt{\\text{số âm}}$ tồn tại trong số phức (Tier Số phức). Hình học: parabol không chạm Ox nghĩa là không có giao điểm **thực**.
 
@@ -224,6 +230,8 @@ $$\\Delta = (-2)^2 - 4\\cdot 1\\cdot(-8) = 4 + 32 = 36,\\quad \\sqrt{\\Delta} = 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tính $\\Delta = b^2 - 4ac$ trước, rồi $x = \\dfrac{-b \\pm \\sqrt{\\Delta}}{2a}$ — câu 2 cẩn thận dấu của $c$ và mẫu $2a$.
+
 (1) $\\Delta = (-6)^2 - 32 = 4$, $\\sqrt{\\Delta} = 2$. $x = (6 \\pm 2)/2$ → $x = 4$ hoặc $x = 2$. (Viète: tổng 6, tích 8 ✓.)
 
 (2) $a=3,b=-2,c=-1$: $\\Delta = (-2)^2 - 4\\cdot 3\\cdot(-1) = 4 + 12 = 16$, $\\sqrt{\\Delta}=4$. $x = \\dfrac{2\\pm 4}{6}$ → $x = 1$ hoặc $x = -\\dfrac{1}{3}$. (Chú ý mẫu $2a = 6$.)
@@ -327,6 +335,8 @@ Không bước nào "dễ thấy" — mọi phép biến đổi đều hiện r�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Viète nói tổng hai nghiệm $= -b/a$, tích $= c/a$; nhẩm hai số thỏa cặp tổng–tích.
+
 (1) Cần 2 số tổng 7, tích 10 → **2 và 5**. (Kiểm: $2+5=7$, $2\\cdot 5=10$ ✓.)
 
 (2) $a=2$: tổng $= 8/2 = 4$, tích $= 6/2 = 3$ → cần 2 số tổng 4, tích 3 → **1 và 3**. (Kiểm bằng công thức: $\\Delta = 64 - 48 = 16$, $x = (8\\pm 4)/4$ = $3$ hoặc $1$ ✓.)
@@ -425,6 +435,8 @@ y &= 2(x^2 + 4x) + 5 \\\\
 🔁 **Thực hành**: tìm đỉnh và giá trị nhỏ nhất của $y = x^2 - 8x + 20$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hoành độ đỉnh $x_v = -b/(2a)$, thay ngược vào tìm $y_v$; dấu của $a$ cho biết đỉnh là min hay max.
 
 $x_v = 8/2 = 4$; $y_v = 16 - 32 + 20 = 4$. Đỉnh $(4, 4)$, $a>0$ → **min $= 4$** tại $x = 4$. Dạng đỉnh: $y = (x-4)^2 + 4$. (Vì $\\Delta = 64 - 80 = -16 < 0$, parabol không chạm Ox → PT $y=0$ vô nghiệm, khớp đỉnh nằm trên Ox.)
 

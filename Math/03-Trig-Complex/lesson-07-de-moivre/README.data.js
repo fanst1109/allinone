@@ -97,6 +97,8 @@ Mỗi khi cần tính lũy thừa số phức, đừng nhân trực tiếp. Ch�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: De Moivre: mũ $n$ thì mô-đun mũ $n$, góc nhân $n$.
+
 1. $= \\cos(9\\cdot 20^\\circ) + i\\sin(9\\cdot 20^\\circ) = \\cos 180^\\circ + i\\sin 180^\\circ = -1$.
 2. $= 2^3 e^{i\\cdot 3\\cdot\\pi/6} = 8e^{i\\pi/2} = 8i$.
 3. $1 - i\\sqrt 3$: $r = \\sqrt{1+3} = 2$, $\\theta = \\operatorname{atan2}(-\\sqrt3, 1) = -\\dfrac{\\pi}{3}$ → $2e^{-i\\pi/3}$. Lũy thừa 4: $2^4 e^{-i\\cdot 4\\pi/3} = 16\\,e^{-i\\cdot 4\\pi/3}$. Rút gọn: $-\\dfrac{4\\pi}{3} + 2\\pi = \\dfrac{2\\pi}{3}$ → $16(\\cos 120^\\circ + i\\sin 120^\\circ) = 16\\left(-\\dfrac{1}{2} + i\\dfrac{\\sqrt3}{2}\\right) = -8 + 8\\sqrt3\\,i$.
@@ -186,6 +188,8 @@ $$\\cos 3\\theta = \\cos^3\\theta - 3\\cos\\theta(1-\\cos^2\\theta) = 4\\cos^3\\
 2. $\\sin 3\\theta$ viết qua $\\sin\\theta$ là gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: khai triển nhị thức rồi tách phần thực/ảo — đó là nguồn của công thức nhân đôi.
 
 1. $(\\cos\\theta + i\\sin\\theta)^2 = \\cos^2\\theta + 2i\\sin\\theta\\cos\\theta - \\sin^2\\theta$; phần ảo $2\\sin\\theta\\cos\\theta = \\sin 2\\theta$.
 2. $\\sin 3\\theta = 3\\sin\\theta - 4\\sin^3\\theta$.
@@ -341,6 +345,8 @@ $$z_k = \\omega^k, \\quad k = 0, 1, \\ldots, n-1 \\quad\\Rightarrow\\quad \\{1, 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: căn bậc $n$ của 1 nằm đều trên vòng tròn đơn vị, cách nhau $2\\pi/n$.
+
 1. $z_k = e^{i\\cdot k\\pi/2}$, $k=0..3$ → $1, i, -1, -i$.
 2. $1 + i + (-1) + (-i) = 0$.
 3. $\\omega^4 = \\omega^{4 \\bmod 3} = \\omega^1 = \\omega$ (chu kỳ 3).
@@ -459,6 +465,8 @@ So với căn của 1 (mục 3): chỉ khác ở **bán kính** ($R^{1/n}$ thay 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: viết số dưới dạng mũ rồi chia góc cho 2, cộng $k\\pi$ cho nghiệm thứ hai.
+
 1. $i = e^{i\\pi/2}$. $z_k = e^{i(\\pi/2 + 2k\\pi)/2}$, $k=0,1$ → $z_0 = e^{i\\pi/4} = \\dfrac{\\sqrt{2}}{2} + \\dfrac{\\sqrt{2}}{2}i$, $z_1 = e^{i\\cdot 5\\pi/4} = -\\dfrac{\\sqrt{2}}{2} - \\dfrac{\\sqrt{2}}{2}i$.
 2. $16^{1/4} = 2$.
 
@@ -521,6 +529,8 @@ $$\\begin{aligned}
 2. Viết $2\\cos\\theta$ qua $e^{i\\theta}$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: công thức ngược Euler: $\\cos\\theta = \\tfrac{e^{i\\theta}+e^{-i\\theta}}{2}$.
 
 1. $\\dfrac{e^0 + e^0}{2} = \\dfrac{1+1}{2} = 1 = \\cos 0$ ✓.
 2. $2\\cos\\theta = e^{i\\theta} + e^{-i\\theta}$.

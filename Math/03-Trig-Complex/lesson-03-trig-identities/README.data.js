@@ -94,6 +94,8 @@ Bình phương khử dấu âm → góc ở phần tư nào cũng cho tổng $= 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Pythagoras lượng giác $\\sin^2+\\cos^2=1$; dấu của cos lấy theo phần tư.
+
 1. $\\cos^2 x = 1 - \\sin^2 x = 1 - 0.36 = 0.64$ → $\\cos x = 0.8$ (phần tư I → dương).
 2. $\\sin(\\pi - \\frac{\\pi}{6}) = \\sin(\\frac{\\pi}{6}) = \\frac{1}{2}$ (góc bù, sin bằng nhau).
 
@@ -198,6 +200,8 @@ $$\\sin(a+b) = \\frac{3}{5}\\cdot\\frac{12}{13} + \\frac{4}{5}\\cdot\\frac{5}{13
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tách góc lạ thành hiệu/tổng hai góc đặc biệt rồi áp công thức cộng.
+
 1. $\\sin 15^\\circ = \\sin(45-30) = \\sin 45\\cos 30 - \\cos 45\\sin 30 = \\frac{\\sqrt{2}}{2}\\cdot\\frac{\\sqrt{3}}{2} - \\frac{\\sqrt{2}}{2}\\cdot\\frac{1}{2} = \\frac{\\sqrt{6}-\\sqrt{2}}{4} \\approx 0.2588$.
 2. $\\cos x \\cos(\\frac{\\pi}{2}) - \\sin x \\sin(\\frac{\\pi}{2}) = \\cos x\\cdot 0 - \\sin x\\cdot 1 = -\\sin x$.
 
@@ -250,6 +254,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tìm nốt $\\cos a$ bằng Pythagoras rồi áp $\\sin 2a = 2\\sin a\\cos a$.
+
 1. $\\cos a = \\frac{4}{5}$ (phần tư I). $\\sin 2a = 2\\cdot\\frac{3}{5}\\cdot\\frac{4}{5} = \\frac{24}{25} = 0.96$.
 2. Dùng $\\cos 2a = 2\\cos^2 a - 1 = 2\\cdot 0.36 - 1 = 0.72 - 1 = -0.28$.
 
@@ -297,6 +303,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: công thức hạ bậc $\\cos^2 x = \\tfrac{1+\\cos 2x}{2}$ — chìa khóa của tích phân lượng giác.
+
 1. $\\cos^2 x = \\frac{1+\\cos 2x}{2}$. Tại $\\frac{\\pi}{4}$: $\\frac{1 + \\cos(\\pi/2)}{2} = \\frac{1+0}{2} = \\frac{1}{2}$ ($= (\\frac{\\sqrt{2}}{2})^2$ ✓).
 2. $\\int\\frac{1+\\cos 2x}{2} \\, dx = \\frac{x}{2} + \\frac{\\sin(2x)}{4} + C$.
 
@@ -340,6 +348,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tích→tổng: $2\\sin A\\cos B = \\sin(A+B) + \\sin(A-B)$.
+
 1. $2 \\sin 5x \\cos 3x = \\sin(5x+3x) + \\sin(5x-3x) = \\sin 8x + \\sin 2x$.
 2. $\\cos x \\cos 2x = \\tfrac{1}{2}[\\cos(x-2x) + \\cos(x+2x)] = \\tfrac{1}{2}[\\cos x + \\cos 3x]$ (dùng $\\cos(-x)=\\cos x$).
 
@@ -381,6 +391,8 @@ $$\\begin{aligned}
 2. $\\sin 4x - \\sin 2x$ bằng tích nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tổng→tích: cộng cos ra $2\\cos\\tfrac{tổng}{2}\\cos\\tfrac{hiệu}{2}$.
 
 1. $\\cos 5x + \\cos x = 2 \\cos\\frac{5x+x}{2} \\cos\\frac{5x-x}{2} = 2 \\cos 3x \\cos 2x$.
 2. $\\sin 4x - \\sin 2x = 2 \\cos\\frac{4x+2x}{2} \\sin\\frac{4x-2x}{2} = 2 \\cos 3x \\sin x$.
@@ -429,6 +441,8 @@ trong đó:
 2. Đưa $\\sin x + \\cos x$ về dạng $R \\sin(x+\\varphi)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: biên độ gộp $R = \\sqrt{a^2+b^2}$.
 
 1. $R = \\sqrt{5^2+12^2} = \\sqrt{169} = 13$.
 2. $R = \\sqrt{1+1} = \\sqrt{2}$, $\\tan\\varphi = \\frac{1}{1} = 1$ → $\\varphi = \\frac{\\pi}{4}$. Vậy $\\sqrt{2} \\sin(x + \\frac{\\pi}{4})$.
@@ -541,6 +555,8 @@ $$25 = 9 + 16 - 24\\cos C \\;\\Rightarrow\\; 25 = 25 - 24\\cos C \\;\\Rightarrow
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: định lý cos — với $C = 90^\\circ$ nó rơi về Pythagoras; câu 2 đảo công thức tìm góc.
+
 1. $c^2 = 64 + 36 - 2\\cdot 8\\cdot 6\\cdot\\cos 90° = 100 - 0 = 100 \\Rightarrow c = 10$ (chính là bộ ba $6,8,10$).
 2. $\\cos B = \\frac{a^2+c^2-b^2}{2ac} = \\frac{49+81-64}{2\\cdot 7\\cdot 9} = \\frac{66}{126} = \\frac{11}{21} \\approx 0.524 \\Rightarrow B \\approx 58.4°$.
 
@@ -603,6 +619,8 @@ $$\\frac{a}{\\sin A} = \\frac{b}{\\sin B} \\;\\Rightarrow\\; \\sin B = \\frac{b\
 2. Tam giác có $a = 14, A = 30°$. Tính $2R$ và $R$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: định lý sin: các tỉ số cạnh/sin góc đối bằng nhau.
 
 1. $\\frac{12}{\\sin 45°} = \\frac{b}{\\sin 60°} \\Rightarrow b = \\frac{12\\cdot(\\sqrt3/2)}{\\sqrt2/2} = \\frac{12\\sqrt3}{\\sqrt2} = 6\\sqrt6 \\approx 14.70$.
 2. $2R = \\frac{14}{\\sin 30°} = \\frac{14}{0.5} = 28 \\Rightarrow R = 14$.

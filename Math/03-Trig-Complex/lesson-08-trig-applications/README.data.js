@@ -50,6 +50,8 @@ $$x(t) = A\\cos(\\omega t + \\varphi)$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đọc $\\omega$ trong ngoặc; $T = 2\\pi/\\omega$, $f = 1/T$; con lắc lò xo $\\omega = \\sqrt{k/m}$.
+
 1. $\\omega = 4\\pi$ → $T = \\dfrac{2\\pi}{4\\pi} = 0.5$s, $f = \\dfrac{1}{0.5} = 2$ Hz.
 2. $\\omega = \\sqrt{\\dfrac{100}{0.25}} = \\sqrt{400} = 20$ rad/s.
 
@@ -89,6 +91,8 @@ R &= \\sqrt{3^2 + 4^2} = 5, \\quad \\tan\\delta = \\dfrac{4}{3} \\Rightarrow \\d
 2. Gộp $x(t) = \\cos(\\omega t) + \\sqrt{3}\\sin(\\omega t)$ về dạng $R\\cos(\\omega t - \\delta)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: so dạng chuẩn $A\\cos(\\omega t + \\varphi)$ để đọc từng tham số.
 
 1. $A = 6$, $\\omega = \\dfrac{\\pi}{2}$ → $T = \\dfrac{2\\pi}{\\pi/2} = 4$ s, $f = 0.25$ Hz.
 2. $R = \\sqrt{1 + 3} = 2$, $\\tan\\delta = \\dfrac{\\sqrt 3}{1} \\Rightarrow \\delta = 60^\\circ$ → $x(t) = 2\\cos\\left(\\omega t - 60^\\circ\\right)$.
@@ -146,6 +150,8 @@ R &= \\sqrt{3^2 + 4^2} = 5, \\quad \\tan\\delta = \\dfrac{4}{3} \\Rightarrow \\d
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: phasor = biên độ $\\times e^{i\\cdot\\text{pha}}$; cộng dao động cùng tần số = cộng phasor.
+
 1. $Z = 6e^{i\\pi/2} = 6i$.
 2. $Z = 5 + 5e^{i\\pi} = 5 - 5 = 0$ → biên độ tổng = **0** (triệt tiêu hoàn toàn).
 
@@ -186,6 +192,8 @@ $$y(x, t) = A\\sin(kx - \\omega t + \\varphi)$$
 2. Bước sóng 2m, vận tốc 340 m/s. Tần số bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: $\\lambda = v/f$ — ba đại lượng, biết hai suy một.
 
 1. $\\lambda = \\dfrac{v}{f} = \\dfrac{340}{170} = 2$m.
 2. $f = \\dfrac{v}{\\lambda} = \\dfrac{340}{2} = 170$ Hz.
@@ -240,6 +248,8 @@ $$f(x) = \\frac{4}{\\pi}\\left[\\sin x + \\frac{1}{3}\\sin 3x + \\frac{1}{5}\\si
 2. Trong khai triển sóng vuông, hệ số của $\\sin 5x$ là bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hàm lẻ chỉ sinh sin, hàm chẵn chỉ sinh cos trong chuỗi Fourier.
 
 1. Lẻ ($(-x) = -x$) → chỉ chứa **sin** (mọi $a_n = 0$).
 2. $\\dfrac{4}{\\pi}\\cdot\\dfrac{1}{5} = \\dfrac{4}{5\\pi}$ (từ chuỗi $\\dfrac{4}{\\pi}\\left[\\sin x + \\dfrac{\\sin 3x}{3} + \\dfrac{\\sin 5x}{5} + \\ldots\\right]$).
@@ -438,6 +448,8 @@ Ví dụ kéo vali bằng lực $F = 100$ N, tay cầm nghiêng $\\theta = 30°$
 3. Lực $F = 200$ N nghiêng $53°$ so với ngang. Thành phần ngang?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: vẽ tam giác vuông: cạnh đối = khoảng cách × tan góc nâng.
 
 1. $h = 30\\tan 40° = 30 \\times 0.8391 \\approx 25.2$ m.
 2. SAS → định lý cos: $c^2 = 5^2 + 7^2 - 2\\cdot 5\\cdot 7\\cos 60° = 25 + 49 - 70\\times 0.5 = 74 - 35 = 39 \\Rightarrow c = \\sqrt{39} \\approx 6.24$.

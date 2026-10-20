@@ -72,6 +72,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhớ mốc neo: cả vòng $2\\pi$, nửa vòng $\\pi$; so 2 rad với $\\pi/2 \\approx 1.57$.
+
 1. Cả vòng $= 2\\pi$ rad $\\approx 6.28$; nửa vòng $= \\pi$ rad $\\approx 3.14$ ($= 180^\\circ$).
 2. $90^\\circ = \\frac{\\pi}{2} \\approx 1.57$ rad. Vì $2 > 1.57$ nên **2 rad lớn hơn** $90^\\circ$ (cụ thể 2 rad $\\approx 114.6^\\circ$).
 
@@ -207,6 +209,8 @@ Khi tử có hệ số (vd $\\frac{2\\pi}{3}$): tính như $\\frac{2\\cdot 180}{
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhân $\\tfrac{\\pi}{180}$ khi đổi độ→rad, nhân $\\tfrac{180}{\\pi}$ chiều ngược.
+
 1. $120\\cdot\\frac{\\pi}{180} = \\frac{2\\pi}{3}$ rad $\\approx 2.094$.
 2. $\\frac{7\\pi}{6}\\cdot\\frac{180}{\\pi} = \\frac{7\\cdot 180}{6} = 210^\\circ$.
 
@@ -316,6 +320,8 @@ Khóa học này dùng **độ thập phân** ($12.5822^\\circ$), không dùng p
 2. Một điểm trên đường tròn đơn vị có hoành độ 0.6. Tung độ có thể bằng mấy?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hình dung vị trí trên đường tròn đơn vị — $(\\cos, \\sin)$ chính là tọa độ điểm.
 
 1. $\\theta = \\pi$ → điểm $(-1, 0)$ (cực trái). $\\cos\\pi = -1$, $\\sin\\pi = 0$.
 2. $0.6^2 + y^2 = 1$ → $y^2 = 0.64$ → $y = \\pm 0.8$ (hai điểm: trên và dưới trục hoành).
@@ -447,6 +453,8 @@ Ví dụ với $\\theta_0 = 30^\\circ$: $\\{\\ldots, -690^\\circ, -330^\\circ, 3
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: trừ bội của vòng ($360^\\circ$ hoặc $2\\pi$) tới khi rơi vào dải chuẩn.
+
 1. $800 - 2\\cdot 360 = 800 - 720 = 80^\\circ$.
 2. $-\\frac{\\pi}{3} + 2\\pi = -\\frac{\\pi}{3} + \\frac{6\\pi}{3} = \\frac{5\\pi}{3}$.
 
@@ -508,6 +516,8 @@ $$S = \\frac{1}{2}\\cdot 10^2\\cdot 2 = \\frac{1}{2}\\cdot 100\\cdot 2 = 100$$
 2. Quạt tròn $r = 6$, góc $90^\\circ$. Diện tích?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: công thức cung $\\ell = r\\theta$ chỉ đúng khi $\\theta$ tính bằng RADIAN.
 
 1. $\\ell = r\\theta = 0.3\\cdot 4 = 1.2$ m.
 2. Đổi $90^\\circ = \\frac{\\pi}{2}$. $S = \\frac{1}{2}\\cdot 6^2\\cdot\\frac{\\pi}{2} = \\frac{1}{2}\\cdot 36\\cdot\\frac{\\pi}{2} = 9\\pi \\approx 28.3$.

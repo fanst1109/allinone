@@ -107,6 +107,8 @@ Vì sao thêm $k\cdot 2\pi$? Vì quay thêm trọn $k$ vòng ($k$ nguyên, dươ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tìm nghiệm gốc $\alpha$ rồi viết họ nghiệm sin: $\alpha + k2\pi$ và $\pi - \alpha + k2\pi$; sin bị chặn trong $[-1,1]$.
+
 1. $\alpha = -\frac{\pi}{6}$ (vì $\sin(-\frac{\pi}{6}) = -\frac{1}{2}$). $x = -\frac{\pi}{6} + k2\pi$ hoặc $x = \pi - (-\frac{\pi}{6}) + k2\pi = \frac{7\pi}{6} + k2\pi$.
 2. **Không** — vì $|1.5| > 1$ mà $\sin$ chỉ nhận giá trị trong $[-1, 1]$.
 
@@ -175,6 +177,8 @@ $$x = \pm\alpha + k\cdot 2\pi \quad (k \in \mathbb{Z})$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: họ nghiệm cos là $\pm\alpha + k2\pi$.
+
 1. $\alpha = \frac{\pi}{6}$ → $x = \pm\frac{\pi}{6} + k2\pi$.
 2. $\alpha = \frac{2\pi}{3}$ → $x = \pm\frac{2\pi}{3} + k2\pi$. Trong $[0, 2\pi)$: $\frac{2\pi}{3}$ và $-\frac{2\pi}{3} + 2\pi = \frac{4\pi}{3}$.
 
@@ -242,6 +246,8 @@ $$x = \alpha + k\cdot\pi \quad (k \in \mathbb{Z})$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tan tuần hoàn chu kỳ $\pi$ — một nghiệm gốc cộng $k\pi$.
+
 1. $\tan(\frac{\pi}{6}) = \frac{\sqrt{3}}{3}$ → $x = \frac{\pi}{6} + k\pi$.
 2. $\alpha = -\frac{\pi}{4}$ → $x = -\frac{\pi}{4} + k\pi$. Trong $[0, 2\pi)$: $-\frac{\pi}{4} + \pi = \frac{3\pi}{4}$ và $-\frac{\pi}{4} + 2\pi = \frac{7\pi}{4}$.
 
@@ -283,6 +289,8 @@ $$x = \alpha + k\cdot\pi \quad (k \in \mathbb{Z})$$
 2. $\sin x = -1$ có nghiệm nào trong $[0, 2\pi)$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: các giá trị biên ($\pm 1$, 0) cho nghiệm tại 4 điểm mốc của đường tròn.
 
 1. $x = k2\pi$ (cos đạt max = 1 chỉ tại mép phải đường tròn).
 2. $x = -\frac{\pi}{2} + k2\pi$ → trong $[0, 2\pi)$ là $-\frac{\pi}{2} + 2\pi = \frac{3\pi}{2}$.
@@ -346,6 +354,8 @@ $$\begin{aligned}
 2. Trong PT $t^2 - t - 6 = 0$ (với $t = \sin x$), nghiệm nào bị loại?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đặt ẩn phụ $t$, giải bậc 2, rồi quay về giải từng phương trình lượng giác; nhớ loại $|t| > 1$.
 
 1. $t = \cos x$: $2t^2 - 3t + 1 = 0$ → $t = 1$ hoặc $t = \frac{1}{2}$. $\cos x = 1 \to x = k2\pi$; $\cos x = \frac{1}{2} \to x = \pm\frac{\pi}{3} + k2\pi$.
 2. $t = 3$ hoặc $t = -2$; **cả hai** bị loại (đều ngoài $[-1,1]$) → PT vô nghiệm.
@@ -414,6 +424,8 @@ $$\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: so $|c|$ với $R = \sqrt{a^2+b^2}$ — vượt $R$ là vô nghiệm.
+
 1. $R = \sqrt{9+16} = 5$. $|c|=6 > 5$ → **vô nghiệm**.
 2. $R = \sqrt{1+3} = 2$, viết $2 \sin(x - \frac{\pi}{3}) = 1$ (vì hệ số cos âm → $\varphi = -\frac{\pi}{3}$) → $\sin(x - \frac{\pi}{3}) = \frac{1}{2}$.
 
@@ -480,6 +492,8 @@ $$\begin{aligned}
 2. $\sin 2x + \sin x = 0$ cho ra những PT cơ bản nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: chuyển hết về một vế rồi dùng tổng→tích để tách thành tích các nhân tử bằng 0.
 
 1. $\cos 3x - \cos x = 0$ → $-2 \sin 2x \sin x = 0$ → $\sin 2x = 0$ ($x = \frac{k\pi}{2}$) HOẶC $\sin x = 0$ ($x = k\pi$, đã nằm trong $\frac{k\pi}{2}$). Nghiệm: $x = \frac{k\pi}{2}$.
 2. $\sin 2x + \sin x = 2 \sin(\frac{3x}{2}) \cos(\frac{x}{2}) = 0$ → $\sin(\frac{3x}{2}) = 0$ HOẶC $\cos(\frac{x}{2}) = 0$.
@@ -567,6 +581,8 @@ k=0:\ x=\tfrac{\pi}{3}\approx 1.05 \in (-\pi,\pi)\ \checkmark \\
 2. Tìm mọi nghiệm của $\sin x = -1$ trong $[-2\pi, 2\pi]$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: viết họ nghiệm tổng quát trước rồi chọn $k$ cho nghiệm rơi vào khoảng yêu cầu.
 
 1. $x = \pm\frac{\pi}{3} + k2\pi$. Trong $[0, 2\pi)$: từ $+\frac{\pi}{3}$ lấy $\frac{\pi}{3}$ ($k=0$); từ $-\frac{\pi}{3}$ lấy $-\frac{\pi}{3} + 2\pi = \frac{5\pi}{3}$ ($k=1$). Nghiệm: $\left\{\frac{\pi}{3}, \frac{5\pi}{3}\right\}$.
 2. $x = -\frac{\pi}{2} + k2\pi$. $k=0: -\frac{\pi}{2}$ ✓; $k=1: \frac{3\pi}{2}$ ✓; $k=-1: -\frac{5\pi}{2} < -2\pi$ (loại). Còn $k$ nào cho $\frac{3\pi}{2} - 2\pi = -\frac{\pi}{2}$ (đã có). Nghiệm: $\left\{-\frac{\pi}{2}, \frac{3\pi}{2}\right\}$.

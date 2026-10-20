@@ -161,6 +161,8 @@ Dạng lượng giác và dạng mũ chỉ là **hai cách viết một thứ** 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tính $r$ bằng mô-đun, $\\theta$ bằng arctan có xét phần tư.
+
 1. $r = \\sqrt{3+1} = 2$, $\\theta = \\arctan\\left(\\dfrac{1}{\\sqrt{3}}\\right) = \\dfrac{\\pi}{6}$ (phần tư I) → $2\\left(\\cos\\dfrac{\\pi}{6} + i\\sin\\dfrac{\\pi}{6}\\right)$.
 2. $r = 2$, $\\theta = -\\dfrac{\\pi}{2}$ (trỏ thẳng xuống dưới).
 3. $a = 4\\cos\\dfrac{\\pi}{3} = 4\\cdot\\dfrac12 = 2$, $b = 4\\sin\\dfrac{\\pi}{3} = 4\\cdot\\dfrac{\\sqrt 3}{2} = 2\\sqrt 3$ → $z = 2 + 2\\sqrt 3\\,i$.
@@ -308,6 +310,8 @@ Năm "người lạ" từ năm thành phố khác nhau, vậy mà ráp lại v�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Euler: $e^{i\\theta} = \\cos\\theta + i\\sin\\theta$; mô-đun của $e^{i\\theta}$ luôn bằng 1.
+
 1. $\\cos\\dfrac{\\pi}{2} + i\\sin\\dfrac{\\pi}{2} = 0 + i = i$.
 2. Bằng **1** (mọi $e^{i\\theta}$ đều có mô-đun 1).
 
@@ -410,6 +414,8 @@ z_1 \\cdot z_2 &= r_1 r_2 \\, e^{i(\\theta_1 + \\theta_2)} \\\\
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dạng mũ: nhân thì NHÂN mô-đun CỘNG góc, chia thì ngược lại.
+
 1. $z_1\\cdot z_2 = 8e^{i\\cdot 3\\pi/4}$; $\\dfrac{z_1}{z_2} = 2e^{i\\pi/4}$.
 2. Mô-đun $3\\cdot 1 = 3$, argument $\\dfrac{\\pi}{3} + \\dfrac{2\\pi}{3} = \\pi$ → $3e^{i\\pi} = -3$.
 
@@ -473,6 +479,8 @@ Khớp với công thức quay ở L08-T2: $(x,y) \\to (-y, x)$. ✓ Để ý đ
 3. Nhân $z = 3$ (số thực) với $4i$ thì điểm $z$ biến đổi thế nào (quay + co giãn)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhân với $i$ là quay $90^\\circ$ ngược kim đồng hồ; quay $180^\\circ$ là nhân $-1$.
 
 1. $(2+i)\\cdot i = 2i + i^2 = -1 + 2i$ → điểm $(2,1)$ quay 90° thành $(-1, 2)$.
 2. Nhân với $-1$ ($= e^{i\\pi}$), tức đối xứng qua gốc O.

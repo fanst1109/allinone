@@ -43,6 +43,8 @@ Lúc đầu coi là "ảo" (imaginary), nhưng hóa ra **$i$ thật sự có ý 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhớ lý do $i$ ra đời: $x^2 = -1$; định lý cơ bản đại số đếm nghiệm theo bậc.
+
 1. Không có nghiệm thực (vì $x^2 \\ge 0$). Có 2 nghiệm phức: $x = \\pm i$.
 2. Đúng **5** nghiệm phức (đếm cả bội).
 
@@ -101,6 +103,8 @@ $$z = a + bi$$
 2. $z = 6$ là số phức không? $\\operatorname{Im}$ của nó?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Re là phần không dính $i$, Im là HỆ SỐ của $i$ (không gồm $i$).
 
 1. $\\operatorname{Re}(z) = -5$, $\\operatorname{Im}(z) = 2$.
 2. Có (mọi số thực đều là số phức). $\\operatorname{Im}(6) = 0$.
@@ -255,6 +259,8 @@ $$z^{-1} = \\frac{1+2i}{5} = \\frac{1}{5} + \\frac{2}{5}i$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: mô-đun là Pythagoras hai phần; liên hợp chỉ đổi dấu phần ảo.
+
 1. $|z| = \\sqrt{(-1)^2+2^2} = \\sqrt{5}$. $\\bar{z} = -1 - 2i$.
 2. $z = 0 + 5i$, $\\bar{z} = -5i$ → $z\\cdot\\bar{z} = 25$ (= $|z|^2 = 5^2 = 25$).
 3. $|z|^2 = 4+1 = 5$, $\\bar{z}=2-i$ → $z^{-1} = \\dfrac{2-i}{5} = \\dfrac{2}{5} - \\dfrac{1}{5}i$. Kiểm tra: $(2+i)\\dfrac{2-i}{5} = \\dfrac{4+1}{5} = 1$ ✓.
@@ -388,6 +394,8 @@ $$\\frac{a+bi}{c+di} = \\frac{(a+bi)(c-di)}{(c+di)(c-di)} = \\frac{(a+bi)(c-di)}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhân như nhân đa thức rồi thay $i^2 = -1$; chia thì nhân liên hợp mẫu.
+
 1. Cộng: $6 + 2i$. Nhân: $8 - 2i + 12i - 3i^2 = 8 + 10i + 3 = 11 + 10i$.
 2. Nhân tử & mẫu với $(1+i)$: tử $(2+i)(1+i) = 2 + 2i + i + i^2 = 1 + 3i$; mẫu $(1-i)(1+i) = 2$ → $\\dfrac{1+3i}{2} = \\dfrac{1}{2} + \\dfrac{3}{2}i$.
 
@@ -476,6 +484,8 @@ $$\\frac{a+bi}{c+di} = \\frac{(a+bi)(c-di)}{(c+di)(c-di)} = \\frac{(a+bi)(c-di)}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: lũy thừa $i$ tuần hoàn chu kỳ 4 — lấy mũ mod 4.
+
 1. $50 \\bmod 4 = 2$ → $i^{50} = i^2 = -1$.
 2. $i^7 = i^3 = -i$; $i^5 = i^1 = i$ → tổng $-i + i = 0$.
 
@@ -534,6 +544,8 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: $\\Delta < 0$ thì $\\sqrt{\\Delta} = i\\sqrt{|\\Delta|}$ — công thức nghiệm vẫn chạy.
+
 1. $\\Delta = 4 - 20 = -16$ → $\\sqrt{\\Delta} = 4i$ → $x = \\dfrac{-2 \\pm 4i}{2} = -1 \\pm 2i$.
 2. Có: $-1+2i$ và $-1-2i$ là cặp liên hợp.
 3. $\\Delta = 4 - 12 = -8$ → $\\sqrt{\\Delta} = \\sqrt{8}\\,i = 2\\sqrt{2}\\,i$ → $x = \\dfrac{-2 \\pm 2\\sqrt{2}\\,i}{6} = -\\dfrac{1}{3} \\pm \\dfrac{\\sqrt{2}}{3}i$.
@@ -575,6 +587,8 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 2. $(x^2+4)(x-1) = 0$ có mấy nghiệm?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phân tích nhân tử rồi đếm nghiệm từng nhân tử — tổng phải bằng bậc.
 
 1. Bậc 3 → 3 nghiệm. $x(x^2+1)=0$ → $x = 0, i, -i$.
 2. Bậc 3 → 3 nghiệm: $x = \\pm 2i$ (từ $x^2+4=0$) và $x = 1$.

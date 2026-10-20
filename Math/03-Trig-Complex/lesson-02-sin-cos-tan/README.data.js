@@ -98,6 +98,8 @@ Cho điểm M trên đường tròn đơn vị, ứng với góc $\\theta$:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: định vị điểm trên đường tròn đơn vị rồi đọc tọa độ.
+
 1. $\\theta = \\frac{3\\pi}{2}$ → điểm $(0, -1)$ (dưới cùng). $\\cos\\frac{3\\pi}{2} = 0$, $\\sin\\frac{3\\pi}{2} = -1$.
 2. Không. Nếu cả hai bằng 0.8 thì $\\cos^2 + \\sin^2 = 0.64 + 0.64 = 1.28 \\neq 1$, vi phạm hệ thức Pythagore.
 
@@ -246,6 +248,8 @@ Từ 3 góc lõi cộng quy tắc dấu (mục 6), suy ra tọa độ điểm M 
 2. $\\tan 60^\\circ$ bằng mấy? (gợi ý: sin/cos)
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tra bảng góc đặc biệt; cos GIẢM khi góc tăng trong phần tư I.
 
 1. $\\cos 45^\\circ = \\frac{\\sqrt{2}}{2} \\approx 0.707$, nhỏ hơn $\\cos 30^\\circ = \\frac{\\sqrt{3}}{2} \\approx 0.866$ (cos giảm khi góc tăng).
 2. $\\tan 60^\\circ = \\frac{\\sin 60^\\circ}{\\cos 60^\\circ} = \\frac{\\sqrt{3}/2}{1/2} = \\sqrt{3} \\approx 1.732$.
@@ -447,6 +451,8 @@ tan lao từ $-\\infty$ lên $+\\infty$ trong mỗi khoảng rộng $\\pi$, đ�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: cực đại của cos tại chỗ điểm chạy qua $(1, 0)$; tan vỡ khi cos = 0.
+
 1. Tại $x = k\\cdot 2\\pi$ ($0, 2\\pi, 4\\pi, -2\\pi, \\ldots$) — nơi điểm ở mép phải đường tròn $(1, 0)$.
 2. Tại $x = \\frac{\\pi}{2}$ và $x = \\frac{3\\pi}{2}$ (những chỗ $\\cos x = 0$).
 
@@ -495,6 +501,8 @@ $$y = A\\cdot\\sin(\\omega\\cdot x + \\varphi) + k$$
 2. Giá trị lớn nhất và nhỏ nhất của $y = 2\\cdot\\sin(x) + 5$ là bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đọc $A$ ngay trước sin; chu kỳ $T = 2\\pi/\\omega$.
 
 1. Biên độ $A = 4$; $\\omega = \\pi$ → $T = \\frac{2\\pi}{\\pi} = 2$.
 2. $\\sin$ chạy trong $[-1, 1]$ → $y$ chạy từ $2\\cdot(-1)+5 = 3$ đến $2\\cdot 1+5 = 7$. Max = 7, min = 3.
@@ -575,6 +583,8 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\\theta$; c�
 2. $\\tan\\theta$ trong tam giác đó?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: SOH-CAH-TOA; cạnh còn lại tính bằng Pythagoras.
 
 1. $\\sin\\theta = \\frac{5}{13}$. Cạnh kề $= \\sqrt{13^2 - 5^2} = \\sqrt{144} = 12$ → $\\cos\\theta = \\frac{12}{13}$.
 2. $\\tan\\theta = $ đối/kề $= \\frac{5}{12}$.
@@ -669,6 +679,8 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\\theta$; c�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: xác định phần tư trước, rồi tra bảng dấu ASTC.
+
 1. $200^\\circ \\in (180^\\circ, 270^\\circ)$ → phần tư **III**: sin −, cos −, tan +.
 2. cos + (phải I hoặc IV), sin − (phải III hoặc IV) → giao là phần tư **IV**.
 
@@ -721,6 +733,8 @@ Mấu chốt: cạnh **đối** là cạnh KHÔNG chạm vào góc $\\theta$; c�
 2. Giải $\\cos x = \\frac{\\sqrt{2}}{2}$ trong $[0, 2\\pi]$ — có mấy nghiệm, là những góc nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: arccos trả góc trong $[0^\\circ, 180^\\circ]$; giải phương trình thì nhớ nghiệm đối xứng $\\pm\\alpha$.
 
 1. Tìm $\\theta \\in [0^\\circ, 180^\\circ]$ có $\\cos\\theta = -1$ ⟶ $\\theta = 180^\\circ = \\pi$. Vậy $\\arccos(-1) = \\pi$.
 2. Giá trị chính $\\arccos(\\frac{\\sqrt{2}}{2}) = 45^\\circ$ (QI). cos dương ở QI và QIV ⟶ nghiệm thứ hai $360^\\circ - 45^\\circ = 315^\\circ$. Hai nghiệm: $45^\\circ$ và $315^\\circ$ (tức $\\frac{\\pi}{4}$ và $\\frac{7\\pi}{4}$).

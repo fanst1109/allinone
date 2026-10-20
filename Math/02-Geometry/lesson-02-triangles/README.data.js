@@ -170,6 +170,8 @@ $$\\hat{B} + \\hat{A} + \\hat{C} = 180^\\circ \\quad ✓$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: kiểm bất đẳng thức tam giác: tổng 2 cạnh ngắn phải LỚN HƠN HẲN cạnh dài; câu 2 dùng tổng góc $180^\\circ$.
+
 1. (a) $4+5=9 > 8$ ✓ → được. (b) $3+4=7 = 7$ → suy biến (thẳng hàng), không được. (c) $2+2=4 < 5$ → không được.
 2. $180 - 50 - 70 =$ **$60^\\circ$**.
 
@@ -290,6 +292,8 @@ Lưu ý ví dụ thứ 2 vs thứ 3: cùng là tam giác **cân** đáy khác nh
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: phân loại theo góc (có $90^\\circ$?) và theo cạnh (mấy cạnh bằng nhau?) — hai trục độc lập.
+
 1. Vuông (có góc $90^\\circ$) + cân (2 góc $45^\\circ$ bằng → 2 cạnh bằng) → "tam giác vuông cân".
 2. Không. Đều → 3 góc đều $60^\\circ$ → không có góc $90^\\circ$.
 
@@ -396,6 +400,8 @@ Có thêm: **AAS** (2 góc + 1 cạnh không kẹp giữa — vẫn xác định
 2. Hai tam giác có 3 cặp góc bằng nhau. Bằng nhau hay chỉ đồng dạng?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: so dữ kiện với 4 trường hợp bằng nhau (SSS/SAS/ASA/AAS); 3 góc bằng nhau chỉ cho đồng dạng.
 
 1. Bằng nhau, theo **SAS** (cạnh–góc kẹp–cạnh).
 2. Chỉ **đồng dạng** (AAA không xác định kích thước).
@@ -522,6 +528,8 @@ Phản ví dụ: 2 tam giác cùng 3 góc $\\{40^\\circ, 60^\\circ, 80^\\circ\\}
 2. Tam giác có góc $40^\\circ$ và $60^\\circ$, tam giác kia có góc $60^\\circ$ và $80^\\circ$. Đồng dạng không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tỉ số diện tích = bình phương tỉ số cạnh; câu 2 tính góc thứ ba rồi so bộ góc.
 
 1. $(5/2)^2 =$ **$25/4$** $= 6.25$.
 2. Tam giác 1: góc thứ 3 $= 80^\\circ$ → bộ góc {40, 60, 80}. Tam giác 2: thứ 3 $= 40^\\circ$ → {60, 80, 40} = cùng bộ → **đồng dạng** (AA).
@@ -666,6 +674,8 @@ Nếu $c^2 = a^2 + b^2$ (với $c$ là cạnh dài nhất) thì tam giác **vuô
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Pythagoras xuôi để tính cạnh, Pythagoras ngược để kiểm vuông.
+
 1. $c = \\sqrt{81 + 144} = \\sqrt{225} =$ **15** (bộ 9-12-15 $= 3\\cdot(3$-$4$-$5)$).
 2. $7^2 + 24^2 = 49 + 576 = 625 = 25^2$ ✓ → **vuông**.
 
@@ -809,6 +819,8 @@ $$S = \\tfrac{1}{2}\\cdot 4\\cdot 4\\cdot \\tfrac{\\sqrt3}{2} = 4\\sqrt3 \\appro
 2. Tam giác có 2 cạnh 10 và 6, góc kẹp $30^\\circ$. Diện tích?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Heron cần nửa chu vi $s$ trước; câu 2 dùng công thức $\\tfrac12 ab\\sin C$.
 
 1. $s = (13+14+15)/2 = 21$. $S = \\sqrt{21\\cdot 8\\cdot 7\\cdot 6} = \\sqrt{7056} =$ **84**.
 2. $S = \\frac{1}{2}\\cdot 10\\cdot 6\\cdot\\sin 30^\\circ = \\frac{1}{2}\\cdot 10\\cdot 6\\cdot 0.5 =$ **15**.
@@ -969,6 +981,8 @@ Mỗi tam giác có 4 họ "đường đặc biệt", mỗi họ gồm 3 đườ
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nghĩ xem đường nào chia ĐÁY thành hai nửa bằng nhau trong khi chiều cao chung.
+
 1. **Trung tuyến** (2 nửa cùng đáy nửa-cạnh, cùng chiều cao → cùng diện tích).
 2. Chỉ **1** — trong tam giác đều, trung tuyến, đường cao, phân giác (và cả trung trực cạnh đối) từ 1 đỉnh **trùng làm một**.
 
@@ -1066,6 +1080,8 @@ $$R = \\frac{abc}{4S}$$
 2. Bán kính đường tròn ngoại tiếp tam giác 6-8-10?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: trọng tâm = trung bình cộng tọa độ 3 đỉnh; câu 2 nhận ra tam giác vuông trước.
 
 1. $G = \\left(\\frac{0+9+0}{3}, \\frac{0+0+6}{3}\\right) = (3, 2)$.
 2. Tam giác 6-8-10 vuông ($36+64=100$) ⇒ $R = $ nửa cạnh huyền $= 10/2 = \\textbf{5}$. Kiểm bằng công thức: $R = \\frac{6\\cdot8\\cdot10}{4\\cdot 24} = \\frac{480}{96} = 5$ ✓.

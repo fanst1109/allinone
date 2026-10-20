@@ -91,6 +91,8 @@ Lưu ý $A(3,4)$ là bộ ba Pythagore $3$-$4$-$5$ kinh điển — luôn nằm 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: so khoảng cách tới tâm với $R$: nhỏ hơn là trong, bằng là trên, lớn hơn là ngoài.
+
 1. M **trên** đường tròn ($= R$); N **ngoài** ($> R$).
 2. Đường kính, dài $2R =$ **12**.
 
@@ -147,6 +149,8 @@ trong đó **$\pi \approx 3.14159$**.
 2. Tăng bán kính gấp 3 thì diện tích tăng mấy lần?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: chu vi $C = \pi D$; diện tích tỉ lệ bình phương bán kính.
 
 1. $C = \pi D = (22/7)\cdot 14 =$ **44**.
 2. Diện tích tỉ lệ $R^2$ → tăng $3^2 =$ **9 lần**.
@@ -221,6 +225,8 @@ $$S_\text{quạt} = \tfrac12 R^2\theta = \tfrac12\cdot 16\cdot \frac{\pi}{2} = 4
 2. $R = 5$, hình quạt có góc ở tâm $\pi/5$ rad. Tính diện tích quạt.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: cung = (góc/360°) nhân chu vi; quạt rad dùng $S = \tfrac12 R^2\theta$.
 
 1. $\ell = \frac{40}{360}\cdot 2\pi\cdot 9 = \frac19\cdot 18\pi = 2\pi \approx$ **6.28**.
 2. $S = \tfrac12\cdot 5^2\cdot \frac{\pi}{5} = \tfrac12\cdot 25\cdot\frac{\pi}{5} = \tfrac{25\pi}{10} = \tfrac{5\pi}{2} \approx$ **7.85**.
@@ -354,6 +360,8 @@ Dòng $d = 0$ xác nhận: dây đi qua tâm dài nhất, bằng đường kính
 2. Tiếp tuyến tạo với bán kính (tại tiếp điểm) góc bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: so khoảng cách tâm–đường với $R$; tiếp tuyến luôn vuông góc bán kính tại tiếp điểm.
 
 1. Khoảng cách $= R$ → **tiếp tuyến**.
 2. **$90^\circ$** (vuông góc).
@@ -534,6 +542,8 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: góc nội tiếp = nửa góc ở tâm cùng chắn cung.
+
 1. $70^\circ/2 =$ **$35^\circ$**.
 2. **$90^\circ$** (góc nội tiếp chắn đường kính — định lý Thales).
 
@@ -574,6 +584,8 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 2. Hình thoi (không vuông) có nội tiếp đường tròn được không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tứ giác nội tiếp có hai góc đối bù nhau; câu 2 hỏi ngược — điều kiện nội tiếp là gì?
 
 1. D đối B → $D = 180 - 95 =$ **$85^\circ$**.
 2. Không — 2 góc đối của hình thoi bằng nhau, tổng $\neq 180^\circ$ trừ khi là hình vuông.
@@ -617,6 +629,8 @@ Cho góc nội tiếp ABC chắn cung AC. Vẽ đường kính BD qua tâm O.
 2. Tam giác đều có quan hệ gì giữa R ngoại tiếp và r nội tiếp?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhớ hệ quả góc nội tiếp chắn nửa đường tròn là góc vuông — đọc ngược lại.
 
 1. Trung điểm cạnh huyền (vì cạnh huyền là đường kính — góc vuông chắn đường kính).
 2. $R = 2r$ (bán kính ngoại tiếp gấp đôi nội tiếp).
@@ -756,6 +770,8 @@ $$PT^2 = PA\cdot PB = 2\cdot 8 = 16 \Rightarrow PT = \mathbf{4}.$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dùng phương tích: $PT^2 = PA\cdot PB$.
+
 1. $PT^2 = PA\cdot PB \Rightarrow 36 = 4\cdot PB \Rightarrow PB = $ **9**.
 2. $PT = \sqrt{d^2 - R^2} = \sqrt{100 - 36} = \sqrt{64} = $ **8**.
 
@@ -866,6 +882,8 @@ $$\Rightarrow (x-3)^2 + (y-5)^2 = 13.$$
 2. Đưa $x^2 + y^2 + 2x - 8y + 8 = 0$ về dạng chính tắc.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đọc tâm và $R$ thẳng từ dạng chuẩn; câu 2 hoàn thành bình phương từng biến.
 
 1. Tâm $I(4, -1)$, $R = \sqrt{49} = $ **7**.
 2. $(x^2 + 2x + 1) + (y^2 - 8y + 16) = -8 + 1 + 16 = 9 \Rightarrow (x+1)^2 + (y-4)^2 = 9$ → tâm $I(-1, 4)$, $R = $ **3**.

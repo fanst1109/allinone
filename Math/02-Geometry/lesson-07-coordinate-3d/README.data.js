@@ -236,6 +236,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Pythagoras 3 chiều — cộng bình phương CẢ BA hiệu tọa độ; tích vô hướng cộng từng cặp tích.
+
 1. $d = \\sqrt{2^2+3^2+0^2} = \\sqrt{13} \\approx$ **3.61**.
 2. $u\\cdot v = 2 - 4 + 2 = $ **0** → **vuông góc**.
 
@@ -334,6 +336,8 @@ $$d = \\frac{|Ax_0 + By_0 + Cz_0 + D|}{\\sqrt{A^2 + B^2 + C^2}}$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: pháp tuyến đọc thẳng từ hệ số $x, y, z$; khoảng cách dùng công thức $|ax_0+by_0+cz_0+d|/\\lVert n\\rVert$.
+
 1. $n = $ **(1, −2, 2)**.
 2. $d = \\frac{|0-0+0+3|}{\\sqrt{1+4+4}} = \\frac{3}{3} = $ **1**.
 
@@ -382,6 +386,8 @@ $$\\frac{x - x_0}{a} = \\frac{y - y_0}{b} = \\frac{z - z_0}{c}$$
 2. Điểm $(4,-2,5)$ có nằm trên đường đó không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tham số hoá: điểm + $t$ lần vector chỉ phương, viết riêng từng tọa độ.
 
 1. $x = 2+t$, $y = -t$, $z = 1+2t$.
 2. Từ x: $4 = 2+t \\to t=2$. Kiểm y: $-2 = -2$ ✓; z: $1+4 = 5$ ✓ → **có nằm trên** ($t=2$).
@@ -434,6 +440,8 @@ $$\\frac{x - x_0}{a} = \\frac{y - y_0}{b} = \\frac{z - z_0}{c}$$
 2. 2D có khả năng "chéo nhau" giữa 2 đường không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: so chỉ phương của đường với pháp tuyến của mặt: song song nhau nghĩa là đường đâm vuông góc vào mặt.
 
 1. $u \\parallel n$ → đường **vuông góc** với mặt phẳng.
 2. Không — chéo nhau là đặc thù 3D. Trong mặt phẳng, 2 đường chỉ cắt hoặc song song (hoặc trùng).

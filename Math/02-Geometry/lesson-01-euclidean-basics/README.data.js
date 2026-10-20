@@ -109,6 +109,8 @@ Ký hiệu: $\\angle AOB$ (hoặc $\\widehat{AOB}$), **đỉnh viết ở giữa
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nhớ định nghĩa tia đối nhau; câu đếm dùng tổ hợp cặp điểm $C(n,2)$.
+
 1. Hợp thành 1 **đường thẳng** (2 tia đối nhau ghép lại). Góc giữa chúng $= 180^\\circ$ (góc bẹt).
 2. 3 đường: AB, AC, BC. (Mỗi cặp 2 điểm cho 1 đường; có $C(3,2) = 3$ cặp.)
 3. Đoạn thẳng: mỗi cặp 2 điểm cho 1 đoạn → $C(4,2) = 6$ đoạn (AB, AC, AD, BC, BD, CD). Tia gốc A đi theo chiều có B, C, D: chỉ **1 tia** (mọi điểm cùng phía, cùng nằm trên 1 tia).
@@ -211,6 +213,8 @@ Ví dụ số trên mặt cầu: tam giác có 3 đỉnh là Bắc Cực + 2 đi
 3. Trong hình học hyperbolic (Lobachevsky), qua 1 điểm ngoài đường thẳng có bao nhiêu đường song song? Tổng 3 góc tam giác so với $180^\\circ$?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: dò lại bảng 5 tiên đề; hai câu sau là hình học phi Euclid — so tổng góc với $180^\\circ$.
 
 1. Tiên đề 3.
 2. **Lớn hơn** $180^\\circ$ (hình học cầu — phi Euclid). Vd tam giác có 3 đỉnh tạo bởi 3 góc vuông trên cầu có tổng $= 270^\\circ$.
@@ -480,6 +484,8 @@ Kiểm tra góc phụ: $2(40)-30 = 50^\\circ$, và $40 + 50 = 90^\\circ$ ✓. G�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: bù là đủ $180^\\circ$, phụ là đủ $90^\\circ$; các câu sau lập phương trình từ quan hệ góc (kề bù cộng $180$, đồng vị bằng nhau).
+
 1. Bù $= 180 - 63 =$ **$117^\\circ$**; phụ $= 90 - 63 =$ **$27^\\circ$**.
 2. Trong cùng phía bù nhau → $180 - 130 =$ **$50^\\circ$**.
 3. Kề bù → $4x + (5x+9) = 180 \\Rightarrow 9x = 171 \\Rightarrow x = 19$. Góc $= 4(19) = 76^\\circ$; kề bù $= 5(19)+9 = 104^\\circ$. Kiểm tra $76 + 104 = 180$ ✓. Bốn góc: **$76^\\circ, 104^\\circ, 76^\\circ, 104^\\circ$** (đối đỉnh từng cặp).
@@ -585,6 +591,8 @@ Kiểm tra góc phụ: $2(40)-30 = 50^\\circ$, và $40 + 50 = 90^\\circ$ ✓. G�
 2. Ký hiệu $\\perp$ và $\\parallel$ lần lượt nghĩa là gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: vẽ nháp 3 đường — hai góc vuông với cùng một đường cho cặp góc đồng vị bằng nhau.
 
 1. $a \\parallel b$ (song song) — hai đường cùng vuông góc với đường thứ 3 trong mặt phẳng thì song song.
 2. $\\perp$ = vuông góc (góc $90^\\circ$); $\\parallel$ = song song (không cắt nhau).

@@ -42,6 +42,8 @@ window.README_MD = `# Lesson 08 — Biến hình & Vector hình học
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: phép dời hình phải GIỮ NGUYÊN khoảng cách — soi từng phép xem có đổi kích thước không.
+
 1. Vị tự k=2 (đổi kích thước → $A'B' = 2\\cdot AB \\neq AB$). Tịnh tiến và quay giữ khoảng cách.
 2. Có — dời hình giữ khoảng cách nên giữ cả góc và diện tích.
 
@@ -160,6 +162,8 @@ Kiểm tra bằng vector tổng: $u + w = (3-1,\\ -2+5) = (2, 3)$, nên $T_w \\c
 2. Tịnh tiến nào biến gốc O(0,0) về điểm (7, −3)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tịnh tiến là cộng vector vào tọa độ.
 
 1. $(5-4, 1+6) = $ **(1, 7)**.
 2. $v = $ **(7, −3)** (vì $O + v = (7,-3)$).
@@ -292,6 +296,8 @@ Về đúng điểm gốc. Bằng ma trận: $\\begin{bmatrix} 1 & 0 \\\\ 0 & -1
 2. M(4, 1) đối xứng qua y = x thành điểm nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đối xứng qua Oy đổi dấu $x$; qua O đổi dấu cả hai; qua $y=x$ hoán đổi tọa độ.
 
 1. Qua Oy: $(2, 7)$ (đổi dấu x). Qua O: $(2, -7)$ (đổi dấu cả hai).
 2. $(1, 4)$ (đổi chỗ tọa độ).
@@ -442,6 +448,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: áp công thức quay $x' = x\\cos\\theta - y\\sin\\theta$, $y' = x\\sin\\theta + y\\cos\\theta$.
+
 1. $x' = 0\\cdot\\cos 90 - 1\\cdot\\sin 90 = -1$; $y' = 0\\cdot\\sin 90 + 1\\cdot\\cos 90 = 0 \\to$ **(−1, 0)**.
 2. Quay $180^\\circ$ = đổi dấu cả hai → **(−2, 0)**.
 
@@ -555,6 +563,8 @@ $\\begin{bmatrix} k & 0 \\\\ 0 & k \\end{bmatrix}\\begin{bmatrix} x \\\\ y \\end
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: vị tự tâm O nhân tọa độ với $k$; đường tròn thì bán kính nhân $|k|$.
+
 1. $(3\\cdot 2, 3\\cdot(-1)) = $ **(6, −3)**.
 2. Bán kính 8 ($= 4\\cdot 2$); diện tích tăng $2^2 = $ **4 lần**.
 
@@ -626,6 +636,8 @@ Chứng minh:
 2. $u = (3, 1)$, $v = (-1, 4)$. Tính u + v và 2u.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: $\\vec{AB}$ = tọa độ B trừ A; độ dài là Pythagoras.
 
 1. $\\vec{AB} = (3, 4)$; $|\\vec{AB}| = \\sqrt{9+16} = $ **5**.
 2. $u + v = (2, 5)$; $2u = (6, 2)$.
@@ -712,6 +724,8 @@ $$= \\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix} = R(90°)$$ ✓
 2. $R(90°) \\cdot R(90°) = ?$ Phép gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhân hai ma trận theo thứ tự phép sau nhân BÊN TRÁI; đoán hình học trước rồi kiểm bằng đại số.
 
 1. $\\begin{bmatrix} 1 & 0 \\\\ 0 & -1 \\end{bmatrix}\\begin{bmatrix} -1 & 0 \\\\ 0 & 1 \\end{bmatrix} = \\begin{bmatrix} -1 & 0 \\\\ 0 & -1 \\end{bmatrix}$ = đối xứng tâm O (= quay $180°$). Hợp 2 đối xứng trục vuông góc = đối xứng tâm.
 2. $\\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix}^2 = \\begin{bmatrix} -1 & 0 \\\\ 0 & -1 \\end{bmatrix} = R(180°)$ (cộng góc $90°+90°$). 

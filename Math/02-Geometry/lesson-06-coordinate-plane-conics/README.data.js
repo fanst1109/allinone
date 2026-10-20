@@ -192,6 +192,8 @@ $$a = \\frac{\\Delta y}{\\Delta x} = \\frac{y_2 - y_1}{x_2 - x_1} \\quad (x_1 \\
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: khoảng cách = Pythagoras trên hiệu tọa độ; trung điểm = trung bình cộng.
+
 1. $d = \\sqrt{6^2+8^2} = \\sqrt{100} = $ **10**. $M = \\left(\\frac{1+7}{2}, \\frac{2+10}{2}\\right) = $ **(4, 6)**.
 2. $\\sqrt{36+64} = \\sqrt{100} = $ **10**.
 
@@ -313,6 +315,8 @@ $$\\frac{y - y_1}{x - x_1} = \\frac{y_2 - y_1}{x_2 - x_1}$$
 2. Đường y = 3x + 1 và y = ax − 2 vuông góc. Tìm a.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: dạng điểm–hệ số góc $y - y_0 = m(x - x_0)$; song song thì cùng $m$.
 
 1. $y - 3 = -2(x - 0) \\to y = $ **−2x + 3**.
 2. $3\\cdot a = -1 \\to a = $ **−1/3**.
@@ -701,6 +705,8 @@ $$\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1$$
 3. Parabol $y^2 = 12x$. Tìm tiêu điểm và đường chuẩn.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đọc $a, b$ từ mẫu số; $c$ từ $c^2 = a^2 - b^2$ (ellipse) hay $a^2 + b^2$ (hyperbola).
 
 1. $a^2=16 \\to a=4$, $b^2=4 \\to b=2$, $c = \\sqrt{16-4} = \\sqrt{12} = 2\\sqrt{3} \\approx 3.46$. $e = \\frac{2\\sqrt{3}}{4} = \\frac{\\sqrt{3}}{2} \\approx$ **0.87**.
 2. $a^2=9 \\to a=3$, $b^2=16 \\to b=4$, $c = \\sqrt{9+16} = $ **5**. Tiệm cận $y = \\pm\\frac{4}{3}x$.

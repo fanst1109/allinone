@@ -214,6 +214,8 @@ Chỉ có **5 khối đa diện đều** trong không gian 3D:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: công thức Euler $V - E + F = 2$ — thế hai đại lượng đã biết.
+
 1. $V-E+F=2$ → $6-E+5 = 2$ → $E = $ **9**.
 2. $6-E+8 = 2$ → $E = $ **12**. (Hoặc: 8 mặt $\\times$ 3 cạnh $/ 2 = 12$.)
 
@@ -377,6 +379,8 @@ Nếu quên ⅓ sẽ ra $360$ (gấp 3 lần — sai).
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: chóp lấy $\\tfrac13$ đáy nhân cao; cầu dùng $\\tfrac43\\pi R^3$.
+
 1. $V = \\frac{1}{3}\\cdot(6^2)\\cdot 10 = \\frac{1}{3}\\cdot 36\\cdot 10 = $ **120**.
 2. $V = \\frac{4}{3}\\pi\\cdot 3^3 = \\frac{4}{3}\\pi\\cdot 27 = $ **36π ≈ 113.1**.
 
@@ -522,6 +526,8 @@ Cầu không có "xung quanh/toàn phần" riêng — chỉ 1 mặt cong duy nh�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: lập phương 6 mặt vuông; nón tính đường sinh bằng Pythagoras trước rồi mới ráp diện tích.
+
 1. $S = 6\\cdot 4^2 = 6\\cdot 16 = $ **96**.
 2. $l = \\sqrt{36+64} = \\sqrt{100} = 10$. $S_{xq} = \\pi\\cdot 6\\cdot 10 = $ **60π ≈ 188.5**.
 
@@ -609,6 +615,8 @@ $$r = \\sqrt{R^2 - d^2} = \\sqrt{25 - 9} = \\sqrt{16} = 4$$
 2. Cầu $R=13$, cắt cách tâm $d=5$ — bán kính lát cắt?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tưởng tượng lát cắt: vuông góc trục trụ cho hình gì? cắt qua tâm cầu cho hình gì?
 
 1. **Hình tròn** bán kính 4, diện tích $\\pi\\cdot 4^2 = 16\\pi \\approx 50.3$.
 2. $r = \\sqrt{13^2 - 5^2} = \\sqrt{169-25} = \\sqrt{144} = $ **12**.

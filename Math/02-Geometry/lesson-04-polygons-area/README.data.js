@@ -251,6 +251,8 @@ $$\\text{Tổng góc ngoài (bất kỳ đa giác lồi)} = 360^\\circ$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tổng góc trong $= (n-2)\\cdot 180^\\circ$; đa giác đều thì chia đều cho $n$ góc.
+
 1. $(6-2)\\cdot 180 =$ **$720^\\circ$**. Mỗi góc đều $= 720/6 =$ **$120^\\circ$**.
 2. $(n-2)\\cdot 180/n = 150$ → $180n - 360 = 150n$ → $30n = 360$ → $n =$ **12** (thập nhị giác).
 
@@ -577,6 +579,8 @@ $$S = \\frac{1}{2}\\left|32 - 3\\right| = \\frac{1}{2}\\cdot 29 = \\mathbf{14.5}
 3. Dùng Shoelace tính diện tích tam giác $(0,0), (6,0), (0,4)$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hình thang lấy trung bình hai đáy nhân cao; hình thoi dùng Pythagoras tìm nửa đường chéo kia.
 
 1. $S = \\frac{1}{2}(3+7)\\cdot 5 = \\frac{1}{2}\\cdot 10\\cdot 5 =$ **25**.
 2. Nửa đường chéo 1 $= 3$; nửa đường chéo 2 $= \\sqrt{5^2-3^2} = 4$ → đường chéo 2 $= 8$. $S = \\frac{1}{2}\\cdot 6\\cdot 8 =$ **24**.

@@ -41,7 +41,7 @@ Chạy FFT lên cả 1 giây của A và của B, bạn nhận được phổ **
 - *"Vì sao FFT lại mất thông tin thời gian?"* — Vì DFT/FFT tính $X[k] = \sum_{n=0}^{N-1} x[n] e^{-i 2\pi k n / N}$ trên **toàn bộ** $N$ mẫu. Mỗi $X[k]$ là một con số tổng hợp trên cả khoảng; thời điểm $n$ bị "tổng" mất, chỉ còn biên độ + pha tổng của tần số $k$.
 - *"Pha của FFT chẳng phải mã hóa thời gian sao?"* — Pha mã hóa **độ dịch (shift)** của thành phần sin tuần hoàn so với gốc, không phải "tần số này chỉ tồn tại trong khoảng giây nào". Với tín hiệu mà tần số biến đổi (non-stationary), pha toàn cục gần như vô dụng để đọc thời điểm.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao FFT của "440 rồi 880" và "440+880 cùng lúc" lại giống nhau?
 2. Ý tưởng cốt lõi để khôi phục thông tin thời gian là gì?
 
@@ -108,7 +108,7 @@ Kết quả: **các khung 0–15** (≈ 0–0.5 s) có đỉnh năng lượng �
 
 ⚠ **Lỗi thường gặp.** Tưởng STFT là một biến đổi mới hoàn toàn. Không — STFT chỉ là **DFT/FFT lặp lại trên từng khung có cửa sổ**. Nếu hiểu FFT thì STFT chỉ thêm hai ý: cửa sổ + trượt khung.
 
-🔁 **Dừng lại tự kiểm tra.** Với $f_s = 16000$ Hz, $N = 512$: mỗi khung dài bao nhiêu ms? $\Delta f$ bằng bao nhiêu?
+🔁 **Thực hành.** Với $f_s = 16000$ Hz, $N = 512$: mỗi khung dài bao nhiêu ms? $\Delta f$ bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
 
@@ -171,7 +171,7 @@ Hai biên = 1 → bước nhảy lớn nhất khi "dán" → rò rỉ nhiều nh
 
 ⚠ **Lỗi thường gặp — chọn window.** Không có cửa sổ "tốt nhất tuyệt đối". Rectangular tốt khi tín hiệu khít chu kỳ trong khung (hiếm) hoặc cần phân giải hai tần số *rất sát nhau*. Với tín hiệu thực (giọng nói, nhạc), mặc định dùng **Hann**. Đừng mặc định rectangular chỉ vì "không làm gì" — nó là cửa sổ tệ nhất về rò rỉ.
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao Hann có $w[0] = w[N-1] = 0$ còn rectangular thì không? Điều đó ảnh hưởng gì?
+🔁 **Thực hành.** Vì sao Hann có $w[0] = w[N-1] = 0$ còn rectangular thì không? Điều đó ảnh hưởng gì?
 
 <details><summary>Đáp án</summary>
 
@@ -246,7 +246,7 @@ Chú ý: $\Delta t \cdot \Delta f = 1$ ở cả ba hàng ($5.8\text{ms}\times172
 - *"Vậy zero-padding (đệm 0 cho khung dài hơn) có giúp không?"* — Zero-padding làm phổ trông *mịn hơn* (nội suy nhiều bin hơn) nhưng **không tăng phân giải thực**: vẫn không tách được hai tần số mà khung gốc không tách nổi. Nó chỉ vẽ đẹp, không thêm thông tin.
 - *"Wavelet thì sao?"* — Wavelet dùng cửa sổ *thay đổi độ rộng theo tần số* (ngắn cho tần số cao, dài cho tần số thấp), né được phần nào sự cứng nhắc của STFT một-độ-rộng. Nhưng vẫn không phá vỡ bất định, chỉ phân bổ nó khác đi.
 
-🔁 **Dừng lại tự kiểm tra.** Cần phân biệt hai nốt cách 5 Hz, $f_s = 8000$ Hz. $N$ tối thiểu là bao nhiêu? Khung đó dài bao nhiêu ms?
+🔁 **Thực hành.** Cần phân biệt hai nốt cách 5 Hz, $f_s = 8000$ Hz. $N$ tối thiểu là bao nhiêu? Khung đó dài bao nhiêu ms?
 
 <details><summary>Đáp án</summary>
 
@@ -285,7 +285,7 @@ $L = 44100$ (1 giây @ 44.1k), $N = 1024$:
 
 ⚠ **Nhắc lại (mục 4):** nhiều cột hơn ≠ phân giải thời gian tốt hơn. Mỗi cột vẫn nhìn qua khung rộng $N/f_s$. Overlap chỉ làm *vẽ dày hơn*.
 
-🔁 **Dừng lại tự kiểm tra.** $N = 2048, H = 512$: overlap bao nhiêu %?
+🔁 **Thực hành.** $N = 2048, H = 512$: overlap bao nhiêu %?
 
 <details><summary>Đáp án</summary>
 

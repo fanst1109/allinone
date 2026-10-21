@@ -141,7 +141,7 @@ Hợp lệ (cấu trúc đúng) nhưng không đúng đắn vì tiền đề 1 s
 | Khẳng định hậu kiện (v.d. 3) | ✗ | ✓ | ✗ | Không đảm bảo |
 | Không liên quan (v.d. 4) | ✗ | ✓ | ✗ | Trùng hợp |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Lập luận sau hợp lệ hay không? Đúng đắn hay không?
 > \`\`\`
 > Tiền đề 1: Mọi sinh viên chăm chỉ đều thi đậu.

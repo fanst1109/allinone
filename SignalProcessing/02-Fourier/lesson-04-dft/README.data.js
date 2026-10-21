@@ -152,7 +152,7 @@ $$x[0] = \\frac14\\sum_{k=0}^{3} X[k]\\,e^{+i2\\pi k\\cdot 0/4} = \\frac14(0 + 2
 Kiểm $x[1]$: $e^{+i2\\pi k/4} = 1, i, -1, -i$ cho $k=0,1,2,3$:
 $$x[1] = \\tfrac14\\big(0\\cdot1 + 2\\cdot i + 0\\cdot(-1) + 2\\cdot(-i)\\big) = \\tfrac14(2i - 2i) = 0 = x[1]\\;\\checkmark$$
 
-🔁 **Dừng lại tự kiểm tra.** Tính $X[1]$ cho dãy $x=[1,1,1,1]$.
+🔁 **Thực hành.** Tính $X[1]$ cho dãy $x=[1,1,1,1]$.
 <details><summary>Đáp án</summary>
 
 $X[1] = 1\\cdot1 + 1\\cdot(-i) + 1\\cdot(-1) + 1\\cdot i = (1-1) + (-i+i) = 0$. Tín hiệu hằng chỉ có thành phần DC; mọi bin $k\\neq 0$ đều bằng 0. (Và $X[0] = 4$.)
@@ -193,7 +193,7 @@ $$\\boxed{\\,f_k = k \\cdot \\frac{f_s}{N}\\,} \\quad\\text{(Hz)}, \\qquad \\tex
 
 ❓ **Câu hỏi tự nhiên.** *"Bin $k$ lớn (gần $N$) là tần số rất cao à?"* — Không hẳn. Với tín hiệu **thực**, các bin từ $N/2{+}1$ đến $N-1$ là "ảnh gương" của nửa đầu (xem §5). Chỉ bin $0$ đến $N/2$ mang tần số "thật" từ 0 đến $f_s/2$ (Nyquist). Bin $N{-}1$ thực chất tương ứng tần số $-\\Delta f$, không phải tần số cao nhất.
 
-🔁 **Dừng lại tự kiểm tra.** $f_s = 16000$ Hz, $N = 32$. (a) $\\Delta f$? (b) Bin của 2000 Hz?
+🔁 **Thực hành.** $f_s = 16000$ Hz, $N = 32$. (a) $\\Delta f$? (b) Bin của 2000 Hz?
 <details><summary>Đáp án</summary>
 
 (a) $\\Delta f = 16000/32 = 500$ Hz. (b) $k = f/\\Delta f = 2000/500 = 4$ $\\to$ bin 4.

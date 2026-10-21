@@ -34,7 +34,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Ngưỡng phân nhánh là **khối lượng ban đầu** của sao trên dãy chính, không phải khối lượng lúc chết. Sao mất rất nhiều khối lượng qua gió sao và tinh vân hành tinh trước khi chết, nên một sao sinh ra 8 M☉ có thể chỉ còn lõi ~1 M☉ khi thành lùn trắng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai sao: A = 2 M☉, B = 15 M☉. Cái nào kết thúc bằng supernova?
+> 🔁 **Thực hành.** Hai sao: A = 2 M☉, B = 15 M☉. Cái nào kết thúc bằng supernova?
 > <details><summary>Đáp án</summary>B (15 M☉ > 8 M☉) nổ supernova. A (2 M☉ < 8 M☉) kết thúc êm ả thành lùn trắng qua giai đoạn tinh vân hành tinh.</details>
 
 ---
@@ -72,7 +72,7 @@ Sau bài này bạn sẽ:
 > - *"Vì sao lùn trắng càng nặng càng NHỎ?"* — Nghịch lý của vật chất suy biến: thêm khối lượng → trọng lực mạnh hơn → nén chặt hơn → bán kính nhỏ đi. Tới 1.4 M☉ thì bán kính tiến về 0 → mất ổn định. Khác hẳn vật thường (thêm khối lượng → to ra).
 > - *"Lùn trắng nguội rồi thì thành gì?"* — Về lý thuyết thành "lùn đen" (black dwarf), nhưng quá trình nguội lâu hơn tuổi vũ trụ hiện tại (~13.8 tỉ năm) nên **chưa có lùn đen nào tồn tại**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một lõi tàn dư 1.6 M☉. Nó có thể thành lùn trắng bền không?
+> 🔁 **Thực hành.** Một lõi tàn dư 1.6 M☉. Nó có thể thành lùn trắng bền không?
 > <details><summary>Đáp án</summary>Không. 1.6 M☉ > 1.4 M☉ (giới hạn Chandrasekhar) → áp suất suy biến electron không đủ → lõi tiếp tục sụp đổ.</details>
 
 ---
@@ -124,7 +124,7 @@ Sau bài này bạn sẽ:
 > - *"Pulsar có phải sao neutron không?"* — Có. **Pulsar** là sao neutron quay rất nhanh (có cái quay >700 vòng/giây), phát chùm tia từ 2 cực; mỗi lần chùm quét qua Trái Đất ta thu được một "xung" đều đặn như hải đăng.
 > - *"Sao neutron quay nhanh thế từ đâu?"* — **Bảo toàn moment động lượng (angular momentum):** lõi từ bán kính hàng trăm nghìn km co về ~11 km → quay nhanh lên hàng triệu lần, như vận động viên trượt băng khép tay lại thì xoay tít.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một lõi tàn dư 2.5 M☉ và một lõi 4 M☉. Cái nào thành lỗ đen?
+> 🔁 **Thực hành.** Một lõi tàn dư 2.5 M☉ và một lõi 4 M☉. Cái nào thành lỗ đen?
 > <details><summary>Đáp án</summary>4 M☉ (> 3 M☉ ⇒ vượt giới hạn TOV ⇒ lỗ đen). 2.5 M☉ nằm trong 1.4–3 M☉ ⇒ sao neutron.</details>
 
 ---
@@ -139,7 +139,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng vàng/uranium được tạo trong sao bình thường. **Không** — fusion trong sao dừng ở sắt. Các nguyên tố nặng hơn sắt cần môi trường giàu neutron của supernova (hoặc sáp nhập sao neutron), không phải lò fusion thông thường.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao một sao đang đốt hydro không thể tạo ra vàng?
+> 🔁 **Thực hành.** Vì sao một sao đang đốt hydro không thể tạo ra vàng?
 > <details><summary>Đáp án</summary>Vì fusion thông thường chỉ tỏa năng lượng tới sắt; tạo nguyên tố nặng hơn sắt cần *thu* năng lượng và dòng neutron mạnh — chỉ có trong supernova / sáp nhập sao neutron.</details>
 
 ---

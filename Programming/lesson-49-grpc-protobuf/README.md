@@ -243,7 +243,7 @@ A: **Không đổi number cũ**. Thay vào đó:
 **Q: Reserve cả tên lẫn số khác nhau thế nào?**
 A: Reserve số → không ai dùng lại được số đó. Reserve tên → không ai đặt lại field cùng tên (tránh nhầm khi đọc proto cũ trong git history).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Cho proto sau:
 

@@ -45,7 +45,7 @@ Sau bài này bạn sẽ:
 - **Tưởng hạt nhân càng nặng càng bền.** Sai — bền nhất là Fe-56 ở GIỮA. U-238 nặng nhưng kém bền hơn Fe (dễ phân hạch).
 - **Lẫn $E_\text{lk}$ tổng với $E_\text{lk}$/nucleon.** U-238 có $E_\text{lk}$ tổng lớn (nhiều nucleon) nhưng $E_\text{lk}$/nucleon lại THẤP hơn Fe → so độ bền phải dùng giá trị trên mỗi nucleon.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đồng vị nào bền nhất, ở đâu trên đồ thị $E_\text{lk}$/nucleon?
 2. Ghép 2 hạt H-2 thành He-4 tỏa hay thu năng lượng? Vì sao?
@@ -113,7 +113,7 @@ Mỗi phân hạch sinh ra trung bình 2-3 neutron. Nếu mỗi neutron mới g�
 - **Lẫn lò phản ứng với bom.** Lò: dây chuyền KIỂM SOÁT (hệ số nhân ≈ 1), cháy đều tạo điện — KHÔNG nổ như bom hạt nhân. Bom: hệ số nhân > 1 không kiểm soát.
 - **Nhầm fission cần neutron nhanh.** Ngược lại — U-235 dễ phân hạch bởi neutron CHẬM, nên cần chất giảm tốc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cân bằng: $^{235}\text{U} + n \to {}^{141}\text{Ba} + {}^{92}\text{Kr} + ?\,n$. Bao nhiêu neutron sinh ra?
 2. Trong lò, để giảm tốc độ phản ứng nên đẩy thanh điều khiển VÀO hay RÚT RA?
@@ -182,7 +182,7 @@ Tại nhiệt độ này, không có vật liệu nào "chứa" được plasma.
 - **Lẫn fusion với fission.** Fusion = GHÉP hạt nhẹ (H→He, cần nhiệt độ cao). Fission = TÁCH hạt nặng (U→2 mảnh, dùng neutron). Mặt Trời chạy fusion, nhà máy điện hiện nay chạy fission.
 - **Tưởng fusion đã thương mại hóa.** Chưa — tới 2026 mới đạt "ignition" (NIF 2022) và ITER dự kiến ~2035. Đây là công nghệ tương lai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phản ứng $^{2}\text{H} + {}^{3}\text{H} \to {}^{4}\text{He} + ?$ — hạt còn thiếu là gì? (Bảo toàn số khối và số hiệu.)
 2. Mặt Trời tỏa năng lượng nhờ fission hay fusion?

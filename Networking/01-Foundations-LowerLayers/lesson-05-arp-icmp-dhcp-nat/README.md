@@ -107,7 +107,7 @@ Router nhận frame, lột Ethernet, đọc IP đích, định tuyến tiếp.
 
 ⚠ **Lỗi thường gặp**: Nhầm ARP hoạt động xuyên router. **Sai** — ARP bị giới hạn trong cùng một broadcast domain (LAN). Router không forward ARP broadcast sang LAN khác. Mỗi LAN có ARP riêng của nó.
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 Máy A (`192.168.1.10/24`) muốn gửi tới `10.0.0.5`. A broadcast ARP tìm MAC của `10.0.0.5` không?
 <details>
 <summary>Đáp án</summary>
@@ -212,7 +212,7 @@ Một số router cấu hình không gửi ICMP Time Exceeded ra ngoài (vì lý
 
 ⚠ **Lỗi thường gặp**: ICMP không phải TCP/UDP — không có port, không có kết nối, không có trạng thái. Nói "ICMP port 7" là sai hoàn toàn.
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 Traceroute gửi gói TTL=3. Cái gì xảy ra ở router hop thứ 3?
 <details>
 <summary>Đáp án</summary>
@@ -309,7 +309,7 @@ Thường là không. Khi client khởi động lại, nó gửi DHCP Request tr
 
 ⚠ **Lỗi thường gặp**: Nhầm DHCP Discover dùng unicast. **Sai** — Discover luôn broadcast vì client chưa có IP và chưa biết DHCP server nào đang hoạt động. Unicast chỉ xảy ra ở bước Renew (gia hạn giữa chừng).
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 Điều gì xảy ra nếu có 2 DHCP server trong cùng LAN?
 <details>
 <summary>Đáp án</summary>
@@ -413,7 +413,7 @@ Có. Mỗi entry chiếm bộ nhớ. Entry hết hạn (TCP FIN/RST, hoặc idle
 
 ⚠ **Lỗi thường gặp**: Nghĩ NAT là tường lửa (firewall). NAT **không phải** firewall về mặt kỹ thuật, nhưng *tình cờ* cung cấp một mức bảo vệ vì máy bên trong không thể tiếp cận từ ngoài mà không có port forwarding. Tường lửa thật kiểm tra trạng thái và quy tắc rõ ràng.
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 Bảng NAT có entry: `192.168.1.50:43210 ↔ 203.113.5.100:2000`. Gói về từ Internet có `Dst=203.113.5.100:2001` thì xảy ra gì?
 <details>
 <summary>Đáp án</summary>

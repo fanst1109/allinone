@@ -75,7 +75,7 @@ Lý do: khi mới bắt đầu, **bạn chưa biết bounded context đúng nằ
 - *"Microservices có làm app nhanh hơn không?"* → Không. Function call (~nanosecond) luôn nhanh hơn network call (~millisecond, gấp ~10^6 lần). Microservices không giúp **nhanh hơn**, mà giúp **scale tổ chức và scale phần nóng độc lập**.
 - *"Vậy ai cũng nên microservices?"* → Không. Xem mục 16. Với team nhỏ / domain đơn giản, microservices là gánh nặng thuần.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details><summary>Microservices làm một HTTP request kết thúc nhanh hơn monolith — đúng hay sai?</summary>
 
@@ -134,7 +134,7 @@ Nguyên tắc: **tách dọc theo nghiệp vụ (vertical slice), không cắt n
 - *"Service nên to cỡ nào?"* → Đủ nhỏ để một team (~2 pizza) sở hữu, đủ to để có nghĩa nghiệp vụ độc lập. Nếu phải gọi service khác để hoàn thành mọi thao tác cơ bản → có thể đã tách quá nhỏ (nano-service, mục 15).
 - *"Hai service có được dùng chung từ điển/util không?"* → Library dùng chung (logging, util thuần) thì OK. Nhưng **không chia sẻ domain model hay database** — đó là coupling chết người.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details><summary>Một startup chia hệ thành frontend-service, api-service, db-service. Vấn đề gì?</summary>
 
@@ -382,7 +382,7 @@ Nhờ ACL, **không một dòng code nghiệp vụ nào** của service mới ph
 
 - Bỏ qua ACL, để model legacy "rò" thẳng vào core → mỗi chỗ dùng phải tự hiểu \`STAT_CD\`. Khi legacy đổi format → sửa khắp nơi. ACL cô lập thay đổi vào **một chỗ duy nhất**.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details><summary>ACL nên đặt ở đâu — trong core domain hay ở ranh giới?</summary>
 
@@ -461,7 +461,7 @@ Tên lấy từ cây **đa bóp cổ (strangler fig)**: nó mọc quanh một c�
 - **Migrate phần khó nhất trước**: nên bắt đầu từ phần ít rủi ro / ranh giới rõ để học cách làm, rồi mới tới phần phức tạp.
 - **Quên dữ liệu**: route được nhưng \`/users\` mới và monolith vẫn share bảng \`users\` → vẫn coupling. Phải tách dữ liệu (database per service) song song.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details><summary>Tại sao strangler fig an toàn hơn big-bang rewrite?</summary>
 
@@ -688,7 +688,7 @@ Tách quá nhỏ (mỗi service làm một việc tí xíu). Hậu quả: một 
 
 Đã nói ở mục 13 — làm microservices mà không trace/log/metric = mù, không debug được.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details><summary>Thiết kế: OrderService và InventoryService dùng chung bảng \`products\`, và mỗi lần đổi schema phải deploy cả hai. Đây là gì?</summary>
 

@@ -67,7 +67,7 @@ Lấy đúng các giá trị dùng trong `visualization.html` (đơn vị tươn
 > - *Để thân phẳng (không nhấp nhô):* dấu hiệu số 1 của walk cycle nghiệp dư.
 > - *Passing để chân thẳng đơ (không nhấc gối):* mũi chân quệt đất → trông như lê chân.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trong 4 pose, pose nào thân **thấp nhất**? Pose nào **cao nhất**?
 > 2. Vì sao tại Contact hông lại **thấp hơn** mốc đứng (−2), dù chưa tới Down?
 >
@@ -145,7 +145,7 @@ $$\theta_{\text{tay phải}}(t) = -\,\theta_{\text{đùi phải}}(t)$$
 
 > ⚠ **Lỗi thường gặp.** Cho **tay cùng bên vung cùng phía chân** (tay phải + chân phải cùng ra trước). Kết quả trông như robot / lính diễu hành đơ cứng — sai với cơ chế giữ thăng bằng tự nhiên. Trừ khi cố ý (hài, cứng nhắc), luôn để tay **ngược pha**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Chân phải đang ở Up (đạp ra sau). Tay phải đang ở đâu — trước hay sau?
 > 2. Nếu full cycle = 24 frame, chân trái đạt pose Up ở frame nào (biết chân phải đạt Up ở frame 10)?
 >

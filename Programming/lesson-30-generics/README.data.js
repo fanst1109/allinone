@@ -440,7 +440,7 @@ Sum([]Money{1, 2})   // compile error
 // Phải đổi thành interface{ ~float64 }
 \`\`\`
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Hàm \`func Eq[T any](a, b T) bool { return a == b }\` — có hợp lệ không?
    <details><summary>Đáp án</summary>KHÔNG. \`any\` không có \`==\`. Phải đổi

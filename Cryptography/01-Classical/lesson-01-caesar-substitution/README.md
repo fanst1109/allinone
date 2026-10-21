@@ -319,7 +319,7 @@ Tất cả cipher cổ điển đều bị phá vì vi phạm một hoặc nhi�
 - **Confusion**: quan hệ giữa key và ciphertext phải phức tạp (Caesar: tuyến tính hoàn toàn).
 - **Perfect secrecy**: ciphertext không tiết lộ thông tin về plaintext (chỉ OTP đạt được — xem Lesson 03).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > **Câu 1**: Encrypt "WORLD" với Caesar k=17. Kết quả là gì?
 >

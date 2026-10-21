@@ -873,7 +873,7 @@ tr.AscendGreaterOrEqual(btree.Int(1500), func(it btree.Item) bool {
 | Ranking chia sẻ nhiều process | **Redis ZSet (skip list)** | $O(\log n)$ + concurrent + in-memory service |
 | Chỉ tra 1 khóa, không cần thứ tự | **Hash table** | $O(1)$, không cần cân bằng gì cả |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Vì sao leaderboard thật dùng Redis ZSet thay vì `SELECT ... ORDER BY score`?
 >    <details><summary>Đáp án</summary>ZSet giữ dữ liệu <b>luôn ở trạng thái đã sắp</b> (cây cân bằng/skip list) → `ZREVRANK`/top-N là $O(\log n)$, in-memory, chia sẻ nhiều server. `ORDER BY` phải sort lại mỗi lần + đụng DB → chậm khi cập nhật dồn dập.</details>
 > 2. Trong `EXPLAIN`, `type: ALL` và `type: range` khác nhau thế nào?

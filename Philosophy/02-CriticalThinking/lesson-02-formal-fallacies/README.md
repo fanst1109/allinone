@@ -115,7 +115,7 @@ Bảng chân lý của `p → q, q ∴ p`:
 > - *"Khi nào thì biết q → p đúng?"* — Khi và chỉ khi câu điều kiện là **tương đương song điều kiện** (`p ↔ q`): p đúng khi và chỉ khi q đúng. Ví dụ: "Tam giác đều khi và chỉ khi ba cạnh bằng nhau" — biết ba cạnh bằng nhau thì kết luận tam giác đều là hợp lệ. Nhưng phải có `↔`, không phải `→`.
 > - *"Trong khoa học, người ta có dùng kiểu lập luận này không?"* — Có, và đây là điểm tinh tế: trong khoa học, khi một lý thuyết dự đoán hiện tượng q và quan sát thấy q, đây là bằng chứng *hỗ trợ* lý thuyết nhưng không *chứng minh* lý thuyết. Đây gọi là "xác nhận" (confirmation), không phải "chứng minh" (proof). Triết học khoa học (Popper) nhấn mạnh điều này: khoa học chỉ có thể *bác bỏ* lý thuyết (modus tollens), không bao giờ *chứng minh* hoàn toàn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Lập luận sau có phải khẳng định hậu kiện không?
 > "Nếu là kim loại thì dẫn điện. Đồng dẫn điện. ∴ Đồng là kim loại."
 > <details><summary>Đáp án</summary>
@@ -193,7 +193,7 @@ Dòng phản ví dụ chứng minh lập luận **không hợp lệ**.
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Hai ngụy biện này có liên hệ gì với nhau không?"* — Có. Khẳng định hậu kiện tương đương với phủ định tiền kiện của câu đảo (converse). Câu đảo của `p → q` là `q → p`. Phủ định tiền kiện của `p → q` cho ra kết luận `¬q`, giống như khẳng định hậu kiện của câu đảo `q → p` cho ra kết luận `¬p` khi biết `¬q`. Cả hai đều nhầm `p → q` với `p ↔ q`.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Nếu học đại học thì kiếm được việc tốt. Lan không học đại học. ∴ Lan không kiếm được việc tốt."
 > Lập luận này mắc ngụy biện gì?
 > <details><summary>Đáp án</summary>

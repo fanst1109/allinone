@@ -168,7 +168,7 @@ Tiết kiệm hơn 300 lần trong ví dụ này.
 
 *"Bảng trang 2 cấp luôn nhanh hơn 1 cấp."* — Sai về tốc độ truy cập: 2 cấp cần **2 lần tra RAM** (cho cấp 1 và cấp 2), thay vì 1 lần. Ưu thế của multi-level là **tiết kiệm bộ nhớ**, không phải tốc độ. TLB mới là thứ giải quyết tốc độ.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 16-bit system, page 64 B, p1=4 bit, p2=4 bit, offset=6 bit. Địa chỉ ảo 0x1A3F. Tách p1, p2, offset.
 
@@ -320,7 +320,7 @@ TLB hiệu quả nhờ hai nguyên lý:
 - *"TLB miss rate cao có vấn đề không?"* — Rất có vấn đề. TLB thrashing xảy ra khi working set lớn hơn TLB capacity → liên tục miss → gần như không có cache effect. Giải pháp: huge pages (2 MB, 1 GB) → giảm số trang → TLB cover được nhiều bộ nhớ hơn.
 - *"CPU có mấy cấp TLB?"* — Thường 2 cấp (L1 TLB: nhỏ, rất nhanh, ~64 mục; L2 TLB: lớn hơn, ~1024 mục). Tương tự L1/L2 cache.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 $\alpha = 0.80$, $t_{\text{mem}} = 200$ ns, bảng trang 1 cấp. Tính EAT. So sánh với $\alpha = 0.99$.
 

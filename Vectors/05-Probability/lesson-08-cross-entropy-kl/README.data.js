@@ -161,7 +161,7 @@ $A=0, B=10, C=110, D=111$ cho độ dài trung bình đúng 1.75 bit/ký tự �
 > - *"Phân phối đều có entropy max — chứng minh sao?"* — xem §4.4
 >   (chứng minh $D_{KL} \\geq 0$ rồi áp vào $q = $ uniform).
 
-> 🔁 **Tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Tính $H$ cho $p = (0.7, 0.2, 0.1)$ đơn vị bit.
 > 2. Phân phối nào trong 3 outcome có entropy max? Tính giá trị max.
 >
@@ -401,7 +401,7 @@ Dấu bằng ở **mỗi** $x$ ⇔ $q(x)/p(x) = 1$, tức $q = p$. □
 > $f'(x) = 1 - 1/x$, $f'(1) = 0$, $f''(x) = 1/x^2 > 0$ → cực tiểu tại $x = 1$,
 > $f(1) = 0$, nên $f(x) \\geq 0$ với mọi $x > 0$.
 
-> 🔁 **Tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Tính $D_{KL}(p \\parallel q)$ cho $p = (0.5, 0.5)$, $q = (0.25, 0.75)$.
 > 2. Tính $D_{KL}(q \\parallel p)$ cùng cặp. So sánh.
 >

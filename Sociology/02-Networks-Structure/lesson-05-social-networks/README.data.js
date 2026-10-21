@@ -103,7 +103,7 @@ Vậy $N = 7$ và $E = 7$. Để ý: Giang và Khoa chỉ quen nhau, tách rời
 > - *"Làm sao biết dùng loại nào?"* → Hỏi: quan hệ này có **tự động đối ứng** không? Nếu "X quan hệ Y" **luôn** kéo theo "Y quan hệ X" → vô hướng. Nếu có thể một chiều → có hướng.
 > - *"Số cạnh tối đa hai loại có khác nhau không?"* → Có, và khác gấp đôi. Xem mục 4 (mật độ) — đây là lý do công thức mật độ có/không nhân 2.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. "Cuộc gọi điện thoại từ An tới Bình" nên mô hình bằng cạnh loại nào?
 > 2. Mạng 5 người mà *mọi người đều theo dõi lẫn nhau hai chiều* có bao nhiêu cạnh có hướng?
 >
@@ -171,7 +171,7 @@ $$\\langle k \\rangle = \\frac{\\sum_v \\deg(v)}{N} = \\frac{2E}{N}$$
 
 > ⚠ **Lỗi thường gặp.** Quên hệ số **2**. Có người tính $\\langle k \\rangle = E/N = 7/7 = 1$ cho mạng 7 người — **sai**. Đúng là $2E/N = 2$. Lý do: mỗi cạnh phục vụ *hai* người nên đóng góp vào bậc *hai* lần.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một mạng có $N = 10$, tổng bậc đếm được là $30$. Có bao nhiêu cạnh?
 > 2. Bậc trung bình của mạng đó là bao nhiêu?
 >
@@ -231,7 +231,7 @@ Walk-through dòng đầu: $\\dfrac{2 \\times 7}{7 \\times (7-1)} = \\dfrac{14}{
 > - Dùng công thức **có hướng** cho mạng **vô hướng** (quên nhân 2 ở tử số, hay tương đương quên chia 2 ở $E_{\\max}$) → ra mật độ chỉ bằng nửa giá trị đúng.
 > - Cho phép **tự nối chính mình** (self-loop) vào $E_{\\max}$ dùng $N^2$ thay vì $N(N-1)$. Trong mạng xã hội "quen chính mình" vô nghĩa → loại đường chéo, dùng $N(N-1)$.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Mạng $N = 5$, $E = 4$ (vô hướng). Mật độ bằng bao nhiêu?
 > 2. Cùng số node đó nhưng là mạng **có hướng** với $E = 4$. Mật độ bằng bao nhiêu?
 >
@@ -290,7 +290,7 @@ Walk-through dòng đầu: $\\dfrac{2 \\times 7}{7 \\times (7-1)} = \\dfrac{14}{
 
 > ⚠ **Lỗi thường gặp.** Đếm độ dài đường đi bằng **số node** thay vì **số cạnh**. An–B–D–H có **4 node** nhưng độ dài là **3** (3 bước nhảy). Quy tắc: độ dài = số node − 1.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trong mạng 7 người, $d(\\text{Hà}, \\text{An})$ bằng bao nhiêu? (chú ý mạng vô hướng nên đối xứng)
 > 2. $d(\\text{Hà}, \\text{Chi})$ bằng bao nhiêu?
 >
@@ -331,7 +331,7 @@ Walk-through dòng đầu: $\\dfrac{2 \\times 7}{7 \\times (7-1)} = \\dfrac{14}{
 
 > ⚠ **Lỗi thường gặp.** Với mạng **có hướng**, phải phân biệt *liên thông mạnh* (strongly connected: đi được cả hai chiều A↔B) và *liên thông yếu* (weakly connected: bỏ chiều mũi tên thì nối được). Trong mạng vô hướng không có phân biệt này. Bài này tính cho mạng vô hướng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nếu thêm một cạnh Hà–Giang vào mạng 7 người, số thành phần thay đổi thế nào?
 >
 > <details><summary>Đáp án</summary>
@@ -375,7 +375,7 @@ Walk-through dòng đầu: $\\dfrac{2 \\times 7}{7 \\times (7-1)} = \\dfrac{14}{
 
 > ⚠ **Lỗi thường gặp.** Với mạng vô hướng, quên điền **cả hai** ô $A_{ij}$ *và* $A_{ji}$. Cạnh A–B phải cho $A_{\\text{A,B}} = 1$ *và* $A_{\\text{B,A}} = 1$. Điền một ô → ma trận mất đối xứng, tính bậc sai.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nhìn ma trận trên, node nào có bậc lớn nhất? Có mấy node như vậy?
 >
 > <details><summary>Đáp án</summary>

@@ -84,7 +84,7 @@ $$\\begin{cases} m + p + s = 100 \\\\ m - 2p = 0 \\\\ s - 4m = 0 \\end{cases}$$
 
 Nghiệm: $(m, p, s) = (200/11, 100/11, 800/11) \\approx (18.2, 9.1, 72.7)$ triệu.
 
-> **🔁 Dừng lại tự kiểm tra**: Trong cả 5 ví dụ trên, mỗi câu chữ tiếng Việt được dịch thành **một phương trình** (một dòng ràng buộc). Khi nhìn một bài toán đời thường, kỹ năng quan trọng là **đặt biến và viết ra hệ** — phần "giải" chỉ là máy móc sau đó.
+> **🔁 Thực hành**: Trong cả 5 ví dụ trên, mỗi câu chữ tiếng Việt được dịch thành **một phương trình** (một dòng ràng buộc). Khi nhìn một bài toán đời thường, kỹ năng quan trọng là **đặt biến và viết ra hệ** — phần "giải" chỉ là máy móc sau đó.
 
 ### 1.4 Quy trình "đặt biến → viết hệ" (template chung)
 
@@ -353,7 +353,7 @@ Hai đường **cùng hệ số góc $-2/3$** (vì tỉ số $2/4 = 3/6 = 1/2$) 
 
 **Cách nhận ra "song song" mà không cần vẽ**: tỉ số vế trái $2/4 = 3/6 = 1/2$, nhưng tỉ số vế phải $6/10 = 3/5 \\neq 1/2$. Hai phương trình mâu thuẫn: phương trình (1) nói "tổng $2x + 3y$ bằng 6", trong khi phương trình (2) — sau khi chia 2 — nói "cùng tổng đó bằng 5". Không thể vừa bằng 6 vừa bằng 5.
 
-> **🔁 Dừng lại tự kiểm tra**: Cả 3 trường hợp trên có thể nhận biết **không cần vẽ** — chỉ qua tỉ số hệ số (bảng dưới). Hình học là "trực giác kiểm chứng", đại số là "công cụ vận hành".
+> **🔁 Thực hành**: Cả 3 trường hợp trên có thể nhận biết **không cần vẽ** — chỉ qua tỉ số hệ số (bảng dưới). Hình học là "trực giác kiểm chứng", đại số là "công cụ vận hành".
 
 ### Tóm tắt phân loại 2 ẩn
 
@@ -760,7 +760,7 @@ $$\\begin{aligned} x + y + z &= 6 \\\\ x + \\tfrac{6}{13} + \\tfrac{44}{13} &= 6
 
 > **💡 Trực giác về quy trình**: ta đi **từ trái sang phải, từ trên xuống dưới**, mỗi bước "dập tắt" 1 ô dưới đường chéo. Tổng cộng cần dập $\\frac{n(n-1)}{2}$ ô (với hệ 3 ẩn = 3 ô: $(R_2, c_1), (R_3, c_1), (R_3, c_2)$ — khớp với 3 bước trên). Mỗi ô = 1 phép $R_i \\leftarrow R_i - k \\cdot R_j$. Hết.
 
-> **🔁 Dừng lại tự kiểm tra**: nếu ai đó hỏi "trong bước 3, tại sao chọn $R_2$ (không phải $R_1$) để khử cột 2 ở $R_3$?" — vì **$R_1$ có cột 1 $\\neq 0$**, nếu dùng $R_1$ để khử $R_3$ ở cột 2 thì sẽ "phá" cột 1 (vốn đã được dập về 0 ở $R_3$). Quy tắc: **mỗi cột chỉ dùng pivot riêng của nó**, và pivot ở $R_2$ là cho cột 2, ở $R_3$ là cho cột 3, v.v.
+> **🔁 Thực hành**: nếu ai đó hỏi "trong bước 3, tại sao chọn $R_2$ (không phải $R_1$) để khử cột 2 ở $R_3$?" — vì **$R_1$ có cột 1 $\\neq 0$**, nếu dùng $R_1$ để khử $R_3$ ở cột 2 thì sẽ "phá" cột 1 (vốn đã được dập về 0 ở $R_3$). Quy tắc: **mỗi cột chỉ dùng pivot riêng của nó**, và pivot ở $R_2$ là cho cột 2, ở $R_3$ là cho cột 3, v.v.
 
 > **Ghi chú về nghiệm phân số**: hệ ở trên do user soạn ra để minh họa khử Gauss "trên hệ tổng quát" — nghiệm phân số là chuyện thường. Nếu muốn nghiệm đẹp $(1, 2, 3)$, có thể đổi vế phải (2) thành $9$ (vì $2 \\cdot 1 - 2 + 3 \\cdot 3 = 9$), khi đó toàn bộ khử Gauss vẫn theo các bước y hệt — chỉ vế phải cuối ra $-13$ thay vì $-44/3$, và $z = 3, y = 2, x = 1$. Bài tập 3 ở Mục 10 giữ đề gốc $= 14$ để bạn luyện cả tính phân số.
 

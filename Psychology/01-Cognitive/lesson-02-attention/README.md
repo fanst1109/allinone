@@ -78,7 +78,7 @@ John Ridley Stroop (1935) công bố thí nghiệm kinh điển:
 > - *Người mù chữ có Stroop effect không?* Không hoặc rất nhỏ — vì đọc chưa tự động hóa. Bằng chứng gián tiếp: trẻ em mới học đọc có Stroop effect nhỏ hơn người lớn.
 > - *Có thể train để giảm Stroop effect không?* Có thể giảm nhẹ qua luyện tập, nhưng không biến mất hoàn toàn — tự động hóa đọc quá mạnh.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Stroop congruent RT = 500ms, incongruent = 700ms. Stroop effect là bao nhiêu? Tại sao?
 > <details><summary>Đáp án</summary>Stroop effect = 700 − 500 = 200ms. Nguyên nhân: đọc từ là automatic process kích hoạt response từ (ví dụ "đỏ"); nhiệm vụ đặt ra (màu mực) cần controlled process để ức chế. Conflict → latency tăng.</details>
 > 2. Nếu thay vì tên màu bằng số chữ số (đếm số chữ số thay vì đọc từ), Stroop effect có xuất hiện không?

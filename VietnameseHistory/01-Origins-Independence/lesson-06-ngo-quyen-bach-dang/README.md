@@ -88,7 +88,7 @@ Năm 930, quân Nam Hán (một trong mười vương triều thời Ngũ đại
 **H: Tại sao Ngô Quyền phải diệt Kiều Công Tiễn trước, chứ không đợi quân Nam Hán đến rồi mới đánh?**
 Đáp: Nếu để Kiều Công Tiễn tồn tại, quân giặc trong (Kiều Công Tiễn) và giặc ngoài (Nam Hán) sẽ có thể phối hợp kẹp công. Diệt Kiều Công Tiễn trước giúp Ngô Quyền tập trung toàn lực vào một mặt trận duy nhất — sông Bạch Đằng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Ai ám sát Dương Đình Nghệ năm 937, và vì sao hành động đó lại là nguyên nhân trực tiếp dẫn đến trận Bạch Đằng?
 
@@ -154,7 +154,7 @@ Khi địch hỗn loạn, quân ta từ hai bờ và từ phía thượng nguồ
 - **Hiểu lầm:** "Chỉ cần có cọc là thắng, không cần đánh."
   **Thực tế:** Bãi cọc là bẫy làm giảm tốc và vô hiệu hóa ưu thế của hạm đội lớn. Nhưng phải có lực lượng bộ binh và thủy binh tấn công phối hợp thì mới hoàn toàn tiêu diệt địch. Bãi cọc không tự đánh thắng — nó chỉ tạo thời cơ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Nêu bốn bước cơ chế của kế sách bãi cọc – thủy triều theo đúng thứ tự.
 
@@ -218,7 +218,7 @@ Trận đánh diễn ra trên đoạn sông Bạch Đằng thuộc vùng mà ng�
 - **Hiểu lầm:** "Quân Nam Hán yếu, nên mới thua."
   **Thực tế:** Nam Hán là một trong các vương triều mạnh thời Ngũ đại, có hải quân kinh nghiệm. Thất bại của họ là do Ngô Quyền chủ động tạo ra điều kiện chiến trường bất lợi tuyệt đối cho đối phương — không phải vì địch yếu.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Lưu Hoằng Tháo là ai? Ông ta đã gặp kết cục như thế nào trong trận Bạch Đằng?
 
@@ -278,7 +278,7 @@ Sau khi Ngô Quyền mất (944), "Loạn 12 sứ quân" nổ ra (945–968) —
 **H: Tại sao không xưng "Đế" (hoàng đế) mà chỉ xưng "Vương"?**
 Đáp: Trong hệ thống quan niệm chính trị Đông Á thời đó, "Đế" (hoàng đế) là danh hiệu tối cao, thường do một vương triều thống trị vùng đất rộng lớn tự nhận. "Vương" là danh hiệu vua một vùng/nước, vẫn hàm ý độc lập hoàn toàn với bất kỳ thiên tử nào. Các triều đại Việt Nam sau này (Đinh, Tiền Lê) vẫn dùng "Vương" trước, đến Lý Thái Tổ mới xưng "Đế". Ngô Quyền xưng Vương là phù hợp với bối cảnh và thực lực thời điểm đó.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Sau khi xưng Vương, Ngô Quyền làm gì với chức Tiết độ sứ? Ông đóng đô ở đâu và tại sao lựa chọn đó có ý nghĩa biểu tượng?
 

@@ -111,7 +111,7 @@ Tốc độ lý thuyết giả định: kênh rộng nhất (160 MHz), mã đi�
 
 ⚠ **Lỗi thường gặp**: "5 GHz chậm hơn vì tần số cao hơn" — **SAI**. Tần số cao cho phép kênh rộng hơn (có nhiều phổ tần hơn để phân bổ) → tốc độ dữ liệu nhanh hơn. Vấn đề là tầm phủ giảm, không phải tốc độ.
 
-🔁 **Tự kiểm tra**: Bạn ở tầng 3, AP ở tầng 1. Nên dùng băng tần nào?
+🔁 **Thực hành**: Bạn ở tầng 3, AP ở tầng 1. Nên dùng băng tần nào?
 
 <details>
 <summary>Đáp án</summary>
@@ -216,7 +216,7 @@ Quyết định:
 
 ⚠ **Lỗi thường gặp**: Để AP ở chế độ "auto" chọn kênh — nhiều router chọn kênh ngẫu nhiên hoặc theo thuật toán đơn giản, có thể chọn kênh 3 hay 8 gây nhiễu. Tốt nhất nên cấu hình thủ công kênh 1, 6, hoặc 11.
 
-🔁 **Tự kiểm tra**: Quét WiFi thấy 5 AP: kênh 1×3 AP, kênh 6×1 AP, kênh 11×1 AP. Nên chọn kênh nào cho AP mới?
+🔁 **Thực hành**: Quét WiFi thấy 5 AP: kênh 1×3 AP, kênh 6×1 AP, kênh 11×1 AP. Nên chọn kênh nào cho AP mới?
 
 <details>
 <summary>Đáp án</summary>

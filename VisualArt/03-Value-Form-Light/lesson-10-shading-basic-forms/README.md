@@ -93,7 +93,7 @@ $$\text{độ sáng} \propto \max(0,\ \cos\theta)$$
 | Mép (edge) | **Mềm**, chuyển value từ từ (mặt cong) | **Sắc ở gần vật, nhoè ở xa** |
 | Đậm nhất ở | Dải core shadow (lùi vào trong) | Khe tiếp xúc sát chân vật |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trên quả cầu sáng trên-trái, chỗ tối nhất *trên vật* nằm ở đâu — rìa ngoài hay lùi vào trong? Vì sao?
 > 2. Sắp xếp theo value từ NHẠT → ĐẬM: reflected light, half-tone, core shadow.
 >
@@ -160,7 +160,7 @@ Tất cả chiếu sáng từ **trên-trái**. Value theo thang 0–10.
 
 > ⚠ **Lỗi thường gặp.** Đổ bóng lập phương bằng **gradient mượt** như cầu → mất cảm giác mặt phẳng, cạnh trông "mềm oặt". Mặt phẳng phải giữ **một value đồng đều**; chỉ cho phép sai lệch rất nhẹ do half-tone khí quyển, không phải gradient tròn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Vì sao core shadow của trụ là vạch dọc mà của cầu là dải cong?
 > 2. Lập phương sáng trên-trái-trước có mấy tông trên 3 mặt nhìn thấy, và mặt nào sáng nhất?
 >

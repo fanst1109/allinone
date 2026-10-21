@@ -76,7 +76,7 @@ Sau Cách mạng Vinh quang (1688), Anh thiết lập chế độ quân chủ l�
 - **Hệ thống bằng sáng chế (patents):** từ 1624 (Statute of Monopolies), khuyến khích phát minh bằng cách bảo vệ quyền lợi của nhà sáng chế trong 14 năm.
 - **Ổn định so sánh:** Trong khi Pháp trải qua cách mạng và chiến tranh Napoleon (1789–1815), Anh duy trì sự ổn định tương đối trong nước.
 
-🔁 **Dừng lại tự kiểm tra:** Nếu bạn phải xếp hạng 5 yếu tố giúp CMCN bắt đầu ở Anh theo tầm quan trọng, bạn xếp thứ tự thế nào? Tại sao?
+🔁 **Ôn tập:** Nếu bạn phải xếp hạng 5 yếu tố giúp CMCN bắt đầu ở Anh theo tầm quan trọng, bạn xếp thứ tự thế nào? Tại sao?
 
 <details>
 <summary>Gợi ý của sử gia</summary>
@@ -281,7 +281,7 @@ Karl Marx (1818–1883) và Friedrich Engels (1820–1895) phát triển hệ th
 
 🔗 **Liên hệ:** Tư tưởng Marx–Engels có ảnh hưởng sâu sắc đến các phong trào công nhân toàn cầu và tư tưởng chính trị thế kỉ XX, bao gồm Liên Xô, Trung Quốc, và Việt Nam. Xem thêm [Economics/](../../../Economics/) để hiểu lý thuyết kinh tế nền tảng.
 
-🔁 **Dừng lại tự kiểm tra:** Adam Smith và Karl Marx đều viết về CMCN nhưng từ góc độ khác nhau. Điểm chung giữa hai người là gì?
+🔁 **Ôn tập:** Adam Smith và Karl Marx đều viết về CMCN nhưng từ góc độ khác nhau. Điểm chung giữa hai người là gì?
 
 <details>
 <summary>Gợi ý</summary>
@@ -360,7 +360,7 @@ Cả hai đều thừa nhận phân công lao động là chìa khóa cho năng 
 **Liên hệ với Việt Nam:**
 CMCN tạo ra động lực vật chất cho việc Pháp xâm lược Việt Nam (1858–1884). Pháp cần thị trường tiêu thụ hàng công nghiệp, nguồn nguyên liệu thô (gạo, cao su, than) và lao động rẻ. Dưới thực dân Pháp, một số công nghiệp được đưa vào Việt Nam (khai thác mỏ than Quảng Ninh từ 1884, đồn điền cao su) nhưng chủ yếu phục vụ xuất khẩu, không xây dựng nền công nghiệp tự lực cho Việt Nam. Xem thêm [VietnameseHistory/](../../../VietnameseHistory/).
 
-🔁 **Dừng lại tự kiểm tra:** CMCN lần thứ nhất và thứ hai khác nhau về ngành công nghiệp nào là cốt lõi?
+🔁 **Ôn tập:** CMCN lần thứ nhất và thứ hai khác nhau về ngành công nghiệp nào là cốt lõi?
 
 <details>
 <summary>Đáp án</summary>

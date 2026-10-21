@@ -250,7 +250,7 @@ Ví dụ multicast:
 - *"MAC address là cố định, không thay đổi được."* — Sai một phần. "Burned-in" MAC là địa chỉ gốc, nhưng hệ điều hành cho phép đổi MAC bằng lệnh (ví dụ \`ip link set eth0 address 02:XX:XX:XX:XX:XX\` trên Linux). Đây là "MAC spoofing" — hợp lệ cho testing, nhưng có thể vi phạm chính sách mạng.
 - *"Địa chỉ MAC xác định vị trí địa lý."* — Sai. MAC không có thông tin địa lý. OUI chỉ cho biết nhà sản xuất, không cho biết thiết bị ở đâu.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 1. Địa chỉ \`01:80:C2:00:00:00\` là unicast, multicast hay broadcast?
 

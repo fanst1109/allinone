@@ -109,7 +109,7 @@ Quy ước về \`z[0]\`: thường đặt \`z[0] = 0\` (vì so sánh \`S\` vớ
 > - *"Z-array dùng để làm gì ngoài việc nhìn?"* — Pattern matching (phần 4), period (phần 6), distinct substrings... Nó là "viên gạch" chung cho nhiều bài.
 > - *"\`z[i]\` có thể vượt qua hết chuỗi không?"* — Không. \`z[i] ≤ n - i\` vì suffix tại \`i\` chỉ dài \`n-i\`.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Tính \`z\` cho \`S = "aaba"\`.
 > 2. Vì sao \`z[i] ≤ n - i\`?
 >
@@ -154,7 +154,7 @@ Không có thông tin tái dùng. Ta so sánh trực tiếp \`S[0..]\` với \`S
 > - *"Trường hợp B1 vì sao chắc chắn đúng, không cần so?"* — Vì \`z[k]\` "kết thúc" trước khi chạm biên \`r\`. Tức ký tự làm \`z[k]\` dừng (\`S[z[k]] ≠ S[k + z[k]]\`) nằm hoàn toàn trong vùng box đã xác nhận, nên cùng mẫu lặp lại ở vị trí \`i\`.
 > - *"Trường hợp B2 vì sao phải so tiếp?"* — Vì box chỉ "bảo đảm" tới \`r\`. Phần \`S[r+1..]\` là vùng tối, chưa ai so. \`z[k]\` có thể dài hơn vùng đảm bảo, nhưng ta không được tin nó vượt biên.
 
-> 🔁 **Dừng lại tự kiểm tra.** Box \`[l, r] = [4, 7]\`, đang xét \`i = 6\`, biết \`z[2] = 5\`. Khởi tạo \`z[6]\` bằng bao nhiêu, có cần so tiếp không?
+> 🔁 **Thực hành.** Box \`[l, r] = [4, 7]\`, đang xét \`i = 6\`, biết \`z[2] = 5\`. Khởi tạo \`z[6]\` bằng bao nhiêu, có cần so tiếp không?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -248,7 +248,7 @@ z :  0  1  0  0  4  1  0  0  0  8  1  0  0  5  1  0  0  1  0
 
 > ❓ **Câu hỏi tự nhiên.** *"Vòng \`while\` so trực tiếp có thể chạy nhiều lần — sao vẫn là $O(n)$?"* — Mỗi lần \`while\` tăng \`z[i]\` lên 1, nó đẩy \`r\` tiến về bên phải ít nhất bằng đó. Mà \`r\` chỉ **tăng**, không bao giờ giảm, từ 0 đến tối đa $n-1$. Nên tổng số lần thân \`while\` chạy trên *toàn bộ* quá trình $\\leq n$. Đây là [phân tích amortized](../lesson-02-amortized-analysis/README.md): vòng trong "nhìn" như $O(n)$ mỗi bước nhưng tổng chỉ $O(n)$. Cộng vòng ngoài $O(n)$ → tổng $O(n)$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong walk-through trên, bước nào là B2 (extend)? Có bao nhiêu lần \`r\` được cập nhật?
+> 🔁 **Thực hành.** Trong walk-through trên, bước nào là B2 (extend)? Có bao nhiêu lần \`r\` được cập nhật?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -391,7 +391,7 @@ func main() {
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao không cần tách riêng vòng tìm match — tại sao tận dụng được Z trên cả P?"* — Trong \`W\`, phần P (chỉ số \`0..m-1\`) tự nó cũng được tính z, nhưng ta chỉ quan tâm \`i ≥ m+1\` (phần T). Phần P không gây match giả vì \`$\` chặn. Việc tính z trên cả W vẫn O(|W|) = O(n+m).
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`P="aa"\`, \`T="aaa"\`, tìm các match. (Tự ghép \`W\` và đếm \`z[i]==2\`.)
+> 🔁 **Thực hành.** Với \`P="aa"\`, \`T="aaa"\`, tìm các match. (Tự ghép \`W\` và đếm \`z[i]==2\`.)
 >
 > <details><summary>Đáp án</summary>
 >

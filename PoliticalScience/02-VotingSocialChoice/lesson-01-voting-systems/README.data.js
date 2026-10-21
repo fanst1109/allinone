@@ -53,7 +53,7 @@ Profile này sẽ được dùng xuyên suốt bài để tính winner theo 6 lu
 
 > ⚠ **Spoiler effect**: Nếu C rút khỏi cuộc đua, 32 cử tri nhóm III chuyển phiếu sang B (rank thứ 2) → B: 65, A: 35 → B thắng. Sự hiện diện của C đã "đánh cắp" thắng lợi của B. Đây là cơ sở cho Duverger's Law (Lesson 04).
 
-> 🔁 **Tự kiểm tra**: Nếu có thêm nhóm IV: 5 cử tri rank A > C > B, kết quả Plurality thay đổi như thế nào?
+> 🔁 **Thực hành**: Nếu có thêm nhóm IV: 5 cử tri rank A > C > B, kết quả Plurality thay đổi như thế nào?
 > <details><summary>Đáp án</summary>A: 40, B: 33, C: 32 → A vẫn thắng nhưng margin rộng hơn.</details>
 
 ### 2.2. Two-Round Runoff

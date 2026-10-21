@@ -83,7 +83,7 @@ Trục đó gọi là **trục tách**. Nói cách khác, dạng phủ định d
 > - *"Vì sao lồi thì luôn đúng?"* — Vì với hai tập **lồi** rời nhau, theo định lý tách siêu phẳng (separating hyperplane theorem) luôn tồn tại một đường thẳng tách hẳn hai tập. Pháp tuyến của đường thẳng đó chính là một trục tách. Và ta sẽ thấy ở §4: trục tách (nếu có) **luôn** trùng hướng pháp tuyến của một cạnh nào đó → chỉ cần kiểm tra hữu hạn trục.
 > - *"Có vô hạn hướng rọi, kiểm tra sao hết?"* — Không cần. §4 chứng minh chỉ cần kiểm tra các pháp tuyến cạnh — hữu hạn.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Cho hai hình vuông cách xa nhau, một bên trái một bên phải. Trục nào dễ thấy là trục tách nhất?
 > <details><summary>Đáp án</summary>
 > Trục nằm ngang (hướng x). Chiếu cả hai lên trục x: hình trái cho khoảng $[xL_{min}, xL_{max}]$, hình phải cho $[xR_{min}, xR_{max}]$, và $xL_{max} < xR_{min}$ → có khe hở → trục x là trục tách → khẳng định không chạm. Chỉ một trục là đủ.
@@ -181,7 +181,7 @@ Bốn ví dụ số:
 
 (Trường hợp overlap = 0 là "vừa khít chạm biên" — tuỳ engine coi là chạm hay không; thường coi là chạm.)
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > A = [2, 9], B = [10, 12]. Có chồng không? Nếu rời, gap bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 > $maxA = 9$, $minB = 10$. $9 \ge 10$? Không → **rời nhau**. Gap = $minB - maxA = 10 - 9 = 1$. Trục này là một trục tách → kết luận không chạm.
@@ -286,7 +286,7 @@ Giờ kiểm lại từng trục (đầy đủ, vì lần này không tìm thấ
 
 **Bước 3 — Kết luận.** Cả **4 trục** đều chồng → **A và B CHẠM nhau.** Overlap nhỏ nhất là **0.61** trên trục a2 = (1, 0). (Chuyển sang §5 để biến cặp này thành MTV.)
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Ở case "không chạm", vì sao ta dừng ngay sau trục a2 mà không cần kiểm tra 3 trục còn lại?
 > <details><summary>Đáp án</summary>
 > Vì SAT là định lý "nếu-và-chỉ-nếu". Chỉ cần **một** trục tách (một khe hở) là đủ để **khẳng định chắc chắn** hai hình không giao. Ba trục còn lại có chồng hay không cũng không đổi kết luận. Đây là tối ưu **dừng sớm (early exit)** quan trọng.
@@ -336,7 +336,7 @@ MTV = (1, 0) × 0.61 = (0.61, 0)
 
 → Để tách: dịch B `+= (0.61, 0)` (hoặc A `-= (0.61, 0)`). Sau khi dịch B sang phải 0.61, chiếu lại lên trục x: B mới $[3.39+0.61, 6.21+0.61] = [4.0, 6.82]$, A vẫn $[0,4]$ → $maxA=4$, $minB=4.0$ → overlap = 0 → vừa khít chạm biên, hết lún. ✓
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Nếu overlap các trục là `{(0,1): 3.0, (1,0): 0.5, (0.6,0.8): 1.2}`, MTV là vector nào?
 > <details><summary>Đáp án</summary>
 > Nhỏ nhất = 0.5 trên trục $(1, 0)$. MTV = $(1,0) \times 0.5 = (0.5, 0)$ (giả sử hướng đã đúng). Đẩy theo trục x, quãng 0.5.

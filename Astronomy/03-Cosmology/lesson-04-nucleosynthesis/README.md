@@ -63,7 +63,7 @@ $$\begin{aligned}
 
 > ⚠ **Lỗi thường gặp.** Nhầm "25% He" theo **số nguyên tử** với theo **khối lượng**. Vũ trụ ~25% He **theo khối lượng**, nhưng vì mỗi He nặng gấp 4 lần H, **theo số nguyên tử** He chỉ ~8%. Luôn ghi rõ "theo khối lượng" hay "theo số hạt".
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu có 24 hạt nhân với tỉ lệ 2 neutron : 22 proton, tính số hạt ⁴He, số ¹H, và % Heli theo khối lượng.
+> 🔁 **Thực hành.** Nếu có 24 hạt nhân với tỉ lệ 2 neutron : 22 proton, tính số hạt ⁴He, số ¹H, và % Heli theo khối lượng.
 > <details><summary>Đáp án</summary>2 neutron → 1 hạt ⁴He (dùng 2n + 2p). Còn 20 proton → 20 ¹H. KL He $= 4$, KL H $= 20$, tổng $24$. %He $= 4/24 = 16{,}7\%$ theo khối lượng.</details>
 
 ### 1.2 Vì sao BBN không tạo nguyên tố nặng
@@ -79,7 +79,7 @@ $$\begin{aligned}
 > - *"Cacbon, oxy trong cơ thể tôi không có từ Big Bang à?"* — **Không.** Big Bang chỉ cho bạn Hydro (và một ít He). Cacbon, oxy, nitơ... được "nấu" trong các thế hệ sao trước rồi rải ra khi sao chết. Bạn là "tro sao" theo nghĩa đen.
 > - *"Sao biết tỉ lệ BBN đúng?"* — Vì đo được lượng Heli, Deuteri, Liti trong các vùng khí cổ (chưa bị sao chế biến) khớp tiên đoán BBN tới vài phần trăm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nêu hai lý do BBN không tạo được cacbon.
+> 🔁 **Thực hành.** Nêu hai lý do BBN không tạo được cacbon.
 > <details><summary>Đáp án</summary>(1) Khoảng trống khối lượng 5 và 8: không có hạt nhân bền để bắc cầu lên các nguyên tố nặng hơn He. (2) Đồng hồ: vũ trụ giãn nguội quá nhanh (~20 phút), hết điều kiện phản ứng trước khi nấu xong nguyên tố nặng.</details>
 
 ---
@@ -107,7 +107,7 @@ Khi sao đốt nhiên liệu hạt nhân, nó dung hợp (fusion) các hạt nh�
 
 > ⚠ **Lỗi thường gặp.** "Sao có thể dung hợp mãi tới vàng, uranium để sinh năng lượng." **Sai.** Quá Fe thì dung hợp **thu** năng lượng, không nuôi sao. Vàng, uranium **không** sinh ra bằng dung hợp tỏa năng lượng bình thường — chúng cần điều kiện đặc biệt (Mục 3).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao lõi sắt khiến sao lớn sụp đổ thành siêu tân tinh?
+> 🔁 **Thực hành.** Vì sao lõi sắt khiến sao lớn sụp đổ thành siêu tân tinh?
 > <details><summary>Đáp án</summary>Vì dung hợp sắt trở lên **thu** năng lượng thay vì tỏa. Lõi sắt không còn sinh năng lượng để chống lại hấp dẫn ⇒ áp suất chống đỡ biến mất ⇒ lõi sụp đổ trong tích tắc ⇒ kích nổ siêu tân tinh.</details>
 
 ---
@@ -129,7 +129,7 @@ Khi sao đốt nhiên liệu hạt nhân, nó dung hợp (fusion) các hạt nh�
 
 > ⚠ **Lỗi thường gặp.** "Tất cả nguyên tố trong vũ trụ sinh ra từ Big Bang." Sai — Big Bang chỉ cho H và He (+ vết Li). Mọi thứ nặng hơn là sản phẩm của **các thế hệ sao** sau này.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vàng trong nhẫn cưới của bạn được nấu ở đâu?
+> 🔁 **Thực hành.** Vàng trong nhẫn cưới của bạn được nấu ở đâu?
 > <details><summary>Đáp án</summary>Trong vụ nổ siêu tân tinh hoặc va chạm sao neutron (r-process), không phải Big Bang và không phải dung hợp sao bình thường — vì vàng nặng hơn sắt, cần bắt neutron nhanh trong môi trường năng lượng khổng lồ.</details>
 
 > 📝 **Tóm tắt toàn bài.**

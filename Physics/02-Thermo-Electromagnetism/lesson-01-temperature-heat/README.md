@@ -59,7 +59,7 @@ $$KE_{\text{trung bình}} \propto k_B \cdot T \quad (k_B = \text{hằng số Bol
 - **Nhầm "nhiệt độ" với "nhiệt lượng"**. Câu "cốc nước này nhiều nhiệt độ" là sai — nhiệt độ là một mức (như độ cao), không phải lượng tích trữ. Đúng: "cốc nước này có nhiệt độ cao" hoặc "chứa nhiều nhiệt lượng".
 - **Tưởng vật nóng hơn luôn truyền cho ta nhiều năng lượng hơn**. Phản ví dụ: chạm tia lửa $800^\circ\text{C}$ (m rất nhỏ) chỉ giật mình, nhưng nhúng tay vào nước $60^\circ\text{C}$ (m lớn) bỏng nặng — vì nước truyền được Q nhiều hơn dù T thấp hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đun 1 g nước lên $90^\circ\text{C}$ và 1 kg nước lên $50^\circ\text{C}$. Cái nào có T cao hơn? Cái nào chứa nhiều năng lượng nhiệt hơn?
 2. Nếu trộn 2 cốc nước cùng $40^\circ\text{C}$, nhiệt độ hỗn hợp có thành $80^\circ\text{C}$ không?
@@ -120,7 +120,7 @@ K &= {}^\circ\text{C} + 273{,}15 \\
   - Phản ví dụ: $\eta_{\text{Carnot}}$ với $T_h = 100^\circ\text{C}$, $T_c = 0^\circ\text{C}$. Sai (dùng °C): $1 - 0/100 = 100\%$ (!?). Đúng (dùng K): $1 - 273/373 = 26{,}8\%$.
 - **Quên $+273{,}15$ khi đổi sang Kelvin**: $0^\circ\text{C}$ là $273{,}15 \text{ K}$, không phải 0 K.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đổi $37^\circ\text{C}$ (thân nhiệt) sang K và °F.
 2. Một quá trình làm vật tăng từ $20^\circ\text{C}$ lên $50^\circ\text{C}$. $\Delta T$ bằng bao nhiêu K?
@@ -181,7 +181,7 @@ trong đó:
 - **Sai dấu công W**. Với quy ước $\Delta U = Q + W$ của bài này: khí **bị nén** (môi trường làm công vào) $\to W > 0$; khí **giãn nở** (hệ đẩy piston ra) $\to W < 0$. Phản ví dụ: khí giãn nở làm 200 J công ra ngoài và nhận $Q = 500 \text{ J} \to \Delta U = 500 + (-200) = $ **300 J** (không phải 700 J).
 - **Lẫn U với Q**: viết "nội năng truyền vào" trong khi cái truyền là nhiệt lượng $Q$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hệ nhận $Q = 800 \text{ J}$ và đồng thời bị nén bởi công $W = 300 \text{ J}$. $\Delta U$ bằng bao nhiêu?
 2. Bơm xe đạp nén nhanh (gần như không kịp thoát nhiệt, $Q \approx 0$), bạn làm công 50 J vào khí. Nội năng và nhiệt độ khí thay đổi thế nào?
@@ -266,7 +266,7 @@ trong đó:
 - **Quên đổi đơn vị khối lượng**: $c$ của nước là 4186 J/**kg**·K. Nếu $m$ cho bằng gam phải đổi sang kg. Phản ví dụ: đun 500 g nước lên 10 K $\to Q = 0{,}5 \cdot 4186 \cdot 10 = $ **20930 J**, KHÔNG phải $500 \cdot 4186 \cdot 10 = 20\,930\,000 \text{ J}$.
 - **Dùng sai dấu $\Delta T$ trong cân bằng nhiệt**: vật nóng thì $(T_{\text{đầu}} - T_{\text{cân bằng}}) > 0$ (mất nhiệt), vật lạnh thì $(T_{\text{cân bằng}} - T_{\text{đầu}}) > 0$ (nhận nhiệt). Đặt sai dấu → vô nghiệm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cần bao nhiêu $Q$ để đun 0.5 kg nước ($c = 4186$) từ 20°C lên 100°C?
 2. Cùng $Q$, đun 1 kg sắt ($c = 449$) và 1 kg nước, cái nào nóng lên nhiều hơn?
@@ -322,7 +322,7 @@ trong đó $L$ = **nhiệt ẩn (latent heat)**:
 - **Dùng $Q = m \cdot c \cdot \Delta T$ cho giai đoạn chuyển pha**. Sai — trong chuyển pha $\Delta T = 0$ nên công thức đó cho $Q = 0$, vô lý. Phải dùng $Q = m \cdot L$. Phản ví dụ: làm tan 1 kg đá 0°C thành nước 0°C cần $Q = m \cdot L_f = 334\,000 \text{ J}$, không phải 0.
 - **Quên đơn vị $L$ là J/kg** (không phải J/(kg·K)) — $L$ không nhân với $\Delta T$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cần bao nhiêu $Q$ để làm tan 2 kg nước đá ở 0°C thành nước 0°C? ($L_f = 334\,000 \text{ J/kg}$)
 2. Đun nước đang ở 100°C, cấp thêm nhiệt — nhiệt độ có vượt 100°C không (ở 1 atm)?
@@ -374,7 +374,7 @@ Ví dụ: Mặt Trời sưởi ấm Trái Đất qua 150 triệu km chân không
 - **Tưởng chỉ vật nóng mới bức xạ**. Sai — cả vật lạnh cũng bức xạ (yếu hơn). Cơ thể người 37°C liên tục phát hồng ngoại (camera nhiệt nhìn thấy được).
 - **Nhầm đối lưu xảy ra trong vật rắn**. Đối lưu cần chất chảy được (lỏng/khí) để mang nhiệt đi; vật rắn chỉ dẫn nhiệt.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Khói bốc lên từ lửa trại — đó là cơ chế truyền nhiệt nào?
 2. Ngồi gần đống lửa thấy ấm mặt dù không khí giữa lửa và mặt vẫn mát — cơ chế nào?

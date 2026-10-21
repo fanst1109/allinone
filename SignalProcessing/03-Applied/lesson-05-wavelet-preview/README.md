@@ -144,7 +144,7 @@ Wavelet đề xuất: **cửa sổ co giãn theo tần số.**
 
 Cùng tuân nguyên lý bất định (diện tích mỗi ô vẫn $\ge \frac{1}{4\pi}$), nhưng wavelet **phân bổ lại** diện tích đó cho khôn ngoan — đúng chỗ cần.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao không có khung STFT nào "tốt cho cả nốt trầm dài lẫn tiếng gõ ngắn"?
 > 2. Wavelet xử lý tần số cao bằng cửa sổ rộng hay hẹp?
 >
@@ -306,7 +306,7 @@ $$[4,6,10,12] \;\xrightarrow{\text{Haar DWT}}\; \underbrace{[\,8\,]}_{\text{avg}
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao các detail mức 1 đều bằng −1 (nhỏ), còn average chứa số lớn?"* — Vì dãy này **trơn cục bộ** (mỗi cặp chỉ chênh 2). Detail nhỏ = ít thay đổi cục bộ ⇒ **đây là chìa khóa của nén**: phần lớn detail nhỏ, có thể vứt bỏ mà gần như không ảnh hưởng (mục 6).
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính Haar DWT mức 1 cho $[8, 8, 0, 4]$.
+> 🔁 **Thực hành.** Tính Haar DWT mức 1 cho $[8, 8, 0, 4]$.
 > <details><summary>Đáp án</summary>
 >
 > Cặp $(8,8)$: $s_0=8$, $d_0=0$. Cặp $(0,4)$: $s_1=2$, $d_1=-2$. → averages $[8,2]$, details $[0,-2]$. Detail $d_0=0$ vì cặp đầu **không đổi**; $d_1=-2$ vì cặp sau có bước nhảy. Haar "bắt" đúng chỗ thay đổi.

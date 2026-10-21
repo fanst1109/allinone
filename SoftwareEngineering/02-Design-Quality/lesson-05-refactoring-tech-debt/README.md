@@ -64,7 +64,7 @@ Vì ràng buộc cốt lõi của refactor là "không đổi hành vi", ta cầ
 > - *"Refactor có làm chương trình chạy nhanh hơn không?"* — Không nhất thiết. Mục tiêu của refactor là *dễ đọc, dễ sửa*; tối ưu tốc độ là việc khác (và nên đo trước khi tối ưu). Đôi khi code rõ ràng lại chậm hơn chút — thường không đáng lo.
 > - *"Đổi tên biến cũng tính là refactor à?"* — Có. Rename là một phép refactor (mục 2). Nó không đổi hành vi nhưng làm code dễ hiểu hơn nhiều.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một dev sửa hàm `calcTax` để nó trả về số tiền thuế *làm tròn đến đồng* thay vì để lẻ xu như trước. Đây có phải refactoring không?
+> 🔁 **Thực hành.** Một dev sửa hàm `calcTax` để nó trả về số tiền thuế *làm tròn đến đồng* thay vì để lẻ xu như trước. Đây có phải refactoring không?
 > <details><summary>Đáp án</summary><b>Không</b>. Với cùng input, output đã <i>khác</i> (45.7 → 46). Hành vi quan sát được đã đổi ⇒ đây là <b>sửa logic / đổi tính năng</b>, không phải refactor. Nếu gọi nhầm là "refactor" thì test cũ sẽ đỏ và ta tưởng mình làm hỏng — thực ra là ta đã đổi hành vi.</details>
 
 📝 **Tóm tắt mục 1.** Refactoring = cải thiện cấu trúc code **mà không đổi hành vi bên ngoài** (cùng input → cùng output & side-effect). Vì ràng buộc đó, **phải có test** để xác nhận hành vi không đổi sau mỗi thay đổi. Đừng lẫn refactor với sửa lỗi / thêm tính năng.
@@ -202,7 +202,7 @@ func discount(c *Customer) float64 {
 
 > ❓ **"Nhiều `return` thế có xấu không?"** Với guard clause thì *không* — ngược lại, nó làm rõ "các trường hợp loại trừ" ngay đầu hàm, để logic chính không bị thụt sâu. Mỗi guard trả lời "vì sao thoát sớm".
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn thấy đoạn `if status == 3 { ... }` lặp lại, `3` không rõ nghĩa. Nên dùng phép refactor nào?
+> 🔁 **Thực hành.** Bạn thấy đoạn `if status == 3 { ... }` lặp lại, `3` không rõ nghĩa. Nên dùng phép refactor nào?
 > <details><summary>Đáp án</summary><b>Replace Magic Number</b>: đặt <code>const statusShipped = 3</code> rồi thay mọi <code>3</code> bằng <code>statusShipped</code>. Code tự giải thích và đổi giá trị chỉ sửa một nơi.</details>
 
 📝 **Tóm tắt mục 2.** Bộ phép cơ bản: **Extract Function** (tách việc thành hàm), **Rename** (tên rõ nghĩa), **Inline** (gỡ lớp thừa), **Extract Variable** (đặt tên biểu thức), **Replace Magic Number** (số → hằng đặt tên), **Guard Clause** (thoát sớm, làm phẳng if). Mỗi phép nhỏ, an toàn, đảo ngược được — và **không đổi hành vi**.
@@ -243,7 +243,7 @@ Quy trình chuẩn:
 
 > ⚠ **Lỗi thường gặp #2.** Trộn refactor với thêm tính năng *trong cùng một commit*. Khi review/khi có bug, không ai phân biệt được "cấu trúc đổi" với "hành vi đổi". Tách hai loại commit riêng (Kent Beck gọi là "two hats" — đội mũ refactor *hoặc* mũ thêm tính năng, không cả hai cùng lúc).
 
-> 🔁 **Dừng lại tự kiểm tra.** Sau một phép Extract Function, bạn chạy test thì 2 test đỏ. Nên làm gì?
+> 🔁 **Thực hành.** Sau một phép Extract Function, bạn chạy test thì 2 test đỏ. Nên làm gì?
 > <details><summary>Đáp án</summary><b>Hoàn tác (revert) bước vừa rồi ngay</b>, trở về trạng thái test xanh, rồi xem lại phép tách. Đỏ nghĩa là bạn đã <i>vô tình đổi hành vi</i> (vd quên truyền tham số, sai phạm vi biến). Đừng "vá cho xanh" trên nền đang hỏng — dễ giấu lỗi sâu hơn.</details>
 
 📝 **Tóm tắt mục 3.** Refactor an toàn = vòng lặp **bước nhỏ → chạy test → commit nếu xanh, hoàn tác nếu đỏ**. Không gộp nhiều phép trước khi test; không trộn refactor với thêm tính năng trong một commit.
@@ -287,7 +287,7 @@ Không phải nợ nào cũng xấu. Fowler chia theo hai trục: **cố ý / v�
 > - *"Vậy mọi nợ kỹ thuật đều phải tránh à?"* — Không. Vay nợ *cố ý, thận trọng* để ra mắt sản phẩm sớm và kiểm chứng thị trường thường là quyết định đúng — *nếu* bạn ghi lại và trả sau. Cái phải tránh là nợ *liều lĩnh / vô ý*.
 > - *"Nợ kỹ thuật khác bug chỗ nào?"* — Bug = code chạy *sai*. Nợ kỹ thuật = code chạy *đúng* nhưng *khó sửa/khó hiểu*. Code đầy nợ vẫn có thể không có bug nào — cho tới khi bạn phải đổi nó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đội quyết định bỏ qua viết test cho một tính năng phụ vì deadline gấp, ghi lại trong backlog "thêm test cho module X" và lên lịch sprint sau. Đây là loại nợ nào?
+> 🔁 **Thực hành.** Đội quyết định bỏ qua viết test cho một tính năng phụ vì deadline gấp, ghi lại trong backlog "thêm test cho module X" và lên lịch sprint sau. Đây là loại nợ nào?
 > <details><summary>Đáp án</summary><b>Cố ý + thận trọng</b> (deliberate + prudent). Họ <i>biết</i> đang vay (cố ý), <i>có ghi lại và có kế hoạch trả</i> (thận trọng). Đây là loại nợ chấp nhận được. Nếu họ vay mà <i>không</i> ghi lại, không định trả thì thành <i>liều lĩnh</i>.</details>
 
 📝 **Tóm tắt mục 4.** Nợ kỹ thuật = chi phí tương lai khi chọn giải pháp nhanh-mà-bẩn; "lãi" = tốc độ phát triển chậm dần. Không trả → tích lũy, càng để lâu càng đắt (ví dụ: 20 ngày vs 13 ngày). Phân loại theo trục cố-ý/vô-ý × thận-trọng/liều-lĩnh; nợ *cố ý + thận trọng* là chấp nhận được, *liều lĩnh + vô ý* là nguy hiểm.
@@ -310,7 +310,7 @@ Nguyên tắc quyết định *khi nào trả nợ*:
 
 > ❓ **"Làm sao thuyết phục sếp/PO cho thời gian trả nợ?"** Dùng ngôn ngữ kinh doanh, không nói "code xấu". Nói: *"module này khiến mỗi tính năng chậm thêm ~1 ngày/tháng; bỏ 3 ngày refactor giờ sẽ tiết kiệm ~7 ngày trong 5 tháng tới"* (như bảng mục 4). Lượng hóa lãi → đánh đổi rõ ràng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Có hai vùng code đều bẩn: vùng A là engine thanh toán sửa gần như mỗi sprint; vùng B là script di trú dữ liệu chạy một lần năm ngoái, sẽ không bao giờ chạy lại. Nên refactor vùng nào trước?
+> 🔁 **Thực hành.** Có hai vùng code đều bẩn: vùng A là engine thanh toán sửa gần như mỗi sprint; vùng B là script di trú dữ liệu chạy một lần năm ngoái, sẽ không bao giờ chạy lại. Nên refactor vùng nào trước?
 > <details><summary>Đáp án</summary><b>Vùng A</b>. Lãi = mức bẩn × tần suất đụng. A hay sửa ⇒ lãi cao, trả nợ ở đây tiết kiệm nhiều nhất. B không ai đụng nữa ⇒ lãi ~0, refactor nó là lãng phí công sức (dù code xấu). "Code xấu" một mình không phải lý do refactor — phải có ai đó <i>phải đọc/sửa</i> nó.</details>
 
 📝 **Tóm tắt mục 5.** Quản lý nợ = trả *dần* và *có chọn lọc*: ưu tiên vùng lãi cao (bẩn × hay-sửa), dọn ngay nơi đang làm (Boy Scout rule), tránh big-bang refactor. Đánh đổi với deadline: vay *cố ý + thận trọng* và ghi backlog là chấp nhận được; trả muộn đắt hơn trả sớm (cùng quy luật đường cong chi phí).

@@ -76,7 +76,7 @@ Tổng: $2{,}5 + 13{,}5 + 34 + 34 + 16 = 100\%$ ✓
 > - *"Vì sao phải quan tâm 5 nhóm?"* → Vì chiến lược lan tới từng nhóm khác nhau: innovators cần cái mới, đa số cần bằng chứng + thấy người khác dùng. Bỏ qua early adopters (thủ lĩnh ý kiến) thì đa số không theo.
 > - *"'Vực ngăn' (chasm) là gì?"* → Moore chỉ ra khoảng hụt giữa early adopters và early majority: nhiều đổi mới chết ở đây vì không vượt được **khối lượng tới hạn** (nối [L11](../lesson-11-collective-action-tipping/)).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Nếu $q$ (bắt chước) = 0, đường cong còn hình S không?
 > 2. Đổi mới A có 5% dân đã dùng, B có 20%. Cái nào dễ vượt "vực ngăn" hơn?
 >

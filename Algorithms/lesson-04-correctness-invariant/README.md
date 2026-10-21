@@ -88,7 +88,7 @@ Một invariant hữu ích phải đồng thời:
 
 Mục 10 đi sâu vào cạm bẫy "quá mạnh / quá yếu" này.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Invariant đúng ở *thời điểm* nào trong một vòng lặp?
 > 2. Phần nào của "3 phần" tương ứng với base case của quy nạp?
 >
@@ -179,7 +179,7 @@ Tại mỗi dòng, vùng đậm **luôn** đã sắp xếp — đó là invarian
 > - *"Tại sao i bắt đầu từ 1 chứ không phải 0?"* — Vì `a[0..0]` (một phần tử) hiển nhiên đã sắp xếp; bắt đầu từ `i=1` cho phép khởi tạo invariant "miễn phí". Nếu bắt đầu `i=0` thì vùng `a[0..-1]` rỗng — vẫn đúng (mảng rỗng đã sắp xếp), nhưng vòng đầu không làm gì.
 > - *"Invariant có nói gì về `a[i..n-1]` không?"* — Không. Phần chưa xét có thể lộn xộn; invariant chỉ ràng buộc phần đã xử lý. Đó là cố ý — đủ mạnh để kết luận, đủ yếu để duy trì.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ở dòng `i=4, key=1`: vì sao `1` nhảy lên đầu mà `[2,4,5,6]` đều dời phải?
+> 🔁 **Thực hành.** Ở dòng `i=4, key=1`: vì sao `1` nhảy lên đầu mà `[2,4,5,6]` đều dời phải?
 > <details><summary>Đáp án</summary>
 > Vòng trong chạy `while a[j] > key`: `6>1, 5>1, 4>1, 2>1` đều đúng → cả 4 phần tử dời phải một ô, `j` về `-1`, đặt `key` vào `a[0]`. Invariant `a[0..4]=[1,2,4,5,6]` đã sắp xếp.
 > </details>
@@ -315,7 +315,7 @@ Tìm `target = 8` (không có): [0..6]→ a[3]=7<8 → [4..6]→ a[5]=11>8 → [
 > - *"Vì sao `lo = mid + 1` chứ không `lo = mid`?"* — Vì `a[mid] < target` nên `mid` chắc chắn không phải đáp án; loại nó luôn. Nếu để `lo = mid`, đoạn có thể **không co** khi `lo, hi` kề nhau → vòng lặp vô hạn (xem mục 10).
 > - *"Có bao nhiêu biến thể binary search?"* — Nhiều (lower_bound, upper_bound, tìm cận). Mỗi biến thể cần invariant riêng. Sẽ học kỹ ở Tier 2.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với `a=[2,4,6]`, tìm `5`. Đoạn co thế nào, kết quả?
+> 🔁 **Thực hành.** Với `a=[2,4,6]`, tìm `5`. Đoạn co thế nào, kết quả?
 > <details><summary>Đáp án</summary>
 > [0..2] mid=1 a[1]=4<5 → lo=2; [2..2] mid=2 a[2]=6>5 → hi=1; `lo=2>hi=1` thoát → −1. Đoạn: 3→1→0. ✓
 > </details>
@@ -413,7 +413,7 @@ Nhìn lại insertion sort (mục 3): "Init" chứng minh $I(1)$, "Maintenance" 
 
 > ⚠ **Lỗi thường gặp.** Chứng minh inductive step nhưng quên giả thiết quy nạp — biến nó thành chứng minh trực tiếp $P(k+1)$ từ con số 0 (thường bất khả). Inductive step **được phép dùng** $P(k)$ như đã đúng; đó là sức mạnh của quy nạp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong maintenance của Max (mục 4.2), đâu là "giả thiết quy nạp"?
+> 🔁 **Thực hành.** Trong maintenance của Max (mục 4.2), đâu là "giả thiết quy nạp"?
 > <details><summary>Đáp án</summary>
 > "Giả sử `max` = max(`a[0..i-1]`)" — đó là `I(i)`, đóng vai trò `P(k)`. Từ đó suy ra `I(i+1)`.
 > </details>
@@ -478,7 +478,7 @@ $b$: 18 → 12 → 6 → 0 (giảm chặt). Trả $a = 6 = \gcd(48,18)$. ✓ Ver
 
 > ⚠ **Lỗi thường gặp.** Quên termination khi loop điều kiện "phức tạp" (vd `while x != 1` trong bài Collatz) — không có variant hiển nhiên → **không** kết luận được nó dừng (Collatz là bài toán mở!). Có invariant đúng vẫn KHÔNG đảm bảo dừng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Variant của vòng `for i := 0; i < n; i++` là gì?
+> 🔁 **Thực hành.** Variant của vòng `for i := 0; i < n; i++` là gì?
 > <details><summary>Đáp án</summary>
 > $V = n - i$, giảm 1 mỗi vòng (do `i++`), chặn dưới 0 (thoát khi $i=n$ → $V=0$).
 > </details>
@@ -534,7 +534,7 @@ Vậy $P(n)$ đúng. Theo quy nạp mạnh, `Power` đúng $\forall n \geq 0$. �
 > - *"Vì sao cần quy nạp MẠNH chứ không thường?"* — Vì lời gọi nhảy từ $n$ tới $n/2$, không phải $n-1$. Quy nạp thường chỉ cho giả định $P(n-1)$; ta cần $P(n/2)$. Quy nạp mạnh cho giả định *mọi* $m < n$ → bao gồm $n/2$.
 > - *"Phải chứng minh termination riêng cho đệ quy không?"* — Có. Đúng kết quả (partial) và dừng là hai chuyện. Variant cho đệ quy chính là "kích thước input giảm về base case".
 
-> 🔁 **Dừng lại tự kiểm tra.** Base case của đệ quy tương ứng phần nào của loop invariant?
+> 🔁 **Thực hành.** Base case của đệ quy tương ứng phần nào của loop invariant?
 > <details><summary>Đáp án</summary>
 > Base case (đệ quy) ↔ Initialization (loop) ↔ base case (quy nạp). Cả ba là "điểm neo" để quy nạp khởi động.
 > </details>

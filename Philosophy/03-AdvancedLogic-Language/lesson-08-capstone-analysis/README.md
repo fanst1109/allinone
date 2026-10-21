@@ -339,7 +339,7 @@ Anselm nói về GCB — Gaunilo dùng cùng logic cho "hòn đảo hoàn hảo 
 | Logic tính toán, P vs NP | SAT, BDD | L07 |
 | **Phân tích capstone 6 bước** | — | **L08** |
 
-> 🔁 **Dừng lại tự kiểm tra.** Không nhìn bảng, trả lời:
+> 🔁 **Thực hành.** Không nhìn bảng, trả lời:
 > 1. Sự khác nhau giữa valid và sound là gì?
 > 2. □P và ◇P khác nhau thế nào?
 > 3. Steelman là gì và tại sao nó quan trọng hơn straw man?

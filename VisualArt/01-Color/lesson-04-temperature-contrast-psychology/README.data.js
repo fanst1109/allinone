@@ -64,7 +64,7 @@ Dù hai chấm **cùng đường kính pixel**, cảm nhận độ sâu khác nh
 > - *"Vậy cứ tô nóng là ra tiền cảnh?"* → Không chỉ nhiệt độ. Độ sâu = nhiệt độ **cộng** độ tương phản (mục 2) **cộng** độ bão hòa: gần thì nóng-tươi-tương phản mạnh, xa thì lạnh-nhạt-tương phản yếu. Ba yếu tố cộng hưởng.
 > - *"Nếu nền đang nóng thì sao?"* → Khi đó màu *lạnh* lại nổi bật (tương phản nóng-lạnh, mục 2.3). Tiến/lùi bị chi phối bởi tương quan với nền, không tuyệt đối.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. \`hsl(300, 70%, 50%)\` (hồng cánh sen 300°) nghiêng nóng hay lạnh?
 > 2. Muốn dãy núi *lùi xa nhất*, chọn tông nào: cam tươi hay lam nhạt?
 >
@@ -172,7 +172,7 @@ Ví dụ số — **cam ↔ lam**:
 
 > ⚠ **Lỗi thường gặp.** Chia đôi 50-50 một cặp lệch trọng số (vàng vs tím) → vàng "hét" át tím. Ít diện tích màu mạnh + nhiều diện tích màu yếu mới hài hòa. Đây là lý do accent color (nút CTA) chỉ chiếm **vài %** diện tích.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Chữ trên nút: hai màu chênh hue \`150°\` nhưng chênh lightness chỉ \`4\`. Đọc tốt không?
 > 2. Cân bằng **đỏ (6) ↔ lục (6)** thì tỉ lệ diện tích bao nhiêu?
 >

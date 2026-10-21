@@ -81,7 +81,7 @@ Năng lượng dao động giữa KE và PE, nhưng **tổng không đổi**:
 - *"$a = -\omega^2 \cdot x$ nghĩa là gì?"* Gia tốc luôn **ngược dấu** với vị trí (dấu −) và tỉ lệ với độ lệch. Lệch phải → bị kéo trái; lệch xa → kéo mạnh. Đây chính là đặc trưng nhận diện SHM.
 - *"Năng lượng dao động ra sao trong một chu kỳ?"* Liên tục chuyển qua lại giữa động năng và thế năng, nhưng **tổng $= \frac{1}{2}kA^2$ không đổi**. Ở biên: toàn thế năng ($v = 0$). Ở cân bằng: toàn động năng ($x = 0$, v max).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật dao động với $\omega = 5$ rad/s, biên độ $A = 0{,}1$ m. Tần số f và chu kỳ T?
 2. Tại vị trí nào (cân bằng hay biên) thì vận tốc lớn nhất? Gia tốc lớn nhất?
@@ -130,7 +130,7 @@ $$m \cdot \omega^2 = k \to \omega = \sqrt{\frac{k}{m}} \to T = 2\pi \cdot \sqrt{
 - *"Lò xo cứng hơn (k lớn) thì sao?"* Dao động **nhanh hơn** (T nhỏ). Lực kéo về mạnh hơn → vật bị "giật" về cân bằng nhanh hơn. k ở mẫu nên k lớn → T nhỏ.
 - *"Vì sao đồng hồ con lắc giữ giờ chính xác dù biên độ giảm dần?"* Vì chu kỳ độc lập với biên độ. Khi đồng hồ "yếu" dần, biên độ nhỏ lại nhưng mỗi dao động vẫn mất đúng bấy nhiêu thời gian → giờ vẫn chính xác.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lò xo k = 100 N/m gắn vật 1 kg. Tính chu kỳ T.
 2. Nếu thay vật bằng vật nặng gấp 4 lần (4 kg), chu kỳ thay đổi thế nào?
@@ -178,7 +178,7 @@ $$T = 2\pi \cdot \sqrt{\frac{L}{g}}$$
 - *"Vì sao chỉ đúng với góc nhỏ?"* Vì chứng minh dùng xấp xỉ $\sin(\theta) \approx \theta$ (chỉ đúng khi $\theta$ nhỏ, tính bằng radian). Góc lớn → xấp xỉ sai → SHM không còn chính xác → chu kỳ dài hơn.
 - *"Đưa đồng hồ con lắc lên núi cao thì chạy nhanh hay chậm?"* g giảm theo độ cao → $T = 2\pi\sqrt{\frac{L}{g}}$ tăng → mỗi dao động lâu hơn → đồng hồ chạy **chậm** hơn. (Tương tự lên Mặt Trăng chậm hơn nhiều vì g nhỏ.)
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Con lắc đơn dài 2 m trên Trái Đất. Tính chu kỳ. ($g = 9{,}8$)
 2. Cùng con lắc đó nhưng treo vật nặng gấp đôi. Chu kỳ thay đổi không?
@@ -251,7 +251,7 @@ $$v = \lambda \cdot f$$
 - *"$v = \lambda f$ nghĩa là gì trực giác?"* Trong một chu kỳ T, sóng tiến được đúng một bước sóng $\lambda$. Vậy tốc độ = quãng đường/thời gian $= \frac{\lambda}{T} = \lambda f$. Tần số cao + bước sóng dài → sóng nhanh.
 - *"Vì sao siêu âm dùng tần số cao?"* Vì $\lambda$ nhỏ ($\lambda = \frac{v}{f}$). Bước sóng nhỏ "nhìn thấy" được chi tiết nhỏ trong cơ thể (phân giải tốt). Tần số thấp → $\lambda$ lớn → chỉ thấy được vật to.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Sóng có bước sóng 0.5 m và tần số 680 Hz. Tính tốc độ truyền sóng.
 2. Sóng âm 256 Hz truyền trong không khí (v = 343 m/s). Bước sóng bằng bao nhiêu?

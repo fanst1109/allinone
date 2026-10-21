@@ -51,7 +51,7 @@ Xem thêm bối cảnh các phong trào yêu nước đầu thế kỷ XX tại:
 
 🔗 **Nhân – quả:** Việc chọn đi thẳng sang phương Tây, làm nhiều nghề (phụ bếp, thợ ảnh, viết báo, diễn thuyết) để tiếp cận trực tiếp xã hội tư bản và phong trào công nhân quốc tế — đặt nền tảng cho bước ngoặt tư tưởng năm 1919–1920.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Tại sao sự ra đi của Nguyễn Tất Thành năm 1911 được coi là quan trọng trong lịch sử phong trào yêu nước Việt Nam?*
 
@@ -121,7 +121,7 @@ Nguyễn Ái Quốc phát biểu tại đại hội, lên án chính sách thu�
 
 🔗 **Nhân – quả:** Năm 1920 đánh dấu chuyển biến từ một nhà yêu nước hoạt động trong khuôn khổ cải cách sang một nhà cách mạng theo chủ nghĩa Mác–Lê-nin. Đây là điều kiện tiên quyết cho tất cả các hoạt động tổ chức tiếp theo.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Sự kiện tháng 12/1920 tại Đại hội Tours có ý nghĩa gì với Nguyễn Ái Quốc và với phong trào cách mạng Việt Nam?*
 
@@ -181,7 +181,7 @@ Nội dung bàn về: tại sao phải làm cách mạng, ai là lực lượng 
 >
 > Pháp đang truy tìm ông — về nước đồng nghĩa với nguy cơ bị bắt ngay. Hoạt động ở nước ngoài (Paris, Moscow, Quảng Châu) cho phép ông tiếp cận mạng lưới quốc tế, học lý luận, đào tạo cán bộ Việt Nam rồi đưa họ về nước hoạt động bí mật. Đây là chiến lược tổ chức từ bên ngoài vào, phổ biến với nhiều phong trào giải phóng dân tộc thời kỳ đó.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Vai trò của Hội Việt Nam Cách mạng Thanh niên (1925) là gì trong tiến trình thành lập Đảng Cộng sản Việt Nam năm 1930?*
 
@@ -244,7 +244,7 @@ Ngày thành lập Đảng thường được ghi là **3/2/1930** (ngày khai m
 >
 > Cương lĩnh (do Nguyễn Ái Quốc soạn) xác định: (1) Mục tiêu trước mắt là đánh đổ đế quốc Pháp và phong kiến tay sai, giành độc lập dân tộc; (2) Lực lượng nòng cốt là giai cấp công nhân và nông dân, đồng minh với tiểu tư sản và trí thức; (3) Đảng Cộng sản là tổ chức lãnh đạo cách mạng; (4) Liên hệ mật thiết với cách mạng vô sản thế giới.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Tại sao Quốc tế Cộng sản (Comintern) lại chỉ thị hợp nhất ba tổ chức cộng sản Việt Nam thay vì để chúng hoạt động riêng rẽ?*
 

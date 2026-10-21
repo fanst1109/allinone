@@ -54,7 +54,7 @@ A: Vì "tự diễn ra" (nhiệt động) **không** có nghĩa "diễn ra nhanh
 **Q: Sao cơ thể không làm hết bằng dị hóa cho gọn, mà còn đồng hóa làm gì?**
 A: Vì cơ thể vừa cần **năng lượng** (lấy từ dị hóa), vừa cần **xây dựng và sửa chữa** (cơ bắp, enzyme, DNA, màng — đều cần đồng hóa). Sống = liên tục phá cái cũ để lấy năng lượng và xây cái mới. Hai nhánh phải cân bằng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tổng hợp 1 chuỗi protein từ amino acid là đồng hóa hay dị hóa? Thu hay tỏa năng lượng?
 2. Tiêu hóa (thủy phân) tinh bột thành glucose là nhánh nào?
@@ -122,7 +122,7 @@ A: Để **tốc độ**. Không enzyme, nhiều phản ứng sống còn (tiêu
 **Q: Nhiệt độ cũng tăng tốc phản ứng — sao cơ thể không cứ tăng nhiệt thay vì dùng enzyme?**
 A: Vì protein (kể cả enzyme) **biến tính** khi nóng quá (§4). Đun cơ thể lên 60°C để tăng tốc sẽ làm chính enzyme và mọi protein mất hình dạng — chết. Enzyme cho phép tăng tốc mà giữ nhiệt độ an toàn 37°C.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một phản ứng có ΔG = −50 kJ/mol và Ea = 80 kJ/mol. Thêm enzyme hạ Ea xuống 30 kJ/mol. Hỏi: (a) ΔG mới bằng bao nhiêu? (b) Phản ứng nhanh hơn hay chậm hơn?
 2. Vì sao bôi oxy già lên vết thương lại sủi bọt, mà đổ oxy già lên bàn gỗ thì không?
@@ -192,7 +192,7 @@ A: Không. Enzyme có **tính đặc hiệu** cao — mỗi enzyme thường ch�
 **Q: Sau khi nhả sản phẩm, enzyme "mòn" đi không?**
 A: Không — enzyme tái sử dụng nguyên vẹn. Một phân tử lactase có thể cắt hàng triệu phân tử lactose trong đời nó. Đây là lý do tế bào chỉ cần **rất ít** enzyme (lượng nhỏ) mà xử lý được lượng cơ chất lớn.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao enzyme có tính đặc hiệu cao (mỗi enzyme chỉ một loại cơ chất)?
 2. Mô hình "khóa–chìa" và "khớp cảm ứng" khác nhau ở điểm cốt lõi nào?
@@ -272,7 +272,7 @@ A: Sốt nhẹ tăng tốc enzyme đôi chút (và làm vi khuẩn khó chịu).
 **Q: Vì sao dạ dày dùng pepsin (pH 2) mà ruột dùng trypsin (pH 8)?**
 A: Vì mỗi cơ quan có môi trường pH khác nhau (dạ dày acid để diệt khuẩn + hoạt hóa pepsin; ruột kiềm nhờ dịch tụy). Mỗi enzyme tiến hóa để tối ưu đúng môi trường nơi nó làm việc.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Với mô hình \`v = Vmax·[S]/(Km+[S])\`, \`Vmax = 60\`, \`Km = 4\` mM: tính v khi [S] = 4 mM và khi [S] = 36 mM.
 2. Cho enzyme vào dung dịch ở 70°C, hoạt tính = 0. Hạ về 37°C, hoạt tính **không** trở lại. Giải thích.
@@ -338,7 +338,7 @@ A: Tăng nồng độ cơ chất rất cao và đo lại. Nếu tốc độ **ph
 **Q: Ức chế có phải luôn là điều xấu?**
 A: Không. Cơ thể dùng ức chế để **điều hòa** chuyển hóa — vd sản phẩm cuối của một chuỗi phản ứng quay lại ức chế enzyme đầu chuỗi (ức chế ngược, feedback inhibition), tránh sản xuất thừa. Đó là điều khiển thông minh, không phải hỏng hóc.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một chất ức chế làm v giảm. Bạn tăng [S] gấp 20 lần, v phục hồi gần Vmax. Đây là loại ức chế nào?
 2. Loại ức chế nào làm **giảm Vmax**? Vì sao?
@@ -416,7 +416,7 @@ A: Vì glucose giải phóng năng lượng "cả cục" (~686 kcal/mol) — qu�
 **Q: 7.3 kcal/mol là con số cố định tuyệt đối?**
 A: Đó là giá trị **chuẩn (ΔG°′)** ở điều kiện chuẩn. Trong tế bào thật, do nồng độ ATP/ADP/Pi khác chuẩn, năng lượng thực tế thủy phân ATP thường lớn hơn, khoảng **−11 đến −13 kcal/mol**. Ta dùng 7.3 làm mốc tính toán quy ước.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tính năng lượng (kcal/mol) giải phóng khi thủy phân: (a) 4 ATP, (b) 30 ATP.
 2. Một glucose cho 686 kcal/mol khi đốt; tế bào thu được 277 kcal/mol vào 38 ATP. Hiệu suất bao nhiêu %? Phần còn lại đi đâu?

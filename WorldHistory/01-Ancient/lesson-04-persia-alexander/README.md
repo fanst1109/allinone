@@ -67,7 +67,7 @@ Nhiều người nghĩ đế chế cổ đại đều hành xử như nhau: chin
 
 **Trả lời:** Đây là cách diễn giải hiện đại và gây tranh luận trong giới học giả. "Trụ Cyrus" chủ yếu là văn bản truyền thống ca ngợi vua mới, theo phong cách Mesopotamia, không phải tuyên bố quyền cá nhân theo nghĩa hiện đại. Tuy nhiên, nó ghi nhận việc Cyrus thả nô lệ và tôn trọng thần linh bản địa — là sự khác biệt thực chất so với các đế chế đương thời.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Hệ thống satrap giải quyết vấn đề gì của việc cai trị một đế chế rộng lớn?*
 
@@ -148,7 +148,7 @@ Philip II cải tiến đội hình chiến đấu:
 - **Hetairoi** ("đồng hành") — kỵ binh quý tộc tinh nhuệ, tấn công điểm yếu của đối phương sau khi phalanx cầm chân.
 - Kết hợp bộ binh, kỵ binh, và lực lượng hỗ trợ đặc biệt (cung thủ, vũ khí vây hãm) — đây là quân đội chuyên nghiệp tổng hợp, không chỉ huy động công dân như polis Hy Lạp.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Tại sao các thành bang Hy Lạp không thể cản được Philip II dù đã kinh qua hàng thế kỉ chiến tranh?*
 
@@ -208,7 +208,7 @@ Darius III lần này chọn đồng bằng mở rộng ở Mesopotamia (gần M
 
 **Trả lời:** Không phải vì thiếu năng lực quân sự. Quân sĩ của ông sau 8 năm xa nhà, vượt hàng chục nghìn km, đã kiệt sức và muốn về. Ở sông Hyphasis (326 TCN), họ từ chối tiến thêm. Alexander — lần đầu tiên trong cuộc đời — buộc phải nhượng bộ ý chí của người khác.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Đặc điểm chiến thuật gì khiến Alexander liên tục thắng dù thường quân số ít hơn?*
 

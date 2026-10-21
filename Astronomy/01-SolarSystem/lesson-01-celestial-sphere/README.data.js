@@ -32,7 +32,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Thiên cầu **không quay** — Trái Đất mới quay. Cảm giác "bầu trời quay" là do ta đứng trên một Trái Đất tự quay quanh trục. Đây là một *toy model* lấy người quan sát làm tâm: tiện để mô tả góc nhìn, nhưng đừng nhầm nó với thực tại vật lý (Lesson 07 sẽ kể chuyện địa tâm → nhật tâm).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao chỉ cần 2 con số để định vị một sao, trong khi định vị một chiếc máy bay cần 3 (kinh độ, vĩ độ, độ cao)?
+> 🔁 **Thực hành.** Vì sao chỉ cần 2 con số để định vị một sao, trong khi định vị một chiếc máy bay cần 3 (kinh độ, vĩ độ, độ cao)?
 > <details><summary>Đáp án</summary>Vì với sao ta cố tình bỏ qua khoảng cách (chiều thứ 3). Máy bay thì độ cao quan trọng nên cần đủ 3. Thiên cầu = "máy bay nhưng ai cũng coi như ở cùng một độ cao vô hạn".</details>
 
 ---
@@ -61,7 +61,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nhầm phương vị bắt đầu từ hướng Bắc với bắt đầu từ hướng Nam. Có tài liệu (đặc biệt cũ) lấy Nam = 0°. Bài này theo chuẩn phổ biến hiện nay: **Bắc = 0°, theo chiều kim đồng hồ.**
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao có $\\text{alt} = -5^\\circ$. Bạn có nhìn thấy nó không?
+> 🔁 **Thực hành.** Một sao có $\\text{alt} = -5^\\circ$. Bạn có nhìn thấy nó không?
 > <details><summary>Đáp án</summary>Không. Độ cao âm nghĩa là sao nằm dưới đường chân trời (bị Trái Đất che). Phải đợi nó "mọc" lên alt > 0.</details>
 
 ---
@@ -91,7 +91,7 @@ Bầu trời quay quanh một trục: trục quay của Trái Đất kéo dài r
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao ở xích đạo nhìn được nhiều sao nhất?"* — Vì ở \`φ = 0°\`, cả thiên cực bắc và nam đều nằm trên chân trời, và trong một năm bầu trời "lăn qua" toàn bộ thiên cầu → về lý thuyết thấy được mọi sao. Ở hai cực thì ngược lại: chỉ thấy đúng một nửa thiên cầu, nửa kia vĩnh viễn khuất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn đứng ở Hà Nội (φ ≈ 21°), nhìn Polaris cao 21°. Bạn bay tới Singapore (φ ≈ 1°). Polaris bây giờ cao bao nhiêu?
+> 🔁 **Thực hành.** Bạn đứng ở Hà Nội (φ ≈ 21°), nhìn Polaris cao 21°. Bạn bay tới Singapore (φ ≈ 1°). Polaris bây giờ cao bao nhiêu?
 > <details><summary>Đáp án</summary>≈ 1° — gần như sát chân trời bắc, rất khó thấy. Vì độ cao thiên cực = vĩ độ.</details>
 
 ---
@@ -138,7 +138,7 @@ $$\\begin{aligned}
 
 > ⚠ **Lỗi thường gặp.** Quên dấu trị tuyệt đối \`| |\`. Nếu bỏ dấu, với sao Dec âm bạn sẽ ra độ cao > 90° (vô lý). Trị tuyệt đối đảm bảo $\\text{alt}_{max} \\leq 90^\\circ$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao có $\\delta = +21^\\circ$ quan sát từ Hà Nội $\\varphi = 21^\\circ$. Độ cao cực đại?
+> 🔁 **Thực hành.** Một sao có $\\delta = +21^\\circ$ quan sát từ Hà Nội $\\varphi = 21^\\circ$. Độ cao cực đại?
 > <details><summary>Đáp án</summary>$\\text{alt}_{max} = 90^\\circ - |21^\\circ - 21^\\circ| = 90^\\circ - 0^\\circ = 90^\\circ$. Sao đi **ngay qua thiên đỉnh** — vì xích vĩ của nó bằng đúng vĩ độ người quan sát.</details>
 
 ---

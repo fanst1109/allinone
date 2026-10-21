@@ -72,7 +72,7 @@ Vài cây khung khả dĩ (mỗi cây 3 cạnh = `V-1 = 4-1`):
 - **Maze generation**: random MST của lưới ô vuông → mê cung không vòng kín.
 - **Phân tích ảnh / image segmentation**: tách vùng theo độ tương đồng pixel.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Đồ thị 7 đỉnh, MST có bao nhiêu cạnh?
 > 2. MST có thể chứa chu trình không?
 >
@@ -118,7 +118,7 @@ Giả sử $e = (u, v)$ là cạnh nhẹ nhất qua cut $(S, V \setminus S)$, v�
 
 > **❓ Câu hỏi tự nhiên.** "Nếu trọng số trùng (không có 'nhẹ nhất duy nhất') thì sao?" — Định lý vẫn đúng dạng yếu hơn: tồn tại *một* MST chứa cạnh nhẹ nhất đó. Khi trọng số trùng, MST có thể không duy nhất (mục 7), nhưng greedy vẫn cho ra một MST hợp lệ.
 
-> **🔁 Dừng lại tự kiểm tra.** Cho cut $S = \{A, B\}$, $V \setminus S = \{C, D\}$ trong ví dụ mục 1.2. Các cạnh nào vắt qua cut? Cạnh nào nhẹ nhất?
+> **🔁 Thực hành.** Cho cut $S = \{A, B\}$, $V \setminus S = \{C, D\}$ trong ví dụ mục 1.2. Các cạnh nào vắt qua cut? Cạnh nào nhẹ nhất?
 >
 > <details><summary>Đáp án</summary>
 > Cạnh vắt qua: A-C(3), B-C(1), B-D(4). Nhẹ nhất = B-C(1) → thuộc MST. Đúng vậy, MST mục 1.2 có chứa B-C.
@@ -307,7 +307,7 @@ func (uf *UnionFind) Union(x, y int) bool {
 
 > **❓ Câu hỏi tự nhiên.** "Sao `Find` đệ quy lại nén được đường?" — Dòng `uf.parent[x] = uf.Find(uf.parent[x])` chạy `Find` cho cha trước (lấy gốc), rồi gán gốc đó làm cha mới của `x`. Đệ quy lan tới mọi nút trên đường → tất cả trỏ thẳng gốc.
 
-> **🔁 Dừng lại tự kiểm tra.** Với 5 phần tử mới khởi tạo, gọi `Union(0,1)`, `Union(2,3)`, `Union(1,3)`. Sau cùng `Find(0)` và `Find(2)` có bằng nhau không?
+> **🔁 Thực hành.** Với 5 phần tử mới khởi tạo, gọi `Union(0,1)`, `Union(2,3)`, `Union(1,3)`. Sau cùng `Find(0)` và `Find(2)` có bằng nhau không?
 >
 > <details><summary>Đáp án</summary>
 > Có. `Union(0,1)`→{0,1}; `Union(2,3)`→{2,3}; `Union(1,3)` gộp {0,1} với {2,3} → {0,1,2,3}. Nên `Find(0) == Find(2)`.
@@ -416,7 +416,7 @@ func Prim(V int, adj [][]pqItem, start int) int {
 
 > **❓ Câu hỏi tự nhiên.** "Sao có thể push cùng một đỉnh nhiều lần?" — Đúng vậy, ta dùng "lazy heap": một đỉnh ngoài có thể có nhiều cạnh biên trong heap. Khi pop ra mà đỉnh đã trong cây thì bỏ (dòng `if inMST`). Đơn giản hơn decrease-key, chỉ tốn thêm hằng số.
 
-> **🔁 Dừng lại tự kiểm tra.** Nếu Prim bắt đầu từ đỉnh `2` thay vì `0` (đồ thị mục 5.2), MST weight có đổi không?
+> **🔁 Thực hành.** Nếu Prim bắt đầu từ đỉnh `2` thay vì `0` (đồ thị mục 5.2), MST weight có đổi không?
 >
 > <details><summary>Đáp án</summary>
 > Không. MST weight luôn = 16 bất kể đỉnh khởi đầu (MST weight là bất biến của đồ thị). Tập cạnh cũng giống vì đồ thị này MST duy nhất.

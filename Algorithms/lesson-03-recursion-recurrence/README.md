@@ -134,7 +134,7 @@ Bỏ sót câu 1 → vô hạn; sai câu 2 → vô hạn hoặc sai; sai câu 3 
 > - *"Đệ quy có luôn thay được bằng vòng lặp không?"* — Về lý thuyết: có (mọi đệ quy mô phỏng được bằng vòng lặp + explicit stack, xem mục 7). Về thực hành: với cây/quay lui, đệ quy rõ ràng hơn nhiều.
 > - *"Vì sao `factorial(5)` ra `120` mà code dừng ở `n<=1`?"* — Vì khi `n=1` trả `1`, rồi các tầng trên nhân ngược lên: `2×1=2, 3×2=6, 4×6=24, 5×24=120`.
 
-> 🔁 **Dừng lại tự kiểm tra.** `factorial(4)` khai triển ra sao và bằng bao nhiêu?
+> 🔁 **Thực hành.** `factorial(4)` khai triển ra sao và bằng bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -184,7 +184,7 @@ Stack có giới hạn dung lượng. Đệ quy sâu (hoặc vô hạn vì quên
 > - *"Vì sao iterative (vòng lặp) thường tốn $O(1)$ bộ nhớ?"* — Vòng lặp không tạo frame mới mỗi vòng; chỉ tái dùng vài biến → không có stack growth.
 > - *"Quên base case thì sao?"* — Đệ quy không bao giờ dừng → push frame liên tục → stack overflow (xem mục 9).
 
-> 🔁 **Dừng lại tự kiểm tra.** Độ sâu stack tối đa khi chạy `fib(5)` là bao nhiêu?
+> 🔁 **Thực hành.** Độ sâu stack tối đa khi chạy `fib(5)` là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -313,7 +313,7 @@ Vế phải $(c+1) \cdot n$ luôn lớn hơn $c \cdot n$ → quy nạp **thất 
 
 Công thức "tra bảng" cho recurrence dạng chia-để-trị. Chi tiết ở mục 5.
 
-> 🔁 **Dừng lại tự kiểm tra.** Recursion tree cho $T(n) = T(n/2) + 1$ (binary search): mỗi level tốn bao nhiêu, có bao nhiêu level, tổng là gì?
+> 🔁 **Thực hành.** Recursion tree cho $T(n) = T(n/2) + 1$ (binary search): mỗi level tốn bao nhiêu, có bao nhiêu level, tổng là gì?
 >
 > <details><summary>Đáp án</summary>
 >

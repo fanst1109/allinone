@@ -48,7 +48,7 @@ Nhưng quan sát: $v(20 \ \text{kpc}) \approx 200 \ \text{km/s}$ (phẳng!). Đ�
 
 > ⚠ **Lỗi thường gặp.** "Vật chất tối là lỗ đen / khí lạnh / hành tinh lang thang nên không thấy." Phần lớn đã bị loại: nếu là vật chất thường (baryon) thì sẽ ảnh hưởng tỉ lệ nguyên tố nhẹ (Lesson 04) và CMB theo cách không khớp quan sát. Vật chất tối gần như chắc chắn là **phi-baryon** (không phải proton/neutron).
 
-> 🔁 **Dừng lại tự kiểm tra.** Theo Kepler thuần, một sao ở $r = 9 \ \text{kpc}$ so với sao ở $r = 1 \ \text{kpc}$ (cùng khối lượng trung tâm) quay nhanh hay chậm hơn, bao nhiêu lần?
+> 🔁 **Thực hành.** Theo Kepler thuần, một sao ở $r = 9 \ \text{kpc}$ so với sao ở $r = 1 \ \text{kpc}$ (cùng khối lượng trung tâm) quay nhanh hay chậm hơn, bao nhiêu lần?
 > <details><summary>Đáp án</summary>Chậm hơn. $v \propto 1/\sqrt{r}$, $r$ tăng 9 lần ⇒ $v$ giảm $\sqrt{9} = 3$ lần. Nhưng thực tế đường cong phẳng nên nó quay gần bằng — đó là dấu hiệu vật chất tối.</details>
 
 ---
@@ -67,7 +67,7 @@ Năm 1933, Fritz Zwicky đo tốc độ các thiên hà trong **đám Coma**: ch
 
 > ❓ **Câu hỏi tự nhiên.** *"Ba bằng chứng (đường cong quay, lensing, đám thiên hà) có thể cùng sai theo một kiểu không?"* — Khó. Chúng đo ở các thang khác nhau (một thiên hà / ánh sáng bẻ cong / cả đám) bằng phương pháp khác nhau, nhưng đều cho cùng kết luận "thiếu ~5–6 lần khối lượng". Sự nhất quán này khiến vật chất tối rất đáng tin, dù bản chất hạt còn bí ẩn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao thấu kính hấp dẫn đo được khối lượng mà **không cần** thiên thể đó phát sáng?
+> 🔁 **Thực hành.** Vì sao thấu kính hấp dẫn đo được khối lượng mà **không cần** thiên thể đó phát sáng?
 > <details><summary>Đáp án</summary>Vì lensing chỉ phụ thuộc khối lượng (qua độ cong không-thời gian), không phụ thuộc thiên thể có phát ánh sáng hay không. Nên nó "thấy" được cả vật chất tối — đo tổng khối lượng kể cả phần vô hình.</details>
 
 ---
@@ -90,7 +90,7 @@ Năm 1933, Fritz Zwicky đo tốc độ các thiên hà trong **đám Coma**: ch
 
 > ⚠ **Lỗi thường gặp.** "Năng lượng tối và vật chất tối là một thứ." **Khác hẳn.** Vật chất tối **hút** (gom thành quầng quanh thiên hà, giúp hình thành cấu trúc). Năng lượng tối **đẩy** (tràn đều khắp không gian, làm giãn nở tăng tốc). Hai cái đối lập về tác dụng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu siêu tân tinh Ia ở xa trông **mờ hơn** dự kiến, điều đó nói gì về khoảng cách của nó?
+> 🔁 **Thực hành.** Nếu siêu tân tinh Ia ở xa trông **mờ hơn** dự kiến, điều đó nói gì về khoảng cách của nó?
 > <details><summary>Đáp án</summary>Nó **ở xa hơn** ta tưởng (độ sáng giảm theo bình phương khoảng cách). Xa hơn dự đoán ⇒ trong quá khứ vũ trụ giãn chậm hơn rồi sau đó tăng tốc, đẩy nó ra xa thêm ⇒ bằng chứng năng lượng tối.</details>
 
 ---

@@ -90,7 +90,7 @@ Chủ nghĩa dân tộc có hai mặt: mặt tích cực là ý thức cộng đ
 - Serbia, sau khi thắng lợi, có tham vọng thống nhất người Slav Nam (Nam Tư) — trực tiếp đe dọa sự toàn vẹn của Đế chế Áo–Hung vốn có đông dân Slav.
 - Phong trào **Pan-Slavism** (liên kết các dân tộc Slav) có Nga đứng sau hậu thuẫn, trong khi **Pan-Germanism** (liên kết dân tộc Đức) thúc đẩy Đức và Áo–Hung mở rộng ảnh hưởng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Mô hình MAIN gồm bốn chữ cái đại diện cho điều gì?
 
@@ -176,7 +176,7 @@ Mô hình MAIN gồm bốn chữ cái đại diện cho điều gì?
 
 "Đức là kẻ xâm lược duy nhất" là quan điểm đơn giản hóa quá mức. Tất cả các cường quốc đều có tính toán lợi ích riêng. Hội nghị Hòa bình Paris 1919 áp đặt điều khoản "lỗi chiến tranh" (War Guilt Clause) lên Đức, nhưng đây là quyết định chính trị của người thắng trận, không phải kết luận lịch sử khách quan. Nhiều sử gia hiện đại (Christopher Clark, Barbara Tuchman) cho rằng trách nhiệm phân tán trên nhiều quốc gia.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Tại sao Anh tham chiến vào tháng 8/1914?
 

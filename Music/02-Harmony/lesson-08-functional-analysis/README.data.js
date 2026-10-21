@@ -96,7 +96,7 @@ Lý thuyết chức năng (Hugo Riemann, cuối thế kỷ 19) chia mọi hợp 
 > - *"vii° nghe thế nào so với V?"* — vii° có âm dẫn ở bậc gốc, nghe rất căng, nhưng thiếu nốt gốc G của V nên "lực kéo" về I yếu hơn. Trong thực hành vii° hay được dùng như V⁷ không có nốt gốc.
 > - *"V⁷ có phải học riêng không?"* — V⁷ học ở [Lesson 02 — Hợp âm 7](../lesson-02-seventh-chords/). Trong bài này ta dùng V và V⁷ như cùng chức năng D.
 
-> 🔁 **Dừng lại tự kiểm tra 1.**
+> 🔁 **Ôn tập 1.**
 > Trong giọng G trưởng (nốt chủ âm = G): hợp âm nào là I, IV, V? Chức năng của từng cái?
 > <details><summary>Đáp án</summary>
 >
@@ -232,7 +232,7 @@ Hai hợp âm Tonic liên tiếp (I→vi) ở đầu tạo cảm giác "dạo đ
 > - *"Có bài hát nào bắt đầu bằng D không?"* — Có, nhưng hiếm và tạo cảm giác "bước vào giữa câu chuyện", ví dụ *Beethoven Symphony 5* mở đầu căng thẳng ngay lập tức.
 > - *"Bài có thể kết bằng S không?"* — Kết thúc ở S (tức là kết bằng IV hay ii) gọi là "half cadence biến thể" hoặc "plagal half cadence". Rất hiếm và tạo cảm giác bỏ lửng, chưa xong.
 
-> 🔁 **Dừng lại tự kiểm tra 2.**
+> 🔁 **Ôn tập 2.**
 > Tiến trình: **I – ii – V – I** trong C trưởng. Gán chức năng T/S/D cho từng hợp âm.
 > <details><summary>Đáp án</summary>
 >
@@ -317,7 +317,7 @@ A major chứa C♯ (âm dẫn của D) → chờ về D; thực tế về Bm (B
 > - *"Sau kết lừa thì thường làm gì?"* — Thường tiếp tục bằng vi→IV→V→I (vi rồi đi theo vòng T→S→D→T bình thường). Kết lừa chỉ trì hoãn kết thật.
 > - *"Có kết lừa kiểu khác không?"* — Có, ví dụ V→♭VII trong nhạc rock (borrowed chord). Nhưng V→vi là dạng kinh điển nhất.
 
-> 🔁 **Dừng lại tự kiểm tra 3.**
+> 🔁 **Ôn tập 3.**
 > Tiến trình: **I – IV – V – vi** trong C trưởng. Đây có phải kết lừa không? Phân tích chức năng từng hợp âm.
 > <details><summary>Đáp án</summary>
 >
@@ -423,7 +423,7 @@ A major chứa C♯ (âm dẫn của D) → chờ về D; thực tế về Bm (B
 > - *"Hợp âm ngoài điệu (chromatic chord) thì sao?"* — Đó là chủ đề của Tầng 3 (modulaton, borrowed chords, secondary dominants). Trong bài này ta chỉ phân tích hợp âm diatonic.
 > - *"Giọng thứ phân tích khác không?"* — Có, bảy hợp âm diatonic thứ tự nhiên khác giọng trưởng, nhưng ba chức năng T/S/D vẫn áp dụng. Sẽ học ở Tầng 3.
 
-> 🔁 **Dừng lại tự kiểm tra 4.**
+> 🔁 **Ôn tập 4.**
 > Tiến trình: **I – iii – IV – V – I** trong C trưởng. Phân tích chức năng từng hợp âm.
 > <details><summary>Đáp án</summary>
 >

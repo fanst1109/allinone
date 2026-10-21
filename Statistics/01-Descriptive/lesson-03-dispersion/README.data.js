@@ -151,7 +151,7 @@ Lấy sample 2 phần tử: $\\{1, 5\\}$. $\\bar{x} = 3$.
 
 > ⚠ **Lỗi hay gặp trong code**: Dùng \`np.std()\` mà quên \`ddof=1\` khi làm việc với sample. Khi n lớn (1000+), sự khác biệt nhỏ; nhưng khi n nhỏ (5–20), có thể underestimate đáng kể.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Dataset: \`[3, 5, 5, 7]\`. Tính sample variance s² và sample SD s từng bước.
 > <details><summary>Đáp án</summary>
 > $\\bar{x} = \\dfrac{3+5+5+7}{4} = \\dfrac{20}{4} = 5$. Sai lệch: $(3-5)^2=4$, $(5-5)^2=0$, $(5-5)^2=0$, $(7-5)^2=4$. Tổng = 8. $s^2 = \\dfrac{8}{4-1} = \\dfrac{8}{3} \\approx 2{,}67$. $s = \\sqrt{8/3} \\approx 1{,}63$.

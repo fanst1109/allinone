@@ -42,7 +42,7 @@ Câu trả lời ngắn: **trọng lực** kéo cả hai với cùng *gia tốc*
 
 → Game/engine vật lý chọn cách thứ hai vì nó **tổ hợp (compose)**: thêm một lực mới (gió, lực đẩy, lò xo) chỉ là *cộng thêm một vector* vào net force, không phải viết lại logic chuyển động.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao "gán thẳng vận tốc" khó tạo cảm giác vật nặng?
+> 🔁 **Thực hành.** Vì sao "gán thẳng vận tốc" khó tạo cảm giác vật nặng?
 > <details><summary>Đáp án</summary>Vì khi gán thẳng, vận tốc đạt giá trị mong muốn ngay lập tức — không có giai đoạn "tăng tốc dần". Cảm giác nặng/nhẹ đến từ <em>gia tốc</em> (cùng lực, vật nặng tăng tốc chậm hơn). Chỉ mô hình lực mới sinh ra điều đó tự nhiên qua $a = F/m$.</details>
 
 ---
@@ -239,7 +239,7 @@ $$v_t = \\sqrt{\\frac{2 \\cdot 9.8}{0.5}} = \\sqrt{\\frac{19.6}{0.5}} = \\sqrt{3
 
 Chú ý ví dụ 3: vật bay *lên* thì drag hướng *xuống* — drag luôn theo dấu ngược $v$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vật $m=1$, $g=10$, drag tuyến tính $k=2$. Vận tốc tới hạn là bao nhiêu? Ở $v_t$ gia tốc bằng mấy?
+> 🔁 **Thực hành.** Vật $m=1$, $g=10$, drag tuyến tính $k=2$. Vận tốc tới hạn là bao nhiêu? Ở $v_t$ gia tốc bằng mấy?
 > <details><summary>Đáp án</summary>$v_t = mg/k = (1\\cdot10)/2 = 5$ m/s. Tại $v_t$: drag $= kv_t = 2\\cdot5 = 10$ N $=$ trọng lực $mg = 10$ N → net force = 0 → gia tốc = 0. Vật rơi đều ở 5 m/s.</details>
 
 > ❓ **Câu hỏi tự nhiên.** *"Vật có bao giờ chạy nhanh hơn $v_t$ không?"* — Nếu thả từ trạng thái đứng yên thì không: nó tăng tốc tiệm cận $v_t$ từ dưới. Nhưng nếu bạn *ném xuống* nhanh hơn $v_t$, drag sẽ lớn hơn trọng lực → vật **chậm lại** về $v_t$. $v_t$ là điểm cân bằng hút mọi vận tốc về nó.
@@ -298,7 +298,7 @@ Sau $dt = 0.1$ s: $v_x = 4 - 2.94 \\cdot 0.1 = 4 - 0.294 = 3.706$ m/s. Vật ch�
 
 $\\mu$ càng lớn → giảm tốc càng mạnh → dừng càng nhanh. Đây là tham số bạn chỉnh để mô phỏng "mặt băng" vs "mặt nhám" trong module Friction của viz.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao đẩy một cái tủ nặng lúc đầu cảm thấy "cứng" rồi đột nhiên "nhẹ hơn" khi nó bắt đầu trượt?
+> 🔁 **Thực hành.** Vì sao đẩy một cái tủ nặng lúc đầu cảm thấy "cứng" rồi đột nhiên "nhẹ hơn" khi nó bắt đầu trượt?
 > <details><summary>Đáp án</summary>Vì $\\mu_s > \\mu_k$: lúc chưa trượt phải thắng ma sát <em>tĩnh</em> tối đa $\\mu_s N$ (lớn). Khi đã trượt, chỉ còn ma sát <em>động</em> $\\mu_k N$ (nhỏ hơn) → cảm thấy nhẹ hơn dù vẫn đang đẩy.</details>
 
 > 📝 **Tóm tắt mục 5.**

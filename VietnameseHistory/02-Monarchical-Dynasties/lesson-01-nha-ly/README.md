@@ -79,7 +79,7 @@ Hoa Lư hợp với chiến lược phòng thủ khi lực lượng yếu. Khi �
 
 Đại La là tên đặt dưới thời Bắc thuộc (do quan đô hộ nhà Đường đặt). Đổi tên là hành động tượng trưng quan trọng: xóa dấu vết đô hộ, tái lập bản sắc. Thăng Long — "Rồng bay lên" — vừa mang ý nghĩa may mắn, vừa gắn với truyền thuyết Lý Công Uẩn thấy rồng vàng bay lên khi thuyền cập bến Đại La.
 
-🔁 **Tự kiểm tra**
+🔁 **Ôn tập**
 
 > Lý Công Uẩn nêu mấy lý do chính để dời đô trong Chiếu dời đô?
 
@@ -155,7 +155,7 @@ Bộ **Hình thư** (ban hành năm 1042 dưới thời Lý Thái Tông) là b�
 
 Năm 1054, vua Lý Thánh Tông đổi quốc hiệu từ "Đại Cồ Việt" (quốc hiệu thời Đinh) thành **"Đại Việt"** — tên quốc hiệu tồn tại (với các gián đoạn) cho đến tận năm 1804. Hành động này khẳng định ý thức về một quốc gia độc lập có tầm vóc lớn, không phải chư hầu của bất kỳ ai.
 
-🔁 **Tự kiểm tra**
+🔁 **Ôn tập**
 
 > "Ngụ binh ư nông" giải quyết vấn đề gì và bằng cách nào?
 
@@ -310,7 +310,7 @@ Sau nhiều tháng bị chặn ở sông Như Nguyệt, quân Tống kiệt sứ
 - Chiến lược "tiên phát chế nhân" trở thành bài học kinh điển được các thế hệ sau vận dụng;
 - "Nam quốc sơn hà" đặt nền tảng tinh thần cho ý thức chủ quyền quốc gia trong lịch sử Việt Nam.
 
-🔁 **Tự kiểm tra**
+🔁 **Ôn tập**
 
 > Vì sao Lý Thường Kiệt chọn sông Như Nguyệt làm phòng tuyến thay vì các vị trí khác?
 

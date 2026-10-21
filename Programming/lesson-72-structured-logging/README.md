@@ -78,7 +78,7 @@ Giờ mỗi field là một **cột**. Trong Loki/ELK bạn query thẳng:
 sum by (ip) (count_over_time({app="auth"} | json | msg="user login" [1h]))  # đếm login theo IP
 ```
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đồng nghiệp viết `log.Printf("order %d total %.2f for %s", id, total, user)`. Vì sao dòng này khó dùng ở production?
+> 🔁 **Thực hành.** Một đồng nghiệp viết `log.Printf("order %d total %.2f for %s", id, total, user)`. Vì sao dòng này khó dùng ở production?
 > <details><summary>Đáp án</summary>
 > Ba giá trị `id`, `total`, `user` bị "nung chảy" vào một chuỗi văn bản — không còn là field riêng. Không thể lọc `total > 1000`, không thể group theo `user`, không thể parse mà không viết regex riêng cho đúng câu này. Đúng phải là: <code>slog.Info("order created", "order_id", id, "total", total, "user_id", user)</code>.
 > </details>
@@ -181,7 +181,7 @@ logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: &l
 > - **Dùng `Error` cho điều không phải lỗi** (vd "user nhập sai mật khẩu" — đó là hành vi bình thường của hệ thống, là `Info` hoặc `Warn`, không phải `Error`). Lạm dụng `Error` làm "loãng" alert thật.
 > - **`Fatal`/`panic` cho lỗi xử lý được** — `slog` cố tình không có `Fatal` (như `logrus`) vì `os.Exit` bỏ qua `defer`. Hãy return error.
 
-> 🔁 **Dừng lại tự kiểm tra.** Service nhận request với JWT hết hạn nên từ chối (401). Log ở level nào?
+> 🔁 **Thực hành.** Service nhận request với JWT hết hạn nên từ chối (401). Log ở level nào?
 > <details><summary>Đáp án</summary>
 > <strong>Info</strong> (hoặc Warn nếu muốn theo dõi tần suất). Đây là luồng bình thường — token hết hạn là chuyện xảy ra hằng ngày, hệ thống xử lý đúng (trả 401). Để ở <code>Error</code> sẽ làm dashboard error đỏ lòm vì lý do vô nghĩa.
 > </details>
@@ -359,7 +359,7 @@ func RequestIDMiddleware(base *slog.Logger, next http.Handler) http.Handler {
 
 > ⚠ **Lỗi thường gặp.** **Luôn sinh ID mới** ở mọi service → mỗi service một ID khác nhau → không nối được. Quy tắc: *nếu header đã có ID thì kế thừa, chỉ sinh khi chưa có*. ID phải được **đính vào outgoing request** khi gọi service tiếp theo (`req.Header.Set(headerRequestID, rid)`), nếu không chuỗi đứt ở đó.
 
-> 🔁 **Dừng lại tự kiểm tra.** `payment` log lỗi nhưng không có `request_id`. Nguyên nhân khả dĩ nhất?
+> 🔁 **Thực hành.** `payment` log lỗi nhưng không có `request_id`. Nguyên nhân khả dĩ nhất?
 > <details><summary>Đáp án</summary>
 > `orders` gọi `payment` mà <strong>quên set header</strong> <code>X-Request-ID</code> trên outgoing request. `payment` không nhận được ID nên (theo middleware) tự sinh ID mới — và ID đó không khớp với chuỗi. Sửa: ở client gọi sang `payment`, set header từ <code>request_id</code> trong context.
 > </details>
@@ -434,7 +434,7 @@ slog.Info("checkout", "password", Password("hunter2"), "card", Card("41111111111
 
 > ❓ **Câu hỏi tự nhiên.** *"Tôi log nguyên struct `user` cho tiện được không?"* — **Không**, nếu struct có field nhạy cảm. `slog.Any("user", user)` sẽ encode cả `PasswordHash`, `SessionToken`... Hoặc cho `User` cài `LogValue()` trả về bản đã lọc, hoặc log từng field an toàn một.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đoạn `slog.Info("req", "body", string(rawBody))` với `rawBody` là JSON body của `POST /login`. Sai ở đâu?
+> 🔁 **Thực hành.** Đoạn `slog.Info("req", "body", string(rawBody))` với `rawBody` là JSON body của `POST /login`. Sai ở đâu?
 > <details><summary>Đáp án</summary>
 > `rawBody` chứa <code>{"email":"...","password":"..."}</code> — password lọt thẳng vào log. Không bao giờ log raw request/response body cho endpoint có credential. Hãy log field đã chọn lọc và redact, hoặc parse rồi che trường nhạy cảm.
 > </details>

@@ -96,7 +96,7 @@ Có ba cách phổ biến để "làm cho code chạy". Mỗi cách trả lời 
 > - *"Một ngôn ngữ có buộc phải là compiled hoặc interpreted không?"* — Không. **"Compiled/interpreted" là tính chất của bản cài đặt, không phải của ngôn ngữ.** Có C interpreter (Cling) và có Python compiler (Nuitka). Người ta gắn nhãn theo bản cài đặt phổ biến nhất.
 > - *"Bytecode là gì?"* — Một dạng "mã máy ảo": tập lệnh đơn giản cho một **máy ảo (virtual machine)** do phần mềm giả lập, không phải CPU thật. Gọn và portable hơn mã máy native. Ta sẽ tự sinh bytecode cho ngôn ngữ đồ chơi ở cuối lĩnh vực.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > <details><summary>1. Python in ra kết quả ngay khi gõ lệnh — vậy nó "không compile"? Đúng/sai?</summary>
 >
 > **Sai.** CPython vẫn compile source thành **bytecode** rồi mới thông dịch bytecode đó. Nó chỉ không ra mã máy native. "Không có bước build thủ công" ≠ "không compile gì".</details>
@@ -240,7 +240,7 @@ STORE x
 > - *"Trạm nào là bắt buộc?"* — Lexer, Parser, CodeGen gần như luôn có. Semantic check tùy ngôn ngữ (ngôn ngữ kiểu tĩnh kiểm nhiều, kiểu động kiểm ít/lúc chạy). Optimizer hoàn toàn tùy chọn.
 > - *"Mỗi trạm là một file/lớp riêng à?"* — Trong compiler thật thường mỗi trạm là một (hoặc nhiều) module. Trong ngôn ngữ đồ chơi của ta, mỗi trạm sẽ là một lesson — viết từng cái một.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > <details><summary>Trạm nào biến danh sách token thành cây? Trạm nào phát hiện "biến chưa khai báo"?</summary>
 >
 > **Parser** dựng cây (AST) từ token. **Semantic Analysis** phát hiện "biến chưa khai báo" — vì đó là vấn đề *ý nghĩa*, không phải cú pháp.</details>
@@ -271,7 +271,7 @@ Pipeline ở §3 chia tự nhiên làm hai nửa, ranh giới là IR:
 
 > ⚠ **Hiểu nhầm.** "Front-end" ở đây **không liên quan** "front-end web (HTML/CSS)". Trùng tên thôi: front-end compiler = nửa gần *ngôn ngữ người viết*; back-end = nửa gần *máy*.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > <details><summary>Thêm ngôn ngữ Kotlin vào hệ thống đã có 5 ngôn ngữ và 6 máy đích, dùng IR chung. Phải viết thêm bao nhiêu thành phần?</summary>
 >
 > Chỉ **1** front-end (Kotlin → IR). Nó tự chạy trên cả 6 máy nhờ 6 back-end sẵn có. Không IR chung thì phải viết 6 bộ Kotlin→máy.</details>
@@ -449,7 +449,7 @@ gọi method trên giá trị null
 > - *"`10 / 0` viết toàn ký tự hợp lệ, cú pháp đúng, kiểu đúng — sao không bắt được lúc dịch?"* — Vì mẫu số có thể là biến chỉ biết giá trị **lúc chạy** (`a / b` với `b` do người dùng nhập). Compiler không "chạy thử" toàn bộ nên nói chung không biết trước. (Trường hợp đặc biệt `10/0` với hằng số thì một số compiler *có* cảnh báo — nhưng quy tắc chung là chia-0 thuộc runtime.)
 > - *"Ngôn ngữ kiểu động (Python) có giai đoạn semantic không?"* — Có, nhưng phần lớn kiểm tra kiểu **dời sang lúc chạy** → nhiều lỗi mà ngôn ngữ tĩnh bắt lúc dịch thì Python chỉ báo lúc chạy. Đánh đổi: linh hoạt hơn nhưng lỗi lộ muộn hơn.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > <details><summary>Phân loại 4 lỗi: (a) <code>print(x</code> thiếu ngoặc, (b) dùng biến <code>total</code> chưa gán, (c) <code>3 # 4</code> ký tự lạ, (d) chia cho số người dùng nhập = 0.</summary>
 >
 > (a) **syntax** (token đúng, thiếu `)`), (b) **semantic** (biến chưa khai báo), (c) **lexical** (`#` không là token — tùy ngôn ngữ), (d) **runtime** (chỉ biết khi chạy với input 0).</details>

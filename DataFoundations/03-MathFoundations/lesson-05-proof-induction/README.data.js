@@ -131,7 +131,7 @@ $$2^4 - 1 = 15 = 3 \\times 5 \\quad (\\text{không nguyên tố})$$
 - *"Phản chứng và phản đảo khác gì nhau?"* — Phản đảo chứng minh $p \\to q$ bằng cách chứng minh $\\lnot q \\to \\lnot p$ (vẫn là chứng minh trực tiếp, chỉ đổi chiều). Phản chứng giả sử **toàn bộ kết luận sai** rồi tìm mâu thuẫn với **bất kỳ** điều gì đã biết.
 - *"Khi nào dùng cái nào?"* — Direct khi suy thẳng được; contrapositive khi giả thiết "$q$ sai" cho thông tin dễ dùng hơn; contradiction khi muốn dùng "không tồn tại / tối giản / nhỏ nhất" làm đòn bẩy; counterexample khi nghi mệnh đề sai.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Để bác "mọi số lẻ là nguyên tố", cần làm gì?
 2. Phản đảo của "nếu $x > 2$ thì $x^2 > 4$" là gì?
 
@@ -281,7 +281,7 @@ Vậy $(n+1)^3 - (n+1) = 6q + 6t = 6(q + t)$ chia hết cho 6. → $P(n+1)$ đú
 | 4 | 60 | 10 |
 | 5 | 120 | 20 |
 
-🔁 **Dừng lại tự kiểm tra.** Trong §4.1, ở dòng "$\\frac{n(n+1)}{2} + (n+1)$", vì sao ta viết $(n+1) = \\frac{2(n+1)}{2}$?
+🔁 **Thực hành.** Trong §4.1, ở dòng "$\\frac{n(n+1)}{2} + (n+1)$", vì sao ta viết $(n+1) = \\frac{2(n+1)}{2}$?
 
 <details><summary>Đáp án</summary>
 
@@ -412,7 +412,7 @@ Lỗi tinh vi: trong bước nối, dùng luôn $P(n+1)$ để "chứng minh" $P
 
 ❓ **Câu hỏi tự nhiên.** *"Làm sao biết base case của mình đủ?"* — Đếm xem bước nối "với tới" bao xa. Nếu $P(n+1)$ chỉ dùng $P(n)$, một base đủ. Nếu dùng $P(n-1)$ (như Fibonacci $F_{n+1} = F_n + F_{n-1}$), cần **hai** base. Nếu lùi 4 (tem 4&5), cần bốn. Quy tắc: base phải phủ mọi giá trị mà bước nối không tự sinh ra được.
 
-🔁 **Dừng lại tự kiểm tra.** Trong "chứng minh" ngựa cùng màu, nếu ai đó vá bằng cách **thêm base $n=2$** ("hai con bất kỳ cùng màu"), chứng minh có cứu được không?
+🔁 **Thực hành.** Trong "chứng minh" ngựa cùng màu, nếu ai đó vá bằng cách **thêm base $n=2$** ("hai con bất kỳ cùng màu"), chứng minh có cứu được không?
 
 <details><summary>Đáp án</summary>
 

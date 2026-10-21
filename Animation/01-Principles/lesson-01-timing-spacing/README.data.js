@@ -60,7 +60,7 @@ Quy đổi tổng quát: $\\text{thời gian (s)} = \\dfrac{\\text{số frame}}{
 > - *"'On twos' là gì mà hoạt hình 2D hay nói?"* → Vẽ **1 bản vẽ dùng cho 2 frame liên tiếp**, tức chỉ cần 12 bản vẽ/giây trên phim 24 fps. Tiết kiệm một nửa công vẽ mà mắt vẫn thấy mượt cho phần lớn chuyển động. Chuyển động cực nhanh mới cần "on ones" (mỗi frame một bản vẽ).
 > - *"fps cao thì luôn đẹp hơn?"* → Không hẳn. fps cao mượt hơn nhưng có thể làm chuyển động trông "rẻ tiền"/giả (hiệu ứng "soap opera"). 24 fps là điểm cân bằng cảm xúc điện ảnh nhiều thập kỷ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một pha nhảy kéo dài **0.75 giây** trên phim **24 fps** cần bao nhiêu frame?
+> 🔁 **Ôn tập.** Một pha nhảy kéo dài **0.75 giây** trên phim **24 fps** cần bao nhiêu frame?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -144,7 +144,7 @@ $$
 
 > ⚠ **Lỗi thường gặp.** *"Cứ chia đều A→B cho N frame là xong."* Đó là spacing **đều** — cái nhìn "chết" nhất. Người mới hay để phần mềm nội suy tuyến tính rồi thắc mắc "sao chuyển động vô hồn". Thủ phạm luôn là spacing đều. Sửa: bẻ cong spacing (thêm ease) để có gia tốc.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho chuyển động **dồn cuối** (ease-out) đi 240 px trong 12 frame, dùng $p(t) = 240(2t - t^2)$.
+> 🔁 **Ôn tập.** Cho chuyển động **dồn cuối** (ease-out) đi 240 px trong 12 frame, dùng $p(t) = 240(2t - t^2)$.
 > 1. Vị trí ở frame 6 là bao nhiêu?
 > 2. So với "đều" (vị trí 120 ở frame 6), vật này đang ở *trước* hay *sau*? Điều đó nói gì về tốc độ nửa đầu?
 >

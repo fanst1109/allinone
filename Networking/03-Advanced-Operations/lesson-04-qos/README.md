@@ -68,7 +68,7 @@ Ngưỡng chấp nhận VoIP: jitter < 30 ms (sau jitter buffer). Gói 4 (35 ms)
 
 ⚠ **Lỗi thường gặp**: Nhầm jitter với latency. Latency cao nhưng ổn định (ví dụ 200 ms đều) tốt hơn latency thấp nhưng không đều (50 ms lúc được lúc mất). VoIP cần jitter thấp hơn là latency thấp.
 
-🔁 **Tự kiểm tra**: Dãy inter-arrival: 10, 10, 10, 40, 10 (ms). Tính jitter mean absolute deviation.
+🔁 **Thực hành**: Dãy inter-arrival: 10, 10, 10, 40, 10 (ms). Tính jitter mean absolute deviation.
 <details>
 <summary>Đáp án</summary>
 Trung bình = (10+10+10+40+10)/5 = 16 ms. Deviation = 6+6+6+24+6 = 48. Jitter = 48/5 = 9.6 ms. Gói thứ 4 bị trễ 40 ms sẽ gây tiếng nói bị gián đoạn nhỏ với jitter buffer cỡ 20 ms.

@@ -63,7 +63,7 @@ Nếu chỉ dựa vào worst-case của một thao tác `append`, ta sẽ nói "
 
 > ⚠ **Lỗi thường gặp.** Gọi quicksort là "amortized $O(n \log n)$". **Sai** — quicksort là **average case** (dựa xác suất pivot). Gọi dynamic array là "average $O(1)$". Cũng **chệch** — nó là **amortized** $O(1)$ (chắc chắn, không xác suất). Dùng đúng từ thể hiện bạn hiểu đúng bản chất.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Một thuật toán có chặn amortized $O(1)$ — có tồn tại input khiến nó chậm hơn không?
 2. Một thuật toán có chặn average $O(1)$ — có tồn tại input khiến nó chậm hơn không?
 
@@ -359,7 +359,7 @@ Amortized / op   = 1.938  (hang so -> O(1))
 
 Số liệu khớp chính xác bảng walk-through Mục 4.2: tổng copy 15, tổng chi phí 31, amortized $\approx 1{,}94$ (hằng số). ✓
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Nếu bắt đầu append với capacity 1 và grow ×2, sau khi thêm đúng 1025 phần tử, có bao nhiêu lần grow đã xảy ra?
 2. Tổng số phần tử bị copy là bao nhiêu?
 
@@ -647,7 +647,7 @@ Amortized / op = 1.938  (< 2 -> O(1))
 
 Khớp chính xác bảng 6.2: tổng flip 31, amortized $\approx 1{,}94$. ✓
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Increment từ giá trị `01111` (15) lên `10000` (16) lật bao nhiêu bit?
 2. Tổng flip cho 32 increment (0→32) là bao nhiêu?
 
@@ -746,7 +746,7 @@ Hệ quả thực tế quan trọng:
 - *"Vậy amortized vô dụng cho hệ thống nghiêm ngặt?"* — Không vô dụng, nhưng phải hiểu giới hạn: nó tối ưu **throughput tổng** (xử lý xong N việc nhanh), không đảm bảo **latency từng việc**. Chọn metric đúng cho bài toán.
 - *"Làm sao tránh spike khi vẫn muốn mảng động?"* — Pre-allocate (`make([]T, 0, N)`), hoặc dùng deamortized structure, hoặc chấp nhận spike nếu hệ không real-time.
 
-🔁 **Dừng lại tự kiểm tra.** Một game engine 60 FPS (mỗi frame ≤ 16.6ms) append vào một slice mỗi frame. Slice đã có 1 triệu phần tử và sắp grow. Vấn đề gì xảy ra, sửa thế nào?
+🔁 **Thực hành.** Một game engine 60 FPS (mỗi frame ≤ 16.6ms) append vào một slice mỗi frame. Slice đã có 1 triệu phần tử và sắp grow. Vấn đề gì xảy ra, sửa thế nào?
 
 <details><summary>Đáp án</summary>
 

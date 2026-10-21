@@ -649,7 +649,7 @@ Cùng một thuật toán "trái nhỏ phải lớn", chỉ khác cú pháp. Hi�
 | Cần prefix query trên chuỗi | BST so cả chuỗi, không tận dụng prefix | Trie ([L05](../lesson-05-trie/)) |
 | Dữ liệu tĩnh, đã sort, chỉ query | BST động thừa cấu trúc | **Sorted slice + binary search** (§9.2) |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Vì sao với time-series chỉ **append cuối** (timestamp tăng dần) + query nhiều, sorted slice thắng `google/btree`?
 >    <details><summary>Đáp án</summary>Append cuối = $O(1)$ amortized, không phải chèn giữa. Query = `sort.Search` $O(\log n)$ trên mảng liền mạch (cache-friendly, không pointer-chasing). B-tree thêm overhead node/pointer mà không lợi gì khi không chèn giữa.</details>
 > 2. `sort.Search(n, f)` trả về gì khi không phần tử nào thỏa `f`? Code §9.2 xử lý sao?

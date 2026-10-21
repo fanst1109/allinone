@@ -72,7 +72,7 @@ Chỉ `get`/`set`/`del` theo khóa — không lọc theo trường bên trong va
 | `page:home:views` | `184523` | Bộ đếm lượt xem |
 | `feature:darkmode:user42` | `true` | Cờ bật/tắt tính năng |
 
-🔁 **Dừng lại tự kiểm tra.** Bạn muốn "liệt kê tất cả khách có `city = 'Hanoi'`". Key-value làm được hiệu quả không?
+🔁 **Thực hành.** Bạn muốn "liệt kê tất cả khách có `city = 'Hanoi'`". Key-value làm được hiệu quả không?
 
 <details><summary>Đáp án</summary>
 
@@ -168,7 +168,7 @@ Lưu ý: truy vấn xoay quanh **partition key** (`device_id`); không có JOIN,
 | `gate-3` | `open_count`, `ts` |
 | `meter-1` | `kwh`, `voltage`, `ts` |
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao Cassandra ghi rất nhanh nhưng truy vấn "tìm mọi sự kiện có `temp > 30` trên tất cả thiết bị" lại đắt?
+🔁 **Thực hành.** Vì sao Cassandra ghi rất nhanh nhưng truy vấn "tìm mọi sự kiện có `temp > 30` trên tất cả thiết bị" lại đắt?
 
 <details><summary>Đáp án</summary>
 
@@ -272,7 +272,7 @@ Trong quan hệ, "bạn-của-bạn 3-4 bậc" cần JOIN bảng `friends` với
 
 ⚠ **Đánh đổi (lỗi thường gặp).** Trùng lặp đẻ ra **rủi ro bất nhất khi cập nhật**. Nếu tên sản phẩm được nhúng vào *mọi* đơn hàng của *mọi* user, đổi tên sản phẩm phải sửa ở rất nhiều chỗ — quên một chỗ là dữ liệu mâu thuẫn. Quy tắc ngón tay cái: **nhúng cái đọc-cùng-nhau và ít đổi; tham chiếu (để riêng) cái đổi nhiều hoặc dùng chung rộng.**
 
-🔁 **Dừng lại tự kiểm tra.** Một sản phẩm xuất hiện trong hàng triệu đơn hàng và giá đổi thường xuyên. Nên *nhúng* thông tin sản phẩm vào từng đơn, hay *tham chiếu* qua `productId`?
+🔁 **Thực hành.** Một sản phẩm xuất hiện trong hàng triệu đơn hàng và giá đổi thường xuyên. Nên *nhúng* thông tin sản phẩm vào từng đơn, hay *tham chiếu* qua `productId`?
 
 <details><summary>Đáp án</summary>
 

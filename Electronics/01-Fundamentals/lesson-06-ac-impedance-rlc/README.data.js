@@ -127,7 +127,7 @@ Ví dụ sai: "220 V điện lưới, $R = 100$ Ω → $P = 220^2/100 = 484$ W" 
 
 Ví dụ phản chứng thật sự sai: "$V_{\\text{peak}} = 311$ V, $R = 100$ Ω → $P = 311^2/100 = 967$ W" — tính bằng đỉnh thì kết quả SAI, gấp đôi thực tế.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Điện lưới Nhật: $f = 50$ Hz, $V_{\\text{rms}} = 100$ V. Tính $V_{\\text{peak}}$ và $T$.
 
@@ -362,7 +362,7 @@ Trong lý thuyết, $R = 0$ cho $I = \\infty$. Thực tế: cuộn cảm luôn c
 
 $f_0 = 1/(2\\pi\\sqrt{LC})$ không phụ thuộc $R$. $R$ chỉ ảnh hưởng biên độ đỉnh và độ rộng dải thông ($\\text{bandwidth} = f_0/Q = R/(2\\pi L)$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Tính $f_0$ khi $L = 500$ µH và $C = 200$ pF. Mạch này hoạt động ở dải sóng nào (AM 530–1600 kHz, FM 87–108 MHz, hay khác)?
 

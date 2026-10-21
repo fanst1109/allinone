@@ -142,7 +142,7 @@ $v_A \\leftarrow v_A + (j_t/m_A) \\cdot t = (3, 0) + (-2.4/2)(1, 0) = (3 - 1.2, 
 - *"Vì sao bỏ $e$ trong công thức ma sát?"* → $e$ mô tả độ "nảy" theo pháp tuyến. Ma sát không làm vật bật ngược dọc bề mặt; nó chỉ hãm. Đặt $e = 0$ cho phương tiếp tuyến.
 - *"Một vật có hai $\\mu$?"* → Thường engine dùng \`μ_static\` (giữ đứng yên) > \`μ_kinetic\` (khi đã trượt). Toy model trên dùng một $\\mu$ cho gọn.
 
-🔁 **Dừng lại tự kiểm tra.** Vật A $m_A = 1$, $v_{rel} = (5, 0)$ sau khi đã xử lý pháp tuyến, $j_n = 10$, $\\mu = 0.2$, sàn $1/m_B = 0$. $j_t$ cuối cùng (sau kẹp) là bao nhiêu?
+🔁 **Thực hành.** Vật A $m_A = 1$, $v_{rel} = (5, 0)$ sau khi đã xử lý pháp tuyến, $j_n = 10$, $\\mu = 0.2$, sàn $1/m_B = 0$. $j_t$ cuối cùng (sau kẹp) là bao nhiêu?
 <details><summary>Đáp án</summary>
 
 $t = (1,0)$, $v_{rel} \\cdot t = 5$, $j_t$ chưa kẹp $= -5 / (1/1+0) = -5$. Giới hạn $\\mu \\cdot j_n = 0.2 \\times 10 = 2$. Vì $5 > 2$ → kẹp về $-2$. Vận tốc mới $= 5 + (-2/1) = 3$. Trượt động, còn trượt tiếp.
@@ -246,7 +246,7 @@ slop = 0.01,  percent = 0.2
 
 ⚠ **Lỗi thường gặp: jitter do over-correction.** Đặt $\\text{percent} = 1.0$ và $\\text{slop} = 0$ → vật bị đẩy bật ra mỗi frame rồi trọng lực kéo lại → rung dữ dội, có khi văng lên. Triệu chứng: hộp "nhảy disco" trên sàn. Sửa: hạ percent về $0.2$–$0.4$, đặt $\\text{slop} \\approx 0.01$.
 
-🔁 **Dừng lại tự kiểm tra.** $\\text{penetration} = 0.05$, $\\text{slop} = 0.01$, $\\text{percent} = 0.5$, A $m_A = 1$ trên sàn ($1/m_B = 0$). A dịch lên bao nhiêu frame này?
+🔁 **Thực hành.** $\\text{penetration} = 0.05$, $\\text{slop} = 0.01$, $\\text{percent} = 0.5$, A $m_A = 1$ trên sàn ($1/m_B = 0$). A dịch lên bao nhiêu frame này?
 <details><summary>Đáp án</summary>
 
 $\\max(0.05-0.01,0)=0.04$; $0.04/(1+0)=0.04$; $\\times 0.5 = 0.02$. A dịch lên $0.02$. Lún còn $0.03$.
@@ -309,7 +309,7 @@ percent hiệu dụng mỗi iter = 0.5 (đã gồm slop)
 - *"Nhiều iteration thì có chậm không?"* → Có, chi phí tuyến tính theo số iteration × số tiếp xúc. Nhưng 8–10 là đủ cho hầu hết game; đây là đánh đổi chính xác ↔ tốc độ.
 - *"warm starting là gì?"* → Engine lưu impulse frame trước, dùng làm điểm khởi đầu frame này → hội tụ nhanh hơn nhiều. Là tối ưu nâng cao của sequential impulse.
 
-🔁 **Dừng lại tự kiểm tra.** Lún ban đầu $0.40$, mỗi iter sửa $50\\%$. Sau 3 iter còn bao nhiêu?
+🔁 **Thực hành.** Lún ban đầu $0.40$, mỗi iter sửa $50\\%$. Sau 3 iter còn bao nhiêu?
 <details><summary>Đáp án</summary>
 
 $0.40 \\to 0.20 \\to 0.10 \\to 0.05$. Còn $0.05$.

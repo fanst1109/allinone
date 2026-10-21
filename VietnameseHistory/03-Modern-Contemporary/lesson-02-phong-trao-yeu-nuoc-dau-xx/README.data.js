@@ -112,7 +112,7 @@ Năm 1905, sau chiến thắng Nga–Nhật, chính phủ Nhật từng ngầm �
 
 🔗 **Nhân – quả:** Dù thay đổi cương lĩnh từ quân chủ sang cộng hòa, Quang phục hội vẫn chưa thoát khỏi phương thức hoạt động dựa vào lực lượng bên ngoài và các hành động vũ trang nhỏ lẻ, không có căn cứ quần chúng vững chắc ở trong nước.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Phan Bội Châu thành lập tổ chức nào năm 1904? Mục tiêu của phong trào Đông Du là gì?*
 
@@ -257,7 +257,7 @@ Cần phân biệt giữa thất bại về kết quả trực tiếp (không gi
 
 Có. Năm 1906, khi Phan Châu Trinh sang Nhật thăm Phan Bội Châu, hai ông tranh luận gay gắt về đường lối. Phan Châu Trinh viết thư phê bình "chính sách dựa vào Nhật" của Phan Bội Châu và coi đó là ảo tưởng. Dù bất đồng, cả hai đều tôn trọng nhau như những chí sĩ yêu nước chân thành.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Liệt kê ba nguyên nhân chính khiến cả hai phong trào thất bại.*
 

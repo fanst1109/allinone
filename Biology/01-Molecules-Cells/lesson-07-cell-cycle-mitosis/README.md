@@ -61,7 +61,7 @@ A: Không. Nhiều tế bào trưởng thành (neuron, tế bào cơ tim) rời 
 - **Nghĩ nguyên phân chiếm phần lớn chu kỳ**: ngược lại, pha M chỉ ~10%. Tế bào "phân chia" rất nhanh so với thời gian chuẩn bị.
 - **Nhầm "G" là Growth**: G là **Gap** (khoảng trống giữa S và M trong sơ đồ lịch sử). Tế bào có lớn lên ở G1, nhưng chữ G không phải "growth".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một chu kỳ tế bào kéo dài 20 giờ, trong đó pha S là 6 giờ. Kỳ trung gian chiếm bao nhiêu phần trăm nếu pha M là 2 giờ?
 2. Nếu một loại thuốc chặn pha S, tế bào sẽ "kẹt" ở đâu và hậu quả là gì?
@@ -122,7 +122,7 @@ A: 2 chromatid chị em là 2 bản sao **y hệt** (do nhân đôi từ cùng 1
 - **Nghĩ "C" (lượng DNA) và "n" (số NST) là một**: khác nhau. Sau S: số NST = 46 (không đổi) nhưng lượng DNA = 4C (gấp đôi). Phải tách 2 đại lượng này.
 - **Nhầm chromatid chị em với NST tương đồng**: chromatid chị em giống hệt (cùng nguồn, dính tâm động); NST tương đồng khác nhau (1 từ bố, 1 từ mẹ). Lẫn 2 khái niệm này phá hỏng cả Lesson 08.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một loài có 2n = 8. Ở pha G2, tế bào có bao nhiêu NST? Bao nhiêu chromatid?
 2. Cũng loài đó, ngay sau khi chromatid tách ở kỳ sau (trước khi tế bào chia), 1 tế bào có bao nhiêu NST?
@@ -179,7 +179,7 @@ A: KHÔNG. DNA đã nhân đôi **trước đó, ở pha S** của kỳ trung gi
 - **Lẫn thứ tự kỳ giữa và kỳ sau**: kỳ **giữa** = xếp hàng ở giữa; kỳ **sau** = đã tách, đi về cực. Nhớ "giữa thì còn ở giữa, sau thì đã đi".
 - **Nghĩ cytokinesis là một kỳ của nguyên phân**: cytokinesis là bước riêng **sau** telophase, chia tế bào chất. Nguyên phân (chia nhân) và cytokinesis (chia thân) là 2 quá trình tách biệt.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Sắp xếp đúng thứ tự: kỳ sau, kỳ cuối, kỳ đầu, kỳ giữa.
 2. Ở kỳ nào màng nhân tiêu biến? Ở kỳ nào màng nhân tái lập?
@@ -251,7 +251,7 @@ A: Không, vì **mỗi lần chia có 1 pha S nhân đôi DNA trước đó**. M
 - **Nghĩ số NST mỗi tế bào tăng khi chia nhiều**: sai — mỗi tế bào con luôn là 2n. Số tế bào tăng, nhưng bộ NST mỗi tế bào giữ nguyên.
 - **Nghĩ nguyên phân tạo biến dị**: nguyên phân tạo bản sao **giống hệt**. Biến dị là việc của giảm phân + thụ tinh.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Từ 1 tế bào, sau bao nhiêu lần nguyên phân thì có hơn 1.000 tế bào?
 2. Một mô bắt đầu với 5 tế bào. Sau 4 lần nguyên phân đồng loạt, có bao nhiêu tế bào?
@@ -311,7 +311,7 @@ A: Thường KHÔNG. Ung thư thường cần **nhiều đột biến tích lũy
 - **Nghĩ p53 "gây" ung thư**: ngược lại, p53 **ngăn** ung thư (gác cổng). Chính khi p53 **hỏng** thì ung thư mới dễ xảy ra.
 - **Nghĩ 1 lần lỗi chu kỳ là thành ung thư ngay**: thường cần tích lũy nhiều đột biến qua thời gian.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Checkpoint nào kiểm tra DNA đã nhân đôi xong và đúng chưa?
 2. Vì sao thuốc phá thoi phân bào lại có thể chặn tế bào ung thư phân chia?

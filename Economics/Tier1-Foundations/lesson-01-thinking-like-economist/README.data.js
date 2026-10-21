@@ -68,7 +68,7 @@ Mỗi quyết định kinh tế là việc phân bổ 4 nguồn lực này. Mộ
 
 **Q: Khan hiếm có phải là vấn đề "giàu/nghèo"?** Không. Khan hiếm là vấn đề *cấu trúc* — kể cả utopia giàu nhất vẫn phải chia thời gian, đất đai, sự chú ý của con người.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. Trong các thứ sau, đâu là khan hiếm theo nghĩa kinh tế: \`ánh sáng mặt trời ở sa mạc\`, \`nước uống trong nhà bạn\`, \`chú ý của một CEO Apple\`, \`bằng cử nhân Harvard\`?
 2. Vì sao kim cương đắt hơn nước, dù nước cần thiết hơn?
@@ -160,7 +160,7 @@ Tỉ lệ đánh đổi: thêm 1kg gạo = bớt $\\frac{3}{2} = 1.5\\text{kg}$ 
 - **Lẫn lộn "đánh đổi" với "tổng bằng 0"**: Đánh đổi không có nghĩa cuối cùng tổng giá trị không đổi. Nếu A cho B 1 quả táo đổi 1 quả cam, cả hai đều thấy *lợi hơn* (vì A thích cam hơn, B thích táo hơn) — đó vẫn là đánh đổi, nhưng tổng phúc lợi tăng.
 - **Đánh đổi ≠ chi phí**: Đánh đổi là *quan hệ*, chi phí là *con số*. "Tôi đánh đổi 1 giờ học để chơi game" — đánh đổi là 1 giờ học; chi phí cơ hội của giờ chơi game là *cái lợi tốt nhất từ 1 giờ học*.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Quay lại Ví dụ 1 (nông dân, 10 giờ). Giả sử anh ấy đang trồng 12kg gạo và 12kg ngô (dùng hết 10 giờ). Anh ấy muốn tăng 4kg ngô lên thành 16kg ngô. Phải giảm gạo bao nhiêu?
 
@@ -246,7 +246,7 @@ Hành vi "tiếc nuối" giữ người ta lại với chi phí chìm gọi là 
 
 **Q: Có phải lúc nào cũng phải tính chi phí ẩn?** Cho quyết định lớn (nghề nghiệp, mua nhà) — bắt buộc. Cho quyết định nhỏ (mua trà sữa 50k) — không cần, vì chi phí ẩn nhỏ, tính ra thì tốn thời gian hơn lợi ích. Bản thân việc "tính toán" cũng có chi phí cơ hội.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. Bạn đang làm thuê lương 30 triệu/tháng. Bạn nghỉ việc khởi nghiệp, chi 200 triệu mở quán cà phê. Năm đầu quán cà phê *lãi kế toán* 100 triệu. Bạn có *lãi kinh tế* không?
 2. Bạn mua khóa học 5 triệu, học được 30% thì thấy không phù hợp. Tiếp tục hay bỏ?
@@ -329,7 +329,7 @@ Nếu chi phí cơ hội của 1 giờ học = 0.5 điểm (lợi ích từ ng�
 
 **Q: Trong đời sống, có ai tính MB/MC thật không?** Không tính rõ ràng — nhưng cảm tính chúng ta luôn làm. Bạn dừng ăn ở miếng pizza thứ 3, không phải thứ 10 — đó chính là $\\text{MB} \\approx \\text{MC}$. Tư duy biên là *hình thức hóa* trực giác này, để khi cần phân tích chính sách / kinh doanh quy mô lớn thì có công cụ chính xác.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Quay lại Ví dụ 1 (quán cà phê). Nếu lương nhân viên giảm xuống còn 150k/ngày, số nhân viên tối ưu là bao nhiêu?
 
@@ -401,7 +401,7 @@ Hình dung một cánh đồng có rào điện. Bò ban đầu *cố* băng qua
 
 **Q: Nếu thiết kế incentive khó vậy, có công thức không?** Không có công thức chung. Nhưng có nguyên tắc: (1) đo lường được, (2) liên kết trực tiếp đến hành vi muốn, (3) tránh tạo lỗ hổng để "game" hệ thống. Field of **mechanism design** (giải Nobel 2007) chuyên về thiết kế incentive.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Một thư viện bị mất nhiều sách (không trả). Họ đang xem xét 3 chính sách:
 

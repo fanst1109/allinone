@@ -106,7 +106,7 @@ Nghĩa là: nếu trung bình mỗi phút có $\lambda = 2$ sự kiện, thì th
 
 > ⚠ **Lỗi thường gặp.** Đừng nghĩ $E[X]$ là "giá trị dễ xảy ra nhất" — đó là **mode**, khác hẳn. Với phân phối lệch (skewed), mean và mode lệch xa nhau. Ví dụ: lương trong một công ty có vài người siêu giàu → mean cao, mode (mức lương phổ biến nhất) thấp.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 >
 > 1. Một xúc xắc 4 mặt đều có giá trị $\{1, 2, 3, 4\}$. Tính $E[X]$.
 > 2. Một xu lệch $p = 0.7$. Tính $E[X]$ cho $X \sim \text{Bernoulli}$.
@@ -179,7 +179,7 @@ E[\text{Lương}] &= 10 + 0.05 \cdot 200 = 10 + 10 = 20 \text{ triệu}
 
 > ⚠ **Lỗi thường gặp.** Đừng viết $E[X \cdot Y] = E[X] \cdot E[Y]$ mà không kiểm tra độc lập. Ví dụ phản chứng: $Y = X$, thì $E[X \cdot Y] = E[X^2]$, nhưng $E[X] \cdot E[Y] = (E[X])^2$. Hai cái này khác nhau bằng đúng $\operatorname{Var}[X] \ge 0$. Bằng nhau chỉ khi $\operatorname{Var}[X] = 0$, tức X là hằng số.
 
-> 🔁 **Tự kiểm tra.** Cho $X \sim \text{Uniform}(0, 10)$, $Y = 3X + 5$. Tính $E[Y]$.
+> 🔁 **Thực hành.** Cho $X \sim \text{Uniform}(0, 10)$, $Y = 3X + 5$. Tính $E[Y]$.
 >
 > <details><summary>Đáp án</summary>
 >

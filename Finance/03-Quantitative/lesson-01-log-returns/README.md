@@ -42,7 +42,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Cộng các lợi nhuận **đơn giản** qua nhiều kỳ để ra tổng. Sai — phải nhân $(1+R_1)(1+R_2)...$ rồi trừ 1, hoặc dùng log return (cộng được). Cộng simple return chỉ gần đúng khi mỗi kỳ rất nhỏ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Giá 50 → 60. Tính simple return và log return.
+> 🔁 **Thực hành.** Giá 50 → 60. Tính simple return và log return.
 > <details><summary>Đáp án</summary>Simple $= 60/50 - 1 = 20\%$. Log $= \ln(60/50) = \ln 1{,}2 = 18{,}23\%$.</details>
 
 ---
@@ -96,7 +96,7 @@ Sau bài này bạn sẽ:
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao căn bậc hai chứ không nhân thẳng?"* — Vì phương sai (σ²) của tổng các cú sốc **độc lập** cộng tuyến tính ($\text{Var tổng} = T \times \text{Var}_1$), nên độ lệch chuẩn (căn của phương sai) tăng theo $\sqrt{T}$. Cùng logic làm đa dạng hóa giảm rủi ro theo căn (Tầng 2 Lesson 05).
 
-> 🔁 **Dừng lại tự kiểm tra.** Biến động tháng 5%. Biến động năm (12 tháng) xấp xỉ bao nhiêu?
+> 🔁 **Thực hành.** Biến động tháng 5%. Biến động năm (12 tháng) xấp xỉ bao nhiêu?
 > <details><summary>Đáp án</summary>$5\% \times \sqrt{12} = 5\% \times 3{,}46 = 17{,}3\%$.</details>
 
 > 📝 **Tóm tắt toàn bài.**

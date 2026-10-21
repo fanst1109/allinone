@@ -166,7 +166,7 @@ len(m)  // số phần tử hiện tại
 
 \`len(nil_map) = 0\` — đây cũng là lý do đọc nil map an toàn.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 >
 > 1. Cho \`m := map[string]int{"a": 0}\`. \`m["a"]\` trả về gì? Còn \`m["b"]\`? Phân biệt 2 cái bằng cách nào?
 >

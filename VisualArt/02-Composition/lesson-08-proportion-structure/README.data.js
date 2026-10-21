@@ -116,7 +116,7 @@ Lấy **tỉ số hai số liền nhau**, nó tiến dần về $\\varphi$:
 
 > 💡 **Trực giác.** Fibonacci là "tỉ lệ vàng dành cho người không có máy tính": muốn một khung chữ nhật gần vàng mà chỉ được dùng số nguyên → lấy $89 \\times 55$ hay $8 \\times 5$. Vì thế kích thước phim ($3\\!:\\!2$, $8\\!:\\!5$…) và nhiều khổ giấy hay rơi vào các cặp Fibonacci.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Chia đoạn dài 34 theo tỉ lệ vàng: phần dài, phần ngắn?
 > 2. Số Fibonacci tiếp theo sau 144 là bao nhiêu? Tỉ số của nó với 144 gần $\\varphi$ cỡ nào?
 >
@@ -231,7 +231,7 @@ Chia người cao 8 đầu thành 8 vạch (mỗi vạch = 1 đầu), tính từ
 > - *"Đổi sang 7.5 đầu thì mốc đổi ra sao?"* → Chia lại: mỗi đầu vẫn 1 đơn vị nhưng tổng chỉ còn 7.5 đơn vị. Hông vẫn ~điểm giữa, nhưng chân bớt "dài kịch" hơn hình 8 đầu — nhìn tự nhiên hơn. Kéo slider số đầu trong viz để thấy các vạch dồn lại.
 > - *"Phụ nữ / nam giới khác gì?"* → Cùng ~số đầu, nhưng tỉ lệ vai–hông khác (nam vai rộng hơn hông, nữ ngược lại). Bài này lo *chiều cao theo đầu*; tỉ lệ ngang để bài sau.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một nhân vật comic cao 8 đầu, bạn vẽ đầu cao 3 cm. Đầu gối nằm ở vạch bao nhiêu cm tính từ đỉnh?
 > 2. Bạn muốn vẽ em bé 4 đầu, đầu cao 4 cm. Bé cao bao nhiêu, và điểm giữa cơ thể (theo bội đầu) rơi vào đâu?
 >

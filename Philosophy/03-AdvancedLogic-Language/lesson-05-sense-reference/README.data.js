@@ -111,7 +111,7 @@ Câu A có thể đúng (họ quan sát Sao Mai mỗi sáng). Câu B thì sai �
 
 Ngữ cảnh "biết rằng...", "tin rằng...", "nghĩ rằng..." — gọi là **ngữ cảnh cố tình (intentional context)** — là nơi thay thế đồng quy chiếu có thể thay đổi giá trị chân lý của câu. Trong những ngữ cảnh này, nghĩa (sense), không phải quy chiếu, là yếu tố quyết định.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho hai mệnh đề:
+> 🔁 **Thực hành.** Cho hai mệnh đề:
 > (1) "Nguyễn Du là người viết Truyện Kiều."
 > (2) "Ông Tố Như là người viết Truyện Kiều."
 >
@@ -158,7 +158,7 @@ Frege mở rộng lý thuyết sang cả câu (sentence):
 > - *"Nếu mọi câu đúng đều có cùng quy chiếu, sao không thể thay câu này bằng câu kia?"* — Đúng vì lý do tương tự ở mục 2.3: trong ngữ cảnh cố tình, thay thế đồng quy chiếu phá vỡ nghĩa. "Galileo tin rằng Trái Đất quay quanh Mặt Trời" — tư tưởng (sense) của mệnh đề phụ quan trọng, không chỉ giá trị chân lý.
 > - *"Câu không có giá trị chân lý thì sao?"* — Ví dụ "Vua Pháp hiện nay hói đầu" — nếu chủ ngữ không quy chiếu, câu cũng không có quy chiếu (không có giá trị chân lý xác định). Frege thừa nhận ngôn ngữ tự nhiên có những câu như vậy — đây chính là vấn đề mà Russell giải quyết (mục 4).
 
-> 🔁 **Dừng lại tự kiểm tra.** Theo lý thuyết Frege, hai câu "2 + 2 = 4" và "Paris là thủ đô của Pháp" có cùng quy chiếu không? Có cùng nghĩa không?
+> 🔁 **Thực hành.** Theo lý thuyết Frege, hai câu "2 + 2 = 4" và "Paris là thủ đô của Pháp" có cùng quy chiếu không? Có cùng nghĩa không?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -260,7 +260,7 @@ Nếu **thiếu bất kỳ điều kiện nào**, câu là **SAI** — không ph
 > - *"Lý thuyết Russell có vấn đề gì không?"* — Có. Strawson (1950) phản bác: khi nói "Vua Pháp hói", người nói **presuppose** (tiền giả định) rằng có vua Pháp — câu không sai mà chỉ đơn giản là không thể đánh giá (presupposition failure). Đây là tranh luận mở.
 > - *"Nếu mô tả xác định không phải tên riêng, vậy tên riêng như 'Nguyễn Du' là gì?"* — Russell: tên riêng trong ngôn ngữ thường cũng là mô tả ẩn. Kripke (mục 5) phản bác hoàn toàn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân tích theo Russell: "Người đầu tiên đi bộ trên Mặt Trăng là người Mỹ." Câu đúng hay sai? Ba điều kiện là gì?
+> 🔁 **Thực hành.** Phân tích theo Russell: "Người đầu tiên đi bộ trên Mặt Trăng là người Mỹ." Câu đúng hay sai? Ba điều kiện là gì?
 >
 > <details><summary>Đáp án</summary>
 >

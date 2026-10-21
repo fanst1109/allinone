@@ -60,7 +60,7 @@ Kiểm chứng 2021: $208.000/200.000 = 1{,}04 \to$ CPI $= 104 \to$ lạm phát 
 > - *"CPI của nhà nước có khớp lạm phát của riêng tôi không?"* — Không hẳn. CPI dùng rổ trung bình; nếu bạn chi nhiều cho thứ tăng giá mạnh (vd tiền thuê nhà ở thành phố), lạm phát "cảm nhận" của bạn cao hơn CPI công bố.
 > - *"Lạm phát âm thì sao?"* — Gọi là **giảm phát (deflation)** — mức giá chung giảm. Nghe có vẻ tốt nhưng nguy hiểm: người ta hoãn mua chờ giá rẻ hơn → kinh tế đình trệ.
 
-> 🔁 **Dừng lại tự kiểm tra.** CPI năm 2024 = 121,3 (gốc 2020=100). Năm 2023 là 115,5. Lạm phát 2024?
+> 🔁 **Thực hành.** CPI năm 2024 = 121,3 (gốc 2020=100). Năm 2023 là 115,5. Lạm phát 2024?
 > <details><summary>Đáp án</summary>$(121{,}3 - 115{,}5)/115{,}5 = 5{,}8/115{,}5 = 5{,}0\%$.</details>
 
 ---
@@ -88,7 +88,7 @@ $$\text{Giá trị thực} = \frac{M}{(1 + i)^n}$$
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "để tiền trong két là an toàn, không mất gì". Sai — tiền mặt nhàn rỗi **chắc chắn mất giá** theo lạm phát. "An toàn danh nghĩa" không phải "an toàn thực".
 
-> 🔁 **Dừng lại tự kiểm tra.** Lạm phát 8%/năm. 50 triệu giữ tiền mặt sau 10 năm còn sức mua bao nhiêu?
+> 🔁 **Thực hành.** Lạm phát 8%/năm. 50 triệu giữ tiền mặt sau 10 năm còn sức mua bao nhiêu?
 > <details><summary>Đáp án</summary>$50/1{,}08^{10} = 50/2{,}159 = 23{,}2$ triệu (mất ~54% sức mua).</details>
 
 ---
@@ -128,7 +128,7 @@ Ví dụ cuối: lãi danh nghĩa 4% nhưng lạm phát 7% → lãi thực **âm
 
 > ⚠ **Lỗi thường gặp.** So sánh hai khoản đầu tư ở hai thời kỳ chỉ bằng lãi danh nghĩa. Gửi 12% thời lạm phát 10% (thực 1,8%) **kém hơn** gửi 5% thời lạm phát 2% (thực 2,9%). Luôn quy về lãi thực.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lãi danh nghĩa 10%, lạm phát 4%. Lãi thực chính xác bằng bao nhiêu?
+> 🔁 **Thực hành.** Lãi danh nghĩa 10%, lạm phát 4%. Lãi thực chính xác bằng bao nhiêu?
 > <details><summary>Đáp án</summary>$1{,}10/1{,}04 = 1{,}0577 \to 5{,}77\%$ (xấp xỉ $10-4=6\%$).</details>
 
 ---

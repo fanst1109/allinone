@@ -73,7 +73,7 @@ Thực chất, ranh giới này phản ánh nơi quân đội Liên Xô và quâ
 - Hai khối quân sự (NATO và Hiệp ước Warsaw) thể chế hóa sự chia đôi này.
 - Xung đột bắt nguồn từ khác biệt ý thức hệ và cạnh tranh ảnh hưởng địa chính trị.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 *Bức màn sắt được vẽ theo ranh giới nào? Đây là quyết định cố ý hay hệ quả của vị trí quân sự năm 1945?*
 
 <details>
@@ -195,7 +195,7 @@ Không bao giờ có trận chiến công khai được xác nhận giữa quân
 - Chiến tranh Triều Tiên kết thúc bằng đình chiến, không hòa bình.
 - Chiến tranh Việt Nam là chiến tranh ủy nhiệm lớn nhất và tốn kém nhất, với bản chất đa chiều.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 *Tại sao Khủng hoảng Cuba 1962 được xem là thời điểm nguy hiểm nhất của Chiến tranh Lạnh?*
 
 <details>
@@ -266,7 +266,7 @@ Không có một nguyên nhân duy nhất. Các yếu tố đan xen:
 - Năm 1989: hầu hết Đông Âu chuyển đổi chính trị, Bức tường Berlin sụp đổ.
 - Tháng 12/1991: Liên Xô chính thức tan rã; Chiến tranh Lạnh kết thúc.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 *Glasnost và perestroika nhằm mục đích gì? Tại sao chúng lại dẫn đến kết quả không mong đợi?*
 
 <details>

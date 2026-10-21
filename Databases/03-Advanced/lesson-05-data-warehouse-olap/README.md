@@ -218,7 +218,7 @@ Gom nhóm `(tháng, category)` và cộng `amount`:
 
 Đây chính là bản chất của OLAP: **quét nhiều dòng fact, JOIN với dimension để lấy nhãn dễ đọc (tháng, danh mục), rồi gom nhóm + tổng hợp** thành một bảng nhỏ để con người đọc.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Trong schema trên, `quantity` và `amount` thuộc fact hay dimension? Còn `category`?
 2. Vì sao star schema nhanh hơn snowflake khi chạy truy vấn phân tích?
 

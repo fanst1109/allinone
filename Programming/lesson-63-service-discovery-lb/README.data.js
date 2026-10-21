@@ -165,7 +165,7 @@ Có hai kiến trúc lớn để trả lời "B ở đâu".
 | LB thông minh | Dễ (client có metric) | Tùy LB |
 | Ví dụ | Eureka, gRPC client LB | K8s Service, AWS ELB |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Trong client-side, ai thực hiện load balancing?
 > 2. Vì sao server-side dễ cho hệ polyglot (nhiều ngôn ngữ) hơn?
 >
@@ -302,7 +302,7 @@ Ví dụ K8s:
 
 Thực tế thường **kết hợp cả hai**: active để chủ động dọn, passive (qua circuit breaker — mục 11) để phản ứng nhanh với lỗi đang xảy ra.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Readiness probe fail thì K8s làm gì — restart hay gỡ khỏi LB?
 > 2. Vì sao không nên cho liveness probe ping DB?
 >
@@ -467,7 +467,7 @@ Chỉ **k2** đổi (nó nằm trong cung 100→170 mà D vừa chen vào). 3/4 
 >
 > **Bản thật**: mỗi node vật lý đặt **nhiều điểm ảo** (virtual nodes / replicas), vd 100-200 điểm/node. Phân phối đều hơn nhiều. \`HashRing\` trong [solutions.go](./solutions.go) dùng \`replicas\` cho đúng điều này.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Thêm 1 node vào ring 10 node, ~bao nhiêu % key bị remap?
 > 2. Virtual nodes giải quyết vấn đề gì?
 >

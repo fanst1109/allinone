@@ -211,7 +211,7 @@ Kết quả: Cout=1, Sum=0000 → 10000₂ = 16₁₀ ✓
 
 *"Phải làm gì khi kết quả tràn số?"* — Carry-out từ bit cao nhất là dấu hiệu tràn (overflow) với số không dấu. Với số có dấu (bù 2), overflow khi $C_{\\text{out}_{n-1}} \\neq C_{\\text{out}_{n-2}}$.
 
-🔁 **Tự kiểm tra**: Cộng nhị phân 4-bit: 0101 + 1011 = ?
+🔁 **Thực hành**: Cộng nhị phân 4-bit: 0101 + 1011 = ?
 
 <details>
 <summary>Đáp án</summary>
@@ -381,7 +381,7 @@ Mỗi chữ số 0–9 cần bật/tắt 7 đoạn LED (a–g). Decoder BCD-to-7
 
 *"Decoder và demultiplexer (DEMUX) có khác nhau không?"* — Rất giống nhau về cấu trúc. DEMUX có thêm 1 ngõ vào dữ liệu: ngõ ra tương ứng nhận giá trị từ ngõ vào dữ liệu, các ngõ ra còn lại = 0. Decoder là DEMUX với ngõ vào dữ liệu luôn = 1.
 
-🔁 **Tự kiểm tra**: Với decoder 3:8, đầu vào $A_2A_1A_0$ = 101. Ngõ ra nào lên 1?
+🔁 **Thực hành**: Với decoder 3:8, đầu vào $A_2A_1A_0$ = 101. Ngõ ra nào lên 1?
 
 <details>
 <summary>Đáp án</summary>
@@ -497,7 +497,7 @@ Kết quả đúng hoàn toàn.
 
 *"Don't-care (X) trong K-map là gì?"* — Tổ hợp đầu vào không bao giờ xuất hiện trong thực tế (ví dụ BCD chỉ có 0000–1001, các trạng thái 1010–1111 là don't-care). Có thể gán X = 0 hoặc 1 tùy ý để tạo nhóm lớn hơn → rút gọn tốt hơn.
 
-🔁 **Tự kiểm tra**: Rút gọn F = Σm(0, 3, 5, 6) với 3 biến A, B, C.
+🔁 **Thực hành**: Rút gọn F = Σm(0, 3, 5, 6) với 3 biến A, B, C.
 
 <details>
 <summary>Đáp án</summary>

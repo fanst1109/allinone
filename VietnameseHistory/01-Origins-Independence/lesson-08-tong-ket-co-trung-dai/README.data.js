@@ -62,7 +62,7 @@ Bài này ôn tập và tổng hợp toàn bộ nội dung Tầng 1. Trước kh
 - Bắc thuộc kéo dài từ 111 TCN đến 938, tức hơn 1.000 năm, với ít nhất 6 cuộc khởi nghĩa lớn được sử sách ghi nhận.
 - Kết thúc Tầng 1 là Đại Cồ Việt (968) và chiến thắng kháng Tống (981) — nền tảng cho kỷ nguyên quân chủ độc lập.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Không nhìn bảng, thử liệt kê: 179 TCN, 40, 248, 544, 722, 791, 905, 938, 968, 981 — mỗi năm ứng với sự kiện gì?
 
@@ -126,7 +126,7 @@ Người Hán du nhập Phật giáo, Đạo giáo, Khổng giáo — những t�
 
 ⚠ **Hiểu lầm thường gặp**: Một số người cho rằng "hơn 1.000 năm Bắc thuộc là thảm họa hoàn toàn, không có gì tích cực". Thực ra, trong giai đoạn này người Việt tiếp nhận nhiều kỹ thuật hữu ích từ Trung Hoa: kỹ thuật làm sắt, đúc đồng tinh xảo hơn, kỹ thuật xây thành lũy, chữ viết (sau này dùng để sáng tạo chữ Nôm). Vấn đề không phải là tiếp xúc văn hóa — mà là việc tiếp nhận có chọn lọc, không bị cuốn trôi hoàn toàn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Hãy nêu ba cơ chế cụ thể giúp người Việt giữ bản sắc trong thời Bắc thuộc. Với mỗi cơ chế, đưa ra một bằng chứng lịch sử cụ thể.
 

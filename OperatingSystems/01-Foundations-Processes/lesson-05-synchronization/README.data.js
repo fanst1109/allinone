@@ -149,7 +149,7 @@ Bất kỳ giải pháp nào cho bài toán critical section đều phải tho�
 
 ⚠ **Lỗi thường gặp — Chỉ kiểm tra Mutual Exclusion:** Nhiều giải pháp đơn giản (như dùng biến \`turn\` thay phiên) thoả mãn Mutual Exclusion nhưng vi phạm Progress — nếu một thread thoát khỏi CS và không muốn vào lại, thread kia bị chặn dù CS trống.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Giải pháp dùng biến \`turn = 0/1\`: Thread 0 vào CS khi \`turn == 0\`, thread 1 vào khi \`turn == 1\`. Sau khi ra, mỗi thread gán \`turn\` cho bên kia. Giải pháp này có vi phạm yêu cầu nào không?
 
@@ -385,7 +385,7 @@ P0: flag[0]=true, turn=1
 
 ⚠ **Hạn chế của Peterson trong thực tế:** CPU hiện đại có thể **reorder** các lệnh ghi bộ nhớ để tối ưu hiệu năng. \`flag[i] = true; turn = j\` có thể bị thực thi theo thứ tự ngược lại ở cấp độ phần cứng — phá vỡ thuật toán. Giải quyết bằng **memory barrier/fence** — chỉ lệnh phần cứng mới đảm bảo được ordering. Đây là lý do mutex trong OS đều dùng lệnh phần cứng nguyên tử.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Trong thuật toán Peterson, nếu P0 thực hiện \`flag[0] = true\` rồi bị preempt ngay (chưa kịp làm \`turn = 1\`), P1 muốn vào CS thì chuyện gì xảy ra?
 

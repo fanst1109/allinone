@@ -99,7 +99,7 @@ Thứ tự dấu giáng là **đảo ngược** thứ tự dấu thăng (FCGDAEB
 
 > ⚠ **Lỗi thường gặp: nhớ riêng lẻ từng dấu mà không nhớ thứ tự.** Thứ tự có ý nghĩa sâu hơn: mỗi bước đi theo chiều kim đồng hồ trong vòng quãng 5 (mục 3 giải thích). Nếu nhớ thứ tự theo câu mẹo, bạn sẽ không bao giờ nhầm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bộ khóa 4 thăng gồm những dấu nào?
+> 🔁 **Ôn tập.** Bộ khóa 4 thăng gồm những dấu nào?
 > <details><summary>Đáp án</summary>
 >
 > Theo thứ tự F C G D A E B, lấy 4 dấu đầu: **F♯ C♯ G♯ D♯**.
@@ -153,7 +153,7 @@ Cứ mỗi lần lên 7 nửa cung, điệu mới cần 1 dấu thêm: C(0) → 
 
 > ⚠ **Lỗi thường gặp: nghĩ vòng quãng 5 chỉ là mẹo nhớ.** Vòng quãng 5 phản ánh cấu trúc toán học thật của âm bình quân 12 nửa cung. Nó giải thích vì sao các điệu "gần nhau" (1-2 bộ khóa khác biệt) nghe hòa hợp khi chuyển điệu (modulate), còn các điệu "đối nhau" (6 bộ khóa khác biệt) nghe xa lạ hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Từ điệu E♭ trưởng, đi theo chiều kim đồng hồ 2 bước sẽ đến điệu nào?
+> 🔁 **Ôn tập.** Từ điệu E♭ trưởng, đi theo chiều kim đồng hồ 2 bước sẽ đến điệu nào?
 > <details><summary>Đáp án</summary>
 >
 > E♭ (3♭) → đi 1 bước CKĐ = B♭ (2♭) → đi thêm 1 bước = **F trưởng (1♭)**.
@@ -203,7 +203,7 @@ Với **≥ 2 giáng**: nhìn vào dấu giáng **áp chót** (thứ hai từ ph
 
 > ⚠ **Lỗi thường gặp: đếm sai "áp chót".** Áp chót = dấu giáng CUỐI CÙNG TRỪ MỘT. Với 3♭ là B♭ E♭ A♭: cuối là A♭, áp chót là E♭ → điệu là E♭. Đừng nhầm với "dấu giáng thứ hai" kể từ bên trái (sẽ cho kết quả sai khi số giáng > 3).
 
-> 🔁 **Dừng lại tự kiểm tra.** Bộ khóa có 4 giáng là điệu gì?
+> 🔁 **Ôn tập.** Bộ khóa có 4 giáng là điệu gì?
 > <details><summary>Đáp án</summary>
 >
 > 4 giáng = B♭ E♭ A♭ D♭. Áp chót = **A♭** → **A♭ trưởng**.
@@ -248,7 +248,7 @@ Với **≥ 2 giáng**: nhìn vào dấu giáng **áp chót** (thứ hai từ ph
 > - *"A thứ tự nhiên và A thứ hòa thanh/giai điệu có cùng bộ khóa với C trưởng không?"* — Bộ khóa là của gam thứ **tự nhiên** (natural minor). Gam thứ hòa thanh nâng bậc 7 lên (G♯ trong A thứ hòa thanh) — ký hiệu đó thường viết là accidental trực tiếp trong nhạc chứ không thêm vào bộ khóa.
 > - *"Có điệu 'tương đối' cho gam thứ không?"* — Có, và đó chính là điệu trưởng ta vừa học. A thứ ↔ C trưởng là quan hệ hai chiều.
 
-> 🔁 **Dừng lại tự kiểm tra.** Điệu thứ tương đối của E♭ trưởng là gì?
+> 🔁 **Ôn tập.** Điệu thứ tương đối của E♭ trưởng là gì?
 > <details><summary>Đáp án</summary>
 >
 > E♭ trưởng: E♭ F G A♭ B♭ C D. Bậc 6 = C. → **C thứ** (cùng bộ khóa 3♭).

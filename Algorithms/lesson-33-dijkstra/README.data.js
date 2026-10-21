@@ -144,7 +144,7 @@ Khi mọi cạnh = 1, đỉnh có \`dist\` nhỏ nhất luôn là đỉnh ở l�
 
 > ❓ **Câu hỏi tự nhiên.** *"Vậy có cách nào dùng BFS với trọng số không?"* — Có, nếu trọng số chỉ là **0 hoặc 1** thì dùng **0-1 BFS** (deque: cạnh 0 push front, cạnh 1 push back) đạt $O(V+E)$. Trọng số nhỏ bị chặn \`[0..k]\` thì có dial's algorithm. Trọng số tùy ý ≥ 0 → Dijkstra.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho đồ thị: \`0→1 (w=5)\`, \`0→2 (w=1)\`, \`2→1 (w=1)\`. BFS nói \`dist[1] = ?\`, Dijkstra nói \`dist[1] = ?\`
+> 🔁 **Thực hành.** Cho đồ thị: \`0→1 (w=5)\`, \`0→2 (w=1)\`, \`2→1 (w=1)\`. BFS nói \`dist[1] = ?\`, Dijkstra nói \`dist[1] = ?\`
 > <details><summary>Đáp án</summary>
 > BFS gặp 1 ngay ở lớp 1 → tưởng \`dist[1]=5\`. Dijkstra: \`0→2→1 = 1+1 = 2 < 5\` → \`dist[1]=2\`. Dijkstra đúng.
 > </details>
@@ -435,7 +435,7 @@ Truy vết đường tới đỉnh 5: \`5 ← 4 ← 3 ← 1 ← 2 ← 0\`. Đả
 
 > ❓ **Câu hỏi tự nhiên.** *"Nếu có hai đường ngắn nhất bằng nhau thì prev lưu cái nào?"* — Cái được relax **trước** (vì điều kiện \`<\` chặt, không cập nhật khi bằng). Muốn liệt kê mọi đường ngắn nhất, lưu \`prev\` là **danh sách** và relax cả khi \`==\`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`prev = [-1, 2, 0, 1, 3, 4]\`, đường ngắn nhất tới đỉnh 3 là gì?
+> 🔁 **Thực hành.** Với \`prev = [-1, 2, 0, 1, 3, 4]\`, đường ngắn nhất tới đỉnh 3 là gì?
 > <details><summary>Đáp án</summary>
 > \`3 ← 1 ← 2 ← 0\` → đảo: \`0 → 2 → 1 → 3\`, độ dài \`1+2+1 = 4 = dist[3]\`. ✓
 > </details>
@@ -564,7 +564,7 @@ Mấu chốt: **cài đặt Dijkstra dùng mảng \`visited\` cứng (chốt là
 
 > ⚠ **Lỗi thường gặp.** "Cứ cộng một hằng lớn vào mọi cạnh cho hết âm rồi chạy Dijkstra." — **SAI**. Cộng hằng \`C\` vào mỗi cạnh làm đường đi **k cạnh** tăng \`k·C\`, thiên vị đường **ít cạnh** → đổi đáp án. (Reweighting đúng cần thế năng \`h(v)\` của Johnson, không phải hằng số.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị \`0→1(1)\`, \`0→2(2)\`, \`2→1(-2)\`, \`src=0\`. Dijkstra-với-visited-cứng trả \`dist[1]=?\`, đáp án đúng là?
+> 🔁 **Thực hành.** Đồ thị \`0→1(1)\`, \`0→2(2)\`, \`2→1(-2)\`, \`src=0\`. Dijkstra-với-visited-cứng trả \`dist[1]=?\`, đáp án đúng là?
 > <details><summary>Đáp án</summary>
 > Dijkstra-visited chốt \`dist[1]=1\` (sai). Đúng: \`0→2→1 = 2-2 = 0\`. Dùng Bellman-Ford.
 > </details>
@@ -642,7 +642,7 @@ Soi lại bảng mục 4.2: các bước 4, 6, 8, 10 đều là pop entry stale 
 
 > ⚠ **Lỗi thường gặp.** Quên dòng \`if d > dist[u] { continue }\` → vẫn ra đúng đáp án nhưng **chậm hơn** (relax lại từ entry stale, có thể tạo cascade push), tệ nhất gần O(VE) hoặc tệ hơn. Luôn giữ dòng skip-stale.
 
-> 🔁 **Dừng lại tự kiểm tra.** Heap pop ra \`(7, 3)\` nhưng \`dist[3]\` hiện là \`4\`. Làm gì?
+> 🔁 **Thực hành.** Heap pop ra \`(7, 3)\` nhưng \`dist[3]\` hiện là \`4\`. Làm gì?
 > <details><summary>Đáp án</summary>
 > \`7 > 4\` → entry stale → \`continue\` (bỏ qua, không relax). Đường tốt hơn (dài 4) tới 3 đã được xử lý trước rồi.
 > </details>
@@ -685,7 +685,7 @@ Soi lại bảng mục 4.2: các bước 4, 6, 8, 10 đều là pop entry stale 
 6. **Đồ thị vô hướng quên thêm 2 chiều.** Cạnh vô hướng phải \`add(u,v,w)\` **và** \`add(v,u,w)\`.
 7. **So sánh relax dùng \`<=\` thay vì \`<\`.** \`<=\` push thừa các entry bằng nhau → chậm; logic vẫn đúng nhưng phí. Dùng \`<\`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao không đánh dấu \`visited[v]=true\` ngay khi push \`v\` vào heap (như BFS)?
+> 🔁 **Thực hành.** Vì sao không đánh dấu \`visited[v]=true\` ngay khi push \`v\` vào heap (như BFS)?
 > <details><summary>Đáp án</summary>
 > Vì sau đó có thể tìm được đường **ngắn hơn** tới \`v\` (qua đỉnh khác). BFS không gặp vì mọi cạnh = 1 nên lần chạm đầu đã là ngắn nhất. Dijkstra cập nhật \`dist[v]\` nhiều lần trước khi \`v\` được pop-và-chốt.
 > </details>

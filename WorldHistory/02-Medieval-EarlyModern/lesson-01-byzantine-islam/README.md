@@ -66,7 +66,7 @@ Một số lý do chính: (1) Phương Đông kinh tế phát triển hơn, đô
 
 🔗 **Nhân – quả:** Bộ luật Justinian → được các học giả Ả Rập bảo tồn và truyền dạy → được tái giới thiệu vào châu Âu qua các trường đại học Bologna, Paris (thế kỉ XI–XII) → trở thành nền tảng luật dân sự (civil law) mà hơn 150 quốc gia ngày nay vẫn dùng.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Justinian I để lại hai di sản lớn là gì, và mỗi di sản ảnh hưởng đến thế giới ngày nay như thế nào?*
 
@@ -137,7 +137,7 @@ Ba tôn giáo này được gọi là "tôn giáo Abraham" (Abrahamic religions)
 
 Sự phân chia này bắt nguồn từ tranh chấp kế vị sau cái chết của Muhammad (632 SCN): **Sunni** tin người kế vị nên được cộng đồng bầu chọn; **Shia** (Shi'at Ali — "phe của Ali") tin quyền lãnh đạo thuộc về Ali ibn Abi Talib, người anh rể và em họ của Muhammad, rồi truyền cho dòng dõi của ông. Sự chia rẽ trở nên sâu sắc sau trận Karbala (680 SCN) khi Hussein bin Ali (con trai Ali) bị giết. Ngày nay Sunni chiếm khoảng 85–90% người Hồi giáo toàn cầu.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Vì sao năm 622 SCN (Hijra) được chọn là năm 1 trong lịch Hồi giáo, thay vì năm Muhammad sinh (570 SCN) hay năm nhận Khải huyền đầu tiên (610 SCN)?*
 
@@ -200,7 +200,7 @@ Sau cái chết của Ali, Muawiyah ibn Abi Sufyan thành lập triều đại t
 
 ⚠ **Hiểu lầm thường gặp:** Không phải toàn bộ lãnh thổ Hồi giáo ở dưới một chính quyền thống nhất. Ngay từ thế kỉ IX, đế chế Abbasid bắt đầu phân mảnh: các triều đại địa phương như Fatimid (Ai Cập, 909–1171), Samanid (Ba Tư), Buyid... nắm quyền thực tế ở các vùng, trong khi Caliph ở Baghdad chỉ còn là biểu tượng tôn giáo.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Thứ tự ba giai đoạn đầu của đế chế Hồi giáo là gì, và đặc điểm chính của mỗi giai đoạn?*
 
@@ -257,7 +257,7 @@ Sau cái chết của Ali, Muawiyah ibn Abi Sufyan thành lập triều đại t
 
 ⚠ **Hiểu lầm thường gặp:** Học giả Hồi giáo không chỉ sao chép và bảo tồn tri thức Hy Lạp — họ phát triển thêm, sửa sai, và tạo ra kiến thức mới. Al-Khwarizmi không chỉ dịch Hy Lạp mà tạo ra đại số. Ibn Sina không chỉ tổng hợp mà thêm hàng nghìn quan sát lâm sàng mới. Vai trò của họ là người kế thừa sáng tạo chứ không phải người ghi chép thụ động.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Vì sao thời kỳ Abbasid (thế kỉ VIII–XIII) được gọi là "hoàng kim"? Liệt kê ít nhất ba lĩnh vực có thành tựu nổi bật.*
 

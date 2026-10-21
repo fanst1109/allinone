@@ -78,7 +78,7 @@ Còn **chính giữa** là $(600, 400)$ — điểm cần *tránh* cho chủ th�
 
 > ⚠ **Lỗi #2 — Cắt đôi khung 50/50.** Đặt đường chân trời ngay giữa (y = 50%) chia bầu trời và mặt đất bằng nhau → phân vân, không nhấn được gì. Đẩy về đường 1/3 (33% hoặc 67%) để chọn "nhân vật chính" là trời hay đất.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Khung ngang **1920 × 1080 px**. Đường dọc 1/3 nằm ở x bằng bao nhiêu?
 > 2. Muốn khoe bầu trời hoàng hôn rực rỡ, nên đặt đường chân trời lên đường ngang 33% hay 67%?
 >
@@ -140,7 +140,7 @@ Tỉ số hai số Fibonacci liền nhau tiến dần về $\\varphi$:
 
 > ⚠ **Lỗi thường gặp.** Ép mọi bức ảnh vào xoắn ốc vàng rồi xoay/lật cho "khớp". Xoắn ốc là **gợi ý dòng chảy**, không phải khuôn dập. Nếu phải bẻ cong chủ thể để vừa xoắn ốc thì bạn đang phục vụ công cụ, không phải bức tranh.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Điểm tỉ lệ vàng chia khung cao 900 px nằm ở y bao nhiêu (tính cả hai vị trí)?
 > 2. $21/13 = 1.615$ còn $34/21 = 1.619$. Dãy tỉ số đang tiến về con số nào?
 >
@@ -200,7 +200,7 @@ Như đòn bẩy vật lý, **mô-men (moment) = trọng lượng × khoảng c�
 
 > ⚠ **Lỗi thường gặp.** Nhồi hết yếu tố nặng về một góc rồi để góc đối diện trống trơn → cân "đổ" hẳn về một phía, mắt trượt khỏi khung. Sửa: hoặc thêm đối trọng phía kia, hoặc dời chủ thể về gần trục hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Chủ thể trọng lượng 8 đặt cách trục 3 về trái. Bên phải bạn có một yếu tố trọng lượng 2. Phải đặt nó cách trục bao xa để cân?
 >
 > <details><summary>Đáp án</summary>
@@ -284,7 +284,7 @@ Như đòn bẩy vật lý, **mô-men (moment) = trọng lượng × khoảng c�
 
 > ⚠ **Lỗi thường gặp.** Sợ "phí chỗ" nên phóng to chủ thể lấp đầy khung, cắt sát mép → mất khoảng thở, chủ thể như bị "nhốt". Tối giản chủ động dùng khoảng âm nhiều hơn bạn tưởng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một logo cần cảm giác cao cấp, tối giản. Nên cho chủ thể chiếm bao nhiêu % khung, và khoảng âm còn lại đóng vai trò gì?
+> 🔁 **Ôn tập.** Một logo cần cảm giác cao cấp, tối giản. Nên cho chủ thể chiếm bao nhiêu % khung, và khoảng âm còn lại đóng vai trò gì?
 >
 > <details><summary>Đáp án</summary>
 >

@@ -77,7 +77,7 @@ Kết luận:  Trời KHÔNG mưa. ✓ CHẮC CHẮN
 > \`\`\`
 > Cấu trúc vẫn hợp lệ, nhưng tiền đề 1 sai nên kết luận sai.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phân loại lập luận sau: hợp lệ + đúng đắn, hay hợp lệ + không đúng đắn, hay không hợp lệ?
 > \`\`\`
 > (A) Mọi kim loại đều dẫn điện. Đồng là kim loại. → Đồng dẫn điện.
@@ -263,7 +263,7 @@ Vì quy nạp không cho chắc chắn tuyệt đối, ta cần tiêu chí đán
        Vẫn là quy nạp — nhưng rất mạnh.
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.** Đánh giá quy nạp sau: mạnh hay yếu và vì sao?
+> 🔁 **Thực hành.** Đánh giá quy nạp sau: mạnh hay yếu và vì sao?
 > *"Tôi quan sát mặt trời mọc mỗi buổi sáng trong 30 năm. Vậy mặt trời sẽ mọc vào ngày mai."*
 >
 > <details><summary>Đáp án</summary>
@@ -326,7 +326,7 @@ ABDUCTION:
   Kết luận: Có thể trời mưa đêm qua. (GIẢ THUYẾT TỐT NHẤT, cần xác nhận)
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại kiểu suy luận:
+> 🔁 **Thực hành.** Phân loại kiểu suy luận:
 > \`\`\`
 > (A) Mọi kim cương cứng hơn thủy tinh. Viên đá này là kim cương.
 >     → Viên đá này cứng hơn thủy tinh.

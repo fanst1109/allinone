@@ -40,7 +40,7 @@ Sau bài này bạn sẽ:
 > - *"Vậy Warren Buffett thắng thị trường là sao?"* — Có những ngoại lệ; tranh luận liệu đó là kỹ năng hay may mắn (với hàng triệu người chơi, vài người thắng lâu dài là tất yếu thống kê). EMH nói **đa số** không thắng bền vững, không nói **tuyệt đối không ai**.
 > - *"Dạng nào đúng trong thực tế?"* — Đa số bằng chứng ủng hộ dạng **yếu** và phần lớn **bán mạnh**; dạng **mạnh** rõ ràng sai (giao dịch nội gián có lời, nên mới bị cấm). Thị trường **gần** hiệu quả, không hoàn hảo.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu dạng yếu đúng, chiến lược "mua khi đồ thị tạo đáy, bán khi tạo đỉnh" (phân tích kỹ thuật) có giá trị không?
+> 🔁 **Thực hành.** Nếu dạng yếu đúng, chiến lược "mua khi đồ thị tạo đáy, bán khi tạo đỉnh" (phân tích kỹ thuật) có giá trị không?
 > <details><summary>Đáp án</summary>Không — dạng yếu nói giá đã phản ánh mọi dữ liệu giá quá khứ, nên mẫu hình đồ thị không cho lợi thế bền vững.</details>
 
 ---
@@ -58,7 +58,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** "Quỹ này năm ngoái lời 40%, chắc giỏi." Hiệu suất quá khứ **không** dự báo tương lai (gần như mọi tài liệu đầu tư đều ghi câu này). Quỹ nóng năm nay thường nguội năm sau (hồi quy về trung bình).
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai quỹ cùng lợi nhuận gộp 9%; A phí 0,1%, B phí 1,2%. Sau nhiều năm cái nào thắng và vì sao?
+> 🔁 **Thực hành.** Hai quỹ cùng lợi nhuận gộp 9%; A phí 0,1%, B phí 1,2%. Sau nhiều năm cái nào thắng và vì sao?
 > <details><summary>Đáp án</summary>A thắng — phí thấp hơn 1,1%/năm, qua nhiều năm lãi kép, khoản chênh tích lũy thành rất lớn. Phí là thứ bạn kiểm soát được, lợi nhuận thì không.</details>
 
 ---

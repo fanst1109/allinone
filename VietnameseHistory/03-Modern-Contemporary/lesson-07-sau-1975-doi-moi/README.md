@@ -42,7 +42,7 @@ Bài này tiếp nối [Lesson 06 — Giai đoạn 1954–1975 và thống nhấ
 - *Tại sao không gọi tên nước là Việt Nam Dân chủ Cộng hòa (như miền Bắc) mà đặt tên mới?* Tên mới phản ánh định hướng chính trị được xác lập tại Đại hội IV (12/1976): xây dựng chủ nghĩa xã hội trên phạm vi cả nước. Tên "Cộng hòa Xã hội chủ nghĩa" cũng phù hợp với mô hình phổ biến trong khối các nước xã hội chủ nghĩa thời đó.
 - *Tại sao Sài Gòn đổi tên?* Quyết định này mang ý nghĩa chính trị — đặt tên theo Hồ Chí Minh, người lãnh đạo phong trào đấu tranh giải phóng dân tộc. Tuy nhiên, đến nay tên "Sài Gòn" vẫn được sử dụng rộng rãi trong đời sống bên cạnh tên chính thức.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Tổng tuyển cử thống nhất diễn ra vào ngày tháng năm nào, và Quốc hội thống nhất đã đặt tên nước là gì?
 
@@ -201,7 +201,7 @@ Trước khi có Đổi mới chính thức, nhiều địa phương và cơ s�
 
 ⚠ **Lưu ý:** Đổi mới không phải là từ bỏ vai trò lãnh đạo của Đảng Cộng sản hay chuyển sang kinh tế thị trường tự do hoàn toàn. Đổi mới là chuyển sang "kinh tế thị trường định hướng xã hội chủ nghĩa" — giữ vai trò chủ đạo của nhà nước và doanh nghiệp nhà nước, nhưng thừa nhận kinh tế tư nhân và cơ chế thị trường. Nội dung và thành tựu của Đổi mới sẽ được phân tích kỹ trong [Lesson 08 — Đổi mới và hội nhập](../lesson-08-doi-moi-hoi-nhap/).
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Kể tên ba nguyên nhân chính dẫn đến việc mô hình bao cấp khủng hoảng trong thập niên 1980.
 

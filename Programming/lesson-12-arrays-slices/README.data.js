@@ -243,7 +243,7 @@ s = s[:9]               // ❌ panic: slice bounds out of range [:9] with capaci
 
 ⚠ **Lỗi thường gặp**: Tưởng \`s[:n]\` cần \`n ≤ len(s)\`. Thực ra điều kiện là \`n ≤ cap(s)\`. Đây là cách dùng để "hé lộ" dần phần tử trong buffer pre-allocate.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 \`\`\`go
 s := make([]int, 4, 10)

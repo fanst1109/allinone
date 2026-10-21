@@ -29,7 +29,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nhầm **thiên hà** với **hệ Mặt Trời** hay với **vũ trụ**. Thứ tự thang: hành tinh < hệ sao < cụm sao < **thiên hà** < nhóm/đám thiên hà < vũ trụ. Hệ Mặt Trời chỉ là một chấm nhỏ trong đĩa Ngân Hà.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ánh sáng mất bao lâu để băng qua đường kính Ngân Hà?
+> 🔁 **Thực hành.** Ánh sáng mất bao lâu để băng qua đường kính Ngân Hà?
 > <details><summary>Đáp án</summary>~100.000 năm, vì đường kính ~100.000 năm ánh sáng và ánh sáng đi 1 ly trong 1 năm.</details>
 
 ---
@@ -66,7 +66,7 @@ $$n = \text{round}[10(1 - 60/100)] = \text{round}[10 \cdot 0{,}4] = \text{round}
 > - *"Sa khác Sc ở đâu?"* — Theo trục `a → c`: chỗ phình (bulge) **nhỏ dần**, nhánh xoắn **xòe và rời rạc hơn**, và lượng khí + sao trẻ **tăng dần**. Sa = phình to, nhánh chặt; Sc = phình nhỏ, nhánh lỏng.
 > - *"Âm thoa Hubble có phải là chuỗi tiến hóa không?"* — **Không.** Hubble gọi nhầm elip là "early-type", xoắn là "late-type" (tên gọi vẫn dùng tới nay) nhưng thiên hà **không** đi theo chuỗi đó. Thực tế nhiều elip lớn hình thành do **sáp nhập (merger)** các thiên hà xoắn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một thiên hà elip có $b/a = 0{,}5$. Ký hiệu Hubble?
+> 🔁 **Thực hành.** Một thiên hà elip có $b/a = 0{,}5$. Ký hiệu Hubble?
 > <details><summary>Đáp án</summary>$n = \text{round}[10(1 - 0{,}5)] = \text{round}[5] = 5$ → **E5**.</details>
 
 ---
@@ -100,7 +100,7 @@ $$n = \text{round}[10(1 - 60/100)] = \text{round}[10 \cdot 0{,}4] = \text{round}
 
 > ⚠ **Lỗi thường gặp.** Nghĩ Mặt Trời ở **tâm** Ngân Hà. Không — ta cách tâm ~26.000 ly, ở khoảng giữa-ngoài của đĩa. Quan niệm "ta ở trung tâm" là sai lầm địa tâm phiên bản thiên hà.
 
-> 🔁 **Dừng lại tự kiểm tra.** Mặt Trời cách tâm Ngân Hà ~26.000 ly; đĩa rộng ~100.000 ly (bán kính ~50.000 ly). Mặt Trời ở gần tâm hay gần mép?
+> 🔁 **Thực hành.** Mặt Trời cách tâm Ngân Hà ~26.000 ly; đĩa rộng ~100.000 ly (bán kính ~50.000 ly). Mặt Trời ở gần tâm hay gần mép?
 > <details><summary>Đáp án</summary>Khoảng giữa, hơi lệch ngoài: $\dfrac{26000}{50000} \approx 0{,}52$ bán kính → khoảng nửa đường ra mép, không phải tâm cũng không phải rìa.</details>
 
 ---
@@ -125,7 +125,7 @@ $$n = \text{round}[10(1 - 60/100)] = \text{round}[10 \cdot 0{,}4] = \text{round}
 
 > ❓ **Câu hỏi tự nhiên.** *"Vũ trụ đang giãn nở, sao Andromeda lại tiến về phía ta?"* — Ở quy mô nhỏ (trong một nhóm), **trọng lực thắng** sự giãn nở của vũ trụ. Giãn nở chỉ chiếm ưu thế ở khoảng cách rất lớn giữa các đám thiên hà. Trong Nhóm Địa phương, các thiên hà bị trọng lực kéo lại với nhau (chi tiết ở Tầng 3 — [vũ trụ giãn nở](../../03-Cosmology/lesson-01-expanding-universe/)).
 
-> 🔁 **Dừng lại tự kiểm tra.** Thiên hà nào lớn nhất Nhóm Địa phương, và nó đang tiến lại hay rời xa Ngân Hà?
+> 🔁 **Thực hành.** Thiên hà nào lớn nhất Nhóm Địa phương, và nó đang tiến lại hay rời xa Ngân Hà?
 > <details><summary>Đáp án</summary>Andromeda (M31) — lớn nhất, và đang **tiến lại** Ngân Hà (~110 km/s), sẽ sáp nhập sau ~4–4.5 tỉ năm.</details>
 
 ---

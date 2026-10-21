@@ -98,7 +98,7 @@ DBMS phân quyền theo user/role: ai được đọc bảng nào, ai được x
 - *"Vậy file phẳng vô dụng à?"* — Không. Với cấu hình nhỏ, log ghi-một-lần, dữ liệu tạm, hoặc trao đổi giữa hệ thống thì CSV/JSON rất tốt. Chỉ khi cần *truy vấn linh hoạt + nhiều người dùng + an toàn dữ liệu* thì DBMS mới đáng công.
 - *"SQLite có phải DBMS không khi nó cũng chỉ là một file?"* — Có. SQLite lưu cả database trong **một file**, nhưng bên trên file đó là cả một engine lo index, transaction, SQL. Khác hẳn việc bạn tự đọc CSV.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. File phẳng thua DBMS ở điểm nào khi có 1 triệu dòng và cần lọc theo điều kiện?
 2. "Mất điện giữa lúc ghi" được DBMS xử lý bằng cơ chế tên là gì?
 

@@ -68,7 +68,7 @@ Tổng nửa cung: 2+2+1+2+2+2+1 = **12** = 1 octave ✓. Toàn phím trắng, k
 
 > ⚠ **Lỗi thường gặp: nhầm E→F và B→C là "nguyên cung".** Trên piano, giữa E và F *không có phím đen* — chúng chỉ cách nhau 1 nửa cung (half step), không phải nguyên cung. Tương tự B và C. Đây là điểm mà nhiều người học piano giai đoạn đầu hay nhầm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Gam C trưởng có bao nhiêu nửa cung từ C4 đến C5?
+> 🔁 **Ôn tập.** Gam C trưởng có bao nhiêu nửa cung từ C4 đến C5?
 > <details><summary>Đáp án</summary>
 >
 > 12 nửa cung (= 1 octave). Cộng lại: 2+2+1+2+2+2+1 = 12 ✓.
@@ -96,7 +96,7 @@ Tổng nửa cung: 2+2+1+2+2+2+1 = **12** = 1 octave ✓. Toàn phím trắng, k
 
 > 💡 **Vì sao F♯ chứ không phải F?** Ở bước 6, ta cần nguyên cung từ E. E→F chỉ là nửa cung → quá gần. Ta phải lên thêm 1 bước nữa thành F♯ để đủ nguyên cung. Nếu ta để F (không thăng), khoảng E→F chỉ là ½ thay vì T → phá vỡ công thức → không còn là gam trưởng nữa.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu dùng F thay vì F♯ trong gam G, bước 6 sẽ sai thế nào?
+> 🔁 **Ôn tập.** Nếu dùng F thay vì F♯ trong gam G, bước 6 sẽ sai thế nào?
 > <details><summary>Đáp án</summary>
 >
 > E→F = 1 nửa cung, nhưng bước 6 yêu cầu T = 2 nửa cung. Thiếu 1 nửa cung → khoảng quá hẹp → công thức bị phá vỡ ở bước 6 (½ thay vì T).
@@ -148,7 +148,7 @@ Tổng nửa cung: 2+2+1+2+2+2+1 = **12** = 1 octave ✓. Toàn phím trắng, k
 
 > 💡 **Nhận xét pattern.** Mỗi khi ta bắt đầu gam trưởng từ bậc V của gam hiện tại (gam G bắt từ V của C, gam D bắt từ V của G), ta thêm đúng 1 dấu thăng mới. Đây là nền tảng của **Vòng quãng 5 (Circle of Fifths)** — sẽ học ở [Lesson 08](../lesson-08-key-signatures-circle/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Dựng gam A trưởng (từ A). Có bao nhiêu dấu thăng?
+> 🔁 **Ôn tập.** Dựng gam A trưởng (từ A). Có bao nhiêu dấu thăng?
 > <details><summary>Đáp án</summary>
 >
 > A – B – C♯ – D – E – F♯ – G♯ – A. Có **3 dấu thăng**: C♯, F♯, G♯.
@@ -186,7 +186,7 @@ Tổng nửa cung: 2+2+1+2+2+2+1 = **12** = 1 octave ✓. Toàn phím trắng, k
 > - *"Solfège 'Do-Re-Mi' có phải lúc nào cũng là C-D-E không?"* — Không nhất thiết. Có hai hệ: *Fixed Do* (Do = C cố định, dùng ở nhiều nước châu Á và châu Âu) và *Movable Do* (Do = tonic của gam hiện tại). Bài này dùng *Movable Do* để linh hoạt với mọi gam.
 > - *"Bậc VII có tên là 'leading tone' nhưng trong gam thứ thì sao?"* — Gam thứ tự nhiên (natural minor) có bậc VII thấp hơn 1 nửa cung → gọi là *subtonic*, không còn "dẫn" về I nữa. Sẽ học ở [Lesson 06](../lesson-06-minor-scales-modes/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong gam G trưởng (G A B C D E F♯), nốt nào là dominant? Nốt nào là leading tone?
+> 🔁 **Ôn tập.** Trong gam G trưởng (G A B C D E F♯), nốt nào là dominant? Nốt nào là leading tone?
 > <details><summary>Đáp án</summary>
 >
 > - Dominant (bậc V) = **D** (đếm: G=1, A=2, B=3, C=4, D=5).

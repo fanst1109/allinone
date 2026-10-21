@@ -106,7 +106,7 @@ Xây từ Cm7 (0–3–7–10) rồi thêm D (+14). Bậc 3 là E♭ (quãng 3 n
 | Cmaj9 | {0, 4, 7, **11**, 14} | sáng, lơ lửng, neo-soul |
 | Cm9 | {0, **3**, 7, **10**, 14} | sâu, buồn bã có chiều sâu |
 
-> 🔁 **Dừng lại tự kiểm tra.** Dựng G9 (dominant ninth trên G). Nốt là gì?
+> 🔁 **Ôn tập.** Dựng G9 (dominant ninth trên G). Nốt là gì?
 > <details><summary>Đáp án</summary>
 >
 > G = 0. Áp dụng offset {0, 4, 7, 10, 14}:
@@ -163,7 +163,7 @@ Bậc 13 = A = +21 nửa cung từ C. Là nốt cao nhất trong chuỗi chồng
 
 > 💡 **Trực giác màu sắc.** Thêm mỗi bậc mở rộng như thêm một lớp sơn vào bức tranh: triad là bản phác, C7 là nền màu, C9 bắt đầu có chi tiết, C13 là bức tranh hoàn chỉnh với chiều sâu.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính offset của bậc 13 trên gốc G (tức G13). Bậc 13 là nốt gì?
+> 🔁 **Ôn tập.** Tính offset của bậc 13 trên gốc G (tức G13). Bậc 13 là nốt gì?
 > <details><summary>Đáp án</summary>
 >
 > Bậc 13 = +21 nửa cung từ gốc. G = MIDI 67. 67 + 21 = 88. 88 mod 12 = 4. NAMES[4] = E. Vậy bậc 13 của G là **E**. G13 thực tế: G – B – D – F – A – E.
@@ -266,7 +266,7 @@ Bậc 9 nâng 1 nửa cung → D♯ = +15. Âm thanh "thô, đậm, bluesy mạn
 
 > ⚠ **Chỉ dùng altered trên hợp âm dominant (V7).** Altered chord **không** dùng cho Imaj7 hay IIm7 — sẽ nghe "sai" vì không có bối cảnh tension-resolution. Nếu thấy "C7alt" trong bản nhạc jazz, đó là C7 với nhiều nốt altered kết hợp (thường ♭9 + ♯9 hoặc ♯11 + ♭13).
 
-> 🔁 **Dừng lại tự kiểm tra.** G7♭9 có những nốt nào? (G7 = G B D F)
+> 🔁 **Ôn tập.** G7♭9 có những nốt nào? (G7 = G B D F)
 > <details><summary>Đáp án</summary>
 >
 > G7 = G(0) B(4) D(7) F(10). Bậc 9 của G7 bình thường = A (G+14). Hạ 1 nửa cung → A♭ = G+13.

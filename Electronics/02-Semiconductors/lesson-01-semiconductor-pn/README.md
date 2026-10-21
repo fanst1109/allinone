@@ -117,7 +117,7 @@ Thêm nguyên tử **acceptor** (nhận electron) như Boron (B, nhóm III) ho�
 
 - *"Mức pha tạp phổ biến là bao nhiêu?"* — Từ 10¹⁴ đến 10¹⁹ /cm³. Si tinh khiết có mật độ nguyên tử ~5×10²² /cm³ → mức pha tạp 10¹⁶/cm³ tương ứng 1 tạp trong 5 triệu nguyên tử Si. Một con chip CPU hiện đại có thể có nhiều vùng với mức pha tạp khác nhau cách nhau vài nm.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 *Bán dẫn loại P có điện tích âm vì tiếp nhận electron (acceptor). Đúng hay Sai?*
 

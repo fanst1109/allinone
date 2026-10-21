@@ -36,7 +36,7 @@ window.README_MD = `# Lesson 04 — Design patterns (mẫu thiết kế GoF)
 
 > ⚠ **Pattern-itis — bệnh lạm dụng pattern.** Người mới học pattern thường mắc bệnh "có búa thì thấy gì cũng là đinh": nhét Factory, Singleton, Observer vào mọi chỗ kể cả khi một hàm 5 dòng là đủ. Hậu quả: code phình to, nhiều tầng gián tiếp (indirection) vô nghĩa, khó đọc hơn cả khi không có pattern. **Pattern thêm vào một cái giá: độ phức tạp.** Chỉ "trả" cái giá đó khi bài toán *thật sự* cần sự linh hoạt mà pattern mang lại (nối tiếp KISS/YAGNI ở [Lesson 02](../lesson-02-design-principles/)).
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đồng nghiệp nói "tôi đã *cài đặt pattern Singleton* bằng cách copy file \`singleton.go\` từ dự án cũ sang". Cách diễn đạt này sai ở đâu?
+> 🔁 **Thực hành.** Một đồng nghiệp nói "tôi đã *cài đặt pattern Singleton* bằng cách copy file \`singleton.go\` từ dự án cũ sang". Cách diễn đạt này sai ở đâu?
 > <details><summary>Đáp án</summary>Sai ở chỗ coi pattern như <b>một file code dán được</b>. Singleton là <i>ý tưởng</i> "đảm bảo chỉ có một instance và cho điểm truy cập toàn cục". Hiện thực đúng tùy ngữ cảnh — ở Go thường là một biến package-level + <code>sync.Once</code>, hoàn toàn không cần "file singleton.go". Hơn nữa Singleton là pattern nên cân nhắc kỹ (xem mục 3) — copy mù sẽ kéo theo cả nhược điểm của nó.</details>
 
 📝 **Tóm tắt mục 1.** Design pattern = giải pháp *trừu tượng, tái sử dụng* cho bài toán thiết kế lặp lại + *từ vựng chung* để giao tiếp. **Không** phải code copy-paste, **không** phải thư viện. Mỗi pattern thêm một cái giá là độ phức tạp — chỉ dùng khi bài toán thực sự đòi hỏi (cảnh giác pattern-itis).
@@ -153,7 +153,7 @@ func GetPool() *Pool {
 
 ⚠ **Khi nào KHÔNG nên dùng.** Gần như luôn cân nhắc DI trước. Chỉ dùng Singleton khi tính "một-instance" là *bất biến tuyệt đối* của domain và DI gây phiền phức không tương xứng (vd logger toàn cục đơn giản).
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn cần một \`ConfigLoader\` đọc file cấu hình một lần lúc khởi động rồi dùng khắp nơi. Singleton hay DI?
+> 🔁 **Thực hành.** Bạn cần một \`ConfigLoader\` đọc file cấu hình một lần lúc khởi động rồi dùng khắp nơi. Singleton hay DI?
 > <details><summary>Đáp án</summary><b>DI</b> trong hầu hết trường hợp: tải config ở <code>main()</code>, lưu vào một struct, rồi <i>truyền</i> config (hoặc các giá trị nó chứa) vào những thành phần cần. Như vậy test có thể truyền config giả, và phụ thuộc của mỗi thành phần <i>hiện rõ</i> trên chữ ký hàm — không có truy cập toàn cục ngầm. Singleton chỉ làm coupling khó nhìn hơn.</details>
 
 📝 **Tóm tắt mục 3.** Creational kiểm soát việc tạo object. **Factory Method** tách "quyết định tạo gì" khỏi "dùng nó" (Open/Closed). **Builder** dựng object nhiều tham số từng bước, đọc được. **Singleton** đảm bảo một instance — nhưng *cảnh giác*, thường nên thay bằng dependency injection.
@@ -252,7 +252,7 @@ func (f *OrderFacade) PlaceOrder(o Order) error {
 
 ⚠ **Khi nào KHÔNG nên dùng.** Khi hệ thống con vốn đã đơn giản (1–2 lời gọi) → facade chỉ thêm tầng vô nghĩa. Cũng tránh facade "Chúa" gom *mọi* thứ vào một class khổng lồ (god object) — đó lại là cohesion thấp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân biệt Adapter, Decorator, Facade — cả ba đều "bọc" một thứ khác. Điểm khác nhau cốt lõi là gì?
+> 🔁 **Thực hành.** Phân biệt Adapter, Decorator, Facade — cả ba đều "bọc" một thứ khác. Điểm khác nhau cốt lõi là gì?
 > <details><summary>Đáp án</summary><b>Mục đích khác nhau:</b> <b>Adapter</b> đổi <i>hình dạng interface</i> (làm cái không khớp thành khớp) — interface ra ≠ interface vào. <b>Decorator</b> <i>giữ nguyên interface</i> nhưng <i>thêm hành vi</i>, xếp chồng được. <b>Facade</b> tạo một interface <i>mới, đơn giản hơn</i> che một <i>tập</i> nhiều thành phần phức tạp. Tóm: Adapter = "khớp lại", Decorator = "thêm vào", Facade = "đơn giản hóa nhiều thứ thành một".</details>
 
 📝 **Tóm tắt mục 4.** Structural lắp object thành cấu trúc. **Adapter** làm hai interface không khớp nói chuyện được. **Decorator** thêm hành vi xếp chồng mà không sửa gốc (nền của middleware). **Facade** che một hệ con phức tạp sau một cửa đơn giản.
@@ -323,7 +323,7 @@ Import(jsonFile, parseJSON)
 
 ⚠ **Khi nào KHÔNG nên dùng.** Khi các "biến thể" thực ra khác nhau quá nhiều, ép chung một khung làm khung đầy điều kiện đặc biệt → lúc đó tách hẳn ra rõ hơn. Template Method (kiểu kế thừa cổ điển) cũng tạo coupling chặt cha-con; trong Go ưu tiên *truyền hàm* (composition) như trên.
 
-> 🔁 **Dừng lại tự kiểm tra.** Strategy và Template Method đều cho phép "đổi một phần hành vi". Khác nhau ở đâu?
+> 🔁 **Thực hành.** Strategy và Template Method đều cho phép "đổi một phần hành vi". Khác nhau ở đâu?
 > <details><summary>Đáp án</summary><b>Strategy</b> đổi <i>toàn bộ một thuật toán</i>, chọn được <i>lúc chạy</i> (đổi đối tượng strategy). <b>Template Method</b> giữ <i>khung cố định</i>, chỉ cho biến đổi <i>một vài bước</i> bên trong, thường <i>cố định lúc dựng</i> chứ ít đổi runtime. Tóm: Strategy = thay cả công thức; Template Method = giữ công thức, đổi vài nguyên liệu.</details>
 
 📝 **Tóm tắt mục 5.** Behavioral lo cách object giao tiếp. **Strategy** đổi cả thuật toán lúc chạy. **Observer** phát sự kiện cho nhiều người nghe mà không coupling. **Template Method** cố định khung, để phần cụ thể điền các bước biến đổi.
@@ -349,7 +349,7 @@ Import(jsonFile, parseJSON)
 
 > ❓ **"Vậy có khi nào nên thêm pattern *trước* khi đau không?"** Hiếm, nhưng có: khi bạn *chắc chắn* (không phải "đoán") rằng sự thay đổi sẽ tới — vd đang viết một thư viện công khai mà người dùng *sẽ* cần cắm thuật toán riêng (Strategy là hợp lý từ đầu). Khác biệt then chốt: dựa trên *yêu cầu đã biết*, không phải *phỏng đoán "biết đâu"*. "Biết đâu sau này cần" chính là định nghĩa của YAGNI.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một dev mới đọc xong sách GoF, bắt đầu dự án bằng cách dựng AbstractFactory + Strategy + Observer cho một CRUD app 3 màn hình. Nhận xét?
+> 🔁 **Thực hành.** Một dev mới đọc xong sách GoF, bắt đầu dự án bằng cách dựng AbstractFactory + Strategy + Observer cho một CRUD app 3 màn hình. Nhận xét?
 > <details><summary>Đáp án</summary>Đây là <b>over-engineering / pattern-itis</b> điển hình: thêm pattern dựa trên phỏng đoán chứ không phải đau thực tế. CRUD 3 màn hình gần như chắc chắn không cần các tầng trừu tượng đó — chúng làm code khó đọc, khó sửa hơn, vi phạm KISS &amp; YAGNI. Đúng ra: viết đơn giản trước, <i>refactor sang pattern khi và chỉ khi</i> một nhu cầu linh hoạt cụ thể xuất hiện (xem <a href="../lesson-05-refactoring-tech-debt/">Lesson 05 — Refactoring</a>).</details>
 
 📝 **Tóm tắt mục 6.** Pattern là *công cụ*, không phải *mục tiêu*. Bắt đầu đơn giản (KISS), thêm pattern khi *đau lặp lại thực sự* (không phải phỏng đoán — YAGNI), và chỉ "mua" khi lợi vượt chi phí phức tạp. Cảnh giác pattern-itis, premature abstraction, cargo-cult, Singleton tràn lan.

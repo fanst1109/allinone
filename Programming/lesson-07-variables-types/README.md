@@ -107,7 +107,7 @@ Vì Go muốn phân biệt rõ "khai báo" (declaration) và "câu lệnh" (stat
 
 Không. Dùng `var x int` khi muốn nhấn mạnh "tôi sẽ gán ở dòng sau" hoặc khi cần zero value rõ ràng (ví dụ `var sum int` rồi cộng dồn). Dùng `var x = ...` khi muốn rõ ràng đây là biến package-level. `:=` cho code "in-flow" bên trong hàm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Đoạn nào hợp lệ?
    ```go
@@ -199,7 +199,7 @@ Có, **nếu định ghi**. `var s []int; s = append(s, 1)` OK (append xử lý 
 
 Đệ quy. Mỗi field = zero value của kiểu field đó. Struct rỗng `struct{}` luôn là zero value của chính nó.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Đoạn này in ra gì?
 
@@ -354,7 +354,7 @@ Vì performance — kiểm tra overflow trên mỗi phép tính tốn ~5–15% C
 
 Có. `math.MaxInt8`, `MaxInt16`, `MaxInt32`, `MaxInt64`, `MaxUint8`, `MaxUint16`, `MaxUint32`, `MaxUint64` đều có trong package `math`.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Đoán kết quả không chạy code:
 ```go
@@ -560,7 +560,7 @@ Vì Go muốn bạn **nhìn thấy mọi conversion**. Tự động convert dễ
 
 Hầu hết là **0 cost** — compiler tối ưu thành no-op (vd `int32 → int64` chỉ là zero/sign extend register). Nhưng `float → int` có cost vì cần truncate.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Sửa đoạn này cho compile:
 ```go
@@ -772,7 +772,7 @@ func (s Status) String() string {
 }
 ```
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Đoạn này print ra gì?
 ```go

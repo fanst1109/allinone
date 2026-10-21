@@ -167,7 +167,7 @@ Kiểm tra: tam giác vuông cạnh 4 và 3 → diện tích $= \\frac{1}{2}\\cd
 
 ⚠ **Lỗi thường gặp.** Nhầm thứ tự \`cross(a,b,c)\` ≠ \`cross(a,c,b)\` — đảo hai điểm cuối thì **đổi dấu**. Luôn cố định quy ước: \`cross(a,b,c)\` = "đứng ở a, đi tới b, c nằm bên nào".
 
-🔁 **Dừng lại tự kiểm tra.** \`a=(1,1)\`, \`b=(3,1)\`, \`c=(2,5)\`. \`c\` nằm bên nào của \`a→b\`?
+🔁 **Thực hành.** \`a=(1,1)\`, \`b=(3,1)\`, \`c=(2,5)\`. \`c\` nằm bên nào của \`a→b\`?
 
 <details><summary>Đáp án</summary>
 
@@ -306,7 +306,7 @@ o4 = orientation((4,0),(4,4),(4,0)) = Collinear, onSegment((4,0),(4,0),(4,4)) �
 
 ⚠ **Lỗi thường gặp.** Quên xử lý collinear → khẳng định hai đoạn chồng lên nhau là "không giao". Trường hợp \`o == Collinear\` *phải* được kiểm tra riêng bằng \`onSegment\`.
 
-🔁 **Dừng lại tự kiểm tra.** \`p1=(0,0)\`, \`p2=(2,0)\`, \`q1=(3,0)\`, \`q2=(5,0)\` — hai đoạn collinear nhưng rời nhau. Giao không?
+🔁 **Thực hành.** \`p1=(0,0)\`, \`p2=(2,0)\`, \`q1=(3,0)\`, \`q2=(5,0)\` — hai đoạn collinear nhưng rời nhau. Giao không?
 
 <details><summary>Đáp án</summary>
 
@@ -391,7 +391,7 @@ Kiểm tra hình học: chữ L = hình vuông 4×4 (=16) bỏ góc 2×2 (=4) �
 
 ⚠ **Lỗi thường gặp.** (1) Quên chia 2 → diện tích gấp đôi. (2) Quên lấy trị tuyệt đối → ra số âm khi đỉnh xếp CW. (3) Quên \`% n\` ở cặp đỉnh cuối-nối-đầu → thiếu một số hạng.
 
-🔁 **Dừng lại tự kiểm tra.** Tam giác \`(1,1),(5,1),(3,4)\`. Diện tích?
+🔁 **Thực hành.** Tam giác \`(1,1),(5,1),(3,4)\`. Diện tích?
 
 <details><summary>Đáp án</summary>
 
@@ -539,7 +539,7 @@ Tổng cắt bên phải = 1 (lẻ) → **bên trong** ✓.
 
 ⚠ **Lỗi thường gặp.** Điểm nằm **đúng trên biên**: ray casting cho kết quả không xác định. Nếu cần coi biên là "trong", phải kiểm tra on-segment riêng *trước*.
 
-🔁 **Dừng lại tự kiểm tra.** Với hình vuông \`(0,0),(4,0),(4,4),(0,4)\`, điểm \`(0,2)\` (nằm trên cạnh trái) — ray casting trả gì?
+🔁 **Thực hành.** Với hình vuông \`(0,0),(4,0),(4,4),(0,4)\`, điểm \`(0,2)\` (nằm trên cạnh trái) — ray casting trả gì?
 
 <details><summary>Đáp án</summary>
 

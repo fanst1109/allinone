@@ -586,7 +586,7 @@ $O(N \\log K)$ với $N$ = tổng phần tử. Đây là **merge step** của ex
 | Chỉ cần lấy min/max **một lần** | Build heap $O(n)$ thừa | Quét tuyến tính $O(n)$ tìm min |
 | Cần phần tử thứ k cố định nhiều lần trên data tĩnh | — | Sort 1 lần $O(n\\log n)$ rồi index $O(1)$ |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Trong \`container/heap\`, vì sao gọi \`h.Pop()\` (method của bạn) thay vì \`heap.Pop(h)\` lại sai?
 >    <details><summary>Đáp án</summary>Method \`Pop\` của bạn chỉ cắt phần tử <b>cuối slice</b> — không phải min. \`heap.Pop(h)\` của package mới đổi root xuống cuối, cắt nó ra, rồi sift-down để khôi phục heap property. Phải gọi bản package-level.</details>
 > 2. Trong Dijkstra §7.3, vì sao không cần xóa bản \`(v, dist cũ)\` khỏi heap?

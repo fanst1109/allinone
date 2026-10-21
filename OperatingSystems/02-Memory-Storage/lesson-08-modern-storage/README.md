@@ -264,7 +264,7 @@ Parity luân phiên trên các đĩa → tránh bottleneck vào 1 đĩa parity.
 | RAID 5 | **3 TB** | **1 đĩa** | Cao | Trung bình | Trung bình |
 | RAID 10 | 2 TB | 1-2 đĩa | Rất cao | **Cao** | Cao |
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 6 đĩa × 2 TB với RAID 5: dung lượng dùng được là bao nhiêu? Chịu tối đa bao nhiêu đĩa hỏng?
 

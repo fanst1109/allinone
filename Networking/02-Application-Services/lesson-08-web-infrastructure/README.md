@@ -224,7 +224,7 @@ LB định kỳ gửi **health check** đến từng backend:
 
 **Thông số điển hình**: check interval 10s, timeout 5s, unhealthy threshold 3 lần fail liên tiếp → đánh dấu DOWN. Healthy threshold 2 lần pass → đưa lại vào pool.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 - Câu hỏi 1: Với 4 server và Weighted Round-Robin trọng số 3:2:2:1, trong 8 request đầu tiên, S1 nhận bao nhiêu?
 - Câu hỏi 2: LB đang dùng Round-Robin với S1, S2, S3. S2 bị đánh dấu DOWN sau 3 lần health check fail. Request tiếp theo (#43) đi về đâu?
 
@@ -553,7 +553,7 @@ Client chọn một địa chỉ trong danh sách (thường là ngẫu nhiên h
 
 **Hạn chế**: DNS load balancing thô hơn — không biết server nào đang quá tải, không health check động. Thường dùng kết hợp với LB chuyên dụng phía sau.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 - Câu hỏi: Ứng dụng lưu user session trong RAM của web server. Khi scale từ 1 server lên 3 server với Round-Robin LB, vấn đề gì xảy ra? Nêu 2 giải pháp.
 
 <details>

@@ -94,7 +94,7 @@ Vì một kết quả nền tảng (sẽ học kỹ ở các bài Fourier sau): 
 > - *"Lấy mẫu thưa quá thì sao?"* — Mất thông tin, thậm chí gây hiện tượng **aliasing** (sóng cao "giả dạng" sóng thấp). Có một tần số tối thiểu phải lấy mẫu — đó là **định lý Nyquist**, học ở [Lesson 02](../lesson-02-sampling-nyquist/).
 > - *"Ngoặc tròn `()` vs ngoặc vuông `[]` quan trọng không?"* — Có, đây là quy ước chuẩn ngành: $x(t)$ là liên tục, $x[n]$ là rời rạc. Nhầm hai cái sẽ làm sai công thức.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một micro thu giọng nói. Tín hiệu *trong không khí* là gì, tín hiệu *trong file* là gì?
+> 🔁 **Thực hành.** Một micro thu giọng nói. Tín hiệu *trong không khí* là gì, tín hiệu *trong file* là gì?
 > <details><summary>Đáp án</summary>
 > Trong không khí: **liên tục** (áp suất $p(t)$, mọi $t$ có giá trị). Trong file: **rời rạc** (dãy $p[n]$ — micro + ADC đã lấy mẫu). Bước biến liên tục → rời rạc gọi là **analog-to-digital conversion (ADC)**, gồm lấy mẫu + lượng tử hóa.
 > </details>
@@ -161,7 +161,7 @@ Cho $x(t) = 4\sin\!\big(2\pi \cdot 2 \cdot t + \tfrac{\pi}{6}\big)$ ($A = 4$, $f
 
 Kiểm tra: $T = 1/f = 0{,}5$ s, nên $x(0) = x(0{,}5)$ ✓ (sóng lặp đúng sau một chu kỳ).
 
-> 🔁 **Dừng lại tự kiểm tra.** Sóng $x(t) = 10\sin(2\pi \cdot 100 t)$ có chu kỳ bao nhiêu? Tại $t = 0{,}0025$ s giá trị là?
+> 🔁 **Thực hành.** Sóng $x(t) = 10\sin(2\pi \cdot 100 t)$ có chu kỳ bao nhiêu? Tại $t = 0{,}0025$ s giá trị là?
 > <details><summary>Đáp án</summary>
 > $T = 1/100 = 0{,}01$ s. Góc $= 2\pi \cdot 100 \cdot 0{,}0025 = 0{,}5\pi$, $\sin(0{,}5\pi) = 1 \Rightarrow x = 10$ (đúng đỉnh, vì $0{,}0025 = T/4$).
 > </details>
@@ -220,7 +220,7 @@ Số phức cố định $X = A e^{i\varphi}$ (không phụ thuộc $t$) gói g�
 
 > ⚠ **Lỗi thường gặp.** Dùng $\arctan(b/a)$ thay vì `atan2(b, a)`. $\arctan$ không phân biệt được góc ở quý II/III: phasor $-1 - i$ và $1 + i$ cho cùng tỉ số $b/a = 1$ nhưng pha lệch nhau $\pi$. Luôn dùng `atan2(b, a)` để lấy đúng góc trong $(-\pi, \pi]$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phasor của $5\cos(\omega t - \tfrac{\pi}{2})$ ở dạng $a + bi$ là gì? (Gợi ý: $-\pi/2$ là góc chỉ xuống dưới.)
+> 🔁 **Thực hành.** Phasor của $5\cos(\omega t - \tfrac{\pi}{2})$ ở dạng $a + bi$ là gì? (Gợi ý: $-\pi/2$ là góc chỉ xuống dưới.)
 > <details><summary>Đáp án</summary>
 > $5 e^{-i\pi/2} = 5(\cos(-90°) + i\sin(-90°)) = 5(0 - i) = 0 - 5i$. Mà $\cos(\omega t - \tfrac{\pi}{2}) = \sin(\omega t)$, nên đây cũng là phasor của $5\sin(\omega t)$ — khớp với "sin = phần ảo".
 > </details>
@@ -261,7 +261,7 @@ Quy luật cộng: dB **cộng dồn** khi biên độ **nhân**. Gấp 4 lần 
 > - *"Khi nào 10·log, khi nào 20·log?"* — **20·log** cho biên độ (điện áp, áp suất, amplitude); **10·log** cho công suất / năng lượng. Vì $P \propto A^2$, hai cách cho cùng số dB.
 > - *"0 dB nghĩa là im lặng?"* — Không. 0 dB nghĩa **bằng đúng mốc tham chiếu**. Im lặng tuyệt đối là $-\infty$ dB (vì $\log 0 = -\infty$).
 
-> 🔁 **Dừng lại tự kiểm tra.** Tăng âm lượng từ biên độ 1 lên biên độ 8 là tăng bao nhiêu dB?
+> 🔁 **Thực hành.** Tăng âm lượng từ biên độ 1 lên biên độ 8 là tăng bao nhiêu dB?
 > <details><summary>Đáp án</summary>
 > $20\log_{10} 8 = 20\log_{10} 2^3 = 3 \cdot 20\log_{10} 2 \approx 3 \cdot 6{,}02 = +18{,}06$ dB. (Gấp đôi 3 lần = +6 dB × 3.)
 > </details>

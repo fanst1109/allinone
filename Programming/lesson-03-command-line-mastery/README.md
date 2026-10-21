@@ -223,7 +223,7 @@ mv test_{a,b,c}.go drafts/     # 3 file một lúc
 grep "TODO" **/*.go            # tìm TODO trong mọi file .go, đệ quy (zsh / bash globstar)
 ```
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Đọc `rwxr-x---` ra số gì?
 
@@ -365,7 +365,7 @@ find . -name "*.go" | xargs wc -l | sort -n
 - `xargs wc -l`: chạy `wc -l file1 file2 ...` để đếm dòng.
 - `sort -n`: sort number tăng dần. File nào dài nhất ở cuối.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Câu hỏi: bạn có file `data.csv` 3 cột. Viết 1 pipe in tổng giá trị cột 2.
 
@@ -482,7 +482,7 @@ rg "func.*Handler" -A 5      # regex + 5 dòng after
 | `\d` | digit (cần `-P`) |
 | `\s` | whitespace (cần `-P`) |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Viết lệnh tìm dòng có **email** trong mọi file `.txt` (đệ quy, kèm số dòng).
 

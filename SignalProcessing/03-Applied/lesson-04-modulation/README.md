@@ -170,7 +170,7 @@ Chỉ số $m$ (còn ký hiệu $\mu$) định nghĩa qua biên độ: $m = \dfr
 
 ⚠ **Lỗi thường gặp — overmodulation.** Đẩy $m > 1$ để "to tiếng hơn" là sai lầm kinh điển. Hậu quả: tiếng méo, vỡ, và **chiếm phổ của đài bên cạnh** (vi phạm quy định phát thanh). Phản chứng cụ thể: với $x = \cos$, tại đáy message $x = -1$, $1 + m(-1) = 1 - m$. Nếu $m = 1{,}5$ → $1 - 1{,}5 = -0{,}5 < 0$ → bao âm → detector gập lên thành $+0{,}5$ → khôi phục sai. Luôn giữ $m \le 1$ (thực tế thường $0{,}7$–$0{,}9$).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. AM với $f_c = 200$ kHz, message một tông $f_m = 8$ kHz. Ba vạch phổ ở đâu? Băng thông?
 2. Tại $m = 1$, biên độ mỗi dải biên (so với carrier $=1$) là bao nhiêu?
 
@@ -228,7 +228,7 @@ $$\boxed{\,B_{FM} \approx 2(\Delta f + f_{max})\,} = 2 f_{max}(\beta + 1)$$
 
 ❓ **Câu hỏi tự nhiên.** *"Vì sao FM chống nhiễu tốt hơn?"* — Nhiễu trong không khí chủ yếu **cộng vào biên độ** (sét, động cơ…). AM mang tin ở biên độ → nhiễu vào thẳng. FM mang tin ở **tần số**; máy thu FM có **mạch giới hạn (limiter)** cắt phẳng biên độ trước khi giải mã → loại bỏ phần lớn nhiễu biên độ. Đó là lý do đài FM nghe "sạch" hơn AM.
 
-🔁 **Dừng lại tự kiểm tra.** Một đài FM có $\Delta f = 50$ kHz, $f_{max} = 12$ kHz. Băng thông Carson? Chỉ số $\beta$ ứng với tông $f_m = 12$ kHz?
+🔁 **Thực hành.** Một đài FM có $\Delta f = 50$ kHz, $f_{max} = 12$ kHz. Băng thông Carson? Chỉ số $\beta$ ứng với tông $f_m = 12$ kHz?
 
 <details><summary>Đáp án</summary>
 
@@ -299,7 +299,7 @@ Số bit mỗi symbol $= \log_2(\text{số điểm})$. **Ví dụ:** 16-QAM → 
 
 ❓ **Liên hệ Networking.** Đây chính là tầng vật lý (PHY) của [Networking](../../../Networking/): WiFi 6 dùng tới 1024-QAM, 4G/5G dùng QPSK→256-QAM tùy điều kiện sóng; "tốc độ mạng tụt khi đi xa router" chính là rớt chòm sao. Phần mạch tạo/khuếch đại sóng liên hệ [Electronics](../../../Electronics/).
 
-🔁 **Dừng lại tự kiểm tra.** 64-QAM cõng bao nhiêu bit/symbol? Nếu tốc độ symbol là 1 triệu symbol/giây thì bit rate?
+🔁 **Thực hành.** 64-QAM cõng bao nhiêu bit/symbol? Nếu tốc độ symbol là 1 triệu symbol/giây thì bit rate?
 
 <details><summary>Đáp án</summary>
 

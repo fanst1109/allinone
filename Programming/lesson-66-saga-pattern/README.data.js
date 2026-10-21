@@ -147,7 +147,7 @@ Hai kịch bản:
 
 > ❓ **Câu hỏi tự nhiên.** *"Eventual consistency nghe rủi ro — khách thấy 'đã trừ tiền' rồi vài giây sau 'đã hoàn tiền' thì khó chịu không?"* — Đúng là có cửa sổ không nhất quán, nhưng nó thường **rất ngắn** (mili-giây tới vài giây) và có thể **giấu khỏi người dùng** bằng semantic lock: hiển thị order ở trạng thái \`ĐANG XỬ LÝ\` thay vì \`THÀNH CÔNG\` cho tới khi saga chốt. Người dùng chỉ thấy kết quả cuối. Đổi lại, hệ thống không bị nghẽn lock như 2PC — đây là đánh đổi mà phần lớn hệ thương mại điện tử chấp nhận.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Saga có atomicity tức thời như ACID không?
 > 2. Khi \`T₃\` fail, ta chạy compensation theo thứ tự nào?
 >
@@ -404,7 +404,7 @@ return OK
 
 > ⚠ **Lỗi thường gặp.** Orchestrator thành **SPOF**: nó chết giữa chừng → saga treo. Phải chạy orchestrator **HA** (nhiều replica + leader election, hoặc state ở DB bền + worker stateless pick lại). Đừng giữ state chỉ trong RAM của một process.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Trong orchestration, ai gọi compensation?
 > 2. Trong choreography, ai gọi compensation?
 >
@@ -502,7 +502,7 @@ Trong hệ phân tán, message bus thường là **at-least-once** ([L64](../les
 
 **Compensation cũng phải idempotent:** \`RefundPayment\` gọi 2 lần phải chỉ hoàn tiền 1 lần (kiểm tra "đã refund chưa"). Đây là pitfall hay quên (mục 14).
 
-> 🔁 **Dừng lại tự kiểm tra.** \`ReserveInventory\` làm \`qty = qty - 1\`. Nếu retry 3 lần, kho bị trừ mấy lần? Làm sao sửa?
+> 🔁 **Thực hành.** \`ReserveInventory\` làm \`qty = qty - 1\`. Nếu retry 3 lần, kho bị trừ mấy lần? Làm sao sửa?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -608,7 +608,7 @@ Diễn giải: một khi đã \`ReserveInventory\` thành công (hàng đã gi�
 | 6 | **Persist state không atomic với action** | Crash → tưởng chưa làm → làm lại | Idempotency + outbox pattern |
 | 7 | **Cyclic event dependency (choreography)** | Vòng lặp event khó debug | Chuyển sang orchestration khi flow phình to |
 
-> 🔁 **Dừng lại tự kiểm tra.** Orchestrator gọi \`RefundPayment\`, Payment refund thành công nhưng **reply bị mất** (timeout). Orchestrator retry \`RefundPayment\`. Điều gì xảy ra nếu refund **không** idempotent?
+> 🔁 **Thực hành.** Orchestrator gọi \`RefundPayment\`, Payment refund thành công nhưng **reply bị mất** (timeout). Orchestrator retry \`RefundPayment\`. Điều gì xảy ra nếu refund **không** idempotent?
 >
 > <details><summary>Đáp án</summary>
 >

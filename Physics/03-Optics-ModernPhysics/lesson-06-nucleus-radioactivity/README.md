@@ -56,7 +56,7 @@ Phần "hụt khối" này biến thành **năng lượng liên kết** theo Ein
 - **Lẫn số khối A và số hiệu Z.** $A$ = tổng nucleon (p + n); $Z$ = số proton (= số hiệu, định danh nguyên tố). Số neutron $N = A - Z$. Vd $^{238}\text{U}$: $A=238$, $Z=92$, $N=146$.
 - **Quên hệ số 931.5 khi đổi u → MeV.** $1\ \text{u} \to 931{,}5\ \text{MeV}$. Bỏ qua → sai 3 bậc độ lớn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hạt nhân $^{14}_{6}\text{C}$ có bao nhiêu proton và neutron?
 2. Một hạt nhân có độ hụt khối $\Delta m = 0{,}05\ \text{u}$. Năng lượng liên kết bằng bao nhiêu MeV?
@@ -130,7 +130,7 @@ Phát ra khi hạt nhân từ trạng thái kích thích về trạng thái cơ 
 - **Nghĩ γ "an toàn vì không có khối lượng".** Ngược lại — γ xuyên thấu mạnh nhất, nguy hiểm từ xa, cần chì/bê tông để chặn.
 - **Lẫn $\beta^-$ làm Z giảm.** $\beta^-$ làm $Z$ TĂNG 1 (n→p), không giảm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $^{226}_{88}\text{Ra}$ phát ra α. Viết sản phẩm con (số khối, số hiệu).
 2. Để che chắn nguồn γ mạnh, dùng tờ giấy, tấm nhôm hay khối chì? Vì sao?
@@ -205,7 +205,7 @@ Một mẫu xương có lượng C-14 còn lại 25% so với cây sống.
 - **Lẫn "còn lại 25%" với "đã phân rã 25%".** "Còn 25%" $= \left(\frac{1}{2}\right)^2 \to 2$ chu kỳ. "Đã phân rã 25%" = còn 75% → chưa tới 1 chu kỳ.
 - **Đếm n không nguyên cũng đừng tròn vội.** $\left(\frac{1}{2}\right)^n$ với $n$ có thể là số thực: vd còn 30% → $n = \frac{\log 0{,}3}{\log 0{,}5} \approx 1{,}74$ chu kỳ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mẫu Iodine-131 ($t_{1/2} = 8$ ngày) ban đầu 80 mg. Sau 24 ngày còn bao nhiêu?
 2. Một cổ vật còn 6.25% lượng C-14. Tuổi bằng bao nhiêu?
@@ -255,7 +255,7 @@ Phóng xạ cao → đột biến DNA → ung thư, sảy thai. Liều an toàn 
 - **Lẫn đơn vị liều.** Sv (sievert) đo tác hại sinh học, khác Bq (becquerel, đo số phân rã/giây) và Gy (gray, đo năng lượng hấp thụ). 1 Sv = 1000 mSv.
 - **Dùng C-14 cho mẫu quá cổ.** Giới hạn ~50 000 năm; vượt qua thì không đủ C-14 để đo.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Định tuổi một mẫu đá núi lửa ~2 tỷ năm tuổi — nên dùng C-14 hay U-Pb? Vì sao?
 2. Liều an toàn hằng năm cho người là bao nhiêu, và 1 lần chụp X-quang chiếm bao nhiêu phần trăm?

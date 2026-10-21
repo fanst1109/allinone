@@ -90,7 +90,7 @@ Có dòng T (dòng 1) lẫn dòng F → khả thỏa ✓
 > - *"Hằng sai có ích gì?"* — Rất quan trọng trong kiểm tra lập luận: nếu một tập giả thuyết dẫn tới hằng sai, tập đó **mâu thuẫn** và không thể đồng thời đúng. Cũng là nền tảng của phương pháp chứng minh bác bỏ (proof by contradiction).
 > - *"p ∨ ¬p và q ∨ ¬q có phải cùng hằng đúng không?"* — Có, cả hai đều luôn T, nhưng chúng là hai công thức *khác nhau*. Xem mục 2 để hiểu "tương đương" nghĩa là gì.
 
-> 🔁 **Dừng lại tự kiểm tra.** Công thức \`(p ∧ q) ∨ ¬(p ∧ q)\` là hằng đúng, hằng sai, hay khả thỏa?
+> 🔁 **Thực hành.** Công thức \`(p ∧ q) ∨ ¬(p ∧ q)\` là hằng đúng, hằng sai, hay khả thỏa?
 > <details><summary>Đáp án</summary>
 >
 > Đặt r = p ∧ q. Công thức trở thành r ∨ ¬r — luôn T dù r là T hay F. Vậy đây là **hằng đúng**, dù nhìn có vẻ phức tạp.
@@ -170,7 +170,7 @@ Có dòng khác nhau → p∧q ≢ p∨q.
 > - *"Ký hiệu ≡ và ↔ khác nhau chỗ nào?"* — ↔ là một **toán tử** trong công thức logic, tạo ra một công thức mới có thể T hoặc F. Còn ≡ là **phát biểu về hai công thức** — nói rằng chúng tương đương. p ≡ q đúng khi và chỉ khi p↔q là hằng đúng.
 > - *"Có thể có 3 công thức tương đương nhau không?"* — Có. Nếu p ≡ q và q ≡ r thì p ≡ r (tính bắc cầu). Nhiều công thức cùng biểu diễn một điều — đây là cơ sở của việc tối giản biểu thức logic.
 
-> 🔁 **Dừng lại tự kiểm tra.** Kiểm tra bằng bảng chân lý: p ∨ (p ∧ q) có tương đương p không?
+> 🔁 **Thực hành.** Kiểm tra bằng bảng chân lý: p ∨ (p ∧ q) có tương đương p không?
 > <details><summary>Đáp án</summary>
 >
 > | p | q | p∧q | p∨(p∧q) |
@@ -435,7 +435,7 @@ Gốc: "Nếu n là số chẵn (p) thì n² là số chẵn (q)." — Đúng.
 > - *"Khi nào đảo cũng tương đương gốc?"* — Khi p↔q (hai chiều). Nếu p↔q thì p→q ≡ q→p vì cả hai đều = biconditional. Nhưng đó không phải trường hợp tổng quát.
 > - *"Phân biệt contrapositive và inverse bằng cách nào dễ nhớ?"* — Contrapositive: "đảo *và* phủ định cả hai" (lật thứ tự, phủ định cả hai). Inverse: "chỉ phủ định cả hai" (giữ thứ tự, phủ định cả hai). Chỉ contrapositive mới tương đương gốc.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho "Nếu học giỏi (p) thì được học bổng (q)." Viết: (a) đảo, (b) phản, (c) phản đảo. Cái nào tương đương mệnh đề gốc?
+> 🔁 **Thực hành.** Cho "Nếu học giỏi (p) thì được học bổng (q)." Viết: (a) đảo, (b) phản, (c) phản đảo. Cái nào tương đương mệnh đề gốc?
 > <details><summary>Đáp án</summary>
 >
 > (a) Đảo: "Nếu được học bổng thì học giỏi." (q→p) — **Không** tương đương gốc.

@@ -96,7 +96,7 @@ Tỉ lệ: 5/7 × giá trị tối đa (111 → −8.75 V → biểu diễn 7 m�
 - Nhầm đơn vị: $R$ phải cùng đơn vị trong phép chia. Nếu $R$ tính bằng kΩ thì cả $R_f$ lẫn $R_1$ đều kΩ — kết quả giống nhau vì tỉ số.
 - Không kiểm tra bão hòa: nếu $V_{\text{out}}$ tính ra −25 V nhưng nguồn chỉ ±12 V thì op-amp sẽ bão hòa ở −10.5 V (thực tế ~1.5 V dưới nguồn).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 > Mạch cộng có $R_1 = R_2$ = 5 kΩ, $R_f$ = 10 kΩ, $V_1$ = 1 V, $V_2$ = 2 V. Tính $V_{\text{out}}$.
 
 <details>
@@ -176,7 +176,7 @@ Tín hiệu: 0.050 V = đúng ($V_{2,\text{signal}} - V_{1,\text{signal}} = 0.07
 - Hoán vị $V_1$ và $V_2$: $V_{\text{out}} = (R_f/R_{in})(V_2 - V_1)$, KHÔNG PHẢI $V_1 - V_2$. Khi nối mạch, $V_1$ vào chân (−) qua $R_{in}$, $V_2$ vào chân (+) qua $R_{in}$.
 - Dùng điện trở không khớp cho mạch loại nhiễu: sai số 1% điện trở làm CMRR giảm mạnh. Mua bộ điện trở 0.1% hoặc dùng INA128.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 > Mạch trừ $R_{in}$ = 5 kΩ, $R_f$ = 20 kΩ. $V_1$ = 3 V, $V_2$ = 3.5 V. Tính $V_{\text{out}}$.
 
 <details>

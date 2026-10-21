@@ -486,7 +486,7 @@ func hasCycle(adj map[string][]string, nodes []string) bool {
 | Phát hiện deadlock / import vòng | **DFS 3 màu** | Back edge = chu trình |
 | Cạnh trọng số **âm** | Bellman-Ford | Dijkstra sai với cạnh âm (§7.1) |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. `topoSort` trả `nil` khi nào? Điều đó tương ứng lỗi gì trong `make`/`npm`?
 >    <details><summary>Đáp án</summary>Khi `len(order) != len(nodes)` — còn task có bậc vào > 0 mãi, nghĩa là có **chu trình dependency**. `make`/`npm` báo "circular dependency": A cần B, B cần A → không có thứ tự build hợp lệ.</details>
 > 2. Vì sao không thể dùng BFS để tìm đường ngắn nhất theo **phút di chuyển** giữa các thành phố?

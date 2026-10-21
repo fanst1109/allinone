@@ -87,7 +87,7 @@ Nhật Bản trong thập niên 1930 không phải một chế độ phát xít 
 - Chính sách xoa dịu của Anh–Pháp trong 1936–1939 không ngăn chặn mà khuyến khích leo thang xâm lược.
 - Sự trỗi dậy này diễn ra trong bối cảnh dân chủ nghị viện non trẻ, khủng hoảng kinh tế sâu, và ký ức chiến tranh còn tươi.
 
-🔁 **Tự kiểm tra**
+🔁 **Ôn tập**
 
 Tại sao chính sách xoa dịu (*appeasement*) của Anh–Pháp — điển hình là Hiệp ước Munich (9/1938) cho Hitler sáp nhập vùng Sudetenland của Tiệp Khắc — lại thất bại?
 
@@ -182,7 +182,7 @@ Chiến dịch Overlord là cuộc đổ bộ đường biển lớn nhất lị
 
 Thành công D-Day mở ra mặt trận phía Tây thứ hai hoàn chỉnh. Đức phải đối mặt đồng thời: Hồng Quân từ phía Đông (đang tiến công sau Stalingrad và Kursk), Đồng Minh từ Ý (từ 9/1943), và nay thêm mặt trận Pháp. Về mặt quân sự, sự sụp đổ của Đức chỉ còn là vấn đề thời gian.
 
-🔁 **Tự kiểm tra**
+🔁 **Ôn tập**
 
 Tại sao trận Stalingrad được coi là bước ngoặt lớn hơn các trận thắng khác của Liên Xô?
 

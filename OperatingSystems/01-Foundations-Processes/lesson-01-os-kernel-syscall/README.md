@@ -83,7 +83,7 @@ Tương tự, CPU hiện đại có ít nhất 2 chế độ hoạt động:
 | **Microkernel** | Chỉ phần lõi tối thiểu (IPC, memory, scheduling) ở kernel mode; driver, filesystem chạy ở user mode | MINIX 3, seL4, QNX |
 | **Hybrid** | Kết hợp | Windows NT, macOS (XNU = Mach microkernel + BSD monolithic) |
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Ứng dụng đang chạy muốn ghi dữ liệu vào file. Nó có thể tự ghi trực tiếp vào ổ đĩa không?
 
@@ -193,7 +193,7 @@ Kernel thực thi lệnh `sysret`, CPU:
 
 Toàn bộ chuỗi `cat file.txt` = khoảng 6-10 syscall — tất cả đều qua cơ chế trap/sysret mô tả ở trên.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Một chương trình Python gọi `print("Hello")`. Liệt kê (a) hàm thư viện nào được gọi, (b) syscall nào cuối cùng được thực thi.
 

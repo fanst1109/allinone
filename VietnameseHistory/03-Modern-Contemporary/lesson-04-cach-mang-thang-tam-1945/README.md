@@ -67,7 +67,7 @@ Người dân Việt Nam chịu gánh nặng đóng thuế và cưỡng bức la
 
 ⚠ **Hiểu lầm thường gặp:** Nạn đói Ất Dậu không phải do một nguyên nhân duy nhất. Một số phân tích chỉ nhấn mạnh trách nhiệm của Nhật hoặc của Pháp, nhưng thực tế là kết quả của nhiều yếu tố chồng chéo: chính sách trưng thu của Nhật, chính sách thuế của Pháp, thiên tai, và sự tê liệt của hệ thống vận chuyển trong bối cảnh chiến tranh. Sử liệu học thuật hiện đại ghi nhận sự phức tạp này.
 
-🔁 **Dừng lại tự kiểm tra:** Nạn đói Ất Dậu xảy ra ở vùng nào của Việt Nam và ảnh hưởng như thế nào đến tình thế chính trị?
+🔁 **Ôn tập:** Nạn đói Ất Dậu xảy ra ở vùng nào của Việt Nam và ảnh hưởng như thế nào đến tình thế chính trị?
 
 <details>
 <summary>Đáp án</summary>
@@ -139,7 +139,7 @@ Trong vòng khoảng hai tuần (từ 14/8 đến cuối tháng 8/1945), chính 
 - *Quân Nhật ở đâu trong thời gian đó?* — Quân Nhật đang trong quá trình đầu hàng theo lệnh của Nhật Hoàng, nhiều đơn vị không kháng cự hoặc kháng cự yếu ớt. Tuy nhiên, ở một số nơi, quân Nhật vẫn giữ vũ trang cho đến khi bàn giao cho quân Đồng Minh vào tháng 9/1945.
 - *Bảo Đại là ai?* — Nguyễn Phúc Vĩnh Thụy, vua cuối cùng của triều Nguyễn (1926–1945), sinh 1913, qua đời 1997. Ông từng là vua bù nhìn dưới thời Pháp và sau đó là dưới thời Nhật. Ngày 25/8/1945, ông đọc chiếu thoái vị và bàn giao ấn kiếm cho đại diện Chính phủ lâm thời.
 
-🔁 **Dừng lại tự kiểm tra:** Tại sao Việt Minh quyết định phát động Tổng khởi nghĩa ngay sau khi Nhật tuyên bố đầu hàng, thay vì chờ thêm?
+🔁 **Ôn tập:** Tại sao Việt Minh quyết định phát động Tổng khởi nghĩa ngay sau khi Nhật tuyên bố đầu hàng, thay vì chờ thêm?
 
 <details>
 <summary>Đáp án</summary>
@@ -182,7 +182,7 @@ Thành công của Cách mạng Tháng Tám được nhiều nhà sử học đ�
 
 Việc tuyên bố độc lập không đồng nghĩa với được công nhận quốc tế ngay. Thực dân Pháp quay trở lại miền Nam (với sự hỗ trợ của quân Anh) từ tháng 9/1945, và cuộc kháng chiến chống Pháp bắt đầu. Đây sẽ là nội dung của [Lesson 05 — Kháng chiến chống Pháp](../lesson-05-khang-chien-chong-phap/).
 
-🔁 **Dừng lại tự kiểm tra:** Tại sao Tuyên ngôn Độc lập trích dẫn văn kiện của Mỹ và Pháp?
+🔁 **Ôn tập:** Tại sao Tuyên ngôn Độc lập trích dẫn văn kiện của Mỹ và Pháp?
 
 <details>
 <summary>Đáp án</summary>

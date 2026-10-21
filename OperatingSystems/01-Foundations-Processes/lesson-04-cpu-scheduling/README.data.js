@@ -322,7 +322,7 @@ Quantum ảnh hưởng lớn đến hiệu năng:
 
 **Ví dụ tính overhead:** quantum=5ms, context switch=0.5ms. Overhead $= \\frac{0.5}{5+0.5} =$ **9%** CPU — chấp nhận được. Nếu quantum=1ms: $\\frac{0.5}{1+0.5} =$ **33%** — quá cao.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Process P1 (burst=20ms) và P2 (burst=3ms), cả hai đến t=0. Round Robin với q=5ms. Vẽ Gantt chart và tính response time của P2.
 

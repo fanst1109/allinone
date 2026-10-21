@@ -53,7 +53,7 @@ Phép \`mod 360\` xử lý việc "quay vòng": ví dụ $300 + 120 = 420$, $420
 > - *"Tại sao chỉ đổi hue mà không đổi S/L?"* → Vì các sơ đồ hòa sắc nói về **quan hệ màu sắc (hue)**. S và L là "độ mạnh" và "độ sáng" — ta chỉnh sau để tạo phân cấp (mục 5). Trước hết cố định S/L để thấy rõ khung xương góc.
 > - *"Vòng màu nghệ sĩ (RYB) hay vòng RGB/HSL?"* → Bài này dùng **HSL** (chuẩn digital, 0°=đỏ, 120°=lục, 240°=lam) vì nó là thứ code/máy tính dùng. Vòng RYB của họa sĩ đặt màu bổ túc hơi khác (đỏ↔lục lá), nhưng **nguyên lý góc là như nhau**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Từ hue 210° (thiên thanh), cộng 180° ra góc nào? Màu gì?
 > 2. Từ hue 300° (tía), cộng 90° ra góc nào?
 >
@@ -174,7 +174,7 @@ Nhóm này chia vòng tròn thành các phần **bằng nhau** → cân bằng, 
 > - *"Bộ bốn 'chữ nhật' và 'vuông' khác nhau chỗ nào?"* → **Vuông (square):** 4 màu cách đều 90° ($H, H+90, H+180, H+270$). **Chữ nhật (rectangle):** 2 cặp bổ túc nhưng khoảng giữa cặp khác 90°, ví dụ $H, H+60, H+180, H+240$ — vẫn là 2 cặp đối tâm nhưng "hẹp - rộng". Bài này minh họa dạng vuông.
 > - *"Càng nhiều màu càng đẹp?"* → Ngược lại. Số màu tăng → độ khó cân bằng tăng nhanh. Đơn sắc/tương đồng thường ra sản phẩm "gọn gàng" hơn cho người mới.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Bộ ba từ base 90° gồm những góc nào?
 > 2. Bộ bốn (vuông) từ base 45° gồm những góc nào? Chỉ ra 2 cặp bổ túc.
 >
@@ -275,7 +275,7 @@ Nhóm này chia vòng tròn thành các phần **bằng nhau** → cân bằng, 
   - **10% nhấn:** hsl(60, 90%, 55%) — vàng **bão hòa cao**, chỉ dùng cho nút/điểm nhấn nhỏ.
 - Vì sao không để cả hai màu S=100%, L=50%, diện tích bằng nhau? Vì cặp bổ túc ở bão hòa tối đa đặt cạnh nhau, diện tích ngang nhau sẽ gây **rung thị giác (vibration)**, mắt không có điểm tựa để nghỉ, và không có màu nào "thắng" để dẫn mắt → poster chói, mệt, thiếu phân cấp. Giảm bão hòa + thu nhỏ diện tích màu nhấn khiến màu vàng "nảy" đúng chỗ trên nền lam dịu.
 
-> 🔁 **Dừng lại tự kiểm tra (tổng).** Nhìn palette \`{0°, 60°, 180°, 240°}\` — sơ đồ gì?
+> 🔁 **Ôn tập (tổng).** Nhìn palette \`{0°, 60°, 180°, 240°}\` — sơ đồ gì?
 > <details><summary>Đáp án</summary>
 > Có 2 cặp bổ túc: $0↔180$ và $60↔240$. Khoảng: $0→60=60°$, $60→180=120°$ → đây là **bộ bốn dạng chữ nhật** (rectangle tetradic), không phải vuông (vuông phải cách đều 90°).
 > </details>

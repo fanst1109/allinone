@@ -67,7 +67,7 @@ Trong Go, `1<<i` tạo số chỉ có **bit thứ `i`** bật. Đây là "viên 
 //   <<  shift trái
 ```
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Tập `{1, 3}` với `n = 4` ứng với mask thập phân nào?
 >
@@ -164,7 +164,7 @@ func main() {
 }
 ```
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > `mask = 22 = 10110₂` (tập `{1,2,4}`). Sau `clr(mask, 2)` được tập nào?
 >
@@ -364,7 +364,7 @@ func main() {
 > - **Cộng chặng về 0 cho cả `i = 0`.** Vòng cuối phải bắt đầu `i = 1` — nếu `n > 1` thì `dp[full][0]` vẫn là `INF` (không có đường thăm hết rồi đứng lại ở 0), nhưng cộng `dist[0][0]=0` cũng vô hại; vẫn nên loại để rõ ý.
 > - **Nhầm "đường" (path) với "chu trình" (cycle).** Nếu đề chỉ cần thăm hết mà KHÔNG về 0 (Hamiltonian path), bỏ phần `+ dist[i][0]` và lấy thẳng `min dp[full][i]`.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Với ma trận trên, `dp[1111][2] = 65` đến từ đường nào?
 >

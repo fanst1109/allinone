@@ -92,7 +92,7 @@ Tham số thường **không biết được chính xác** (sẽ cần đo cả 
 
 > ⚠ **Lỗi thường gặp**: Nhầm "sample size lớn = tốt" với "sample lớn = không cần inference". Dù sample có 1 triệu người, nếu đó vẫn là *subset* của population, bạn vẫn cần inferential statistics để nói về population. Sample size lớn chỉ giảm margin of error, không thay thế inference.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Công ty X chạy khảo sát hài lòng, nhận được 800 phản hồi từ tổng số 12 000 nhân viên. $\bar{x} = 7{,}3/10$. Phân biệt population, sample, parameter, statistic.
 > <details><summary>Đáp án</summary>
 > Population: 12 000 nhân viên. Sample: 800 người trả lời. Parameter $\mu$: điểm hài lòng trung bình thật của cả 12 000 người (unknown). Statistic $\bar{x}$: $7{,}3/10$ (tính từ 800 phản hồi).
@@ -229,7 +229,7 @@ NOIR là từ viết tắt của **N**ominal, **O**rdinal, **I**nterval, **R**at
 
 > ⚠ **Lỗi thường gặp**: Đặt mã số (1 = Nam, 2 = Nữ, 3 = Khác) rồi tính "trung bình giới tính = 1.7" — đây là lỗi kinh điển. Mã số không phải số thật; nó chỉ là nhãn được gán giá trị integer để tiện lưu trữ.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Dataset có biến "Mức độ hài lòng" với giá trị 1/2/3/4/5. Bạn muốn báo cáo "giá trị điển hình". Nên dùng mean hay median? Vì sao?
 > <details><summary>Đáp án</summary>
 > Median an toàn hơn — đây là biến Ordinal. Median không giả định khoảng cách đều giữa 1, 2, 3, 4, 5. Nếu phân phối lệch (nhiều người chọn 5, ít người chọn 1), median = 4 mô tả trung tâm chính xác hơn mean = 3.8 vẻ "giữa".

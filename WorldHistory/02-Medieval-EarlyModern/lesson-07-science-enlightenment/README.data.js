@@ -71,7 +71,7 @@ Trong hơn 1.400 năm, người châu Âu học thuật hiểu vũ trụ qua hai
 
 ⚠ **Hiểu lầm thường gặp:** Thuyết nhật tâm không lập tức được chấp nhận vì nó "đơn giản hơn". Thực ra mô hình Copernicus gốc vẫn cần ~34 epicycle (ít hơn Ptolemy nhưng không ít). Sức mạnh thực sự của nó là về mặt triết học và toán học — nó đặt câu hỏi về quyền uy của Aristotle.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Vì sao xuất bản năm 1543 lại có ý nghĩa chiến lược với Copernicus?
 
 <details>
@@ -128,7 +128,7 @@ Kepler thừa kế dữ liệu của Brahe và phát hiện ra điều Copernicu
 
 ⚠ **Hiểu lầm thường gặp:** Galileo KHÔNG thả hai viên đạn từ Tháp Nghiêng Pisa để chứng minh vật rơi như nhau. Câu chuyện này do học trò ông ghi lại và rất có thể là giai thoại, không phải thí nghiệm thật. Điều Galileo thực sự chứng minh là qua lập luận logic và thí nghiệm mặt phẳng nghiêng.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Quan sát nào của Galileo thuyết phục nhất về việc Trái Đất không phải trung tâm của mọi chuyển động thiên thể? Tại sao?
 
 <details>
@@ -214,7 +214,7 @@ Lực hấp dẫn giữa hai vật thể tỉ lệ thuận với tích khối l�
 
 🔗 **Nhân – quả:** Hai phương pháp này không mâu thuẫn mà bổ sung nhau trong khoa học hiện đại: quan sát thực nghiệm (Bacon) cộng với mô hình toán học (Descartes) = nền tảng của vật lý lý thuyết và thực nghiệm.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Hãy mô tả một ví dụ trong cuộc sống hàng ngày thể hiện "idola theatri" (thiên kiến sân khấu) mà Bacon nêu ra.
 
 <details>
@@ -298,7 +298,7 @@ Lực hấp dẫn giữa hai vật thể tỉ lệ thuận với tích khối l�
 ❓ **Câu hỏi thường gặp:**
 - *Rousseau và Locke đồng ý hay mâu thuẫn về khế ước xã hội?* Cả hai đồng ý rằng chính quyền dựa trên sự đồng thuận của người dân. Khác biệt: Locke nhấn mạnh bảo vệ quyền cá nhân (tài sản), Rousseau nhấn mạnh ý chí chung của cộng đồng — đôi khi có thể đi ngược lợi ích cá nhân. Rousseau bị một số học giả xem là có xu hướng dẫn đến chủ nghĩa tập thể, trong khi Locke là nền tảng của chủ nghĩa tự do cá nhân.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Tại sao tư tưởng Khai sáng đặc biệt nguy hiểm với chế độ quân chủ tuyệt đối (absolute monarchy) đang tồn tại ở châu Âu thế kỉ XVIII?
 
 <details>

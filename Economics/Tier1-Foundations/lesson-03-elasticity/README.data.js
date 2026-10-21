@@ -135,7 +135,7 @@ Giải thích: trên đường tuyến tính, **phần trên (giá cao)** co gi�
 - **Dùng số tuyệt đối thay vì phần trăm**: nói "giá tăng 5k làm cầu giảm 20 đơn vị" $\\to$ không phải co giãn.
 - **Coi PED dương**: PED luôn âm (cho hàng thường); chỉ lấy giá trị tuyệt đối khi *phân loại*.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Cầu thị trường: $Q_d = 60 - 2P$. Tính PED tại:
 

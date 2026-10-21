@@ -152,7 +152,7 @@ func (s *Service) Stock(sku string) int
 > - **Consumer-level dedup** (theo *event ID*): chống xử lý lặp một event đã nhận.
 > - **Service-level idempotency** (theo *orderID*): chống side-effect lặp (trừ kho/tiền 2 lần) kể cả khi gọi từ nhiều nguồn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao \`Reserve\` idempotent theo \`orderID\` mà không phải theo \`(sku, qty)\`?
+> 🔁 **Thực hành.** Vì sao \`Reserve\` idempotent theo \`orderID\` mà không phải theo \`(sku, qty)\`?
 >
 > <details><summary>Đáp án</summary>
 > Vì hai order khác nhau có thể cùng \`(sku, qty)\` nhưng là 2 lần giữ chỗ HỢP LỆ — phải trừ kho 2 lần. Chỉ khi CÙNG \`orderID\` mới là "cùng một yêu cầu bị lặp" → mới được bỏ qua. \`orderID\` là khóa tự nhiên của một lần đặt hàng.
@@ -269,7 +269,7 @@ Kết quả: order \`CANCELLED\`, kho **về lại 3** (đã release), không ch
 
 Quy luật chung: fail ở bước thứ \`k\` (1-indexed) → đúng \`k-1\` bồi hoàn chạy, theo thứ tự \`k-1, k-2, ..., 1\`. (Trường hợp Confirm fail hiếm vì nó chỉ phát event, nhưng nếu thêm Shipping vào — xem BT1 — thì kiểu fail muộn này rất thực tế.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong kịch bản 3.4, vì sao RefundPayment KHÔNG nằm trong danh sách bồi hoàn?
+> 🔁 **Thực hành.** Trong kịch bản 3.4, vì sao RefundPayment KHÔNG nằm trong danh sách bồi hoàn?
 >
 > <details><summary>Đáp án</summary>
 > Vì ChargePayment **thất bại** — nó chưa bao giờ "xong" nên không được thêm vào danh sách \`done\`. Chỉ các bước ĐÃ thành công mới cần bồi hoàn. ChargePayment chính là bước gây fail, không phải bước đã xong. (Dù vậy, \`Refund\` được viết an toàn để gọi cả khi chưa charge — nguyên tắc bồi hoàn "best effort".)
@@ -438,7 +438,7 @@ Kết quả: side-effect chỉ xảy ra **1 lần** dù event tới 3 lần. (Đ
 
 > ⚠ **Lỗi thường gặp.** Chỉ dedup ở consumer mà quên idempotent ở service. Nếu cùng \`orderID\` đến từ 2 đường khác nhau (retry của orchestrator + replay event), consumer dedup theo *event ID khác nhau* sẽ KHÔNG bắt được → vẫn trừ kho 2 lần. Vì vậy \`Reserve\`/\`Charge\` phải idempotent theo \`orderID\` ở tầng service — đây là phòng tuyến cuối.
 
-> 🔁 **Dừng lại tự kiểm tra.** Map \`seen\` cứ lớn mãi không xóa — production làm sao?
+> 🔁 **Thực hành.** Map \`seen\` cứ lớn mãi không xóa — production làm sao?
 >
 > <details><summary>Đáp án</summary>
 > Production gắn **TTL** cho mỗi entry (vd 24h) hoặc lưu trong Redis với expiry, vì event quá cũ sẽ không bị replay nữa. Ngoài ra có thể dùng chính DB: insert với unique constraint trên event ID — trùng thì insert fail = đã xử lý. Bài này in-memory đơn giản nên giữ map vô hạn.
@@ -495,7 +495,7 @@ Bất biến (invariant) sau compensate: **không có tài nguyên nào bị gi�
 
 Nhìn cột "kho": nó tụt xuống 2 rồi **về lại 3** — đúng như "chưa từng đặt". Đó là tính chất ta muốn của compensation.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một order có thể từ CANCELLED quay lại CONFIRMED không?
+> 🔁 **Thực hành.** Một order có thể từ CANCELLED quay lại CONFIRMED không?
 >
 > <details><summary>Đáp án</summary>
 > Không, trong thiết kế này trạng thái là một chiều: PENDING → (CONFIRMED hoặc CANCELLED) và dừng. Đây là một **state machine** đơn giản. Nếu muốn cho retry đặt lại, ta tạo order MỚI (orderID mới) chứ không "phục sinh" order cũ — tránh mơ hồ về lịch sử.
@@ -633,7 +633,7 @@ Vì đây là bài cuối tier, đây là bảng tra cứu nhanh các thuật ng
 | **Correlation / trace ID** | ID chung gắn vào mọi event của một luồng để truy vết xuyên service | L71 (BT5) |
 | **Dead-letter queue** | nơi chứa message xử lý thất bại nhiều lần để người vận hành can thiệp | L64/L71 |
 
-> 🔁 **Dừng lại tự kiểm tra cuối tier.** Bạn có thể giải thích trong 1 câu: vì sao "at-least-once" lại BẮT BUỘC consumer phải idempotent?
+> 🔁 **Thực hành cuối tier.** Bạn có thể giải thích trong 1 câu: vì sao "at-least-once" lại BẮT BUỘC consumer phải idempotent?
 >
 > <details><summary>Đáp án</summary>
 > Vì at-least-once cho phép cùng một message tới NHIỀU lần; nếu consumer không idempotent, mỗi lần lặp lại tạo thêm side-effect (trừ tiền/kho lần nữa) → sai dữ liệu. Idempotency biến "nhận lặp" thành vô hại.

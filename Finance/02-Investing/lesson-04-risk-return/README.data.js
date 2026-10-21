@@ -34,7 +34,7 @@ $$\\bar{R} = \\frac{20 - 10 + 15 + 5 + 10}{5} = \\frac{40}{5} = 8\\%$$
 
 > ⚠ **Lỗi thường gặp.** Nhầm "lợi nhuận trung bình cộng" với "lợi nhuận kép thực tế (CAGR)". Trung bình cộng > CAGR khi có biến động. Vd +50% rồi −50%: trung bình cộng = 0%, nhưng thực tế $1{,}5 \\times 0{,}5 = 0{,}75$ → **mất 25%**. Biến động "ăn" lợi nhuận kép.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lợi nhuận 3 năm: +10%, −5%, +25%. Lợi nhuận trung bình (cộng) là bao nhiêu?
+> 🔁 **Thực hành.** Lợi nhuận 3 năm: +10%, −5%, +25%. Lợi nhuận trung bình (cộng) là bao nhiêu?
 > <details><summary>Đáp án</summary>$(10 - 5 + 25)/3 = 30/3 = 10\\%$.</details>
 
 ---
@@ -72,7 +72,7 @@ $$\\sigma = \\sqrt{530/5} = \\sqrt{106} = 10{,}3\\%$$
 
 > ⚠ **Lỗi thường gặp.** Chỉ nhìn lợi nhuận trung bình mà bỏ qua σ. Hai quỹ cùng "trung bình 8%" nhưng σ rất khác → trải nghiệm và rủi ro phá sản khác hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai cổ phiếu cùng trung bình 10%. A có σ=5%, B có σ=25%. Cái nào rủi ro hơn? Năm tới cái nào dễ có kết quả âm hơn?
+> 🔁 **Thực hành.** Hai cổ phiếu cùng trung bình 10%. A có σ=5%, B có σ=25%. Cái nào rủi ro hơn? Năm tới cái nào dễ có kết quả âm hơn?
 > <details><summary>Đáp án</summary>B rủi ro hơn (σ lớn gấp 5 lần). B dễ có năm âm hơn vì dao động rộng quanh 10% (có thể xuống dưới 0 dễ hơn).</details>
 
 ---

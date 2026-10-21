@@ -90,7 +90,7 @@ Chiến lược "gặm nhấm" giải thích tại sao Pháp chấp nhận thư�
 
 *"Quân Cờ Đen là quân nhà Nguyễn"* — Không đúng. Quân Cờ Đen (Lưu Vĩnh Phúc — Liu Yongfu) là tàn quân Thái Bình Thiên Quốc người Hoa chạy sang Bắc Kỳ sau khi thất bại ở Trung Quốc (1864). Họ hoạt động như lực lượng bán độc lập, đôi khi phối hợp với nhà Nguyễn chống Pháp. Cả Garnier (1873) lẫn Rivière (1883) đều tử trận do quân Cờ Đen, không phải quân triều đình trực tiếp.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Sắp xếp các mốc sau theo thứ tự thời gian: (a) Hiệp ước Patenôtre, (b) Chiếm Gia Định, (c) Nổ súng tại Đà Nẵng, (d) Hiệp ước Harmand, (e) Pháp chiếm ba tỉnh miền Tây.
 
@@ -147,7 +147,7 @@ Nguyễn Đình Chiểu là nhà thơ mù người Bến Tre, một trong nhữn
 - **"Văn tế Trương Định"** (1864): khóc tiễn thủ lĩnh nghĩa quân.
 - **"Lục Vân Tiên"**: tiểu thuyết chữ Nôm đề cao đạo nghĩa, được truyền miệng rộng rãi trong dân gian Nam Kỳ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Trương Định và Nguyễn Trung Trực đều kháng chiến ở Nam Kỳ sau 1862 — điểm khác nhau cơ bản về hoàn cảnh của họ là gì?
 
@@ -205,7 +205,7 @@ Về mặt hình thức, Hàm Nghi là biểu tượng chính danh. Thực tế,
 
 *"Ba Đình thất bại vì chiến thuật phòng thủ cố định là sai"* — Chiến thuật có hạn chế, nhưng nguyên nhân sâu xa hơn: Pháp có đại bác phá được công sự tre; quân khởi nghĩa không có vũ khí chống pháo; tiếp tế lương thực bị bao vây cắt đứt. Trong bối cảnh vũ khí thô sơ, không có chiến thuật nào đủ bù đắp chênh lệch hỏa lực.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Trong ba cuộc khởi nghĩa Cần Vương, khởi nghĩa nào kéo dài nhất và thủ lĩnh chính là ai?
 
@@ -296,7 +296,7 @@ Tôn Thất Thuyết sang Trung Quốc xin viện trợ (1886) — thất bại.
 
 Thất bại của Cần Vương và Yên Thế không đồng nghĩa với tinh thần yếu đuối hay sự kém cỏi của người lãnh đạo. Trong bối cảnh quân sự và kinh tế thế kỷ XIX, không có dân tộc Đông Nam Á nào thành công chống lại thực dân phương Tây chỉ bằng lực lượng vũ trang truyền thống. Nhật Bản — ví dụ gần nhất của thành công — thoát khỏi thuộc địa hóa nhờ cải cách Minh Trị toàn diện từ bên trong từ 1868, không phải nhờ đánh bại quân sự phương Tây.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Liệt kê ba nguyên nhân chính khiến phong trào Cần Vương thất bại. Mỗi nguyên nhân, hãy nêu một bằng chứng cụ thể.
 

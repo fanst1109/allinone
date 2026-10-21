@@ -37,7 +37,7 @@ Nhìn bảng: mỗi dòng lãi và tiền đi **khác nhau**. Cộng dồn cả 
 
 > ⚠ **Lỗi thường gặp.** *"Công ty báo lãi 200 thì trong két phải nhiều thêm 200."* **Sai.** Nếu 200 lãi đó nằm phần lớn ở **khoản phải thu** (khách chưa trả) và công ty vừa chi 120 mua máy, tiền có thể **giảm** trong năm. Xem Bài 3.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Công ty giao hàng trị giá 50, khách hẹn trả tháng sau. Trong kỳ này, *lợi nhuận* và *tiền* thay đổi bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
@@ -158,7 +158,7 @@ Ròng bốn điều chỉnh: $+40 - 30 - 20 + 15 = +5$. Nghĩa là CFO **cao hơ
 
 > ⚠ **Lỗi thường gặp.** Nhầm dấu vốn lưu động. Nhớ mẹo: **tài sản** (phải thu, tồn kho) **tăng → tiền giảm** (dấu −); **nợ** (phải trả) **tăng → tiền tăng** (dấu +). Tài sản "ngốn" tiền, nợ "sinh" tiền.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Lợi nhuận ròng 60, khấu hao 20, phải thu tăng 25, tồn kho giảm 10, phải trả tăng 5. Tính CFO.
 >
 > <details><summary>Đáp án</summary>

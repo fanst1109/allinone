@@ -302,7 +302,7 @@ $100 = 25 \cdot 4 + 0 \to 3^{100} = (3^4)^{25} \equiv 1^{25} = 1 \pmod{10}$
 
 > 📝 **Ý nghĩa trong RSA**: Euler's theorem là cơ sở của RSA. Với $n = p \cdot q$, $\varphi(n) = (p-1)(q-1)$: nếu $e \cdot d \equiv 1 \pmod{\varphi(n)}$, thì với mọi $m$: $(m^e)^d = m^{ed} \equiv m^{1 + k \cdot \varphi(n)} = m \cdot (m^{\varphi(n)})^k \equiv m \cdot 1 = m \pmod{n}$. Đây chính là cơ chế RSA encrypt $\to$ decrypt.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > **Câu 1**: $\gcd(48, 18) = ?$
 > <details><summary>Đáp án</summary>

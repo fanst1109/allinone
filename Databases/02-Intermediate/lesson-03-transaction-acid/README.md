@@ -117,7 +117,7 @@ Vì chưa `COMMIT`, mọi thay đổi dở dang bị huỷ. Tiền nguyên vẹn
 
 Kết quả hợp lệ, tổng không đổi.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao ở mục 3.1 không thể "rollback" lại bước 1?
 2. Ở mục 3.2, tại thời điểm máy sập, B đã nhận tiền chưa? Sau khôi phục A bằng bao nhiêu?
 

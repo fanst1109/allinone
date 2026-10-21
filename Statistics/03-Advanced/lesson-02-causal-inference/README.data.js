@@ -178,7 +178,7 @@ DAG là đồ thị có hướng, không có chu trình, biểu diễn cấu tr�
 
 > ⚠ **Lỗi thường gặp**: "Kiểm soát nhiều biến hơn = tốt hơn." SAI. Kiểm soát mediator làm underestimate causal effect; kiểm soát collider tạo ra bias mới. Phải có DAG để quyết định nên kiểm soát biến nào.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Một nghiên cứu thấy: người uống cà phê → ít bị Parkinson hơn. Liệt kê 2 confounders tiềm năng và 1 mediator có thể có.
 > <details><summary>Đáp án</summary>
 > Confounders: (1) Hút thuốc — hút thuốc vừa giảm uống cà phê vừa có tương quan nghịch với Parkinson (thực tế nicotine có thể bảo vệ thần kinh — confounding phức tạp); (2) Mức độ hoạt động thể chất — người năng động hơn uống cà phê nhiều hơn và ít Parkinson hơn. Mediator: dopamine pathway — cà phê (caffeine) ảnh hưởng receptor adenosine → ảnh hưởng dopamine → bảo vệ tế bào thần kinh dopaminergic.
@@ -258,7 +258,7 @@ Trong cả hai nhóm (sỏi nhỏ và sỏi lớn), phương pháp **A tốt hơ
 > **Q: Làm sao biết có Simpson's paradox không?**
 > A: Khi có biến phân loại ảnh hưởng đến cả (1) tỷ lệ phân vào nhóm can thiệp và (2) kết quả. Dấu hiệu: nhóm có tỷ lệ được điều trị thấp hơn lại có baseline outcome cao hơn (hoặc ngược lại).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Một nghiên cứu thấy: ở bệnh viện A, tỷ lệ tử vong = 2.2%. Ở bệnh viện B = 1.8%. Khi phân theo mức độ bệnh (nhẹ/nặng), bệnh viện A đều có tỷ lệ tử vong thấp hơn B. Giải thích.
 > <details><summary>Đáp án</summary>
 > Đây là Simpson's paradox. Bệnh viện A là trung tâm chuyên khoa → nhận nhiều ca nặng hơn B. Ca nặng → tỷ lệ tử vong cao hơn dù bác sĩ A giỏi hơn. Khi tính tổng, tỷ lệ cao hơn của ca nặng ở A kéo tổng tử vong lên. Bệnh viện A thực ra TỐT hơn khi kiểm soát mức độ bệnh.

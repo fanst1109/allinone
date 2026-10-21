@@ -53,7 +53,7 @@ Hướng: rời khỏi $Q$ nếu $Q > 0$, vào $Q$ nếu $Q < 0$.
 - **Nhầm điện trường E (V/m) với điện thế V (Volt)**. $E$ là vector "lực/điện tích", $V$ là vô hướng "thế năng/điện tích". Quan hệ: $E = -\frac{dV}{dr}$. Phản ví dụ: tại tâm giữa 2 điện tích trái dấu, $V$ có thể $= 0$ nhưng $E \neq 0$ (lực vẫn tồn tại).
 - **Quên E là vector có hướng**: $\vec{E}$ hướng ra xa điện tích dương, hướng vào điện tích âm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $E$ ở 20 cm từ điện tích $+1 \text{ μC}$.
 2. Điện tích $-2 \text{ μC}$ đặt trong điện trường $E = 500 \text{ V/m}$ hướng phải. Lực hướng nào, độ lớn bao nhiêu?
@@ -117,7 +117,7 @@ $$V = \frac{k \cdot Q}{r}$$
 - **Lẫn V (điểm) với U (chênh lệch)**. "Điện thế giữa 2 điểm" thực ra là hiệu điện thế $U$. Phản ví dụ: nói "điểm này có hiệu điện thế $5 \text{ V}$" sai — điểm có điện thế $V$; hiệu điện thế cần 2 điểm.
 - **Dùng sai công thức 1/r vs 1/r²**: $V = \frac{kQ}{r}$ (mũ 1), $E = \frac{kQ}{r^2}$ (mũ 2).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Pin $9 \text{ V}$ chuyển $2 \text{ C}$ điện tích qua mạch. Công lực điện bằng bao nhiêu?
 2. Điện thế ở 30 cm từ $+3 \text{ μC}$ bằng bao nhiêu?
@@ -181,7 +181,7 @@ $$W = \frac{1}{2} \cdot C \cdot U^2 = \frac{1}{2} \cdot \frac{Q^2}{C}$$
 - **Quên hệ số $\frac{1}{2}$ trong $W = \frac{1}{2}CU^2$**. Phản ví dụ: tụ $100 \text{ μF}$ ở $10 \text{ V}$ → $W = 0{,}5 \cdot 10^{-4} \cdot 100 =$ **$5 \times 10^{-3} \text{ J} = 5 \text{ mJ}$**, không phải $10 \text{ mJ}$.
 - **Quên đổi $\text{μF}$ sang $\text{F}$**: $100 \text{ μF} = 100 \times 10^{-6} \text{ F} = 10^{-4} \text{ F}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tụ $200 \text{ μF}$ nạp đến $5 \text{ V}$. Tính điện tích $Q$ lưu trữ.
 2. Cùng tụ đó, tính năng lượng tích trữ.

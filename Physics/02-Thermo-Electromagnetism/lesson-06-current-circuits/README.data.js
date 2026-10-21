@@ -54,7 +54,7 @@ $$I = \\frac{\\Delta Q}{\\Delta t} \\quad (\\text{đơn vị: Ampere} = \\text{A
 - **Nhầm điện tích Q với dòng điện I**. "Bóng đèn dùng $0{,}5 \\text{ A}$" là dòng, không phải điện tích. Tổng điện tích $= I \\cdot t$.
 - **Lẫn chiều dòng điện và chiều electron**: dòng điện quy ước theo điện tích **dương**, ngược với chiều electron thực di chuyển trong dây kim loại.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $6 \\text{ C}$ điện tích đi qua một tiết diện trong 3 giây. Dòng điện bằng bao nhiêu?
 2. Dòng $2 \\text{ A}$ chạy trong 10 giây — tổng điện tích đã đi qua?
@@ -118,7 +118,7 @@ $$P = U \\cdot I = I^2 \\cdot R = \\frac{U^2}{R} \\quad (\\text{đơn vị: Watt
 - **Quên bình phương trong $P = I^2R$ hoặc $P = U^2/R$**. Phản ví dụ: $I = 2 \\text{ A}$, $R = 5 \\text{ } \\Omega$ → $P = I^2R = 4 \\cdot 5 =$ **$20 \\text{ W}$**, không phải $2 \\cdot 5 = 10 \\text{ W}$.
 - **Lẫn $V = IR$ với $V = I/R$**: điện trở càng lớn cần điện áp càng lớn cho cùng dòng → nhân, không chia.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một điện trở $10 \\text{ } \\Omega$ có dòng $3 \\text{ A}$ đi qua. Hiệu điện thế hai đầu và công suất tỏa nhiệt?
 2. Thiết bị $220 \\text{ V}$ có điện trở $110 \\text{ } \\Omega$. Tính dòng điện và công suất.
@@ -172,7 +172,7 @@ $$\\frac{1}{R_{tổng}} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3} + \\l
 - **Lẫn công thức nối tiếp và song song**. Nối tiếp **cộng $R$** ($R$ tăng); song song **cộng $1/R$** ($R$ giảm). Phản ví dụ: 2 điện trở $100 \\text{ } \\Omega$ song song → $R = 50 \\text{ } \\Omega$ (giảm), KHÔNG phải $200 \\text{ } \\Omega$.
 - **Quên nghịch đảo lần cuối ở song song**: tính $\\frac{1}{R_{tổng}} = \\frac{1}{100} + \\frac{1}{100} = \\frac{2}{100}$ → phải lấy nghịch đảo: $R_{tổng} = 100/2 =$ **$50 \\text{ } \\Omega$**, không dừng ở $\\frac{2}{100}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. 2 điện trở $6 \\text{ } \\Omega$ và $3 \\text{ } \\Omega$ mắc nối tiếp. $R$ tổng?
 2. Cùng 2 điện trở đó mắc song song. $R$ tổng?
@@ -225,7 +225,7 @@ Pin $12 \\text{ V}$, $R_1 = 4 \\text{ } \\Omega$, $R_2 = 6 \\text{ } \\Omega$ n�
 - **Quên dấu khi áp KVL**: đi qua nguồn ngược chiều ($+$ sang $-$) là $-\\varepsilon$, qua điện trở ngược chiều dòng là $+IR$. Sai dấu → kết quả sai.
 - **Đếm thiếu/thừa dòng tại nút**: phải tính TẤT cả dòng vào và ra. Phản ví dụ: nút có $I_1 = 3 \\text{ A}$ vào, $I_2 = 2 \\text{ A}$ ra → dòng nhánh thứ 3 $= 3 - 2 = 1 \\text{ A}$ ra (không bỏ sót).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tại một nút, có $4 \\text{ A}$ và $3 \\text{ A}$ đi vào, $5 \\text{ A}$ đi ra theo một nhánh. Nhánh còn lại có dòng bao nhiêu, vào hay ra?
 2. Pin $12 \\text{ V}$ nối $R_1 = 2 \\text{ } \\Omega$ và $R_2 = 4 \\text{ } \\Omega$ song song. Tính $I$ tổng từ pin.

@@ -180,7 +180,7 @@ type Order struct {
 }
 ```
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > Trong `package shop`, hàm `calcTax(price float64) float64` có thể được dùng từ `package main` không?
 >
 > <details><summary>Đáp án</summary>
@@ -313,7 +313,7 @@ use of internal package github.com/mycompany/platform/shared/internal/auth not a
 
 > ⚠ **Lỗi thường gặp.** Quên đặt vào `internal/` rồi sau này muốn refactor function — phát hiện đã có 3 repo bên ngoài import và phụ thuộc → bị mắc kẹt, đổi sẽ break user. Nguyên tắc: **mặc định mọi thứ chưa cần share rộng → đặt trong `internal/`**.
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > Bạn có module `github.com/me/lib` với package `lib/util/internal/strutil`. Người ngoài chạy `go get` rồi `import "github.com/me/lib/util/internal/strutil"`. Việc gì xảy ra?
 >
 > <details><summary>Đáp án</summary>
@@ -567,7 +567,7 @@ Go bắt buộc dependency có **SemVer tag** dạng `vMAJOR.MINOR.PATCH`:
 > **Hỏi:** `go.sum` có push lên git không?  
 > **Đáp:** Có. Cả `go.mod` và `go.sum` đều phải commit. Lý do: build reproducible. Người clone repo về `go build` lần đầu — Go verify dep hash với `go.sum` đúng như bạn đã build.
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > Bạn xoá hết `go.sum`, chạy `go build`. Việc gì xảy ra?
 >
 > <details><summary>Đáp án</summary>
@@ -647,7 +647,7 @@ Build set cuối:
 
 > ⚠ **Bẫy.** Nếu A v1.2.0 require C v1.0.0 mà C v1.0.0 có security vuln, build mặc định sẽ dùng v1.3.0 (do B yêu cầu). NHƯNG nếu bạn xoá B → MVS chọn C v1.0.0 → lỗ hổng quay lại. Vì vậy sau khi xoá dep luôn `go mod tidy` + audit lại.
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > A require D v1.1.0. B require D v1.0.0. Root require A và B. MVS chọn D version nào?
 >
 > <details><summary>Đáp án</summary>

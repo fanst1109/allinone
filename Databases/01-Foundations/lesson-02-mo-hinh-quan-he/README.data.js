@@ -78,7 +78,7 @@ Xét bảng \`SinhVien\` (Students) sau làm ví dụ xuyên suốt:
 
 ⚠ **Lỗi thường gặp.** Đừng lẫn **bậc** với **lực lượng**. Bậc đếm *cột* (gắn với schema, ít đổi); lực lượng đếm *hàng* (gắn với instance, đổi liên tục). Một bảng rỗng vẫn có bậc > 0 (vẫn có các cột) nhưng lực lượng = 0.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Cho \`NhanVien(Ma, Ten, Luong, PhongBan)\` đang chứa 250 nhân viên. Bậc và lực lượng là bao nhiêu?
 2. Thêm một cột \`Email\` vào bảng đó. Cái gì thay đổi: schema hay instance?
 
@@ -151,7 +151,7 @@ Vì quan hệ là **tập hợp** các bộ, ta suy ra ngay:
 
 ⚠ **Lỗi thường gặp.** Nhồi nhiều giá trị vào một ô bằng dấu phẩy ("0901, 0902") trông tiện nhưng phá vỡ atomic: bạn không truy vấn được "ai có số 0902" mà không phải tách chuỗi thủ công. Cách đúng: tách ra bảng riêng \`DienThoai(MaSV, So)\` với mỗi số một bộ.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Cho \`Mau = {Do, Xanh}\` và \`Cuc = {Truoc, Sau}\`. Tích \`Mau × Cuc\` có mấy phần tử? Liệt kê.
 2. \`{ (Do, Truoc), (Xanh, Sau) }\` và \`{ (Xanh, Sau), (Do, Truoc) }\` có phải hai quan hệ khác nhau không?
 
@@ -211,7 +211,7 @@ Vì quan hệ là **tập hợp** các bộ, ta suy ra ngay:
 - *"Vậy \`NULL AND TRUE\` ra gì?"* — UNKNOWN. *"\`NULL OR TRUE\`?"* — TRUE (vì OR chỉ cần một vế đúng là đủ, dù vế kia chưa biết). Đây là logic ba trị áp cho AND/OR.
 - *"Tại sao \`NULL = NULL\` không TRUE? Hai NULL nhìn giống nhau mà?"* — Vì NULL nghĩa là "chưa biết". Hai giá trị chưa biết có thể bằng hoặc khác — không có cơ sở khẳng định bằng. Còn \`IS NULL\` hỏi về *trạng thái trống*, không phải so sánh *giá trị*, nên trả lời được.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. \`WHERE Tuoi > 18\` sẽ giữ lại hàng có \`Tuoi = NULL\` không?
 2. Muốn tìm các hàng có \`Email\` chưa nhập, viết điều kiện thế nào?
 

@@ -105,7 +105,7 @@ Posting list được lưu trong cấu trúc tra cứu nhanh (hash map hoặc c�
 - *"Tìm cụm từ liền nhau (phrase) thì sao?"* — Posting list lưu thêm **position** của term trong document, để kiểm tra `"go fast"` có liền nhau không (phrase query).
 - *"Có phải tự build không?"* — Trong production dùng Lucene (Elasticsearch). Trong bài này ta tự build bằng Go để hiểu cơ chế (xem [solutions.go](./solutions.go)).
 
-🔁 **Dừng lại tự kiểm tra.** Cho `doc4: "fast go"`. Posting list của `go` và `fast` thay đổi thế nào?
+🔁 **Thực hành.** Cho `doc4: "fast go"`. Posting list của `go` và `fast` thay đổi thế nào?
 
 <details><summary>Đáp án</summary>
 
@@ -247,7 +247,7 @@ Cả hai cùng quy về `{run, dog}` → **khớp**, dù chữ gốc khác hẳn
 
 ⚠ **Lỗi thường gặp:** đổi analyzer của một field đã có data → data cũ vẫn được index theo analyzer cũ. Phải **reindex** toàn bộ thì thay đổi mới có hiệu lực.
 
-🔁 **Dừng lại tự kiểm tra.** `"Cats are Sleeping"` qua pipeline (lowercase + stop word `are` + stem) cho ra gì?
+🔁 **Thực hành.** `"Cats are Sleeping"` qua pipeline (lowercase + stop word `are` + stem) cho ra gì?
 
 <details><summary>Đáp án</summary>
 

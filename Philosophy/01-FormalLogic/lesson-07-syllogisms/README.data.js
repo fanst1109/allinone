@@ -65,7 +65,7 @@ Một hạn từ (term) được gọi là **chu diên** trong mệnh đề nế
 
 > ⚠ **Lỗi thường gặp:** Nhầm "Mọi S là P" (A) với "P là S" (đảo ngược). "Mọi chó là động vật" *không* có nghĩa "Mọi động vật là chó." Đảo mệnh đề A là sai logic; chỉ có mệnh đề E mới đảo được nguyên vẹn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại và xác định chu diên:
+> 🔁 **Thực hành.** Phân loại và xác định chu diên:
 > - (a) "Không người nào là thiên thần."
 > - (b) "Một số hoa hồng là màu đỏ."
 > <details><summary>Đáp án</summary>
@@ -209,7 +209,7 @@ Ba vòng S, P, M tạo ra **8 vùng**:
 > - *"Nếu kết luận đúng trong thực tế nhưng không ra từ sơ đồ, lập luận có hợp lệ không?"* — Không. Hợp lệ (validity) chỉ xét hình thức: kết luận có *bắt buộc đúng* nếu tiền đề đúng không. Nếu kết luận đúng vì lý do khác, đó là sự trùng hợp — lập luận vẫn là ngụy biện.
 > - *"Venn 3 vòng bất tiện ở đâu?"* — Với mệnh đề I/O, đôi khi ta chưa biết đặt × ở tiểu vùng nào (2 vùng chồng nhau có thể cùng hợp lệ) → phải đặt × trên đường biên giữa hai vùng, nghĩa là "ít nhất một vùng không rỗng".
 
-> 🔁 **Dừng lại tự kiểm tra.** Kiểm tra hợp lệ bằng sơ đồ Venn:
+> 🔁 **Thực hành.** Kiểm tra hợp lệ bằng sơ đồ Venn:
 > \`\`\`
 > Mọi nhà thơ là người nhạy cảm.  (A)
 > Một số sinh viên là nhà thơ.     (I)

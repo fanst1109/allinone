@@ -81,7 +81,7 @@ Màu web thường viết dạng `#RRGGBB`, mỗi cặp là một kênh ở **h�
 
 > ⚠ **Lỗi thường gặp.** Tưởng "trộn ánh sáng đỏ + lục ra màu nâu/bẩn như trộn màu nước". **Sai.** Với ánh sáng, đỏ + lục ra **vàng tươi**. Trực giác "vàng + lam = lục", "trộn nhiều màu ra nâu" là kinh nghiệm trộn **sơn** (trừ màu), không áp dụng cho ánh sáng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trộn ánh sáng $(255, 200, 0)$ với $(0, 55, 255)$ ra kênh nào bằng bao nhiêu?
 > 2. Màu `#00FFFF` là màu gì, và nó là tổng của hai ánh sáng cơ bản nào?
 >
@@ -235,7 +235,7 @@ $\Rightarrow (30, 144, 255)$ — **quay lại đúng** màu ban đầu. ✓
 > - *"Tăng Lightness lên 100% thì ra gì?"* → Trắng, bất kể $H, S$. Đó là lý do vệt sáng trong ảnh mất hết màu.
 > - *"Vì sao khi $S=0$ thì $H$ vô nghĩa?"* → Vì màu đã là xám, không còn "màu sắc" để định vị trên vòng thuần sắc.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Màu $(0, 255, 0)$ (lục tinh khiết) có HSL bằng bao nhiêu?
 > 2. HSL$(0°, 0\%, 0\%)$ và HSL$(120°, 100\%, 100\%)$ lần lượt là màu gì?
 >

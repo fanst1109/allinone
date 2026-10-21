@@ -61,7 +61,7 @@ Hệ quả trực tiếp: *không chứng minh được sai* không có nghĩa l
 > - *"Nhưng burden of proof có thể chuyển không?"* — Có, nhưng chỉ theo một hướng cụ thể: sau khi A đưa ra bằng chứng sơ bộ, B có thể phải đưa ra phản bằng chứng để tiếp tục tranh luận. Đây gọi là *shifting burden* hợp lệ — khác với đảo ngược trắng trợn ở chỗ A đã thực sự cung cấp bằng chứng ban đầu.
 > - *"Ai định nghĩa thế nào là 'bằng chứng đủ'?"* — Tiêu chuẩn phụ thuộc ngữ cảnh: khoa học đòi peer-reviewed studies; tòa án đòi "beyond reasonable doubt" (hình sự) hoặc "preponderance of evidence" (dân sự); tranh luận hàng ngày thường đòi lý lẽ nhất quán và không mâu thuẫn với sự kiện đã biết.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với mỗi tình huống, xác định ai gánh burden of proof:
+> 🔁 **Thực hành.** Với mỗi tình huống, xác định ai gánh burden of proof:
 > 1. A: "Vitamin C liều cao chữa được ung thư." B: "Không có bằng chứng nào ủng hộ điều đó."
 > 2. A: "Thần thoại Hy Lạp là lịch sử có thật." B: "Tôi không tin."
 > 3. A nói với B: "Hãy chứng minh cho tôi thấy rằng bạn không nói dối trong cuộc họp đó."
@@ -140,7 +140,7 @@ Hệ quả trực tiếp: *không chứng minh được sai* không có nghĩa l
 > - *"Steelman có phải là 'cho đối phương nói thêm' không?"* — Không. Steelman là *bạn* tự dựng phiên bản mạnh nhất của lập luận họ — đôi khi mạnh hơn chính cách họ trình bày. Bạn đang làm công việc trí tuệ thay cho đối phương để đảm bảo không bỏ lỡ điểm mạnh nào.
 > - *"Khi nào thì steelman không cần thiết?"* — Trong tranh luận thực chiến, bạn không cần steelman cho mọi lập luận nhỏ. Nhưng với *luận điểm cốt lõi* của đối phương — luận điểm mà nếu đúng thì kết luận của họ theo sau — thì bắt buộc.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại mỗi phản hồi sau là straw man hay steelman:
+> 🔁 **Thực hành.** Phân loại mỗi phản hồi sau là straw man hay steelman:
 > A nói: "Tôi nghĩ nên giảm số giờ học ở trường."
 > 1. B: "Anh muốn học sinh ngồi chơi cả ngày à?"
 > 2. B: "Nghiên cứu về cognitive load cho thấy sau 4–5 giờ học tập tập trung, hiệu suất ghi nhớ giảm đáng kể — vậy luận điểm mạnh nhất là học ít giờ hơn nhưng tập trung hơn có thể hiệu quả hơn về mặt nhận thức. Tuy nhiên, thực tế triển khai ở quy mô quốc gia đặt ra câu hỏi về cơ sở vật chất và chương trình..."
@@ -216,7 +216,7 @@ Thay vì tấn công lập luận của đối phương, *xây dựng một lậ
 > - *"Có thể dùng nhiều kiểu phản bác cùng lúc không?"* — Hoàn toàn có, và thường nên làm vậy. "Tiền đề 2 của bạn sai (→ bác tiền đề); nhưng ngay cả nếu nó đúng, suy luận cũng không hợp lệ (→ bác suy luận); và đây là lý do độc lập tại sao kết luận ngược lại đúng hơn (→ phản lập luận)."
 > - *"Phản bác nào mạnh nhất?"* — Phụ thuộc ngữ cảnh. Bác tiền đề thường nhanh và trực tiếp nếu tìm được tiền đề sai rõ ràng. Bác suy luận mạnh khi tiền đề khó bác. Phản lập luận cần công sức nhiều nhất nhưng thể hiện sự hiểu biết sâu nhất về vấn đề.
 
-> 🔁 **Dừng lại tự kiểm tra.** Xác định kiểu phản bác phù hợp nhất cho mỗi trường hợp:
+> 🔁 **Thực hành.** Xác định kiểu phản bác phù hợp nhất cho mỗi trường hợp:
 > 1. "Mọi doanh nhân giàu có đều khởi nghiệp từ nghèo khó."
 > 2. "Nhiệt độ hôm nay cao hơn hôm qua. Nhiệt độ hôm qua cao hơn hôm kia. Vậy nhiệt độ đang tăng liên tục và sẽ tăng mãi."
 >

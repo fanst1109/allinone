@@ -715,7 +715,7 @@ for _, v := range nums {
 nums = append(nums, toAdd...)
 ```
 
-## 🔁 Dừng lại tự kiểm tra
+## 🔁 Thực hành
 
 <details><summary>Q1: Cú pháp Go cho "lặp x từ 0 đến hết slice xs, in từng phần tử"?</summary>
 

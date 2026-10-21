@@ -186,7 +186,7 @@ Trùng hợp vật lý = logic ở đây vì frame 2 ứng với page 2 — khô
 - *"Bảng trang lưu ở đâu?"* — Trong RAM, được trỏ đến bởi **PTBR (Page Table Base Register)** — một register đặc biệt của CPU. Context switch chỉ cần cập nhật PTBR (nhanh) thay vì copy toàn bộ bảng trang.
 - *"Truy cập bộ nhớ mất 2 lần RAM access (tra bảng + đọc dữ liệu) — chậm quá?"* — Đây chính là lý do TLB ra đời. Xem Lesson 03.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Page size = 2048 bytes. Địa chỉ ảo = 5500. Page number và offset là bao nhiêu?
 
@@ -242,7 +242,7 @@ Trung bình: mỗi tiến trình lãng phí nửa trang cuối $= \text{page\_si
 
 *"Paging loại bỏ hoàn toàn phân mảnh."* — Sai. Paging loại bỏ **phân mảnh ngoài** nhưng **giữ lại phân mảnh trong** (nửa trang cuối). Đây là đánh đổi có chủ ý.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Tiến trình cần 9000 bytes. Page size = 4096 bytes. Cần bao nhiêu trang? Phân mảnh trong bao nhiêu?
 

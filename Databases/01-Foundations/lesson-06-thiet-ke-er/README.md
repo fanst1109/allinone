@@ -87,7 +87,7 @@ Vẽ ER trước giúp:
 | `Manages` (Quản lý) | Employee — Department | Một nhân viên quản lý một phòng |
 | `Owns` (Sở hữu) | Customer — Account | Khách hàng sở hữu tài khoản |
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. `phone` của sinh viên (nhiều số) là thuộc tính loại gì? Ánh xạ ra sao?
 2. Trong ký hiệu Chen, hình chữ nhật, hình elip, hình thoi lần lượt biểu diễn gì?
 
@@ -144,7 +144,7 @@ Vẽ ER trước giúp:
 - *"Total participation ảnh hưởng schema thế nào?"* — Phía total thường khiến cột FK tương ứng là `NOT NULL` (bắt buộc phải có giá trị tham chiếu). Ví dụ `Employee.dept_id NOT NULL` vì mọi nhân viên phải thuộc phòng.
 - *"N-N có participation không?"* — Có, nhưng vì N-N luôn thành bảng nối nên participation thường thể hiện qua việc có dòng nối hay không, ít ảnh hưởng `NULL`.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. `Customer — Order` là bản số gì?
 2. "Mọi đơn hàng đều phải có khách" là ràng buộc gì?
 
@@ -193,7 +193,7 @@ Bài này dùng tư duy Chen để giải thích, nhưng kết quả ánh xạ g
 
 ⚠ **Lỗi thường gặp.** Nhầm thực thể yếu với quan hệ 1-N thông thường. Dấu hiệu của weak entity: thực thể *không thể* phân biệt nếu thiếu chủ (partial key trùng nhau giữa các chủ khác nhau). Nếu nó có khóa riêng tự định danh (vd `Order` có `order_id` toàn cục) thì *không* yếu.
 
-🔁 **Dừng lại tự kiểm tra.** Khóa đầy đủ của `OrderLine` gồm những gì? Vì sao `line_no` một mình không đủ?
+🔁 **Thực hành.** Khóa đầy đủ của `OrderLine` gồm những gì? Vì sao `line_no` một mình không đủ?
 
 <details><summary>Đáp án</summary>
 
@@ -344,7 +344,7 @@ CREATE TABLE OrderLine (
 
 ❓ **Câu hỏi tự nhiên.** *"Quan hệ 1-1 ánh xạ sao?"* — Đặt FK ở *một trong hai* phía (kèm `UNIQUE`), thường ở phía tham gia *total*. Vd `Manages`: thêm `mgr_emp_id UNIQUE` vào `Department` (mỗi phòng một trưởng, mỗi người trưởng tối đa một phòng).
 
-🔁 **Dừng lại tự kiểm tra.** Bảng nối `Enrollment` có khóa chính là gì? Vì sao không dùng một cột `id` tự tăng?
+🔁 **Thực hành.** Bảng nối `Enrollment` có khóa chính là gì? Vì sao không dùng một cột `id` tự tăng?
 
 <details><summary>Đáp án</summary>
 

@@ -71,7 +71,7 @@ Một ví dụ "không nhất quán" cụ thể: service Go retry 3 lần với 
 
 Còn chi phí đổi policy: tăng timeout \`1s → 2s\` cho toàn hệ. Tự viết: sửa config 15 service → build 15 image → rollout 15 deployment, mỗi cái có rủi ro, không atomic. Với mesh: sửa **một** dòng YAML, \`kubectl apply\` — Istiod đẩy xuống mọi Envoy gần như tức thời, không build, không restart pod.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao "shared library" không giải quyết được bài toán đa ngôn ngữ?
 > 2. Đổi timeout toàn hệ: tự-viết cần bao nhiêu lần build/deploy, mesh cần bao nhiêu?
 >
@@ -170,7 +170,7 @@ Cơ chế (walk-through cụ thể):
 
 > 💡 **Trực giác bổ sung.** So sánh với mạng máy tính: data plane giống *forwarding* (chuyển gói tin theo bảng định tuyến hiện có), control plane giống *routing protocol* (tính ra bảng định tuyến). Router vẫn chuyển gói được khi giao thức định tuyến tạm gián đoạn — chỉ là không học được đường mới. Mesh mượn đúng phân tách kinh điển này từ thế giới networking.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Một request từ \`cart\` tới \`checkout\` đi qua data plane hay control plane?
 > 2. Bạn \`kubectl apply\` một VirtualService mới (đổi route). Thành phần nào nhận và xử lý?
 >
@@ -531,7 +531,7 @@ Xu hướng mới: **sidecar-less mesh** (Istio Ambient mode, Cilium) — bỏ p
 | **Debug khó (extra hop)** | Lỗi mạng giờ qua 2 proxy → khó biết lỗi ở app hay Envoy | Học đọc Envoy access log, dùng \`istioctl proxy-config\`, bật tracing |
 | **Config phức tạp** | Istio nhiều CRD, dễ cấu hình sai (vd quên DestinationRule subset → route fail) | Bắt đầu từ mTLS + metric; thêm dần; cân nhắc Linkerd nếu cần đơn giản |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Hệ 4 service, cùng Go, team 2 người, không yêu cầu mTLS bắt buộc — nên dùng mesh không?
 > 2. Sau khi bật mesh, p99 latency của một API tăng từ 30ms lên 34ms. Có hợp lý không, do đâu?
 >

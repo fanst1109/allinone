@@ -101,7 +101,7 @@ Trong thực tế: chip bán dẫn thường chỉ chế tạo NAND/NOR (đơn g
 > - XOR (loại trừ, exclusive): 1 ⊕ 1 = 0 (cả hai 1 thì "triệt tiêu nhau").
 > - Trong tiếng Việt "hoặc" thường mơ hồ — "Anh uống cà phê hoặc trà" có thể là OR hoặc XOR tùy ngữ cảnh. Trong logic và điện tử phải phân biệt rõ.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Tính NAND(0, 1) và NAND(1, 1).
 > 2. Biểu diễn OR(p, q) chỉ dùng NAND (viết ra bước trung gian).
 > 3. Trong half adder, khi p=0 và q=0, sum và carry bằng bao nhiêu?
@@ -194,7 +194,7 @@ Trong thực tế, SAT solver hiện đại (như MiniSat, Glucose, Z3) dùng he
 > - Nhiều trường hợp thực tế của SAT (có cấu trúc đặc biệt) giải rất nhanh.
 > - Phân biệt: "khó trong trường hợp xấu nhất" (worst-case hard) ≠ "khó trong thực tế".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Công thức \`(p → q) ∧ ¬q ∧ p\` có thỏa được không? (Gợi ý: p→q tương đương ¬p∨q)
 > 2. Sự khác biệt giữa "φ là tautology" và "φ thỏa được" là gì?
 >
@@ -297,7 +297,7 @@ Mâu thuẫn → H không thể tồn tại.
 > - "Undecidable" ≠ "không thể giải trong thực tế". Halting Problem undecidable không ngăn ta phân tích phần lớn chương trình thực tế bằng phương pháp gần đúng.
 > - Đừng nhầm NP-complete (hard nhưng decidable) với undecidable (không có thuật toán).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Tại sao bảng chân lý chứng minh logic mệnh đề là decidable?
 > 2. Bài toán "hàm f: ℕ→ℕ có bằng 0 tại mọi điểm không?" thuộc loại nào: decidable hay undecidable?
 > 3. Kỹ thuật tự-tham chiếu xuất hiện ở đâu trong cả Gödel và Turing?

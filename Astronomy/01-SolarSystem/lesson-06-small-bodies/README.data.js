@@ -64,7 +64,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 > - *"Tại sao chu kỳ của tiểu hành tinh vành đai chính rơi vào khoảng 3–6 năm?"* — Dùng Kepler 3: $T^2 = a^3$ (T tính bằng năm, a bằng AU). Với $a = 2{,}77$: $T = \\sqrt{2{,}77^3} = \\sqrt{21{,}3} \\approx 4{,}6 \\ \\text{năm}$. Khớp với chu kỳ của Ceres (~4,6 năm).
 > - *"Tàu vũ trụ qua vành đai có nguy hiểm không?"* — Gần như không. Mật độ quá thưa; tới nay chưa tàu nào va phải tiểu hành tinh khi băng qua.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một tiểu hành tinh có $a = 3{,}0 \\ \\text{AU}$. Chu kỳ quỹ đạo của nó khoảng bao nhiêu năm?
+> 🔁 **Thực hành.** Một tiểu hành tinh có $a = 3{,}0 \\ \\text{AU}$. Chu kỳ quỹ đạo của nó khoảng bao nhiêu năm?
 > <details><summary>Đáp án</summary>Kepler 3: $T = \\sqrt{a^3} = \\sqrt{27} \\approx 5{,}2 \\ \\text{năm}$.</details>
 
 ---
@@ -108,7 +108,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 
 **Walk-through số (verify Kepler 3 cho Halley):** $a = \\dfrac{q}{1-e} = \\dfrac{0{,}586}{1-0{,}967} = \\dfrac{0{,}586}{0{,}033} \\approx 17{,}8 \\ \\text{AU}$. Chu kỳ $T = \\sqrt{a^3} = \\sqrt{17{,}8^3} = \\sqrt{5640} \\approx 75 \\ \\text{năm}$. Khớp với chu kỳ thực ~76 năm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao chổi đang rời điểm cận nhật, bay ra xa Mặt Trời. Đuôi của nó chỉ về hướng nào so với chuyển động?
+> 🔁 **Thực hành.** Sao chổi đang rời điểm cận nhật, bay ra xa Mặt Trời. Đuôi của nó chỉ về hướng nào so với chuyển động?
 > <details><summary>Đáp án</summary>Đuôi hướng **ra xa Mặt Trời**, tức là chỉ về **phía trước** chuyển động (đuôi đi trước nhân). Vì lực đẩy của Mặt Trời luôn hướng ra ngoài, không liên quan hướng bay.</details>
 
 > 📝 **Tóm tắt mục 3.** Sao chổi = quả cầu tuyết bẩn. Gần Mặt Trời, băng thăng hoa tạo coma + đuôi. Đuôi luôn hướng ra xa Mặt Trời (do áp suất bức xạ + gió Mặt Trời), không phụ thuộc hướng bay. Quỹ đạo elip lệch tâm rất cao.
@@ -152,7 +152,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 > - *"Vì sao Geminids lại từ một 'tiểu hành tinh' chứ không phải sao chổi?"* — 3200 Phaethon được cho là một "sao chổi đá" (rock comet) đã cạn băng, hoặc tiểu hành tinh từng vỡ vụn. Đây là ngoại lệ thú vị cho thấy ranh giới tiểu hành tinh/sao chổi không tuyệt đối.
 > - *"Nhìn mưa sao băng nên nhìn về phía radiant?"* — Không cần. Sao băng tỏa ra **khắp trời**; nhìn radiant chỉ thấy vệt ngắn (lao thẳng về phía mình). Nhìn lệch ~40–60° khỏi radiant thấy vệt dài đẹp hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao Perseids xuất hiện đúng giữa tháng 8 mỗi năm chứ không phải ngẫu nhiên?
+> 🔁 **Thực hành.** Vì sao Perseids xuất hiện đúng giữa tháng 8 mỗi năm chứ không phải ngẫu nhiên?
 > <details><summary>Đáp án</summary>Vì Trái Đất đi qua đúng đoạn quỹ đạo chứa vệt bụi của sao chổi Swift-Tuttle vào khoảng ngày đó mỗi năm. Quỹ đạo Trái Đất lặp lại hằng năm nên ngày cực điểm gần như cố định.</details>
 
 > 📝 **Tóm tắt mục 4.** meteoroid (trong không gian) → meteor/sao băng (cháy trong khí quyển) → meteorite (rơi xuống đất). Mưa sao băng = Trái Đất đi qua vệt bụi sao chổi; radiant là điểm hội tụ phối cảnh; xuất hiện đúng ngày hằng năm.
@@ -182,7 +182,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 
 > ❓ **Câu hỏi tự nhiên.** *"Sao chổi chu kỳ ngắn và dài khác nguồn gốc thế nào?"* — Chu kỳ ngắn (Halley, Encke): từ vành đai Kuiper, quỹ đạo nằm gần mặt phẳng hoàng đạo. Chu kỳ dài (Hale-Bopp): từ đám mây Oort, có thể đến từ **mọi hướng** vì Oort là vỏ cầu bao quanh.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao chổi mới phát hiện có chu kỳ ~3000 năm và quỹ đạo nghiêng gần vuông góc hoàng đạo. Nó có nhiều khả năng đến từ đâu?
+> 🔁 **Thực hành.** Một sao chổi mới phát hiện có chu kỳ ~3000 năm và quỹ đạo nghiêng gần vuông góc hoàng đạo. Nó có nhiều khả năng đến từ đâu?
 > <details><summary>Đáp án</summary>Đám mây Oort — vì chu kỳ rất dài (>200 năm) và đến từ hướng bất kỳ (vỏ cầu), không bị giới hạn trong mặt phẳng hoàng đạo như Kuiper.</details>
 
 > 📝 **Tóm tắt mục 5.** Kuiper = đĩa băng 30–50 AU, nguồn sao chổi chu kỳ ngắn. Oort = vỏ cầu ~2000–100000 AU, nguồn sao chổi chu kỳ dài đến từ mọi hướng.

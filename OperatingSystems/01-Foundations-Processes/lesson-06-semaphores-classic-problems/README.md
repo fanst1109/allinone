@@ -120,7 +120,7 @@ wait(mutex)     // ← lẽ ra phải là signal(mutex)
 
 Đảo thứ tự `wait` và `signal` là lỗi phổ biến gây mất mutual exclusion hoặc deadlock.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Semaphore S = 1. Thread A gọi `wait(S)`, rồi Thread B gọi `wait(S)`. Giá trị S là bao nhiêu? Thread nào bị block?
 
@@ -436,7 +436,7 @@ Với ≤ 4 triết gia ngồi, tổng đũa đang cầm ≤ 4 < 5 → ít nhấ
 
 ⚠ **Lỗi thường gặp — Nghĩ rằng semaphore đủ để chống deadlock:** Semaphore chỉ giúp mutual exclusion và synchronization. Deadlock xảy ra khi **phân bổ tài nguyên** không đúng cách. Cần phải thiết kế thứ tự cầm đũa (hay tài nguyên) cẩn thận.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Trong giải pháp "chỉ N-1 triết gia" (N=5), giả sử 4 triết gia ngồi và mỗi người cầm 1 đũa. Tổng số đũa đang bị giữ là bao nhiêu? Còn lại bao nhiêu đũa tự do?
 

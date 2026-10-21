@@ -53,7 +53,7 @@ Mở bài bằng một câu hỏi cụ thể:
 - *"Có nén được mọi file nhỏ hơn không?"* — **Không**. Không tồn tại bộ nén lossless làm **mọi** file nhỏ đi (xem mục 2, "no free lunch"). Dữ liệu **ngẫu nhiên** (vd file đã nén/đã mã hóa) gần như không nén thêm được.
 - *"Nén 2 lần có nhỏ hơn không?"* — Hầu như không. Sau lần 1, output trông như ngẫu nhiên với bộ nén → lần 2 vô ích, thậm chí phình nhẹ vì header.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 <details><summary>Vì sao text lặp nhiều thì nén tốt, còn file ngẫu nhiên thì không?</summary>
 
 Nén khai thác **tính dễ đoán (redundancy)**: ký tự/cụm nào xuất hiện nhiều thì gán mã ngắn, cụm lặp thì tham chiếu. File ngẫu nhiên không có ký tự nào "phổ biến hơn" và không có cụm lặp → không có gì để rút gọn. Đo lường chính xác "độ khó đoán" này là **entropy** (mục 2).
@@ -128,7 +128,7 @@ Tổng cận dưới cho cả chuỗi: $7 \times 1.379 \approx 9.65$ bit. Mã c�
 - *"Tại sao log cơ số 2?"* — Vì ta đo bằng **bit** (đơn vị nhị phân). Cơ số 2 ⇒ đơn vị bit; cơ số $e$ ⇒ "nat"; cơ số 10 ⇒ "dit". Bit là chuẩn trong tin học.
 - *"$H$ phụ thuộc nội dung hay chỉ phân bố?"* — Chỉ **phân bố tần suất**, không phụ thuộc thứ tự. `"AAAB"` và `"ABAA"` cùng $H$. (Đây là hạn chế của mô hình "không nhớ"; bộ nén thực như LZ khai thác cả **thứ tự/cụm lặp** nên có thể vượt qua "entropy theo ký tự đơn" này.)
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 <details><summary>Một chuỗi chỉ gồm một ký tự lặp lại 1000 lần (vd "aaaa...a") có entropy bao nhiêu?</summary>
 
 $p_a = 1$, nên $H = -1\cdot\log_2 1 = -1\cdot 0 = 0$ bit/ký hiệu. Hoàn toàn đoán được → không cần bit nào để mô tả "ký hiệu tiếp theo là gì" (chỉ cần lưu "lặp a 1000 lần"). Đây đúng là điều RLE khai thác (mục 3).
@@ -177,7 +177,7 @@ Kết quả: `"4A3B2C"` — 6 ký tự thay vì 9. Tỉ lệ nén 9/6 = 1.5×.
 - *"RLE dùng thật ở đâu?"* — Fax (đường đen/trắng dài), ảnh BMP/TIFF, sprite game cũ, và là **bước con** trong JPEG (RLE trên hệ số DCT đã lượng tử hóa). Hiệu quả nhất với dữ liệu **nhiều vùng đồng nhất**.
 - *"Số đếm lớn hơn 9 thì sao?"* — Trong cài đặt nhị phân, count dùng 1 byte (tối đa 255). Run dài hơn 255 chia thành nhiều cặp. Trong demo text bài này ta cho phép số nhiều chữ số.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 <details><summary>RLE chuỗi "MMMMMNN" và tính tỉ lệ nén.</summary>
 
 `MMMMM` = `5M`, `NN` = `2N` → `"5M2N"`. Gốc 7 ký tự, nén 4 ký tự, tỉ lệ 7/4 = 1.75×.
@@ -346,7 +346,7 @@ Huffman ở đây **chạm gần đúng entropy** (đây là một trường h�
 - *"Nếu hòa trọng số thì chọn nút nào?"* — Bất kỳ; các cách chọn cho cây khác nhau nhưng **tổng số bit như nhau** (đều tối ưu). Để giải nén được, ta lưu kèm cây/bảng mã trong file nén.
 - *"Phải gửi kèm cây không? Có tốn không?"* — Có, phần header lưu cây/bảng tần suất tốn thêm vài chục–vài trăm byte. Với file lớn, phần này không đáng kể; với file rất nhỏ nó có thể làm "nén" lớn hơn gốc → một dạng phình.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 <details><summary>Với bảng A=45,...,F=5 ở trên, mã của ký hiệu D là gì và dài mấy bit?</summary>
 
 D nằm ở nhánh phải-phải-phải từ gốc → mã `111`, dài 3 bit. (Đi: gốc→phải=[CBFED], →phải=[FED], →phải=D.)
@@ -400,7 +400,7 @@ Bảng: `A=0, C=100, B=101, F=1100, E=1101, D=111`.
 - *"Mọi prefix-free code đều là Huffman?"* — Không. Mọi mã Huffman đều prefix-free, nhưng có vô số mã prefix-free **không tối ưu** (vd mã cố định 3 bit cũng prefix-free). Huffman là mã prefix-free có **tổng bit nhỏ nhất** với một phân bố cho trước.
 - *"Nếu bit cuối bị thiếu/lỗi thì sao?"* — Giải mã có thể lệch hẳn từ điểm đó (error propagation). Vì vậy nén thường đi kèm **phát hiện/sửa lỗi** — xem bài tiếp [Error Detection](../lesson-05-error-detection/).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 <details><summary>Giải mã chuỗi 111101 bằng bảng mục 4.2.</summary>
 
 `1,1,1` → **D**. Còn `101`. `1,0,1` → **B**. Hết → **`DB`**.
@@ -450,7 +450,7 @@ LZ78 không dùng cửa sổ; nó **xây một từ điển** các cụm đã th
 - *"Cửa sổ to thì nén tốt hơn?"* — Thường có, vì bắt được cụm lặp xa hơn, nhưng tốn bộ nhớ và chậm hơn. gzip dùng cửa sổ 32 KB; zstd/brotli dùng cửa sổ lớn hơn nhiều.
 - *"LZ có lossless không?"* — Có, hoàn toàn lossless: mọi bộ ba/chỉ số đều khôi phục đúng từng byte.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 <details><summary>Vì sao DEFLATE chạy LZ77 TRƯỚC rồi Huffman, không phải ngược lại?</summary>
 
 LZ77 thay cụm lặp bằng bộ ba offset/length → sinh ra một luồng token (literal + offset + length). Huffman sau đó gán mã ngắn cho token hay gặp. Nếu Huffman chạy trước, nó chỉ thấy ký tự đơn, bỏ lỡ cụm lặp; chạy LZ77 trước "trích" được sự lặp cấp cụm rồi Huffman tối ưu phần còn lại — hai tầng bổ sung cho nhau.

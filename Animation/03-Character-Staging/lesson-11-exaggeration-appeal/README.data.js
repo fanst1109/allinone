@@ -90,7 +90,7 @@ Cường điệu không chỉ là "vẽ tay cao hơn". Có ba trục:
 > - *"Cường điệu có phá giải phẫu không?"* → Có thể tạm phá **trong 1–2 frame nhanh** (smear, stretch) — mắt không kịp bắt lỗi. Nhưng ở **frame giữ (hold/pose)** mà khán giả nhìn lâu thì phải "đọc được", không nên vượt giới hạn khớp.
 > - *"Làm sao biết mình đẩy quá?"* → Test "đọc pose trong 0.5 giây": nếu bóng đen (silhouette) của pose vẫn rõ ý và không thấy khớp nào "trật", thì chưa quá; nếu thấy gãy/giả → lùi lại.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Pose "chỉ tay ra lệnh" có góc tay đời thực 40°, khớp vai tối đa 180°. Ở $k = 200\\%$ góc là bao nhiêu? Có gãy không?
 > 2. Một cú vẫy tay đời thực mất 8 frame. Muốn cường điệu timing gấp đôi tốc độ thì còn mấy frame?
 >
@@ -185,7 +185,7 @@ Tương phản khối giúp nhân vật **đọc rõ ngay từ silhouette** và 
 > - *"Phản diện xấu thì làm sao có appeal?"* → Appeal ≠ đẹp. Scar, Maleficent xấu/ác nhưng thiết kế **rõ ràng, thú vị, đọc ra tính cách** → appeal cao.
 > - *"Đối xứng có bao giờ tốt không?"* → Có, khi chủ ý (trang nghiêm, máy móc, đối xứng kiến trúc). Twinning chỉ là lỗi khi bạn muốn pose *sống* mà lại để nó *cứng*.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Pose có line thẳng, hai tay 30°/30°, không tương phản khối. Theo thang toy, appeal bằng bao nhiêu? Sửa một yếu tố để lên 45.
 > 2. Vì sao lính duyệt binh đứng twinning lại **không** bị coi là lỗi?
 >

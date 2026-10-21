@@ -135,7 +135,7 @@ Trong tiếng Việt, "Tin Lành" có thể chỉ:
 - Anh giáo (Anglican) — ở Anh.
 - Và nhiều phái khác phát triển sau này.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 > Luther đã làm gì tại Nghị hội Worms (1521) và tại sao điều đó quan trọng?
 
@@ -261,7 +261,7 @@ Dòng Tên có đặc điểm khác biệt với các dòng tu trung cổ trư�
 
 Các tu sĩ Dòng Tên đóng vai trò quan trọng trong việc đưa Kitô giáo vào Việt Nam từ thế kỉ XVII — và đặc biệt, Alexandre de Rhodes (1593–1660), tu sĩ Dòng Tên người Pháp, là nhân vật quan trọng trong việc phát triển và phổ biến **chữ Quốc ngữ** (hệ thống phiên âm tiếng Việt bằng chữ cái Latin) qua tác phẩm *Dictionarium Annamiticum Lusitanum et Latinum* (1651) và *Phép Giảng Tám Ngày* (1651). Chữ Quốc ngữ mà người Việt dùng ngày nay có nguồn gốc từ nỗ lực của các tu sĩ này.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 > So sánh phản ứng của Công đồng Trento với những chỉ trích của Luther: Công đồng đã đáp ứng những điểm nào, và bác bỏ những điểm nào?
 

@@ -171,7 +171,7 @@ $$f(x) = 0.02660 \\cdot \\exp\\!\\left(-\\frac{(x-100)^2}{450}\\right).$$
 
 Đỉnh **rất thấp** ($0.02660$) so với ví dụ 1 ($0.3989$) — vì diện tích phải $= 1$, nên $\\sigma = 15$ dàn diện tích ra rộng, chiều cao đỉnh giảm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Với $N(2, 3^2)$, tính $f(2)$ và $f(5)$. Kết quả $f(5)$ bằng bao nhiêu lần $f(2)$?
 
@@ -245,7 +245,7 @@ Ví dụ với IQ ở trên: tỉ lệ người có IQ $\\le 130$ là $\\Phi(2) 
 - **Quên chia cho $\\sigma$**, chỉ trừ đi $\\mu$. Sai. $Z = \\frac{X - \\mu}{\\sigma}$, không phải $X - \\mu$.
 - **Khi $\\sigma$ đo bằng đơn vị khác $(X - \\mu)$** — luôn kiểm tra đơn vị. Nếu $X$ tính cm thì $\\sigma$ cũng cm; $Z$ không đơn vị (vô thứ nguyên).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Cho $X \\sim N(50, 10^2)$. Tính $Z$ ứng với $x = 65$, $x = 30$, $x = 50$.
 
@@ -321,7 +321,7 @@ Nếu nhà máy muốn giảm phế phẩm xuống dưới 0.3%, phải mở r�
 - *"Nếu cần xác suất chính xác 95%, dùng z nào?"* → Không phải $z = 2$ mà là **$z = 1.96$**. $P(|Z| \\le 1.96) = 0.95000$. Đây là số "kinh thánh" của thống kê (95% confidence interval).
 - *"Tại sao ML hay nói $\\pm 3\\sigma$?"* → Vì 99.7% gần như "chắc chắn"; phát hiện outlier (anomaly detection) thường lấy ngưỡng $|Z| > 3$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Điểm thi $X \\sim N(70, 10^2)$. Xác suất một thí sinh ngẫu nhiên đạt:
 (a) Điểm trong $[60, 80]$?
@@ -531,7 +531,7 @@ CLT yêu cầu mean và variance hữu hạn. Một số phân phối heavy-tail
 - *"Tại sao là $\\sqrt{n}$ mà không phải $n$?"* — Vì $\\mathrm{Var}(S_n) = n\\sigma^2$ (cộng độc lập) → $\\mathrm{Var}(\\bar{X}_n) = \\sigma^2/n$ → $\\mathrm{SD}(\\bar{X}_n) = \\sigma/\\sqrt{n}$. Đó là gốc rễ của "luật $\\sqrt{n}$" — muốn giảm sai số 10 lần phải lấy 100 lần dữ liệu.
 - *"Tại sao CLT lại là Gaussian, không phải phân phối khác?"* — Vì Gaussian là **fixed point** của phép "trộn nhiều biến iid". Tổng 2 Gaussian vẫn Gaussian (sẽ thấy sau). Theorem rộng hơn: **stable distributions** — Gaussian là một trường hợp đặc biệt ($\\alpha = 2$) của họ stable.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Một cuộc thăm dò: hỏi 400 người "có dùng smartphone không?". Tỉ lệ thật trong dân số là $p = 0.7$.
 

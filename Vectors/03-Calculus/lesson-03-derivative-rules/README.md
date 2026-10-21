@@ -97,7 +97,7 @@ $$f'(x) = \frac{1}{2} \cdot 4x^3 + 7 \cdot e^x = 2x^3 + 7e^x$$
 > - $(c)' = 0$ (hằng số có đạo hàm bằng 0) chứ KHÔNG phải $c$. Vd $(7)' = 0$, không phải $7$.
 > - Đừng quên dấu trừ trước $\cos x$ khi viết $(\cos x)' = -\sin x$.
 
-> 🔁 **Tự kiểm tra**: Tính $f'(x)$ cho $f(x) = 5x^3 - 4 \sin x$.
+> 🔁 **Thực hành**: Tính $f'(x)$ cho $f(x) = 5x^3 - 4 \sin x$.
 > <details><summary>Đáp án</summary>
 > $15x^2 - 4 \cos x$.
 > </details>
@@ -208,7 +208,7 @@ Lấy $f = x^2$, $g = x^3$, vậy $f \cdot g = x^5$.
 > - *"Có thể tổng quát product rule cho 3 hàm không?"* Có: $(fgh)' = f'gh + fg'h + fgh'$. Chứng minh: nhóm $(fg) \cdot h$ rồi áp product rule hai lần.
 > - *"Sao công thức đối xứng giữa f và g mà không thay đổi gì?"* Vì phép nhân giao hoán: $f \cdot g = g \cdot f$, nên đạo hàm cũng phải đối xứng. Đó là cách kiểm tra nhanh khi quên dấu.
 
-> 🔁 **Tự kiểm tra**: Tính $(x \cdot \cos x)'$.
+> 🔁 **Thực hành**: Tính $(x \cdot \cos x)'$.
 > <details><summary>Đáp án</summary>
 > $u = x$, $v = \cos x$. $f'(x) = 1 \cdot \cos x + x \cdot (-\sin x) = \cos x - x \sin x$.
 > </details>
@@ -285,7 +285,7 @@ f'(x) &= \frac{e^x \cdot (x^2+1) - e^x \cdot 2x}{(x^2+1)^2} \\[4pt]
 > - Đảo dấu trong tử số (viết $f \cdot g' - f' \cdot g$).
 > - Mẹo nhớ: tử số $f/g$ mở rộng đẹp nhất là **đạo hàm tử nhân mẫu trước**, rồi mới trừ.
 
-> 🔁 **Tự kiểm tra**: Tính $(1/x)'$ bằng quotient rule.
+> 🔁 **Thực hành**: Tính $(1/x)'$ bằng quotient rule.
 > <details><summary>Đáp án</summary>
 > $u = 1$, $u' = 0$, $v = x$, $v' = 1$. $(1/x)' = \frac{0 \cdot x - 1 \cdot 1}{x^2} = -\frac{1}{x^2}$. Khớp với power rule mở rộng (mục 6): $(x^{-1})' = -1 \cdot x^{-2} = -\frac{1}{x^2}$. ✓
 > </details>
@@ -349,7 +349,7 @@ Số mũ không cần là số nguyên hay phân số — công thức vẫn đ�
 | $1/\sqrt{x}$              | $x^{-1/2}$      | $-\frac{1}{2 \cdot x^{3/2}}$         |
 | $x \cdot \sqrt{x} = x^{3/2}$  | $x^{3/2}$       | $\frac{3}{2}\sqrt{x}$               |
 
-> 🔁 **Tự kiểm tra**: Tính $(1/\sqrt{x})'$.
+> 🔁 **Thực hành**: Tính $(1/\sqrt{x})'$.
 > <details><summary>Đáp án</summary>
 > $(x^{-1/2})' = -\frac{1}{2} \cdot x^{-3/2} = -\frac{1}{2 \cdot x^{3/2}} = -\frac{1}{2x\sqrt{x}}$.
 > </details>
@@ -399,7 +399,7 @@ $$(\log_b x)' = \frac{1}{\ln b} \cdot (\ln x)' = \frac{1}{x \cdot \ln b}$$
 
 > ⚠ **Lỗi thường gặp**: nhầm $(\ln x)' = \frac{1}{x}$ (đúng) với $(\log_{10} x)' = \frac{1}{x}$ (SAI — phải có $\ln 10$ ở mẫu). Trong toán cao cấp và machine learning, **log mặc định = ln** (logarit tự nhiên), nên thường không thấy $\ln b$ xuất hiện. Nhưng nếu là $\log_{10}$ cụ thể thì không bỏ được hằng số.
 
-> 🔁 **Tự kiểm tra**: Đạo hàm của $3^x$ tại $x = 0$ là bao nhiêu?
+> 🔁 **Thực hành**: Đạo hàm của $3^x$ tại $x = 0$ là bao nhiêu?
 > <details><summary>Đáp án</summary>
 > $(3^x)' = 3^x \cdot \ln 3$. Tại $x=0$: $3^0 \cdot \ln 3 = \ln 3 \approx 1.0986$.
 > </details>
@@ -512,7 +512,7 @@ Hay: $(\arctan x)' = \frac{1}{1 + x^2}$.
 
 > ⚠ **Lỗi thường gặp**: nhầm dấu giữa $\arcsin$ (dương) và $\arccos$ (âm). Lý do: $\arccos x = \frac{\pi}{2} - \arcsin x$, lấy đạo hàm sẽ ra $0 - \frac{1}{\sqrt{1-x^2}} = -\frac{1}{\sqrt{1-x^2}}$.
 
-> 🔁 **Tự kiểm tra**: Tính $(\arctan x)'$ tại $x = 1$.
+> 🔁 **Thực hành**: Tính $(\arctan x)'$ tại $x = 1$.
 > <details><summary>Đáp án</summary>
 > $\frac{1}{1 + 1^2} = \frac{1}{2}$.
 > </details>

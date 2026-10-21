@@ -73,7 +73,7 @@ Sau bài này bạn sẽ:
 > - *"Trie tốn bộ nhớ không?"* — Có. Mỗi node có thể giữ một mảng/map con theo alphabet. Với alphabet 26 chữ thường, dùng \`[26]*node\` đơn giản nhưng phí ô trống; dùng \`map[byte]*node\` tiết kiệm hơn khi thưa. Xem mục 9 (cạm bẫy).
 > - *"Trie khác cây nhị phân tìm kiếm (BST) chỗ nào?"* — BST so sánh **cả khóa** ở mỗi node ($O(\\log n)$ phép so sánh chuỗi). Trie so sánh **từng ký tự** đi xuống → $O(L)$ bất kể có bao nhiêu từ, và tự nhiên hỗ trợ prefix.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với trie chứa {cat, car, card}, \`startsWith("ca")\` trả về gì? \`search("ca")\` trả về gì?
+> 🔁 **Thực hành.** Với trie chứa {cat, car, card}, \`startsWith("ca")\` trả về gì? \`search("ca")\` trả về gì?
 > <details><summary>Đáp án</summary>
 > <code>startsWith("ca")</code> = <strong>true</strong> (có node tại đường c→a, là prefix của cat/car/card). <code>search("ca")</code> = <strong>false</strong> ("ca" không phải từ đã chèn — node a không terminal).
 > </details>
@@ -298,7 +298,7 @@ Với mỗi v (cha p, cạnh ký tự c), duyệt BFS:
 
 > ⚠ **Lỗi thường gặp #2.** Quên dòng \`output[v] |= output[fail[v]]\` → bỏ sót các pattern là **suffix** của pattern khác (ví dụ không báo "he" khi gặp "she"). Đây là bug kinh điển của AC.
 
-> 🔁 **Dừng lại tự kiểm tra.** \`fail\` của node "she" (node 9) là node nào, và output của nó gồm những pattern gì?
+> 🔁 **Thực hành.** \`fail\` của node "she" (node 9) là node nào, và output của nó gồm những pattern gì?
 > <details><summary>Đáp án</summary>
 > <code>fail[9] = 2</code> (node "he"), vì suffix dài nhất của "she" là prefix của pattern là "he". <code>output[9] = {she, he}</code>.
 > </details>

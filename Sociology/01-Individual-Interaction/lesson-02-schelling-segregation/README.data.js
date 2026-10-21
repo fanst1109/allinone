@@ -76,7 +76,7 @@ Mô hình chỉ có 4 thành phần. Đơn giản đến mức có thể chơi b
 
 > ⚠ **Lỗi thường gặp thứ 2.** Nghĩ rằng ô trống hay ô không có hàng xóm nào cũng "tính". Một tác nhân **không có hàng xóm nào** (bị bao quanh toàn ô trống) được coi là **hài lòng** theo quy ước — không có ai để so sánh thì không có gì để phàn nàn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một tác nhân A có 8 hàng xóm, trong đó 3 là A, 5 là B. Với $\\tau = 0{,}40$, tác nhân này hài lòng không?
 > 2. Cũng tác nhân đó với $\\tau = 0{,}30$ thì sao?
 >
@@ -236,7 +236,7 @@ Ta đã thấy *rằng* nó xảy ra. Giờ giải thích *vì sao*, từng bư�
 
 > ⚠ **Hiểu lầm nguy hiểm về mặt chính sách.** Từ mô hình này, đừng kết luận "phân ly là tự nhiên nên đừng can thiệp". Bài học đúng là ngược lại: vì phân ly nổi lên **kể cả khi không ai kỳ thị**, nên *quan sát thấy xã hội phân ly KHÔNG chứng minh người dân kỳ thị*. Và vì cơ chế là dây chuyền quanh **ngưỡng $\\tau$ tập thể**, một can thiệp nhỏ (hạ ngưỡng cảm nhận, trộn nhẹ ở điểm bùng phát) có thể lật hệ về phía hòa nhập — đây là ý tưởng "tipping point" mà Lesson 03 khai thác.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong bước 2, vì sao việc một tác nhân *rời đi* lại có thể làm *tăng* số người không hài lòng, dù tổng số tác nhân giảm?
+> 🔁 **Ôn tập.** Trong bước 2, vì sao việc một tác nhân *rời đi* lại có thể làm *tăng* số người không hài lòng, dù tổng số tác nhân giảm?
 >
 > <details><summary>Đáp án</summary>
 >

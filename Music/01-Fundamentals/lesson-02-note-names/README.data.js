@@ -89,7 +89,7 @@ Từ đó suy ra hết:
 3. Phím trắng nằm *giữa* cụm 2 → là **D**.
 4. Phím trắng ở giữa cụm 3 (kẹp giữa 2 phím đen) → là **G** (đứng trước A, A đứng trước B).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nhìn vào bàn phím thật (hoặc viz), tìm ngay:
 > 1. Tìm C4 ("đô giữa") bằng cụm 2 phím đen.
 > 2. Phím trắng nằm ngay phải cụm 3 phím đen là gì?
@@ -205,7 +205,7 @@ Trong 7 cặp phím trắng liền kề (C–D, D–E, E–F, F–G, G–A, A–
 
 > ⚠ **Lỗi thường gặp: nghĩ mọi cặp phím trắng liền kề đều cách nhau 1 nguyên cung.** Sai! E–F và B–C chỉ cách nhau nửa cung — đây là hai "bẫy" phổ biến nhất khiến người mới bị sai khi xây gam hay hợp âm. Ví dụ phản chứng: E4 = 329.63 Hz, F4 = 349.23 Hz; hiệu tần số = 19.6 Hz ≈ 1 nửa cung; trong khi C4→D4: 261.63→293.66 Hz, hiệu = 32 Hz ≈ 2 nửa cung (gấp đôi).
 
-> 🔁 **Dừng lại tự kiểm tra.** Liệt kê tất cả các cặp phím trắng liền kề là **nửa cung** (half step) trong một octave từ C đến B.
+> 🔁 **Ôn tập.** Liệt kê tất cả các cặp phím trắng liền kề là **nửa cung** (half step) trong một octave từ C đến B.
 > <details><summary>Đáp án</summary>
 >
 > Chỉ có **2 cặp**: **E–F** và **B–C**. Tất cả các cặp phím trắng liền kề khác đều là nguyên cung (whole step).
@@ -251,7 +251,7 @@ Trong 7 cặp phím trắng liền kề (C–D, D–E, E–F, F–G, G–A, A–
 > - *"Trên nhạc cụ dây và kèn, enharmonic có thực sự cùng cao độ không?"* — Không hẳn! Trên nhạc cụ **equal temperament** (piano, gitar fret) thì C♯ = D♭ hoàn toàn. Nhưng trên nhạc cụ **just intonation** (violon kéo tự do, bè hát a cappella), C♯ và D♭ hơi khác tần số nhau (~20 cents). Bài này dùng equal temperament (12-TET).
 > - *"Tại sao lại cần enharmonic nếu âm nghe y hệt nhau?"* — Vì ký âm pháp có quy tắc: mỗi nốt trong gam phải có tên chữ cái khác nhau. Gam F# major có F# G# A# B C# D# E# — phải viết E# thay vì F để tránh trùng tên F ở đầu gam.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nốt nào là enharmonic với D♯?
+> 🔁 **Ôn tập.** Nốt nào là enharmonic với D♯?
 > <details><summary>Đáp án</summary>
 >
 > **E♭** (E giáng). D♯ = D + nửa cung lên; E♭ = E − nửa cung xuống; cả hai đều trỏ tới phím đen nằm giữa D và E.
@@ -301,7 +301,7 @@ Lưu ý: A3 và A4 ở **khác** octave dù tên chữ cái giống nhau. Ranh g
 > - *"C4 = middle C vì sao gọi là 'giữa'?"* — Vì nó nằm gần chính giữa của bàn phím piano 88 phím (phím thứ 40 từ trái), và trong khuông nhạc nó nằm trên một đường kẻ phụ ngay giữa hai khuông treble và bass — "giữa" theo cả nghĩa vật lý lẫn lý thuyết.
 > - *"Piano 88 phím đi từ đâu tới đâu?"* — A0 (27.50 Hz) đến C8 (4186 Hz). Tổng cộng 7 octave đầy đủ (A0 đến A7) cộng thêm 3 phím nữa lên đến C8.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Nốt nào là ngay trước C5 (thấp hơn một nửa cung)?
 > 2. Tên đầy đủ của nốt "A" trong octave có C4?
 >

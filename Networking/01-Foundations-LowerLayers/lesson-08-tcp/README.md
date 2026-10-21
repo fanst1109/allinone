@@ -123,7 +123,7 @@ IP (tầng mạng) chỉ "cố gắng tốt nhất" (best effort) để chuyển
 
 ⚠ **Lỗi thường gặp**: nhầm ACK number là "số byte đã nhận". ACK=600 **không** nghĩa là đã nhận 600 byte — nghĩa là đã nhận đến byte số 599, mong nhận từ byte 600. ACK là "next expected byte", không phải "total received".
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 > Sender gửi SEQ=200, chứa 300 byte. Receiver xác nhận bằng ACK bao nhiêu?
 

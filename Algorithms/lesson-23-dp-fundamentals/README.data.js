@@ -91,7 +91,7 @@ Ví dụ leo cầu thang: $\\text{cách}(n) = \\text{cách}(n-1) + \\text{cách}
 > đường dài nhất A→C có thể KHÔNG chứa đường dài nhất A→B (vì ràng buộc "không lặp đỉnh" làm các bài con
 > phụ thuộc lẫn nhau). Đây là bài NP-hard, DP thông thường bó tay. Luôn kiểm tra điều kiện trước khi áp DP.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Bài "tìm phần tử lớn nhất trong mảng" có dùng DP được không, vì sao?
 > 2. Bài "đếm số cách viết \`n\` thành tổng các số 1 và 2" — có cả hai điều kiện không?
 >
@@ -289,7 +289,7 @@ So sánh 4 cách (verify bằng \`fib(40) = 102334155\`):
 > ❓ **Câu hỏi tự nhiên.** *"Hai cách có ra cùng kết quả không?"* — Có, luôn luôn, vì cùng một recurrence và cùng base case.
 > Chỉ khác cách duyệt state. Trong thi đấu/phỏng vấn, viết cách nào bạn ít sai hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hàm \`fibMemo\` ở mục 3.2 là top-down hay bottom-up? Còn \`fibTab\`?
+> 🔁 **Thực hành.** Hàm \`fibMemo\` ở mục 3.2 là top-down hay bottom-up? Còn \`fibTab\`?
 > <details><summary>Đáp án</summary>\`fibMemo\` đệ quy + cache → top-down. \`fibTab\` lặp điền bảng từ base case → bottom-up.</details>
 
 ---
@@ -448,7 +448,7 @@ func fibMap(n int, memo map[int]int) int {
 
 Xem sâu hơn ở [Lesson 22 — Greedy vs DP](../lesson-22-greedy-vs-dp/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Binary search là D&C, Greedy hay DP?
+> 🔁 **Thực hành.** Binary search là D&C, Greedy hay DP?
 > <details><summary>Đáp án</summary>D&C: chia đôi mảng, chỉ đi 1 nửa, các bài con không chồng lấp. Không phải DP (không có overlap, không cần memo).</details>
 
 ---

@@ -65,7 +65,7 @@ Hướng: theo **quy tắc bàn tay phải** (cho điện tích dương, bàn ta
 - **Quên $\\sin(\\theta)$: $F = qvB \\cdot \\sin(\\theta)$**. Khi $\\vec{v}$ song song $\\vec{B}$ ($\\theta = 0$) → $F = 0$ (không có lực). Phản ví dụ: electron bay **dọc** đường sức từ → không bị lệch; chỉ khi bay vuông góc ($\\theta = 90^\\circ$) lực mới cực đại.
 - **Nhầm bàn tay phải/trái**: quy tắc bàn tay phải cho điện tích **dương**; với electron (âm) lực ngược lại.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một proton bay song song với đường sức từ. Lực Lorentz lên nó bằng bao nhiêu?
 2. Electron bay $v = 2 \\times 10^6 \\text{ m/s}$ vuông góc $B = 0{,}5 \\text{ T}$. Tính lực ($e = 1{,}6 \\times 10^{-19} \\text{ C}$).
@@ -125,7 +125,7 @@ $$B = \\mu_0 \\cdot n \\cdot I$$
 - **Quên $2\\pi$ trong công thức dây thẳng**: $B = \\frac{\\mu_0 I}{2\\pi \\cdot r}$, không phải $\\frac{\\mu_0 I}{r}$. Phản ví dụ: $I = 10 \\text{ A}$, $r = 0{,}1 \\text{ m}$ → $B = \\frac{4\\pi \\times 10^{-7} \\cdot 10}{2\\pi \\cdot 0{,}1} =$ **$2 \\times 10^{-5} \\text{ T}$**, không phải $\\frac{4\\pi \\times 10^{-7} \\cdot 10}{0{,}1}$.
 - **Lẫn công thức dây thẳng (có $r$) với solenoid (không có $r$)**: solenoid $B = \\mu_0 nI$ đều trong lòng, không phụ thuộc khoảng cách tới thành.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Cắt đôi một thanh nam châm — mỗi nửa có mấy cực?
 2. Solenoid 500 vòng/m, dòng $4 \\text{ A}$. Tính $B$ trong lòng ($\\mu_0 = 4\\pi \\times 10^{-7}$).
@@ -192,7 +192,7 @@ Cuộn dây $N$ vòng, diện tích $A$, quay với vận tốc góc $\\omega$ t
 - **Quên dấu Lenz** dẫn tới kết luận sai về chiều dòng cảm ứng. Phản ví dụ: đẩy cực N của nam châm lại gần cuộn → dòng cảm ứng tạo cực N ở mặt cuộn hướng về nam châm (để **đẩy ra**, chống lại), không phải hút vào.
 - **Tưởng nam châm đứng yên ($\\Phi$ lớn) sinh dòng**. Sai — chỉ khi $\\Phi$ **biến thiên**. Đó là lý do máy biến áp chỉ chạy với AC ($\\Phi$ liên tục đổi), không chạy với DC ổn định.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một nam châm để yên bên trong cuộn dây. Có dòng cảm ứng không?
 2. Cuộn 200 vòng, $A = 0{,}01 \\text{ m}^2$, $B = 0{,}2 \\text{ T}$, quay với $\\omega = 50 \\text{ rad/s}$. Tính $\\varepsilon_{max}$.

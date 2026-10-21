@@ -137,7 +137,7 @@ _, err := db.NamedExec(
 
 > ⚠ **Lỗi thường gặp.** `db.Get`/`db.Select` báo lỗi `missing destination name xxx in *User` khi **cột trả về không có field tương ứng**. Ví dụ `SELECT *` lấy cả cột `created_at` nhưng struct không có field nào tag `db:"created_at"` → lỗi. Cách sửa: hoặc thêm field, hoặc chỉ SELECT đúng cột cần. Đây là lý do **`SELECT *` nguy hiểm với struct scan**.
 
-> 🔁 **Dừng lại tự kiểm tra.** `sqlx` có viết SQL hộ bạn không?
+> 🔁 **Thực hành.** `sqlx` có viết SQL hộ bạn không?
 > <details><summary>Đáp án</summary>
 > **Không.** `sqlx` chỉ tự động hoá phần *scan kết quả vào struct* và *map named param*. SQL vẫn do bạn viết tay 100%. Đây là lý do nó được gọi là "thin wrapper" — control gần như raw, chỉ bớt boilerplate scan.
 > </details>
@@ -225,7 +225,7 @@ Bạn **không viết** hàm này — nó được sinh. Nhưng vì biết quy t
 
 > ⚠ **Lỗi thường gặp.** Sửa query nhưng **quên `sqlc generate`** → code Go cũ, không khớp SQL mới. Khắc phục: cho `sqlc generate` vào `go generate` / Makefile / CI để không quên. Đây chính là pitfall ở mục 12.
 
-> 🔁 **Dừng lại tự kiểm tra.** Từ `-- name: CountUsers :one\nSELECT COUNT(*) FROM users;` — `sqlc` sinh hàm signature gì?
+> 🔁 **Thực hành.** Từ `-- name: CountUsers :one\nSELECT COUNT(*) FROM users;` — `sqlc` sinh hàm signature gì?
 > <details><summary>Đáp án</summary>
 > `:one` + 1 cột số → `func (q *Queries) CountUsers(ctx context.Context) (int64, error)`. Không có param vì không có `$1`. Trả về `int64` vì `COUNT(*)` là số nguyên.
 > </details>
@@ -335,7 +335,7 @@ Hooks (`BeforeCreate`, `AfterUpdate`...) chạy ngầm. Tiện, nhưng lại th�
 
 > ❓ **Câu hỏi tự nhiên.** *"Làm sao thấy SQL GORM sinh ra?"* — Bật logger: `db.Logger = logger.Default.LogMode(logger.Info)`. **Luôn bật khi dev** để không bị magic dắt mũi. Đây là kỹ năng số 1 khi dùng ORM: *đọc SQL nó sinh*.
 
-> 🔁 **Dừng lại tự kiểm tra.** `db.Where("name LIKE ?", "A%").Find(&users)` sinh SQL gì?
+> 🔁 **Thực hành.** `db.Where("name LIKE ?", "A%").Find(&users)` sinh SQL gì?
 > <details><summary>Đáp án</summary>
 > `SELECT * FROM users WHERE name LIKE 'A%'` (nếu model có soft delete thì thêm `AND deleted_at IS NULL`). `Find` = nhiều row, không có `LIMIT`.
 > </details>
@@ -435,7 +435,7 @@ for _, u := range users {
 
 > ❓ **Câu hỏi tự nhiên.** *"Vậy luôn Preload mọi thứ cho chắc?"* — Không. Preload nạp **tất cả** dữ liệu liên quan kể cả không dùng → lãng phí RAM/băng thông (over-fetch). Quy tắc: chỉ Preload cái bạn **chắc chắn** dùng trong vòng đó. Cân bằng giữa N+1 (under-fetch nhiều round-trip) và over-fetch.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lấy 50 user kèm post, không Preload thì bao nhiêu query? Có Preload?
+> 🔁 **Thực hành.** Lấy 50 user kèm post, không Preload thì bao nhiêu query? Có Preload?
 > <details><summary>Đáp án</summary>
 > Không Preload: **51** query (1 + 50). Có Preload: **2** query (1 lấy user + 1 lấy post `WHERE user_id IN (...50 id...)`). Đây là khác biệt 51 → 2 — lý do N+1 nguy hiểm khi N lớn.
 > </details>

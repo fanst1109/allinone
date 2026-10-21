@@ -47,7 +47,7 @@ Hai nguồn gốc của sai số:
 > - *"Vậy ước lượng vô ích à?"* — Không. Mục tiêu không phải đúng tuyệt đối, mà là **đủ tốt để lập kế hoạch và phát hiện sớm khi lệch**. Một ước lượng có phương pháp + theo dõi velocity tốt hơn nhiều so với "đoán đại".
 > - *"Sao không cứ ước thật rộng cho an toàn?"* — Ước quá rộng cũng có giá: công việc giãn nở lấp đầy thời gian cho phép (định luật Parkinson), và cam kết lỏng lẻo khiến không ai tin con số. Ta cần ước *trung thực*, không phải *bi quan*.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao ước lượng việc lái xe đi làm dễ hơn nhiều so với ước lượng một tính năng phần mềm?
+> 🔁 **Thực hành.** Vì sao ước lượng việc lái xe đi làm dễ hơn nhiều so với ước lượng một tính năng phần mềm?
 > <details><summary>Đáp án</summary>Vì lái xe là việc <b>đã lặp lại hàng trăm lần</b> với dữ liệu thật → sai số nhỏ. Tính năng phần mềm gần như luôn là việc <b>chưa từng làm y hệt</b> (nếu giống hệt thì đã copy lại), cộng <b>thiên lệch lạc quan</b> khiến ta bỏ quên thời gian cho lỗi, họp, review. Bất định cao + thiên lệch có hệ thống = ước lượng khó.</details>
 
 📝 **Tóm tắt mục 1.** Ước lượng phần mềm khó vì (1) mỗi việc đáng làm gần như luôn mới → bất định cao, và (2) **planning fallacy** khiến ta lệch *có hệ thống* về phía ngắn. Mục tiêu không phải đúng tuyệt đối mà là đủ tốt để lập kế hoạch và phát hiện lệch sớm.
@@ -90,7 +90,7 @@ Lưu ý: ta *không* nói "OAuth tốn 16 giờ". Ta nói "OAuth lớn cỡ gấ
 > - *"Point của đội này so được với đội kia không?"* — Không. 8 point của đội A và đội B là hai thước đo khác nhau (như hai cây thước chia vạch khác nhau). Đừng dùng point để so sánh năng suất giữa các đội.
 > - *"Tại sao gộp cả công sức lẫn bất định vào một số?"* — Vì cái khiến việc "lâu" thường chính là *bất định* (phải dò, phải sửa). Một việc ít code nhưng nhiều ẩn số vẫn nên point cao.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đội đặt mốc 2 point = "thêm một trường form đơn giản". Có task "viết lại toàn bộ module thanh toán, đụng 12 file, tích hợp cổng mới". Nên gán mấy point?
+> 🔁 **Thực hành.** Đội đặt mốc 2 point = "thêm một trường form đơn giản". Có task "viết lại toàn bộ module thanh toán, đụng 12 file, tích hợp cổng mới". Nên gán mấy point?
 > <details><summary>Đáp án</summary>Đây là việc <b>quá lớn và nhiều ẩn số</b> — gán 13 (hoặc 21) chủ yếu là tín hiệu "<b>to quá, phải chẻ nhỏ</b>" chứ không phải con số đáng tin. Nên tách thành các story con (vd: "tích hợp cổng — sandbox", "di trú dữ liệu cũ", "xử lý hoàn tiền"...) rồi ước riêng từng cái. Story càng to, sai số ước lượng càng lớn — Fibonacci nhắc ta điều đó bằng khoảng cách giãn dần.</details>
 
 📝 **Tóm tắt mục 2.** Story point đo **độ lớn tương đối** (công sức + phức tạp + bất định), không phải giờ. Tương đối ổn định hơn tuyệt đối vì não ước so sánh giỏi hơn ước con số. Dãy **Fibonacci** giãn dần phản ánh việc càng to thì ước càng kém chính xác — buộc chẻ nhỏ thay vì giả vờ chính xác.
@@ -128,7 +128,7 @@ Lưu ý: ta *không* nói "OAuth tốn 16 giờ". Ta nói "OAuth lớn cỡ gấ
 > - *"Mất thời gian họp poker có đáng không?"* — Đáng cho story còn mơ hồ: việc lộ giả định sai sớm rẻ hơn nhiều việc làm hụt rồi sửa. Story rõ ràng/nhỏ có thể chốt nhanh, không cần đủ vòng.
 > - *"Nếu mãi không hội tụ?"* — Thường là dấu hiệu story chưa đủ rõ hoặc quá to → tách nhỏ hoặc làm rõ yêu cầu trước ([Lesson 03](../lesson-03-requirements-spec/)).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao mọi người chọn thẻ *đồng thời và giấu kín* thay vì lần lượt nói số?
+> 🔁 **Thực hành.** Vì sao mọi người chọn thẻ *đồng thời và giấu kín* thay vì lần lượt nói số?
 > <details><summary>Đáp án</summary>Để chống <b>mỏ neo (anchoring)</b>: nếu nói lần lượt, con số đầu tiên (nhất là từ người senior/sếp) sẽ neo giữ suy nghĩ cả nhóm, mọi người gật theo. Chọn đồng thời giữ cho mỗi đánh giá <b>độc lập</b> → sự lệch giữa các con số mới lộ ra, và chính sự lệch đó kéo ra thông tin/giả định mà từng người chưa biết.</details>
 
 📝 **Tóm tắt mục 3.** Planning Poker = chọn thẻ Fibonacci **đồng thời, giấu kín**, lật cùng lúc, ai cao/thấp nhất giải thích, lặp tới hội tụ. Mục tiêu cốt lõi: chống **mỏ neo** và **gộp thông tin** giữa người biết nhiều/ít về việc, không phải lấy trung bình.
@@ -171,7 +171,7 @@ Nếu mỗi sprint dài 2 tuần → còn **~8 tuần**. Verify: 4 sprint × 20 
 > - *"Đội mới chưa có lịch sử thì lấy velocity đâu?"* — Vài sprint đầu cứ ước & cam kết thận trọng; sau 3 sprint đã có dữ liệu thật để hiệu chỉnh. Velocity là thứ *học được theo thời gian*.
 > - *"Backlog thêm việc mới giữa chừng thì sao?"* — Dự báo phải tính lại: cộng point mới vào tử số. Đây là lý do dự báo cần cập nhật mỗi sprint, không phải đặt một lần.
 
-> 🔁 **Dừng lại tự kiểm tra.** Velocity 3 sprint: 15, 25, 20. Backlog còn 90 point. Dự báo (khoảng) còn mấy sprint?
+> 🔁 **Thực hành.** Velocity 3 sprint: 15, 25, 20. Backlog còn 90 point. Dự báo (khoảng) còn mấy sprint?
 > <details><summary>Đáp án</summary>Trung bình = (15+25+20)/3 = 60/3 = <b>20 point/sprint</b> → 90/20 = <b>4.5 → 5 sprint</b> (kế hoạch trung tâm). Khoảng: bi quan 90/15 = 6 sprint; lạc quan 90/25 = 3.6 → 4 sprint. Báo cáo: <b>"khoảng 4-6 sprint"</b>. Lưu ý sprint thứ nhất chỉ 15 — nếu đó là sprint khởi động bất thường, có thể loại khỏi trung bình; nếu là dao động bình thường thì giữ.</details>
 
 📝 **Tóm tắt mục 4.** Velocity = point **done** mỗi sprint (thực tế, không phải mục tiêu). Dự báo: `số sprint = backlog / velocity_trung_bình`. Luôn báo cáo bằng **khoảng** (dùng velocity thấp nhất–cao nhất) và **cập nhật mỗi sprint**, không hứa một con số cứng.
@@ -218,7 +218,7 @@ Burndown/burnup là *biểu đồ tổng*; còn việc *từng thẻ đang ở �
 > - *"Burndown đẹp có nghĩa chất lượng tốt?"* — Không. Burndown chỉ đo *point đã đốt*, không đo chất lượng. Một đội cắt test để "done" nhanh vẫn có burndown đẹp nhưng đang tích nợ (xem mục 6).
 > - *"Board và burndown chọn cái nào?"* — Cả hai, chúng trả lời câu hỏi khác nhau: board = "việc *này* ở đâu?", burndown = "cả sprint có kịp không?".
 
-> 🔁 **Dừng lại tự kiểm tra.** Burndown của một sprint nằm *trên* đường lý tưởng suốt 7/10 ngày rồi tụt thẳng đứng về 0 đúng ngày cuối. Khả năng cao đã xảy ra chuyện gì?
+> 🔁 **Thực hành.** Burndown của một sprint nằm *trên* đường lý tưởng suốt 7/10 ngày rồi tụt thẳng đứng về 0 đúng ngày cuối. Khả năng cao đã xảy ra chuyện gì?
 > <details><summary>Đáp án</summary>Nhiều story bị giữ ở trạng thái "gần xong" rồi <b>đồng loạt đánh dấu done vào ngày cuối</b> — thường vì story quá to (không đốt được dần) hoặc đội dồn việc cuối sprint, có thể kèm cắt test/review để kịp. Burndown "phẳng rồi rơi" là cảnh báo: nên chẻ story nhỏ hơn để tiến độ phản ánh trung thực mỗi ngày, và kiểm tra xem "done" có thật là done (đã test + review) không.</details>
 
 📝 **Tóm tắt mục 5.** **Burndown** = point còn lại theo thời gian (trên đường lý tưởng = chậm; phẳng = kẹt). **Burnup** thêm đường scope nên phân biệt được "chậm" với "bị thêm việc". **Board** cho trạng thái từng việc; **backlog** là nguồn dự báo. Đọc *mỗi ngày* để can thiệp sớm, không phải để khám nghiệm cuối sprint.
@@ -255,7 +255,7 @@ Trực giác sai: dự án trễ → thuê thêm người → xong nhanh hơn. T
 
 > ❓ **Câu hỏi tự nhiên của người đọc.** *"Vậy không bao giờ được thêm người à?"* — Có lúc nên, nhưng phải **sớm** (đầu dự án, còn thời gian ramp-up) và tính tới chi phí giao tiếp; thêm người vào *cuối* dự án trễ mới là cái bẫy Brooks cảnh báo.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dự án còn 1 tuần thì trễ rõ. Sếp đề xuất (a) thêm 4 dev mới, (b) cắt test để kịp, (c) cắt 2 tính năng ít quan trọng giao sau. Chọn gì, vì sao?
+> 🔁 **Thực hành.** Dự án còn 1 tuần thì trễ rõ. Sếp đề xuất (a) thêm 4 dev mới, (b) cắt test để kịp, (c) cắt 2 tính năng ít quan trọng giao sau. Chọn gì, vì sao?
 > <details><summary>Đáp án</summary><b>(c) cắt scope</b>. (a) vướng <b>định luật Brooks</b> — 1 tuần không đủ để người mới ramp-up, lại kéo người cũ đi kèm → trễ thêm. (b) cắt test đẩy lỗi về production, đắt gấp bội (<b>đường cong chi phí</b>) và hạ uy tín. (c) giao ít tính năng hơn nhưng <b>đúng hạn và đủ chất lượng</b> phần đã giao, phần còn lại đưa sang sprint sau — bảo toàn cả tiến độ lẫn chất lượng.</details>
 
 📝 **Tóm tắt mục 6.** Ba bẫy kinh điển: **cắt test** (đẩy lỗi về production, đắt hơn — nối đường cong chi phí L01); **Hofstadter** (luôn lâu hơn tưởng, kể cả khi đã đề phòng → tin velocity hơn tin buffer); **Brooks** (thêm người vào dự án trễ làm nó trễ hơn do ramp-up + giao tiếp $\frac{n(n-1)}{2}$). Khi trễ, **cắt scope** thường là lựa chọn lành mạnh nhất.

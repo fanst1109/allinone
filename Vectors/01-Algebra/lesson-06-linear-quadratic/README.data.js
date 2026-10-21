@@ -202,7 +202,7 @@ Cách hình dung "không cần trig": xoay đường $y = 2x$ đi $90°$ quanh g
 
 > Lưu ý ngoại lệ: nếu một đường nằm ngang ($a = 0$) thì đường vuông góc với nó là đường đứng (slope không tồn tại) — quy tắc tích = -1 không áp dụng cho trường hợp suy biến này.
 
-### 🔁 Dừng lại tự kiểm tra (A.2)
+### 🔁 Thực hành (A.2)
 
 Trước khi đi tiếp, tự trả lời:
 
@@ -434,7 +434,7 @@ Tổng sai lệch dương $\\approx 0.16$, tổng sai lệch âm $\\approx -0.17
 
 > **Liên hệ:** Hệ $(*)$ và $(**)$ chính là 2 phương trình bậc 1 với 2 ẩn — kỹ thuật giải hệ phương trình sẽ được học chi tiết ở [Lesson 08 — Hệ phương trình tuyến tính](../lesson-08-linear-systems/). Linear regression bản chất chỉ là "giải hệ phương trình tuyến tính bằng cách lấy đạo hàm MSE".
 
-### 🔁 Dừng lại tự kiểm tra (Linear regression)
+### 🔁 Thực hành (Linear regression)
 
 1. Vì sao ta bình phương sai lệch thay vì lấy trị tuyệt đối? *(Đáp: bình phương cho hàm trơn, lấy đạo hàm dễ, và phạt nặng sai lớn.)*
 2. Với 3 điểm trên, nếu thử $(a, b) = (2, 0)$ thay vì $(1.75, 0.17)$, MSE có lớn hơn không? *(Đáp: có. Tính thử $L(2,0) = ((2-2)^2 + (3.5-4)^2 + (5.5-6)^2)/3 = (0 + 0.25 + 0.25)/3 \\approx 0.167$, trong khi $L(1.75, 0.17) \\approx (0.08^2 + 0.17^2 + 0.08^2)/3 \\approx 0.013$ — nhỏ hơn nhiều.)*
@@ -924,7 +924,7 @@ Lỗi thường gặp: thấy $y = -2x^2 + 4x - 1$ nhưng vẫn vẽ "thung lũn
 
 **4. Quên dấu khi tính $-b$.** Vd $b = -5 \\to -b = 5$, không phải $-(-5) = -5$. Lỗi này hay xảy ra khi tính $x_v = -b/(2a)$.
 
-### 🔁 Dừng lại tự kiểm tra (B.5)
+### 🔁 Thực hành (B.5)
 
 1. $2x^2 + 3x - 2 = 0$: Δ bằng bao nhiêu? *(Đáp: $9 + 16 = 25 > 0 \\to$ 2 nghiệm)*
 2. Parabol $y = -x^2 + 2x - 5$ mở lên hay xuống? Có cắt Ox không? *(Đáp: mở **xuống** vì $a = -1 < 0$. $\\Delta = 4 - 20 = -16 < 0 \\to$ không cắt Ox. Parabol nằm hoàn toàn dưới Ox.)*
@@ -1102,7 +1102,7 @@ Kiểm tra: $x_v = -4/(2 \\cdot (-1)) = -4/-2 = 2$ ✓. $f(2) = -4 + 8 + 1 = 5$ 
 > 3. Gom $(x + k)^2$, phân phối $a$ ngược ra, cộng hằng số cũ.
 > 4. Đọc đỉnh $(h, k_v) = (-k, \\ldots)$ từ dạng cuối.
 
-### 🔁 Dừng lại tự kiểm tra (B.8)
+### 🔁 Thực hành (B.8)
 
 1. Đưa $y = x^2 + 10x + 21$ về dạng đỉnh. *(Đáp: $(x + 5)^2 - 4$. Đỉnh $(-5, -4)$.)*
 2. Đưa $y = 3x^2 - 6x + 1$ về dạng đỉnh. *(Đáp: $3(x - 1)^2 - 2$. Đỉnh $(1, -2)$.)*

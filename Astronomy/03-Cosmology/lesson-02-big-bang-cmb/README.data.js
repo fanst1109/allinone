@@ -51,7 +51,7 @@ Sau bài này bạn sẽ:
 > - *"Tái kết hợp" nghĩa là gì — trước đó electron và hạt nhân chưa từng "kết hợp" cơ mà?* — Tên gọi lịch sử hơi gây nhầm. Trước mốc này vũ trụ là **plasma** nóng: electron bay tự do, va vào photon liên tục nên ánh sáng không đi xa được (vũ trụ "mờ đục"). Khi nguội xuống ~3000 K, electron bị hạt nhân giữ lại thành nguyên tử trung hòa → photon hết bị tán xạ → vũ trụ **trong suốt**, ánh sáng bay tự do tới nay.
 > - *"Vì sao trước tái kết hợp vũ trụ mờ đục?"* — Vì electron tự do tán xạ photon rất mạnh (như sương mù tán xạ ánh đèn pha). Hết electron tự do thì hết sương mù.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao ta **không thể** quan sát trực tiếp vũ trụ ở thời điểm trước tái kết hợp bằng ánh sáng?
+> 🔁 **Thực hành.** Vì sao ta **không thể** quan sát trực tiếp vũ trụ ở thời điểm trước tái kết hợp bằng ánh sáng?
 > <details><summary>Đáp án</summary>Vì trước tái kết hợp vũ trụ mờ đục (plasma tán xạ photon). Ánh sáng không thoát ra được. CMB chính là "bức tường" xa nhất ta thấy được bằng ánh sáng — gọi là *mặt tán xạ cuối (last scattering surface)*. Muốn nhìn xa hơn phải dùng neutrino hoặc sóng hấp dẫn.</details>
 
 ---
@@ -97,7 +97,7 @@ Arno Penzias và Robert Wilson (Bell Labs) đo anten vi sóng và mãi không lo
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao một tiếng ù tình cờ lại quan trọng đến thế?"* — Vì nó là **dự đoán được kiểm chứng**: Big Bang *tiên đoán* nền nhiệt vài Kelvin từ trước; mô hình vũ trụ tĩnh (steady state) thì không. Đo được đúng nền đó → ủng hộ mạnh Big Bang, loại bỏ đối thủ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu vũ trụ tương lai giãn thêm gấp đôi nữa, nhiệt độ CMB sẽ thành bao nhiêu?
+> 🔁 **Thực hành.** Nếu vũ trụ tương lai giãn thêm gấp đôi nữa, nhiệt độ CMB sẽ thành bao nhiêu?
 > <details><summary>Đáp án</summary>Giãn gấp đôi ⇒ bước sóng dài gấp đôi ⇒ nhiệt độ giảm một nửa: $2{,}725 / 2 \\approx 1{,}36 \\ \\text{K}$. CMB sẽ ngày càng lạnh khi vũ trụ giãn.</details>
 
 ---

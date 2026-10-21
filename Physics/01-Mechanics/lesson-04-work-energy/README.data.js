@@ -80,7 +80,7 @@ trong đó:
 - *"Công âm nghĩa là gì?"* Nghĩa là lực **lấy năng lượng ra** khỏi vật thay vì cho vào. Ma sát làm công âm → biến động năng thành nhiệt. Trọng lực làm công âm khi vật đi lên (lấy động năng, tích thành thế năng).
 - *"Joule lớn hay nhỏ?"* 1 J khá nhỏ: nâng quả táo 100 g lên 1 m tốn ~1 J. Một thanh sô-cô-la chứa $\\sim 10^6$ J (1 MJ). Đun sôi 1 lít nước $\\sim 3\\times 10^5$ J.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đẩy hộp 40 N đi 6 m theo đúng chiều lực. Công bằng bao nhiêu?
 2. Kéo xe bằng dây nghiêng 60° so với mặt đất, $F = 50$ N, đi 10 m. Công bằng bao nhiêu? ($\\cos 60^\\circ = 0{,}5$)
@@ -148,7 +148,7 @@ Vế trái = công $W$. Vế phải = thay đổi của "đại lượng" $\\fra
 - *"KE và động lượng khác nhau thế nào — đều liên quan m và v mà?"* $KE = \\frac{1}{2}mv^2$ (scalar, $\\propto v^2$) đo "năng lượng/khả năng sinh công"; động lượng $p = mv$ (vector, $\\propto v$) đo "đà/khả năng đẩy". Trong va chạm, $p$ luôn bảo toàn còn KE có thể mất (Lesson 05).
 - *"Định lý động năng-công dùng để làm gì?"* Tính nhanh vận tốc/quãng đường mà không cần biết thời gian: tổng công = thay đổi KE. Vd biết lực và quãng đường $\\to$ ra vận tốc cuối ngay.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ô tô 1200 kg chạy 10 m/s. Động năng? Nếu tăng lên 30 m/s thì KE gấp mấy lần?
 2. Hợp lực 100 N tác dụng lên vật 5 kg (ban đầu đứng yên) trong quãng đường 4 m. Vận tốc cuối? (dùng định lý KE-công)
@@ -209,7 +209,7 @@ $$PE_{đh} = \\frac{1}{2} \\cdot k \\cdot x^2$$
 - *"PE có thể âm không?"* Có, nếu chọn gốc cao hơn vị trí vật. Vd chọn gốc tại mặt bàn, vật dưới sàn (thấp hơn) có $h < 0 \\to PE < 0$. Điều này hợp lệ vì chỉ $\\Delta PE$ quan trọng.
 - *"Vì sao PE đàn hồi là $\\frac{1}{2}kx^2$ mà không phải $kx\\cdot x$?"* Vì khi nén lò xo, lực tăng dần từ 0 đến $kx$ (không phải hằng). Công = lực **trung bình** × quãng đường $= (\\frac{1}{2}kx)\\cdot x = \\frac{1}{2}kx^2$. Hệ số $\\frac{1}{2}$ đến từ việc lấy trung bình lực tăng tuyến tính.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Nâng vật 3 kg lên cao 2 m. Thế năng hấp dẫn tăng bao nhiêu? ($g=9{,}8$)
 2. Lò xo $k = 400$ N/m nén 0,05 m. Thế năng đàn hồi?
@@ -277,7 +277,7 @@ trong đó $Q = |W_{\\text{ma sát}}| = f_k \\times d$.
 - *"Vì sao bảo toàn năng lượng giúp giải bài nhanh hơn dùng $F = m\\cdot a$?"* Vì nó chỉ cần biết **trạng thái đầu và cuối**, bỏ qua chi tiết đường đi và thời gian. Con lắc, vật trượt dốc cong... khó tính lực từng điểm nhưng bảo toàn năng lượng cho $v$ cuối ngay.
 - *"Con lắc dao động mãi không nếu bảo toàn năng lượng?"* Lý tưởng (không ma sát, không cản) thì có. Thực tế có ma sát ở trục + cản không khí → mỗi chu kỳ mất chút năng lượng thành nhiệt → biên độ giảm dần → cuối cùng dừng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật thả rơi từ độ cao 5 m (không cản). Tốc độ chạm đất? (dùng bảo toàn, $g=9{,}8$)
 2. Xe trượt máng không ma sát từ độ cao 2 m. Nếu có ma sát làm mất 30 J và xe nặng 4 kg, tốc độ ở đáy giảm hay tăng so với không ma sát?
@@ -340,7 +340,7 @@ Một thang máy nâng vật 500 kg lên 20 m trong 10 giây. Tính công suất
 - *"kWh là gì — sao đo điện lại bằng đơn vị này?"* kWh = kilowatt-giờ = năng lượng tiêu thụ khi dùng 1 kW trong 1 giờ $= 1000\\ \\text{W} \\times 3600\\ \\text{s} = 3{,}6\\times 10^6$ J. Nó là **năng lượng** (J), tiện hơn J vì hóa đơn điện tính theo năng lượng dùng.
 - *"$P = F\\cdot v$ nghĩa là gì trực giác?"* Công suất = lực × vận tốc. Xe chạy nhanh ($v$ lớn) cần công suất lớn để duy trì cùng lực kéo. Đó là vì sao xe tăng tốc ở tốc độ cao "đuối" hơn — cùng công suất, $v$ lớn thì lực còn lại nhỏ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một động cơ làm 6000 J công trong 3 giây. Công suất bằng bao nhiêu W? Đổi ra HP.
 2. Xe kéo với lực 2000 N chạy đều 15 m/s. Công suất động cơ?

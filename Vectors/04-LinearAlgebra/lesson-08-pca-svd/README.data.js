@@ -122,7 +122,7 @@ Ví dụ phản chứng: vẽ 5 điểm trên, chiếu xuống đường $y = -x
 
 Vì hai trục **không** vuông góc → có phần trùng nhau → thông tin lặp. Mục tiêu là chọn k trục **độc lập tuyến tính** (xem [Lesson 04](../lesson-04-linear-independence/)) — cách mạnh hơn nữa là chọn k trục **trực giao** (orthogonal), khi đó các thành phần chiếu **không tương quan** với nhau, mỗi PC "chứa thông tin độc lập".
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Cho 5 điểm trên trục đứng: $(0, 1), (0, 2), (0, 3), (0, 4), (0, 5)$. PC1 là hướng nào? PC2 là hướng nào?
 >
@@ -367,7 +367,7 @@ Tỷ lệ giữ lại: $4/4 = 100\\%$. Vì dataset này nằm hoàn toàn trên 
 > 2. Khi 2 feature tương quan hoàn hảo, PCA "phát hiện" được — chỉ cần 1 PC, vứt PC2 đi mà không mất gì.
 > 3. PC1 $\\approx (0.7071, 0.7071)$ = vector đơn vị theo hướng $(1, 1)$ — đúng với trực giác "đường $y = x$".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Cho 4 điểm: $(1, 0), (0, 1), (-1, 0), (0, -1)$. Tính tay PC1 và $\\lambda_1$.
 

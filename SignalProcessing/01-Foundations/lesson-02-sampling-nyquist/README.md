@@ -89,7 +89,7 @@ Cho sóng $x(t) = \sin(2\pi \cdot 50 \cdot t)$ (tần số $50$ Hz), lấy mẫu
 > - *"Lấy mẫu có làm mất tín hiệu giữa hai mẫu không?"* — Đúng là ta **không lưu** giá trị giữa hai mẫu. Nhưng định lý Nyquist (§3) bảo: nếu lấy mẫu đủ nhanh, các giá trị ở giữa được **suy ra duy nhất** từ các mẫu — không mất mát.
 > - *"$f_s$ càng cao càng tốt?"* — Tốt cho chất lượng nhưng tốn bộ nhớ/băng thông tuyến tính theo $f_s$. Ta muốn $f_s$ **vừa đủ**, không thừa.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. $f_s = 16\,000$ Hz thì $T_s = ?$
 2. Một clip 10 s lấy mẫu ở $44\,100$ Hz, mono, có bao nhiêu mẫu?
 
@@ -143,7 +143,7 @@ $$f_{\text{Nyq}} = \frac{f_s}{2}$$
 > - *"'Giới hạn băng tần' nghĩa là gì?"* — Là tín hiệu **không có** thành phần tần số nào vượt $f_{\max}$. Tín hiệu đời thực hiếm khi giới hạn băng tần hoàn hảo → phải **lọc bỏ** phần trên $f_s/2$ trước khi lấy mẫu (bộ lọc chống alias, §7).
 > - *"Vì sao 2 lần mà không phải 3 hay 1.5?"* — Một sóng sin có 2 tham số tự do (biên độ + pha) cho mỗi tần số; cần $\geq 2$ mẫu/chu kỳ để khóa cả hai. Toán học chính xác nằm trong chứng minh Shannon dựa trên phổ tuần hoàn hóa.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Tín hiệu có $f_{\max} = 3\,400$ Hz cần $f_s$ tối thiểu (lý thuyết) bao nhiêu?
 2. $f_s = 48$ kHz thì tần số Nyquist là bao nhiêu? Tín hiệu $25$ kHz có an toàn không?
 
@@ -213,7 +213,7 @@ Phim quay $f_s = 24$ khung/giây. Một bánh xe có nan, quay sao cho mỗi khu
 > - *"Tần số alias có thể bằng 0 không?"* — Có. Sóng đúng $f = f_s$ (vd 1000 Hz lấy mẫu 1000 Hz) → mỗi mẫu rơi đúng cùng pha → dãy mẫu là hằng số → alias $= 0$ Hz (DC). Đây là "bánh xe đứng yên".
 > - *"Vì sao nghe ra nốt khác chứ không phải nhiễu?"* — Vì alias là một tần số **xác định**, không ngẫu nhiên. Nó là một nốt sai, gây méo tiếng rõ rệt (vd tiếng "leng keng" lạ ở nhạc số kém chất lượng).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Sóng $1200$ Hz lấy mẫu $1000$ Hz → alias bao nhiêu?
 2. Sóng $700$ Hz lấy mẫu $1000$ Hz → alias bao nhiêu? An toàn không?
 
@@ -276,7 +276,7 @@ Quy tắc nhớ nhanh: **mỗi bit thêm vào ≈ +6 dB SNR** (vì thêm 1 bit g
 > - *"Thêm bit mãi có hết nhiễu không?"* — Về lý thuyết SNR tăng tuyến tính (+6 dB/bit), nhưng tới lúc nhiễu lượng tử thấp hơn nhiễu nhiệt của mạch thật thì thêm bit vô ích. Đó là lý do 24-bit là gần như trần thực dụng.
 > - *"+1.76 dB ở đâu ra?"* — Từ giả định nhiễu phân bố đều và là sóng sin đầy thang; nó là hằng số hiệu chỉnh. Khi ước lượng nhanh, nhiều người bỏ qua, dùng gọn $\text{SNR} \approx 6N$ dB.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. ADC 10-bit có bao nhiêu mức? SNR xấp xỉ?
 2. Tăng từ 12-bit lên 16-bit thì SNR tăng thêm khoảng bao nhiêu dB?
 

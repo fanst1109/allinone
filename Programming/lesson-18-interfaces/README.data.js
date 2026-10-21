@@ -129,7 +129,7 @@ type Bird interface { Fly() }
 var b Bird = Dog{}     // Lỗi: Dog does not implement Bird (missing Fly method)
 \`\`\`
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > Đoạn code này có biên dịch được không?
 > \`\`\`go
 > type Greeter interface { Greet() string }

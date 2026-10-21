@@ -193,7 +193,7 @@ $$\\text{Net income} = \\text{EBT} - \\text{Thuế}$$
 > - *"COGS và chi phí hoạt động khác nhau chỗ nào?"* → COGS gắn **trực tiếp** với hàng đã bán (hết hàng thì hết COGS tương ứng). Chi phí hoạt động là chi phí bộ máy, phát sinh gần như cố định dù bán nhiều hay ít.
 > - *"Lợi nhuận ròng có phải là tiền mặt tăng thêm không?"* → **Không.** Xem mục 4.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Doanh thu 900, COGS 500, chi phí hoạt động 200, lãi vay 40, thuế suất 20%.
 > 1. Lợi nhuận gộp?
 > 2. EBIT?
@@ -245,7 +245,7 @@ Walk-through hàng #1: biên gộp $= 400/1000 = 0{,}40 = 40\\%$; biên hoạt �
 > - *"Biên ròng cao luôn tốt hơn?"* → Không hẳn. Siêu thị có biên ròng 2% nhưng vòng quay lớn; phần mềm có biên 30% nhưng quy mô nhỏ. Biên chỉ có nghĩa khi so trong **cùng ngành**.
 > - *"Có thể biên hoạt động > biên gộp không?"* → Không, khi chi phí hoạt động ≥ 0. EBIT = gộp − chi phí hoạt động ≤ gộp, nên chia cùng doanh thu thì biên hoạt động ≤ biên gộp.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Doanh thu 1.500, gộp 600, EBIT 300, net 210. Tính 3 biên.
 >
 > <details><summary>Đáp án</summary>
@@ -319,7 +319,7 @@ $$
 
 Đọc ra ý nghĩa: mỗi 100 đồng bán ra, công ty giữ 40 đồng sau giá vốn, 15 đồng sau khi nuôi bộ máy, và 9,6 đồng cuối cùng về tay chủ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu thuế suất tăng lên 25% (các số khác giữ nguyên), lợi nhuận ròng và biên ròng mới là bao nhiêu?
+> 🔁 **Thực hành.** Nếu thuế suất tăng lên 25% (các số khác giữ nguyên), lợi nhuận ròng và biên ròng mới là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
 >

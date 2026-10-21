@@ -40,7 +40,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng mạng vũ trụ là cấu trúc "phẳng" như mạng nhện 2D. Thực ra nó **3 chiều**: filament là ống/dây trong không gian, void là bong bóng. Bản đồ 2D ta hay thấy chỉ là một "lát cắt mỏng" của khối 3D.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sắp xếp theo thứ tự kích thước tăng dần: void, thiên hà, đám thiên hà, siêu đám.
+> 🔁 **Thực hành.** Sắp xếp theo thứ tự kích thước tăng dần: void, thiên hà, đám thiên hà, siêu đám.
 > <details><summary>Đáp án</summary>thiên hà (~0.03 Mpc) < đám thiên hà (~5 Mpc) < siêu đám (~160 Mpc) ≈ void (~30–300 Mpc, cùng cỡ siêu đám). Void và siêu đám là hai mặt của cùng một mạng — nơi này dày thì nơi kia rỗng.</details>
 
 ---
@@ -81,7 +81,7 @@ d &= \frac{v}{H_0} = \frac{30\,000}{70} \approx 428 \ \text{Mpc}
 
 > ⚠ **Lỗi thường gặp.** Coi $d = v/H_0$ là "khoảng cách hiện tại chính xác". Đây là **toy estimate** tốt cho trực giác và $z$ nhỏ; vũ trụ học thật phân biệt nhiều loại khoảng cách. Đừng dùng nó để báo cáo số liệu chính xác ở $z$ lớn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Thiên hà A có $z = 0{,}02$, thiên hà B có $z = 0{,}06$. Ai xa hơn, gấp mấy lần (xấp xỉ)?
+> 🔁 **Thực hành.** Thiên hà A có $z = 0{,}02$, thiên hà B có $z = 0{,}06$. Ai xa hơn, gấp mấy lần (xấp xỉ)?
 > <details><summary>Đáp án</summary>B xa hơn. Vì $d \propto z$ (qua $v = c\,z$, $d = v/H_0$), tỉ lệ khoảng cách $\approx 0{,}06/0{,}02 = 3$ lần.</details>
 
 ---
@@ -113,7 +113,7 @@ d &= \frac{v}{H_0} = \frac{30\,000}{70} \approx 428 \ \text{Mpc}
 
 > ⚠ **Lỗi thường gặp.** Nghĩ thiên hà "bay vào nhau" để tạo đám. Phần lớn là **vật chất rơi vào hố thế hấp dẫn** đã có sẵn (do vật chất tối), chứ không phải va chạm ngẫu nhiên. Cấu trúc lớn = hệ quả của trường hấp dẫn, không phải của các cú đâm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao bản đồ thiên hà ngày nay (mạng vũ trụ rõ ràng) và bản đồ CMB (gần như mịn, $\delta \sim 10^{-5}$) lại "khớp" với nhau dù trông rất khác?
+> 🔁 **Thực hành.** Vì sao bản đồ thiên hà ngày nay (mạng vũ trụ rõ ràng) và bản đồ CMB (gần như mịn, $\delta \sim 10^{-5}$) lại "khớp" với nhau dù trông rất khác?
 > <details><summary>Đáp án</summary>Vì các vết lốm đốm $\delta \sim 10^{-5}$ trong CMB chính là **bản thiết kế** của mạng vũ trụ: nơi CMB hơi đậm → 13.8 tỉ năm sau là nơi có sợi/siêu đám; nơi hơi loãng → thành void. Hấp dẫn chỉ phóng đại bản vẽ có sẵn, không vẽ lại.</details>
 
 ---

@@ -73,7 +73,7 @@ Dijkstra lấy đỉnh nhỏ nhất trước, có thể chốt B = 2 trước kh
 | **Single-source shortest path (SSSP)** với cạnh âm | Từ 1 nguồn `s`, tìm đường ngắn nhất tới mọi đỉnh | **Bellman-Ford** |
 | **All-pairs shortest path (APSP)** | Đường ngắn nhất giữa **mọi cặp** đỉnh `(i, j)` | **Floyd-Warshall** |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Vì sao không thể "cộng hằng số khử âm rồi Dijkstra"?</summary>
@@ -289,7 +289,7 @@ func main() {
 - **Thời gian**: O(V·E) — V−1 vòng × E cạnh mỗi vòng.
 - **Bộ nhớ**: O(V) cho `dist`, `prev` + O(E) cho danh sách cạnh.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Với V=5, E=10, tối đa bao nhiêu phép relax?</summary>
@@ -620,7 +620,7 @@ func main() {
 - **Bộ nhớ**: O(V²) cho ma trận `dist` (+ O(V²) cho `next` nếu cần truy vết).
 - **Không scale** với V lớn: V=1000 → 10⁹ phép tính (≈ vài giây); V=5000 → 1.25×10¹¹ (quá chậm).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Với V=4, Floyd-Warshall chạy bao nhiêu phép cập nhật ô?</summary>

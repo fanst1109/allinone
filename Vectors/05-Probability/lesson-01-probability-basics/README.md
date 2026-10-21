@@ -123,7 +123,7 @@ $$\Omega = [-10, 50] \quad (\mathbb{R}, \text{khoảng số thực})$$
 - *"Có duy nhất một cách chọn $\Omega$ cho mỗi thí nghiệm không?"*
   → Không. Cùng thí nghiệm "tung 2 xu" có thể có $\Omega = \{HH, HT, TH, TT\}$ (chi tiết, 4 outcome) hoặc $\Omega = \{0, 1, 2\}$ (đếm số H, 3 outcome). Chọn $\Omega$ nào tùy mục đích, nhưng phải nhất quán: nếu $\Omega = \{0, 1, 2\}$ thì các outcome không đồng xác suất ($P(0)=P(2)=\frac{1}{4}$, $P(1)=\frac{1}{2}$).
 
-### 2.4. 🔁 Dừng lại tự kiểm tra
+### 2.4. 🔁 Thực hành
 
 1. Mô tả $\Omega$ cho thí nghiệm "rút 2 lá bài đồng thời từ bộ 52" (không quan tâm thứ tự).
 2. $|\Omega|$ khi tung 5 đồng xu phân biệt là bao nhiêu?
@@ -189,7 +189,7 @@ Vì biến cố là tập hợp, ta dùng toán tử tập hợp:
 - **Nhầm "biến cố"** với "kết quả". Outcome $3$ là một phần tử của $\Omega$; biến cố $\{3\}$ là tập chỉ chứa outcome đó. Một outcome → một biến cố cơ bản (elementary event).
 - **Nhầm disjoint với độc lập**. Hai khái niệm khác nhau hoàn toàn — sẽ rõ ở mục 11. Spoiler: disjoint = không cùng xảy ra; independent = biết một cái xảy ra không ảnh hưởng xác suất cái kia. Hai biến cố disjoint **không thể** độc lập (trừ khi một trong hai có xác suất 0).
 
-### 3.5. 🔁 Dừng lại tự kiểm tra
+### 3.5. 🔁 Thực hành
 
 Tung 1 xúc xắc. Liệt kê các biến cố:
 
@@ -348,7 +348,7 @@ Lý do có dấu cộng cuối: khi trừ ba giao đôi một, các phần tử 
 - *"Nếu $P(A) = 0$ thì A có chắc chắn không xảy ra không?"*
   → Trong $\Omega$ hữu hạn: có. Trong $\Omega$ liên tục: KHÔNG nhất thiết. Ví dụ "lấy số $x$ trong $[0,1]$ đúng bằng 0.5" có xác suất 0 nhưng vẫn có thể xảy ra. Đây là khác biệt giữa "almost never" (xác suất 0) và "impossible". Chi tiết ở Lesson 04.
 
-### 6.8. 🔁 Dừng lại tự kiểm tra
+### 6.8. 🔁 Thực hành
 
 Trong một lớp 30 học sinh:
 - 18 thích Toán (M), 12 thích Lý (P), 7 thích cả hai.
@@ -543,7 +543,7 @@ Hỏi 4 câu để chọn đúng công thức:
 - *"Khi nào dùng $C(n,k)$?"* — bất cứ khi nào chọn "$k$ phần tử trong $n$" mà thứ tự không quan trọng: chia đội, chọn lá bài, tập con, kết hợp món ăn.
 - *"$P(n,n)$ bằng gì?"* → $\dfrac{n!}{(n-n)!} = \dfrac{n!}{0!} = \dfrac{n!}{1} = n!$. Đúng — chỉnh hợp tất cả = hoán vị.
 
-### 8.7. 🔁 Dừng lại tự kiểm tra
+### 8.7. 🔁 Thực hành
 
 1. Số cách xếp 6 người vào hàng?
 2. Số cách chọn 4 lá trong 52 để xếp lên bàn (có thứ tự)?
@@ -643,7 +643,7 @@ $$P = \frac{624}{C(52,5)} = \frac{624}{2\ 598\ 960} \approx 0{,}000240 = \frac{1
 
 **Liên hệ ML**: hash collision. Nếu hash function có $2^N$ giá trị output, theo birthday bound, sau $\sim \sqrt{2^N} = 2^{N/2}$ input ngẫu nhiên là khả năng cao có 2 input bị trùng hash. Đây là lý do MD5 (output 128-bit) chỉ "an toàn" tới khoảng $2^{64}$ input, không phải $2^{128}$.
 
-### 9.8. 🔁 Dừng lại tự kiểm tra
+### 9.8. 🔁 Thực hành
 
 1. Tổng 2 xúc xắc bằng 2 — xác suất?
 2. Tung 4 xu, P(đúng 2 H)?
@@ -723,7 +723,7 @@ Trong đa số bài tập (tung $n$ đồng xu độc lập, v.v.), ta giả đ�
 
 **Ví dụ**: tung 5 xu liên tiếp, $P(\text{toàn ra H}) = \left(\frac{1}{2}\right)^5 = \frac{1}{32}$.
 
-### 10.5. 🔁 Dừng lại tự kiểm tra
+### 10.5. 🔁 Thực hành
 
 $A$ = "xúc xắc ra số chia hết cho 3" $= \{3, 6\}$. $B$ = "xúc xắc ra số $> 4$" $= \{5, 6\}$. Hỏi $A, B$ có độc lập không?
 

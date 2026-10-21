@@ -241,7 +241,7 @@ func twoSumTwoPointer(a []int, target int) (int, int) {
 > Nếu mảng chưa sort và bạn chỉ chạy một lần, hash thường thắng. Two-pointer chỉ hời khi mảng đã sort
 > sẵn (sort được amortize qua nhiều truy vấn) hoặc memory thực sự là ràng buộc cứng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Mảng đã sort sẵn, chạy 1 query, memory thoải mái. Chọn cách nào?
 > 2. Mảng chưa sort, chạy 1 query. Chọn cách nào?
 >
@@ -326,7 +326,7 @@ Prefix thắng khi $n + q < q \\cdot n$, tức gần như **luôn thắng ngay k
 >   (hoặc cập nhật O(n) các phần tử sau nó). Lúc này **segment tree** (update O(log n)) hợp hơn prefix.
 >   Đây chính là cầu nối sang trục Online vs Offline ở mục 4.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn cần trả lời 50 range-sum query trên mảng tĩnh n=10⁵. Dùng gì?
+> 🔁 **Thực hành.** Bạn cần trả lời 50 range-sum query trên mảng tĩnh n=10⁵. Dùng gì?
 > <details><summary>Đáp án</summary>
 > Prefix sum. Build 10⁵ + query 50 ≈ 100,050 vs naive 50·10⁵ = 5·10⁶. Prefix nhanh hơn ~50×.
 > Mảng tĩnh nên không cần segment tree.
@@ -448,7 +448,7 @@ lần append thứ 9 (khi cap=8 đầy) tốn riêng **8** thao tác copy.
 deadline cố định (vd audio 48kHz: mỗi mẫu < ~20µs). Một lần resize O(n) gây "giật" → âm thanh rè.
 → Dùng cấu trúc với worst-case per-op đảm bảo, hoặc **pre-allocate** đủ capacity từ đầu để tránh resize.
 
-> 🔁 **Dừng lại tự kiểm tra.** Game vật lý 60 FPS (mỗi frame 16.6ms) thêm/xoá object liên tục. Slice
+> 🔁 **Thực hành.** Game vật lý 60 FPS (mỗi frame 16.6ms) thêm/xoá object liên tục. Slice
 > append amortized O(1) có an toàn không?
 > <details><summary>Đáp án</summary>
 > Rủi ro: nếu nhiều object append cùng một frame trúng lần resize O(n), frame đó có thể vượt 16.6ms →

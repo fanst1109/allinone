@@ -88,7 +88,7 @@ $$0 \\cdot \\mathbf{v}_1 + 0 \\cdot \\mathbf{v}_2 + \\cdots + 0 \\cdot \\mathbf{
 
 > ❓ **Câu hỏi tự nhiên**: "Có khi nào tổ hợp tuyến tính KHÔNG ra được vector mong muốn?" — Có. Ví dụ với $\\mathbf{v}_1 = (1, 0)$ và $\\mathbf{v}_2 = (2, 0)$, mọi tổ hợp $c_1(1,0) + c_2(2,0) = (c_1+2c_2, 0)$ đều có thành phần thứ hai = 0. Bạn không thể tạo ra $(1, 1)$ từ hai vector này. Lý do: tập này không "trải" được toàn $\\mathbb{R}^2$ — dẫn ta tới khái niệm **span** ngay sau đây.
 
-> 🔁 **Tự kiểm tra**: Cho $\\mathbf{u} = (1, -1)$, $\\mathbf{v} = (2, 1)$. Tính tổ hợp $3\\mathbf{u} - 2\\mathbf{v}$. <details><summary>Đáp án</summary>$3(1,-1) - 2(2,1) = (3,-3) - (4,2) = (-1, -5)$.</details>
+> 🔁 **Thực hành**: Cho $\\mathbf{u} = (1, -1)$, $\\mathbf{v} = (2, 1)$. Tính tổ hợp $3\\mathbf{u} - 2\\mathbf{v}$. <details><summary>Đáp án</summary>$3(1,-1) - 2(2,1) = (3,-3) - (4,2) = (-1, -5)$.</details>
 
 ### 📝 Tóm tắt mục 1
 
@@ -153,7 +153,7 @@ $c_1(1,1,0) + c_2(2,2,0) = (c_1 + 2c_2, c_1 + 2c_2, 0)$. Đặt $t = c_1 + 2c_2$
 
 > ⚠ **Lỗi thường gặp**: nghĩ rằng "nhiều vector hơn → span lớn hơn". Sai. $\\operatorname{span}((1,0), (2,0), (3,0)) = \\operatorname{span}((1,0))$ = trục Ox, dù có 3 vector. Số vector **không** quyết định kích thước span — chất lượng (sự đa dạng hướng) mới quyết định.
 
-> 🔁 **Tự kiểm tra**: $\\operatorname{span}((1, 2), (3, 6))$ là gì? <details><summary>Đáp án</summary>$(3,6) = 3 \\cdot (1,2)$ nên 2 vector cùng hướng. Span = đường thẳng qua gốc theo hướng $(1,2)$, tức là $\\{(t, 2t) : t \\in \\mathbb{R}\\}$ hay đường $y = 2x$.</details>
+> 🔁 **Thực hành**: $\\operatorname{span}((1, 2), (3, 6))$ là gì? <details><summary>Đáp án</summary>$(3,6) = 3 \\cdot (1,2)$ nên 2 vector cùng hướng. Span = đường thẳng qua gốc theo hướng $(1,2)$, tức là $\\{(t, 2t) : t \\in \\mathbb{R}\\}$ hay đường $y = 2x$.</details>
 
 ### 📝 Tóm tắt mục 2
 
@@ -245,7 +245,7 @@ Trong $\\mathbb{R}^2$, có nhiều hơn 2 vector → chắc chắn phụ thuộc
 
 > ⚠ **Lỗi thường gặp 2**: nhầm "phụ thuộc" với "cùng phương". Hai khái niệm này chỉ trùng khi xét **2 vector**. Với $\\geq 3$ vector thì không nhất thiết: $\\mathbf{v}_1 = (1,0,0)$, $\\mathbf{v}_2 = (0,1,0)$, $\\mathbf{v}_3 = (1,1,0)$ — không có 2 vector nào cùng phương, nhưng cả tập vẫn phụ thuộc (vì $\\mathbf{v}_3 = \\mathbf{v}_1 + \\mathbf{v}_2$).
 
-> 🔁 **Tự kiểm tra**: Xét $\\mathbf{v}_1 = (2, 1)$, $\\mathbf{v}_2 = (4, 3)$. Độc lập? <details><summary>Đáp án</summary>Giải $c_1(2,1) + c_2(4,3) = (0,0)$: hệ $2c_1+4c_2=0$, $c_1+3c_2=0$. Từ phương trình 2: $c_1 = -3c_2$. Thay vào pt 1: $-6c_2 + 4c_2 = -2c_2 = 0 \\Rightarrow c_2 = 0 \\Rightarrow c_1 = 0$. Chỉ nghiệm tầm thường → **độc lập**.</details>
+> 🔁 **Thực hành**: Xét $\\mathbf{v}_1 = (2, 1)$, $\\mathbf{v}_2 = (4, 3)$. Độc lập? <details><summary>Đáp án</summary>Giải $c_1(2,1) + c_2(4,3) = (0,0)$: hệ $2c_1+4c_2=0$, $c_1+3c_2=0$. Từ phương trình 2: $c_1 = -3c_2$. Thay vào pt 1: $-6c_2 + 4c_2 = -2c_2 = 0 \\Rightarrow c_2 = 0 \\Rightarrow c_1 = 0$. Chỉ nghiệm tầm thường → **độc lập**.</details>
 
 ### 📝 Tóm tắt mục 3
 
@@ -327,7 +327,7 @@ $\\det = 1(5 \\cdot 9 - 8 \\cdot 6) - 4(2 \\cdot 9 - 8 \\cdot 3) + 7(2 \\cdot 6 
 
 > ⚠ **Lỗi thường gặp**: dùng định thức cho ma trận không vuông. $\\det$ chỉ định nghĩa cho ma trận vuông. Với $n \\times k$ mà $n \\neq k$, phải dùng rank / khử Gauss.
 
-> 🔁 **Tự kiểm tra**: dùng định thức kiểm tra $\\mathbf{v}_1 = (2, 1)$, $\\mathbf{v}_2 = (4, 3)$. <details><summary>Đáp án</summary>Ma trận $\\begin{bmatrix} 2 & 4 \\\\ 1 & 3 \\end{bmatrix}$, $\\det = 2 \\cdot 3 - 4 \\cdot 1 = 6 - 4 = 2 \\neq 0$ → độc lập (khớp với kết quả tự kiểm tra mục 3).</details>
+> 🔁 **Thực hành**: dùng định thức kiểm tra $\\mathbf{v}_1 = (2, 1)$, $\\mathbf{v}_2 = (4, 3)$. <details><summary>Đáp án</summary>Ma trận $\\begin{bmatrix} 2 & 4 \\\\ 1 & 3 \\end{bmatrix}$, $\\det = 2 \\cdot 3 - 4 \\cdot 1 = 6 - 4 = 2 \\neq 0$ → độc lập (khớp với kết quả tự kiểm tra mục 3).</details>
 
 ### 📝 Tóm tắt mục 4
 
@@ -422,7 +422,7 @@ Cùng một mũi tên trong mặt phẳng — chỉ là **thước đo khác nha
 
 > ⚠ **Lỗi thường gặp**: nghĩ rằng "vector và toạ độ là một". Vector là đối tượng hình học (mũi tên / điểm); toạ độ là cặp số phụ thuộc vào basis ta chọn. Đây là điểm chuyển hoá tư duy quan trọng nhất bài này.
 
-> 🔁 **Tự kiểm tra**: Tìm basis cho $V = \\{(a, b, a+b) : a, b \\in \\mathbb{R}\\}$. <details><summary>Đáp án</summary>$(a, b, a+b) = a(1,0,1) + b(0,1,1)$. Basis $\\{(1,0,1), (0,1,1)\\}$, dimension 2.</details>
+> 🔁 **Thực hành**: Tìm basis cho $V = \\{(a, b, a+b) : a, b \\in \\mathbb{R}\\}$. <details><summary>Đáp án</summary>$(a, b, a+b) = a(1,0,1) + b(0,1,1)$. Basis $\\{(1,0,1), (0,1,1)\\}$, dimension 2.</details>
 
 ### 📝 Tóm tắt mục 5
 
@@ -589,7 +589,7 @@ Ngược lại, tập nghiệm của $A\\mathbf{x} = \\mathbf{b}$ với $\\mathb
 
 > ⚠ **Lỗi thường gặp**: nhầm "mặt phẳng" với "subspace 2 chiều". Mặt phẳng trong $\\mathbb{R}^3$ chỉ là subspace **nếu đi qua gốc**. Mặt phẳng $z = 1$ (song song với Oxy nhưng cao hơn 1 đơn vị) **không** là subspace.
 
-> 🔁 **Tự kiểm tra**: $W = \\{(x, y, z) : 2x - y = 0 \\text{ và } z = 0\\}$ có là subspace? Tìm basis nếu có. <details><summary>Đáp án</summary>Chứa 0 ✓. Đóng cộng & scalar (cả 2 phương trình thuần nhất) ✓. Từ $y = 2x$, $z = 0$: vector dạng $(x, 2x, 0) = x(1, 2, 0)$. Basis $\\{(1, 2, 0)\\}$, dim = 1.</details>
+> 🔁 **Thực hành**: $W = \\{(x, y, z) : 2x - y = 0 \\text{ và } z = 0\\}$ có là subspace? Tìm basis nếu có. <details><summary>Đáp án</summary>Chứa 0 ✓. Đóng cộng & scalar (cả 2 phương trình thuần nhất) ✓. Từ $y = 2x$, $z = 0$: vector dạng $(x, 2x, 0) = x(1, 2, 0)$. Basis $\\{(1, 2, 0)\\}$, dim = 1.</details>
 
 ### 📝 Tóm tắt mục 8
 

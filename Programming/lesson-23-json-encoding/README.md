@@ -190,7 +190,7 @@ type Config struct {
 }
 ```
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Có field `Token string` bạn không muốn lộ ra JSON. Viết tag.
 > 2. Có field `RetryCount int`, muốn bỏ khi bằng 0. Viết tag.
 > 3. Field Go `UserID`, JSON key cần là `user_id`. Viết tag.

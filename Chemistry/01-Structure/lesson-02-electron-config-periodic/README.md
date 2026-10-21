@@ -139,7 +139,7 @@ A: Vì các nguyên tố đã biết ($Z \leq 118$) chưa cần phân lớp th�
 **Q: Tại sao d chỉ có 5 orbital chứ không phải 4 hay 6?**
 A: Lý do toán học. Số orbital trong phân lớp $l$ $= 2l + 1$, với $l$ là số lượng tử thứ hai ($l = 0$ cho s, 1 cho p, 2 cho d, 3 cho f). Vậy d → $l = 2$ → $2 \cdot 2 + 1 = 5$ orbital.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Lớp 3 có bao nhiêu orbital? Bao nhiêu electron tối đa?
 2. Tại sao $2d$ không tồn tại?
@@ -499,7 +499,7 @@ EA mạnh nhất ở **Cl** (348 kJ/mol) — không phải F. Vì F nhỏ quá �
 | Độ âm điện | tăng | giảm |
 | Ái lực electron | tăng | giảm (có ngoại lệ F) |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. So sánh bán kính: Na vs Mg vs Cl.
 2. Vì sao khí trơ (He, Ne, Ar) trơ?

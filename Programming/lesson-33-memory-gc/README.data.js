@@ -256,7 +256,7 @@ func main() {
 >
 > Tưởng "dùng \`*int\` là phải heap". **Sai**. Pointer **per se** không trigger heap; chỉ khi pointer **thoát khỏi scope** thì biến nó trỏ tới mới escape. Pass pointer xuống deeper function thường safe.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Đoán xem các case sau escape không, rồi verify bằng \`-gcflags="-m"\`:
 >

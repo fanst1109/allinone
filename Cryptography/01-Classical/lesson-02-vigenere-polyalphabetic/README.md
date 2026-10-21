@@ -346,7 +346,7 @@ Sau khi xác định m (bằng Kasiski hoặc IC), quy trình phá:
 
 Key = "LEMON" ✓
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > **Câu 1**: Encrypt "HELP" với key "AB" (A=0, B=1). Kết quả?
 > <details><summary>Đáp án</summary>

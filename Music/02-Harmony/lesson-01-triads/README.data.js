@@ -132,7 +132,7 @@ Hợp âm tăng có **quãng 5 tăng (augmented fifth)** — nốt gốc và n�
 > - *"Caug và Eaug là cùng 3 nốt — vậy chúng có phải một hợp âm không?"* — Cùng 3 nốt (C, E, G♯), nhưng nốt gốc và ngữ cảnh hòa âm khác nhau → chức năng trong bài khác nhau. Khi C là bậc thấp nhất → Caug; khi E là bậc thấp nhất → Eaug (đảo vị trí 1). Bộ 3 nốt giống nhau, tên và chức năng khác.
 > - *"Vì sao gọi là 'tăng'?"* — Vì nốt thứ 5 bị "tăng" (augmented) lên 1 nửa cung so với hợp âm trưởng: G → G♯. Tương tự, hợp âm "giảm" vì nốt thứ 5 bị "giảm" (diminished) xuống 1 nửa cung: G → G♭.
 
-> 🔁 **Dừng lại tự kiểm tra — Nhận biết loại hợp âm.**
+> 🔁 **Ôn tập — Nhận biết loại hợp âm.**
 >
 > Cho các hợp âm sau, xác định loại (trưởng/thứ/giảm/tăng):
 > 1. A – C♯ – E
@@ -206,7 +206,7 @@ Hợp âm tăng có **quãng 5 tăng (augmented fifth)** — nốt gốc và n�
 
 </div>
 
-> 🔁 **Dừng lại tự kiểm tra — Xây hợp âm.**
+> 🔁 **Ôn tập — Xây hợp âm.**
 >
 > Xây các hợp âm sau bằng cách đếm nửa cung:
 > 1. E♭ giảm (E♭dim)

@@ -138,7 +138,7 @@ $L = \{$ `num`, `num + num`, `num * num`, `( num )`, `num + num * num`, ... $\}$
 
 ⚠ **Lỗi thường gặp.** Đừng nhầm **ký hiệu của grammar** với **ký tự trong chuỗi**. Trong ví dụ D, `+`, `*`, `(`, `)`, `num` là **terminal** (token thật); `E` là **non-terminal**; mũi tên `→` và gạch `|` là **ký hiệu meta** của BNF (không thuộc ngôn ngữ, chỉ dùng để viết luật). Một lỗi khác: tưởng `ε` là một ký tự — không, `ε` nghĩa là *"không có gì cả"*, vế phải rỗng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong grammar `S → ( S ) S | ε`, đâu là terminal, đâu là non-terminal, đâu là start symbol?
 2. Chuỗi `()()` có thuộc $L$ của grammar đó không?
@@ -229,7 +229,7 @@ Dùng grammar D. Một chuỗi token **hợp lệ** (∈ $L(G)$) khi tồn tại
 
 ⚠ **Lỗi thường gặp.** "Chuỗi gồm toàn token hợp lệ" **không** đồng nghĩa "chuỗi hợp lệ về cú pháp". Ví dụ 3 — `num + * num` — mọi token đều OK nhưng **trật tự** sai. Đây chính là câu hỏi mở bài: máy bác bỏ `2 + * 3` vì **không có dẫn xuất nào** sinh ra nó từ $E$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Viết dẫn xuất cho `( num )` từ grammar D.
 2. `num num` (hai số cạnh nhau, không toán tử) có hợp lệ không?
@@ -305,7 +305,7 @@ Grammar D `E → E + E | E * E | ( E ) | num` là **nhập nhằng**. Chuỗi `2
 - *"Vậy ambiguity sửa thế nào?"* → Hai cách: (a) **viết lại grammar** cho hết nhập nhằng (mục 5 — cách sạch, ta sẽ dùng); (b) giữ grammar nhập nhằng nhưng khai báo **luật ưu tiên/kết hợp riêng** cho parser (cách của các công cụ như Yacc/Bison — tiện nhưng ẩn). Bài này theo cách (a).
 - *"Có thuật toán kiểm tra grammar bất kỳ có nhập nhằng không?"* → **Không** — bài toán "CFG này có nhập nhằng không?" là **không quyết định được (undecidable)** nói chung. Nên thực tế ta thiết kế grammar **theo khuôn** đã biết là không nhập nhằng (như §5), thay vì kiểm tra máy móc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với grammar D, vẽ hai cây cho `num * num + num` và tính giá trị mỗi cây (dùng `5 * 2 + 3`).
 
@@ -395,7 +395,7 @@ Cây phân tích **duy nhất**:
 
 ⚠ **Lỗi thường gặp.** Nhiều người viết tầng nhân nằm **trên** tầng cộng (đảo thứ tự) rồi ngạc nhiên vì `*` lại lỏng hơn `+`. Quy tắc: **toán tử ưu tiên cao đặt ở tầng SÂU (gần lá)**. Tầng càng sâu, bám càng chặt. Đặt sai tầng = sai precedence.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Với grammar phân tầng, viết dẫn xuất cho `num * num + num` (dùng `2 * 3 + 4`) và xác nhận cây cho ra giá trị 10.
 

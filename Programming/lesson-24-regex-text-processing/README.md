@@ -820,7 +820,7 @@ Với hầu hết task (validate, extract, replace), workaround chỉ là vài d
 7. **`MatchString` với pattern không anchor**: tưởng nó check toàn chuỗi, thực ra chỉ check substring.
 8. **Thread-safety nhầm `Compile`**: bản thân `Compile` không safe, nhưng vì compile ở init nên không vấn đề.
 
-> 🔁 **Dừng lại tự kiểm tra**: Bạn có regex `^\w+@example.com$` để check email. Hai input sau, cái nào match?
+> 🔁 **Thực hành**: Bạn có regex `^\w+@example.com$` để check email. Hai input sau, cái nào match?
 > - `user@example.com`
 > - `user@exampleXcom`
 >

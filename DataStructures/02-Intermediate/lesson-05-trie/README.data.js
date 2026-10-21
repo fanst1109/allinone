@@ -647,7 +647,7 @@ Thay vì thử $3^L$ tổ hợp chữ rồi tra từng cái, trie **cắt ngay**
 | Bộ nhớ là bottleneck nhưng vẫn cần prefix | Trie ngây thơ phình to | **Compressed trie / Radix tree** (§6) |
 | Cần khớp mẫu ở **giữa** chuỗi (không chỉ prefix) | Trie chỉ giỏi prefix | Suffix tree / Aho-Corasick |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Trong autocomplete §8.1, vì sao phải \`for _, c := range word\` thay vì \`word[i]\`?
 >    <details><summary>Đáp án</summary>\`word[i]\` lặp theo <b>byte</b>. Ký tự tiếng Việt/Unicode chiếm nhiều byte trong UTF-8 → tách sai ký tự. \`range\` lặp theo <b>rune</b> (code point), đúng từng ký tự.</details>
 > 2. Router §8.2: hai route \`10.0.0.0/8 → A\` và \`10.1.0.0/16 → B\`. Gói tới \`10.1.2.3\` đi đâu? Vì sao?

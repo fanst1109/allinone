@@ -199,7 +199,7 @@ Backward induction: Follower best response BRF(qL) → substitute vào utility L
 
 **Ví dụ chính trị**: NATO Article 5 — "tấn công một là tấn công tất cả" = commitment device. Nếu không có, mỗi nước có thể không protect đồng minh (vì costly). Với Article 5, hành động "Không protect" bị loại khỏi strategy space → lời cam kết credible.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Game tree: P1 chọn L hoặc R. Nếu L: P2 chọn A(3,3) hoặc B(1,4). Nếu R: P2 chọn C(2,2) hoặc D(4,1). Tìm SPE path.
 > <details><summary>Đáp án</summary>Node P2 sau L: B=(4) > A=(3) → P2 chọn B. Gán L→(1,4). Node P2 sau R: D=(1) vs C=(2) → P2 chọn C. Gán R→(2,2). Node P1: L→P1 nhận 1, R→P1 nhận 2. P1 chọn R. SPE path: P1 chọn R, P2 chọn C → (2, 2).</details>
 > 2. Trong ultimatum game, Proposer offer 50% là SPE không?

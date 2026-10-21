@@ -52,7 +52,7 @@ Tiền đề xa hơn: [Tầng 1 — Văn minh cổ đại](../../01-Ancient/)
 
 🔗 **Nhân – quả quan trọng:** Hồi giáo lan rộng không chỉ bằng quân sự mà còn qua thương mại. Các nhà buôn Ả Rập mang Hồi giáo đến Đông Nam Á, Sahara châu Phi, và ven biển Ấn Độ Dương — lan rộng hơn bất kỳ đạo quân nào.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Tại sao Byzantine có thể tồn tại đến 1453 trong khi Tây La Mã sụp đổ năm 476?
 <details>
 <summary>Xem đáp án</summary>
@@ -109,7 +109,7 @@ Hệ thống phân quyền theo tháp: vua → lãnh chúa → hiệp sĩ → n�
 
 🔗 **Nhân – quả quan trọng:** Nhà Tống (960–1279) phát minh hoặc hoàn thiện in ấn bằng bản chữ rời (Bi Sheng, thế kỉ XI) và thuốc súng — hai công nghệ sẽ thay đổi châu Âu khi truyền sang. Sự giàu có của Trung Hoa và Ấn Độ là động lực trực tiếp để châu Âu tìm đường biển mới.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Vì sao đế quốc Mông Cổ khổng lồ nhưng không tồn tại lâu dài như La Mã hay Trung Hoa?
 <details>
 <summary>Xem đáp án</summary>

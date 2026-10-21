@@ -94,7 +94,7 @@ Ba chỗ phải điền cho từng bài:
 
 > ⚠ **Lỗi thường gặp.** Quên kiểm tra `child == parent` → DFS đi ngược lên cha, rồi cha gọi lại con → **lặp vô hạn** (hoặc đếm trùng). Trên cây vô hướng, cạnh `u-v` xuất hiện ở cả `adj[u]` và `adj[v]`, nên **bắt buộc** truyền và kiểm tra parent.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với cây 3 node `0—1`, `0—2`, gốc 0, nếu `baseCase = 1` (đếm size) và `combine = res + childRes`, thì `dfs(0,-1)` trả về bao nhiêu?
+> 🔁 **Thực hành.** Với cây 3 node `0—1`, `0—2`, gốc 0, nếu `baseCase = 1` (đếm size) và `combine = res + childRes`, thì `dfs(0,-1)` trả về bao nhiêu?
 > <details><summary>Đáp án</summary>
 > `dfs(1,0)=1`, `dfs(2,0)=1`. Tại node 0: `res=1`, gộp con 1 → `2`, gộp con 2 → `3`. Trả về **3** = số node. Đúng (size subtree gốc 0 = cả cây).
 > </details>
@@ -196,7 +196,7 @@ func max(a, b int) int { if a > b { return a }; return b }
 
 > ⚠ **Lỗi thường gặp.** Khởi tạo `rob = 0` rồi quên cộng `val[node]`. Phải bắt đầu `rob` bằng `val[node]` vì cướp node thì **chắc chắn** thu tiền node đó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với cùng cây trên nhưng `val = [1, 5, 1, 1, 1]`, đáp án là bao nhiêu?
+> 🔁 **Thực hành.** Với cùng cây trên nhưng `val = [1, 5, 1, 1, 1]`, đáp án là bao nhiêu?
 > <details><summary>Đáp án</summary>
 > Node 1 trọng số 5 rất lớn. Chọn `{1}` đơn lẻ? `{1, 2}` = 5+1=6 (1,2 là anh em, không kề) ✓. Hay `{3,4,2}` = 1+1+1=3. Hay `{0,3,4}` = 1+1+1=3. Tối ưu là `{1,2}=6`. Chạy công thức: lá 3,4,2 → dp[c][1]=1 mỗi cái. dp[1][0]=max(0,1)+max(0,1)=2, dp[1][1]=5+0+0=5. dp[0][0]=max(2,5)+max(0,1)=5+1=6, dp[0][1]=1+dp[1][0]+dp[2][0]=1+2+0=3. Đáp án `max(6,3)=`**6** ✓.
 > </details>
@@ -287,7 +287,7 @@ func (t *Tree) treeDiameter() int {
 
 > ⚠ **Lỗi thường gặp.** Chỉ theo dõi **1** nhánh sâu nhất (`best1`) mà quên `best2` → bỏ sót đường kính đi vòng qua node qua 2 hướng. Phải giữ **2** chiều cao lớn nhất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cây hình sao: node 0 nối với 1,2,3,4 (4 lá). Đường kính?
+> 🔁 **Thực hành.** Cây hình sao: node 0 nối với 1,2,3,4 (4 lá). Đường kính?
 > <details><summary>Đáp án</summary>
 > Tại node 0: mọi `down(con)+1 = 1`. 2 lớn nhất = `1, 1` → diameter = `2`. Đường vd `1—0—2` = 2 cạnh ✓.
 > </details>
@@ -537,7 +537,7 @@ func (t *Tree) sumOfDistances() []int {
 > - **Sai chiều reroot**: đảo dấu thành `+size[c] - (n-size[c])` → kết quả ngược hoàn toàn.
 > - **Cập nhật `ans[c]` SAU khi gọi `dfs2(c)`**: phải tính `ans[c]` **trước** rồi mới đệ quy xuống (vì `ans[c]` cần `ans[node]` của cha — pre-order).
 
-> 🔁 **Dừng lại tự kiểm tra.** Cây hình sao: 0 nối 1,2,3. `size = ?`, `ans = ?`
+> 🔁 **Thực hành.** Cây hình sao: 0 nối 1,2,3. `size = ?`, `ans = ?`
 > <details><summary>Đáp án</summary>
 > `size=[4,1,1,1]`. DFS1: depth của 1,2,3 = 1 → `ans[0]=3`. Reroot: `ans[1]=3 - size[1] + (4-size[1]) = 3-1+3 = 5`. Kiểm: 1→0=1, 1→2=2, 1→3=2 → 5 ✓. Tương tự `ans[2]=ans[3]=5`. → `ans=[3,5,5,5]`.
 > </details>
@@ -644,7 +644,7 @@ func (t *Tree) subtreeSizeIterative(root int) []int {
 
 5. **Tính `ans[c]` sai thứ tự trong rerooting.** DFS 2 phải tính `ans[c]` **trước** khi đệ quy xuống `c` (pre-order, vì cần `ans[node]` của cha đã có). Tính sau → dùng giá trị chưa cập nhật.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao không thể dùng `pre-order` cho House Robber III (mục 3)?
+> 🔁 **Thực hành.** Vì sao không thể dùng `pre-order` cho House Robber III (mục 3)?
 > <details><summary>Đáp án</summary>
 > Vì `dp[node]` cần `dp[con]` đã tính xong. Pre-order xử lý cha trước con → lúc tính `dp[node]` chưa có `dp[con]`. Bắt buộc post-order (con xong mới tới cha). Rerooting (mục 7) là ngoại lệ vì DFS 2 cố ý đẩy từ cha (đã có size từ DFS 1).
 > </details>

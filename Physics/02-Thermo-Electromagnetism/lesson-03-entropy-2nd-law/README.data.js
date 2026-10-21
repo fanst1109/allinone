@@ -63,7 +63,7 @@ Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ)
 - **Tưởng entropy luôn tăng cho MỌI hệ**. Sai — chỉ đúng cho hệ **cô lập** (hoặc tổng vũ trụ). Tủ lạnh làm giảm entropy bên trong, nhưng tăng entropy môi trường nhiều hơn. Phản ví dụ: nước đông thành đá trong tủ lạnh → S của nước giảm, không vi phạm gì vì S môi trường tăng nhiều hơn.
 - **Lẫn entropy (J/K) với năng lượng (J)**: chúng khác đơn vị; $\\Delta S = Q/T$ chia cho nhiệt độ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hộp 2 ngăn, 4 phân tử. Trạng thái "3 trái + 1 phải" có bao nhiêu cách sắp xếp ($W$)?
 2. Mở chai nước hoa trong phòng — entropy của hệ (phòng + hơi nước hoa) tăng hay giảm?
@@ -116,7 +116,7 @@ Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (kh
 - **Tưởng entropy luôn tăng cho mọi vật**. Lại nhắc: chỉ tổng (hệ + môi trường) mới luôn $\\geq 0$. Phản ví dụ: nước trong khay đông thành đá → $S$ nước giảm, nhưng dàn nóng tủ lạnh thải nhiệt làm $S$ phòng tăng hơn.
 - **Nghĩ có thể đạt $\\Delta S = 0$ trong thực tế**. Dấu "=" chỉ ở quá trình thuận nghịch lý tưởng (không ma sát, vô cùng chậm) — không tồn tại thực tế.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một máy "chỉ hút nhiệt từ không khí phòng rồi biến hoàn toàn thành điện, không thải gì". Máy này vi phạm phát biểu nào?
 2. Vì sao một video quay cảnh khói tự thu lại vào điếu thuốc trông "sai"?
@@ -207,7 +207,7 @@ $$\\eta_{\\text{Carnot}} = 1 - \\frac{T_c}{T_h}$$
 - **Dùng °C trong $\\eta_{\\text{Carnot}}$**. Đây là lỗi #1. Luôn đổi sang Kelvin trước. Phản ví dụ ở trên: 100% vs 26.8% — sai hoàn toàn.
 - **Tưởng máy thực có thể đạt $\\eta_{\\text{Carnot}}$**. Carnot là **giới hạn trên lý thuyết**; máy thực luôn thấp hơn (ma sát, mất nhiệt). Nhà máy điện thực $\\approx 35\\text{-}40\\%$ dù Carnot cho $\\approx 60\\%$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Máy nhiệt chạy giữa $T_h = 600 \\text{ K}$ và $T_c = 300 \\text{ K}$. Hiệu suất Carnot tối đa?
 2. Máy nhận 2000 J từ nguồn nóng, sinh 700 J công. $Q_c$ thải ra và $\\eta$ thực bằng bao nhiêu?

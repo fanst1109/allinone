@@ -1073,7 +1073,7 @@ Pool giảm allocation 100-300× → giảm GC pressure đáng kể.
 - [Lesson 29 — Context](../lesson-29-context/) (chưa có): \`context.Context\`, cancel, deadline, value propagation — pattern chuẩn để cancel/timeout trong toàn bộ tier 2+ web/database.
 - Sau khi xong tier 2, tier 3 sẽ dùng kiến thức này nhiều: lock-free data structures, sync.Map advanced, memory model, pprof contention profiling.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Khi nào dùng \`RWMutex\` thay \`Mutex\`?
 >    <details><summary>Đáp án</summary>Chỉ khi tỉ lệ read >> write (vd ≥10:1) và critical section đủ dài. Mặc định cứ Mutex.</details>

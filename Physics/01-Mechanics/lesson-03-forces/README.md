@@ -94,7 +94,7 @@ F_g &= \frac{G \cdot M_T \cdot m}{R_T^2} \\
 - *"Vì sao g lại đúng bằng 9,8 — con số này từ đâu?"* Không phải con số tùy ý: nó là kết quả của $\frac{G\cdot M_{TĐ}}{R_{TĐ}^2}$ (đã tính ở 1.4). Thay khối lượng và bán kính Trái Đất vào ra đúng $9{,}8\ \text{m/s}^2$. Hành tinh khác khối lượng/bán kính khác $\to g$ khác.
 - *"Lên cao thì nhẹ hơn — leo núi có giảm cân không?"* Trọng lượng giảm rất ít: trên đỉnh Everest chỉ giảm ~0,3%. Khối lượng (kg) thì không đổi. Không đủ để "giảm cân" theo nghĩa thông thường.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một vật có trọng lượng 100 N trên Trái Đất. Trọng lượng của nó trên Mặt Trăng ($g=1{,}62$) là bao nhiêu? Khối lượng có đổi không?
 2. Nếu khoảng cách giữa 2 vật tăng gấp đôi, lực hấp dẫn giữa chúng thay đổi thế nào?
@@ -150,7 +150,7 @@ N **KHÔNG** phải hằng số — nó **tự điều chỉnh** để giữ v�
 - *"Vì sao trên dốc N < trọng lượng?"* Vì trên dốc, chỉ thành phần trọng lực **vuông góc mặt** ($mg\cdot\cos\theta$) ép vào mặt, phần còn lại ($mg\cdot\sin\theta$) kéo dọc dốc. N chỉ cần cân bằng phần vuông góc $\to N = mg\cdot\cos\theta < mg$.
 - *"Trong thang máy đi lên tôi nặng hơn — cân lò xo chỉ số lớn hơn thật à?"* Đúng. Cân lò xo đo chính N (lực sàn đẩy). Thang gia tốc lên $\to N = m(g+a) > mg \to$ cân chỉ số lớn hơn $\to$ "trọng lượng biểu kiến" tăng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật 10 kg trên mặt nghiêng 60°. Tính N. ($g=9{,}8$)
 2. Người 70 kg trong thang máy gia tốc lên $a = 3\ \text{m/s}^2$. Phản lực sàn N bằng bao nhiêu?
@@ -241,7 +241,7 @@ $$f_k = \mu_k \cdot N$$
 - *"Ma sát luôn cản — vậy nó có ích gì?"* Cực kỳ cần thiết: không có ma sát giày-đất thì không đi được; không có ma sát lốp-đường thì xe không phanh, không cua. Ma sát biến lực thành chuyển động hữu ích.
 - *"Ma sát phụ thuộc tốc độ không?"* Theo gần đúng cơ bản: $f_k = \mu_k\cdot N$ **không** phụ thuộc tốc độ trượt. Thực tế ở tốc độ rất cao có thay đổi nhỏ, nhưng bài này coi là hằng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hộp 5 kg trên sàn, $\mu_s = 0{,}6$. Bạn đẩy với 20 N nhưng hộp chưa trượt. Lực ma sát tĩnh đang bằng bao nhiêu? Lực tối thiểu để hộp bắt đầu trượt? ($g=9{,}8$)
 2. Khi hộp đã trượt với $\mu_k = 0{,}4$, lực ma sát động bằng bao nhiêu?
@@ -299,7 +299,7 @@ trong đó:
 - *"Vì sao lực lại tỉ lệ thuận với độ giãn?"* Vì với biến dạng nhỏ, các liên kết nguyên tử trong lò xo hành xử như những "lò xo tí hon" tuyến tính. Càng kéo xa, càng nhiều liên kết bị kéo căng $\to$ lực hồi phục tăng tỉ lệ. Chỉ đúng trong giới hạn đàn hồi.
 - *"Treo vật vào lò xo, vì sao đứng yên ở một độ giãn nhất định?"* Vì tại đó lực đàn hồi kéo lên ($kx$) cân bằng đúng trọng lượng kéo xuống ($mg$): $kx = mg \to x = \frac{mg}{k}$. Vật nặng hơn $\to$ giãn nhiều hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lò xo $k = 150$ N/m bị kéo giãn 8 cm. Lực đàn hồi bằng bao nhiêu?
 2. Treo vật 1 kg vào lò xo thì giãn 4 cm. Tính $k$. ($g=9{,}8$)
@@ -351,7 +351,7 @@ Hai vật $m_1 = 3$ kg, $m_2 = 5$ kg treo qua một ròng rọc, nối bằng d�
 - *"Trong bài Atwood, vì sao $m_2$ nặng hơn lại đi xuống?"* Vì trọng lực kéo $m_2$ xuống ($m_2\cdot g$) lớn hơn kéo $m_1$ xuống ($m_1\cdot g$). Hệ "nghiêng" về phía nặng $\to m_2$ xuống, kéo $m_1$ lên qua dây.
 - *"Lực căng có thể lớn hơn trọng lượng không?"* Có — khi vật được kéo lên có gia tốc: $T = m(g+a) > mg$. Vd nâng vật bằng cáp với gia tốc lên, cáp chịu lực lớn hơn trọng lượng tĩnh.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một vật 5 kg treo đứng yên trên dây. Lực căng dây bằng bao nhiêu? ($g=9{,}8$)
 2. Bài Atwood với $m_1 = 2$ kg, $m_2 = 8$ kg. Tính gia tốc hệ.
@@ -402,7 +402,7 @@ Nếu không có ma sát ($\mu = 0$): $a = g\cdot\sin\theta = 4{,}9\ \text{m/s}^
 - *"Vì sao có ma sát thì gia tốc nhỏ hơn?"* Vì ma sát hướng lên dốc, chống lại thành phần kéo xuống $\to$ hợp lực dọc dốc nhỏ hơn $\to a$ nhỏ hơn. Không ma sát: $a = g\cdot\sin\theta = 4{,}9$; có ma sát: chỉ $3{,}2\ \text{m/s}^2$.
 - *"Nếu dốc đứng ($\theta = 90^\circ$) thì sao?"* $\sin\theta = 1$, $\cos\theta = 0 \to N = 0$, không còn ma sát, $a = g = 9{,}8\ \text{m/s}^2$ (rơi tự do). Hợp lý: dốc thẳng đứng = rơi tự do.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật trên dốc 37°, $\mu_s = 0{,}5$. Vật có tự trượt không? (cho $\tan 37^\circ \approx 0{,}75$)
 2. Vật 4 kg trên dốc 30°, $\mu_k = 0{,}1$, đang trượt xuống. Tính gia tốc. ($g=9{,}8$)

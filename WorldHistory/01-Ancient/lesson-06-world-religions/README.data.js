@@ -60,7 +60,7 @@ Không hoàn toàn. Một số nhà nghiên cứu chỉ ra rằng thời gian "�
 
 Không nên hiểu "Thời đại Trục" theo nghĩa các nền văn minh liên lạc và ảnh hưởng lẫn nhau trực tiếp trong giai đoạn này. Phần lớn các truyền thống tư tưởng phát triển độc lập, dù sau đó có giao thoa qua Con đường Tơ lụa và các mạng lưới thương mại.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Triết gia nào đặt ra thuật ngữ "Axial Age" và khi nào?
 
@@ -121,7 +121,7 @@ Khác với Cơ Đốc giáo và Hồi giáo, Do Thái giáo truyền thống kh
 
 Do Thái giáo không đồng nhất với "đạo Hebrew cổ đại". Sau sự kiện phá hủy Đền thờ thứ hai năm 70 SCN, Do Thái giáo trải qua một giai đoạn chuyển đổi quan trọng: từ tôn giáo trung tâm vào các nghi lễ đền thờ sang tôn giáo trung tâm vào nghiên cứu kinh điển và hội đường (synagogue). Hình thức Do Thái giáo Rabbinical (Do Thái giáo dựa trên kinh Talmud) phát triển sau thế kỉ I SCN và là hình thức tồn tại đến ngày nay.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Sự kiện "Babylonian Captivity" xảy ra năm nào và ý nghĩa của nó với Do Thái giáo là gì?
 
@@ -187,7 +187,7 @@ Theravada ("con đường của các trưởng lão") gần với giáo lý Ph�
 
 Tượng Phật "tròn trịa, vui vẻ" phổ biến trong văn hóa đại chúng thực ra là hình ảnh của Budai (Bố Đại) — một nhân vật Trung Quốc, không phải Siddhartha Gautama lịch sử. Hình ảnh truyền thống của Đức Phật là người gầy, tĩnh lặng đang thiền định hay thuyết pháp.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Vua nào đóng vai trò quan trọng trong việc truyền bá Phật giáo ra ngoài Ấn Độ ở thế kỉ III TCN?
 
@@ -259,7 +259,7 @@ Cả hai truyền thống tồn tại song song ở Trung Hoa hàng nghìn năm 
 **Q: Nho giáo ảnh hưởng đến Việt Nam như thế nào?**  
 Qua hơn nghìn năm Bắc thuộc và sau đó qua hệ thống khoa cử, Nho giáo ảnh hưởng sâu rộng đến cấu trúc gia đình, hệ thống giáo dục, và quan niệm về cai trị ở Việt Nam. Chế độ khoa cử Nho học tồn tại ở Việt Nam từ thế kỉ XI đến 1919. Tuy nhiên, Nho giáo ở Việt Nam có những biến thể địa phương và coexist với Phật giáo và tín ngưỡng dân gian.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Khái niệm "vô vi" trong Đạo giáo có nghĩa là gì?
 
@@ -321,7 +321,7 @@ Theo truyền thống, trước trận chiến Milvian Bridge (312 SCN), Constan
 
 Không phải Cơ Đốc giáo ngay lập tức trở thành tôn giáo thống trị sau năm 313 SCN. Chiếu chỉ Milan cho phép tự do tín ngưỡng — không bắt buộc người dân cải đạo. Phải đến năm 380 SCN, Hoàng đế Theodosius I mới chính thức tuyên bố Cơ Đốc giáo là quốc giáo. Quá trình Cơ Đốc hóa đế quốc La Mã diễn ra dần dần qua nhiều thập kỷ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Sự kiện năm 380 SCN có ý nghĩa gì với Cơ Đốc giáo?
 
@@ -366,7 +366,7 @@ Tôn giáo tạo ra "cộng đồng tưởng tượng" (theo khái niệm của 
 **Q: Các tôn giáo này có giao thoa và ảnh hưởng lẫn nhau không?**  
 Có. Phật giáo Mahayana tiếp thu một số khái niệm triết học Hy Lạp qua sự tiếp xúc sau các chiến dịch của Alexander Đại đế. Nho giáo và Phật giáo giao thoa tại Trung Hoa tạo ra Tân Nho giáo (thế kỉ XII). Cơ Đốc giáo sơ kỳ chịu ảnh hưởng của triết học Hy Lạp (đặc biệt là triết học Plato). Do Thái giáo thời kỳ Babylon chịu ảnh hưởng của Zoroastrianism (Ba Tư). Sự giao thoa này thể hiện tính năng động của các hệ tư tưởng khi tiếp xúc với nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Nêu hai cách cụ thể mà tôn giáo/tư tưởng ảnh hưởng đến hệ thống cai trị ở Đông Á và phương Tây.
 

@@ -54,7 +54,7 @@ $$P = 80.000 \\times 3{,}9927 + \\frac{1.000.000}{1{,}4693} = 319.417 + 680.583 
 
 → Khi **lợi suất = coupon (8% = 8%)**, giá đúng bằng **mệnh giá** (trái phiếu "ngang giá" — at par). Đây là mốc chuẩn để hiểu mục 3.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trái phiếu par 1 triệu, coupon 6%, lợi suất thị trường cũng 6%. Giá xấp xỉ bao nhiêu?
+> 🔁 **Thực hành.** Trái phiếu par 1 triệu, coupon 6%, lợi suất thị trường cũng 6%. Giá xấp xỉ bao nhiêu?
 > <details><summary>Đáp án</summary>Đúng bằng mệnh giá ≈ 1.000.000đ — vì coupon = lợi suất → at par.</details>
 
 ---
@@ -87,7 +87,7 @@ $$P = 80.000 \\times \\frac{1 - 1{,}10^{-5}}{0{,}10} + \\frac{1.000.000}{1{,}10^
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "trái phiếu an toàn nên giá không đổi". Giá trái phiếu **dao động hằng ngày** theo lãi suất thị trường. Trái phiếu dài hạn có thể mất giá đáng kể khi lãi tăng mạnh.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lãi suất thị trường giảm từ 8% xuống 6%. Giá trái phiếu coupon 8% sẽ lên hay xuống? Trên hay dưới mệnh giá?
+> 🔁 **Thực hành.** Lãi suất thị trường giảm từ 8% xuống 6%. Giá trái phiếu coupon 8% sẽ lên hay xuống? Trên hay dưới mệnh giá?
 > <details><summary>Đáp án</summary>Giá **lên**, **trên** mệnh giá (premium) — vì coupon 8% giờ hấp dẫn hơn lãi thị trường 6%.</details>
 
 ---

@@ -68,7 +68,7 @@ Một biểu thức nhìn rối, dùng identity 2-3 bước ra $1$. Đó là s�
 
 ⚠ **Lỗi thường gặp**: nhầm identity với phương trình. Khi đọc $\\sin^2\\theta + \\cos^2\\theta = 1$, đừng nghĩ *"giải tìm θ"* — không cần giải gì cả, nó **luôn đúng**. Còn $\\sin\\theta = 1/2$ thì mới có nghĩa "giải tìm θ".
 
-🔁 **Dừng lại tự kiểm tra**: phát biểu nào sau đây là identity?
+🔁 **Thực hành**: phát biểu nào sau đây là identity?
 1. $(x - y)^2 = x^2 - 2xy + y^2$
 2. $\\tan\\theta = 1$
 3. $2\\sin\\theta\\cos\\theta = \\sin 2\\theta$
@@ -167,7 +167,7 @@ $$\\Rightarrow\\ 1 + \\cot^2\\theta = \\csc^2\\theta \\qquad (\\bigstar \\text{ 
 
 ⚠ **Lỗi thường gặp**: viết $\\sin^2\\theta + \\cos^2\\theta = 1$ rồi cho rằng $\\sin\\theta + \\cos\\theta = 1$ — **sai hoàn toàn**. Ví dụ phản chứng: với $\\theta = 45^\\circ$, $\\sin 45^\\circ + \\cos 45^\\circ = \\sqrt{2}/2 + \\sqrt{2}/2 = \\sqrt{2} \\approx 1.414$, không bằng $1$. **Bình phương không phân phối qua cộng**.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 1. Cho $\\cos\\theta = 0.6$, tính $\\sin\\theta$ (giả sử $\\theta$ ở quadrant I).
 2. Cho $\\tan\\theta = 3/4$ ($\\theta$ quadrant I). Tính $\\sec\\theta$.
 
@@ -372,7 +372,7 @@ Hai lý do:
 
 ⚠ **Lỗi thường gặp**: viết $\\sin(\\alpha + \\beta) = \\sin\\alpha + \\sin\\beta$ — **SAI**. Ví dụ phản chứng: $\\sin(30^\\circ + 60^\\circ) = \\sin 90^\\circ = 1$, còn $\\sin 30^\\circ + \\sin 60^\\circ = 1/2 + \\sqrt{3}/2 \\approx 1.366$. **$\\sin$ không phân phối qua cộng**. Đây là sai lầm phổ biến nhất, kiểm tra mỗi khi bạn viết công thức.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 1. Tính $\\cos 105^\\circ$ bằng công thức cộng.
 2. Cho $\\sin\\alpha = 4/5, \\cos\\alpha = 3/5, \\sin\\beta = 5/13, \\cos\\beta = 12/13$. Tính $\\cos(\\alpha - \\beta)$.
 
@@ -469,7 +469,7 @@ Kiểm $\\cos 120^\\circ = \\cos^2 60^\\circ - \\sin^2 60^\\circ$:
 
 ⚠ **Lỗi thường gặp**: viết $\\sin 2\\theta = 2\\sin\\theta$ — **SAI**. Thiếu hệ số $\\cos\\theta$. Phản chứng: $\\sin 60^\\circ = \\sqrt{3}/2 \\approx 0.866$, còn $2\\sin 30^\\circ = 2 \\cdot \\frac{1}{2} = 1$. Không khớp.
 
-🔁 **Dừng lại tự kiểm tra**: cho $\\sin\\theta = 3/5$, $\\cos\\theta = 4/5$. Tính $\\sin 2\\theta$ và $\\cos 2\\theta$.
+🔁 **Thực hành**: cho $\\sin\\theta = 3/5$, $\\cos\\theta = 4/5$. Tính $\\sin 2\\theta$ và $\\cos 2\\theta$.
 
 <details>
 <summary>Đáp án</summary>
@@ -774,7 +774,7 @@ $$\\cos C = \\frac{a^2 + b^2 - c^2}{2ab} = \\frac{1 + 1 - 25}{2} = -\\frac{23}{2
 
 $\\cos C$ phải $\\in [-1, 1]$ → vô lý → tam giác không tồn tại. Định lý cosin tự "báo lỗi".
 
-🔁 **Dừng lại tự kiểm tra**: tam giác có $a = 6, b = 8, C = 120^\\circ$. Tính $c$.
+🔁 **Thực hành**: tam giác có $a = 6, b = 8, C = 120^\\circ$. Tính $c$.
 
 <details>
 <summary>Đáp án</summary>
@@ -1025,7 +1025,7 @@ func cosineSimilarity(u, v []float64) float64 {
 
 ⚠ **Lỗi thường gặp**: chia cho $0$ khi một vector là vector $\\mathbf{0}$ (tất cả thành phần $= 0$). Phải check $|\\mathbf{u}| > 0$ và $|\\mathbf{v}| > 0$ trước. Vector $\\mathbf{0}$ không có hướng, cosine similarity không định nghĩa được.
 
-🔁 **Dừng lại tự kiểm tra**: tính cosine similarity của $\\mathbf{u} = (1, 1, 1)$ và $\\mathbf{v} = (1, 0, 0)$.
+🔁 **Thực hành**: tính cosine similarity của $\\mathbf{u} = (1, 1, 1)$ và $\\mathbf{v} = (1, 0, 0)$.
 
 <details>
 <summary>Đáp án</summary>

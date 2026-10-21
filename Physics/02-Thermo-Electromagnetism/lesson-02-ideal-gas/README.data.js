@@ -47,7 +47,7 @@ Sau bài này bạn sẽ:
 - **Áp dụng mô hình lý tưởng cho mọi điều kiện**. Phản ví dụ: CO₂ ở 50 atm và 0°C lệch khá xa lý tưởng (gần hóa lỏng) — tính $PV = nRT$ sẽ sai vài %. Hơi nước gần điểm sôi cũng lệch.
 - **Tưởng "khí lý tưởng" là một loại khí cụ thể**. Không — nó là mô hình toán học mọi khí tuân theo gần đúng, không phải một chất.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Trong 4 giả định, giả định nào bị phá vỡ khi nén khí tới áp suất cực cao?
 2. Helium ở nhiệt độ phòng, 1 atm — có gần khí lý tưởng không?
@@ -120,7 +120,7 @@ Gộp lại → $P \\cdot V/T = $ const $= n \\cdot R$ cho mọi khí lý tưở
 - **Dùng $T$ bằng °C thay vì K**. Phản ví dụ: khí ở 0°C nén đẳng nhiệt — nếu cắm $T = 0$ vào $PV = nRT$ thì $PV = 0$ (vô lý). Phải dùng $T = 273{,}15 \\text{ K}$.
 - **Quên đổi L sang m³ hoặc atm sang Pa** khi dùng $R = 8{,}314$. Phản ví dụ: $V = 5 \\text{ L} \\to$ phải là $0{,}005 \\text{ m}^3$, không phải 5.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. 1 mol khí lý tưởng ở 0°C, 1 atm chiếm thể tích bao nhiêu lít?
 2. 3 mol khí ở 300 K trong bình 10 L ($= 0{,}01 \\text{ m}^3$). Tính $P$ (Pa).
@@ -180,7 +180,7 @@ $V$ không đổi $\\to P/T = $ const $\\to$ **$P_1/T_1 = P_2/T_2$**.
 - **Dùng °C trong các tỉ lệ $V/T$, $P/T$**. Phản ví dụ: bóng 2 L ở 27°C đem xuống... nếu lấy $T = 27$ và $T' = -3$ thì tỉ lệ âm, vô lý. Đúng: dùng 300 K và 270 K → $V' = 2 \\cdot (270/300) = 1{,}8 \\text{ L}$.
 - **Lẫn tỉ lệ thuận/nghịch**: Boyle là **nghịch** ($V$ giảm → $P$ tăng), Charles/Gay-Lussac là **thuận** ($T$ tăng → $V$ hoặc $P$ tăng).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Nén khí từ 4 L xuống 1 L ở $T$ không đổi, $P$ ban đầu 1 atm. $P$ mới?
 2. Bình kín ở 300 K, $P = 2 \\text{ atm}$, đốt lên 600 K. $P$ mới?
@@ -241,7 +241,7 @@ $$U = \\tfrac{3}{2} \\cdot n \\cdot R \\cdot T$$
 - **Dùng $T$ bằng °C trong $KE = \\tfrac{3}{2} k_B \\cdot T$**. Phải dùng Kelvin ($T$ tuyệt đối). Ở 0°C, $KE \\neq 0$; chỉ ở 0 K mới $\\approx 0$.
 - **Quên căn bậc 2 khi tính $v_{\\text{rms}}$**: $v_{\\text{rms}} = \\sqrt{3 k_B \\cdot T/m}$, không phải $3 k_B \\cdot T/m$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ở cùng 300 K, He (nhẹ) và Ar (nặng) — phân tử nào có vận tốc trung bình lớn hơn?
 2. Tính KE trung bình của 1 phân tử khí ở 300 K ($k_B = 1{,}38 \\times 10^{-23} \\text{ J/K}$).

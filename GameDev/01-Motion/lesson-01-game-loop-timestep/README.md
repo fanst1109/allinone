@@ -132,7 +132,7 @@ Sau 1 giây (60 frame): $x \approx 60 \times 3.33 \approx 200$ px ✓ — đúng
 > - **"Δt lấy ở đâu ra?"** — Hiệu giữa timestamp frame này và frame trước. rAF đưa timestamp sẵn; nếu tự đo thì dùng `performance.now()`.
 > - **"Một frame mất bao lâu?"** — Ở 60 fps, 1 giây / 60 ≈ **16.67 ms**. Đó là *frame budget* — cả input + update + render phải xong trong 16.67 ms, nếu không sẽ tụt frame (xem §6).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Trong game loop, vì sao `render` phải đặt SAU `update`?
 > 2. Nếu máy chạy 50 fps, một frame kéo dài bao nhiêu ms?
 >
@@ -208,7 +208,7 @@ Dù fps lên xuống thất thường, **tổng quãng đường vẫn = $v \tim
 > - **"Δt nên tính bằng giây hay mili-giây?"** — Chọn một và nhất quán. Bài này dùng **giây** (chia timestamp ms cho 1000) vì khớp đơn vị vật lý (m/s, px/s).
 > - **"Frame đầu tiên thì Δt = ?"** — Chưa có "frame trước" nên Δt chưa xác định. Thực tế: bỏ qua update frame đầu, hoặc khởi tạo `last = now()` trước vòng lặp để frame đầu có Δt ≈ 0.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vật $v = 250$ px/s, ở 50 fps thì mỗi frame dịch bao nhiêu px? Một giây tổng cộng bao nhiêu?
 > 2. Vì sao `x += v * dt` cho ra cùng quãng đường ở 30 fps và 60 fps?
 >
@@ -378,7 +378,7 @@ Giả sử frame budget 60 fps = 16.67 ms. Một frame tốn:
 
 > ⚠ **Lỗi thường gặp.** Tin rằng "code chạy 60 fps trên máy mình thì máy nào cũng 60 fps". Máy yếu hơn có budget khó đạt hơn → tụt frame. Đây *lại* là lý do phải dùng Δt: nếu cập nhật theo Δt, máy tụt còn 30 fps vẫn thấy vật đi đúng tốc độ (chỉ kém mượt), thay vì chạy chậm một nửa.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Game muốn 120 fps, một frame có budget bao nhiêu ms?
 > 2. Đo được Δt = 0.025 s — đang chạy bao nhiêu fps? Có đạt 60 fps không?
 >

@@ -110,7 +110,7 @@ $$a \\equiv b \\pmod{m} \\iff m \\mid (a - b),$$
 - *"Đồng dư có phải quan hệ tương đương không?"* — Có. Phản xạ ($a\\equiv a$), đối xứng ($a\\equiv b \\Rightarrow b\\equiv a$), bắc cầu ($a\\equiv b, b\\equiv c \\Rightarrow a\\equiv c$) — đúng cả ba, đã gặp ở [Set Theory §6](../lesson-01-set-theory/). Vì thế nó chia $\\mathbb{Z}$ thành đúng $m$ lớp: lớp dư 0, dư 1, …, dư $m-1$.
 - *"Số dư có thể bằng $m$ không?"* — Không. Theo định nghĩa $0 \\le r < m$, dư lớn nhất là $m-1$. $24 \\bmod 8 = 0$ chứ không phải $8$.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Tính $-13 \\bmod 4$ theo mod toán học, và \`-13 % 4\` trong Go.
 2. $50 \\equiv 8 \\pmod{m}$ với những $m$ nào trong $\\{6, 7, 14, 21\\}$?
 
@@ -163,7 +163,7 @@ $$a^k \\bmod m = \\big((a \\bmod m)^k\\big) \\bmod m.$$
 
 ⚠ **Lỗi thường gặp #3 — chia KHÔNG đơn giản như nhân.** Cộng/trừ/nhân thì mod tự do, nhưng **không được** viết $(a / b) \\bmod m = (a \\bmod m)/(b \\bmod m)$. Phép chia trong modular phải thay bằng **nhân với nghịch đảo** $b^{-1}$ (§6). Ví dụ $\\tfrac{6}{2} = 3$ nhưng trong mod việc "chia 2" chỉ hợp lệ khi $2$ có nghịch đảo mod $m$.
 
-🔁 **Dừng lại tự kiểm tra.** Tính $123 \\cdot 456 \\bmod 7$ bằng cách mod sớm.
+🔁 **Thực hành.** Tính $123 \\cdot 456 \\bmod 7$ bằng cách mod sớm.
 <details><summary>Đáp án</summary>
 
 $123 \\bmod 7 = 4$ ($123=17\\cdot7+4$); $456 \\bmod 7 = 1$ ($456=65\\cdot7+1$). $(4\\cdot1)\\bmod 7 = 4$. (Kiểm tra thẳng: $123\\cdot456 = 56088 = 8012\\cdot7 + 4$ ✓.)
@@ -234,7 +234,7 @@ func gcd(a, b int) int {
 
 ❓ *"Vì sao không nhanh hơn nữa?"* — Vì mỗi 2 bước số giảm ≥ một nửa, không thể nhanh hơn log. *"Thứ tự $a, b$ có quan trọng?"* — Không: nếu $a < b$ thì bước đầu $a \\bmod b = a$, tự động hoán vị, chỉ tốn thêm 1 bước.
 
-🔁 **Dừng lại tự kiểm tra.** Chạy Euclid cho $\\gcd(1071, 462)$.
+🔁 **Thực hành.** Chạy Euclid cho $\\gcd(1071, 462)$.
 <details><summary>Đáp án</summary>
 
 $1071 \\bmod 462 = 147$ → $\\gcd(462, 147)$; $462 \\bmod 147 = 21$ → $\\gcd(147, 21)$; $147 \\bmod 21 = 0$ → $\\gcd(21, 0) = \\mathbf{21}$.
@@ -318,7 +318,7 @@ Nếu $m = p$ nguyên tố, thì với mọi $a \\in \\{1, 2, \\ldots, p-1\\}$ t
 
 ❓ *"Nghịch đảo có duy nhất không?"* — Trong $[1, m-1]$ thì có, duy nhất. *"Có cách nào khác Extended Euclid?"* — Có: nếu $m = p$ nguyên tố, theo Fermat (§8) $a^{p-1}\\equiv1$ nên $a^{-1} \\equiv a^{p-2} \\pmod p$ — tính bằng fast exponentiation (§7).
 
-🔁 **Dừng lại tự kiểm tra.** Tìm $5^{-1} \\bmod 11$.
+🔁 **Thực hành.** Tìm $5^{-1} \\bmod 11$.
 <details><summary>Đáp án</summary>
 
 Cần $5x\\equiv1\\pmod{11}$. $5\\cdot9=45=4\\cdot11+1\\equiv1$ → $x=9$. Vậy $5^{-1}\\equiv9\\pmod{11}$.
@@ -372,7 +372,7 @@ func powMod(a, b, m int) int {
 
 ❓ *"Vì sao mod sau MỖI phép nhân?"* — Để số không bao giờ vượt $m^2$, tránh tràn \`int64\`. *"Có $O(\\log b)$ thật không?"* — Có: vòng lặp chạy đúng số bit của $b$ = $\\lfloor\\log_2 b\\rfloor + 1$.
 
-🔁 **Dừng lại tự kiểm tra.** Tính $2^{10} \\bmod 1000$ bằng square-and-multiply.
+🔁 **Thực hành.** Tính $2^{10} \\bmod 1000$ bằng square-and-multiply.
 <details><summary>Đáp án</summary>
 
 $10=1010_2$. base: $2\\to4\\to16\\to256$; result nhân tại bit 1 ($i=1$, base 4 → result 4) và bit 3 ($i=3$, base 256 → $4\\cdot256=1024\\equiv24$). → $2^{10}=1024\\equiv\\mathbf{24}\\pmod{1000}$ ✓.
@@ -409,7 +409,7 @@ Nếu tìm được $a$ với $a^{n-1} \\not\\equiv 1 \\pmod n$ thì $n$ **chắ
 
 ⚠ **Cảnh báo (toy/limitation).** Phép thử Fermat **không chắc chắn**: có các **số Carmichael** (vd $561 = 3\\cdot11\\cdot17$) thỏa $a^{n-1}\\equiv1$ với mọi $a$ coprime nhưng vẫn là hợp số. Production dùng **Miller–Rabin** (mạnh hơn) — xem [Cryptography](../../../Cryptography/). Ở đây Fermat chỉ là minh họa ý tưởng, **đừng dùng để kiểm tra nguyên tố thật**.
 
-🔁 **Dừng lại tự kiểm tra.** Dùng Fermat tính $4^{-1} \\bmod 13$.
+🔁 **Thực hành.** Dùng Fermat tính $4^{-1} \\bmod 13$.
 <details><summary>Đáp án</summary>
 
 $4^{-1}\\equiv4^{11}\\pmod{13}$. Nhanh hơn: thử trực tiếp $4\\cdot10=40=3\\cdot13+1\\equiv1$ → $4^{-1}=10$. (Kiểm $4^{11}$ qua fast-exp cũng ra $10$.)

@@ -50,7 +50,7 @@ Mọi mô hình vũ trụ phải trả lời được 2 câu:
 > - *"Địa tâm có dự đoán đúng không?"* — **Có**, ở mức độ đáng nể: nó dự đoán vị trí hành tinh đủ tốt cho lịch và hàng hải suốt ~1400 năm. Vấn đề không phải "sai bét" mà là "đúng nhưng phức tạp khủng khiếp và không giải thích *vì sao*".
 > - *"Vậy sao lại bỏ nó?"* — Vì nó là bộ máy hình học chắp vá, không có nguyên lý vật lý; và phiên bản nhật tâm + elip đơn giản hơn nhiều mà chính xác hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong mô hình Ptolemy, cái gì tạo ra chuyển động nghịch hành?
+> 🔁 **Thực hành.** Trong mô hình Ptolemy, cái gì tạo ra chuyển động nghịch hành?
 > <details><summary>Đáp án</summary>**Ngoại luân (epicycle)** — vòng tròn nhỏ. Khi hành tinh chạy về phía sau trên ngoại luân nhanh hơn tâm ngoại luân tiến trên hoãn luân, tổng hợp lại nhìn từ Trái Đất thành đi lùi.</details>
 
 > 📝 **Tóm tắt mục 2.** Địa tâm dùng hoãn luân (vòng lớn) + ngoại luân (vòng nhỏ) để "vá" chuyển động nghịch hành. Chạy được nhưng cần ~40 vòng, không có nguyên lý vật lý.
@@ -90,7 +90,7 @@ T_{syn} &= \\frac{1}{0{,}468} \\approx 2{,}14 \\ \\text{năm} \\quad (\\approx 7
 > - *"Vì sao địa tâm cần ngoại luân mà nhật tâm thì không?"* — Vì nghịch hành trong nhật tâm là hệ quả **tự động** của hai hành tinh chuyển động với tốc độ khác nhau. Địa tâm đặt Trái Đất đứng yên, mất đi nguồn gốc tự nhiên này, nên phải bịa thêm vòng (ngoại luân) để tạo hiệu ứng.
 > - *"Sao Kim (hành tinh trong) có nghịch hành không?"* — Có, nhưng cơ chế ngược: Sao Kim đi **nhanh hơn** Trái Đất và vượt Trái Đất, nên nó nghịch hành khi ở giữa Trái Đất và Mặt Trời.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính chu kỳ giao hội của Sao Mộc ($T = 11{,}86$ năm) — sau bao lâu Trái Đất lại "vượt" Sao Mộc một lần?
+> 🔁 **Thực hành.** Tính chu kỳ giao hội của Sao Mộc ($T = 11{,}86$ năm) — sau bao lâu Trái Đất lại "vượt" Sao Mộc một lần?
 > <details><summary>Đáp án</summary>$\\dfrac{1}{T_{syn}} = \\dfrac{1}{1} - \\dfrac{1}{11{,}86} = 1 - 0{,}0843 = 0{,}9157$ → $T_{syn} \\approx 1{,}09 \\ \\text{năm}$ (≈ 399 ngày). Vì Sao Mộc đi rất chậm, Trái Đất gần như vượt nó mỗi năm một lần.</details>
 
 > 📝 **Tóm tắt mục 3.** Nhật tâm (Copernicus, 1543) đặt Mặt Trời ở tâm. Nghịch hành = ảo giác do Trái Đất vượt hành tinh ngoài, không cần ngoại luân. Chu kỳ giao hội Sao Hỏa ~2,14 năm.
@@ -145,7 +145,7 @@ Hai quan sát then chốt:
 
 > ⚠ **Lỗi thường gặp.** "Galileo phát minh kính thiên văn." Không — kính ra đời ở Hà Lan (~1608); Galileo cải tiến và là người đầu tiên dùng nó **một cách hệ thống cho thiên văn**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao việc Sao Kim có pha "tròn đầy" lại bác bỏ địa tâm Ptolemy?
+> 🔁 **Thực hành.** Vì sao việc Sao Kim có pha "tròn đầy" lại bác bỏ địa tâm Ptolemy?
 > <details><summary>Đáp án</summary>Trong mô hình Ptolemy, Sao Kim luôn nằm giữa Trái Đất và Mặt Trời (trên ngoại luân ở phía Mặt Trời), nên ta chỉ thấy được pha lưỡi liềm — không bao giờ thấy pha tròn đầy. Quan sát thấy pha tròn đầy ⇒ Sao Kim phải đi quanh Mặt Trời (qua cả phía bên kia), tức nhật tâm.</details>
 
 ### 4.4 Newton — tổng hợp tất cả (1687)

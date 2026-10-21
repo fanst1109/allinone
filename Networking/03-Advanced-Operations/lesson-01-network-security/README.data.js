@@ -60,7 +60,7 @@ Gồm 3 loại chính:
 
 ⚠ **Lỗi thường gặp**: Nhiều đội chỉ nghĩ đến network attack surface (firewall, IDS) mà quên software attack surface. Thực tế, phần lớn breach thành công đến từ lỗ hổng phần mềm (SQL injection, XSS) hoặc con người (phishing), không phải xâm nhập trực tiếp qua mạng.
 
-🔁 **Dừng lại tự kiểm tra**: Server web của công ty bị DDoS → trụ cột nào của CIA bị vi phạm?
+🔁 **Thực hành**: Server web của công ty bị DDoS → trụ cột nào của CIA bị vi phạm?
 
 <details><summary>Đáp án</summary>
 
@@ -155,7 +155,7 @@ DENY   src=any  dst=any  proto=any
 
 Router gia đình có NAT không có nghĩa là được bảo vệ bởi firewall — nếu ai đó bypass NAT (qua port forwarding, UPnP tự động mở cổng), traffic vào được mà không có rule nào kiểm tra.
 
-🔁 **Dừng lại tự kiểm tra**: Viết rule firewall để: (1) cho phép DNS từ mọi host trong mạng 192.168.0.0/16 đến server DNS 1.1.1.1, (2) chặn mọi thứ còn lại.
+🔁 **Thực hành**: Viết rule firewall để: (1) cho phép DNS từ mọi host trong mạng 192.168.0.0/16 đến server DNS 1.1.1.1, (2) chặn mọi thứ còn lại.
 
 <details><summary>Đáp án</summary>
 
@@ -292,7 +292,7 @@ Nhân viên WFH         Internet                   Mạng công ty
 
 ⚠ **Lỗi thường gặp**: Điều chỉnh ngưỡng IPS quá nhạy để "bắt hết" → tăng FP, admin kiệt sức, cuối cùng tắt cảnh báo. Ngược lại, quá ít nhạy → FN nhiều, bỏ sót tấn công thật. Phải tune carefully dựa trên môi trường cụ thể.
 
-🔁 **Dừng lại tự kiểm tra**: Bạn chọn IDS hay IPS cho môi trường sau: hệ thống thanh toán trực tuyến với yêu cầu uptime 99.99%, traffic có pattern rõ ràng và nhóm bảo mật đủ lực để xử lý cảnh báo?
+🔁 **Thực hành**: Bạn chọn IDS hay IPS cho môi trường sau: hệ thống thanh toán trực tuyến với yêu cầu uptime 99.99%, traffic có pattern rõ ràng và nhóm bảo mật đủ lực để xử lý cảnh báo?
 
 <details><summary>Đáp án</summary>
 
@@ -392,7 +392,7 @@ Ví dụ cụ thể: trong ruleset DMZ ở trên, \`ALLOW src=10.0.1.10 dst=10.0
 - "Micro-segmentation là gì?" — Phân vùng đến mức từng workload/container, không chỉ theo subnet. Ví dụ: mỗi microservice chỉ được phép giao tiếp với service cụ thể theo danh sách whitelist. Phổ biến trong môi trường cloud-native (Kubernetes NetworkPolicy, service mesh).
 - "VLAN có phải phân vùng bảo mật không?" — VLAN tạo cô lập ở L2 (tầng data link) nhưng không phải bảo mật thật sự — VLAN hopping attack có thể bypass. Phải kết hợp VLAN với firewall L3 mới đảm bảo.
 
-🔁 **Dừng lại tự kiểm tra**: Server cơ sở dữ liệu khách hàng nên đặt ở vùng nào: DMZ hay Internal? Vì sao?
+🔁 **Thực hành**: Server cơ sở dữ liệu khách hàng nên đặt ở vùng nào: DMZ hay Internal? Vì sao?
 
 <details><summary>Đáp án</summary>
 

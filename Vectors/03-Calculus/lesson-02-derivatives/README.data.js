@@ -141,7 +141,7 @@ Vẽ trong đầu (hoặc xem viz):
 4. h = 0.01: gần như trùng tiếp tuyến.
 5. h → 0: chỉ còn 1 điểm chạm — tiếp tuyến.
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > Cho $f(x) = x^2$ tại $a = 5$. Tính slope cát tuyến với $h = 0.01$. Dự đoán $f'(5)$ bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
@@ -252,7 +252,7 @@ f'(x) &= \\lim_{h \\to 0} \\frac{(x + h)^2 - x^2}{h} \\\\[4pt]
 
 Vậy $(x^2)' = 2x$. Đây là đẳng thức giữa **2 hàm số**, không phải giữa 2 số.
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > Dùng định nghĩa để chứng minh $(x^2)' = 2x$ rồi suy ra $f'(3) = 6$ và $f'(5) = 10$. Khớp với 2 số ta tính riêng ở mục 3.2 và 3.3?
 > <details><summary>Đáp án</summary>
 > Khớp. $f'(3) = 2 \\cdot 3 = 6$. $f'(5) = 2 \\cdot 5 = 10$.
@@ -539,7 +539,7 @@ $$(\\ln x)' = \\frac{1}{x}$$
 
 > 📌 **Cách nhớ**: hai dạng chính — *lũy thừa* ($x^n$, hạ bậc nhân hệ số) và *lượng giác / mũ* ($\\sin \\leftrightarrow \\cos \\leftrightarrow -\\sin \\leftrightarrow -\\cos \\leftrightarrow \\sin$, $e^x$ bất biến, $\\ln x$ chuyển sang $1/x$). 8 trong 10 dòng đã có ở 6.1 → 6.9, riêng dòng 4 ($x^\\alpha$ cho α thực) và dòng 5 ($\\sqrt{x}$) sẽ được chứng minh chặt ở Lesson 03 sau khi có quy tắc chain rule.
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > Không nhìn bảng. Trả lời:  
 > a) $(x^7)'$ = ?  
 > b) $(1/x)'$ tại $x = 3$ = ?  
@@ -595,7 +595,7 @@ Một **định lý nền tảng**: nếu f không liên tục tại $a$, thì f
 > - Khả vi tại a $\\Longrightarrow$ liên tục tại a.  
 > - Liên tục tại a $\\nRightarrow$ khả vi tại a (ví dụ $|x|$ tại 0).
 
-> 🔁 **Dừng lại tự kiểm tra.**  
+> 🔁 **Thực hành.**  
 > a) Hàm $f(x) = |x - 3|$ có khả vi tại $x = 3$ không?  
 > b) Hàm $f(x) = x \\cdot \\sin(1/x)$ (với $f(0) = 0$) có liên tục tại 0 không? Khả vi tại 0 không?  
 > <details><summary>Đáp án</summary>

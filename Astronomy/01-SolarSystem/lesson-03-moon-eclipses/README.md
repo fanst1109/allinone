@@ -50,7 +50,7 @@ Sau bài này bạn sẽ:
 
 > 💡 **Vì sao 29,5 > 27,3?** Trong lúc Trăng quay quanh Trái Đất, **Trái Đất cũng đi quanh Mặt Trời**, nên Trăng phải quay thêm ~2 ngày nữa mới "đuổi kịp" để lại thẳng hàng Mặt Trời–Trái Đất–Trăng (cùng pha). Walk-through: Trái Đất đi $360^\circ/365{,}25 \approx 0{,}986^\circ$/ngày. Trong 27,3 ngày Trái Đất đã dịch $27{,}3 \times 0{,}986 \approx 26{,}9^\circ$. Trăng đi $360^\circ/27{,}3 \approx 13{,}18^\circ$/ngày, cần thêm $26{,}9 / (13{,}18 - 0{,}986) \approx 2{,}2$ ngày để bù → $27{,}3 + 2{,}2 \approx 29{,}5$ ngày ✓.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trăng tròn mọc vào lúc nào trong ngày?
+> 🔁 **Thực hành.** Trăng tròn mọc vào lúc nào trong ngày?
 > <details><summary>Đáp án</summary>Lúc hoàng hôn (~18h). Vì trăng tròn ở elongation 180° (đối diện Mặt Trời) — khi Mặt Trời lặn ở tây thì Trăng mọc ở đông, và lặn lúc bình minh.</details>
 
 ---
@@ -95,7 +95,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "nếu quỹ đạo Trăng phẳng trùng hoàng đạo thì sẽ thực mỗi tháng" — đúng về định tính, và đó chính là lý do thực hiếm: chỉ vì cái nghiêng 5° nhỏ bé. Đừng bỏ qua góc nghiêng này khi giải thích.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu quỹ đạo Trăng nghiêng $0^\circ$ (trùng hoàng đạo), một năm có bao nhiêu lần nhật thực?
+> 🔁 **Thực hành.** Nếu quỹ đạo Trăng nghiêng $0^\circ$ (trùng hoàng đạo), một năm có bao nhiêu lần nhật thực?
 > <details><summary>Đáp án</summary>12 (mỗi trăng non đều thẳng hàng → mỗi tháng 1 nhật thực) + 12 nguyệt thực. Chính góc nghiêng 5° làm con số tụt xuống còn 2–5/năm.</details>
 
 ---
@@ -138,7 +138,7 @@ Sau bài này bạn sẽ:
 
 > ❓ **Câu hỏi tự nhiên.** *"Spring tide có liên quan mùa xuân không?"* — Không. "Spring" ở đây nghĩa "vọt lên" (như lò xo), xảy ra 2 lần/tháng âm (trăng non + trăng tròn), không liên quan mùa.
 
-> 🔁 **Dừng lại tự kiểm tra.** Triều cường xảy ra vào những pha nào?
+> 🔁 **Thực hành.** Triều cường xảy ra vào những pha nào?
 > <details><summary>Đáp án</summary>Trăng non và trăng tròn (Mặt Trời–Trái Đất–Trăng thẳng hàng, elongation 0° và 180°). Triều kém vào thượng huyền và hạ huyền (90°, 270°).</details>
 
 > 📝 **Tóm tắt toàn bài.**

@@ -158,7 +158,7 @@ trong đó:
 - $t = 20000 / 15000$ mA $\approx$ **1.33 giờ** ≈ 80 phút.
 - Năng lượng tổng $= 48 \times 20 =$ **960 Wh ≈ 1 kWh**.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 Pin 9V (dạng khối vuông) thường có dung lượng 500 mAh. Arduino Nano tiêu thụ 20 mA. Tính thời gian sử dụng ($\eta = 0.85$).
 
 <details>
@@ -315,7 +315,7 @@ Màn hình scope có **lưới ô vuông (graticule)**, thường 8×10 ô (8 ô
 - $V_{\text{pp}} = 5 \times 200$ mV $=$ **1000 mV = 1 V**.
 - $T = 6 \times 1$ µs $=$ **6 µs** → $f = 1/6$ µs $\approx$ **167 kHz**.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 Scope hiển thị: V/div = 2 V, time/div = 5 ms. Sóng sin chiếm 5 ô dọc (đỉnh-đỉnh), 4 ô ngang/chu kỳ. Tính $V_{\text{pp}}$, $A$, $T$, $f$, $V_{\text{RMS}}$.
 
 <details>

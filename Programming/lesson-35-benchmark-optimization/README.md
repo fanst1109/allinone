@@ -111,7 +111,7 @@ func BenchmarkParseHugeFile(b *testing.B) {
 
 `ResetTimer` reset cả: thời gian, byte allocated, alloc count, custom metrics. Nếu không gọi → 200ms setup bị chia đều cho `b.N` → sai số khổng lồ.
 
-🔁 **Dừng lại tự kiểm tra:** vì sao `b.N=1` đầu tiên cũng phải gọi `ResetTimer`?
+🔁 **Thực hành:** vì sao `b.N=1` đầu tiên cũng phải gọi `ResetTimer`?
 
 <details>
 <summary>Đáp án</summary>

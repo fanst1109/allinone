@@ -124,7 +124,7 @@ Một sinh viên học nhiều môn, một môn có nhiều sinh viên. `student
 3. `seat_booking(flight_id, seat_no, passenger)` → `{flight_id, seat_no}` (một ghế trên một chuyến chỉ đặt một lần).
 4. `friendship(user_a, user_b)` → `{user_a, user_b}`.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Cho bảng `students(id, email, phone, name)`, `{email, name}` thuộc loại khóa nào?
 2. Vì sao mỗi bảng chỉ có một primary key nhưng có thể có nhiều candidate key?
 
@@ -224,7 +224,7 @@ Với `ON DELETE RESTRICT`: bước 1 đã **thất bại** — DBMS từ chối
 
 `ON UPDATE` tương tự nhưng kích hoạt khi giá trị khóa được tham chiếu *thay đổi* (vd đổi `customers.id`). Đây là một lý do nữa để primary key dùng giá trị *không bao giờ đổi* (`id` nhân tạo) → khi đó `ON UPDATE` gần như không bao giờ chạy.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Bảng `order_items` trỏ tới `orders`. Khi xóa một đơn hàng, các dòng `order_items` của nó nên xử lý thế nào, dùng hành vi gì?
 2. Vì sao `SET NULL` đòi hỏi cột khóa ngoại *không* được khai `NOT NULL`?
 

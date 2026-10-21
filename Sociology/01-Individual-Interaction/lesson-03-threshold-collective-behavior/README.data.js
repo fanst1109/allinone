@@ -133,7 +133,7 @@ $$0 \\to 1 \\to 2 \\to 4 \\to 5 \\to 5$$
 
 **Dừng ở $n^* = 5$.** Vì sao? Bước tiếp theo cần kích hoạt người ngưỡng 6 (có **hai** người ở đó), nhưng muốn thế phải có 6 người đang tham gia — mà chỉ có 5. Cả hai người ngưỡng 6 đứng nhìn nhau chờ người thứ 6, và không bao giờ có. Đó là **cân bằng bộ phận**: không tắt hẳn, cũng không bùng hết, kẹt lại ở 5.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Với phân bố $\\{0,1,2,2,3,6,6,7,8,9\\}$, nếu ta thêm **một** người ngưỡng 5 (thành 11 người) thì cân bằng cuối là bao nhiêu?
 > 2. "Điểm dừng" trên đồ thị $F$ và $y=x$ nằm ở đâu?
 >
@@ -199,7 +199,7 @@ Lại đúng một người lệch (ngưỡng $1 \\to 2$) → kết cục nhảy
 > - *"Có phải cứ đổi bất kỳ một người nào cũng lật kết cục không?"* → Không. Chỉ những người ở **mắt xích tới hạn** (chỗ chuỗi đang khít sát $y=x$) mới có sức lật. Đổi người ngưỡng 70 trong đám A (khi domino đã chạy qua đó) chẳng ảnh hưởng gì. Sức mạnh nằm ở **vị trí trong chuỗi**, không phải bản thân con số.
 > - *"Vậy dự báo bạo động là bất khả?"* → Không hẳn — nhưng nó cảnh báo rằng dự báo dựa trên "khảo sát thái độ trung bình" là **mong manh**: một thay đổi nhỏ trong phân bố (một người do dự hơn, một tin nhắn làm ai đó chùn tay) có thể lật kết cục. Cần biết **cả hình dạng phân bố**, không chỉ trung bình.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đám 5 người có ngưỡng $\\{0, 1, 3, 3, 4\\}$. Cân bằng cuối là bao nhiêu? Nó thuộc kiểu nào (bùng/tắt/bộ phận)?
+> 🔁 **Ôn tập.** Đám 5 người có ngưỡng $\\{0, 1, 3, 3, 4\\}$. Cân bằng cuối là bao nhiêu? Nó thuộc kiểu nào (bùng/tắt/bộ phận)?
 >
 > <details><summary>Đáp án</summary>
 >

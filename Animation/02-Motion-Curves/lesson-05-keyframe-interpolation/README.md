@@ -126,7 +126,7 @@ Rồi thế $t = 0.25$ vào Ví dụ 2 → inbetween $(140,\ 232.5)$. Đây là 
 
 > ⚠ **Lỗi thường gặp.** Nội suy tuyến tính cho chuyển động **cứng, máy móc**: vật chạy đều tăm tắp rồi *đổi hướng đột ngột* ngay tại keyframe (một "góc gãy" trong quỹ đạo và trong vận tốc). Vật thật không đi vậy — chúng tăng tốc/giảm tốc mượt. Khắc phục hướng đi bằng **nội suy mượt** (mục 5); khắc phục tốc độ bằng **easing** ([Lesson 06](../lesson-06-easing-bezier/)).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Với $A = 200, B = 500$, tính $p(0.4)$.
 > 2. Vật đi từ $K_2(1.5\text{s})$ tới $K_3(3.0\text{s})$. Tại $\tau = 2.25$ s, $t$ của đoạn bằng bao nhiêu?
 >

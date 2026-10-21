@@ -50,7 +50,7 @@ Câu hỏi trung tâm của cả bài: **greedy (nhanh, đơn giản) hay DP (ch
 > - *"Nếu DP luôn đúng, sao không dùng DP cho mọi bài?"* → Vì DP chậm và tốn bộ nhớ hơn. Khi greedy đúng, dùng greedy là lựa chọn tốt hơn hẳn (xem mục 10). Dùng DP cho bài mà greedy đủ là **over-engineering**.
 > - *"Greedy chạy đúng hết test của tôi, vậy nó đúng chứ?"* → **Không.** Đây là cạm bẫy chết người (mục 11). Chạy đúng test ≠ đúng. Phải có **chứng minh** hoặc **không tìm được phản ví dụ**.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Tốc độ điển hình của greedy và DP khác nhau thế nào?
 > 2. Vì sao không dùng DP cho mọi bài cho chắc?
@@ -110,7 +110,7 @@ Cả greedy và DP đều cần optimal substructure. Điểm **phân biệt** n
 >
 > Nhầm "có optimal substructure" với "greedy đúng". Có optimal substructure **không** đủ để greedy đúng — coin change hệ `{1,3,4}` (mục 4) **có** optimal substructure nhưng greedy **sai**, vì thiếu greedy-choice property. Optimal substructure chỉ cho phép DP chạy; greedy cần thêm điều kiện thứ hai.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Tính chất nào greedy cần mà DP không cần?
 > 2. "Overlapping subproblems" liên quan tới greedy hay DP?
@@ -271,7 +271,7 @@ func main() {
 // => Cùng một thuật toán greedy, hệ tiền khác nhau cho kết quả đúng/sai khác nhau.
 ```
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Với hệ `{1, 7, 10}`, đổi `14`: greedy ra mấy đồng? DP ra mấy?
 > 2. Vì sao greedy đúng với `{1,5,10,25}` mà sai với `{1,3,4}`?
@@ -481,7 +481,7 @@ func main() {
 >
 > Áp dụng "greedy v/w đúng cho fractional" vào luôn 0/1 — sai. Hai bài chỉ khác một ràng buộc nhỏ ("cắt được hay không") nhưng kết luận về greedy ngược nhau hoàn toàn.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Cùng input `W=50`, vì sao fractional ra 240 còn 0/1 chỉ ra 220?
 > 2. Tính chất nào của fractional khiến greedy đúng?

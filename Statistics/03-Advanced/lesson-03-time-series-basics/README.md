@@ -200,7 +200,7 @@ Series gốc tăng dần (non-stationary). Sau sai phân: các giá trị dao đ
 
 > ⚠ **Lỗi thường gặp**: Overdifferencing. Lấy sai phân nhiều hơn cần thiết (d=2 khi d=1 đã đủ) → thêm MA component, mô hình phức tạp hơn không cần thiết. Luôn kiểm tra ADF test sau mỗi lần differencing.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Series y = [2, 4, 6, 8, 10, 12] — có stationary không? Sau first difference là gì?
 > <details><summary>Đáp án</summary>
 > Không stationary: $E[y_t] = 2t$ (tăng theo $t$). First difference: $\nabla y = [2, 2, 2, 2, 2]$ — hoàn toàn constant → stationary (variance = 0, special case). Đây là perfect linear trend, $d=1$ đủ.

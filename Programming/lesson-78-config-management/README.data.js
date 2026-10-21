@@ -60,7 +60,7 @@ Lý do then chốt 12-factor đưa ra: phép thử *"liệu codebase có thể p
 
 > ⚠ **Lỗi thường gặp.** Hiểu "config trong environment" thành "mọi thứ phải là env var" rồi nhồi 80 env var vào container. 12-factor nhấn mạnh env var cho **credential và giá trị khác-nhau-theo-deploy**; với cấu hình phức tạp (nested, list dài) thì file config + secret manager vẫn hợp lý hơn. Tinh thần là *"config không nằm trong code"*, không phải *"mọi config phải là biến môi trường"*.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao deploy "cùng một binary" lại quan trọng cho độ tin cậy?
 > 2. \`RetryBackoffFactor = 2.0\` nên là config hay code?
 >
@@ -273,7 +273,7 @@ Gọi \`Validate()\` ngay sau \`Load()\`, **trước** khi mở socket/DB. Sai �
 
 > ⚠ **Lỗi thường gặp.** Không validate → app khởi động "thành công", nhận traffic, rồi panic lúc xử lý request thật vì \`DBURL\` rỗng. Lỗi xuất hiện **muộn**, ở **production**, lúc **đang phục vụ user** — tệ nhất có thể. Fail-fast chuyển lỗi này về lúc deploy, lúc dễ phát hiện và rollback nhất.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao validate lúc startup tốt hơn lúc request?
 > 2. Config \`Port = 70000\` sẽ bị bắt ở đâu?
 >
@@ -387,7 +387,7 @@ go func() {
 >
 > Mọi reader hoặc thấy **toàn bộ** config cũ, hoặc **toàn bộ** config mới — không bao giờ trạng thái lai.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao \`cfg.Port = x; cfg.Level = y\` lại nguy hiểm khi có goroutine khác đọc?
 > 2. Reload mà config mới validate fail thì nên làm gì?
 >

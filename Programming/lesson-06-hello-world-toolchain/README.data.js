@@ -109,7 +109,7 @@ $ tool                       # chạy luôn từ bất cứ đâu (nếu $GOBIN 
 | \`go build\` | binary cố định | folder hiện tại (hoặc \`-o\`) | Deploy, CI artifact, test build time |
 | \`go install\` | binary | \`$GOBIN\` (\`~/go/bin\`) | Cài CLI tool dùng toàn máy |
 
-> 🔁 **Tự kiểm tra**: Tôi đang viết một script đọc CSV → tính tổng → in. Đang sửa code 30 lần / phút. Nên dùng \`go run\`, \`go build\`, hay \`go install\`?
+> 🔁 **Thực hành**: Tôi đang viết một script đọc CSV → tính tổng → in. Đang sửa code 30 lần / phút. Nên dùng \`go run\`, \`go build\`, hay \`go install\`?
 >
 > <details><summary>Đáp án</summary>
 > \`go run\`. Đang ở vòng lặp dev nhanh, không cần binary cố định, không phân phối cho ai.
@@ -318,7 +318,7 @@ Không có blank import → \`sql.Open("postgres", ...)\` báo \`unknown driver\
 >
 > Đây là design có chủ ý — Go ép code sạch. Cách fix: xoá import, hoặc dùng blank \`_ "os"\` nếu thật sự cần init.
 
-> 🔁 **Tự kiểm tra**: package \`github.com/lib/pq\` không có hàm nào tôi gọi trực tiếp, nhưng tôi vẫn cần nó. Import thế nào?
+> 🔁 **Thực hành**: package \`github.com/lib/pq\` không có hàm nào tôi gọi trực tiếp, nhưng tôi vẫn cần nó. Import thế nào?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -459,7 +459,7 @@ RUN go build ...          # <-- code đổi không cần re-download dep
 
 > ❓ **Câu hỏi tự nhiên**: "Tôi xóa folder \`~/go/pkg/mod/\` thì sao?" → **Không sao**. Lần build tới \`go\` tự re-download từ proxy (\`proxy.golang.org\`). Folder này thuần là cache.
 
-> 🔁 **Tự kiểm tra**: Bạn vừa clone một repo Go từ git. Việc đầu tiên cần làm trước khi \`go build\`?
+> 🔁 **Thực hành**: Bạn vừa clone một repo Go từ git. Việc đầu tiên cần làm trước khi \`go build\`?
 >
 > <details><summary>Đáp án</summary>
 > Không cần làm gì — \`go build\` tự đọc \`go.mod\`/\`go.sum\`, tải dependency, rồi build. Một dòng là xong. (Khác hẳn \`npm install\` của Node).

@@ -85,7 +85,7 @@ Asch interview subjects sau thí nghiệm:
 - Nhiều người biết nhóm sai nhưng vẫn nói theo (normative).
 - Một số người thực sự *tin* nhóm đúng sau khi nghe nhiều lần (informational).
 
-🔁 **Tự kiểm tra**: Khi nào informational influence mạnh hơn normative?
+🔁 **Thực hành**: Khi nào informational influence mạnh hơn normative?
 <details>
 <summary>Đáp án</summary>
 Khi tình huống mơ hồ hoặc phức tạp hơn — bạn ít chắc chắn → tin nhóm có thông tin tốt hơn. Asch dùng task rõ ràng (line judgment) nên chủ yếu là normative.
@@ -138,7 +138,7 @@ Khi tình huống mơ hồ hoặc phức tạp hơn — bạn ít chắc chắn 
 1. Liệu ngày nay kết quả có khác không? → Burger (2009) replicate với điều kiện an toàn: 70% đến equivalent 150V — tương đương Milgram.
 2. Milgram có đúng không về mặt đạo đức? → Không. IRB hiện đại sẽ không cho phép: deception + stress tâm lý. Ảnh hưởng đến APA ethics guidelines.
 
-🔁 **Tự kiểm tra**: Yếu tố nào làm giảm obedience nhất — proximity (gần learner) hay peer refusal?
+🔁 **Thực hành**: Yếu tố nào làm giảm obedience nhất — proximity (gần learner) hay peer refusal?
 <details>
 <summary>Đáp án</summary>
 Peer refusal (~10% đến 450V) hiệu quả hơn proximity (~40%). Đây là bằng chứng mạnh cho normative influence — thấy người khác từ chối đã đủ để phá vỡ agentic state.
@@ -224,7 +224,7 @@ Peer refusal (~10% đến 450V) hiệu quả hơn proximity (~40%). Đây là b�
 
 ⚠ **Lỗi hay gặp**: SPE vẫn xuất hiện trong textbooks như "bằng chứng" cho power of situation. Đây là ví dụ tốt về **replication crisis** trong tâm lý học — nhiều classic studies không replicate.
 
-🔁 **Tự kiểm tra**: SPE có nên bị loại bỏ hoàn toàn khỏi nghiên cứu không?
+🔁 **Thực hành**: SPE có nên bị loại bỏ hoàn toàn khỏi nghiên cứu không?
 <details>
 <summary>Đáp án</summary>
 Không loại hoàn toàn — nó vẫn có giá trị như case study về ethical concerns trong research và về vai trò của institutional context. Nhưng không nên dùng như bằng chứng empirical cho "situations override dispositions" vì methodology có lỗi nghiêm trọng.

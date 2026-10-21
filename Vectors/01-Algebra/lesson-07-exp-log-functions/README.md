@@ -73,7 +73,7 @@ $$f(x) = a^x$$
 Vì sao loại trừ $a = 1$? Vì $1^x = 1$ với mọi $x$ — thành hằng số, không thú vị.
 Vì sao loại trừ $a \leq 0$? Vì $(-2)^{0.5} = \sqrt{-2}$ không phải số thực; $0^{-1} = 1/0$ không xác định. Loại trừ cho gọn miền xác định.
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Bạn có thể nói nhanh $2^{10} = ?$, $2^{20} \approx ?$ không? (Đáp: $1024 \approx 10^3$, $10^6$.)
 - Tại sao parabol thua mũ dù lúc đầu thắng? (Đáp: mỗi bước parabol *cộng* thêm, mũ *nhân* lên — nhân thì nhanh hơn cộng dài hạn.)
 - Nếu bạn dồn hết thóc thế giới ($\approx 750$ triệu tấn $\approx 10^{16}$ hạt) lên bàn cờ, đặt được tới ô bao nhiêu? (Đáp: $2^k \approx 10^{16} \to k \approx 53$. Tức tới ô 54 là phá sản rồi.)
@@ -208,7 +208,7 @@ Thực tế dùng:
 
 Cùng dạng đường cong, chỉ co giãn theo trục $x$. Nhìn ở log scale (xem B.5), cả hai đều là đường thẳng — chỉ khác hệ số góc.
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Bạn có giải thích được vì sao $e$ xuất hiện trong công thức lãi kép liên tục mà không phải $2$ hay $3$? (Đáp: vì $\left(1 + \frac{1}{n}\right)^n \to e$ khi $n \to \infty$, đây là giới hạn tự nhiên của bài toán "chia nhỏ vô hạn".)
 - Tại sao $(2^x)'$ không bằng $2^x$? (Đáp: vì $(a^x)' = a^x \cdot \ln a$. Chỉ khi $\ln a = 1$ (tức $a = e$) thì hệ số mới triệt tiêu.)
 - Đoán nhanh: $e^5$ lớn cỡ bao nhiêu? (Gợi ý: $e \approx 2.72$, $e^2 \approx 7.4$, $e^5 = e^2 \cdot e^2 \cdot e \approx 7.4 \cdot 7.4 \cdot 2.72 \approx 149$.)
@@ -279,7 +279,7 @@ Vd Carbon-14 có $T_{1/2} \approx 5730$ năm — đó là cơ sở của radioca
 
 Tất cả đều quay quanh $e^x$. Vì sao? Vì đạo hàm gọn, vì kết quả luôn dương (chia ra xác suất hợp lệ), vì tính chất "small wins, big wins" của exponential (logit chênh 1 $\to$ xác suất chênh $\approx e$ lần).
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Trong công thức lãi kép liên tục $A = P \cdot e^{rt}$, nếu $r = 0$ (không có lãi), $A$ bằng bao nhiêu? (Đáp: $P \cdot e^0 = P \cdot 1 = P$ — vốn không đổi. Hợp lý ✓.)
 - Carbon-14 phân rã với $\lambda = \ln 2 / 5730 \approx 1.21 \cdot 10^{-4}$ /năm. Sau 11 460 năm (2 chu kỳ bán rã), còn lại bao nhiêu %? (Đáp: $e^{-\lambda \cdot 11460} = e^{-2 \ln 2} = e^{\ln(1/4)} = 1/4 = 25\%$.)
 - Một city có dân số `1 triệu`, tăng `2%/năm` gộp liên tục. Sau 35 năm? (Đáp: $1\,000\,000 \cdot e^{0.02 \cdot 35} = 1\,000\,000 \cdot e^{0.7} \approx 1\,000\,000 \cdot 2.014 \approx 2.01$ triệu. Quy tắc 70: $70/2 = 35$ năm để gấp đôi — kiểm chứng ✓.)
@@ -318,7 +318,7 @@ Vì là hàm ngược, đồ thị $y = \log_a(x)$ chính là đồ thị $y = a
 | 8 | 3 | $2^3 = 8$ |
 | 1024 | 10 | $2^{10} = 1024$ |
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Vì sao $\log_a(1) = 0$ không phụ thuộc cơ số $a$? (Đáp: vì $a^0 = 1$ với mọi $a$ — luôn đúng.)
 - $\log_2(-4) = ?$ (Đáp: không tồn tại — $2^y$ luôn dương, không bao giờ ra $-4$.)
 - Nếu $\log_2(x) = 20$, $x = ?$ (Đáp: $x = 2^{20} = 1\,048\,576 \approx 10^6$.)
@@ -370,7 +370,7 @@ Lý do duy nhất nhưng cực mạnh: **đạo hàm đẹp nhất**.
 
 Mọi cơ số khác $e$ đều kéo theo một hằng số $\ln a$ lủng lẳng trong đạo hàm. Khi tính gradient (Tầng 3 Calculus) hay propagate qua nhiều lớp neural network, các hằng số này tích lũy thành rác làm công thức rối. Chọn $e$ (và $\ln$) để đạo hàm gọn nhất → mọi paper ML mặc định viết $\log = \ln$ (gọi là *natural log* — log "tự nhiên" theo nghĩa "không có hệ số rác").
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Nếu $\ln(7.389) = ?$ thì $e^{?} = 7.389$? (Đáp: cả hai đều = 2.)
 - Vì sao $(\log_2 x)' = \dfrac{1}{x \cdot \ln 2}$ mà không phải $\dfrac{1}{x \cdot \log_2 e}$? (Đáp: hai cái này bằng nhau — $\log_2 e = 1/\ln 2$. Chỉ là cách viết khác.)
 - Nếu bạn thay mọi $\ln$ trong cross-entropy bằng $\log_2$, loss có đổi không? (Đáp: đổi *giá trị* — nhân với hằng số $1/\ln 2$. Nhưng *cực tiểu* không đổi $\to$ gradient descent hội tụ về cùng nghiệm. Chỉ là số khác nhau.)
@@ -452,12 +452,12 @@ Tương tự: cây cân bằng (AVL, Red-Black, B-tree) lưu $n$ phần tử có
 
 Nếu cố vẽ tất cả ở **cùng scale tuyến tính**, các cột bé hơn $e^{20}$ bị bóp về 0 — đây chính là lý do phải vẽ ở **log scale** (mục B.5 ngay sau). Ở log scale, mỗi bar có chiều dài tỷ lệ với $\log$ của giá trị → các cột trở thành bậc thang đều, dễ so sánh.
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Sắp xếp nhanh tốc độ tăng (chậm → nhanh): $\log x$, $x$, $x \log x$, $x^2$, $x^3$, $2^x$, $e^x$.
 - Tại $x = 100$, $x^3 = 10^6$ mà $2^x \approx 10^{30}$ — chênh $10^{24}$ lần. Vẫn cùng input, sao chênh kinh thế? (Đáp: vì $2^x$ thắng *bất kỳ* polynomial khi $x$ đủ lớn — định lý nền tảng đã nêu ở A.4.)
 - Một file 1GB $= 10^9$ byte. Số bit cần để đánh số mọi byte $= \log_2(10^9) \approx 30$ bit. Số bit cần để đánh số mọi *cách sắp xếp* $10^9$ byte $= \log_2(10^9!) \approx 10^9 \cdot \log_2(10^9) \approx 3 \cdot 10^{10}$ bit. (Áp dụng $n \log n$ của Stirling.)
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Trong một mảng đã sort 1 triệu phần tử, binary search dùng tối đa bao nhiêu phép so sánh? (Đáp: $\lceil \log_2(10^6) \rceil = 20$. Cụ thể $2^{19} = 524\,288 < 10^6 < 2^{20} = 1\,048\,576$.)
 - Nếu thuật toán mỗi bước cắt input còn 1/3 (thay vì 1/2), độ phức tạp là gì? (Đáp: $O(\log_3 n)$ — vẫn $O(\log n)$ vì các log chỉ khác nhau hệ số.)
 - Vì sao $O(n \log n)$ được coi là "gần tuyến tính"? (Đáp: tại $n = 10^9$, $\log n \approx 30$ — chỉ chậm hơn $n$ tuyến tính 30 lần, không phải mức "đại nhảy vọt" của $n^2$ hay $2^n$.)
@@ -574,7 +574,7 @@ Trong sách phổ thông Việt Nam, $\log$ thường $= \log_{10}$. Trong ML/CS
 
 $e^{1000}$ vượt `float64` max ($\approx 1.8 \cdot 10^{308}$) → `+Inf`, sau đó `Inf/Inf = NaN`. Xảy ra trong softmax nếu logit rộng (vd LM head 50k tokens, logit có thể đạt 30-50). **Fix**: luôn trừ $\max(\text{logits})$ trước khi exp (xem C.3.b).
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - $e^3 \cdot e^4 = ?$ (Đáp: $e^7$, vì cộng số mũ.)
 - $\ln(e^5 \cdot e^2) = ?$ (Đáp: 7, vì $\ln(e^7) = 7$.)
 - Cho $p = 0.0001$, viết $-\log(p)$ ra số. (Đáp: $-\log(10^{-4}) \approx 9.21$ nếu là $\ln$, hoặc $4$ nếu là $\log_{10}$. Đa số ML dùng $\ln$ → 9.21.)
@@ -604,7 +604,7 @@ Trực giác chung: **log nén những con số khổng lồ về thang nhỏ co
 - Thế giới log: multiplication trở thành addition ($\log(xy) = \log x + \log y$), exponentiation trở thành multiplication ($\log(x^k) = k \log x$).
 - Log giúp người (và máy tính) làm việc với số khổng lồ bằng cách dịch về thang nhỏ. Exp đưa kết quả trở lại thang gốc.
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Một file 4GB có khoảng bao nhiêu bit? (Đáp: $4 \cdot 10^9 \cdot 8 \approx 3.2 \cdot 10^{10}$ bit. Số chữ số $= \log_{10}(3.2 \cdot 10^{10}) \approx 10$ → 11 chữ số.)
 - Nếu mỗi ngày tài khoản của bạn tăng 1%, sau bao lâu nhân đôi? (Áp dụng $1.01^t = 2$ → $t = \ln 2 / \ln 1.01 \approx 0.693 / 0.00995 \approx 69.7$ ngày. Quy tắc "70" trong tài chính: $70/r = $ thời gian double với lãi $r\%$.)
 - Vì sao quy tắc 70 lại là 70 mà không phải 100? (Đáp: vì $\ln 2 \approx 0.693 \approx 0.70$. Quy tắc 70 là approximation của $\ln 2 / r$.)
@@ -755,7 +755,7 @@ Quy tắc thực dụng:
 - $z < 0$ → $\sigma < 0.5$ (nghiêng về "no").
 - $|z| > 5$ → gần như chắc chắn ($\sigma \approx 0.99$ hoặc $0.01$).
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - $\sigma(3) = ?$ (gợi ý: $e^{-3} \approx 0.0498$, $\sigma(3) \approx 1/1.0498 \approx 0.953$.)
 - Nếu logit dương rất lớn (vd $z = 100$), $\sigma(z) \approx ?$ (Đáp: $\approx 1$. $e^{-100} \approx 0$ nên $\sigma \approx 1/1 = 1$. Cảnh báo: số trong code thường rơi vào `1.0` chứ không phải `0.99999...` — mất precision.)
 - Kiểm chứng $\sigma'(0)$: theo công thức $\sigma(0) \cdot (1-\sigma(0)) = 0.5 \cdot 0.5 = 0.25$ — đây là độ dốc max của sigmoid (tại $x=0$).
@@ -849,7 +849,7 @@ $e^c$ ở tử và mẫu triệt tiêu. Chọn $c = -\max(z)$ để mọi $z_i +
 
 **Trường hợp cực đoan**: nếu logits $= [1000, 999, 998]$, không trừ max thì $e^{1000} = \text{Inf}$ → kết quả `NaN`. Trừ max → $[0, -1, -2]$ → vẫn ra $[0.665, 0.245, 0.090]$ đẹp đẽ.
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 - Nếu mọi logit bằng nhau (vd $[5, 5, 5]$), softmax ra gì? (Đáp: $[1/3, 1/3, 1/3]$ — uniform distribution, model "không biết".)
 - Nếu logits $[10, 0, 0]$, softmax xấp xỉ gì? (Đáp: $e^{10} \approx 22\,026$, hai cái còn lại = 1. Tổng $\approx 22\,028$. softmax $\approx [0.9999, 4.5 \cdot 10^{-5}, 4.5 \cdot 10^{-5}]$ — model "rất chắc class 0".)
 - Vì sao output cuối cùng có thể không tổng đúng $1.0$ mà chỉ $\approx 1.0$ (vd $0.99998$)? (Đáp: do làm tròn float — $1.5032$ chỉ là 4 chữ số. Trong float64 chính xác hơn nhưng vẫn có lỗi $\approx 10^{-16}$.)

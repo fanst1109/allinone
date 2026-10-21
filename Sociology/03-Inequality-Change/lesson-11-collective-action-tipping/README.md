@@ -118,7 +118,7 @@ Với mỗi cá nhân, "để người khác làm" luôn tốt hơn "tự làm" 
 4. **Dịch tễ ($R_0$):** khi số ca lây trung bình mỗi người vượt $1$, số ca **bùng nổ** theo cấp số nhân; dưới $1$, dịch **tắt dần**. $R_0 = 1$ là điểm bùng phát.
 5. **Băng tan:** nhiệt độ vượt một ngưỡng làm băng phản xạ ít nắng hơn → nóng thêm → tan nhanh hơn (vòng phản hồi dương) — tipping point khí hậu.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một cây cầu thu phí có phải hàng hóa công không? Vì sao?
 > 2. Trong khu phố 10 hộ thuê bảo vệ 1.000k, nếu 6 hộ ăn theo thì 4 hộ còn lại mỗi hộ gánh bao nhiêu?
 > 3. Phân biệt "khối lượng tới hạn" và "điểm bùng phát".
@@ -241,7 +241,7 @@ Muốn đẩy $f_0$ vượt $f^\*$ (hoặc hạ $f^\*$ xuống), có ba đòn b�
 > - *"Sụp về 0 nghĩa là cả người tiên phong cũng bỏ?"* → Trong mô hình phản ứng tốt nhất (best-response), đúng vậy: khi thấy quá ít người theo, ngay cả người ban đầu cũng thấy không đáng công và rút. Đời thực, một lõi cứng có thể trụ lại — nhưng phong trào coi như thất bại vì không đạt khối lượng tới hạn.
 > - *"Độ phân tán $\sigma$ ảnh hưởng thế nào?"* → $\sigma$ nhỏ (mọi người giống nhau) → hệ lưỡng ổn định gắt, tipping rõ, hoặc bùng hoặc sụp. $\sigma$ lớn (đa dạng cao) → luôn có người ngưỡng thấp châm ngòi cho người ngưỡng cao hơn → dễ lan mượt, ít khi sụp hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Với $c=4$, $b=10$, $\sigma=0{,}15$, tính $f^\*$.
 > 2. Seed $30\%$ có làm phong trào bùng nổ với tham số ở câu 1 không?
 >

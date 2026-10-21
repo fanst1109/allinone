@@ -127,7 +127,7 @@ Sau chiến thắng, 13 bang tranh luận về cách tổ chức quốc gia mớ
 
 Cơ chế kiểm soát và cân bằng (checks and balances): mỗi nhánh có thể hạn chế hai nhánh kia. Tổng thống có thể phủ quyết luật của Quốc hội; Quốc hội có thể bác bỏ phủ quyết bằng 2/3 đa số; Tòa án Tối cao có thể tuyên luật vi hiến.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 *Câu hỏi:* Vì sao Pháp quyết định hỗ trợ Mỹ trong Cách mạng Mỹ, dù bản thân Pháp vẫn là chế độ quân chủ chuyên chế?
 
@@ -210,7 +210,7 @@ Tháng 6/1793 — Tháng 7/1794: **Thời kỳ Khủng bố (La Terreur)** dư�
 
 Hiến pháp 1795 thiết lập Đốc chính — bộ năm người lãnh đạo hành pháp, Quốc hội hai viện. Đây là thời kỳ tương đối ổn định hơn nhưng tham nhũng và yếu kém. Trong bối cảnh đó, một tướng trẻ đang nổi lên từ các chiến dịch ở Ý...
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 *Câu hỏi:* Tại sao Hội nghị Quốc ước xử tử Robespierre, người đã lãnh đạo cách mạng?
 

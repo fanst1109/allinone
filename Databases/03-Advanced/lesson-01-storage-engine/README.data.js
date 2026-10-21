@@ -81,7 +81,7 @@ $$8{.}168 / 80 \\approx 102 \\text{ row mỗi page}$$
 - *"Row to hơn cả page thì sao?"* — DBMS tách phần lớn (text/blob dài) ra lưu riêng ("TOAST" trong PostgreSQL), row chính chỉ giữ con trỏ. Một row không bao giờ "tràn" làm vỡ cấu trúc page.
 - *"Page lớn hơn (16 KB, 32 KB) có tốt hơn không?"* — Page lớn giảm số lần seek khi quét tuần tự, nhưng phí RAM hơn khi chỉ cần ít dòng, và tăng tranh chấp khi nhiều giao dịch sửa cùng page. Đó là sự đánh đổi, không có "luôn tốt hơn".
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao đọc theo page rẻ hơn đọc từng byte rất nhiều?
 2. Page 8 KB (8.168 byte hữu dụng), row 100 byte → bao nhiêu row/page? Cần đọc 1 triệu row hết bao nhiêu page?
 
@@ -149,7 +149,7 @@ Xóa row1 → slot1 đánh dấu trống, 80 byte thành "lỗ". Lần thêm sau
 
 ⚠ **Lỗi thường gặp.** Nghĩ "rid là số thứ tự dòng trong bảng (dòng thứ 7)". Không — rid là **vị trí vật lý** \`(page, slot)\`. Cùng một dòng logic có thể đổi page (khi update làm row to ra không vừa page cũ), lúc đó rid thay đổi và index được cập nhật.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao slotted page tách slot array khỏi vùng dữ liệu thay vì lưu row liền nhau?
 2. Tuple id \`(12, 3)\` nghĩa là gì?
 
@@ -198,7 +198,7 @@ Kết quả: 6 miss, **1 hit** → hit ratio $= 1/7 \\approx \\mathbf{14\\%}$. (
 - *"Nếu page bị đuổi đã bị sửa (dirty) thì sao?"* — Phải **ghi page đó xuống đĩa trước** khi đuổi, nếu không mất thay đổi. Page chưa sửa (clean) thì đuổi thẳng, vì bản trên đĩa vẫn đúng.
 - *"LRU có bao giờ tệ không?"* — Có. Một lần **quét toàn bảng** (sequential scan) lớn sẽ tống hết page nóng ra khỏi pool dù chỉ dùng một lần. Vì thế PostgreSQL dùng biến thể (clock-sweep) chống "ô nhiễm cache".
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Hit và miss khác nhau ở chi phí thế nào?
 2. Chuỗi **A B C D A** với pool 3 slot LRU: bao nhiêu hit?
 
@@ -257,7 +257,7 @@ Lúc crash, đĩa dữ liệu vẫn A=100, B=50 — như T1 chưa xảy ra! Như
 - *"WAL liên quan gì tới transaction ACID?"* — WAL là cơ chế hiện thực **Durability** và một phần **Atomicity** của ACID. Xem [Lesson 03 — Transaction & ACID](../../02-Intermediate/lesson-03-transaction-acid/).
 - *"WAL có giúp nhiều giao dịch chạy song song không?"* — Bản thân WAL lo bền vững/phục hồi. Việc nhiều version cùng tồn tại để đọc-ghi song song là **MVCC**, xem [Lesson 04 — Concurrency & Isolation](../../02-Intermediate/lesson-04-concurrency-isolation/). MVCC và WAL phối hợp: version cũ giúp đọc không khóa, WAL giúp khôi phục.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Phát biểu quy tắc write-ahead.
 2. Crash sau khi log có COMMIT nhưng data page chưa flush → recovery làm gì?
 
@@ -314,7 +314,7 @@ Hai khái niệm đo "phí thực tế":
 - *"Hệ giao dịch đọc-ghi cân bằng, nhiều range query (báo cáo theo khoảng ngày)?"* — **B-tree**: đọc ổn định, range scan tốt, cập nhật tại chỗ gọn về dung lượng.
 - *"Vì sao LSM cần Bloom filter mà B-tree không?"* — Trong LSM, một khóa không tồn tại vẫn có thể phải sờ vào nhiều SSTable để chắc chắn. Bloom filter cho biết "chắc chắn không có ở file này" trong $O(1)$ → bỏ qua, tránh đọc đĩa thừa. B-tree chỉ có một cây nên không gặp vấn đề này.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao LSM ghi nhanh hơn B-tree cho tải ghi-nặng?
 2. Bloom filter giải quyết vấn đề gì của LSM?
 

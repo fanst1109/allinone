@@ -64,7 +64,7 @@ Hồ Quý Ly là một trong những nhân vật cải cách quyết liệt nh�
 
 ⚠ **Hiểu lầm thường gặp:** Có quan niệm rằng Hồ Quý Ly là "kẻ cơ hội thuần túy" không có lý tưởng. Thực tế ông có tầm nhìn cải cách rõ ràng và thực hiện nhiều chính sách tiến bộ. Sai lầm của ông là về *phương pháp* (cướp ngôi, áp đặt nhanh) chứ không hoàn toàn về *bản chất*.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Trong ba cải cách (tiền giấy, hạn điền, hạn nô), cải cách nào đụng chạm trực tiếp vào lợi ích của tầng lớp quý tộc nhà Trần nhiều nhất? Vì sao?
 
 <details>
@@ -123,7 +123,7 @@ Quân sự mạnh nhưng không có dân ủng hộ thì không thể kháng c�
 >
 > Đây là câu hỏi lịch sử giả định không có đáp án dứt khoát. Nhưng bằng chứng từ sau đó cho thấy: khi Lê Lợi dựng cờ khởi nghĩa với tính chính danh rõ ràng (người Việt, vì người Việt, không nhân danh triều đại ngoại lai), ông đã huy động được sức dân đông đảo — chứng tỏ "tính chính danh" đóng vai trò rất quan trọng trong việc huy động kháng chiến.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Nêu HAI lý do vì sao nhà Hồ không thể huy động sức kháng cự của dân khi quân Minh xâm lược.
 
 <details>
@@ -307,7 +307,7 @@ Sau khi Lê Lợi chính thức lên ngôi (tháng 4/1428), Nguyễn Trãi thay 
 >
 > "Ngô" là cách người Việt gọi người Hán nói chung trong thời trung đại (không phải chỉ nhà Ngô cụ thể). "Bình Ngô đại cáo" = "Đại cáo về việc dẹp yên quân Ngô (Minh)". Chữ "bình" có nghĩa là "dẹp yên, bình định".
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Trận Chi Lăng – Xương Giang (1427) quyết định thắng lợi của khởi nghĩa Lam Sơn như thế nào? Nêu chuỗi nhân–quả từ trận này đến việc quân Minh rút lui.
 
 <details>

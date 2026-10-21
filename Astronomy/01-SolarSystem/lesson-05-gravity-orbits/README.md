@@ -51,7 +51,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nghĩ lực giảm **tuyến tính** theo khoảng cách. Sai — giảm theo **bình phương**. Gấp đôi khoảng cách → lực còn $1/4$, không phải $1/2$. Đây là "định luật nghịch đảo bình phương" (inverse-square law).
 
-> 🔁 **Dừng lại tự kiểm tra.** Một vệ tinh ở độ cao khiến khoảng cách tới tâm Trái Đất gấp 4 lần bán kính Trái Đất. Lực hấp dẫn lên nó so với khi ở mặt đất?
+> 🔁 **Thực hành.** Một vệ tinh ở độ cao khiến khoảng cách tới tâm Trái Đất gấp 4 lần bán kính Trái Đất. Lực hấp dẫn lên nó so với khi ở mặt đất?
 > <details><summary>Đáp án</summary>$1/4^2 = 1/16$. Lực chỉ còn 1/16, không phải 1/4.</details>
 
 ---
@@ -136,7 +136,7 @@ v_{esc} &= \sqrt{\frac{2 \times 3{,}986 \times 10^{14}}{6{,}37 \times 10^6}} \\
 | Sao Mộc | ~59,5 km/s | khổng lồ → giữ khí quyển dày |
 | Mặt Trời (từ bề mặt) | ~618 km/s | rất lớn |
 
-> 🔁 **Dừng lại tự kiểm tra.** ISS có vận tốc quỹ đạo ~7,66 km/s. Để thoát hẳn khỏi Trái Đất từ độ cao đó, cần tốc độ bao nhiêu?
+> 🔁 **Thực hành.** ISS có vận tốc quỹ đạo ~7,66 km/s. Để thoát hẳn khỏi Trái Đất từ độ cao đó, cần tốc độ bao nhiêu?
 > <details><summary>Đáp án</summary>$v_{esc} = \sqrt{2} \times 7{,}66 \approx 10{,}83 \ \text{km/s}$. Vận tốc thoát $= \sqrt{2}$ lần vận tốc quỹ đạo tròn ở cùng độ cao.</details>
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao Mặt Trăng không có khí quyển?"* — Vận tốc thoát của Mặt Trăng chỉ ~2,4 km/s. Các phân tử khí ở nhiệt độ ban ngày dễ đạt tốc độ này và bay mất dần qua thời gian. Trái Đất (11,2 km/s) và Sao Mộc (59,5 km/s) giữ khí tốt hơn nhiều.
@@ -178,7 +178,7 @@ $$\text{Trái Đất: } T = 1 \ \text{năm}, \ a = 1 \ \text{AU} \to \frac{4\pi^
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao Lesson 04 nói hằng số khác nhau cho Mặt Trăng quanh Trái Đất?"* — Vì hằng số là $4\pi^2/(GM)$ với $M$ = khối lượng vật **trung tâm**. Quanh Mặt Trời thì $M = M_\odot$; quanh Trái Đất thì $M = M_\oplus$ (nhỏ hơn ~333000 lần) → hằng số khác → không dùng được dạng "năm & AU".
 
-> 🔁 **Dừng lại tự kiểm tra.** Từ $T^2 = \dfrac{4\pi^2}{GM}a^3$, nếu ta đo được $T$ và $a$ của một vệ tinh quanh hành tinh lạ, ta tính được gì?
+> 🔁 **Thực hành.** Từ $T^2 = \dfrac{4\pi^2}{GM}a^3$, nếu ta đo được $T$ và $a$ của một vệ tinh quanh hành tinh lạ, ta tính được gì?
 > <details><summary>Đáp án</summary>Khối lượng $M$ của hành tinh đó: $M = \dfrac{4\pi^2 a^3}{G \cdot T^2}$. Đây chính là cách các nhà thiên văn "cân" các hành tinh và ngôi sao!</details>
 
 > 📝 **Tóm tắt toàn bài.**

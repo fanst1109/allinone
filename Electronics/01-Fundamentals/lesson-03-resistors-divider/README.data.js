@@ -92,7 +92,7 @@ Giá trị $= (\\text{Vòng1} \\times 10 + \\text{Vòng2}) \\times \\text{Nhân}
 
 ⚠ **Lỗi thường gặp**: Mua linh kiện ghi "cần 480 Ω" — **không tồn tại** trong E12 hay E24. Phải dùng 470 Ω (E12) hoặc 487 Ω (E96 — dãy chính xác hơn). Khi thiết kế, hãy kiểm tra giá trị có nằm trong dãy chuẩn không.
 
-🔁 **Tự kiểm tra**: Đọc mã màu: Lục–Nâu–Đỏ–Vàng kim. Kết quả?
+🔁 **Thực hành**: Đọc mã màu: Lục–Nâu–Đỏ–Vàng kim. Kết quả?
 
 <details>
 <summary>Đáp án</summary>
@@ -153,7 +153,7 @@ Khi dòng chạy qua điện trở, năng lượng điện biến thành **nhi�
 
 ⚠ **Lỗi thường gặp**: Tính điện trở hạn dòng thấy "chỉ 0.06 W" rồi dùng điện trở ⅛W sẵn có. Nhưng nếu nguồn 5 V bị vọt lên 5.5 V hoặc có 2 LED bị đứt song song → dòng tăng lên → P tăng đột ngột → ⅛W cháy. Luôn tính ở điều kiện xấu nhất và nhân 2.
 
-🔁 **Tự kiểm tra**: Điện trở 470 Ω mắc vào nguồn 9 V. Cần chọn loại công suất nào?
+🔁 **Thực hành**: Điện trở 470 Ω mắc vào nguồn 9 V. Cần chọn loại công suất nào?
 
 <details>
 <summary>Đáp án</summary>
@@ -232,7 +232,7 @@ $$V_{\\text{out}} = V_{\\text{in}} \\times \\frac{R_2}{R_1 + R_2}$$
 - *"Nên chọn $R_1$, $R_2$ trong khoảng nào?"* — Quá nhỏ (vài trăm Ω): dòng lớn, lãng phí điện, điện trở nóng. Quá lớn (vài MΩ): nhạy cảm với nhiễu và tải. Thực tế chọn 1 kΩ – 100 kΩ tùy ứng dụng; 10 kΩ là mức "mặc định an toàn" cho hầu hết trường hợp MCU.
 - *"Phân áp có cấp dòng được không?"* — Không đáng kể. Phân áp thuần túy chỉ hoạt động tốt với tải trở kháng cao (xem Mục 4: loading effect). Muốn cấp dòng, cần buffer op-amp hoặc mạch nguồn thực sự.
 
-🔁 **Tự kiểm tra**: $R_1 = 100$ kΩ, $R_2 = 33$ kΩ, $V_{\\text{in}} = 12$ V. Tính $V_{\\text{out}}$?
+🔁 **Thực hành**: $R_1 = 100$ kΩ, $R_2 = 33$ kΩ, $V_{\\text{in}} = 12$ V. Tính $V_{\\text{out}}$?
 
 <details>
 <summary>Đáp án</summary>
@@ -327,7 +327,7 @@ Công thức chính xác hơn: sai số loading $= R_2 / (R_2 + R_L) \\times 100
 
 ⚠ **Lỗi thường gặp**: Thiết kế phân áp đẹp trên giấy ($V_{\\text{out}} = 3.3$ V), nhắm tới đo bằng multimeter (trở kháng $\\approx 10$ MΩ → rất ổn). Nhưng khi mắc vào chân ADC của MCU cụ thể (trở kháng vào chỉ 5 kΩ khi đang sampling) → $V_{\\text{out}}$ bị kéo xuống đáng kể. Phải tra datasheet MCU xem trở kháng vào ADC.
 
-🔁 **Tự kiểm tra**: Phân áp $R_1 = 22$ kΩ, $R_2 = 22$ kΩ, $V_{\\text{in}} = 3.3$ V. Tải $R_L = 44$ kΩ. $V_{\\text{out}}$ là bao nhiêu?
+🔁 **Thực hành**: Phân áp $R_1 = 22$ kΩ, $R_2 = 22$ kΩ, $V_{\\text{in}} = 3.3$ V. Tải $R_L = 44$ kΩ. $V_{\\text{out}}$ là bao nhiêu?
 
 <details>
 <summary>Đáp án</summary>
@@ -408,7 +408,7 @@ $$I_2 = I_{\\text{tổng}} \\times \\frac{R_1}{R_1 + R_2}$$
 
 ⚠ **Lỗi thường gặp**: Nhớ sai công thức — viết $I_1 = I_{\\text{tổng}} \\times R_1/(R_1+R_2)$. SAI! Phải là $R$ của nhánh **kia** ở tử số. Cách nhớ: "dòng vào nhánh $R_1$ bằng phần trăm $R_2$ trong tổng". Nếu không nhớ công thức, dùng cách tính qua $V$: $V = I_{\\text{tổng}} \\times (R_1 \\parallel R_2)$, rồi $I = V/R$ từng nhánh.
 
-🔁 **Tự kiểm tra**: $R_1 = 4$ kΩ, $R_2 = 1$ kΩ song song, $I_{\\text{tổng}} = 5$ mA. Tính $I_1$ và $I_2$?
+🔁 **Thực hành**: $R_1 = 4$ kΩ, $R_2 = 1$ kΩ song song, $I_{\\text{tổng}} = 5$ mA. Tính $I_1$ và $I_2$?
 
 <details>
 <summary>Đáp án</summary>

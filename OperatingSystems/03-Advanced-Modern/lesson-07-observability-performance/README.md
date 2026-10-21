@@ -246,7 +246,7 @@ Output `perf stat`:
 - Nhìn 1 lần rồi kết luận — cần lấy nhiều mẫu theo thời gian vì workload có thể biến đổi.
 - Nhầm "load average cao" với "CPU bottleneck" — trên Linux, load bao gồm cả I/O wait.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 `vmstat` cho thấy: `r=0, b=8, wa=72`, `si=50, so=50`. Chẩn đoán hệ thống đang gặp vấn đề gì?
 

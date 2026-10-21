@@ -120,7 +120,7 @@ Ví dụ bảng \`Customers(cust_id, cust_city, city_zone)\` với \`cust_id\` l
 
 \`city_zone\` thực ra là thuộc tính của *thành phố*, không phải của *khách*. Lưu nó ở bảng khách → mọi khách cùng thành phố lặp lại zone. 3NF sẽ xử lý.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Trong \`Orders\`, \`product → cust_name\` có phải FD không?
 2. Phân biệt: phụ thuộc bộ phận cần điều kiện gì về khóa mới xảy ra?
 
@@ -268,7 +268,7 @@ Giờ \`teacher → subject\` lưu một lần; mọi determinant trong cả hai
 - *"3NF và BCNF khác nhau nhiều không?"* — Rất hiếm khi. Đa số bảng đạt 3NF cũng đạt BCNF. Khác biệt chỉ xuất hiện khi có **nhiều khóa ứng viên chồng lấn nhau**. Trong thực tế, đạt 3NF là mục tiêu phổ biến nhất.
 - *"Có cần lên tới 4NF, 5NF không?"* — Hiếm. Chúng xử lý phụ thuộc đa trị (multivalued) và join — ngoài phạm vi bài này. 3NF/BCNF đã đủ cho gần hết hệ thống thực tế.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Một bảng khóa đơn \`Users(id, name, email)\` ở 1NF. Nó có cần làm gì để đạt 2NF không?
 2. Vì sao bảng \`Enroll\` ở mục 3.4 vẫn vi phạm BCNF dù đã ở 3NF?
 

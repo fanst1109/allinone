@@ -75,7 +75,7 @@ Bạn đi từ nhà (vị trí x = 0) ra cửa hàng cách 200 m (x = +200 m), r
 - *"Độ dịch chuyển có thể âm, vậy quãng đường có âm được không?"* Không bao giờ. Quãng đường là tổng độ dài đường đi — luôn ≥ 0. Chỉ độ dịch chuyển (vector) mới có dấu.
 - *"Khi nào $|\Delta x| = s$?"* Khi vật đi thẳng theo một chiều, không quay lại. Vd đi từ $x=0$ đến $x=+30$ m một mạch: $\Delta x = +30$ m, $s = 30$ m, $|\Delta x| = s$. Cứ đổi chiều là $s > |\Delta x|$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một người đi từ $x = +2$ m sang $x = -5$ m theo đường thẳng. Tính $\Delta x$ và $s$.
 2. Người đó đi tiếp từ $x = -5$ m quay lại $x = +1$ m. Tính tổng quãng đường $s$ và tổng độ dịch chuyển $\Delta x$ cho cả hành trình (từ +2 m).
@@ -156,7 +156,7 @@ b) **Tốc độ trung bình** (quãng đường ÷ thời gian):
 - *"Tại sao cần vận tốc tức thời, đã có vận tốc trung bình rồi?"* Vì trung bình "làm phẳng" mọi biến động. Đi 100 km trong 2 giờ $\to v_{tb} = 50$ km/h, nhưng có thể nửa giờ đầu kẹt xe đứng yên, sau đó chạy 80 km/h. Đồng hồ tốc độ hiển thị vận tốc **tức thời** (ngay lúc đó), thứ quyết định bạn có bị bắn tốc độ hay không.
 - *"$v$ âm nghĩa là gì — đi lùi à?"* Nghĩa là đi theo **chiều âm** của trục đã chọn. Nếu chọn Đông là dương, $v = -5$ m/s nghĩa là đang đi về Tây với tốc độ 5 m/s. Dấu chỉ hướng, độ lớn $|v| = 5$ m/s là tốc độ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đổi 90 km/h ra m/s.
 2. Một xe đi 60 km về Đông trong 1 giờ, rồi 60 km về Tây trong 2 giờ. Tính vận tốc trung bình và tốc độ trung bình (km/h).
@@ -235,7 +235,7 @@ a(t) &= \frac{dv}{dt} \quad &&\text{(gia tốc tức thời = đạo hàm vận 
 - *"Gia tốc có thể đổi không, hay luôn là hằng?"* Đổi được. Bài này tập trung vào gia tốc **hằng** (rơi tự do, xe tăng tốc đều) vì giải được bằng 3 phương trình đơn giản ở mục 5. Thực tế a thường thay đổi (vd xe vào cua, lò xo dao động — học ở Lesson 08).
 - *"m/s² nghĩa là gì — sao lại 'giây bình phương'?"* Vì gia tốc = (m/s) thay đổi mỗi giây = (m/s)/s = m/s². Đọc là "mỗi giây, vận tốc thay đổi thêm bấy nhiêu m/s". Vd a = 4 m/s²: sau 1 s vận tốc tăng 4 m/s, sau 2 s tăng 8 m/s.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Xe đi với $v = -12$ m/s và có gia tốc $a = -3\ \text{m/s}^2$. Xe đang nhanh lên hay chậm đi?
 2. Xe đạp tăng từ 4 m/s lên 10 m/s trong 3 giây. Tính gia tốc.
@@ -328,7 +328,7 @@ Hoặc dạng đồ thị:
 - *"Đồ thị x-t cong (parabola) nghĩa là gì?"* Nghĩa là độ dốc ($v$) đang thay đổi $\to$ vật có gia tốc. Parabola mở lên (cong úp xuống dần dốc hơn) là $a > 0$; cong xuống là $a < 0$. Đường **thẳng** mới là $v$ không đổi ($a = 0$).
 - *"Nếu chỉ có đồ thị a-t, lấy lại x được không?"* Được nhưng cần thêm điều kiện đầu. Diện tích a-t cho $\Delta v$, nhưng phải biết $v_0$ để ra $v(t)$; rồi diện tích v-t cho $\Delta x$, phải biết $x_0$ để ra $x(t)$. Thiếu $v_0$, $x_0$ thì chỉ biết "thay đổi" chứ không biết giá trị tuyệt đối.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đồ thị v-t là đường nằm ngang ở $v = 6$ m/s từ $t = 0$ đến $t = 5$ s. Vật đi được bao xa? Gia tốc bằng bao nhiêu?
 2. Đồ thị x-t là đường thẳng đi xuống. Vận tốc dương hay âm? Gia tốc bằng bao nhiêu?
@@ -411,7 +411,7 @@ c) Khi $v = 20$ m/s, xe đã đi được bao xa?
 - *"Phương trình (3) khác (1),(2) ở chỗ nào?"* (3) không chứa t — dùng khi đề không cho và không hỏi thời gian (vd "tính quãng đường phanh đến khi dừng"). Nếu dùng (1),(2) phải giải qua 2 bước (tìm t trước), còn (3) ra thẳng.
 - *"Hệ số $\frac{1}{2}$ trong $x = x_0+v_0 t+\frac{1}{2}at^2$ ở đâu ra?"* Vì trong thời gian $t$, vận tốc tăng đều từ $v_0$ đến $v_0+at$, **trung bình** $= v_0 + \frac{1}{2}at$. Quãng đường = vận tốc trung bình $\times t = v_0 t + \frac{1}{2}at^2$. Đó là lý do có $\frac{1}{2}$ — nó là trung bình của phần tăng tốc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Xe đứng yên ($v_0=0$) tăng tốc $a = 2\ \text{m/s}^2$. Sau bao lâu đạt 30 m/s, và đã đi bao xa lúc đó?
 2. Xe chạy 40 m/s phanh với $a = -8\ \text{m/s}^2$. Quãng đường phanh đến khi dừng?
@@ -473,7 +473,7 @@ c) Cùng độ cao 20 m, nếu ném xuống với $v_0 = 5$ m/s thì thời gian
 - *"Vì sao ném xuống với $v_0=5$ m/s lại rơi nhanh hơn (1,57 s so với 2,02 s)?"* Vì vật đã có sẵn vận tốc hướng xuống ngay từ đầu, cộng thêm vào vận tốc do trọng lực — nên đi hết quãng đường nhanh hơn so với thả nhẹ ($v_0 = 0$).
 - *"$g = 9{,}8$ hay $10\ \text{m/s}^2$?"* Giá trị chính xác gần mặt biển $\approx 9{,}81\ \text{m/s}^2$. Nhiều bài làm tròn $10\ \text{m/s}^2$ cho dễ tính. Bài này dùng 9,8. Khác nhau ~2%, không ảnh hưởng ý nghĩa.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Thả một vật từ độ cao 5 m ($v_0=0$). Thời gian rơi? (dùng $g = 9{,}8$)
 2. Một vật được ném thẳng lên với $v_0 = 19{,}6$ m/s. Bao lâu thì nó đạt điểm cao nhất?
@@ -530,7 +530,7 @@ c) **Tốc độ chạm đất** (cả 2 thành phần):
 - *"Quỹ đạo ném ngang có hình gì?"* Hình **parabola**. Vì $x = v_x\cdot t$ (tỉ lệ với $t$) còn $y$ giảm theo $t^2 \to$ kết hợp ra $y$ là hàm bậc 2 của $x \to$ parabola.
 - *"Nếu ném xiên (góc lên) thì sao?"* Tách $v_0$ thành $v_x = v_0\cos\theta$ (ngang, đều) và $v_y = v_0\sin\theta$ (dọc, chịu trọng lực). Cùng nguyên lý độc lập, chỉ khác là trục dọc có vận tốc đầu hướng lên.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bi ném ngang $v_0 = 8$ m/s từ độ cao 20 m. Bao lâu chạm đất? Bay xa bao nhiêu theo phương ngang? ($g=9{,}8$)
 2. Hai viên bi từ cùng độ cao: A thả rơi, B bắn ngang 30 m/s. Viên nào chạm đất trước?

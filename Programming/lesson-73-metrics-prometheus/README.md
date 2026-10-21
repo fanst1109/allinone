@@ -220,7 +220,7 @@ http_request_duration_seconds_count             144320
 
 > ⚠ **Quy tắc thực tế.** Trong môi trường nhiều instance (microservice scale ngang), **dùng histogram** vì nó cộng được. Summary chỉ hợp khi cần quantile rất chính xác trên **một** instance và không cần aggregate. (Xem pitfall mục 15 về "averaging quantile".)
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Số lỗi tích lũy của API → metric gì? <details><summary>Đáp án</summary>Counter (chỉ tăng), query bằng `rate()` để ra error/giây.</details>
 > 2. Số message đang nằm trong queue → metric gì? <details><summary>Đáp án</summary>Gauge (lên xuống).</details>
 > 3. Phân phối latency, cần p99 tổng hợp từ 10 pod → metric gì? <details><summary>Đáp án</summary>Histogram (cộng buckets được giữa các pod, rồi `histogram_quantile`).</details>
@@ -264,7 +264,7 @@ cardinality = 4 × 5 × 10 × 1_000_000 = 200_000_000 series  (NỔ — sập Pr
 >
 > **Quy tắc:** label chỉ nên có **tập giá trị hữu hạn, nhỏ** (low cardinality): method, status, endpoint *đã chuẩn hóa* (`/users/:id` chứ không phải `/users/12345`), region, instance. Muốn tra theo `user_id` → dùng **log** hoặc **trace**, không phải label metric.
 
-> 🔁 **Dừng lại tự kiểm tra.** `payment_total{currency, gateway, card_last4}` với currency=10, gateway=5, card_last4=10000. Cardinality? Có vấn đề không?
+> 🔁 **Thực hành.** `payment_total{currency, gateway, card_last4}` với currency=10, gateway=5, card_last4=10000. Cardinality? Có vấn đề không?
 > <details><summary>Đáp án</summary>10 × 5 × 10000 = 500.000 series. `card_last4` là unbounded-ish (10k giá trị) → bỏ nó làm label, ghi vào log nếu cần. Giữ lại currency × gateway = 50 series.</details>
 
 ---
@@ -531,7 +531,7 @@ p90 ≈ cận_dưới + tỷ_lệ × (cận_trên − cận_dưới)
 
 > ⚠ **Sai số bucket.** Nếu giữa 0.1 và 0.5 không có bucket trung gian, ta chỉ biết "p90 đâu đó trong 100–500ms" và nội suy đoán 254ms. Thực tế có thể là 110ms hoặc 480ms. **Muốn p90 chính xác hơn → thêm bucket** (vd 0.15, 0.2, 0.3). Đây là lý do thiết kế bucket quan trọng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với bảng trên, tính **p50**.
+> 🔁 **Thực hành.** Với bảng trên, tính **p50**.
 > <details><summary>Đáp án</summary>rank = 0.5 × 100 = 50. `le=0.01`→20 (<50), `le=0.05`→60 (≥50) → bucket (0.01, 0.05]. Bucket chứa 60−20=40 quan sát, cần thêm 50−20=30. Tỷ lệ 30/40=0.75. p50 ≈ 0.01 + 0.75×(0.05−0.01) = 0.01 + 0.75×0.04 = 0.01 + 0.03 = **0.04s (40ms)**.</details>
 
 ---

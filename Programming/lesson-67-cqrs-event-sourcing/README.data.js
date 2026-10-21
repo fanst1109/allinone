@@ -126,7 +126,7 @@ func (r *OrderReadStore) GetSummary(id string) (OrderSummary, error) {
 > - *"CQRS có cần Event Sourcing không?"* — KHÔNG. Chúng độc lập (mục 8). Bạn có thể tách read/write model trên một SQL DB bình thường mà chẳng có event nào.
 > - *"Read model lấy dữ liệu từ đâu cho khớp write model?"* — Qua **projection** đồng bộ bằng event (mục 7). Đây là lý do CQRS và ES hay đi đôi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho 3 thao tác: (a) "tạo đơn hàng", (b) "lấy danh sách đơn của khách X", (c) "huỷ đơn". Cái nào là command, cái nào là query?
+> 🔁 **Thực hành.** Cho 3 thao tác: (a) "tạo đơn hàng", (b) "lấy danh sách đơn của khách X", (c) "huỷ đơn". Cái nào là command, cái nào là query?
 > <details><summary>Đáp án</summary>
 > (a) và (c) là **command** — thay đổi dữ liệu, có thể bị từ chối bởi business rule (đơn rỗng, đơn đã giao không huỷ được). (b) là **query** — chỉ đọc, trả read model. Mẹo nhận biết: command ở thể mệnh lệnh ("hãy..."), query ở thể câu hỏi ("cho biết...").
 > </details>
@@ -248,7 +248,7 @@ State cuối: \`{Balance: 100, Version: 4}\`. Đây chính là \`events.reduce(a
 
 > ⚠ **Lỗi thường gặp.** Đặt validate **bên trong** \`apply\`. Nếu apply từ chối một event đã lưu, replay sẽ **gãy** — vì event đó là quá khứ đã ghi. Validate luôn ở command handler, apply chỉ "tin tưởng và biến đổi".
 
-> 🔁 **Dừng lại tự kiểm tra.** Thêm event \`[4] Deposited{Amount: 30}\` vào stream trên, balance mới và version là bao nhiêu?
+> 🔁 **Thực hành.** Thêm event \`[4] Deposited{Amount: 30}\` vào stream trên, balance mới và version là bao nhiêu?
 > <details><summary>Đáp án</summary>
 > Balance = 100 + 30 = **130**, Version = **5**. Không cần tính lại từ đầu nếu đã có state cũ — chỉ cần \`apply\` thêm event mới lên state hiện tại.
 > </details>
@@ -359,7 +359,7 @@ Giảm từ 1 triệu phép \`apply\` xuống còn 100 — nhanh hơn ~10000 l�
 > ❓ **Câu hỏi tự nhiên.**
 > - *"Snapshot bao lâu một lần?"* — Tuỳ workload. Mỗi 100–1000 event là phổ biến. Đặt quá dày → tốn chỗ lưu; quá thưa → replay vẫn lâu. Đo rồi chỉnh.
 
-> 🔁 **Dừng lại tự kiểm tra.** Aggregate có 5.234 event, snapshot mỗi 1.000 event. Snapshot gần nhất ở version nào, phải replay bao nhiêu event?
+> 🔁 **Thực hành.** Aggregate có 5.234 event, snapshot mỗi 1.000 event. Snapshot gần nhất ở version nào, phải replay bao nhiêu event?
 > <details><summary>Đáp án</summary>
 > Snapshot gần nhất ở version **5.000**. Phải replay 5.234 − 5.000 = **234** event. (Nếu không snapshot: 5.234.)
 > </details>
@@ -572,7 +572,7 @@ Nguyên tắc versioning event:
 
 > ⚠ **Lỗi thường gặp.** Đổi nghĩa một field cũ (vd \`Amount\` từ "đồng" sang "xu") mà không version → event cũ bị diễn giải sai → replay ra state sai trên toàn lịch sử. Đây là lỗi rất khó phát hiện vì code chạy bình thường, chỉ số liệu sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Store có cả event \`Deposited\` v1 (chỉ Amount) lẫn v2 (Amount + Currency). Làm sao replay cả hai bằng cùng một \`apply\`?
+> 🔁 **Thực hành.** Store có cả event \`Deposited\` v1 (chỉ Amount) lẫn v2 (Amount + Currency). Làm sao replay cả hai bằng cùng một \`apply\`?
 > <details><summary>Đáp án</summary>
 > Chạy **upcaster lúc load**: mọi \`Deposited\` v1 được nâng lên v2 (gán \`Currency\` mặc định) **trước khi** vào \`apply\`. Nhờ vậy \`apply\` chỉ cần biết một schema duy nhất (v2). Store vẫn giữ nguyên event v1 gốc.
 > </details>

@@ -67,7 +67,7 @@ So với fixed-length 2-bit: $(5+2+1+1) \times 2 = 9 \times 2 = 18$ bit. **Tiế
 
 > ⚠ **Lỗi thường gặp.** "Chữ hay gặp gán mã ngắn" là *trực giác đúng* nhưng chưa đủ. Nếu gán bừa `a→0`, `b→1`, `c→01`, `d→10` thì khi nhận chuỗi bit `01` ta không biết đó là `c` hay là `a` rồi `b`. Mã phải thỏa thêm tính chất **prefix** (mục 2) thì mới giải mã được.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Chuỗi `"aaab"` mã hóa bằng bảng variable-length ở trên (`a→0`, `b→10`) tốn bao nhiêu bit?
 > 2. Cùng chuỗi đó fixed-length 2-bit tốn bao nhiêu?
 >
@@ -133,7 +133,7 @@ a=0   b=10   c=110   d=111
 
 > ⚠ **Lỗi thường gặp.** Đừng nhầm cây Huffman với **cây tìm kiếm nhị phân (BST)**. BST sắp theo *giá trị khóa* để tìm kiếm; cây Huffman sắp theo *tần suất* để nén, không có thứ tự tìm kiếm nào cả.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bảng `{a:0, b:11, c:10}` có phải prefix code không? Vẽ cây.
+> 🔁 **Thực hành.** Bảng `{a:0, b:11, c:10}` có phải prefix code không? Vẽ cây.
 >
 > <details><summary>Đáp án</summary>
 >
@@ -306,7 +306,7 @@ a   b    r    a   c    a   d    a   b    r    a
 
 Bit stream: `0 110 111 0 100 0 101 0 110 111 0` = `01101110100010101101110` — đếm: $1+3+3+1+3+1+3+1+3+3+1 = 23$ bit ✓.
 
-> 🔁 **Dừng lại tự kiểm tra.** Giải mã `01101110...` bằng cây trên — ký tự đầu tiên là gì?
+> 🔁 **Thực hành.** Giải mã `01101110...` bằng cây trên — ký tự đầu tiên là gì?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -659,7 +659,7 @@ Chuỗi `"aaaa"` chỉ có 1 ký tự khác nhau. Cây Huffman "thuần" sẽ ch
 
 Chuỗi rỗng `""` → không có ký tự → không có cây. Code cần kiểm tra trước (trả về sớm).
 
-> 🔁 **Dừng lại tự kiểm tra.** Nén chuỗi `"ab"` (mỗi chữ 1 lần). Thân nén tốn mấy bit? Lưu kèm gì để decode?
+> 🔁 **Thực hành.** Nén chuỗi `"ab"` (mỗi chữ 1 lần). Thân nén tốn mấy bit? Lưu kèm gì để decode?
 >
 > <details><summary>Đáp án</summary>
 >

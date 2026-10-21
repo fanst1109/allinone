@@ -91,7 +91,7 @@ bit7=1 bit6=1 bit5=0 bit4=0 bit3=1 bit2=1 bit1=0 bit0=0
 - *"Có bao nhiêu địa chỉ IPv4 tổng cộng?"* — $2^{32} = 4.294.967.296 \approx$ 4,3 tỷ địa chỉ.
 - *"Tại sao IPv4 cạn kiệt?"* — 4,3 tỷ địa chỉ không đủ cho hàng chục tỷ thiết bị toàn cầu. Giải pháp tạm thời là NAT (sẽ học Lesson 05), giải pháp dài hạn là IPv6 (Lesson 06).
 
-🔁 **Dừng lại tự kiểm tra**: Đổi `172.31.200.5` sang nhị phân.
+🔁 **Thực hành**: Đổi `172.31.200.5` sang nhị phân.
 
 <details>
 <summary>Đáp án</summary>
@@ -217,7 +217,7 @@ Bảng các prefix phổ biến:
 - *"255.255.255.192 từ đâu ra với /26?"* — /26 có 26 bit 1, tức 2 octet đầu toàn 1 (= 255, 255), octet 3 toàn 1 (= 255), octet 4 có 2 bit 1 đầu: `11000000` = 192.
 - *"/30 dùng khi nào?"* — Liên kết điểm-điểm (point-to-point) giữa 2 router: chỉ cần 2 host, /30 = 4 địa chỉ, 2 host khả dụng, không lãng phí.
 
-🔁 **Dừng lại tự kiểm tra**: /27 có bao nhiêu host khả dụng? Octet 4 của mask là bao nhiêu?
+🔁 **Thực hành**: /27 có bao nhiêu host khả dụng? Octet 4 của mask là bao nhiêu?
 
 <details>
 <summary>Đáp án</summary>
@@ -359,7 +359,7 @@ Lưu ý: host `203.0.113.77` (IP đề bài) thuộc subnet này, là first host
 - Tính broadcast bằng "network + 255" chỉ đúng với /24. Với /26: network + 63, /28: network + 15.
 - Nhầm mask /26 = 11000000 = 192 ở octet 4 (đây là 2 bit mạng trong octet, không phải 6 bit).
 
-🔁 **Dừng lại tự kiểm tra**: Cho `192.168.10.67/27`, tính network address, broadcast, số host.
+🔁 **Thực hành**: Cho `192.168.10.67/27`, tính network address, broadcast, số host.
 
 <details>
 <summary>Đáp án</summary>

@@ -98,7 +98,7 @@ connection. Vì thế:
 - Tạo `*sql.DB` **một lần** khi khởi động app, dùng chung toàn vòng đời (nó thread-safe).
 - **KHÔNG** `Open`/`Close` mỗi request — đó là sai lầm phá hủy hiệu năng.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. `sql.Open` trả về `err == nil` — chắc chắn DB đang sống chưa?
 > 2. Nên tạo bao nhiêu `*sql.DB` cho một service?
 >
@@ -148,7 +148,7 @@ hỏi → DB **từ chối kết nối / sập**. Đây là sự cố thật r�
 | 10 instance + 1 job worker (5 conn) | 100 | 10 | (100 − 5 − 20) / 10 = **7** |
 | Có PgBouncer (transaction pooling) đứng trước | 100 (về PgBouncer 1000) | 10 | có thể 20–50 vì PgBouncer ghép connection |
 
-> **🔁 Dừng lại tự kiểm tra.** Postgres `max_connections=100`, bạn deploy 8 instance, muốn
+> **🔁 Thực hành.** Postgres `max_connections=100`, bạn deploy 8 instance, muốn
 > chừa 12 connection cho việc bảo trì. Mỗi instance nên đặt `MaxOpenConns` bao nhiêu?
 > <details><summary>Đáp án</summary> (100 − 12) / 8 = 11. Đặt khoảng 10–11 để có biên an toàn. </details>
 
@@ -233,7 +233,7 @@ id, _ := res.LastInsertId()  // (chỉ ý nghĩa với INSERT có AUTOINCREMENT;
 > db.QueryRow(`INSERT INTO users(name) VALUES($1) RETURNING id`, name).Scan(&id)
 > ```
 
-> **🔁 Dừng lại tự kiểm tra.** Bạn cần biết "có đúng dòng nào bị UPDATE không". Dùng hàm
+> **🔁 Thực hành.** Bạn cần biết "có đúng dòng nào bị UPDATE không". Dùng hàm
 > nào và đọc giá trị gì?
 > <details><summary>Đáp án</summary> `db.Exec(...)` → `res.RowsAffected()`. Nếu `== 0` nghĩa là điều kiện `WHERE` không khớp dòng nào. </details>
 
@@ -326,7 +326,7 @@ db.Query(`SELECT * FROM users WHERE email = $1`, email)       // Postgres
 > q := "SELECT * FROM users ORDER BY " + col // an toàn vì col đã qua whitelist
 > ```
 
-> **🔁 Dừng lại tự kiểm tra.** Vì sao `db.Query("... WHERE name = ?", "O'Brien")` không bị
+> **🔁 Thực hành.** Vì sao `db.Query("... WHERE name = ?", "O'Brien")` không bị
 > lỗi cú pháp dù tên có dấu nháy đơn?
 > <details><summary>Đáp án</summary> Vì `O'Brien` đi qua kênh dữ liệu tách biệt; DB không parse nó như SQL nên dấu `'` không "đóng" chuỗi. Nếu nối chuỗi thì `'O'Brien'` mới gây lỗi cú pháp. </details>
 
@@ -459,7 +459,7 @@ func transfer(ctx context.Context, db *sql.DB, from, to, amount int64) (err erro
 > - **Quên Rollback khi return sớm** → connection bị giữ ở trạng thái "đang mở transaction" → leak. `defer tx.Rollback()` ngay sau `Begin` giải quyết.
 > - **Giữ transaction mở quá lâu** (làm I/O, gọi HTTP bên trong tx) → giữ lock DB lâu → nghẽn. Transaction nên ngắn gọn.
 
-> **🔁 Dừng lại tự kiểm tra.** Sau `tx.Commit()` thành công, `defer tx.Rollback()` chạy có
+> **🔁 Thực hành.** Sau `tx.Commit()` thành công, `defer tx.Rollback()` chạy có
 > phá hỏng dữ liệu vừa commit không?
 > <details><summary>Đáp án</summary> Không. Sau Commit, transaction đã đóng; Rollback trả về `sql.ErrTxDone` và không làm gì. Đó chính là lý do pattern này an toàn. </details>
 
@@ -575,7 +575,7 @@ for each order {
 > ```
 > hoặc gom id rồi 1 query `WHERE id IN (...)`. 1 + N round-trip → còn 1.
 
-> **🔁 Dừng lại tự kiểm tra.** Bạn thấy log DB có 1 query danh sách rồi 200 query gần như
+> **🔁 Thực hành.** Bạn thấy log DB có 1 query danh sách rồi 200 query gần như
 > giống nhau theo sau. Tên hiện tượng là gì và sửa ra sao?
 > <details><summary>Đáp án</summary> N+1 query. Sửa bằng JOIN hoặc `WHERE id IN (...)` để gộp về 1–2 query. </details>
 

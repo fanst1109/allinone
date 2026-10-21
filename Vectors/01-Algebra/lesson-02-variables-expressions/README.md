@@ -123,7 +123,7 @@ Không, $2$ và $3$ ở đây là **hằng số cụ thể đã viết ra rồi*
 - **Đổi tên biến giữa chừng**: Mở bài bằng "đặt số cần tìm là $x$", giải nửa bài lại đổi thành $n$. Sai — phải nhất quán trong cùng một bài toán.
 - **Nhầm biến với tên file/cột dữ liệu**: Trong code, một "biến" có thể chứa cả một mảng hay một bảng. Trong toán phổ thông, "biến" luôn là **một số**. Khi qua tới đại số tuyến tính (Lesson 03), ta mới có "biến" là vector/ma trận.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Trong câu "tổng ba số liên tiếp bằng 30, tìm số nhỏ nhất", nếu đặt số nhỏ nhất là $x$ thì ba số là gì? Vai trò của $x$?</summary>
@@ -265,7 +265,7 @@ Dạng tốt phụ thuộc câu hỏi đang đặt.
 - **Gom nhầm khi có lũy thừa lẫn lộn**: viết $x^2 + x = x^3$ hoặc $= 2x$ đều sai. $x^2$ và $x$ **không** đồng dạng — không cộng được. Phải để nguyên $x^2 + x$ (hoặc đặt nhân tử chung $x(x+1)$, không phải "gom").
 - **Nhầm $2x$ với $x + x$ vs $x^2$**: $2x = x + x$ (cộng hai lần), nhưng $x^2 = x \cdot x$ (nhân). Vd $x = 3$: $2x = 6$, $x^2 = 9$. Rất hay nhầm khi mới học.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Liệt kê các hạng tử và hệ số của $-2x^3 + x^2 - x + 7$.</summary>
@@ -374,7 +374,7 @@ Cả hai cách phải ra cùng kết quả — nếu khác là sai. Cách A nhan
 - Bước 3: Tính $2x$ tại $x = -2$: $\;2 \cdot (-2) = -4$.
 - Bước 4: Cộng tất cả: $\;q(-2) = -4 + (-4) - 9 = -17$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Tính $f(x) = 5 - x^2 + 3x$ tại $x = -3$.</summary>
@@ -456,7 +456,7 @@ Không (vì khác lũy thừa). Nhưng **đặt nhân tử chung** được: $3x
 - **Cố gom khác lũy thừa**: $x^2 + x = 2x^2$ hoặc $= x^3$ đều sai.
 - **Quên hạng tử có hệ số ẩn**: $x^3 - x^3 = 0$, không phải $x^3$. Khi không có số đứng trước, hệ số là $1$ (hoặc $-1$ nếu có dấu trừ).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Rút gọn $4x - 2y + 3x + y - 5x$.</summary>
@@ -625,7 +625,7 @@ Hai hạng tử giữa triệt tiêu → ra $a^2 - b^2$. Đây là **hằng đ�
 - **FOIL nhưng quên hạng tử trong**: $(x+2)(x+3) = x^2 + 6$ (sai, quên Outer + Inner). Đúng: $x^2 + 5x + 6$.
 - **Phân phối mũ**: $(a + b)^2 \neq a^2 + b^2$. Mũ **không** phân phối trên tổng (chỉ phân phối trên tích: $(ab)^2 = a^2b^2$).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Khai triển $-2(3x - 5)$.</summary>
@@ -911,7 +911,7 @@ Vd $x^2 + x + 1$: $\Delta = 1 - 4 = -3 < 0$ → bất khả quy.
 - **Nhầm $x^2 + bx + c$ với $x^2 - bx + c$**: chỉ một dấu nhưng đổi đáp án hoàn toàn.
 - **Phân tích nửa vời**: $x^4 - 1 = (x^2-1)(x^2+1)$ — chưa hết. Tiếp: $(x^2-1) = (x-1)(x+1)$. Đáp án đầy đủ: $(x-1)(x+1)(x^2+1)$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Phân tích $x^2 + 10x + 24$.</summary>
@@ -1004,7 +1004,7 @@ Toán giả định mỗi chữ cái là một biến riêng → $xy$ = hai bi�
 - **Nhầm $-3^2 = 9$**: sai, $-3^2 = -9$ (lũy thừa trước, dấu trừ áp dụng sau). Nếu muốn $9$, viết $(-3)^2$.
 - **Viết tên biến gồm nhiều chữ trong toán mà không có dấu nhân**: $ab$ ngầm $= a \cdot b$ trong toán, không phải biến tên `ab`. Nếu muốn dùng $ab$ là một tên trong toán (như "khoảng AB" trong hình học), phải có ngữ cảnh rõ.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>1. Tính $-x^2$ và $(-x)^2$ tại $x = 4$.</summary>

@@ -102,7 +102,7 @@ Chỉ **2 vòng** phủ 100% từ một hạt mầm duy nhất.
 > - *"Nếu mỗi tiếp xúc chỉ truyền với xác suất $p<1$ thì sao?"* → Đó là SI ngẫu nhiên. Với một node có $m$ hàng xóm đã nhiễm, xác suất **thoát** một vòng là $(1-p)^m$, nên xác suất nhiễm là $1-(1-p)^m$. Ví dụ $p=0.3$: một hàng xóm nhiễm → $1-0.7 = 30\%$; bốn hàng xóm nhiễm → $1-0.7^4 = 1-0.2401 = 75.99\%$. Nhiều nguồn *tăng* cơ hội, nhưng bản chất vẫn là **một nguồn cũng có thể đủ** — đó là dấu hiệu của simple contagion.
 > - *"Xác suất trên có phải là 'cần nhiều hàng xóm' không?"* → Không. Nhiều hàng xóm chỉ làm *nhanh hơn*, không phải *điều kiện bắt buộc*. Ở complex contagion (Mục 3), nhiều hàng xóm là **bắt buộc**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trong walk-through trên, nếu seed $=\{2\}$ thay vì $\{1\}$, sau bao nhiêu vòng phủ hết?
 > 2. Với SI ngẫu nhiên $p=0.5$, node có 3 hàng xóm đã nhiễm — xác suất nhiễm trong vòng này?
 >
@@ -163,7 +163,7 @@ Có hai cách đặt ngưỡng:
 > - *"Ngưỡng $k$ có phải ai cũng như nhau?"* → Không nhất thiết. Đời thực mỗi người một ngưỡng (người "bạo" $k=1$, người "dè dặt" $k=4$). Ở bài này ta dùng $k$ chung để thấy rõ cơ chế; mở rộng ngưỡng không đồng nhất là bước tiếp theo tự nhiên.
 > - *"$k=1$ thì complex có thành simple không?"* → Đúng. Simple contagion chính là trường hợp $k=1$ của mô hình ngưỡng. Viz cho phép kéo $k$ về 1 để thấy hai kiểu trùng nhau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một node bậc $d=7$, dùng ngưỡng phân số $\varphi=0.4$. Cần bao nhiêu hàng xóm đã adopt?
+> 🔁 **Ôn tập.** Một node bậc $d=7$, dùng ngưỡng phân số $\varphi=0.4$. Cần bao nhiêu hàng xóm đã adopt?
 > <details><summary>Đáp án</summary>
 >
 > $\lceil 0.4 \times 7 \rceil = \lceil 2.8 \rceil = \mathbf{3}$ hàng xóm.
@@ -238,7 +238,7 @@ Giờ node 5 và 6 mỗi node thấy **hai** người đã theo → vượt ngư
 
 > ❓ **Câu hỏi tự nhiên.** *"Vậy phong trào xã hội nên lan qua mạng lưới thế nào?"* → Qua các cụm dày có **nhiều liên kết chồng lấn** (bạn bè của bạn cũng là bạn của nhau) — nơi mỗi người dễ thấy nhiều người quen cùng tham gia. Mạng "nhiều đường tắt xa, ít củng cố" (small-world cực đoan) tốt cho tin đồn nhưng tệ cho phong trào. Đây là lý do phong trào thường khởi phát từ cộng đồng địa phương gắn kết, không từ mạng lưới phân tán.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong walk-through cầu hẹp (Mục 4.3), nếu tăng seed lên $\{1,2,5\}$ (thêm mầm ở cụm B) thì complex $k=2$ có phủ hết không?
+> 🔁 **Ôn tập.** Trong walk-through cầu hẹp (Mục 4.3), nếu tăng seed lên $\{1,2,5\}$ (thêm mầm ở cụm B) thì complex $k=2$ có phủ hết không?
 > <details><summary>Đáp án</summary>
 >
 > Chưa. Cụm A cháy hết (1,2,3,4). Nhưng ở B chỉ có node 5 là adopter; node 6,7,8 mỗi node chỉ có **1** hàng xóm adopt (node 5) → $<2$ → vẫn kẹt. Cần **hai** mầm trong B (ví dụ $\{5,6\}$) thì B mới cháy. Bài học: complex contagion cần *khối lượng tới hạn cục bộ* trong từng cụm, không chỉ một điểm chạm.

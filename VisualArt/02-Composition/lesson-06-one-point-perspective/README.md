@@ -159,7 +159,7 @@ $$g(t) = x_R - x_L = 200 - 200t = 200\,(1 - t)$$
 
 **Hành lang / căn phòng nhìn thẳng.** Bốn góc của "khung cửa" trước nối về VP cho ta bốn đường: đường trên = mép trần, đường dưới = mép sàn, hai đường bên = chân tường. Vì VP nằm trên đường chân trời (giữa chiều cao), trần **hạ xuống** còn sàn **nâng lên** khi đi vào sâu, cả hai tiến về gặp nhau ở tầm mắt — tạo cảm giác hành lang hun hút.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Ray trái $(280, 560)$, ray phải $(520, 560)$, $VP=(400,300)$. Khoảng cách hai ray tại độ sâu $t=0{,}5$ là bao nhiêu?
 > 2. Ở độ sâu nào thì hai ray cách nhau đúng 60 đơn vị?
 >

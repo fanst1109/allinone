@@ -175,7 +175,7 @@ Bố cục điển hình của không gian địa chỉ trên Linux x86-64 (đ�
 
 ⚠ **Lỗi thường gặp — Nhầm "địa chỉ ảo = địa chỉ RAM thật":** Các địa chỉ trong code C/Go (như \`&variable = 0xc000014090\`) là địa chỉ **ảo**. MMU (Memory Management Unit) trong CPU dịch địa chỉ ảo sang địa chỉ vật lý thật trong RAM mỗi khi truy cập. Hai tiến trình khác nhau có thể đều có biến ở địa chỉ ảo \`0x7fff1000\` nhưng thực ra chúng trỏ đến 2 vùng RAM hoàn toàn khác nhau.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Khai báo \`int buffer[1024 * 1024];\` bên trong hàm \`main()\`. Nó nằm ở vùng nào của address space? Nếu chuyển ra global scope (ngoài mọi hàm), nó nằm ở đâu?
 
@@ -291,7 +291,7 @@ Giả sử tiến trình P (PID 1234) gọi \`read(fd, buf, 4096)\` để đọc
 
 ⚠ **Lỗi thường gặp — Nhầm "Waiting" với "blocked mãi mãi":** Waiting chỉ có nghĩa process đang chờ sự kiện cụ thể. Khi sự kiện đó xảy ra (I/O xong, timer hết, \`SIGCONT\`...), process trở về Ready ngay.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Process A đang Running và gọi \`sleep(10)\`. Nó chuyển sang trạng thái nào? CPU làm gì trong 10 giây đó?
 

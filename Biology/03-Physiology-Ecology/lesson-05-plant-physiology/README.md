@@ -69,7 +69,7 @@ A: Đúng. Thân và lá không cần "kiểm soát" vì nước trong xylem đ�
 - **Nghĩ apoplast và symplast là 2 hệ mạch riêng**: SAI — chúng là 2 **đường đi xuyên qua mô vỏ rễ** trước khi vào mạch gỗ. Mạch gỗ và mạch rây mới là 2 hệ mạch dẫn.
 - **Nghĩ đai Caspary chặn nước**: Nó chặn **đường apoplast**, không chặn nước nói chung. Nước vẫn qua được bằng cách xuyên màng (vào symplast).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao cây ngô trồng trong đất tơi xốp lại hút nước tốt hơn cây trồng trong đất nén chặt, dù cùng độ ẩm?
 2. Một ion độc (vd Cd²⁺) bám trên hạt đất gần lông hút — đai Caspary có chặn được nó vào mạch gỗ không?
@@ -212,7 +212,7 @@ A: Rất ít. Chúng đóng khí khổng ban ngày, mở ban đêm (cơ chế CA
 - **Nhầm cohesion với adhesion**: cohesion = nước với nước; adhesion = nước với thành ống. Cả hai cần thiết, nhưng cohesion là chính.
 - **Nghĩ thoát hơi nước là "lãng phí"**: thực tế nó là **động cơ vận chuyển** miễn phí. Mất 90% nước là "chi phí cần thiết" để đưa khoáng và làm mát lá.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Nếu bạn cắt ngang thân một cây hoa cúc rồi cắm vào bình mực đỏ, sau vài giờ mực leo lên đến ngọn. Mạch nào dẫn mực, và lực nào kéo?
 2. Vì sao cây "ứa giọt" lúc rạng đông trên đồng lúa nhưng không thấy lúc trưa nắng?
@@ -290,7 +290,7 @@ A: Rất nhanh — chỉ vài phút sau khi rễ khô là ABA đã tăng và kh�
 - **Nhầm cơ chế đóng/mở với van cơ học**: nó không phải van — đó là 2 tế bào **trương/xẹp** do thẩm thấu. Lực kéo cong là từ cấu trúc sợi cellulose của thành tế bào.
 - **Nghĩ ABA = hormone "tốt"**: ABA là hormone **stress**. Mức ABA cao nghĩa là cây đang trong tình trạng khắc nghiệt.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cây trong nhà bị héo lá khi quên tưới 2 ngày. Sau khi tưới đủ nước, lá hồi lại sau ~30 phút. Giải thích cơ chế.
 2. Vì sao xương rồng quang hợp chậm hơn cây ngô dù cùng có lục lạp?
@@ -379,7 +379,7 @@ A: Đỉnh ngọn tiết auxin xuống dưới, **ức chế chồi nách** (hi�
 **Q: Tại sao chuối để gần táo chín nhanh, nhưng để trong tủ lạnh thì lâu chín?**
 A: Tủ lạnh ức chế tổng hợp ethylene (enzyme cần nhiệt độ ấm). Để gần táo: ethylene từ táo khuếch tán sang → kích thích chuối tự sản xuất ethylene → chín nhanh (phản hồi dương).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một cây con đặt nằm ngang trên bàn (rễ và thân song song mặt bàn). Sau 1 ngày, rễ uốn xuống, thân uốn lên. Giải thích bằng auxin.
 2. Vì sao hạt lúa nảy mầm khi ngâm nước, dù trước đó hạt khô ngủ?

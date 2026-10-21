@@ -93,7 +93,7 @@ Node 2 có đúng **hai** lựa chọn:
 
 ⚠ **Hiểu lầm: "CAP = chọn 2 trong 3" một cách tĩnh.** Cách diễn đạt phổ biến "chọn 2 trong 3 chữ" gây hiểu sai rằng có hệ "CA" (bỏ P) tồn tại ổn định. **Sai.** Trong hệ phân tán thật, partition **sẽ** xảy ra nên **P là bắt buộc**. Đánh đổi thực sự **chỉ xuất hiện KHI có partition**, và lúc đó chỉ là giữa **C và A**. Khi *không* có partition, hệ có thể có cả C lẫn A bình thường. Nói cách khác: CAP không phải "chọn 2/3 mọi lúc", mà là "**khi partition: chọn C hay A**".
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Trong partition, node 2 chưa có dữ liệu mới. Nếu nó trả về giá trị cũ ngay lập tức, hệ đang ưu tiên chữ nào và hy sinh chữ nào?
 2. Vì sao "hệ CA bỏ P" không tồn tại bền vững trong hệ phân tán thật?
 
@@ -214,7 +214,7 @@ Node 2 có đúng **hai** lựa chọn:
 - *"Có quan hệ gì với CAP?"* — Có. Đặt \`R+W>N\` cho ta nhất quán mạnh kiểu quorum → nghiêng **CP/EC**. Đặt \`R+W ≤ N\` (vd R=W=1) → nhanh nhưng eventual → nghiêng **AP/EL**. Quorum chính là *núm vặn* để chọn vị trí trên trục C–A.
 - *"Tại sao không luôn đặt W=N, R=N cho chắc?"* — Vì lúc đó **một node chết là không ghi/đọc được** → mất availability hoàn toàn. Quorum cân bằng giữa nhất quán và chịu lỗi.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. N=5, W=3, R=3. Có đảm bảo đọc thấy ghi mới nhất không? Vì sao?
 2. N=5, W=3, R=2 thì sao?
 

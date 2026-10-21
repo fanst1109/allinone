@@ -108,7 +108,7 @@ Với n=4, m=2: net = 2/4 − 1 = −0.5. Mỗi đồng đóng góp mình chỉ 
 
 Nhận xét: m lớn hơn (hiệu quả nhân lên cao hơn) → social benefit lớn hơn nhưng NE vẫn là 0 contribution miễn là m < n.
 
-> 🔁 **Tự kiểm tra**: Với n=5, m=4: (a) tính net/unit đóng góp; (b) NE có phải 0 contribution không? (c) social optimum payoff mỗi người = bao nhiêu nếu e=10?
+> 🔁 **Thực hành**: Với n=5, m=4: (a) tính net/unit đóng góp; (b) NE có phải 0 contribution không? (c) social optimum payoff mỗi người = bao nhiêu nếu e=10?
 
 <details>
 <summary>Đáp án</summary>
@@ -213,7 +213,7 @@ Leviathan: nhà nước cưỡng ép đóng thuế, cung cấp public goods (qu�
 
 **Trade-off**: hiệu quả trong cung cấp public goods nhưng phụ thuộc vào việc nhà nước không abuse quyền lực thu thuế.
 
-> 🔁 **Tự kiểm tra**: Climate change là collective action problem kiểu nào? Liệt kê ít nhất 3 giải pháp và phân tích tại sao mỗi giải pháp gặp khó khăn gì trong bối cảnh quốc tế.
+> 🔁 **Thực hành**: Climate change là collective action problem kiểu nào? Liệt kê ít nhất 3 giải pháp và phân tích tại sao mỗi giải pháp gặp khó khăn gì trong bối cảnh quốc tế.
 
 <details>
 <summary>Gợi ý đáp án</summary>

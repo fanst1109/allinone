@@ -207,7 +207,7 @@ Mẹo nhớ (từ tầng 7 xuống 1): **A**ll **P**eople **S**eem **T**o **N**e
 | 2 | Data Link (Liên kết) | Frame (khung) | MAC Address (48 bit) | Ethernet, Wi-Fi · Switch |
 | 1 | Physical (Vật lý) | Bit | — | Cáp, Hub, NIC, Repeater |
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 *DNS hoạt động ở tầng mấy?*
 
@@ -385,7 +385,7 @@ Router thông thường (L3 router) chỉ đọc đến **tầng 3 (IP)** — tr
 
 Với packet 38 byte HTTP, overhead là 58 byte (header chiếm 60%). Nghe nhiều, nhưng thực tế payload thường lớn hơn nhiều — ví dụ tải ảnh 1 MB, overhead 58 byte chỉ là 0.006%. Tuy nhiên với ứng dụng gửi nhiều gói nhỏ (gaming, VoIP), overhead có thể chiếm 20–50%.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 *Khi laptop gửi một gói tin, tầng nào thêm địa chỉ MAC đích? Địa chỉ MAC đích thay đổi ở đâu trong hành trình gói tin?*
 
@@ -459,7 +459,7 @@ PDU là tên gọi cho "đơn vị dữ liệu" tại mỗi tầng — bao gồm
 | 3306 | MySQL | Cơ sở dữ liệu |
 | 5432 | PostgreSQL | Cơ sở dữ liệu |
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 *Bạn chạy lệnh \`ssh user@192.168.1.100\`. Xác định: tầng Application, Transport, Network, và Link đang làm gì?*
 

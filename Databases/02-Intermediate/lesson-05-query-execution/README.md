@@ -84,7 +84,7 @@ Từ những con số này, optimizer ước lượng: *"WHERE city='Hanoi' sẽ
 
 ⚠ **Lỗi thường gặp.** Nhiều người nghĩ "có index thì lúc nào dùng index cũng nhanh hơn quét bảng". Sai. Khi selectivity cao (trả về phần lớn bảng, như `status='active'` ở trên với 90%), dùng index lại **chậm hơn** quét tuần tự — sẽ chứng minh bằng số ở mục 3.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Cost trong `EXPLAIN` có phải là số mili-giây không?
 2. Bảng `products` có 500.000 dòng, cột `category` có 50 giá trị phân bố đều. Ước lượng `WHERE category = 'sách'` trả về bao nhiêu dòng?
 
@@ -142,7 +142,7 @@ So sánh tại các mức selectivity:
 - *"Vậy có index mà không dùng thì index thừa à?"* — Không hẳn. Cùng một index dùng đắc lực cho query selectivity thấp (`WHERE id=42`) nhưng bị bỏ qua cho query selectivity cao. Index vẫn đáng có nếu *có* query kén dùng tới nó.
 - *"Số 4 (random I/O) ở đâu ra?"* — Là tham số mô hình (PostgreSQL gọi là `random_page_cost`, mặc định 4.0; `seq_page_cost` = 1.0). Trên SSD random rẻ hơn nên người ta hạ xuống ~1.1.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Với mô hình trên (P=10.000, random=4), nếu query trả về 1.500 dòng, optimizer chọn gì?
 2. Nếu chuyển sang SSD và đặt random_page_cost = 1.0, điểm hòa vốn dịch về phía nào?
 
@@ -225,7 +225,7 @@ cho mỗi dòng a trong outer:        # m lần
 - *"Optimizer chọn cái nào?"* — Ước lượng cost cả ba (dựa trên kích thước bảng + có index + đã sorted chưa) rồi chọn rẻ nhất. Bảng nhỏ → nested loop; equi-join hai bảng lớn không index → hash; có sẵn thứ tự → merge.
 - *"Hash table có vỡ bộ nhớ không?"* — Nếu bảng build không vừa RAM, DBMS chia thành nhiều phần (grace hash join), tốn thêm I/O. Đây là lúc hash join mất ưu thế.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Join hai bảng 5.000.000 dòng trên `a.id = b.aid`, không bảng nào có index, không sorted. Chọn thuật toán nào?
 2. Cùng câu trên nhưng điều kiện là `a.ts BETWEEN b.lo AND b.hi` (range). Hash join còn dùng được không?
 

@@ -90,7 +90,7 @@ func main() {
 > **không** phải \`8\`. Để tính 2 mũ 3 dùng \`math.Pow(2, 3)\` hoặc \`1 << 3\`. Đây là một trong những
 > lỗi gây bối rối nhất khi chuyển từ Python (nơi \`**\` là mũ, \`^\` là XOR) hoặc từ toán học (nơi \`^\` là mũ).
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > \`13 &^ 6 = ?\` (13 = \`1101\`, 6 = \`0110\`).
 > <details><summary>Đáp án</summary>
 >
@@ -195,7 +195,7 @@ Walk-through (4 ví dụ):
 > **⚠ Lỗi thường gặp** — quên điều kiện \`n > 0\`. Với \`n = 0\`: \`0 & (0-1) = 0 & (-1) = 0\`, công thức
 > sẽ báo "là lũy thừa 2", sai. Luôn kèm \`n > 0\`.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > \`clearLowest(0b11010) = ?\` và \`lowestSetBit(0b11010) = ?\` (26).
 > <details><summary>Đáp án</summary>
 >

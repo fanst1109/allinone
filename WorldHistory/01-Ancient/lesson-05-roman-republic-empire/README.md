@@ -90,7 +90,7 @@ Người La Mã rút ra bài học từ thời Vương quyền: quyền lực t�
 
 ⚠ **Hiểu lầm thường gặp:** Nhiều người nhầm rằng "republic" (cộng hòa) nghĩa là dân chủ. Cộng hòa La Mã KHÔNG phải dân chủ kiểu Athens. Người nông dân nghèo hoặc người không có đất đai hầu như không có ảnh hưởng thực sự tới chính trị, dù về lý thuyết họ có thể bỏ phiếu.
 
-🔁 **Tự kiểm tra:**
+🔁 **Ôn tập:**
 
 > Điểm khác biệt cốt lõi giữa Viện Nguyên lão và Hộ dân quan (Tribune) là gì?
 

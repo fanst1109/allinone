@@ -168,7 +168,7 @@ $H = -1 \\times \\ln(1) = 0$. $D = 1 - 1^2 = 0$. Đa dạng bằng 0 — đơn l
 - **Trộn đơn vị**: nếu dùng $\\log_2$ thay $\\ln$, $H$ tính ra khác (đơn vị bits). Khi so sánh hai nghiên cứu phải kiểm tra cùng đơn vị.
 - **Coi Shannon là "số loài"**: $H$ không phải số loài, mà là "chỉ số". Muốn quy ra "số loài hiệu dụng" thì lấy $\\exp(H)$ (Hill number bậc 1).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tính H và D cho khu có 2 loài tỉ lệ 0.5/0.5. Độ đều bằng bao nhiêu?
 2. Khu E có 5 loài chia đều. Tính \`H\` cực đại và \`D\` cực đại của khu này.
@@ -276,7 +276,7 @@ Quy tắc kinh điển bảo tồn: **50/500** — cần ≥50 cá thể sinh s�
 - **Tách "biến đổi khí hậu" thành nguyên nhân thứ 6 riêng**: thường gộp khí hậu vào "Pollution" (CO₂ là ô nhiễm khí) hoặc xếp thành "thừa số nhân" làm trầm trọng HIPPO.
 - **Nghĩ "tuyệt chủng là chuyện tự nhiên"**: đúng — tuyệt chủng nền có thật. Vấn đề là **tốc độ** hiện tại nhanh gấp 100–1000 lần nền, không phải bản chất hiện tượng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Nếu tốc độ tuyệt chủng nền là 1 loài / 1 triệu loài / năm và Trái Đất có 8.7 triệu loài, tính số loài tuyệt chủng nền dự kiến trong 1 năm và trong 100 năm.
 2. Nếu tốc độ hiện tại nhanh gấp 500 lần nền, số loài mất trong 100 năm là bao nhiêu?

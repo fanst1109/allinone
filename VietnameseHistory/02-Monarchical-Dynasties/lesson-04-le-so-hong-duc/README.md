@@ -117,7 +117,7 @@ Tên 13 đạo: Thanh Hóa, Nghệ An, Thuận Hóa, Thiên Trường, Nam Sách
 
 Nhiều người nhầm "Lê Thánh Tông bỏ chức Tể tướng (Tướng quốc)" với "bỏ toàn bộ quan lại cấp cao". Thực ra, ông chỉ bỏ chức Tể tướng — người đứng đầu dưới vua — để quyền lực tập trung trực tiếp vào nhà vua. Hệ thống quan lại 6 bộ và các cơ quan vẫn hoạt động đầy đủ, chỉ là không có ai đủ quyền "đứng giữa" vua và các bộ nữa.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 **Câu hỏi:** Vì sao chia 13 đạo thừa tuyên với 3 cơ quan mỗi đạo được xem là tập quyền cao hơn, dù có vẻ phức tạp hơn?
 
@@ -182,7 +182,7 @@ Trong bối cảnh xã hội phong kiến Nho giáo — vốn đề cao "tam tò
 
 Không nên nhầm "tiến bộ" trong bối cảnh thế kỷ 15 với tiêu chuẩn hiện đại. Bộ luật Hồng Đức vẫn duy trì hình phạt thể xác, xử tử hình nhiều tội danh, và phân chia thứ bậc xã hội cứng nhắc. Tính "tiến bộ" được đánh giá so với luật pháp các nước châu Á cùng thời kỳ, không phải so với tiêu chuẩn nhân quyền hiện đại.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 **Câu hỏi:** Nêu hai điểm trong Bộ luật Hồng Đức bảo vệ quyền phụ nữ mà bạn cho là tiến bộ nhất so với bối cảnh thế kỷ 15.
 

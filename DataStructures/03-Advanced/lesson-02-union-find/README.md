@@ -487,7 +487,7 @@ Khác với DFS/BFS đếm thành phần liên thông ($O(V+E)$ **mỗi lần** 
 | Cần thứ tự / khoảng | UF là quan hệ tương đương, không thứ tự | BIT/Segment tree ([L03](../lesson-03-segment-tree/)) |
 | Đồ thị **có hướng** cần SCC | UF vô hướng | Tarjan/Kosaraju |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Trong Kruskal, vì sao chỉ nhận cạnh khi `Union` trả `true`?
 >    <details><summary>Đáp án</summary>`true` = hai đầu cạnh thuộc <b>hai nhóm khác nhau</b> → nối chúng làm liên thông thêm, không tạo chu trình. `false` = đã cùng nhóm → cạnh này tạo vòng, bỏ đi.</details>
 > 2. Vì sao bài "liên thông động" (cạnh đến dần) dùng Union-Find thay vì DFS?

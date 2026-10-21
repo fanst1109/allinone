@@ -237,7 +237,7 @@ Trigonal bipyramidal có 2 vị trí "đặc biệt" (axial) và 3 vị trí "th
 - **Đếm liên kết đôi/ba thành nhiều cặp**: SAI. Liên kết bội chỉ tính 1 cặp khi tính SN.
 - **Nhầm "hình học cặp electron" và "hình học phân tử"**: cặp e gồm cả lone pair (vô hình), phân tử chỉ tính các nguyên tử (nhìn thấy được).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tính SN và xác định hình học của: $\text{SF}_4$.
 2. Tại sao $\text{H}_2\text{O}$ có góc $104{,}5^\circ$ trong khi $\text{CH}_4$ có $109{,}5^\circ$?

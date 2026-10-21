@@ -53,7 +53,7 @@ Kiểm chứng kỳ 1: lãi $= 100 \times 1\% = 1$ triệu; gốc $= 8{,}885 - 1
 
 > ⚠ **Lỗi thường gặp.** Tưởng mỗi kỳ trả gốc đều nhau. Sai — khoản **trả** đều nhau, nhưng tỷ lệ gốc/lãi đổi mỗi kỳ (lãi giảm dần, gốc tăng dần).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vay 50 triệu, 1%/tháng, kỳ 1 trả lãi bao nhiêu?
+> 🔁 **Thực hành.** Vay 50 triệu, 1%/tháng, kỳ 1 trả lãi bao nhiêu?
 > <details><summary>Đáp án</summary>Lãi kỳ 1 $= 50 \times 1\% = 0{,}5$ triệu (tính trên dư nợ đầu = toàn bộ 50 triệu).</details>
 
 ---
@@ -86,7 +86,7 @@ Tháng 1: lãi $= 30 \times 2{,}5\% = 0{,}75$ triệu; trả tối thiểu $= 30
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "lãi thẻ 2,5%/tháng nghe nhỏ". Đó là ~34,5%/năm hiệu dụng ($1{,}025^{12} - 1$) — gấp 4–5 lần lãi vay ngân hàng thông thường. Nợ thẻ là loại nợ đắt nhất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nợ thẻ 20 triệu, lãi 3%/tháng. Tháng đầu phần lãi là bao nhiêu? Trả tối thiểu 5% (1 triệu) thì gốc giảm bao nhiêu?
+> 🔁 **Thực hành.** Nợ thẻ 20 triệu, lãi 3%/tháng. Tháng đầu phần lãi là bao nhiêu? Trả tối thiểu 5% (1 triệu) thì gốc giảm bao nhiêu?
 > <details><summary>Đáp án</summary>Lãi $= 20 \times 3\% = 0{,}6$ triệu. Trả 1 triệu → gốc giảm chỉ $1 - 0{,}6 = 0{,}4$ triệu. 60% khoản trả là lãi.</details>
 
 ---

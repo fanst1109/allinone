@@ -147,7 +147,7 @@ Lấy $\mathbf{u} = (1, 1, 1)$ và $\mathbf{v} = (1, 1, 1)$:
 - Đại số: $1 + 1 + 1 = 3$.
 - Hình học: $\lVert u \rVert = \lVert v \rVert = \sqrt{3}$. Vì $\mathbf{u} = \mathbf{v}$, $\theta = 0$, $\cos\theta = 1$. → $\sqrt{3} \cdot \sqrt{3} \cdot 1 = 3$. ✓
 
-> **🔁 Dừng lại tự kiểm tra**:
+> **🔁 Thực hành**:
 >
 > *Câu hỏi*: Tính $\mathbf{u} \cdot \mathbf{v}$ với $\mathbf{u} = (2, -3, 1)$, $\mathbf{v} = (1, 2, 4)$ bằng cả hai cách (nếu có thể).
 >
@@ -273,7 +273,7 @@ $$\operatorname{cos\_sim}(\mathbf{u}, \mathbf{v}) = \mathbf{u} \cdot \mathbf{v}$
 > 2. **Quantization** (int8 thay vì float32) → giảm tính toán 4x, chấp nhận sai số nhỏ.
 > 3. **Approximate nearest neighbor** (HNSW, IVF): không tính cos sim với toàn bộ corpus, chỉ với một subset. Trade-off recall vs speed. Sẽ học sâu hơn ở **Tầng 6 — AI/ML**.
 
-> **🔁 Dừng lại tự kiểm tra**:
+> **🔁 Thực hành**:
 >
 > *Câu hỏi*: $\mathbf{u} = (3, 4)$, $\mathbf{v} = (6, 8)$. Tính $\mathbf{u} \cdot \mathbf{v}$, $\operatorname{cos\_sim}(\mathbf{u}, \mathbf{v})$. Hai vector có cùng hướng không?
 >
@@ -373,7 +373,7 @@ e_n = \begin{bmatrix} 0 \\ 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}$$
 
 Đây là khái niệm trung tâm của **Lesson 04** (basis) và **Lesson 07** (eigenvector + diagonalization).
 
-> **🔁 Dừng lại tự kiểm tra**:
+> **🔁 Thực hành**:
 >
 > Tìm một vector $\mathbf{w} \in \mathbb{R}^3$ vuông góc với cả $\mathbf{u} = (1, 0, 0)$ và $\mathbf{v} = (0, 1, 0)$.
 >

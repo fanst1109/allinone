@@ -105,7 +105,7 @@ $$v \\approx c\\,z = 300\\,000 \\ \\text{km/s} \\times 0{,}0102 = 3060 \\ \\text
 > - *"Redshift này có giống hiệu ứng Doppler của còi xe cứu thương không?"* — Gần giống nhưng khác bản chất. Doppler là do chuyển động *trong* không gian. Redshift vũ trụ học (cosmological redshift) là do **không gian tự giãn** kéo dài sóng trên đường đi. Với z nhỏ hai cái cho công thức gần như nhau nên ta dùng chung.
 > - *"Có thiên hà nào dịch xanh (lùi lại gần) không?"* — Có, vài thiên hà rất gần (như Andromeda) đang tiến về ta vì lực hấp dẫn cục bộ thắng giãn nở. Giãn nở Hubble chỉ thắng ở khoảng cách lớn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vạch chuẩn $\\lambda_0 = 500 \\ \\text{nm}$, đo được $\\lambda = 515 \\ \\text{nm}$. Tính $z$ và $v$.
+> 🔁 **Thực hành.** Vạch chuẩn $\\lambda_0 = 500 \\ \\text{nm}$, đo được $\\lambda = 515 \\ \\text{nm}$. Tính $z$ và $v$.
 > <details><summary>Đáp án</summary>$z = (515-500)/500 = 15/500 = 0{,}03$. $v \\approx cz = 300\\,000 \\times 0{,}03 = 9000 \\ \\text{km/s}$. (Và $d = 9000/70 \\approx 129 \\ \\text{Mpc}$.)</details>
 
 ---
@@ -125,7 +125,7 @@ $$v \\approx c\\,z = 300\\,000 \\ \\text{km/s} \\times 0{,}0102 = 3060 \\ \\text
 
 > ❓ **Câu hỏi tự nhiên.** *"Nếu không có tâm thì Big Bang nổ ở đâu?"* — Ở **khắp nơi**. Lúc đầu toàn bộ không gian (kể cả chỗ bây giờ là bạn) bị nén cực nóng đặc. Giãn nở là *không gian tự lớn ra*, không phải vật chất văng ra từ một điểm. (Lesson 02 nói kỹ.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong mô hình bánh mì nho, nếu một quan sát viên ngồi trên hạt nho ở rìa ổ bánh, người đó có thấy mình là tâm không?
+> 🔁 **Thực hành.** Trong mô hình bánh mì nho, nếu một quan sát viên ngồi trên hạt nho ở rìa ổ bánh, người đó có thấy mình là tâm không?
 > <details><summary>Đáp án</summary>Có. Người đó vẫn thấy mọi hạt khác lùi xa mình, hạt xa lùi nhanh hơn — y hệt người ở giữa ổ. Không hạt nào phân biệt được mình "ở rìa" chỉ bằng quan sát giãn nở. Đó là ý nghĩa "không có tâm".</details>
 
 ---
@@ -153,7 +153,7 @@ t_H &= \\frac{1}{H_0} = \\frac{1}{2{,}268 \\times 10^{-18}} = 4{,}41 \\times 10^
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao $t_H = 14$ tỉ nhưng tuổi thật là 13.8 tỉ? Sai do đâu?"* — Vì $t_H$ giả định giãn nở **đều mãi mãi**. Thực tế hấp dẫn từng hãm giãn nở (làm vũ trụ trẻ hơn ước lượng đơn giản), rồi năng lượng tối lại tăng tốc (Lesson 03). Hai hiệu ứng gần triệt tiêu nên $1/H_0$ trùng hợp rất sát tuổi thật.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu $H_0$ đo được lớn hơn (vd $100 \\ \\text{km/s/Mpc}$), tuổi vũ trụ ước lượng sẽ lớn hơn hay nhỏ hơn?
+> 🔁 **Thực hành.** Nếu $H_0$ đo được lớn hơn (vd $100 \\ \\text{km/s/Mpc}$), tuổi vũ trụ ước lượng sẽ lớn hơn hay nhỏ hơn?
 > <details><summary>Đáp án</summary>Nhỏ hơn. $t_H = 1/H_0$, $H_0$ lớn ⇒ $t_H$ nhỏ. $H_0 = 100$ cho $t_H \\approx 9{,}8$ tỉ năm. (Đây từng là "khủng hoảng tuổi" lịch sử: $H_0$ lớn cho vũ trụ trẻ hơn cả các sao già nhất — vô lý — nên $H_0$ phải nhỏ hơn.)</details>
 
 > 📝 **Tóm tắt toàn bài.**

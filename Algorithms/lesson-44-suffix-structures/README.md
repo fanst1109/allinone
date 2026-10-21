@@ -90,7 +90,7 @@ Với "banana": `sa = [5,3,1,0,4,2]` → `rank = [3,2,5,1,4,0]` (vì sa[0]=5 nê
 
 > ⚠ **Lỗi thường gặp.** Lẫn lộn `sa` và `rank`. Nhớ: **`sa[k]` = "hậu tố thứ k bắt đầu ở đâu"**, còn **`rank[i]` = "hậu tố bắt đầu ở i đứng thứ mấy"**. Chúng nghịch đảo nhau: `rank[sa[k]] = k`. Dùng nhầm chiều là bug kinh điển trong prefix doubling và Kasai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho `T = "abab"`. Liệt kê 4 hậu tố, sắp xếp, viết `sa` và `rank`.
+> 🔁 **Thực hành.** Cho `T = "abab"`. Liệt kê 4 hậu tố, sắp xếp, viết `sa` và `rank`.
 > <details><summary>Đáp án</summary>
 >
 > Hậu tố: suf(0)=`abab`, suf(1)=`bab`, suf(2)=`ab`, suf(3)=`b`.
@@ -319,7 +319,7 @@ Kết quả `lcp = [0, 1, 3, 0, 0, 2]` — **khớp** bảng 3.1. ✓ Để ý `
 > - **Nhầm `rank` và `sa`**: trong Kasai phải dùng `j = sa[rank[i]-1]`. Nếu viết `sa[i-1]` là sai hoàn toàn.
 > - **Quên `lcp[0]=0`**: phần tử đầu không có hậu tố trước → định nghĩa là 0; nhiều công thức (đếm distinct substring) cộng cả `lcp[0]`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho `T = "abab"`, `sa = [2,0,3,1]`. Tính `lcp`.
+> 🔁 **Thực hành.** Cho `T = "abab"`, `sa = [2,0,3,1]`. Tính `lcp`.
 > <details><summary>Đáp án</summary>
 >
 > Sắp: `ab`(2), `abab`(0), `b`(3), `bab`(1).
@@ -464,7 +464,7 @@ func longestCommonSubstring(a, b string) string {
 
 > ❓ **Câu hỏi tự nhiên.** *"Sao chỉ xét hậu tố KỀ NHAU mà chắc tìm ra max?"* — Vì LCP của hai hậu tố bất kỳ $i<j$ trong SA = **min** các `lcp` giữa chúng, luôn ≤ lcp của một cặp kề. Cặp khác phía có LCP lớn nhất nhất định là một cặp kề (nếu không, cặp kề ở giữa còn lớn hơn). Đây cũng là lý do dùng RMQ trên LCP để trả lời LCP của cặp bất kỳ trong $O(1)$ sau tiền xử lý.
 
-> 🔁 **Dừng lại tự kiểm tra.** "abcabc" — longest repeated substring là gì, dài bao nhiêu?
+> 🔁 **Thực hành.** "abcabc" — longest repeated substring là gì, dài bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
 > "abc" lặp tại chỉ số 0 và 3 → longest repeated substring = "abc", dài 3. Max LCP của SA chuỗi này = 3.

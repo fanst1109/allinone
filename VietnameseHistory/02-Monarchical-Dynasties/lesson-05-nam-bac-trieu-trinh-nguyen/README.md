@@ -59,7 +59,7 @@ Sau khi Nguyễn Kim bị một hàng tướng của nhà Mạc đầu độc n�
 - Năm 1592, quân Lê–Trịnh chiếm lại Thăng Long; tàn dư nhà Mạc chạy lên Cao Bằng tồn tại thêm đến 1677.
 - Trong khi đó, Nguyễn Hoàng đã vào Nam từ 1558 — bước đầu tiên của sự chia cắt Trịnh – Nguyễn.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Vì sao Nguyễn Kim chọn lập Lê Trang Tông — một người được cho là thuộc dòng dõi vua Lê — thay vì tự lên ngôi?
 
 <details>
@@ -138,7 +138,7 @@ Trong vòng 45 năm (1627–1672), Trịnh – Nguyễn đánh nhau bảy lần.
 - Sau 1672, chia cắt ổn định hơn 100 năm cho đến thời Tây Sơn.
 - "Lũy Thầy" của Đào Duy Từ là công trình phòng thủ then chốt giúp chúa Nguyễn cầm cự.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Ranh giới giữa Đàng Trong và Đàng Ngoài là con sông nào, thuộc tỉnh nào hiện nay?
 
 <details>
@@ -187,7 +187,7 @@ Phía Bắc bị chúa Trịnh chặn; phía Tây là núi non và các tiểu q
 - Đến giữa thế kỉ XVIII, lãnh thổ Đàng Trong đạt đến Hà Tiên – Cà Mau, về cơ bản định hình lãnh thổ miền Nam Việt Nam hiện đại.
 - Người Hoa di cư (Mạc Cửu và nhóm khác) đóng vai trò quan trọng trong khai phá đồng bằng sông Cửu Long.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 > Năm nào đánh dấu việc phủ Gia Định (vùng TP.HCM ngày nay) được thành lập chính thức?
 
 <details>

@@ -60,7 +60,7 @@ A: Đột biến (mutation) thay đổi **trình tự DNA** — vĩnh viễn, di
 - **Nhầm "gen tắt = gen bị xóa"**: Tắt chỉ là không phiên mã; trình tự vẫn còn nguyên trong DNA, có thể bật lại sau.
 - **Nghĩ điều hòa chỉ xảy ra ở cấp phiên mã**: Thực tế có **5 cấp** (chromatin, phiên mã, sau phiên mã, dịch mã, sau dịch mã) — xem §4.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tế bào da và tế bào gan có cùng số gen không? Cùng số gen đang biểu hiện không?
 2. Vì sao vi khuẩn cần điều hòa gen mặc dù nó là sinh vật đơn bào "đơn giản"?
@@ -204,7 +204,7 @@ A: Hầu như **không**. Eukaryote phiên mã từng gen riêng (mRNA đơn cis
 - **Coi CAP/cAMP là phụ**: thực ra CAP nâng tốc độ phiên mã lên ~**50 lần** so với không có CAP — không phải chi tiết nhỏ.
 - **Nhầm "cảm ứng" với "kích hoạt"**: trong operon Lac, lactose KHÔNG trực tiếp kích hoạt phiên mã — nó **gỡ chặn**. RNA polymerase tự đi vào khi không có gì cản. Đây là cảm ứng âm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một chủng E. coli đột biến mất chức năng lacI. Trong 4 môi trường (lactose ±, glucose ±), trạng thái phiên mã sẽ thế nào?
 2. Vì sao tế bào không tổng hợp repressor ở mức cực cao để "đảm bảo" luôn tắt operon khi vắng lactose?
@@ -294,7 +294,7 @@ A: Có — **attenuation** (làm suy giảm). Đây là cơ chế thứ 2 dùng 
 - **Nhầm "kìm hãm" với "ức chế đối kháng"**: Kìm hãm (repressible) ở đây nói về kiểu operon mặc định bật, không phải sự ức chế cạnh tranh enzyme.
 - **Áp công thức nhớ máy móc**: "thấy có cơ chất thì BẬT" — đúng với Lac, sai với Trp. Phải nhớ Trp là sản phẩm (output), không phải cơ chất (input).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một E. coli sống trong môi trường giàu Trp suốt 100 thế hệ. Operon Trp ở trạng thái nào? Tổng hợp nội tại Trp ở mức nào?
 2. Đột biến trpR (mất chức năng) gây hậu quả gì khi sống trong môi trường thừa Trp?
@@ -383,7 +383,7 @@ A: Đúng. Đây là lý do bộ gen người chỉ có ~20.000 gen mã hóa pro
 - **Nhầm "exon = protein"**: Exon là đoạn được giữ lại trong mRNA trưởng thành; nhưng các exon ghép khác nhau qua splicing tạo các protein khác nhau. 1 exon không tự = 1 protein.
 - **Bỏ qua miRNA**: miRNA là cơ chế điều hòa rất mạnh ở eukaryote, được phát hiện tương đối muộn (1993) nhưng nay được biết kiểm soát phần lớn biểu hiện gen.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cấp điều hòa nào tạo ra sự khác biệt nhanh nhất (giây/phút)? Cấp nào ảnh hưởng dài hạn?
 2. Nếu 1 gen có 5 exon, alternative splicing tối đa tạo được bao nhiêu mRNA khác nhau (giả sử mỗi exon có thể giữ hoặc bỏ độc lập)?
@@ -468,7 +468,7 @@ A: Có. **5-azacytidine** (DNMT inhibitor) và **vorinostat** (HDAC inhibitor) l
 - **Methylation = luôn tắt gen**: Không hoàn toàn. Methyl ở promoter → tắt. Methyl trong vùng coding (gene body) đôi khi liên quan tới **biểu hiện cao** (đang còn tranh luận).
 - **Coi epigenetics là "Lamarck đúng"**: Lamarck cho rằng "tính cách kiếm được trong đời" di truyền sang con. Biểu sinh **có** di truyền vài thế hệ trong một số trường hợp, nhưng phần lớn được xóa sạch khi tạo giao tử. Không phải "Lamarck đúng hoàn toàn".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao tế bào gan và tế bào thần kinh khác nhau dù DNA giống hệt?
 2. Nếu một gen có promoter methyl hóa 60%, biểu hiện gen sẽ ở mức gần đúng bao nhiêu so với trạng thái 0% methyl (dùng công thức ở Ví dụ 2)?

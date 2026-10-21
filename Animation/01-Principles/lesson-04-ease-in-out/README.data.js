@@ -99,7 +99,7 @@ Cho vật đi từ A (vị trí 0) đến B (vị trí 100), qua đúng 10 frame
 - **Ease-in-out**: spacing nhỏ ở đầu (**2.8**), phình to ở giữa (**14.8**), rồi co nhỏ lại ở cuối (**2.8**). Chính là **dồn 2 đầu**. Vật khởi động chậm → phóng nhanh ở giữa → hãm lại nhẹ nhàng khi tới B.
 - Kiểm tra: tổng spacing hai cột đều bằng **100** (cùng tới B). Chỉ *nhịp* khác nhau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhìn dãy chấm sau, tốc độ vật ở đoạn nào nhanh nhất?
+> 🔁 **Ôn tập.** Nhìn dãy chấm sau, tốc độ vật ở đoạn nào nhanh nhất?
 > \`A •• • •   •      •   • •• B\`
 >
 > <details><summary>Đáp án</summary>
@@ -213,7 +213,7 @@ Kỹ năng cốt lõi của họa sĩ: **nhìn dãy chấm là biết chuyển �
 | Con lắc qua điểm giữa | Ease-out→in | Chậm ở 2 biên, nhanh ở giữa |
 | Máy móc, robot, băng chuyền | Linear (cố ý) | *Muốn* cảm giác vô hồn |
 
-> 🔁 **Dừng lại tự kiểm tra.** Một thang máy đi từ tầng 1 lên tầng 10 rồi dừng. Nên dùng ease gì? Vì sao spacing linear sẽ gây khó chịu cho người trong thang?
+> 🔁 **Ôn tập.** Một thang máy đi từ tầng 1 lên tầng 10 rồi dừng. Nên dùng ease gì? Vì sao spacing linear sẽ gây khó chịu cho người trong thang?
 >
 > <details><summary>Đáp án</summary>
 >

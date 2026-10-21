@@ -86,7 +86,7 @@ Nhà tâm lý học Peter Wason (1966) thiết kế bài kiểm tra này để �
 
 > ⚠ **Lỗi thường gặp — "Thêm bằng chứng ủng hộ = tăng độ tin cậy".** Sai. Một trăm ví dụ ủng hộ không chứng minh quy tắc; một phản ví dụ duy nhất bác bỏ nó (nguyên tắc Popper: falsifiability). Thực hành: luôn hỏi "bằng chứng nào sẽ *bác bỏ* niềm tin này?" trước khi tìm bằng chứng ủng hộ.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Câu nào sau đây là ví dụ điển hình của confirmation bias?
 > 1. Bác sĩ kê đơn thuốc sai vì đọc nhầm chữ viết tay.
 > 2. Một nhà khoa học chỉ đọc các bài báo ủng hộ lý thuyết của mình, bỏ qua các bài phê phán.
@@ -126,7 +126,7 @@ Nhà tâm lý học Peter Wason (1966) thiết kế bài kiểm tra này để �
 
 > ⚠ **Lỗi thường gặp — "Mỏ neo chỉ hiệu quả khi ta không biết đáp án".** Sai. Ngay cả các chuyên gia trong lĩnh vực mình biết rõ vẫn bị ảnh hưởng bởi mỏ neo, chỉ ở mức độ thấp hơn. Bất động sản môi giới vẫn đánh giá căn nhà cao hơn khi thấy giá niêm yết cao.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Bạn đang mua laptop. Người bán đầu tiên giới thiệu model 35 triệu, sau đó giới thiệu model 20 triệu. Bạn đang mua laptop. Người bán khác bắt đầu ngay với model 20 triệu. Trong tình huống nào bạn có xu hướng thấy model 20 triệu "rẻ" hơn?
 >
 > <details><summary>Đáp án</summary>
@@ -157,7 +157,7 @@ Nhà tâm lý học Peter Wason (1966) thiết kế bài kiểm tra này để �
 
 > ⚠ **Lỗi thường gặp — "Sự kiện gần đây là đại diện tốt cho xu hướng dài hạn".** Sai. Một mùa đông lạnh bất thường không bác bỏ xu hướng ấm lên toàn cầu. Một vụ vỡ nợ gần đây không làm thị trường tổng thể nguy hiểm hơn. Cần phân biệt sự kiện nổi bật (vivid, recent) với xu hướng thống kê dài hạn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Sau khi đọc bài báo về hacker tấn công ngân hàng, bạn chuyển tiền qua ví điện tử thay vì ngân hàng, dù ngân hàng có bảo mật tốt hơn. Đây là ví dụ của bias nào?
 >
 > <details><summary>Đáp án</summary>
@@ -206,7 +206,7 @@ Kết quả: **78% chọn D** (chấp nhận rủi ro để tránh cái chết c
 
 > ⚠ **Lỗi thường gặp — "Đóng khung là thao túng, chỉ người xấu mới làm".** Sai. Đóng khung là tất yếu — mọi phát biểu đều có khung, ngay cả khi không cố ý. Vấn đề không phải là tránh đóng khung mà là *nhận ra* khung đang được dùng và hỏi "nếu diễn đạt theo cách khác, mình có quyết định giống vậy không?"
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Một bác sĩ nói: "Loại thuốc này thất bại trong 1 trên 10 ca." Bác sĩ khác nói: "Thuốc này thành công trong 9 trên 10 ca." Đây là hiệu ứng gì? Hãy đưa ra cách đặt câu hỏi để tránh bị ảnh hưởng.
 >
 > <details><summary>Đáp án</summary>
@@ -237,7 +237,7 @@ Kết quả: **78% chọn D** (chấp nhận rủi ro để tránh cái chết c
 
 > ⚠ **Lỗi thường gặp — "Bỏ cuộc sớm là yếu đuối, thiếu cam kết".** Kiên trì và sunk cost fallacy trông giống nhau từ bên ngoài, nhưng khác về cơ sở ra quyết định. Kiên trì: tiếp tục vì *phân tích tương lai* cho thấy triển vọng. Sunk cost: tiếp tục vì *không muốn thừa nhận mất mát quá khứ*. Hỏi: "Nếu bắt đầu lại từ đầu với thông tin hiện tại, mình có chọn con đường này không?"
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Bạn nên ra quyết định "có tiếp tục hay không" dựa trên yếu tố nào?
 > a) Bao nhiêu đã đầu tư vào dự án.
 > b) Triển vọng và chi phí cơ hội từ thời điểm này về sau.
@@ -279,7 +279,7 @@ Kết quả: **78% chọn D** (chấp nhận rủi ro để tránh cái chết c
 
 > ⚠ **Lỗi thường gặp — "Dunning–Kruger có nghĩa người ngốc thì tự phụ".** Không chính xác. Hiệu ứng này về *nhận thức meta-cognitive*, không phải trí thông minh. Người thông minh cũng có thể rơi vào Dunning–Kruger trong lĩnh vực họ chưa quen. Và hiệu ứng *ngược* (chuyên gia đánh giá thấp mình) cũng là một phần của nghiên cứu gốc.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Theo Dunning–Kruger, ai có xu hướng đánh giá *thấp* năng lực của mình?
 > a) Người mới bắt đầu học.
 > b) Người có trình độ trung bình.

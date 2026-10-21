@@ -163,7 +163,7 @@ Bài này chọn **stack machine** vì nó **dễ sinh code nhất** (compile = 
 5. **\`PRINT\`** — pop đỉnh, in ra. (Stack \`[10]\` → \`[]\`; output: \`10\`.)
 6. **\`SUB\`** — pop \`b\` rồi \`a\`, đẩy \`a − b\`. (Stack \`[10, 4]\` → \`[6]\`.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Stack đang là \`[5, 2]\` (đỉnh là \`2\`). Sau khi chạy \`SUB\` rồi \`PUSH 10\` rồi \`MUL\`, stack là gì?
+> 🔁 **Thực hành.** Stack đang là \`[5, 2]\` (đỉnh là \`2\`). Sau khi chạy \`SUB\` rồi \`PUSH 10\` rồi \`MUL\`, stack là gì?
 > <details><summary>Đáp án</summary>
 >
 > - \`SUB\`: pop \`b=2\`, pop \`a=5\`, đẩy \`a−b = 3\`. Stack: \`[3]\`.
@@ -312,7 +312,7 @@ Bytecode:  LOAD x · PUSH 1 · ADD · PRINT
 
 > ⚠ **Lỗi thường gặp.** Phát opcode cha **trước** khi compile xong con → bytecode sai. Vd nếu phát \`MUL\` ngay rồi mới push toán hạng, lúc chạy \`MUL\` gặp stack rỗng → **stack underflow** (mục 5.4). Luôn: con trái → con phải → cha.
 
-> 🔁 **Dừng lại tự kiểm tra.** Compile \`(8 - 2) * (1 + 5)\`.
+> 🔁 **Thực hành.** Compile \`(8 - 2) * (1 + 5)\`.
 > <details><summary>Đáp án</summary>
 >
 > Cây: gốc \`*\`, con trái \`(8-2)\`, con phải \`(1+5)\`. Post-order:
@@ -420,7 +420,7 @@ Kết quả \`6\` ✓.
 
 > ⚠ **Chia cho 0.** \`DIV\` với toán hạng phải \`= 0\` → \`a / 0\`. Trên số nguyên Go/Java đây là **panic/exception**, còn JS cho ra \`Infinity\` (cũng vô nghĩa). VM nên **kiểm tra \`b == 0\` trước khi chia** và báo lỗi runtime rõ ràng ("division by zero at pc=..."), không để lan ra kết quả rác.
 
-> 🔁 **Dừng lại tự kiểm tra.** Chạy \`PUSH 2 · PUSH 3 · PUSH 4 · ADD · MUL\` (đây là bytecode của \`2*(3+4)\`, ví dụ C mục 4.3). Stack từng bước?
+> 🔁 **Thực hành.** Chạy \`PUSH 2 · PUSH 3 · PUSH 4 · ADD · MUL\` (đây là bytecode của \`2*(3+4)\`, ví dụ C mục 4.3). Stack từng bước?
 > <details><summary>Đáp án</summary>
 >
 > \`PUSH 2 → [2]\`, \`PUSH 3 → [2,3]\`, \`PUSH 4 → [2,3,4]\`, \`ADD → [2,7]\` (pop 4,3 đẩy 7), \`MUL → [14]\` (pop 7,2 đẩy 14). Kết quả \`14\` = \`2*(3+4)\` ✓.
@@ -510,7 +510,7 @@ Vì sao không JIT mọi thứ ngay từ đầu? Vì JIT tốn thời gian compi
 
 Mẫu số chung: **tách "ngôn ngữ nguồn" khỏi "nền tảng đích" bằng một tầng bytecode trung gian**. Compiler frontend chỉ cần nhắm tới bytecode; VM lo phần chạy trên mỗi nền tảng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao Java "chậm khi khởi động nhưng nhanh khi chạy lâu"?
+> 🔁 **Thực hành.** Vì sao Java "chậm khi khởi động nhưng nhanh khi chạy lâu"?
 > <details><summary>Đáp án</summary>
 >
 > Lúc đầu JVM **interpret bytecode** (chậm hơn native) và chưa biết đoạn nào nóng. Sau khi một đoạn chạy đủ nhiều, **JIT dịch nó sang native** → nhanh dần lên. Vậy chương trình ngắn không kịp "nóng" để hưởng JIT (chậm tương đối), còn server chạy nhiều giờ thì gần như mọi hot path đã thành native (nhanh).

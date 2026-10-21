@@ -489,7 +489,7 @@ repo.ListPosts:
 `page=3, per_page=2` với 4 bài: `start = 4 ≥ total` → trả `items:[]` rỗng (không
 panic). Edge case này được test ở `TestListPagination`.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Với 5 bài, `per_page=2`, trang 3 có bao nhiêu item?
 > 2. Vì sao `Get` qua cache nhưng `List` thì không?
 >
@@ -663,7 +663,7 @@ query. ES tự lo tokenize/analyzer/ranking (BM25 — bản nâng cấp của TF
 | Migration chạy lại gây hỏng | Cộng đôi / lỗi DDL | `Up()` idempotent theo version |
 | Import cycle entity ↔ storage | Không biên dịch được | Entity ở package lá `model` |
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong 6 cái bẫy trên, cái nào "tự khỏi" sau một
+> 🔁 **Thực hành.** Trong 6 cái bẫy trên, cái nào "tự khỏi" sau một
 > khoảng thời gian nên khó tái hiện nhất khi debug?
 >
 > <details><summary>Đáp án</summary>
@@ -864,7 +864,7 @@ current`. Khởi động lần hai → `current=3` đã = max → không chạy 
 `TestMigratorUp` kiểm tra cả thứ tự (1→2→3) lẫn idempotency (chạy lần hai không
 làm gì).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao `IncrementViews` đọc thẳng storage chứ không qua cache?
 > 2. Migration v3 chạy hai lần có làm `views` bị cộng đôi không?
 >

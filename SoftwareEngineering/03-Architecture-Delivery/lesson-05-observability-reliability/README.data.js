@@ -51,7 +51,7 @@ Hai từ hay bị dùng lẫn, nhưng khác rõ:
 
 > ❓ **"Vậy monitoring là tập con của observability?"** Gần đúng. Monitoring trả lời các câu hỏi *bạn biết để hỏi từ trước* (dashboard, alert cố định). Observability là tính chất của hệ thống cho phép bạn **đặt câu hỏi mới mà không cần đổi code** — nhờ dữ liệu đủ giàu (logs + metrics + traces). Một hệ có monitoring tốt vẫn có thể "mù" trước sự cố lạ; observability tốt thì điều tra được sự cố chưa từng gặp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dashboard báo "tỷ lệ lỗi tăng từ 0.1% lên 5%". Đó là monitoring hay observability? Để biết *vì sao* tăng thì cần gì?
+> 🔁 **Thực hành.** Dashboard báo "tỷ lệ lỗi tăng từ 0.1% lên 5%". Đó là monitoring hay observability? Để biết *vì sao* tăng thì cần gì?
 > <details><summary>Đáp án</summary>"Tỷ lệ lỗi 5%" là <b>monitoring</b> (biết có sự cố). Để biết <i>vì sao</i> — lỗi đến từ endpoint nào, service nào, do deploy mới hay do DB quá tải — cần <b>observability</b>: lọc log theo trace, xem metric saturation của DB, dò trace của request lỗi. Monitoring gõ chuông; observability tìm thủ phạm.</details>
 
 📝 **Tóm tắt mục 1.** Hệ phân tán + đồng thời + bạn không có mặt → \`print\` vô dụng. **Monitoring** = biết *khi nào* hỏng (câu hỏi biết trước). **Observability** = hiểu *vì sao* hỏng (trả lời câu hỏi mới). Cần cả hai.
@@ -82,7 +82,7 @@ Ba trụ cột phối hợp: metric **phát hiện**, trace **khoanh vùng**, lo
 
 > ❓ **"Trace khác gì log có timestamp?"** Trace gắn các sự kiện qua *nhiều service* bằng một **trace ID** chung, và đo thời lượng từng chặng (span). Log thường rời rạc trong một service. Trace cho bạn xem **toàn bộ đường đi** của một request — điều log đơn lẻ không làm được.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sếp hỏi: "Tuần này trung bình bao nhiêu đơn hàng/giây, và 99% đơn xử lý dưới mấy giây?". Bạn nên trả lời bằng trụ cột nào?
+> 🔁 **Thực hành.** Sếp hỏi: "Tuần này trung bình bao nhiêu đơn hàng/giây, và 99% đơn xử lý dưới mấy giây?". Bạn nên trả lời bằng trụ cột nào?
 > <details><summary>Đáp án</summary><b>Metrics</b>. Đây là số đo tổng hợp theo thời gian (traffic = đơn/giây; p99 latency = 99% dưới mấy giây). Dùng log để đếm sẽ chậm và đắt. Metrics sinh ra đúng cho loại câu hỏi xu hướng/tổng hợp này.</details>
 
 📝 **Tóm tắt mục 2.** **Logs** = chuyện gì xảy ra (chi tiết, đắt). **Metrics** = khỏe không, xu hướng (số, rẻ, để alert). **Traces** = chậm ở đâu trong hệ phân tán (theo trace ID). Metric phát hiện → trace khoanh vùng → log giải thích.
@@ -141,7 +141,7 @@ Production thường chạy ở \`INFO\` trở lên (tắt \`DEBUG\` để đỡ
 
 > ❓ **"Log nhiều cho chắc, sau cần thì có — sai chỗ nào?"** Hai cái giá: (1) **tiền & nhiễu** — log ồn làm khó tìm thông tin thật và đội chi phí lưu trữ; (2) **rủi ro bảo mật** — log càng nhiều càng dễ vô tình ghi dữ liệu nhạy cảm. Log *có chủ đích*: ghi cái sẽ thực sự dùng khi điều tra.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một dev log nguyên object \`request\` để "tiện debug". Object đó chứa header \`Authorization: Bearer eyJ...\`. Vấn đề gì?
+> 🔁 **Thực hành.** Một dev log nguyên object \`request\` để "tiện debug". Object đó chứa header \`Authorization: Bearer eyJ...\`. Vấn đề gì?
 > <details><summary>Đáp án</summary>Đã log <b>token xác thực</b> — tương đương log mật khẩu. Ai đọc được log đó có thể giả mạo phiên của user. Phải lọc/che các field nhạy cảm (\`Authorization\`, \`Cookie\`, \`password\`...) trước khi log. Đây là lỗi rò rỉ dữ liệu rất phổ biến.</details>
 
 📝 **Tóm tắt mục 3.** Log tốt = **structured** (JSON key–value, máy lọc được) + **đúng level** (DEBUG→FATAL, production chạy từ INFO) + **không bao giờ log dữ liệu nhạy cảm** (mật khẩu, thẻ, token). Gắn \`trace_id\` để nối với trace/metric.
@@ -190,7 +190,7 @@ Quy tắc alert tốt:
 
 > ⚠ **Lỗi thường gặp.** Đặt alert cho *mọi* metric với ngưỡng tùy tiện ("CPU > 80% là báo"). Kết quả: 200 alert/ngày, đội tắt thông báo, sự cố thật trôi qua. **Ít alert mà mỗi cái đáng tin** tốt hơn nhiều cái nhiễu.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nên alert cái nào: (A) "1 trong 10 node có CPU 92%" hay (B) "p99 latency của API tăng gấp 5 trong 10 phút"? Vì sao?
+> 🔁 **Thực hành.** Nên alert cái nào: (A) "1 trong 10 node có CPU 92%" hay (B) "p99 latency của API tăng gấp 5 trong 10 phút"? Vì sao?
 > <details><summary>Đáp án</summary><b>(B)</b>. Đó là <b>triệu chứng người dùng cảm nhận</b> (API chậm hẳn). (A) là nguyên nhân nội bộ có thể hoàn toàn vô hại (1 node bận, các node khác gánh được, user không thấy gì) → alert (A) dễ gây alert fatigue. Alert trên triệu chứng, dùng metric nguyên nhân để <i>điều tra</i> sau khi đã được báo.</details>
 
 📝 **Tóm tắt mục 4.** Metric có 3 loại: **counter** (tăng), **gauge** (lên xuống), **histogram** (phân phối → percentile). **4 golden signals**: Latency, Traffic, Errors, Saturation. Alert trên **triệu chứng người dùng**, mỗi alert phải *đáng hành động* — để tránh **alert fatigue**.
@@ -250,7 +250,7 @@ Nếu đã có 4000 request lỗi → còn 1000 → gần cạn, cảnh giác.
 
 > ❓ **"Vì sao SLO lại đặt *thấp hơn* 100% một cách cố ý?"** Vì error budget *là* khoảng để đổi mới. Nếu nhắm 100%, mọi thay đổi đều bị coi là rủi ro không chấp nhận được → hệ thống đóng băng, không ai dám deploy. Một chút "được phép hỏng" cho phép thử nghiệm, release nhanh, và chấp nhận rủi ro có kiểm soát.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dịch vụ SLO 99.95%/tháng. Tính downtime cho phép mỗi tháng (30 ngày). Đầu tháng có sự cố 20 phút — còn bao nhiêu budget?
+> 🔁 **Thực hành.** Dịch vụ SLO 99.95%/tháng. Tính downtime cho phép mỗi tháng (30 ngày). Đầu tháng có sự cố 20 phút — còn bao nhiêu budget?
 > <details><summary>Đáp án</summary>Downtime cho phép = (1 − 0.9995) × 43200 = 0.0005 × 43200 = <b>21.6 phút/tháng</b>. Sau sự cố 20 phút, còn <b>1.6 phút</b> budget — gần cạn, phần còn lại của tháng nên đóng băng thay đổi rủi ro và tập trung ổn định.</details>
 
 📝 **Tóm tắt mục 5.** **SLI** = thước đo thực tế (vd % thành công). **SLO** = mục tiêu nội bộ (vd ≥99.9%). **SLA** = hợp đồng có phạt với khách (lỏng hơn SLO). **Error budget** = \`100%−SLO\` = lượng được phép hỏng; còn budget thì ship nhanh, cạn budget thì dồn vá ổn định. SLO 99.9% → ~43 phút downtime/tháng.
@@ -287,7 +287,7 @@ Sau mỗi sự cố lớn, đội viết **postmortem** (báo cáo sau sự cố
 - *Đổ lỗi (tệ):* "Phạt dev đó, bắt cẩn thận hơn." → lần sau ai cũng sợ, vẫn xảy ra lại.
 - *Blameless (tốt):* "Vì sao một người *có thể* xóa production chỉ bằng một lệnh, không cần xác nhận, không có backup tức thì? → Hành động: thêm bước xác nhận, tách quyền production, bật snapshot tự động." → sửa *gốc*, không phụ thuộc con người không bao giờ sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Postmortem viết: "Nguyên nhân: bạn B bất cẩn, đã nhắc nhở." Sửa lại theo tinh thần blameless.
+> 🔁 **Thực hành.** Postmortem viết: "Nguyên nhân: bạn B bất cẩn, đã nhắc nhở." Sửa lại theo tinh thần blameless.
 > <details><summary>Đáp án</summary>"Nguyên nhân gốc: quy trình triển khai cho phép push thẳng lên production không qua review, và không có cổng kiểm tra tự động. Hành động: (1) bắt buộc review trước khi deploy; (2) thêm kiểm tra tự động ở pipeline; (3) viết runbook rollback." — tập trung vào lỗ hổng hệ thống và hành động khắc phục, không phán xét cá nhân B.</details>
 
 📝 **Tóm tắt mục 6.** **MTBF** = chạy được bao lâu giữa hai lần hỏng (cao = tốt). **MTTR** = phục hồi mất bao lâu (thấp = tốt, thường quan trọng hơn vì kiểm soát được). Availability ≈ \`MTBF/(MTBF+MTTR)\`. **Postmortem blameless** = soi hệ thống & quy trình, không truy cá nhân → khuyến khích báo sớm, sửa nguyên nhân gốc.

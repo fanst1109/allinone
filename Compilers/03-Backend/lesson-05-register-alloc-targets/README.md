@@ -49,7 +49,7 @@ Phân cấp bộ nhớ (xem [OperatingSystems](../../../OperatingSystems/)) — 
 
 ⚠ **Lỗi thường gặp — register pressure.** "Register pressure" (áp lực thanh ghi) là số temp **đang sống cùng lúc** tại một điểm trong chương trình. Nếu pressure tại một điểm > số register `k`, **bắt buộc** phải spill ở đó. Người mới hay nghĩ "miễn tổng số temp ≤ 16 là đủ" — sai. Cái quan trọng không phải tổng số temp, mà là **số temp sống đồng thời tại điểm đông nhất**. 100 temp nhưng không bao giờ quá 5 cái sống cùng lúc → 5 register là đủ.
 
-🔁 **Dừng lại tự kiểm tra.** Một hàm có 80 temp nhưng tại mọi điểm tối đa chỉ 6 temp sống cùng lúc. CPU có 16 register. Có cần spill không?
+🔁 **Thực hành.** Một hàm có 80 temp nhưng tại mọi điểm tối đa chỉ 6 temp sống cùng lúc. CPU có 16 register. Có cần spill không?
 
 <details><summary>Đáp án</summary>
 Không. Register pressure tối đa = 6 ≤ 16. Tổng 80 temp không liên quan — chúng tái dùng chung 6 ghế qua thời gian. Allocator chỉ cần ≤ 6 register.
@@ -183,7 +183,7 @@ Bảng "temp nào sống ngay SAU mỗi dòng" (đây là thông tin allocator d
 
 ⚠ **Lỗi thường gặp — liveness sai → ghi đè (clobber).** Nếu allocator tính **nhầm** rằng `t1` đã chết trong khi thực ra nó còn được dùng, nó sẽ cho temp khác **ghi đè** lên register của `t1`. Khi tới chỗ dùng `t1`, giá trị đã bị phá → **kết quả sai âm thầm**, không crash, rất khó tìm. Đây là loại bug nguy hiểm nhất của allocator: liveness phải **đúng tuyệt đối**, thà bi quan (giữ temp sống lâu hơn cần) còn hơn lạc quan sai.
 
-🔁 **Dừng lại tự kiểm tra.** Cho đoạn:
+🔁 **Thực hành.** Cho đoạn:
 ```
 1: p = x + 1
 2: q = p * 2
@@ -321,7 +321,7 @@ Bậc `h` = 4, các lá bậc 1. Cần **2 màu**: h→R1, còn p,q,r,s→R2 (ch
 - *"Tô màu greedy luôn cho ít màu nhất chứ?"* — Không! Tô màu tối ưu là **NP-hard** (xem [Algorithms](../../../Algorithms/)) — không có thuật toán nhanh đảm bảo tối ưu cho mọi đồ thị. Compiler dùng **heuristic** (như Chaitin's algorithm: lặp đi gỡ đỉnh bậc < k rồi tô ngược lại). Greedy theo thứ tự tốt thường đủ tốt trong thực tế.
 - *"Vì sao register allocation lại là đồ thị?"* — Vì quan hệ "xung đột" (không thể chung register) là quan hệ **đối xứng giữa từng cặp** — đúng định nghĩa cạnh vô hướng. Biến bài toán cấp phát thành bài toán đồ thị cho phép mượn toàn bộ lý thuyết tô màu.
 
-🔁 **Dừng lại tự kiểm tra.** Interference graph có 4 đỉnh tạo thành **hình vuông** `a–b–c–d–a` (chu trình 4 cạnh, không có đường chéo). Cần mấy màu?
+🔁 **Thực hành.** Interference graph có 4 đỉnh tạo thành **hình vuông** `a–b–c–d–a` (chu trình 4 cạnh, không có đường chéo). Cần mấy màu?
 
 <details><summary>Đáp án</summary>
 2 màu. Chu trình **chẵn** (4 đỉnh) tô được xen kẽ: a→R1, b→R2, c→R1, d→R2 — kiểm tra a≠b, b≠c, c≠d, d≠a đều khác ✓. (Chu trình **lẻ**, vd tam giác 3 đỉnh hay ngũ giác 5 đỉnh, mới cần 3 màu.)
@@ -371,7 +371,7 @@ $$\text{spill\_cost}(t) = \frac{\text{số lần dùng } t \;(\text{có trọng 
 - *"Spill xong là xong?"* — Chưa chắc. Sau khi chèn `load`/`store`, đôi khi cần **dựng lại** interference graph và tô lại (vì lệnh load/store cũng tạo temp ngắn). Lặp tới khi tô được. Đây là vòng lặp "build–color–spill" của Chaitin.
 - *"Có thể không spill mà tách live range (live-range splitting) không?"* — Có, kỹ thuật nâng cao: cắt một live range dài thành nhiều đoạn ngắn để giảm pressure, đôi khi né được spill. Bài này chỉ giới thiệu spill cơ bản.
 
-🔁 **Dừng lại tự kiểm tra.** k = 1 register. Ba temp `a, b, c` đôi một xung đột. Phải spill mấy temp?
+🔁 **Thực hành.** k = 1 register. Ba temp `a, b, c` đôi một xung đột. Phải spill mấy temp?
 
 <details><summary>Đáp án</summary>
 Cần 3 màu nhưng chỉ 1 register → phải spill 2 temp (giữ 1 trong register, 2 ra bộ nhớ). Chọn 2 temp có spill_cost thấp nhất.

@@ -99,7 +99,7 @@ Khi nào ta có thể bắt đầu tin rằng X *có thể* gây Y? Austin Bradf
 > - Tương quan mạnh (r gần 1) vẫn không đủ — cần cơ chế và thí nghiệm kiểm soát.
 > - Tiêu chuẩn vàng cho nhân quả: RCT.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Một nghiên cứu thấy: trẻ em có nhiều sách trong nhà học tốt hơn ở trường (tương quan dương). Một nhà hoạt động đề xuất: "Hãy tặng sách cho mọi gia đình để nâng cao thành tích học tập."
 > 1. Đề xuất này giả định quan hệ nhân quả nào?
 > 2. Hãy chỉ ra ít nhất một confounder có thể giải thích tương quan.
@@ -141,7 +141,7 @@ Lập luận: "Từ 1998 đến 2012, nhiệt độ Trái Đất không tăng �
 
 > ⚠ **Câu hỏi chống cherry-pick.** Khi ai đó trích dẫn một con số hoặc nghiên cứu, hãy hỏi: *"Còn dữ liệu nào khác liên quan mà bạn chưa đề cập? Các nghiên cứu khác về cùng chủ đề nói gì? Tập dữ liệu đầy đủ trông như thế nào?"*
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Một ứng viên chính trị nói: "Trong nhiệm kỳ của tôi, tỷ lệ thất nghiệp giảm từ 8% xuống 5%." Dữ liệu đầy đủ: khi ông nhậm chức, tỷ lệ thất nghiệp đang ở đỉnh chu kỳ kinh tế tự nhiên (sau khủng hoảng); xu hướng giảm đã bắt đầu trước nhiệm kỳ ông; các nước khác trong khu vực cùng thời điểm cũng giảm tương tự.
 > 1. Ứng viên có đang cherry-pick không? Giải thích.
 > 2. Dữ liệu nào cần thiết để đánh giá công bằng?
@@ -194,7 +194,7 @@ Một bác sĩ báo cáo ca lâm sàng hiếm gặp: bệnh nhân có triệu ch
 
 > ⚠ **Availability bias làm giai thoại mạnh hơn thực tế.** (Liên hệ L05) Câu chuyện cụ thể, sống động, cảm xúc cao → dễ nhớ và dễ thuyết phục hơn thống kê trừu tượng. Bộ não ta thiên về câu chuyện cá nhân, không phải xác suất. Nhận biết điều này để tự điều chỉnh khi đánh giá bằng chứng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Một người bạn kể: "Tôi không đeo dây an toàn khi lái xe 20 năm và chưa bao giờ gặp tai nạn nào cần dây an toàn. Đeo hay không đeo không quan trọng."
 > 1. Đây là loại bằng chứng gì?
 > 2. Lỗi lập luận nào đang xảy ra?
@@ -245,7 +245,7 @@ Literary Digest dự đoán cuộc bầu cử Mỹ 1936 từ 2.4 triệu phiếu
 > - *"Cỡ mẫu bao nhiêu là đủ?"* — Phụ thuộc vào: độ biến thiên của tổng thể, kích thước hiệu ứng muốn phát hiện, mức ý nghĩa thống kê và power mong muốn. Công thức tính cỡ mẫu là nội dung của [Inferential Statistics](../../../Statistics/02-Inferential/). Nguyên tắc thô: nghiên cứu lâm sàng thường cần n ≥ 30–100 mỗi nhóm để có kết luận cơ bản.
 > - *"p < 0.05 có đảm bảo kết quả đúng không?"* — Không. p < 0.05 chỉ nói: nếu giả thuyết null đúng, xác suất thấy kết quả này (hoặc cực đoan hơn) là < 5%. Với nhiều nghiên cứu đồng thời (multiple testing), xác suất ít nhất một kết quả "dương tính giả" tăng lên đáng kể.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Một công ty mỹ phẩm quảng cáo: "92% người dùng thấy da sáng hơn sau 4 tuần." Bạn được biết nghiên cứu được thực hiện trên 25 người do công ty tự tuyển chọn, tất cả là phụ nữ, tuổi 25–35, tự đánh giá kết quả.
 > 1. Chỉ ra ít nhất 3 vấn đề về cỡ mẫu/tính đại diện/phương pháp.
 > 2. Bạn cần thông tin gì thêm để đánh giá con số 92%?
@@ -339,7 +339,7 @@ Peer review **không đảm bảo**:
 > - Peer review là tiêu chuẩn tối thiểu, không phải bảo đảm tuyệt đối.
 > - Ngày tháng và phương pháp nghiên cứu ảnh hưởng trực tiếp đến độ tin cậy.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Bạn đọc một tin: "Thực phẩm hữu cơ bổ dưỡng hơn thực phẩm thông thường — theo Tiến sĩ Smith, nhà sáng lập công ty thực phẩm hữu cơ XYZ." Tiến sĩ Smith có bằng hóa học, nghiên cứu được đăng trên tạp chí "Journal of Organic Wellness" (do công ty XYZ xuất bản).
 > 1. Liệt kê tất cả các dấu hiệu cần nghi ngờ trong trường hợp này.
 > 2. Bạn cần tìm nguồn nào để đánh giá tuyên bố này?

@@ -89,7 +89,7 @@ E – G – A – A♯ – B – D – E. Blue note: **A♯ (= B♭)**.
 > - *"Phải chơi tất cả 6 nốt mới là blues?"* — Không. Người chơi blues thường nhấn ♭3, ♭5, ♭7 nhiều hơn; blue note ♭5 thường dùng như nốt "đi qua" (passing note) giữa 4 và 5, không phải nốt dừng.
 > - *"Offset {0,3,5,6,7,10} — vì sao có gap 2 giữa 3 và 5, 1 giữa 5 và 6, và gap 3 giữa 10 và 12?"* — Đó chính là "hình dạng" không đều của gam blues tạo ra sức căng. Gam major đều đặn hơn nhiều ({0,2,4,5,7,9,11}).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Viết D blues scale (gốc D, offset công thức {0,3,5,6,7,10}).
 > 2. Blue note của D blues là nốt gì?
 >
@@ -165,7 +165,7 @@ A – C♯ – E – G (offset từ A: 0, 4, 7, 10)
 > - *"Turnaround ô 12 là V7 — nó "kéo" về I bằng cách nào?"* — V7 tạo lực dẫn (leading tone) mạnh nhất về I: nốt 7 của V7 (ở C: F) muốn giải về bậc 3 của I (E), nốt gốc G muốn giải về C. Khi phản phức này giải, tai nghe "về nhà".
 > - *"Có thể đổi thứ tự ô không?"* — Có, nhiều biến thể tồn tại. Slow blues thường giữ I7 đến ô 4 (không quick change). Jazz blues thêm hợp âm ii vào ô 9-10 thay vì chỉ V-IV. Đây chỉ là khung chuẩn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Viết hợp âm 12 ô nhịp blues ở điệu G (không quick change: I7 cả ô 1–4).
 > 2. Ô 9 và ô 10 ở điệu G là gì?
 >
@@ -251,7 +251,7 @@ Cả bốn hợp âm "trôi" dần xuống theo bậc thang âm: C → A → D �
 **Biến thể jazz phổ biến: I–VI7–ii–V (dùng VI7 thay vi để tăng màu dom7):**
 Cmaj7 – A7 – Dm7 – G7. A7 (không phải Am7) tạo cảm giác "unexpected dom7" mạnh hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Viết ii–V–I ở điệu B♭ trưởng.
 > 2. Viết turnaround ở điệu G trưởng.
 >

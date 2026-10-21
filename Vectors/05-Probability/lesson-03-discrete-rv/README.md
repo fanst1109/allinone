@@ -108,7 +108,7 @@ Bài này tập trung **rời rạc**. Liên tục sẽ ở Lesson 04.
 - *"Một RV có cần ăn toàn bộ Ω không?"* — **Có**, theo định nghĩa. Nhưng nhiều ω có thể được ánh xạ vào cùng giá trị x; điều đó hoàn toàn ổn (như HT và TH cùng cho X = 1).
 - *"X(ω) có nhất định phải là số nguyên?"* — **Không**. RV nói chung nhận giá trị thực. RV **rời rạc** chỉ cần tập giá trị đếm được — có thể là {1/2, 1/3, 1/4, ...}.
 
-### 2.6. 🔁 Dừng lại tự kiểm tra
+### 2.6. 🔁 Thực hành
 
 Tung 1 xúc xắc, gọi Y = (mặt xúc xắc) mod 2. Liệt kê toàn bộ ánh xạ Y(ω) với ω ∈ {1, 2, 3, 4, 5, 6} và tính `P(Y = 0)`, `P(Y = 1)`.
 
@@ -244,7 +244,7 @@ Cách vẽ PMF rời rạc: với mỗi x trong support, vẽ **một thanh dọ
 - Nhầm p(x) với P(X ≤ x). p(x) là PMF (giá trị tại điểm); P(X ≤ x) là CDF (tích luỹ tới x).
 - Viết p(x) cho RV liên tục — sai. Liên tục dùng PDF f(x); P(X = x) luôn = 0.
 
-### 3.7. 🔁 Dừng lại tự kiểm tra
+### 3.7. 🔁 Thực hành
 
 Cho RV X có PMF: p(1) = 0.1, p(2) = 0.2, p(3) = c, p(4) = 0.3. Tìm c và tính `P(X ≤ 2)`, `P(X > 2)`.
 
@@ -310,7 +310,7 @@ Walk-through: với p = 0.95: E[X] = 0.95 (trung bình thì kết quả gần 1)
 - Quên rằng X chỉ nhận 2 giá trị 0 và 1. Nếu ai đó nói "X ~ Ber(p), tính P(X = 2)" — đó là 0.
 - Nhầm p với 1-p. Quy ước: p luôn là xác suất **thành công** (X = 1). Khi đọc đề, xác định rõ "thành công" là sự kiện nào.
 
-### 4.6. 🔁 Dừng lại tự kiểm tra
+### 4.6. 🔁 Thực hành
 
 Một email có xác suất 0.02 bị mark spam. Gọi X = 1 nếu spam, 0 nếu ham. X có phân phối gì? Tính p(0), p(1).
 
@@ -411,7 +411,7 @@ Trực giác: vì X = X₁ + X₂ + ... + Xₙ (tổng n Bernoulli độc lập)
 - **Đảo p và 1-p**. Luôn xác định rõ "thành công" trước khi viết công thức.
 - Quên rằng `0^0 = 1` quy ước trong công thức Binomial. Khi p = 0, k = 0 thì `0^0 · 1^n = 1`, đúng.
 
-### 5.8. 🔁 Dừng lại tự kiểm tra
+### 5.8. 🔁 Thực hành
 
 Câu hỏi 1: Một đồng xu lệch ngửa với xác suất 0.6. Tung 5 lần. Tính `P(đúng 3 lần ngửa)`.
 
@@ -509,7 +509,7 @@ Walk-through: p = 0.1. P(X > 3) = (1-p)^3 = 0.729. P(X > 5 | X > 2) = P(X > 5)/P
 - Quên đề cập quy ước A/B → đáp án lệch 1.
 - Áp dụng memoryless cho RV không có tính chất này (như Binomial — nhớ rõ số thử còn lại).
 
-### 6.8. 🔁 Dừng lại tự kiểm tra
+### 6.8. 🔁 Thực hành
 
 Một quảng cáo Facebook có CTR = 5%. Bạn show liên tục cho người dùng cho đến khi có click đầu tiên. Tính P(cần đúng 10 lần show).
 
@@ -619,7 +619,7 @@ Tức xác suất ≈ 4.5%. P(X ≤ 20) ≈ 0.559 (về quá nửa thì ≤ trun
   `log P = -λ + k · log λ - log(k!)`, rồi exp ngược.
 - Nhầm λ với p. λ là **tần suất tuyệt đối**, không phải xác suất. λ có thể > 1 (vd λ = 20). p luôn ≤ 1.
 
-### 7.9. 🔁 Dừng lại tự kiểm tra
+### 7.9. 🔁 Thực hành
 
 Một website trung bình 5 lỗi 500 mỗi giờ. Tính P(trong 1 giờ tới có 0 lỗi).
 
@@ -768,7 +768,7 @@ Walk-through: Poi(3), P(2 ≤ X ≤ 5) = F(5) - F(1) = 0.9160 - 0.1992 = 0.7168.
 - Tin rằng `F(a) - F(b)` (khi a < b) → âm. CDF không giảm nên thứ tự phải là F(b) - F(a).
 - Vẽ CDF như đường cong liên tục dù X rời rạc → sai. CDF của RV rời rạc là **hàm bậc thang**.
 
-### 8.8. 🔁 Dừng lại tự kiểm tra
+### 8.8. 🔁 Thực hành
 
 X ~ Bin(5, 0.5). Tính F(3) = P(X ≤ 3).
 

@@ -78,7 +78,7 @@ Vẽ trên hệ trục $(Q, P)$ (Q trên trục hoành, P trên trục tung — 
 
 **Q: "Ceteris paribus" có thực tế không?** Không — trong đời thực, nhiều thứ đổi cùng lúc. Nhưng "giữ mọi thứ khác không đổi" là công cụ *tư duy* để tách rời ảnh hưởng của từng yếu tố. Khi phân tích, ta tách từng yếu tố một, rồi cộng lại (additive approximation).
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Cầu của một người cho cà phê: $Q_d = 20 - 0.5P$ (Q tính theo cốc/tuần, P theo k/cốc).
 
@@ -263,7 +263,7 @@ Hình dung đường cầu là một sợi dây cao su gắn trên hệ trục. 
 
 **Kết quả thực tế**: Giá khẩu trang đầu 2020 tăng 5-10 lần. Đến giữa 2021, cung đuổi kịp $\\to$ giá quay lại bình thường.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Khi nào các sự kiện sau làm dịch chuyển *đường* (shift), khi nào chỉ di chuyển *dọc đường* (movement)?
 

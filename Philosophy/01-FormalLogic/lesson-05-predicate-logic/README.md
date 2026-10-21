@@ -149,7 +149,7 @@ Bốn ví dụ, verify từng bước:
 >
 > **Kiểm tra nhanh:** Thử miền = {Socrates, mèo Felix}. Với mèo: `Người(Felix) → Chết(Felix)` = F → T = **Đúng** ✓. Còn `Người(Felix) ∧ Chết(Felix)` = F ∧ T = **Sai** ✗ — câu bị hỏng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Dịch câu: "Mọi số nguyên tố lớn hơn 2 đều là số lẻ" sang ký hiệu.
 > <details><summary>Đáp án</summary>
 >
@@ -208,7 +208,7 @@ Bốn ví dụ:
 >
 > **ĐÚNG:** `∃x ( NgTố(x) ∧ Chẵn(x) )` — đòi hỏi một x *đồng thời thỏa cả hai* điều kiện.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Dịch câu: "Có người không đồng ý với tôi."
 > <details><summary>Đáp án</summary>
 >
@@ -262,7 +262,7 @@ Chiều ngược:
 >
 > **Ví dụ:** Phủ định "Mọi người đều phải chết" = `∃x(Người(x)∧¬Chết(x))` = "Có người không phải chết" — không phải "Mọi người đều không chết".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phủ định câu: "Không ai trong lớp hiểu bài" — `∀x(TrongLớp(x)→¬HiểuBài(x))`.
 > <details><summary>Đáp án</summary>
 >

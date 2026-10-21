@@ -40,7 +40,7 @@ Sau bài này bạn sẽ:
 
 > ❓ **Câu hỏi tự nhiên.** *"Beta khác độ lệch chuẩn thế nào?"* — σ đo **tổng** dao động (cả riêng lẻ lẫn hệ thống). Beta chỉ đo phần **đồng pha với thị trường**. Một cổ phiếu có thể σ cao nhưng beta thấp (dao động mạnh nhưng không theo thị trường).
 
-> 🔁 **Dừng lại tự kiểm tra.** Cổ phiếu beta 0,5. Thị trường giảm 20%. Cổ phiếu dự kiến đổi bao nhiêu (chỉ tính phần hệ thống)?
+> 🔁 **Thực hành.** Cổ phiếu beta 0,5. Thị trường giảm 20%. Cổ phiếu dự kiến đổi bao nhiêu (chỉ tính phần hệ thống)?
 > <details><summary>Đáp án</summary>$0{,}5 \\times (-20\\%) = -10\\%$ — giảm nhẹ hơn thị trường (phòng thủ).</details>
 
 ---
@@ -76,7 +76,7 @@ $$E[R] = 3\\% + 1{,}3 \\times (9\\% - 3\\%) = 3\\% + 1{,}3 \\times 6\\% = 3\\% +
 
 > ⚠ **Lỗi thường gặp.** Dùng **tổng** rủi ro (σ) trong CAPM thay vì beta. CAPM chỉ thưởng **rủi ro hệ thống (beta)** — vì rủi ro phi hệ thống đa dạng hóa xóa được, không ai trả công cho nó.
 
-> 🔁 **Dừng lại tự kiểm tra.** $R_f = 2\\%$, $R_m = 8\\%$, $\\beta = 1{,}5$. Lợi nhuận kỳ vọng theo CAPM?
+> 🔁 **Thực hành.** $R_f = 2\\%$, $R_m = 8\\%$, $\\beta = 1{,}5$. Lợi nhuận kỳ vọng theo CAPM?
 > <details><summary>Đáp án</summary>$E[R] = 2\\% + 1{,}5 \\times (8\\% - 2\\%) = 2\\% + 9\\% = 11\\%$.</details>
 
 ---

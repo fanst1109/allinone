@@ -108,7 +108,7 @@ Ba loại "thông điệp" này hay bị lẫn lộn. Phân biệt sai dẫn t�
 >
 > **Đối chứng**: nếu chỉ có **đúng một** consumer được phép xử lý thông điệp và nó **phải** chạy → đó là command, gửi point-to-point. Nếu **nhiều** consumer có thể quan tâm và việc xử lý là tùy chọn → đó là event, broadcast.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Phân loại: \`"ShipmentDelivered"\`, \`"SendEmail"\`, \`"GetUserProfile"\`.
 >
@@ -269,7 +269,7 @@ Orchestrator: \`gửi ChargePayment\` → chờ \`PaymentCharged\` → \`gửi R
 >
 > - *"Có dùng lẫn được không?"* → Có. Nhiều hệ dùng choreography giữa các domain (loose) nhưng orchestration trong một domain phức tạp (vd checkout flow). Không phải chọn một-mất-một.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Một luồng "đăng ký user → gửi welcome email → tặng voucher → ghi analytics". Nên choreography hay orchestration?
 >
@@ -367,7 +367,7 @@ App: INSERT order + INSERT outbox (1 transaction)
 >
 > Tưởng outbox đảm bảo **exactly-once**. Không! Outbox đảm bảo **at-least-once** (không mất, nhưng có thể trùng). Nếu bạn không làm consumer idempotent, một event giao 2 lần sẽ trừ tiền 2 lần. Outbox **luôn** đi kèm idempotent consumer.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Vì sao ghi \`outbox\` trong cùng transaction lại an toàn hơn gọi \`broker.Publish\`?
 >

@@ -133,7 +133,7 @@ Khi $f_s \\leq 2 \\cdot f_{\\text{max}}$, tín hiệu tần số cao bị "hóa 
 - Đặt bộ lọc thông thấp (low-pass filter) **trước ADC**, cắt tất cả tần số trên f_s/2.
 - Xem chi tiết: [Lesson 07 — Bộ lọc](../../01-Fundamentals/lesson-07-filters/).
 
-🔁 **Dừng lại tự kiểm tra**: Nếu muốn đo tín hiệu điện tim (ECG) có tần số cao nhất 150 Hz, tần số lấy mẫu tối thiểu cần là bao nhiêu?
+🔁 **Thực hành**: Nếu muốn đo tín hiệu điện tim (ECG) có tần số cao nhất 150 Hz, tần số lấy mẫu tối thiểu cần là bao nhiêu?
 <details>
 <summary>Xem đáp án</summary>
 
@@ -252,7 +252,7 @@ Walk-through: DAC 10-bit, $V_{\\text{ref}} = 5$ V, Code $= 512$:
 2. Xuất ra DAC với $f_s = 10{,}000$ Hz (100 mẫu/chu kỳ × 100 chu kỳ/s)
 3. Bộ lọc thông thấp sau DAC để làm mượt bậc thang → sóng sin liên tục
 
-🔁 **Dừng lại tự kiểm tra**: Arduino Uno đọc \`analogRead(A0) = 614\`. Điện áp tại chân A0 là bao nhiêu?
+🔁 **Thực hành**: Arduino Uno đọc \`analogRead(A0) = 614\`. Điện áp tại chân A0 là bao nhiêu?
 <details>
 <summary>Xem đáp án</summary>
 

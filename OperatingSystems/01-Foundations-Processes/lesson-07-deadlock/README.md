@@ -62,7 +62,7 @@ Deadlock xảy ra **khi và chỉ khi** cả 4 điều kiện sau đều đúng 
 
 ⚠ **Lỗi thường gặp — Nghĩ chỉ cần 3 điều kiện là deadlock:** Tất cả 4 phải xảy ra đồng thời. Nếu phá được bất kỳ 1 điều kiện nào, deadlock không xảy ra. Đây là cơ sở của chiến lược phòng ngừa.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Trong ví dụ dining philosophers: điều kiện nào trong 4 điều kiện Coffman bị vi phạm khi dùng giải pháp "bất đối xứng"?
 

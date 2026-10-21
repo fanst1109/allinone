@@ -56,7 +56,7 @@ Một giao thức consensus đúng phải bảo đảm các tính chất:
 2. **Thứ tự log.** — Client gửi `set x=1`, `set x=2`. Mọi node phải apply cùng thứ tự, nếu không node A có `x=1`, node B có `x=2` → mâu thuẫn.
 3. **Một giá trị config.** — "Khóa phân tán này đang do ai giữ?" chỉ được có 1 đáp án.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong 3 ví dụ trên, cái nào là "đồng ý **một** giá trị", cái nào là "đồng ý **chuỗi** giá trị"?
+> 🔁 **Thực hành.** Trong 3 ví dụ trên, cái nào là "đồng ý **một** giá trị", cái nào là "đồng ý **chuỗi** giá trị"?
 > <details><summary>Đáp án</summary>
 > "Ai là leader" và "khóa do ai giữ" là đồng ý **một** giá trị (tại một thời điểm). "Thứ tự log" là đồng ý **một chuỗi** giá trị có thứ tự. Raft giải bài toán chuỗi (replicated log) — và bài toán một-giá-trị chỉ là trường hợp riêng (log có đúng 1 entry quan trọng).
 > </details>
@@ -222,7 +222,7 @@ Quy tắc dùng term:
   - term gửi **> term của mình** → cập nhật term, tụt về Follower.
   - term gửi **= term của mình** → xử lý bình thường.
 
-> 🔁 **Dừng lại tự kiểm tra.** Node X có `currentTerm=5`, nhận `AppendEntries(term=3)` từ một node tự xưng leader. X làm gì?
+> 🔁 **Thực hành.** Node X có `currentTerm=5`, nhận `AppendEntries(term=3)` từ một node tự xưng leader. X làm gì?
 > <details><summary>Đáp án</summary>
 > X **từ chối** (trả `success=false`, kèm `term=5`). Node gửi là leader **lỗi thời** (term 3 < 5) — có thể nó vừa hồi sinh sau partition. Khi nhận reply chứa term=5, node đó thấy `3 < 5` → tụt về Follower và cập nhật term lên 5. Đây là cách Raft "phế truất" leader cũ mà không cần ai ra lệnh.
 > </details>
@@ -296,7 +296,7 @@ Tiếp nối 7.2 (A là leader term 1). Bây giờ **A crash**:
 
 > ❓ *"Nếu hai node lỡ random trùng và split vote thì sao?"* → Cả hai thất bại trong term đó (không ai đủ 3 phiếu), mỗi node lại bốc timeout **mới** ngẫu nhiên cho term sau. Khả năng trùng **liên tiếp** giảm theo cấp số nhân → kỳ vọng hội tụ chỉ sau 1–2 vòng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Trong N=5, candidate cần bao nhiêu phiếu để thắng?
 > 2. Vì sao timeout cố định gây kẹt mà timeout ngẫu nhiên thì không?
 >
@@ -389,7 +389,7 @@ Entry #7 đã commit trên majority {A,B,C} (3 node, đều có #7). Node D bị
 - D chỉ có thể nhận phiếu của chính nó + tối đa E = **2 < 3** → D **không bao giờ** thành leader.
 - → Entry #7 (đã commit) **an toàn**: leader mới bắt buộc là một trong {A,B,C} (đều có #7).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao "hai majority luôn giao nhau" lại bảo đảm entry đã commit không mất?
+> 🔁 **Thực hành.** Vì sao "hai majority luôn giao nhau" lại bảo đảm entry đã commit không mất?
 > <details><summary>Đáp án</summary>
 > Entry commit nằm trên một majority M1. Candidate muốn thắng cần một majority phiếu M2. Trong N node, |M1|+|M2| = (N/2+1)·2 = N+2 > N → M1 và M2 **bắt buộc** chia sẻ ≥ 1 node chung. Node chung đó **có** entry đã commit, nên (theo election restriction) nó **chỉ** bầu cho candidate có log ≥ của nó → leader mới chắc chắn cũng có entry đó.
 > </details>
@@ -458,7 +458,7 @@ Ví dụ số cụ thể (N=5, hai majority bất kỳ giao nhau):
 
 > ❓ *"Thêm node thì chịu lỗi tăng nhưng có hại gì không?"* → Có: mỗi lần commit phải đợi **majority lớn hơn** ack → **latency tăng** và băng thông replicate nhiều hơn. N=7 chậm hơn N=5. Vì vậy đa số hệ dùng **5** — cân bằng giữa chịu lỗi (2) và tốc độ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cluster N=6 thì quorum bao nhiêu, chịu mấy fail? So với N=5 hơn kém gì?
+> 🔁 **Thực hành.** Cluster N=6 thì quorum bao nhiêu, chịu mấy fail? So với N=5 hơn kém gì?
 > <details><summary>Đáp án</summary>
 > N=6: quorum = `⌊6/2⌋+1 = 4`, chịu fail = `6−4 = 2`. **Y hệt N=5** (cũng chịu 2) nhưng tốn thêm 1 máy và đợi 4 ack thay vì 3 → chậm hơn. Đó là lý do không ai chọn số chẵn.
 > </details>

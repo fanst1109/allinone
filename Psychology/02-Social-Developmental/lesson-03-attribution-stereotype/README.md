@@ -81,7 +81,7 @@ Tên khác: "correspondence bias" — bias nghiêng về dispositional explanati
 2. **Two-stage model (Gilbert 1989)**: Bước 1 — tự động gán internal; Bước 2 — điều chỉnh cho situation. Bước 2 cần cognitive resources → khi bận, bước 2 không xảy ra.
 3. **Cultural norms**: Văn hóa individualist nhấn mạnh personal agency → default là internal.
 
-🔁 **Tự kiểm tra**: Bạn đang phỏng vấn ứng viên và họ trả lời ngắn gọn. Bạn kết luận "ngại nói" (internal). Tại sao đây là FAE và còn missing gì?
+🔁 **Thực hành**: Bạn đang phỏng vấn ứng viên và họ trả lời ngắn gọn. Bạn kết luận "ngại nói" (internal). Tại sao đây là FAE và còn missing gì?
 <details>
 <summary>Đáp án</summary>
 Missing situational factors: đây là buổi phỏng vấn căng thẳng với quyền lực bất cân bằng → normal để ít nói hơn. Còn thiếu: thông tin về behavior của họ trong setting khác (distinctiveness), behavior của candidates khác (consensus). Đây là FAE kinh điển trong hiring.
@@ -186,7 +186,7 @@ Missing situational factors: đây là buổi phỏng vấn căng thẳng với 
 
 **Tóm lại**: IAT hữu ích như demonstration và research tool; nhưng **không nên dùng để đánh giá cá nhân** (vd tuyển dụng, tòa án). Nhiều công ty diversity training dựa trên IAT — hiệu quả thực tế rất hạn chế.
 
-🔁 **Tự kiểm tra**: Một người có IAT score "strongly prefers White" có chắc chắn hành xử phân biệt đối xử không?
+🔁 **Thực hành**: Một người có IAT score "strongly prefers White" có chắc chắn hành xử phân biệt đối xử không?
 <details>
 <summary>Đáp án</summary>
 Không. Predictive validity r ≈ 0.15 là rất thấp — chỉ explain ~2.25% variance trong actual behavior. IAT score không đủ để kết luận về hành vi cụ thể. Đây là lý do chính tại sao dùng IAT trong tuyển dụng hoặc pháp lý là vấn đề.

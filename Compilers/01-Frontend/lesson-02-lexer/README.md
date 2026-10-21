@@ -75,7 +75,7 @@ Kết quả lexer trả về cho dòng `x=12+3`:
 > - *"Sao không để parser đọc thẳng ký tự, bỏ qua lexer?"* — Được về mặt lý thuyết (gọi là *scannerless parsing*), nhưng phức tạp hơn nhiều: parser sẽ phải vừa lo whitespace, comment, vừa lo cấu trúc câu. Tách 2 tầng giúp mỗi tầng đơn giản, dễ test, dễ tối ưu. Lexer chạy rất nhanh (chỉ là DFA), parser phức tạp hơn nhưng chỉ nhìn token.
 > - *"Lexer có hiểu nghĩa của code không?"* — Không. Lexer **không biết** `x=12+3` là phép gán cộng. Nó chỉ thấy "có một ID, một dấu `=`, một số...". Việc hiểu *cấu trúc* là của parser; hiểu *ý nghĩa* (kiểu, phạm vi biến) là của semantic analysis.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Lexer biến cái gì thành cái gì?
 > 2. Vì sao `12` không bị tách thành `1` và `2`?
 > <details><summary>Đáp án</summary>
@@ -182,7 +182,7 @@ Quá trình:
 
 > ⚠ **Lỗi thường gặp.** Nhầm **giá trị (lexeme)** với **loại**. `NUM(12)` và `NUM(3)` cùng **loại** `NUM` nhưng khác **giá trị**. Parser quyết định cấu trúc dựa trên *loại*; phép tính dùng *giá trị*. Đừng để hai số khác nhau được coi là "khác loại token".
 
-> 🔁 **Dừng lại tự kiểm tra.** Tokenize `a = b + 1`.
+> 🔁 **Thực hành.** Tokenize `a = b + 1`.
 > <details><summary>Đáp án</summary>
 >
 > `[ ID(a), EQ, ID(b), PLUS, NUM(1), EOF ]`. Lưu ý `b` là **ID** (không có trong bảng keyword), `1` là **NUM**.
@@ -279,7 +279,7 @@ kết quả: [ID(a), GE, ID(b)]
 
 > ⚠ **Lỗi thường gặp.** Maximal munch đôi khi *quá tham*. Trong C cổ, `a---b` được ngoạm thành `a -- - b` (`--` rồi `-`), không phải `a - -- b` — gây bug nếu lập trình viên định viết `a - (--b)`. Bài học: khi viết toán tử ghép mơ hồ, chèn khoảng trắng. Lexer luôn ngoạm dài nhất, không "đoán ý" bạn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. `x<=10` tokenize thế nào?
 > 2. `whilex` là gì — keyword `while` + `x`, hay một ID?
 > <details><summary>Đáp án</summary>
@@ -410,7 +410,7 @@ DFA chỉ có **bộ nhớ hữu hạn** (số trạng thái cố định) → k
 
 Đây là ranh giới giữa **lexer (ngôn ngữ chính quy / regular)** và **parser (ngôn ngữ phi ngữ cảnh / context-free)** — sẽ rõ ở [Lesson 03 — Grammar & CFG](../lesson-03-grammar-cfg/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Chạy DFA số nguyên trên chuỗi `7`. Nó kết thúc ở trạng thái nào, có chấp nhận không?
+> 🔁 **Thực hành.** Chạy DFA số nguyên trên chuỗi `7`. Nó kết thúc ở trạng thái nào, có chấp nhận không?
 > <details><summary>Đáp án</summary>
 >
 > `S0` --`7`--> `S1`. Hết chuỗi, đang ở `S1` (accept) → **chấp nhận**, phát `NUM("7")`. Một chữ số cũng là số hợp lệ vì `[0-9]+` yêu cầu ≥1 chữ số.
@@ -612,7 +612,7 @@ Walk-through báo lỗi cho `x = @5`:
 
 > ⚠ **Lỗi thường gặp khi viết lexer.** Quên cập nhật `col`/`line` trong `advance()` khi gặp `\n` → mọi lỗi báo sai vị trí. Luôn: gặp `\n` thì `line++`, `col = 1`; ngược lại `col++`. (Xem `advance()` ở §5.2 đã xử lý đúng.)
 
-> 🔁 **Dừng lại tự kiểm tra.** `12abc` — lexer xử lý ra sao? Có phải lỗi từ vựng không?
+> 🔁 **Thực hành.** `12abc` — lexer xử lý ra sao? Có phải lỗi từ vựng không?
 > <details><summary>Đáp án</summary>
 >
 > KHÔNG phải lỗi. Maximal munch: `12` khớp `[0-9]+` → `NUM(12)`. Rồi `abc` khớp identifier → `ID(abc)`. Kết quả `[NUM(12), ID(abc)]`. Lexer chấp nhận; *nếu* ngôn ngữ không cho số dính liền tên (vd `12abc` là vô nghĩa), việc báo lỗi đó là của **parser/semantic**, không phải lexer. Lexer chỉ báo lỗi khi gặp ký tự không khớp pattern *nào*.

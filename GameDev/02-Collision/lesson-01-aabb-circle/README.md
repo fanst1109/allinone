@@ -56,7 +56,7 @@ Một lần test AABB là **4 phép so sánh** (sẽ thấy ở §2). So với 2
 > - *"Hình bao không khớp hình thật, có sai không?"* — Có sai một chút (xem §6): hộp bao quanh hình tròn có 4 góc "thừa". Nhưng với gameplay, sai số đó thường **chấp nhận được**, và nếu cần chính xác hơn ta dùng [SAT](../lesson-02-sat-polygons/) (L07).
 > - *"50 viên đạn × 30 quái = 1500 cặp, vẫn nhiều?"* — Đúng. Giảm số **cặp** phải xét là việc của **broad-phase** ([L08](../lesson-03-spatial-partitioning/)). Bài này lo phần test **một cặp** cho nhanh (narrow-phase).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao test hình bao nhanh hơn test pixel hàng chục nghìn lần?
+> 🔁 **Thực hành.** Vì sao test hình bao nhanh hơn test pixel hàng chục nghìn lần?
 > <details><summary>Đáp án</summary>
 > Vì test hình bao chỉ so vài con số (toạ độ biên, bán kính), chi phí O(1) không phụ thuộc kích thước sprite. Test pixel là O(số pixel của hai vật) — tăng theo bình phương kích thước.
 > </details>
@@ -167,7 +167,7 @@ Cạnh phải của A trùng cạnh trái của B tại `x = 4`. Vì dùng `≥`
 > - *"Vì sao dấu `≤` chứ không phải `<`?"* — Tuỳ ý đồ. `≤`/`≥` coi "chạm cạnh" là va chạm (an toàn hơn cho gameplay, vật không lọt qua nhau). `<`/`>` đòi phải **chồng thật sự** mới tính. Hãy chọn nhất quán.
 > - *"Hộp xoay 45° thì sao?"* — AABB **không xoay được** theo định nghĩa. Hộp xoay là **OBB** (Oriented Bounding Box) và phải dùng [SAT](../lesson-02-sat-polygons/) (L07).
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho `A = [10, 10, 20, 20]` và `B = [15, 25, 25, 35]`. Chạm không?
+> 🔁 **Thực hành.** Cho `A = [10, 10, 20, 20]` và `B = [15, 25, 25, 35]`. Chạm không?
 > <details><summary>Đáp án</summary>
 > Trục x: $10 \le 25$ ✓ và $20 \ge 15$ ✓ → chồng x. Trục y: $10 \le 35$ ✓ nhưng $20 \ge 25$ ✗ → rời y. Có một vế sai → <strong>KHÔNG CHẠM</strong> (B nằm dưới A một khe từ y=20 tới y=25).
 > </details>
@@ -231,7 +231,7 @@ func circleOverlap(a, b Circle) bool {
 > - *"Bình phương vế có làm tràn số không?"* — Với toạ độ pixel cỡ vài nghìn, `dx*dx` cỡ vài triệu — `float64`/`int64` thừa sức. Chỉ cẩn thận nếu toạ độ rất lớn (dùng `float64`).
 > - *"Tròn nhanh hơn hộp à?"* — Cả hai đều O(1). Tròn hợp với vật **đối xứng tròn** (đạn, bóng); hộp hợp với vật **chữ nhật** (gạch, tường). Chọn theo hình thật.
 
-> 🔁 **Dừng lại tự kiểm tra.** A `(2,2) r=1`, B `(2,6) r=2`. Chạm không?
+> 🔁 **Thực hành.** A `(2,2) r=1`, B `(2,6) r=2`. Chạm không?
 > <details><summary>Đáp án</summary>
 > `dx=0, dy=4` → `distSq` $= 0+16 = 16$. `rSum` $= 3$ → `rSum²` $= 9$. $16 < 9$? Sai → <strong>KHÔNG CHẠM</strong> (cách nhau theo trục y, khoảng cách $4 > 3$ = tổng bán kính).
 > </details>
@@ -304,7 +304,7 @@ Dùng hộp `B = [0, 0, 10, 6]` (minX=0, minY=0, maxX=10, maxY=6) cho mọi ví 
 > ⚠ **Lỗi thường gặp.** Quên trường hợp **tâm trong hộp** rồi tính khoảng cách tới *cạnh gần
 > nhất* dương → sai. Kỹ thuật clamp xử lý gọn: tâm trong hộp → `(nx,ny) = (cx,cy)` → khoảng cách 0 → chạm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hộp `[0,0,4,4]`, tròn tâm `(6, 6) r=2`. Chạm không?
+> 🔁 **Thực hành.** Hộp `[0,0,4,4]`, tròn tâm `(6, 6) r=2`. Chạm không?
 > <details><summary>Đáp án</summary>
 > Điểm gần nhất = góc `(4,4)`. `dx=2, dy=2` → `distSq` $= 8$. `r²` $= 4$. $8 < 4$? Sai → <strong>KHÔNG CHẠM</strong> (góc tròn còn cách góc hộp một chút; cần $r \ge \sqrt{8} \approx 2.83$ mới chạm).
 > </details>

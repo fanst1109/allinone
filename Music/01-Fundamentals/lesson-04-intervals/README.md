@@ -99,7 +99,7 @@ Biến đổi chất bằng cách thay đổi số nửa cung:
 > - *"Tritone là gì và vì sao có tên đặc biệt?"* — Tritone = 3 cung (whole tones) = 6 nửa cung, nằm đúng giữa octave. Nó vừa là quãng tăng 4 (A4: F→B) vừa là quãng giảm 5 (d5: B→F). Âm thanh cực kỳ căng thẳng — thời Trung Cổ gọi là *diabolus in musica* (quỷ trong âm nhạc), bị cấm trong nhạc nhà thờ. Ngày nay dùng nhiều trong nhạc jazz và metal để tạo độ căng.
 > - *"E → F♭ và E → E là cùng số nửa cung (0 và 1) nhưng khác tên quãng sao?"* — Đúng. E→F♭ là m2 theo tên chữ cái (E=1, F=2, số quãng = 2), dù F♭ = E trên piano. Đây là trường hợp **enharmonic interval** — cùng âm thanh, khác tên. Sự khác nhau tên quan trọng trong phân tích hòa âm.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Từ A đến C (ở trên) là quãng mấy, và bao nhiêu nửa cung?
 > 2. Từ G đến F là quãng mấy, và là chất gì?
 >
@@ -149,7 +149,7 @@ Biến đổi chất bằng cách thay đổi số nửa cung:
 > - *"Nếu ET "sai" so với just intonation, vì sao cả thế giới dùng ET?"* — Vì ET cho phép chơi bất kỳ bộ điệu (key) nào trên cùng một cây đàn mà độ lệch đều như nhau (xấp xỉ nhau). Just intonation "đúng" trong một key cụ thể nhưng nghe lạc trong các key khác. ET là sự thỏa hiệp thực dụng.
 > - *"Nghịch có nghĩa là "sai" hay "xấu" không?"* — Không. Nghịch tạo ra cảm giác căng thẳng cần "giải phóng" — đây là động lực của âm nhạc. Không có nghịch thì nhạc nhạt nhẽo. Ví dụ: tritone trong hợp âm dominant 7 tạo căng thẳng dẫn đến tonic — đây là cơ chế cốt lõi của hòa âm Tây phương.
 
-> 🔁 **Dừng lại tự kiểm tra.** P5 thuần có tỷ lệ 3:2. Tính cents. Độ lệch so với ET (700 cents) là bao nhiêu?
+> 🔁 **Ôn tập.** P5 thuần có tỷ lệ 3:2. Tính cents. Độ lệch so với ET (700 cents) là bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
 > `1200·log₂(3/2) = 1200·0.58496 = 701.96 cents`. Lệch so với ET: `701.96 − 700 = 1.96 cents`. Tai người thường không nhận ra độ lệch này trong bối cảnh nhạc phức tạp.
@@ -191,7 +191,7 @@ Biến đổi chất bằng cách thay đổi số nửa cung:
 > - *"Tritone đảo thành gì?"* — Tritone (A4 = 6 nửa cung) đảo thành d5 (cũng 6 nửa cung), vì 12−6=6. Số quãng: 9−4=5, chất: tăng→giảm → d5. Nhưng A4 và d5 là enharmonic (cùng âm thanh trên piano) → tritone là quãng duy nhất **đảo thành chính nó về âm thanh**.
 > - *"Đảo quãng dùng để làm gì trong thực tế?"* — Dùng nhiều trong chuyển đảo hợp âm (chord inversion) và viết bè (voice leading). Hiểu đảo quãng giúp bạn nhận ra rằng P5 (C–G) và P4 (G–C) là "cùng một quãng" nhìn từ hai hướng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Quãng M7 (nửa cung = 11) đảo thành quãng gì?
+> 🔁 **Ôn tập.** Quãng M7 (nửa cung = 11) đảo thành quãng gì?
 > <details><summary>Đáp án</summary>
 >
 > Số: 9−7=2 → quãng 2. Chất: trưởng → thứ → **m2**. Nửa cung: 12−11=1 → m2 = 1 nửa cung ✓.

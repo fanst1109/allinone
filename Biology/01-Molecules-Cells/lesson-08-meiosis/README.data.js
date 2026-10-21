@@ -64,7 +64,7 @@ A: Chỉ **tế bào sinh dục (germ cell)** ở cơ quan sinh sản (tinh hoà
 **Q: "Tương đồng (homologous)" khác "nhiễm sắc tử chị em (sister chromatid)" thế nào? Hay nhầm chỗ này.**
 A: Khác hẳn. **2 NST tương đồng** là 2 NST riêng biệt (một của bố, một của mẹ) — cùng gen nhưng **alen (allele) có thể khác nhau** (vd cùng gen màu mắt, nhưng một cái mang alen nâu, một cái mang alen xanh). **2 nhiễm sắc tử chị em** là 2 bản sao **y hệt** của cùng 1 NST sau khi nhân đôi ở pha S, dính nhau ở tâm động (centromere). Phân biệt được điều này là chìa khóa hiểu giảm phân I vs II.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một loài có 2n = 24. Giao tử của loài này có bao nhiêu NST?
 2. Vì sao nếu không có giảm phân thì sinh sản hữu tính sẽ làm bộ NST tăng vô hạn?
@@ -152,7 +152,7 @@ A: Vì \`n\` đếm **số bộ NST**, không đếm chromatid. 2 chromatid ch�
 - **Nghĩ số NST giảm ở giảm phân II**: SAI. Giảm xảy ra ở **cuối giảm phân I** (tách cặp tương đồng). Giảm phân II giữ nguyên số NST.
 - **Nghĩ giao tử có "nửa số gen"**: SAI. Giao tử có **đủ 1 bộ gen hoàn chỉnh** (n), chỉ là 1 bản thay vì 2 bản.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Loài có 2n = 8. Điền số NST ở 4 giai đoạn của bảng §2.2.
 2. Một tế bào kết thúc giảm phân I có 10 NST. Hỏi 2n của loài là bao nhiêu?
@@ -214,7 +214,7 @@ A: Không (trong điều kiện bình thường). Trao đổi xảy ra giữa **
 - **Nghĩ kỳ sau I tách chromatid chị em**: SAI. Kỳ sau I tách **2 NST tương đồng**; chromatid chị em vẫn dính, chỉ tách ở **kỳ sau II**.
 - **Quên trao đổi chéo chỉ có ở giảm phân**: nguyên phân **không** trao đổi chéo (không có tiếp hợp tetrad). Đây là một trong các điểm so sánh bắt buộc.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một tetrad gồm bao nhiêu chromatid? Bao nhiêu NST? Bao nhiêu tâm động?
 2. Ở kỳ sau I, cái gì tách về 2 cực — NST tương đồng hay nhiễm sắc tử chị em?
@@ -261,7 +261,7 @@ A: **4** giao tử đơn bội. Giảm phân I: 1 → 2 tế bào n. Giảm phâ
 **Q: Ở nữ giới có đúng 4 trứng từ 1 tế bào không?**
 A: Về nguyên tắc 4, nhưng ở người **nữ**, phân chia tế bào chất không đều: chỉ **1 tế bào trở thành trứng** lớn (giữ phần lớn tế bào chất), 3 tế bào còn lại là **thể cực (polar body)** nhỏ và tiêu biến. Ở **nam**, cả 4 đều thành tinh trùng. Bài này dùng mô hình lý tưởng "4 giao tử".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tế bào vào giảm phân II có bộ NST là gì (2n hay n)? Sau giảm phân II thì sao?
 2. Liệt kê sự kiện khác nhau căn bản giữa giảm phân I và II ở "kỳ sau".
@@ -328,7 +328,7 @@ Với **n cặp NST**, số kiểu giao tử do phân ly độc lập = $\\mathb
 **Q: Vì sao sinh đôi cùng trứng lại giống hệt nhau dù có giảm phân?**
 A: Vì sinh đôi cùng trứng đến từ **1 hợp tử duy nhất** (đã thụ tinh xong, đã cố định 1 tổ hợp), rồi mới tách làm đôi ở giai đoạn phôi sớm bằng **nguyên phân** (sao y bản chính). Đa dạng của giảm phân xảy ra **trước** thụ tinh nên không ảnh hưởng. Sinh đôi khác trứng (2 trứng + 2 tinh trùng) thì khác nhau như anh em thường.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Loài có 2n = 10. Số kiểu giao tử do phân ly độc lập là bao nhiêu?
 2. Cùng loài đó, số tổ hợp hợp tử khả dĩ khi thụ tinh là bao nhiêu?
@@ -384,7 +384,7 @@ A: Nguyên phân để **xây và duy trì** cơ thể (từ 1 hợp tử thành
 - **Nghĩ giảm phân cũng cho tế bào giống mẹ**: SAI — giảm phân tạo biến dị (trao đổi chéo + phân ly độc lập). Đây là khác biệt cốt lõi với nguyên phân.
 - **Nghĩ nguyên phân tạo giao tử**: SAI — nguyên phân tạo tế bào sinh dưỡng 2n; giao tử chỉ từ giảm phân.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một quá trình phân bào tạo ra 4 tế bào, mỗi tế bào n, có trao đổi chéo. Đó là nguyên phân hay giảm phân?
 2. Tế bào da người (2n = 46) nguyên phân tạo tế bào con có bao nhiêu NST? Còn giảm phân thì sao?

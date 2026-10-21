@@ -193,7 +193,7 @@ Kết quả **best = 49** (giữa thanh chỉ số 1 cao 8 và chỉ số 8 cao 
 
 > **⚠ Lỗi thường gặp.** Dịch nhầm con trỏ ở thanh **cao hơn** thì có thể bỏ sót nghiệm. Phải luôn dịch con trỏ ở thanh **thấp hơn** — đó là cái duy nhất có cơ hội cải thiện diện tích.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Với two-sum sorted, khi \`sum < target\` ta dịch con trỏ nào và vì sao?
 > 2. Trong container water, nếu \`height[l] == height[r]\` thì dịch con trỏ nào? Có ảnh hưởng kết quả không?
 >
@@ -398,7 +398,7 @@ func middleNode(head *ListNode) *ListNode {
 
 Vd list \`1→2→3→4→5\` (lẻ): khi \`fast\` đi 1→3→5 (chạm cuối), \`slow\` đi 1→2→3 → trả node **3** (giữa). List \`1→2→3→4\` (chẵn): \`fast\` 1→3→nil, \`slow\` 1→2→3 → trả node **3** (giữa thứ hai).
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Vì sao điều kiện vòng lặp Floyd phải là \`fast != nil && fast.Next != nil\` chứ không chỉ \`fast != nil\`?
 > 2. Sau khi gặp nhau ở pha 1, ta đặt con trỏ thứ hai ở đâu để tìm điểm bắt đầu cycle?
 >

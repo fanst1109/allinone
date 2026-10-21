@@ -122,7 +122,7 @@ IRF540N: $V_{th}$ = 2–4 V (tiêu chuẩn), $R_{DS(\text{on})}$ = 44 mΩ tại 
 - Nếu $I_D$ = 5 A: $P_{\text{loss}} = (5)^2 \times 0.044 =$ **1.1 W** — chấp nhận được với tản nhiệt nhỏ.
 - Nếu $I_D$ = 20 A: $P_{\text{loss}} = (20)^2 \times 0.044 =$ **17.6 W** — cần tản nhiệt lớn.
 
-🔁 **Dừng lại tự kiểm tra**: IRF540N, $V_{GS}$ = 10 V, $R_{DS(\text{on})}$ = 44 mΩ. Dòng tải $I_D$ = 10 A. Tính tổn hao $P$.
+🔁 **Thực hành**: IRF540N, $V_{GS}$ = 10 V, $R_{DS(\text{on})}$ = 44 mΩ. Dòng tải $I_D$ = 10 A. Tính tổn hao $P$.
 
 <details>
 <summary>Đáp án</summary>
@@ -265,7 +265,7 @@ Nguyên tắc:
 
 → Xem Mục 7 — Bài tập 5: quy trình chọn MOSFET 5 bước.
 
-🔁 **Dừng lại tự kiểm tra**: Motor 24 V / 5 A, dùng MOSFET $R_{DS(\text{on})}$ = 20 mΩ. Tính tổn hao $P$. So sánh với BJT $V_{CE(\text{sat})}$ = 1.2 V cùng dòng.
+🔁 **Thực hành**: Motor 24 V / 5 A, dùng MOSFET $R_{DS(\text{on})}$ = 20 mΩ. Tính tổn hao $P$. So sánh với BJT $V_{CE(\text{sat})}$ = 1.2 V cùng dòng.
 
 <details>
 <summary>Đáp án</summary>

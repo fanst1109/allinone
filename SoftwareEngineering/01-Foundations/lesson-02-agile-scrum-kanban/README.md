@@ -38,7 +38,7 @@ Ngoài 4 giá trị còn có **12 nguyên tắc**, nhưng tinh thần gói trong
 
 > ⚠ **Lỗi thường gặp.** Coi Agile là "một quy trình có các bước cố định phải làm theo". Agile là *tư duy*; Scrum và Kanban mới là các *framework cụ thể* hiện thực tư duy đó. Nói "chúng tôi làm Agile" mà thực ra chỉ là họp đứng mỗi sáng còn lại y hệt Waterfall — đó là "Agile giả" (cargo-cult Agile).
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đội tự hào "chúng tôi rất Agile" nhưng từ chối mọi thay đổi yêu cầu sau khi sprint đã chốt phạm vi đầu dự án 6 tháng, viện cớ "kế hoạch là kế hoạch". Họ vi phạm giá trị nào?
+> 🔁 **Thực hành.** Một đội tự hào "chúng tôi rất Agile" nhưng từ chối mọi thay đổi yêu cầu sau khi sprint đã chốt phạm vi đầu dự án 6 tháng, viện cớ "kế hoạch là kế hoạch". Họ vi phạm giá trị nào?
 > <details><summary>Đáp án</summary>Giá trị thứ 4 — <b>"Phản hồi với thay đổi hơn là bám theo kế hoạch"</b>. Khóa cứng phạm vi 6 tháng và từ chối thay đổi chính là tư duy Waterfall. Agile chia thành các vòng ngắn (sprint) chính để có thể đổi hướng mỗi vòng với chi phí thấp.</details>
 
 📝 **Tóm tắt mục 1.** Agile là **tư duy**: coi trọng con người, phần mềm chạy được, cộng tác với khách và phản hồi với thay đổi hơn là quy trình cứng, tài liệu thừa, hợp đồng và kế hoạch bất biến. Nó *cụ thể hóa* mô hình lặp của Lesson 01. Scrum/Kanban là các framework hiện thực tư duy này.
@@ -87,7 +87,7 @@ Ngoài 4 giá trị còn có **12 nguyên tắc**, nhưng tinh thần gói trong
 
 > ⚠ **Lỗi thường gặp.** (1) Biến **Daily Standup** thành buổi báo cáo cho sếp dài 45 phút — sai, nó là 15 phút để *nhóm tự đồng bộ*, ai cần bàn sâu thì tách ra sau. (2) Bỏ **Retrospective** vì "bận quá" — đây là sự kiện *cải tiến chính*; bỏ nó thì nhóm lặp lại cùng lỗi mãi. (3) Đổi phạm vi sprint giữa chừng — phạm vi *trong* một sprint nên ổn định; thay đổi đợi sprint sau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sắp các từ sau vào đúng nhóm (Role / Artefact / Event): Product Owner, Sprint Backlog, Daily Standup, Increment, Retrospective, Scrum Master.
+> 🔁 **Thực hành.** Sắp các từ sau vào đúng nhóm (Role / Artefact / Event): Product Owner, Sprint Backlog, Daily Standup, Increment, Retrospective, Scrum Master.
 > <details><summary>Đáp án</summary><b>Role</b>: Product Owner, Scrum Master. <b>Artefact</b>: Sprint Backlog, Increment. <b>Event</b>: Daily Standup, Retrospective. (Mẹo nhớ: Role = người; Artefact = thứ tạo ra/danh sách; Event = buổi họp/khung thời gian.)</details>
 
 📝 **Tóm tắt mục 2.** Scrum = framework lặp **có nhịp cố định** (Sprint, thường 2 tuần). **3 vai trò** (PO quyết làm gì, SM phục vụ/gỡ cản, Dev Team tự tổ chức), **3 artefact** (Product Backlog → Sprint Backlog → Increment), **5 sự kiện** (Sprint, Planning, Daily, Review, Retro). Cuối mỗi sprint phải có Increment chạy được.
@@ -145,7 +145,7 @@ Giả sử mỗi việc cần **4 ngày-công** để hoàn thành, một ngư�
 
 > ⚠ **Lỗi thường gặp.** (1) Đặt giới hạn WIP quá cao (vd =10 cho nhóm 3 người) → vô nghĩa, vì chẳng bao giờ chạm trần. (2) Coi Kanban là "bảng To-Do đẹp" mà *bỏ giới hạn WIP* — mất hẳn lợi ích chính. (3) Lén "giấu" việc dở để né giới hạn → tự lừa mình.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhóm 3 người, cột In Progress đang có đúng 3 thẻ (WIP=3, đã chạm trần). Một thẻ kẹt vì chờ API bên ngoài. Theo tinh thần Kanban, nên làm gì: (a) nhận thêm thẻ mới từ To Do để khỏi "rảnh", hay (b) cả nhóm xúm gỡ thẻ đang kẹt?
+> 🔁 **Thực hành.** Nhóm 3 người, cột In Progress đang có đúng 3 thẻ (WIP=3, đã chạm trần). Một thẻ kẹt vì chờ API bên ngoài. Theo tinh thần Kanban, nên làm gì: (a) nhận thêm thẻ mới từ To Do để khỏi "rảnh", hay (b) cả nhóm xúm gỡ thẻ đang kẹt?
 > <details><summary>Đáp án</summary>(b). Giới hạn WIP đã chạm trần nên <b>không kéo thêm thẻ mới</b> — đó chính là mục đích của WIP. Việc đúng là cùng nhau gỡ thẻ kẹt (vd: tạm mock API, hoặc đổi người gọi điện cho đối tác). Kanban biến "thẻ kẹt" thành vấn đề của <i>cả nhóm</i>, không phải của riêng người ôm thẻ.</details>
 
 📝 **Tóm tắt mục 3.** Kanban = **luồng liên tục** (không sprint), trực quan hóa công việc bằng **bảng cột** (To Do / In Progress / Done), và **giới hạn WIP** mỗi cột. Giới hạn WIP buộc *làm xong rồi mới nhận mới* → giảm context switching, giá trị tới tay người dùng sớm và đều hơn, lộ ra bottleneck.
@@ -174,7 +174,7 @@ Giả sử mỗi việc cần **4 ngày-công** để hoàn thành, một ngư�
 
 > ⚠ **Lỗi thường gặp.** Chọn framework theo "mốt" thay vì theo bản chất công việc. Đội support bị ép chạy Scrum sprint 2 tuần sẽ khổ vì bug khẩn không đợi hết sprint; đội làm sản phẩm dùng Kanban thuần không sprint có thể thiếu nhịp demo/đồng bộ đều đặn. Chọn theo *tính chất luồng việc*, không theo tên gọi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đội nhận yêu cầu sửa lỗi từ khách *bất cứ lúc nào trong ngày*, mỗi việc kích thước khác nhau, ưu tiên đổi liên tục theo mức độ khẩn. Scrum hay Kanban hợp hơn?
+> 🔁 **Thực hành.** Một đội nhận yêu cầu sửa lỗi từ khách *bất cứ lúc nào trong ngày*, mỗi việc kích thước khác nhau, ưu tiên đổi liên tục theo mức độ khẩn. Scrum hay Kanban hợp hơn?
 > <details><summary>Đáp án</summary><b>Kanban</b>. Việc tới liên tục & không đoán trước, ưu tiên đổi thường xuyên — đúng điểm mạnh của luồng liên tục + giới hạn WIP. Ép vào sprint 2 tuần sẽ vướng vì không thể "đợi sprint sau" với một bug khẩn.</details>
 
 📝 **Tóm tắt mục 4.** Scrum = nhịp sprint cố định + vai trò + ceremony, hợp với phát triển sản phẩm có ưu tiên tương đối ổn định. Kanban = luồng liên tục + giới hạn WIP, hợp với việc tới liên tục/đổi ưu tiên thường xuyên (support, ops). **Scrumban** = lai cả hai. Chọn theo *bản chất luồng việc*, không theo mốt.
@@ -242,7 +242,7 @@ Giả sử mỗi việc cần **4 ngày-công** để hoàn thành, một ngư�
 
 > ⚠ **Lỗi thường gặp.** (1) Dùng velocity làm *chỉ tiêu thi đua* ("sprint sau phải tăng 25%!") → nhóm thổi phồng story point, số liệu mất ý nghĩa. (2) Đếm cả việc *làm dở* vào velocity — chỉ tính việc *đạt Done*. (3) Tưởng story point = giờ và quy đổi cứng "1 điểm = 4 giờ" — mất hẳn tính tương đối.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sprint 2 tuần (10 ngày làm việc), nhận 20 điểm. Đến hết ngày 5 mới hoàn thành 4 điểm (còn 16). Burndown đang nói gì? Nên làm gì?
+> 🔁 **Thực hành.** Sprint 2 tuần (10 ngày làm việc), nhận 20 điểm. Đến hết ngày 5 mới hoàn thành 4 điểm (còn 16). Burndown đang nói gì? Nên làm gì?
 > <details><summary>Đáp án</summary>Lý tưởng hết ngày 5 (nửa sprint) nên còn ~10 điểm, nhưng thực tế còn <b>16</b> → đường thực tế nằm <b>trên</b> đường lý tưởng → <b>đang trễ rõ rệt</b>. Hành động: nêu ngay ở Daily Standup, tìm vật cản đang làm chậm, và bàn với PO <b>cắt bớt phạm vi sprint</b> (bỏ hạng mục ưu tiên thấp) thay vì "cố nhồi" rồi giao đồ kém chất lượng.</details>
 
 📝 **Tóm tắt mục 5.** **Story point** = ước lượng *tương đối* độ lớn (không phải giờ). **Velocity** = điểm *hoàn thành* mỗi sprint, dùng để một đội *dự báo chính nó* (không so sánh giữa đội). **Burndown** = điểm còn lại theo ngày: trên đường lý tưởng = trễ, dưới = nhanh, ngang = kẹt.

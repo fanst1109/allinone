@@ -44,7 +44,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng thứ tự OBAFGKM theo bảng chữ cái logic. Thực ra nó là *di sản lịch sử*: ban đầu xếp theo độ mạnh vạch hydro (A, B, C...), sau sắp lại theo nhiệt độ và bỏ bớt lớp → còn lại trật tự "lộn xộn" này. Cứ học thuộc câu thần chú.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao lớp K nóng hơn hay lạnh hơn một sao lớp A?
+> 🔁 **Thực hành.** Một sao lớp K nóng hơn hay lạnh hơn một sao lớp A?
 > <details><summary>Đáp án</summary>**Lạnh hơn.** Thứ tự nóng→lạnh là O B A F G K M; K đứng sau A nên lạnh hơn (A ~7500–10000 K, K ~3700–5200 K).</details>
 
 ---
@@ -96,7 +96,7 @@ Kiểm chứng Betelgeuse: $\\left(\\dfrac{3500}{5778}\\right)^4 = 0{,}6058^4 = 
 
 > ⚠ **Lỗi thường gặp.** Nghĩ H-R là "ảnh chụp đường đi của một sao". Sai — H-R là **ảnh chụp một quần thể** nhiều sao khác nhau tại cùng thời điểm. Đường tiến hóa của *một* sao là một quỹ đạo riêng vẽ chồng lên đó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao rất nóng ($T = 20000 \\ \\text{K}$) nhưng độ trưng chỉ $0{,}01 \\ L_\\odot$. Nó nằm ở vùng nào, và bán kính cỡ bao nhiêu?
+> 🔁 **Thực hành.** Một sao rất nóng ($T = 20000 \\ \\text{K}$) nhưng độ trưng chỉ $0{,}01 \\ L_\\odot$. Nó nằm ở vùng nào, và bán kính cỡ bao nhiêu?
 > <details><summary>Đáp án</summary>Vùng **lùn trắng** (dưới-trái: nóng mà mờ). Bán kính: $0{,}01 = \\left(\\dfrac{R}{R_\\odot}\\right)^2 \\left(\\dfrac{20000}{5778}\\right)^4 = \\left(\\dfrac{R}{R_\\odot}\\right)^2 \\times 143{,}6$ → $\\left(\\dfrac{R}{R_\\odot}\\right)^2 = 6{,}96 \\times 10^{-5}$ → $\\dfrac{R}{R_\\odot} \\approx 0{,}0083$ (cỡ Trái Đất).</details>
 
 ---
@@ -129,7 +129,7 @@ Kiểm chứng Betelgeuse: $\\left(\\dfrac{3500}{5778}\\right)^4 = 0{,}6058^4 = 
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao mũ ~3,5 chứ không phải 1?"* — Vì sao nặng nén lõi mạnh hơn → nhiệt độ lõi cao hơn → tốc độ nhiệt hạch *cực kỳ nhạy* với nhiệt độ → công suất tăng vọt. Hệ quả nghịch lý: sao nặng có *nhiều* nhiên liệu nhưng đốt *quá nhanh* nên sống *ngắn* hơn (Lesson 04).
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao $4 \\ M_\\odot$ sáng gấp mấy lần Mặt Trời (dải chính)?
+> 🔁 **Thực hành.** Sao $4 \\ M_\\odot$ sáng gấp mấy lần Mặt Trời (dải chính)?
 > <details><summary>Đáp án</summary>$\\dfrac{L}{L_\\odot} = 4^{3{,}5} = (2^2)^{3{,}5} = 2^7 = 128$ lần.</details>
 
 ---

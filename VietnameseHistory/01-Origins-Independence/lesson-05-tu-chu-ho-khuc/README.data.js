@@ -95,7 +95,7 @@ Khi triều đình trung ương suy yếu, chức Tiết độ sứ An Nam trở
 
 Không chính xác. Năm 905, Việt Nam chưa độc lập theo nghĩa đầy đủ — đây là **tự chủ trên thực tế** (de facto autonomy). Khúc Thừa Dụ vẫn nhận phong hàm từ nhà Đường, vẫn giữ danh nghĩa là quan lại của triều Đường. Độc lập hoàn toàn phải đợi đến Ngô Quyền đánh đuổi quân Nam Hán năm 938–939. Ý nghĩa của 905 là: người Việt lần đầu tiên nắm quyền điều hành chính trị – hành chính thực tế trên đất mình sau hơn một ngàn năm bị cai trị bởi người Hán.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Vì sao Khúc Thừa Dụ lại xin nhà Đường công nhận thay vì tuyên bố độc lập ngay lập tức?
 
@@ -187,7 +187,7 @@ Cải cách hành chính năm 907–917 quan trọng không phải vì quy mô h
 > **Vì sao không gọi là "nhà Khúc" thay vì "thời kỳ tự chủ"?**
 > Vì họ Khúc chưa lập triều đại độc lập theo đúng nghĩa (không xưng vua, không đặt niên hiệu riêng, không hoàn toàn đoạn tuyệt danh nghĩa với phương Bắc). Họ vẫn nhận phong hàm từ các triều phương Bắc. "Tự chủ" chính xác hơn: quyền thực tế trong tay người Việt, nhưng hình thức vẫn là một phần của hệ thống phong kiến Hán.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Trong ba cải cách của Khúc Hạo (đơn vị hành chính / thuế / hộ khẩu), cải cách nào có tác động lâu dài nhất đối với lịch sử Việt Nam? Vì sao?
 
@@ -268,7 +268,7 @@ Vì sao hành động này dẫn đến thảm họa cho chính Kiều Công Ti�
 > **Kiều Công Tiễn có bị lên án trong sử học không?**
 > Có. Các bộ sử Việt Nam từ Đại Việt sử ký toàn thư trở đi đều đánh giá Kiều Công Tiễn là kẻ phản thần, vô nghĩa. Tuy nhiên, cần đọc sử với tinh thần phê phán: sử được viết dưới các triều đại độc lập sau này, có xu hướng tô đậm tính chính thống và lên án những ai cản trở nền độc lập. Bối cảnh thực tế phức tạp hơn — Kiều Công Tiễn có thể có tính toán riêng về quyền lực, không đơn giản chỉ là "phản bội vì lòng tham".
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Nếu Kiều Công Tiễn không cầu viện Nam Hán, liệu Ngô Quyền có cơ hội đánh trận Bạch Đằng không? Điều gì sẽ khác đi?
 

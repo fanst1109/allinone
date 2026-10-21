@@ -81,7 +81,7 @@ Ví dụ: cọ thanh nhựa vào tóc → một số electron chuyển từ tóc
 - **Nhầm điện tích với dòng điện**. Điện tích $q$ (đơn vị Coulomb, C) là "lượng điện"; dòng điện $I$ (Ampere, $\text{A} = \text{C/s}$) là "điện tích chảy mỗi giây". Phản ví dụ: "bóng đèn dùng 2 C" sai nghĩa nếu ý là dòng — phải nói "2 A" (2 C mỗi giây).
 - **Tưởng có thể có điện tích $1{,}5 e$**. Không — điện tích tự do luôn là bội nguyên của $e$ (quark phân số không tồn tại tự do).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một vật mang điện tích $-3{,}2 \times 10^{-19} \text{ C}$. Nó thừa hay thiếu bao nhiêu electron?
 2. Cọ bóng bay vào tóc, bóng nhận thêm electron. Tóc mang điện gì?
@@ -151,7 +151,7 @@ Hướng: theo đường nối 2 điện tích. Đẩy nếu cùng dấu, hút n
 - **Quên bình phương $r$**. Phản ví dụ: 2 điện tích 1 μC cách 0.1 m $\to F = 9 \times 10^9 \cdot (10^{-6})^2/(0{,}1)^2 = 9 \times 10^9 \cdot 10^{-12}/0{,}01 = $ **0,9 N**. Nếu quên bình phương (chia 0.1): được 0.09 N — sai 10 lần.
 - **Dùng đơn vị μC trực tiếp mà không đổi sang C**: $5 \text{ μC} = 5 \times 10^{-6} \text{ C}$, không phải 5.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. 2 điện tích cách nhau 2 cm có lực 8 N. Nếu kéo ra 4 cm (gấp đôi), lực còn bao nhiêu?
 2. Tính lực giữa 2 điện tích +2 μC và +2 μC cách 10 cm.
@@ -201,7 +201,7 @@ $$\vec{F}_{\text{tổng}} = \vec{F}_1 + \vec{F}_2 + \vec{F}_3 + \dots$$
 - **Cộng độ lớn các lực như số vô hướng**. Phản ví dụ: 2 lực 3 N vuông góc → tổng KHÔNG phải 6 N mà là $\sqrt{3^2+3^2} = \sqrt{18} \approx$ **4,24 N**. Phải cộng vector.
 - **Quên hướng (dấu) khi cộng trên cùng một trục**: lực đẩy về phải (+) và lực đẩy về trái (−) phải trừ nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một điện tích chịu 2 lực: 4 N hướng phải và 3 N hướng lên (vuông góc). Lực tổng độ lớn bao nhiêu?
 2. 2 điện tích +q đặt 2 bên cách đều một điện tích thử. Lực tổng lên điện tích thử bằng bao nhiêu?
@@ -252,7 +252,7 @@ $$\vec{F}_{\text{tổng}} = \vec{F}_1 + \vec{F}_2 + \vec{F}_3 + \dots$$
 - **Tưởng dây điện nguy hiểm vì electron "chảy nhanh"**. Thực ra electron trôi rất chậm (~mm/s); nguy hiểm vì **năng lượng** truyền nhanh (gần tốc độ ánh sáng dọc dây) và dòng lớn gây nhiệt.
 - **Nhầm "cách điện" là "không có điện tích"**: vật cách điện vẫn tích điện được, chỉ là điện tích **không lan** mà ở nguyên chỗ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đặt điện tích lên một quả cầu kim loại rỗng — điện tích phân bố ở đâu?
 2. Gỗ khô và gỗ ướt, cái nào dẫn điện tốt hơn?

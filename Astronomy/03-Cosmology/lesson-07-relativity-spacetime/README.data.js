@@ -42,7 +42,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng giãn thời gian là "ảo giác đo đạc". Không — nó **thật**: hạt muon sinh ở thượng tầng khí quyển, lẽ ra phân rã trước khi tới mặt đất, nhưng vì bay gần \`c\` nên "đồng hồ riêng" của chúng chạy chậm → kịp tới mặt đất. Ta đo được nhiều muon hơn dự đoán cổ điển → bằng chứng trực tiếp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ở $v = 0{,}6c$, tính $\\gamma$.
+> 🔁 **Thực hành.** Ở $v = 0{,}6c$, tính $\\gamma$.
 > <details><summary>Đáp án</summary>$v^2/c^2 = 0{,}36$; $1 - 0{,}36 = 0{,}64$; $\\sqrt{0{,}64} = 0{,}8$; $\\gamma = 1/0{,}8 = $ **1.25**. Đồng hồ chuyển động chạy chậm 25%.</details>
 
 ---
@@ -59,7 +59,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp với analogy tấm cao su.** Đây là *toy model* 2D: tấm cao su lõm "xuống" nhờ chính... hấp dẫn của Trái Đất kéo quả bóng — tức nó dùng cái nó định giải thích. Hạn chế: (1) thực tế là **không-thời gian 4D** cong, không phải mặt 2D; (2) thời gian cũng cong, không chỉ không gian; (3) không có "phía dưới" để lõm vào. Dùng để *hình dung*, đừng coi là cơ chế thật.
 
-> 🔁 **Dừng lại tự kiểm tra.** Theo tương đối tổng quát, vì sao ánh sáng (không có khối lượng nghỉ) vẫn bị hấp dẫn bẻ cong?
+> 🔁 **Thực hành.** Theo tương đối tổng quát, vì sao ánh sáng (không có khối lượng nghỉ) vẫn bị hấp dẫn bẻ cong?
 > <details><summary>Đáp án</summary>Vì ánh sáng đi theo đường "thẳng nhất" trong không-thời gian, mà chính không-thời gian đã cong gần khối lượng. Không cần ánh sáng "có khối lượng để bị kéo" — nó chỉ đang đi thẳng trên một sàn cong. (Newton không giải thích nổi điều này một cách nhất quán.)</details>
 
 ---
@@ -111,7 +111,7 @@ $$\\text{sai khoảng cách} = c \\times \\Delta t = 3 \\times 10^{8} \\ \\text{
 
 > ⚠ **Lỗi thường gặp.** Nghĩ chỉ có một hiệu ứng. GPS có **hai** hiệu ứng *ngược chiều*: tốc độ (SR) làm chậm, độ cao (GR) làm nhanh. Phải cộng cả hai (kết quả ròng +38 µs/ngày). Bỏ qua một cái → vẫn sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu kỹ sư chỉ hiệu chỉnh hiệu ứng tương đối hẹp (−7 µs) mà quên tương đối tổng quát (+45 µs), sai số đồng hồ còn lại mỗi ngày là bao nhiêu?
+> 🔁 **Thực hành.** Nếu kỹ sư chỉ hiệu chỉnh hiệu ứng tương đối hẹp (−7 µs) mà quên tương đối tổng quát (+45 µs), sai số đồng hồ còn lại mỗi ngày là bao nhiêu?
 > <details><summary>Đáp án</summary>Còn +45 µs/ngày chưa bù → tương đương ~13.5 km sai vị trí mỗi ngày. Vẫn hỏng. Cả hai hiệu ứng đều bắt buộc.</details>
 
 ---

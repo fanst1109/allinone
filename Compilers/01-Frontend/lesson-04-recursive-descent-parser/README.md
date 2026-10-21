@@ -86,7 +86,7 @@ Tầng grammar ép sẵn ưu tiên: `*` ở luật `T` (sâu hơn), `+` ở lu�
 > - *"Vì sao một hàm cho mỗi non-terminal, không phải một hàm khổng lồ?"* Vì grammar phân tầng theo non-terminal; tách hàm theo tầng giúp ưu tiên tự đúng (hàm tầng sâu chạy trước, kết quả của nó nằm dưới trong cây) và code khớp 1-1 với grammar nên dễ kiểm tra.
 > - *"Parser có cần backtrack (thử rồi lùi) không?"* Với grammar LL(1) (mục 5) thì **không** — chỉ cần nhìn 1 token phía trước (lookahead) là biết đi nhánh nào. Đây là điều làm recursive-descent nhanh và đơn giản.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với grammar `E → E + T | T`, `T → T * F | F`, `F → (E) | num`, hàm nào sẽ được gọi để xử lý token `(` ?
+> 🔁 **Thực hành.** Với grammar `E → E + T | T`, `T → T * F | F`, `F → (E) | num`, hàm nào sẽ được gọi để xử lý token `(` ?
 > <details><summary>Đáp án</summary>
 > `parseFactor()`. Chỉ luật của `F` mới bắt đầu bằng `(`. Khi `parseFactor` thấy `(`, nó consume `(`, gọi `parseExpr()` để đọc biểu thức bên trong, rồi `expect` một `)`.
 > </details>
@@ -175,7 +175,7 @@ func parseFactor() Node {
 
 Ba hàm này gọi nhau thành đúng một vòng theo grammar: `parseExpr → parseTerm → parseFactor → (qua ngoặc) → parseExpr`. Vòng đệ quy chỉ khép lại qua `(`, nên với biểu thức không ngoặc, đệ quy "đi xuống" tuyến tính rồi quay lên.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong `parseExpr` đã khử đệ quy trái, nếu **quên dòng `t := parseTerm()` ban đầu** mà nhảy thẳng vào `for peek() == PLUS` thì chuyện gì xảy ra với input `2 + 3`?
+> 🔁 **Thực hành.** Trong `parseExpr` đã khử đệ quy trái, nếu **quên dòng `t := parseTerm()` ban đầu** mà nhảy thẳng vào `for peek() == PLUS` thì chuyện gì xảy ra với input `2 + 3`?
 > <details><summary>Đáp án</summary>
 > Token đầu là `NUM(2)`, không phải `PLUS`, nên `peek() == PLUS` sai ngay → vòng `for` không chạy lần nào → hàm trả về `t` đang là `nil` (chưa gán). Biểu thức `2+3` bị parse thành "rỗng", còn `+ 3` thì thừa lại → lỗi. Phải đọc toán hạng đầu TRƯỚC vòng lặp.
 > </details>
@@ -259,7 +259,7 @@ Kiểm tra vòng lặp `parseExpr` lần nữa: `peek()` = EOF ≠ `PLUS` → d�
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao ở Bước 4 `parseTerm` nhả `2` ra mà không nuốt luôn `+`?"* Vì `parseTerm` chỉ lặp khi token kế là `*`. Token kế là `+`, không thuộc "việc" của `parseTerm`, nên nó trả quyền lại cho `parseExpr` — đúng người xử lý `+`. Cơ chế "ai gặp token của mình thì xử lý, không thì trả về" chính là cách ưu tiên được phân tầng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tự parse `2 * 3 + 4` (đảo vị trí toán tử). Cây cuối là gì, kết quả bao nhiêu?
+> 🔁 **Thực hành.** Tự parse `2 * 3 + 4` (đảo vị trí toán tử). Cây cuối là gì, kết quả bao nhiêu?
 > <details><summary>Đáp án</summary>
 > `parseExpr → parseTerm`: `parseTerm` đọc `2`, thấy `*` → lặp, đọc `3`, dựng `(2*3)`; token kế `+` ≠ `*` → `parseTerm` trả `(2*3)`. Về `parseExpr`: `t = (2*3)`, thấy `+` → lặp, đọc Term phải = `4`. Cây: `BinaryOp("+", (2*3), 4)`. Tính: `2*3=6`, `6+4=10`.
 > ```
@@ -324,7 +324,7 @@ func (p *Parser) expect(k Kind) Token {
 
 > ❓ **Câu hỏi tự nhiên.** *"Có cần token EOF không?"* Rất nên. Thêm một token giả `EOF` ở cuối stream giúp `peek()` luôn an toàn (không tràn mảng) và để `expect(EOF)` bắt lỗi "token thừa" (trường hợp 4). Trong code thực, lexer tự chèn `EOF`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với input `2 + * 3`, đúng token nào gây lỗi và message là gì?
+> 🔁 **Thực hành.** Với input `2 + * 3`, đúng token nào gây lỗi và message là gì?
 > <details><summary>Đáp án</summary>
 > Token gây lỗi: `STAR` (`*`) ở vị trí 2. Sau khi `parseExpr` consume `+`, nó gọi `parseTerm → parseFactor`; `parseFactor` cần NUM hoặc `(` nhưng gặp `STAR` → `syntax error: expect NUM hoặc '(' got STAR`.
 > </details>

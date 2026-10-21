@@ -80,7 +80,7 @@ $$\\begin{aligned}
 
 > ⚠ **Lỗi thường gặp.** Tưởng độ sâu tỉ lệ với $R_p$ (bậc 1). KHÔNG — nó tỉ lệ **bình phương** $R_p/R_*$. Tăng bán kính hành tinh gấp đôi → độ sâu gấp **bốn**, không phải gấp đôi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một hành tinh có $R_p = 2 \\, R_\\oplus$ quá cảnh một sao cỡ Mặt Trời. Độ sâu gấp mấy lần so với Trái Đất quá cảnh cùng sao đó?
+> 🔁 **Thực hành.** Một hành tinh có $R_p = 2 \\, R_\\oplus$ quá cảnh một sao cỡ Mặt Trời. Độ sâu gấp mấy lần so với Trái Đất quá cảnh cùng sao đó?
 > <details><summary>Đáp án</summary>$\\delta \\propto R_p^2$ nên gấp $2^2 = $ **4 lần**. Trái Đất ~0.0084% → hành tinh này ~0.034%.</details>
 
 ### 2.2 Vận tốc xuyên tâm (Radial Velocity)
@@ -124,7 +124,7 @@ Khi một sao (kèm hành tinh) đi ngang trước một sao nền xa hơn, hấ
 
 > ⚠ **Lỗi thường gặp.** "Trong vùng sống được = chắc chắn có sự sống/ở được". Sai — vùng sống được chỉ là *điều kiện cần về nhiệt độ*. Còn cần khí quyển phù hợp, từ trường che bức xạ, không bị khóa thủy triều bất lợi... Nó là sàng lọc bước đầu, không phải kết luận.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao vùng sống được của một sao lùn đỏ (mờ) lại gần sao hơn nhiều so với của Mặt Trời?
+> 🔁 **Thực hành.** Vì sao vùng sống được của một sao lùn đỏ (mờ) lại gần sao hơn nhiều so với của Mặt Trời?
 > <details><summary>Đáp án</summary>Vì sao lùn đỏ phát ít năng lượng → muốn nhận đủ nhiệt cho nước lỏng, hành tinh phải nằm sát hơn. Như ngồi gần lửa nhỏ thì phải xích lại gần mới ấm.</details>
 
 ---
@@ -173,7 +173,7 @@ N &= 1{,}5 \\times 1 \\times 0{,}4 \\times 0{,}5 \\times 0{,}1 \\times 0{,}2 \\t
 
 > ⚠ **Lỗi thường gặp.** Lấy phương trình Drake làm "bằng chứng" có/không có người ngoài hành tinh. Nó chỉ phơi bày sự bất định: vì các thừa số nhân nhau, một thừa số nhỏ kéo cả tích về gần 0; một thừa số lớn đẩy lên hàng nghìn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Giữ nguyên bộ giá trị minh họa nhưng đặt $f_l = 0{,}05$ (sự sống hiếm hơn). $N$ mới bằng bao nhiêu?
+> 🔁 **Thực hành.** Giữ nguyên bộ giá trị minh họa nhưng đặt $f_l = 0{,}05$ (sự sống hiếm hơn). $N$ mới bằng bao nhiêu?
 > <details><summary>Đáp án</summary>So với bộ gốc, $f_l$ giảm từ 0,5 xuống 0,05 = chia 10. Vậy $N = 60/10 = $ **6**. Một thừa số giảm 10 lần → $N$ giảm đúng 10 lần (vì là tích).</details>
 
 ---

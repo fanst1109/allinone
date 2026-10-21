@@ -106,7 +106,7 @@ Chú ý công ty S có **tiền mặt nhiều hơn nợ** → nợ ròng âm →
 > - *"Vì sao EV/EBITDA thường ưa dùng hơn P/E?"* → Vì trung tính với nợ và thuế; cũng dùng được cho công ty lỗ ròng nhưng EBITDA vẫn dương.
 > - *"Bội số có cho biết giá trị đúng không?"* → Không. Nó chỉ nói *tương đối* so với nhóm so sánh. Nếu cả ngành đang bong bóng, bội số cao dẫn bạn định giá quá cao theo. Đây là lý do cần DCF để kiểm tra độc lập.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Cổ phiếu giá 72, EPS = 6. P/E bằng bao nhiêu? Nếu ngành P/E = 10 thì đắt hay rẻ?
 > 2. EBITDA = 150, EV/EBITDA ngành = 8, nợ ròng = 200. Equity value bằng bao nhiêu?
 >
@@ -228,7 +228,7 @@ $$\\text{Equity value} = 1{,}403.07 - 150 = 1{,}253.07$$
 > - *"$r$ lấy con số nào?"* → WACC của công ty, ước lượng từ CAPM (chi phí vốn cổ phần) + chi phí nợ. Học kỹ ở [Finance · CAPM & beta](../../../Finance/02-Investing/lesson-06-capm-beta/).
 > - *"DCF và bội số cái nào đúng?"* → Không cái nào tuyệt đối. DCF cho giá trị *nội tại* dựa trên giả định của bạn; bội số cho giá trị *thị trường tương đối*. Dùng cả hai và đối chiếu.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. FCF năm 5 = 146.93, $r = 12\\%$, $g = 3\\%$. Terminal value cuối năm 5 bằng bao nhiêu?
 > 2. Nếu nợ ròng đổi từ 150 thành 400 (giữ EV = 1,403.07), Equity value bằng bao nhiêu?
 >

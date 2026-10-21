@@ -212,7 +212,7 @@ Ba tầng của lĩnh vực Lịch sử thế giới bao phủ hơn 5.000 năm: 
 | 1945–1991 | Chiến tranh Lạnh; phi thực dân hóa | Kháng chiến chống Pháp (1946–1954); Chiến tranh Việt Nam (1955–1975); thống nhất 1975; Đổi Mới 1986 |
 | 1991–nay | Thế giới đương đại | Bình thường hóa quan hệ với Mỹ 1995; gia nhập ASEAN 1995, WTO 2007; kinh tế mở cửa |
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Nhìn vào bảng trên: tại thời điểm Cách mạng Pháp 1789 (một trong những sự kiện định hình thế giới hiện đại nhất), Việt Nam đang trong giai đoạn nào?
 

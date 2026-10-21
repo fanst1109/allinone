@@ -355,7 +355,7 @@ Chi tiết ở mục 7.
 
 $f(x) = x$ (domain $\mathbb{R}$) và $g(x) = x^2/x$ (domain $\mathbb{R} \setminus \{0\}$) **không** phải cùng một hàm, dù $f(x) = g(x)$ tại mọi $x \neq 0$. Lý do: tại $x = 0$, $f(0) = 0$ tính được, còn $g(0)$ không xác định. **Domain khác → hàm khác**.
 
-### 🔁 Dừng lại tự kiểm tra (mục 1)
+### 🔁 Thực hành (mục 1)
 
 Trước khi đi tiếp, hãy tự trả lời:
 
@@ -522,7 +522,7 @@ Cách: căn bậc 2 lấy nhánh không âm. $\sqrt{0} = 0$, $\sqrt{4} = 2$, $\s
 
 Vì vậy, mỗi khi tìm range, **luôn nhớ domain đang là gì**.
 
-### 🔁 Dừng lại tự kiểm tra (mục 2)
+### 🔁 Thực hành (mục 2)
 
 1. Tìm domain của $f(x) = \sqrt{x^2 - 9}$.
 2. Tìm domain của $g(x) = \ln(4 - x) / \sqrt{x + 2}$.
@@ -971,7 +971,7 @@ Ví dụ: $f(x) = x + 1$, $g(x) = 2x$, $h(x) = x^2$. Tính $(h \circ g \circ f)(
 
 Đây chính là cấu trúc của neural network (xem mục 8).
 
-### 🔁 Dừng lại tự kiểm tra (mục 6)
+### 🔁 Thực hành (mục 6)
 
 1. Cho $f(x) = x - 1$, $g(x) = x^2$. Tính $(g \circ f)(4)$ và $(f \circ g)(4)$.
 2. Lập công thức tổng quát cho $(g \circ f)(x)$ và $(f \circ g)(x)$ ở câu 1.
@@ -1195,7 +1195,7 @@ Mỗi cặp điểm $(a, b)$ của $f$ và $(b, a)$ của $f^{-1}$ đối xứng
 
 Visualization sẽ vẽ rõ điều này.
 
-### 🔁 Dừng lại tự kiểm tra (mục 7)
+### 🔁 Thực hành (mục 7)
 
 1. Tìm hàm ngược của $f(x) = 4x - 5$.
 2. Tìm hàm ngược của $g(x) = 1/(x + 2)$.

@@ -69,7 +69,7 @@ A: Chúng được tạo ra ở đường phân và Krebs khi glucose **bị oxy
 - **Quên rằng đây là redox**: nếu chỉ nhớ "glucose + O₂ → CO₂ + H₂O" mà không hiểu electron chuyển từ glucose sang O₂, bạn sẽ không hiểu năng lượng đến từ đâu.
 - **Tưởng O₂ tham gia ngay từ đầu**: O₂ chỉ được dùng ở **bước cuối cùng** (chuỗi truyền electron), làm chất nhận electron cuối. Đường phân và Krebs không trực tiếp dùng O₂.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Trong hô hấp tế bào, chất nào bị oxy hóa, chất nào bị khử?
 2. Nếu ΔG = −686 kcal/mol và tạo ~32 ATP, mỗi ATP "trả" khoảng bao nhiêu kcal nếu mỗi ATP lưu ~7.3 kcal/mol? Phần năng lượng còn lại đi đâu?
@@ -134,7 +134,7 @@ A: **Không**. Đây là điểm cực kỳ quan trọng: đường phân chạy
 - **Quên 2 NADH**: nhiều người chỉ nhớ "2 ATP" mà quên 2 NADH — sau này 2 NADH này cho thêm ~5 ATP ở chuỗi truyền electron, nên rất đáng kể.
 - **Tưởng glucose biến thành CO₂ ngay**: chưa. Sản phẩm của đường phân là **pyruvate (3C)**, chưa có CO₂.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Đường phân của 4 glucose cho ròng bao nhiêu ATP, bao nhiêu NADH, bao nhiêu pyruvate?
 2. Vì sao đường phân được coi là con đường "phổ quát" cho mọi sinh vật?
@@ -218,7 +218,7 @@ A: Chính từ bước **pyruvate → acetyl-CoA** và **chu trình Krebs**. M�
 - **Tính ATP của Krebs là chính**: Krebs chỉ tạo **2 ATP trực tiếp** cho mỗi glucose; "tài sản thật" của Krebs là **NADH + FADH₂** (sẽ thành nhiều ATP ở giai đoạn 3).
 - **Tưởng Krebs cần O₂ trực tiếp**: Krebs không dùng O₂ trong các phản ứng của nó, nhưng nó **phụ thuộc** O₂ gián tiếp — nếu chuỗi truyền electron tắc (thiếu O₂), NADH không được "đổ" lại thành NAD⁺ → Krebs cũng dừng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một glucose đi hết tới cuối Krebs tạo tổng cộng bao nhiêu NADH, FADH₂, ATP trực tiếp, và CO₂?
 2. Nếu một tế bào thải ra 30 phân tử CO₂ từ hô hấp hiếu khí, nó đã oxy hóa hết mấy phân tử glucose?
@@ -289,7 +289,7 @@ A: FADH₂ đưa electron vào chuỗi ở **một bậc thấp hơn** NADH (b�
 - **Quên O₂ thành H₂O**: O₂ không "biến mất" — nó nhận electron + H⁺ thành **H₂O** (6 H₂O trong phương trình tổng đến từ đây).
 - **Dùng lẫn lộn 2 quy ước**: hoặc dùng cả bộ (2.5/1.5) hoặc cả bộ (3/2), **không trộn** — trộn ra số sai.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Theo quy ước hiện đại, 10 NADH + 2 FADH₂ cho bao nhiêu ATP qua chuỗi truyền electron?
 2. Vì sao chất độc chặn chuỗi truyền electron lại nguy hiểm dù người vẫn hít thở bình thường?
@@ -370,7 +370,7 @@ A: Vì **~28 ATP còn lại đến từ chuỗi truyền electron** — nơi 10 
 - **Trộn tỉ giá**: dùng 2.5 cho NADH nhưng 2 cho FADH₂ → sai. Chọn một bộ và giữ nguyên.
 - **Quên ATP trực tiếp**: nhớ cộng 4 ATP substrate-level (2 đường phân + 2 Krebs).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tính tổng ATP từ **3 glucose** theo quy ước hiện đại, kèm CO₂ và O₂.
 2. Một bài toán cho tổng 10 NADH + 2 FADH₂ + 4 ATP trực tiếp. Tính ATP theo cả 2 quy ước.
@@ -422,7 +422,7 @@ A: Không. So với động cơ nhiệt (~25%) và bóng đèn sợi đốt (~5%
 - **Dùng nhầm số ATP khi tính hiệu suất**: phải thống nhất — nếu tính theo 32 ATP thì dùng 32, theo 38 thì dùng 38, ra hiệu suất khác nhau (34% vs 40%).
 - **Quên 7.3 kcal/mol cho mỗi ATP**: đây là năng lượng tự do thủy phân ATP → ADP trong điều kiện chuẩn (xem Lesson 04).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tính hiệu suất nếu thu được 30 ATP/glucose.
 2. Nếu một tế bào chuyển sang lên men, hiệu suất tụt từ ~34% xuống bao nhiêu? Số ATP giảm bao nhiêu lần?
@@ -492,7 +492,7 @@ A: Nấm men lên men rượu, thải **CO₂**. Bọt CO₂ bị mắc trong m�
 - **Nghĩ lactic acid là "chất độc gây mỏi vĩnh viễn"**: nó tích tạm thời, được chuyển hóa lại khi có O₂; cảm giác mỏi là tín hiệu chứ không phải tổn thương vĩnh viễn.
 - **Nhầm lên men rượu xảy ra ở cơ người**: cơ người dùng **lên men lactic**, không phải rượu. Lên men rượu là của nấm men và một số vi khuẩn.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một vận động viên dùng 50 glucose. Nếu có đủ O₂ thì thu bao nhiêu ATP? Nếu hoàn toàn lên men thì bao nhiêu? Gấp mấy lần?
 2. Vì sao lên men "đáng phí" mà tế bào vẫn dùng?

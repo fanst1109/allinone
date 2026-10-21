@@ -247,7 +247,7 @@ Projection có **$\det = 0$** (bóp dẹt mặt phẳng thành đường thẳng
 > - **Quên rằng shear bảo toàn diện tích**: $\det(\text{shear}) = 1 \cdot 1 - k \cdot 0 = 1$. Mặt phẳng bị "nghiêng" nhưng diện tích các hình không đổi.
 > - **Tưởng projection là invertible**: KHÔNG. Projection mất thông tin (mọi điểm trên đường thẳng song song với hướng chiếu đều map vào cùng 1 điểm). $\det = 0$ → không có inverse.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Ma trận $\begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix}$ là biến đổi gì?
 > 2. Ma trận $\begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix}$ (chú ý dấu) là biến đổi gì?
@@ -502,7 +502,7 @@ Cho $A$ kích thước $m \times n$:
 | $\operatorname{rank}(A) = n = m$ | **Invertible** (vuông) | $A^{-1}$ tồn tại, $\det \neq 0$ |
 | $\operatorname{rank}(A) = 0$ | **Zero matrix** | Toàn ma trận = 0 |
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Tính rank và nullity của $A = \begin{bmatrix} 1 & 1 & 1 \\ 1 & 1 & 1 \end{bmatrix}$.
 >
@@ -580,7 +580,7 @@ $$\begin{aligned}
 > - **Quên lấy giá trị tuyệt đối khi nói về diện tích**: diện tích = $|\det|$, $\det$ có thể âm.
 > - **Tính det cho ma trận không vuông**: định thức chỉ định nghĩa cho ma trận VUÔNG.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. $\det\begin{bmatrix} 3 & 4 \\ 1 & 2 \end{bmatrix} = ?$
 > 2. Ma trận $\begin{bmatrix} 2 & 1 \\ 4 & 2 \end{bmatrix}$ có invertible không?

@@ -112,7 +112,7 @@ Kết quả: ở trạng thái nghỉ, **trong neuron ≈ −70 mV so với ngo�
 - **Nghĩ "K⁺ trong cao là vì điện tích âm hút"**: thực ra K⁺ trong cao là do **bơm Na⁺/K⁺ chủ động** bơm K⁺ vào; điện thế âm chỉ là **hệ quả** của K⁺ rò ra ngoài, không phải nguyên nhân.
 - **Nhầm Cl⁻ là yếu tố chính của điện thế nghỉ**: ion chủ đạo là K⁺. Cl⁻ chỉ chỉnh tinh thêm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một neuron tổng hợp ATP với tốc độ 2 × 10⁶ phân tử/giây. Nếu toàn bộ ATP đó dành cho bơm Na⁺/K⁺, bơm đẩy được bao nhiêu Na⁺ ra ngoài mỗi giây?
 2. Nếu nồng độ K⁺ ngoài tăng từ 4 mM lên 10 mM (rò ra do tổn thương mô), $E_K$ thay đổi thế nào? Điện thế nghỉ trở nên âm hơn hay bớt âm?
@@ -188,7 +188,7 @@ A: Vì vùng vừa phát AP đang trong **giai đoạn trơ tuyệt đối** —
 **Q: Vì sao đỉnh là +30 mV chứ không phải $E_{Na}$ = +66 mV?**
 A: Vì kênh Na⁺ chỉ mở thoáng qua (~0.5 ms) rồi tự đóng, đồng thời kênh K⁺ đã bắt đầu mở — chưa đủ thời gian để điện thế chạm $E_{Na}$ thì đã bị K⁺ kéo xuống.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một kích thích đẩy màng từ −70 mV lên −60 mV rồi tan đi. Có AP không?
 2. Hai kích thích lần lượt vào sợi axon cách nhau 0.5 ms. Cái thứ hai có gây AP được không?
@@ -316,7 +316,7 @@ A: Có. Nguyên tắc cổ điển "1 neuron — 1 chất" (Dale) ngày nay đư
 **Q: Cocain, ma túy hoạt động ở đâu trong sơ đồ này?**
 A: Phần lớn ở **bước dọn dẹp (5–6)**. Cocain chặn protein tái hấp thu dopamine → dopamine tồn tại lâu trong khe → kích thích kéo dài bất thường → cảm giác hưng phấn, sau đó kiệt quệ. SSRI điều trị trầm cảm cũng theo cơ chế chặn tái hấp thu, nhưng cho serotonin.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một neuron nhận đồng thời 8 EPSP (+2 mV mỗi cái) và 2 IPSP (−3 mV mỗi cái). Có phát AP không? (Ngưỡng −55, nghỉ −70.)
 2. Vì sao thuốc tê novocain (chặn kênh Na⁺ phụ thuộc điện áp) làm bạn không cảm thấy đau khi nhổ răng?

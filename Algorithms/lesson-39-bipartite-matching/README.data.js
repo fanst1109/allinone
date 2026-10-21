@@ -148,7 +148,7 @@ func main() {
 > - *"DFS có dùng được không?"* → Có, hoàn toàn tương đương; chỉ thay queue bằng đệ quy/stack.
 > - *"Cây có phải 2 phía không?"* → Luôn luôn — cây không có chu trình nào, nên không có chu trình lẻ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị \`0–1, 1–2, 2–3, 3–4, 4–0\` (ngũ giác) có 2 phía không?
+> 🔁 **Thực hành.** Đồ thị \`0–1, 1–2, 2–3, 3–4, 4–0\` (ngũ giác) có 2 phía không?
 > <details><summary>Đáp án</summary>
 > KHÔNG. Đây là chu trình dài 5 (lẻ). Tô màu: 0=X, 1=Đ, 2=X, 3=Đ, 4=X, rồi 4–0 nối X–X → mâu thuẫn.
 > </details>
@@ -258,7 +258,7 @@ hiện tại là maximum. Đây là khung sườn của Kuhn, Hopcroft-Karp, và
 > - *"Tăng 1 mỗi lần thì có chậm không?"* → Maximum matching $\\leq V/2$, nên tối đa $V/2$ lần tăng. Mỗi lần tìm đường tốn $O(E)$ → $O(V \\cdot E)$ tổng (Kuhn).
 > - *"Nếu tìm sai đường, kẹt thì sao?"* → Berge bảo đảm: còn đường tăng ⟺ chưa maximum. Nên cứ tìm thấy đường nào thì flip; không bao giờ "kẹt sai".
 
-> 🔁 **Dừng lại tự kiểm tra.** \`M = {a-y}\` trong đồ thị \`a-x, a-y, b-x\`. Có đường tăng không?
+> 🔁 **Thực hành.** \`M = {a-y}\` trong đồ thị \`a-x, a-y, b-x\`. Có đường tăng không?
 > <details><summary>Đáp án</summary>
 > Có. \`b\` tự do → cạnh \`b-x\` (ngoài M) → \`x\` tự do → kết thúc. Đường tăng \`b - x\` (1 cạnh).
 > Flip: thêm \`b-x\`. \`M' = {a-y, b-x}\` size 2.
@@ -621,7 +621,7 @@ func main() {
 > - Bài "chọn ít hàng/cột nhất phủ mọi quân cờ trên bàn" → min vertex cover trên đồ thị hàng×cột.
 > - Bài "chọn nhiều phần tử nhất không xung đột" → max independent set = V − max matching.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị 2 phía có 6 đỉnh, max matching = 2. Max independent set = ?
+> 🔁 **Thực hành.** Đồ thị 2 phía có 6 đỉnh, max matching = 2. Max independent set = ?
 > <details><summary>Đáp án</summary>
 > Max independent set = V − max matching = 6 − 2 = **4**. (Và min vertex cover = 2.)
 > </details>

@@ -88,7 +88,7 @@ Với phần tử ở index \`i\` (mảng 0-based):
 - Các phần tử từ index $\\lfloor n/2 \\rfloor$ đến $n-1$ đều là **lá** (không có con) — đây là điểm khởi đầu quan trọng cho build heap (mục 3).
 - Heap **không** sắp xếp đầy đủ: nó chỉ đảm bảo cha ≥ con. Ví dụ \`[9, 5, 6, ...]\` — số 5 (con trái) nhỏ hơn 6 (con phải) là chuyện bình thường, heap không quan tâm thứ tự giữa anh em.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Trong max-heap, phần tử nhỏ nhất chắc chắn nằm ở đâu?
 > 2. Cho mảng \`[8, 4, 7, 1, 3]\`, con của index 1 là những index nào, giá trị bao nhiêu?
 >
@@ -213,7 +213,7 @@ Kết quả: [9, 4, 8, 2, 3, 1, 6]  (max-heap hợp lệ, 8 đã vào tầng đ�
 > - Dùng sift-up để build heap (đúng nhưng chậm hơn — O(n log n) thay vì O(n)).
 > - Trong sift-down, so cha với **một** con cố định thay vì **con lớn hơn** → phá heap property. Phải chọn con lớn nhất trước khi đổi chỗ.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Heap \`[10, 7, 9, 3, 4]\`, push \`8\`. Trace sift-up.
 >
 > <details><summary>Đáp án</summary>
@@ -309,7 +309,7 @@ Kết quả build: [5, 3, 4, 1, 2]  (max-heap hợp lệ).
 > - Bắt đầu lặp từ index 0 đi xuôi → sai vì con chưa heapify.
 > - Quên \`-1\`: lặp từ \`n/2\` thay vì \`n/2 - 1\` → bỏ sót node không-lá cuối cùng.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Build max-heap từ \`[1, 5, 3]\`. Trace.
 >
 > <details><summary>Đáp án</summary>
@@ -409,7 +409,7 @@ Kết quả: [1, 2, 3, 4, 5]  ✓ tăng dần.
 
 Đếm công: build = 2 lần sift-down nhẹ; sortdown = 4 lần swap + 4 lần sift-down (mỗi cái ≤ log n). Tổng O(n log n).
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Sau khi build max-heap, vì sao swap gốc với **cuối** rồi \`siftDown(a,0,end)\` lại không làm hỏng phần đã sắp ở các index ≥ end?
 >
 > <details><summary>Đáp án</summary>
@@ -679,7 +679,7 @@ Tổng công = **11 bước** cho n=15. So sánh: nếu là O(n log n) thì ≈ 
 > ⚠ **Lỗi thường gặp**
 > - Trả lời phỏng vấn "build heap là O(n log n)" — sai. Đúng là **O(n)**. (Heap sort tổng thể vẫn O(n log n) vì pha extract, nhưng riêng build là O(n).)
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Heap đầy n=7 (3 tầng). Tính tổng công build heap theo bảng chiều cao.
 >
 > <details><summary>Đáp án</summary>

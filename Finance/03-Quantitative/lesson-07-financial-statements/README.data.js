@@ -45,7 +45,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "tài sản nhiều = công ty giàu". Nếu phần lớn tài sản đến từ **nợ** (vốn chủ nhỏ), công ty rủi ro cao — đòn bẩy lớn. Phải nhìn cả ba phần.
 
-> 🔁 **Dừng lại tự kiểm tra.** Công ty tài sản 800, nợ phải trả 600. Vốn chủ sở hữu?
+> 🔁 **Thực hành.** Công ty tài sản 800, nợ phải trả 600. Vốn chủ sở hữu?
 > <details><summary>Đáp án</summary>Vốn chủ $= 800 - 600 = 200$. (Phần lớn tài sản từ nợ → đòn bẩy cao.)</details>
 
 ---
@@ -101,7 +101,7 @@ Sau bài này bạn sẽ:
 > - *"ROE cao luôn tốt?"* — Không hẳn — ROE có thể bị thổi cao nhờ **vay nhiều** (đòn bẩy). ROE 30% với hệ số nợ 0,9 rủi ro hơn ROE 20% với nợ 0,3. Luôn nhìn ROE **cùng** hệ số nợ.
 > - *"So tỷ số thế nào?"* — So với **công ty cùng ngành** và **lịch sử của chính nó**, không có con số tuyệt đối "tốt".
 
-> 🔁 **Dừng lại tự kiểm tra.** LN ròng 60, doanh thu 500, vốn chủ 300. Tính biên LN ròng và ROE.
+> 🔁 **Thực hành.** LN ròng 60, doanh thu 500, vốn chủ 300. Tính biên LN ròng và ROE.
 > <details><summary>Đáp án</summary>Biên LN $= 60/500 = 12\\%$; ROE $= 60/300 = 20\\%$.</details>
 
 > 📝 **Tóm tắt toàn bài.**

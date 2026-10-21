@@ -107,7 +107,7 @@ Cho ba thành phần đầu vào (biên độ): 100 Hz = 1.0, 1 kHz = 1.0, 10 kH
 
 > ⚠ **Lỗi thường gặp — cộng dB như cộng số thường.** Hai băng cùng +6 dB ở vùng chồng lấn **không** thành +12 dB một cách hiển nhiên. dB là log: phải đổi sang tuyến tính, cộng biên độ (nếu cùng pha) rồi đổi lại. $10^{6/20}+10^{6/20}=2(1.995)=3.99 \\Rightarrow 20\\log_{10}3.99 \\approx 12.02$ dB — *trùng hợp* gần +12 ở đây vì cùng pha và bằng nhau, nhưng đừng tổng quát hóa: lệch pha thì kết quả khác hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Gain +3 dB tương ứng hệ số tuyến tính bao nhiêu?
 > 2. EQ là tuyến tính hay phi tuyến? Hệ quả là gì?
 >
@@ -197,7 +197,7 @@ Khác biệt mấu chốt với §3.1: vế phải dùng $y[n-D]$ (đầu **ra**
 
 So với reverb IIR (§3.2): IIR là **mô hình** xấp xỉ (rẻ, realtime); convolution reverb là **bản sao chân thực** một không gian cụ thể (đắt hơn, "thật" hơn).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. $D=3,\\alpha=0.4$, FIR, vào $x=[1,0,0,0,0,0]$. $y[3]=?$
 > 2. Vì sao reverb dùng IIR còn echo "slapback" một lần dùng FIR?
 >

@@ -51,7 +51,7 @@ Sau bài này bạn sẽ:
 
 → Chỉ số **"10Y−2Y"** (spread) là cách nhanh đo độ dốc: dương = normal, âm = đảo ngược.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lợi suất 2 năm 5%, 10 năm 4,3%. Spread 10Y−2Y? Đường cong dạng gì?
+> 🔁 **Thực hành.** Lợi suất 2 năm 5%, 10 năm 4,3%. Spread 10Y−2Y? Đường cong dạng gì?
 > <details><summary>Đáp án</summary>Spread $= 4{,}3\\% - 5\\% = -0{,}7\\%$ (âm) → đường cong **đảo ngược**.</details>
 
 ---
@@ -92,7 +92,7 @@ $$1 + f = \\frac{(1 + r_2)^2}{1 + r_1} = \\frac{1{,}04^2}{1{,}03} = \\frac{1{,}0
 
 > ❓ **Câu hỏi tự nhiên.** *"Forward rate có đúng là dự báo không?"* — Là dự báo **ngầm** của thị trường (cộng phần bù kỳ hạn), không phải lời tiên tri chính xác. Nhưng nó cho biết thị trường đang định giá kỳ vọng gì — hữu ích để đối chiếu với quan điểm của bạn.
 
-> 🔁 **Dừng lại tự kiểm tra.** $r_1 = 2\\%$, $r_2 = 2\\%$ (đường phẳng). Tính forward rate $f$.
+> 🔁 **Thực hành.** $r_1 = 2\\%$, $r_2 = 2\\%$ (đường phẳng). Tính forward rate $f$.
 > <details><summary>Đáp án</summary>$1+f = 1{,}02^2/1{,}02 = 1{,}02 \\to f = 2\\%$. Đường phẳng → thị trường kỳ vọng lãi suất không đổi.</details>
 
 > 📝 **Tóm tắt toàn bài.**

@@ -156,7 +156,7 @@ Server duy trì **SYN backlog**: hàng đợi các kết nối ở trạng thái
 - Nhầm DoS với DDoS: DoS từ một nguồn, DDoS từ nhiều nguồn. Phòng thủ khác nhau: DoS có thể chặn bằng firewall rule đơn giản; DDoS cần scrubbing/anycast.
 - Nghĩ SYN cookies là "giải pháp hoàn hảo": SYN cookies chỉ giải quyết SYN backlog, không chặn được volumetric DDoS làm đầy băng thông đường truyền.
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 
 > Một admin nhận được cảnh báo: \`SYN_RCVD connections: 12,847\` trên server. Server có \`net.ipv4.tcp_syncookies=0\`. Điều gì xảy ra và phải làm gì?
 
@@ -357,7 +357,7 @@ Resolver gửi query (UDP, port 53) và đặt một **Transaction ID** 16-bit �
 - Nhầm DNS spoofing với DNS hijacking: DNS hijacking là tấn công chiếm quyền điều khiển DNS server thật (thay đổi cấu hình), khác với cache poisoning (chỉ đầu độc cache resolver).
 - Nghĩ IP spoofing cho phép nhận phản hồi từ server: không đúng — TCP handshake sẽ thất bại vì phản hồi đến IP giả, không phải IP thật của attacker.
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 
 > Admin nhận báo cáo: "Người dùng dùng Wi-Fi công ty bị redirect từ bank.example.com đến trang giống hệt nhưng có kết nối HTTP (không phải HTTPS)". Đây là loại tấn công gì? Giải pháp ngay lập tức?
 

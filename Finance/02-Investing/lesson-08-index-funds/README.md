@@ -46,7 +46,7 @@ Nếu thị trường lời 8%, và nhà đầu tư thụ động (phí 0,2%) nh
 
 > ⚠ **Lỗi thường gặp.** "Thụ động là tầm thường, người giỏi phải chủ động." Thực tế đầu tư thụ động phí thấp **vượt** đa số chuyên gia chủ động dài hạn — "không cố thắng" lại thắng. Đây là nghịch lý phản trực giác nhưng được dữ liệu ủng hộ mạnh.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu trước phí nhà đầu tư chủ động trung bình bằng thị trường, vì sao sau phí họ thua thụ động?
+> 🔁 **Thực hành.** Nếu trước phí nhà đầu tư chủ động trung bình bằng thị trường, vì sao sau phí họ thua thụ động?
 > <details><summary>Đáp án</summary>Vì phí chủ động (1–2%) cao hơn phí thụ động (~0,1–0,2%). Cùng lợi nhuận trước phí, ai trả phí nhiều hơn thì nhận ít hơn → chủ động thua đúng phần phí chênh lệch.</details>
 
 ---

@@ -72,7 +72,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tính rủi ro danh mục bằng trung bình trọng số của σ ($0{,}5 \times 20 + 0{,}5 \times 20 = 20\%$). Sai trừ khi $\rho=1$. Phải dùng công thức có số hạng $\rho$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai tài sản σ=20% mỗi cái, trộn 50/50, $\rho = 0{,}5$. Rủi ro danh mục?
+> 🔁 **Thực hành.** Hai tài sản σ=20% mỗi cái, trộn 50/50, $\rho = 0{,}5$. Rủi ro danh mục?
 > <details><summary>Đáp án</summary>$\sigma_p = \sqrt{100 + 100 + 2(0{,}25)(0{,}5)(400)} = \sqrt{200 + 100} = \sqrt{300} = 17{,}3\%$. (Giữa 14,1% của ρ=0 và 20% của ρ=1.)</details>
 
 ---

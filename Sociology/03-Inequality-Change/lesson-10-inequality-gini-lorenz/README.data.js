@@ -68,7 +68,7 @@ Nối các điểm $(0,0) \\to (0.2,0.05) \\to (0.4,0.15) \\to (0.6,0.30) \\to (
 
 > ⚠ **Lỗi thường gặp.** Vẽ đường Lorenz **không sắp xếp** dân số từ nghèo → giàu. Nếu để lộn xộn, đường sẽ không lồi và không còn ý nghĩa. Bắt buộc sắp xếp tăng dần trước khi cộng dồn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với 5 người ở ví dụ 2.1(c): 60% dân nghèo nhất nắm bao nhiêu % thu nhập? Nếu ai cũng thu nhập bằng nhau thì con số đó là bao nhiêu?
+> 🔁 **Ôn tập.** Với 5 người ở ví dụ 2.1(c): 60% dân nghèo nhất nắm bao nhiêu % thu nhập? Nếu ai cũng thu nhập bằng nhau thì con số đó là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -205,7 +205,7 @@ Hai đường tính khác nhau ra **cùng** $0.392$ — công thức nhất quá
 - **Share của top 10% / bottom 40%** — nói thẳng "người giàu nhất nắm bao nhiêu", trực quan hơn diện tích.
 - **Lorenz dominance**: nếu đường Lorenz của X nằm **hoàn toàn phía trên** của Y (không cắt nhau), thì X bình đẳng hơn Y một cách **không thể chối cãi**, mọi thước đo hợp lý đều đồng ý. Chỉ khi hai đường **cắt nhau** ta mới cần tranh luận và Gini mới có thể "che" mất khác biệt (mục 4.3).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một nước có Gini $= 0$. Điều gì đúng về thu nhập của dân?
 > 2. Nước C: đường Lorenz nằm hoàn toàn trên nước D. Nước nào bình đẳng hơn? Cần Gini để kết luận không?
 >

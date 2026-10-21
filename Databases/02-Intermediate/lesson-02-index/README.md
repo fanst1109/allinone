@@ -105,7 +105,7 @@ Vì các **lá nối nhau theo thứ tự**, một truy vấn `WHERE age BETWEEN
 - *"Sao không dùng mảng đã sắp xếp rồi binary search?"* — Mảng sắp xếp tra cũng $O(\log n)$, nhưng **chèn/xóa** phải dịch hàng triệu phần tử $O(n)$. B+tree chèn/xóa $O(\log n)$ và vẫn giữ cân bằng → hợp với bảng thay đổi liên tục.
 - *"B-tree khác B+tree chỗ nào?"* — B-tree để dữ liệu ở cả node trong lẫn lá; B+tree chỉ để ở lá + nối lá. RDBMS gần như luôn dùng **B+tree** vì range scan tốt hơn. Ta hay gọi chung là "B-tree index".
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao index trên đĩa dùng fanout cao thay vì cây nhị phân?
 2. Cây fanout 100, 4 tầng chứa được khoảng bao nhiêu khóa?
 
@@ -190,7 +190,7 @@ Với index `(a, b, c)`:
 ❓ **Câu hỏi tự nhiên.**
 - *"Vì sao `a = ? AND c = ?` chỉ dùng tới a?"* — Vì trong index, sau khi cố định `a`, các dòng còn được sắp theo `b`. Không biết `b` thì `c` nằm rải rác → index chỉ thu hẹp được tới `a`, phần `c` phải lọc thủ công.
 
-🔁 **Dừng lại tự kiểm tra.** Index `(country, city, age)`. Query nào dùng được index, tới đâu?
+🔁 **Thực hành.** Index `(country, city, age)`. Query nào dùng được index, tới đâu?
 (1) `WHERE country='VN'` (2) `WHERE city='Hanoi'` (3) `WHERE country='VN' AND age>20`
 
 <details><summary>Đáp án</summary>

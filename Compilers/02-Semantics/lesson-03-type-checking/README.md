@@ -104,7 +104,7 @@ Một cách nói khác: cú pháp đảm bảo *hình dạng* chương trình đ
 - *"Kiểu nằm ở đâu trong bộ nhớ?"* — Kiểu là khái niệm **lúc dịch** (compile-time). Sau khi type-check xong và sinh mã, phần lớn thông tin kiểu *biến mất* — runtime chỉ còn bit. (Dynamic language giữ kiểu kèm giá trị lúc chạy → xem §3.)
 - *"Một biến đổi kiểu giữa chừng được không?"* — Trong static typing: thường không (kiểu cố định khi khai báo). Trong dynamic typing: được, vì kiểu gắn với *giá trị* chứ không gắn với *biến*.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 <details>
 <summary>1. Kiểu <code>bool</code> là tập gì? Có mấy phần tử?</summary>
@@ -193,7 +193,7 @@ y = x + 5            # 💥 LỖI LÚC CHẠY tại ĐÂY: can only concatenate 
 - *"TypeScript là static hay dynamic?"* — TS thêm **lớp static lúc dịch** trên JS, nhưng biên dịch ra JS (dynamic) chạy ở runtime. Kiểu TS bị *xóa* (type erasure) khi chạy → nếu dữ liệu vào từ ngoài (API) sai kiểu, runtime vẫn có thể nổ.
 - *"Gradual typing là gì?"* — Trộn cả hai: phần có annotation thì kiểm static (vd `mypy` cho Python), phần không annotation để dynamic. Cho phép thêm kiểu dần.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 <details>
 <summary>1. Python là strong hay weak? Cho ví dụ chứng minh.</summary>
@@ -314,7 +314,7 @@ AST của `2 + true`:
 
 **Điểm mấu chốt**: lỗi **không** ở node `2` (hợp lệ `int`), cũng **không** ở node `true` (hợp lệ `bool`) — lỗi ở **node cha `+`** nơi hai kiểu được *kết hợp*. Đây là lý do thông báo lỗi tốt phải chỉ đúng vào toán tử/vị trí kết hợp, chứ không phải vào lá.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 <details>
 <summary>1. Typecheck <code>(1 &lt; 2) + 3</code>. Có lỗi không? Tại node nào?</summary>
@@ -449,7 +449,7 @@ Cùng các toán hạng, đổi thứ tự → kết quả hoàn toàn khác. Đ
 
 Go cố tình **không** ép ngầm số: `var x int = 1; var y float64 = 2.5; x + y` → **lỗi biên dịch**, buộc viết `float64(x) + y`. Phiền hơn nhưng **rõ ràng**: mọi chuyển đổi đều nhìn thấy trong code, không có phép cắt/nâng ẩn. Đây là đánh đổi "an toàn & rõ ràng" lấy "tiện".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 <details>
 <summary>1. JS: <code>"5" - 1</code> cho gì? Còn <code>"5" + 1</code>?</summary>

@@ -132,7 +132,7 @@ Giả sử ta có một đồng xu, không biết xác suất ra mặt ngửa $\
 > **Q: Marginal likelihood $P(\text{data})$ tính thế nào?**
 > A: $P(\text{data}) = \int P(\text{data} \mid \theta)\,P(\theta)\,d\theta$. Tích phân này thường không có dạng closed form và rất tốn kém tính. Đó là lý do MCMC, variational inference ra đời — để tránh tính trực tiếp $P(\text{data})$.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Prior Beta(3, 3), quan sát 5 heads 5 tails. Posterior là phân phối gì? Posterior mean bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 > Posterior $= \text{Beta}(3+5, 3+5) = \text{Beta}(8, 8)$. Posterior mean $= \dfrac{8}{8+8} = 0{,}5$. Hợp lý: data cân bằng + prior cân bằng = posterior cân bằng.
@@ -194,7 +194,7 @@ Prior: $\text{Beta}(2, 2)$, quan sát 7H, 3T → Posterior: $\text{Beta}(9, 5)$.
 > **Q: Prior Beta(1, 1) có nghĩa gì về mặt thực tế?**
 > A: $\text{Uniform}(0,1)$ — mọi $\theta$ đều khả dĩ như nhau. Đây là "non-informative prior" đơn giản nhất cho tham số xác suất. Posterior $= \text{Beta}(1+H, 1+T)$ với mean $= \dfrac{H+1}{n+2}$ — "Laplace smoothing".
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Một đồng xu mới ra lò, ta không biết gì → dùng prior Beta(1, 1). Tung 20 lần: 14 heads, 6 tails. Tính posterior mean và 95% credible interval (dùng công thức xấp xỉ mean ± 2SD).
 > <details><summary>Đáp án</summary>
 > Posterior: $\text{Beta}(1+14, 1+6) = \text{Beta}(15, 7)$. Mean $= \dfrac{15}{22} \approx 0{,}682$. Var $= \dfrac{15 \times 7}{22^2 \times 23} = \dfrac{105}{11132} \approx 0{,}00943$. SD $\approx 0{,}097$. CI xấp xỉ $[0{,}682 - 2 \times 0{,}097, 0{,}682 + 2 \times 0{,}097] = [0{,}488, 0{,}876]$. (Lưu ý: đây là xấp xỉ normal; CI chính xác từ Beta quantile sẽ khác đôi chút.)

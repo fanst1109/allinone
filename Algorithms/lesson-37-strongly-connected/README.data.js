@@ -48,7 +48,7 @@ Sau bài này bạn sẽ:
 3. \`1 → 2 → 3 → 1\` (chu trình) → \`{1,2,3}\` là 1 SCC (vòng tròn → ai cũng tới ai cũng về).
 4. \`1 → 2, 2 → 3, 3 → 2\` → 2 SCC: \`{1}\` và \`{2,3}\` (cạnh \`2↔3\` tạo cụm, đỉnh 1 chỉ đi ra mà không có đường về).
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị \`A → B, B → C, C → A, C → D\`. Có mấy SCC?
+> 🔁 **Thực hành.** Đồ thị \`A → B, B → C, C → A, C → D\`. Có mấy SCC?
 > <details><summary>Đáp án</summary>
 > \`{A, B, C}\` là 1 SCC (chu trình \`A→B→C→A\`). \`D\` chỉ nhận cạnh từ \`C\`, không có đường về \`C\` → \`{D}\` là SCC riêng. Tổng cộng **2 SCC**.
 > </details>
@@ -402,7 +402,7 @@ func main() {
 
 > **Walk-through code.** \`disc[u]==-1\` đóng vai trò "chưa thăm". Phân biệt 3 nhánh \`if/else if/else\` đúng theo 3 quy tắc cập nhật low. Khối \`if low[u]==disc[u]\` pop stack đến tận \`u\`, gom thành 1 SCC. \`onStack\` đảm bảo O(1) membership và đúng đắn (không gộp SCC đã đóng).
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong Tarjan, nếu một đỉnh \`u\` có \`low[u] < disc[u]\` thì \`u\` là gì?
+> 🔁 **Thực hành.** Trong Tarjan, nếu một đỉnh \`u\` có \`low[u] < disc[u]\` thì \`u\` là gì?
 > <details><summary>Đáp án</summary>
 > \`u\` **không** phải gốc SCC — nó "trèo" được lên một đỉnh tổ tiên còn trên stack, nên thuộc cùng SCC với tổ tiên đó. Chỉ khi \`low[u]==disc[u]\` thì \`u\` mới là gốc (đại diện) của SCC.
 > </details>
@@ -858,7 +858,7 @@ func longestPathCondensation(n int, adj [][]int) int {
 **Walk-through.** Đồ thị mục 2: 3 SCC, condensation \`A→B\`, \`C→B\`. Đường dài nhất qua 2 siêu đỉnh (\`A→B\` hoặc \`C→B\`) → **2**.
 **Độ phức tạp:** O(V+E) cho SCC + O(V+E) build condensation + O(K+E') cho topo DP, tổng **O(V+E)**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao longest path trên đồ thị gốc (có chu trình) là vô nghĩa, nhưng trên condensation lại tính được?
+> 🔁 **Thực hành.** Vì sao longest path trên đồ thị gốc (có chu trình) là vô nghĩa, nhưng trên condensation lại tính được?
 > <details><summary>Đáp án</summary>
 > Trên đồ thị có chu trình, "đường dài nhất" có thể vô hạn (đi vòng mãi). Condensation là **DAG** (không chu trình) → đường đi hữu hạn, longest path trên DAG luôn xác định bằng topo + DP.
 > </details>

@@ -94,7 +94,7 @@ Ví dụ số:
 - *"Khi nào cộng, khi nào nhân?"* — **"HOẶC" → cộng**, **"VÀ / rồi" → nhân**. "Chọn 1 món trong (món mặn HOẶC món chay)" → cộng. "Chọn 1 áo VÀ 1 quần" → nhân.
 - *"Bước sau phụ thuộc bước trước thì sao?"* — Quy tắc nhân vẫn dùng được miễn là **số lựa chọn** của bước sau cố định (dù danh sách cụ thể đổi). Ví dụ xếp 3 người vào 3 ghế: bước 1 có 3, bước 2 có 2 (còn lại), bước 3 có 1 → $3 \\cdot 2 \\cdot 1 = 6$. Đây chính là hoán vị (mục 3).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Một PIN gồm 4 chữ số (0–9), cho phép lặp. Có bao nhiêu PIN? Nếu KHÔNG cho lặp thì sao?</summary>
@@ -148,7 +148,7 @@ Diễn giải quy tắc nhân: chỗ 1 có 5 cách, chỗ 2 còn 4, chỗ 3 còn
 - **Quên $0! = 1$.** Nếu nghĩ $0! = 0$ thì $P(n,n) = \\frac{n!}{0!}$ sẽ chia cho 0 — sai. Đúng là $0! = 1$ (có đúng 1 cách "không làm gì").
 - **Lẫn $P$ với $C$.** Nếu thứ tự *không* quan trọng (chọn nhóm, không xếp hạng) thì dùng tổ hợp $C$, không phải $P$. $P(5,3) = 60$ nhưng $C(5,3) = 10$ — chênh đúng $3! = 6$ lần (vì mỗi nhóm 3 có $3!$ cách xếp thứ tự). Xem mục 4.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Có 8 cuốn sách, xếp 3 cuốn lên kệ theo thứ tự trái→phải. Bao nhiêu cách?</summary>
@@ -204,7 +204,7 @@ $$\\{1,2\\},\\{1,3\\},\\{1,4\\},\\{1,5\\},\\{2,3\\},\\{2,4\\},\\{2,5\\},\\{3,4\\
 - **Lẫn P và C** — lỗi #1. Hỏi mình: *thứ tự có làm kết quả khác nhau không?* Xếp hạng/mật khẩu/ghế ngồi → **có** → P. Chọn nhóm/đội/tập con → **không** → C.
 - **Quên chia $k!$.** Viết $C(n,k) = \\frac{n!}{(n-k)!}$ (thiếu $k!$) là đang tính $P$, không phải $C$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Lớp 30 học sinh, chọn 1 ban cán sự gồm 3 bạn (vai trò như nhau). Bao nhiêu cách? Nếu cần lớp trưởng + lớp phó + thủ quỹ (3 vai khác nhau) thì sao?</summary>
@@ -279,7 +279,7 @@ $$\\sum_{k=0}^{n} C(n,k) = 2^n.$$
 - **Đánh số nhầm.** Hàng $n$ có $n+1$ số (từ $C(n,0)$ tới $C(n,n)$). Hàng $n=4$ có 5 số, không phải 4.
 - **Quên cạnh là 1.** Mọi đầu/cuối hàng là $C(n,0) = C(n,n) = 1$, không phải 0.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Không tra bảng, tính hàng n=7 của tam giác Pascal.</summary>
@@ -357,7 +357,7 @@ Có 366 "chuồng" (ngày trong năm, kể 29/2). Với 367 người, chắc ch�
 
 Lấy bất kỳ 13 số nguyên, chia cho 12 → có ≥ 2 số cùng số dư (13 số, 12 lớp dư 0..11). Suy ra hiệu của chúng chia hết cho 12.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Một lớp 30 học sinh sinh trong cùng một năm. Có chắc chắn 2 bạn sinh cùng tháng không?</summary>
@@ -402,7 +402,7 @@ $$|A\\cup B\\cup C| = 50 + 33 + 20 - 16 - 10 - 6 + 3 = 74.$$
 
 - **Quên cộng lại giao ba.** Nếu chỉ "cộng đơn − trừ đôi" thì phần giao ba bị trừ dư → kết quả thiếu. Dấu phải xen kẽ +, −, +.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>40 học sinh: 25 học Toán, 20 học Lý, 10 học cả hai. Bao nhiêu em học ít nhất một môn? Bao nhiêu em không học môn nào?</summary>

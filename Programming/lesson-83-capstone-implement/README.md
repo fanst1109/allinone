@@ -142,7 +142,7 @@ solutions/
 >
 > Thông thường người ta nghĩ "DB có sẵn các hàm, usecase gọi vào". Clean arch lật ngược: **usecase tuyên bố nó CẦN GÌ** (một `URLRepository` có `Save/FindByCode`), rồi tầng DB phải *chiều theo*. Giống như bạn thuê thợ: bạn ra yêu cầu (interface), thợ nào cũng được miễn làm đúng yêu cầu (implement). Đổi thợ (Postgres → MongoDB) không cần đổi yêu cầu.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > 1. File nào được phép import `database/sql` hay `redis`?
 > 2. Nếu `domain/url.go` import `usecase`, điều gì sai?
@@ -425,7 +425,7 @@ Walk-through bằng số cụ thể với code `abc1234` → `https://go.dev`:
 > - *"TTL để bao lâu?"* — Ở đây 10 phút cho entry populate, và 0 (vĩnh viễn) cho entry warm lúc tạo. Production cân theo memory của Redis.
 > - *"Vì sao emit click cả khi hit cache?"* — Vì click cần được đếm bất kể URL lấy từ đâu. Cache chỉ tối ưu việc *tra URL gốc*, không liên quan analytics.
 
-> 🔁 **Tự kiểm tra:** sau lần redirect đầu tiên (cache miss), nếu DB sập, redirect lần 2 còn chạy được không?
+> 🔁 **Thực hành:** sau lần redirect đầu tiên (cache miss), nếu DB sập, redirect lần 2 còn chạy được không?
 >
 > <details><summary>Đáp án</summary>Còn — vì lần 1 đã populate cache. Lần 2 hit cache, không chạm DB. Đây chính là giá trị của cache: che chắn cho nguồn sự thật khi traffic cao.</details>
 
@@ -511,7 +511,7 @@ func (w *Worker) Run(ctx context.Context) {
 
 > ⚠ **Lỗi thường gặp — block trong emit:** nếu `Enqueue` dùng `q.ch <- c` (không có `default`) và worker chậm → channel đầy → redirect **bị chặn**. Mất toàn bộ lợi ích async. Phải non-blocking ở hot path.
 
-> 🔁 **Tự kiểm tra:** trong integration test, sau khi redirect 3 lần, nếu gọi stats *ngay lập tức* mà chưa flush queue, total_clicks có chắc bằng 3 không?
+> 🔁 **Thực hành:** trong integration test, sau khi redirect 3 lần, nếu gọi stats *ngay lập tức* mà chưa flush queue, total_clicks có chắc bằng 3 không?
 >
 > <details><summary>Đáp án</summary>**Không chắc** — vì worker xử lý async, có thể chưa kịp apply hết 3 event. Đây là bản chất *eventual consistency*. Test phải **flush** (đóng queue + `worker.Wait()`) để đảm bảo worker đã drain xong rồi mới assert. Đó là lý do `flush()` tồn tại trong integration test.</details>
 
@@ -816,7 +816,7 @@ worker.Wait()                            // (c) chờ worker xử lý hết rồ
 
 > 💡 **Trực giác — vì sao worker cũng đóng vai StatsStore?** Trong bản in-memory, dữ liệu aggregate nằm ngay trong worker. Production tách ra: worker ghi vào Postgres/ClickHouse, còn một adapter `PostgresStatsStore` đọc từ đó. Cả hai đều thỏa interface `StatsStore` — usecase không phân biệt. Đây lại là minh chứng "swap được".
 
-> 🔁 **Tự kiểm tra:** nếu bỏ `worker.Wait()` trong shutdown, hậu quả gì?
+> 🔁 **Thực hành:** nếu bỏ `worker.Wait()` trong shutdown, hậu quả gì?
 >
 > <details><summary>Đáp án</summary>Các click event còn trong channel chưa được aggregate sẽ mất khi process thoát. `worker.Wait()` đảm bảo drain hết. Trong test, đây cũng chính là cơ chế `flush()` dùng để xác minh click đã được đếm trước khi assert.</details>
 

@@ -57,7 +57,7 @@ K8s không phải "chạy lệnh này". Bạn mô tả **trạng thái mong mu�
 
 > Đối lập với **imperative** (`docker run`, `docker kill`): bạn ra lệnh từng bước. Declarative bền hơn vì hệ thống tự sửa khi lệch.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Self-healing khác gì auto-scaling?
 2. "Declarative" nghĩa là gì trong K8s?
 
@@ -273,7 +273,7 @@ Namespace chia cluster thành các "ngăn" logic: `dev`, `staging`, `prod`, ho�
 - *"Secret base64 thì có ích gì?"* → base64 chỉ để chứa binary an toàn trong YAML, KHÔNG để bảo mật. Bảo mật đến từ RBAC + encryption at rest.
 - *"Namespace có chặn network không?"* → mặc định KHÔNG; cần NetworkPolicy mới chặn traffic giữa namespace.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao không trỏ trực tiếp vào IP Pod?
 2. Khác biệt cốt lõi ConfigMap vs Secret là gì?
 
@@ -399,7 +399,7 @@ startupProbe:
 - *"failureThreshold=3, periodSeconds=10 → mất bao lâu mới restart?"* → tới ~30s sau khi bắt đầu fail (3 lần × 10s).
 - *"timeout probe mặc định?"* → `timeoutSeconds: 1`. App tải nặng có thể quá 1s → probe timeout → fail oan → restart. Đặt timeout hợp lý.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. DB sập, bạn muốn Pod bị gỡ khỏi LB nhưng KHÔNG restart. Dùng probe nào, ở endpoint nào kiểm tra DB?
 2. App khởi động mất 90s. Không có startup probe, liveness `initialDelaySeconds:5, period:10, threshold:3` thì sao?
 

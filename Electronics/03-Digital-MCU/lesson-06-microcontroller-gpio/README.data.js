@@ -144,7 +144,7 @@ $$I = \\frac{V_{\\text{supply}} - V_f}{R} = \\frac{5 - 2}{220} = \\frac{3}{220} 
 | Relay coil 5 V, 50 mA | 50 mA | Quá giới hạn | BJT + diode freewheeling |
 | Motor DC 6 V, 200 mA | 200 mA | Vượt xa | H-bridge IC (L298N) |
 
-🔁 **Tự kiểm tra**: LED xanh lá ($V_f \\approx 2.1$ V) nối vào chân GPIO 3.3 V qua điện trở 150 Ω. Tính dòng và cho biết có an toàn không.
+🔁 **Thực hành**: LED xanh lá ($V_f \\approx 2.1$ V) nối vào chân GPIO 3.3 V qua điện trở 150 Ω. Tính dòng và cho biết có an toàn không.
 
 <details>
 <summary>Đáp án</summary>
@@ -256,7 +256,7 @@ void loop() {
 
 **Cách xử lý debounce phần cứng**: tụ điện 100 nF song song với nút nhấn → tụ làm chậm sự thay đổi điện áp → bounce bị lọc. Xem [Lesson 04 — RC](../../01-Fundamentals/lesson-04-capacitor-rc/) cho chi tiết thời hằng τ = R·C.
 
-🔁 **Tự kiểm tra**: nút nhấn nối giữa chân GPIO và GND; dùng \`INPUT_PULLUP\`. Mã nào đúng để phát hiện nhấn?
+🔁 **Thực hành**: nút nhấn nối giữa chân GPIO và GND; dùng \`INPUT_PULLUP\`. Mã nào đúng để phát hiện nhấn?
 
 <details>
 <summary>Đáp án</summary>
@@ -442,7 +442,7 @@ void loop() {
   <text x="400.0" y="120.0" fill="#dc2626" font-size="10" text-anchor="start">nếu motor có cuộn: thêm diode flyback</text>
 </svg>
 
-🔁 **Tự kiểm tra**: \`analogWrite(9, 191)\` cho duty cycle bao nhiêu %? $V_{\\text{avg}}$ bao nhiêu V (5 V supply)?
+🔁 **Thực hành**: \`analogWrite(9, 191)\` cho duty cycle bao nhiêu %? $V_{\\text{avg}}$ bao nhiêu V (5 V supply)?
 
 <details>
 <summary>Đáp án</summary>

@@ -109,7 +109,7 @@ Nếu $I_B$ quá nhỏ (tính $R_B$ quá lớn), transistor chỉ vào vùng tí
 
 **Luôn kiểm tra**: $\\beta \\times I_B > I_C(\\text{tải})$ trước khi kết luận transistor bão hòa.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Transistor NPN, $V_{CC}$ = 12 V, $R_{\\text{tải}}$ = 100 Ω, $\\beta$ = 100. Dòng tải $I_C$ = ?  
 Cần $I_B$ tối thiểu bao nhiêu để đảm bảo bão hòa?

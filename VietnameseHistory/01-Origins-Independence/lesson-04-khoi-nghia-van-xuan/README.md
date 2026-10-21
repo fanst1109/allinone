@@ -75,7 +75,7 @@ Nhà Đông Ngô có lực lượng quân sự vượt trội và kinh nghiệm 
 
 Không nên nhầm Bà Triệu với Hai Bà Trưng (khởi nghĩa năm 40). Hai Bà Trưng chống nhà Đông Hán; Bà Triệu chống nhà Đông Ngô — cách nhau hơn 200 năm và dưới hai triều đại hoàn toàn khác nhau.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Khởi nghĩa Bà Triệu nổ ra năm nào và chống triều đại nào?
 
@@ -127,7 +127,7 @@ Tính từ khi Lý Bí xưng đế (544) đến khi nhà Tùy diệt Vạn Xuân
 
 Không phải cả 58 năm Vạn Xuân đều là thời kì hòa bình và cai trị ổn định. Sau khi Lý Nam Đế mất năm 548, thực quyền chuyển sang Triệu Quang Phục và sau đó là Lý Phật Tử — giai đoạn đầy biến động quân sự. "Nhà nước Vạn Xuân" trong giai đoạn 545–571 thực chất là cuộc kháng chiến vũ trang hơn là một nhà nước hoạt động đầy đủ.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Lý Bí xưng hiệu là gì và đặt tên nước là gì năm 544?
 
@@ -167,7 +167,7 @@ Lý Bí xưng hiệu Lý Nam Đế, đặt tên nước là Vạn Xuân. Kinh đ
 
 Triệu Quang Phục không phải người thừa kế theo huyết thống của Lý Bí. Ông là tướng và đồng minh — con của Triệu Túc, một hào trưởng đã sớm gia nhập lực lượng của Lý Bí. Việc Lý Nam Đế trao quyền cho Triệu Quang Phục trước khi qua đời cho thấy cơ chế "trao quyền cho người có thực lực" hơn là kế thừa theo dòng máu.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Triệu Quang Phục dùng chiến thuật gì để cầm cự với quân Lương mạnh hơn?
 
@@ -205,7 +205,7 @@ Vùng Hoan Châu (Nghệ An–Hà Tĩnh ngày nay) là trung tâm khởi nghĩa 
 
 Sử liệu Việt Nam sau này nói đến "hàng vạn quân", còn Tân Đường thư ghi nhà Đường phải phái đại quân sang. Điều này cho thấy đây không phải cuộc nổi dậy nhỏ. Tuy nhiên, con số cụ thể trong sử liệu thời phong kiến thường không chính xác và mang tính biểu trưng; cần đọc với sự dè dặt.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Mai Thúc Loan được gọi là "Mai Hắc Đế" vì lý do gì?
 
@@ -247,7 +247,7 @@ Vùng Đường Lâm (Sơn Tây) — căn cứ của Phùng Hưng — là vùng 
 
 Một số tài liệu ghi năm khởi nghĩa là "791" nhưng thực ra quá trình chuẩn bị và chiến đấu kéo dài từ những năm 770s. Mốc "791" thường chỉ sự kiện chiếm thành Tống Bình. Niên đại chính xác còn có sự khác biệt giữa các bộ sử.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 Vì sao người dân gọi Phùng Hưng là "Bố Cái Đại Vương"?
 

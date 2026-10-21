@@ -150,7 +150,7 @@ Tổng tham số = $K \\times (F^2 \\times C + 1)$
 
 Ví dụ: AlexNet conv1: 96 kernels 11×11×3 → $96 \\times (121 \\times 3 + 1) = 96 \\times 364 = 34.944$ tham số — trong khi MLP tương đương cần 616M.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > Conv layer: F=3, C=64 input channels, K=128 output channels, bias. Bao nhiêu tham số?
 > <details><summary>Đáp án</summary>
 > $K \\times (F^2 \\times C + 1) = 128 \\times (9 \\times 64 + 1) = 128 \\times 577 = 73.856$ tham số.

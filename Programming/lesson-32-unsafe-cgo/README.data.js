@@ -190,7 +190,7 @@ type S2 struct {
 
 > ⚠ **Lỗi thường gặp.** Người mới đọc \`Sizeof(S1) = 24\` nghĩ "Go bug". Không phải bug, là **alignment**. Quy tắc thực hành: **sắp xếp field từ lớn → nhỏ** (int64, int32/float32, int16, bool/byte) để giảm padding. Tool \`fieldalignment\` của Go vet (\`go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment\`) tự phát hiện và sửa.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho struct:
 > \`\`\`go
 > type T struct {
@@ -370,7 +370,7 @@ Một số case "đáng tiền":
 - **Khi không hiểu rõ memory model Go** — \`unsafe\` không tha thứ.
 - **Khi code sẽ phải duy trì lâu bởi nhiều người** — \`unsafe\` tăng hiểu nhầm.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Bạn đang viết một service tính hash MD5 của tên user để dedup. Có nên dùng \`StringToBytes\` thay \`[]byte(s)\` không?
 > <details><summary>Đáp án</summary>
 > Có, **nếu** đã đo và confirm hash là bottleneck, **và** đoạn dùng slice là read-only (chỉ truyền vào \`md5.Sum\`), **và** code không bị truyền slice ra ngoài hàm. Nếu chỉ chạy 100 req/s thì copy 12 byte mỗi lần không là gì — không cần \`unsafe\`. **Đo trước, tối ưu sau.**

@@ -130,7 +130,7 @@ Mũi tên dependency: \`cmd → adapter → usecase → domain\`. Không bao gi�
 
 > ⚠ **Lỗi thường gặp.** Đặt rule (2) "email duy nhất" vào trong entity \`User\`. Sai, vì một \`User\` đơn lẻ **không biết** về toàn bộ tập user — nó không có quyền truy cập repository. Rule cần truy vấn tập hợp → thuộc use case.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Domain \`user.go\` có được phép \`import "net/http"\` không? Vì sao?
 > 2. Mũi tên dependency giữa \`usecase\` và \`adapter/memory\` trỏ theo chiều nào?
 >
@@ -220,7 +220,7 @@ Dòng này không tạo biến (gán vào \`_\`), chỉ để **trình biên d�
 
 > ⚠ **Lỗi thường gặp.** Định nghĩa interface khổng lồ với 20 method ("fat interface"). DIP đi đôi với ISP (Interface Segregation): interface càng **nhỏ** càng dễ implement và mock. \`UserRepository\` chỉ có 3 method đúng những gì usecase cần — không thừa.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu bỏ dòng \`var _ usecase.UserRepository = (*UserRepo)(nil)\` đi, code còn compile không? Lợi ích của việc giữ nó là gì?
+> 🔁 **Thực hành.** Nếu bỏ dòng \`var _ usecase.UserRepository = (*UserRepo)(nil)\` đi, code còn compile không? Lợi ích của việc giữ nó là gì?
 > <details><summary>Đáp án</summary>
 > Vẫn compile (Go là structural typing — \`*UserRepo\` tự động khớp interface khi được dùng làm tham số). Nhưng nếu một ngày bạn lỡ đổi signature method trong port mà quên sửa adapter, lỗi sẽ chỉ lộ ra ở chỗ **dùng** (composition root), thông báo khó hiểu. Giữ dòng assert → lỗi báo **ngay tại adapter**, rõ ràng: "*UserRepo does not implement UserRepository (missing method X)".
 > </details>
@@ -397,7 +397,7 @@ Clean architecture **không miễn phí**. Cái giá: nhiều file hơn, nhiều
 
 > ⚠ **Lỗi thường gặp (over-layering).** Áp clean arch full lên một CRUD 3 bảng → mỗi thao tác phải đi qua 4 file (handler → usecase → repo interface → repo impl) dù không có logic gì. Kết quả: code nhiều gấp 3, đọc mệt hơn, **không** dễ đổi hơn (vì vốn chẳng có gì để đổi). Hãy dùng **lượng kiến trúc tương xứng** độ phức tạp domain.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một dịch vụ "rút gọn URL" (nhận URL dài, trả URL ngắn, redirect) — nên clean arch full hay không?
+> 🔁 **Thực hành.** Một dịch vụ "rút gọn URL" (nhận URL dài, trả URL ngắn, redirect) — nên clean arch full hay không?
 > <details><summary>Đáp án</summary>
 > Tùy quy mô, nhưng thường **làm nhẹ**: logic chính chỉ là "sinh mã ngắn + lưu + tra cứu", gần như CRUD. Đủ để tách *một* port \`Store\` (để đổi RAM ↔ Redis ↔ DB) là hợp lý, nhưng không cần tách entity/usecase/adapter thành 4 tầng đầy đủ. Tách port lưu trữ: lợi ích rõ (đổi backend). Tách thêm tầng usecase rỗng: chi phí > lợi ích.
 > </details>

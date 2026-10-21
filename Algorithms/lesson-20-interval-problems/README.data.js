@@ -153,7 +153,7 @@ Gọi $g$ = hoạt động có \`end\` nhỏ nhất (cái đầu tiên greedy ch
 
 Sau khi cố định $g$, mọi hoạt động chồng $g$ bị loại; bài toán thu về cùng dạng trên tập hoạt động bắt đầu $\\geq e_g$. Quy nạp trên kích thước bài toán ⇒ greedy cho lời giải tối ưu. ∎
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Nếu thêm hoạt động \`G(7, 8)\` vào tập 2.2, kết quả greedy là gì?
 > 2. Trong chứng minh, vì sao ta cần \`g\` có *end* nhỏ nhất chứ không phải *start* nhỏ nhất?
 >
@@ -535,7 +535,7 @@ func minMeetingRoomsHeap(meetings []Interval) int {
 
 > ❓ **Câu hỏi tự nhiên.** *"Heap hay sweep line nhanh hơn?"* → Cùng $O(n \\log n)$ (heap: n thao tác $\\log n$; sweep: sort $2n$ event). Sweep dễ mở rộng (vd "tại mỗi thời điểm có bao nhiêu cuộc"), heap trực giác hơn cho "tái dùng phòng". *"Tie-break event sao cho đúng?"* → Với biên nửa mở \`[s,e)\`, khi một event end và một event start trùng thời điểm, xử lý **end trước** (phòng trả lại rồi mới cấp) để không tính dư 1 phòng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`[[1,5],[2,6],[3,7]]\` cần mấy phòng?
+> 🔁 **Thực hành.** Với \`[[1,5],[2,6],[3,7]]\` cần mấy phòng?
 > <details><summary>Đáp án</summary>
 > 3 cuộc cùng chạy trong khoảng \`[3,5)\` → max concurrency = 3 → **3 phòng**. Heap: push 5 → push 6 (không pop, 5>2) → push 7 (không pop, 5>3) → heap {5,6,7}, rooms=3.
 > </details>

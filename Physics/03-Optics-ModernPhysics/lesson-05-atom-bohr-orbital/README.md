@@ -81,7 +81,7 @@ Ví dụ: electron nhảy từ $n=3$ xuống $n=2$ (vạch H$\alpha$ đỏ trong
 - **Lẫn eV và J khi tính $\lambda$.** Đổi $1\ \text{eV} = 1{,}6 \times 10^{-19}\ \text{J}$ rồi mới dùng $\lambda = \frac{hc}{\Delta E}$. Mẹo nhanh: $\lambda(\text{nm}) = \frac{1240}{\Delta E(\text{eV})}$.
 - **Tưởng Bohr đúng cho mọi nguyên tử.** Chỉ đúng cho H và ion 1 electron ($\text{He}^+$, $\text{Li}^{2+}$). Nguyên tử nhiều electron có tương tác e–e → Bohr sai.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $E_3$ của Hydrogen.
 2. Electron rơi từ $n=2$ xuống $n=1$. Photon phát ra có năng lượng và bước sóng bao nhiêu?
@@ -126,7 +126,7 @@ Dãy Balmer đặc biệt quan trọng — nó cho ánh sáng nhìn thấy, là 
 - **Nhầm $n_\text{cuối}$ của dãy.** Lyman về $n=1$, Balmer về $n=2$, Paschen về $n=3$. Đặt nhầm $n_\text{cuối}$ → tính sai vùng phổ.
 - **Tưởng dãy Balmer là tia tử ngoại.** Balmer nằm trong vùng NHÌN THẤY (đỏ H$\alpha$ 656 nm, xanh H$\beta$ 486 nm...). Lyman mới là UV.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vạch Hα (n=3→2) ứng với dãy nào, nằm ở vùng phổ nào?
 2. Cú rơi n=5→3 thuộc dãy nào, vùng phổ nào?
@@ -183,7 +183,7 @@ $$\Delta x \cdot \Delta p \geq \frac{\hbar}{2}$$
 - **Vẽ electron như chấm chạy vòng tròn quanh hạt nhân.** Đó là hình Bohr đã lỗi thời. Mô hình đúng là đám mây xác suất (orbital), không có đường đi xác định.
 - **Tưởng Heisenberg là "đo không chuẩn vì máy yếu".** Sai — đó là giới hạn nguyên lý của tự nhiên, không thiết bị nào vượt qua được.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Mô hình Bohr đúng và sai ở điểm nào?
 2. Orbital s có hình dạng gì?

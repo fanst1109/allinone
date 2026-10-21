@@ -227,7 +227,7 @@ IESDS không loại được gì. Nhưng kiểm tra NE:
 
 Game có 2 NE dù không có dominance!
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Game: (3,3)(0,2)/(2,0)(1,1). Tìm tất cả NE.
 > <details><summary>Đáp án</summary>Kiểm tra (U,L)=(3,3): A lệch D→2<3 ✓; B lệch R→2<3 ✓ → NE ✓. Kiểm tra (D,R)=(1,1): A lệch U→0<1 ✓; B lệch L→0<1 ✓ → NE ✓. Hai NE: (U,L) và (D,R). Game giống Stag Hunt!</details>
 > 2. Trong PD: D strictly dominates C. Sau khi loại C của cả hai bằng IESDS, còn lại gì? Đó có phải NE của game gốc không?

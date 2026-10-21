@@ -56,7 +56,7 @@ $$F = 1.000.000 \times 1{,}06^{0{,}5} = 1.000.000 \times 1{,}0296 = 1.029.600 \t
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "giá futures = dự đoán giá tương lai của thị trường". Không — nó là giá spot điều chỉnh theo chi phí nắm giữ (no-arbitrage). Nếu có cổ tức/lợi tức nắm giữ, công thức trừ đi phần đó.
 
-> 🔁 **Dừng lại tự kiểm tra.** $S = 500.000$đ, $r = 8\%$, $T = 1$ năm. Giá forward 1 năm?
+> 🔁 **Thực hành.** $S = 500.000$đ, $r = 8\%$, $T = 1$ năm. Giá forward 1 năm?
 > <details><summary>Đáp án</summary>$F = 500.000 \times 1{,}08 = 540.000$đ.</details>
 
 ---
@@ -102,7 +102,7 @@ $$F = 1.000.000 \times 1{,}06^{0{,}5} = 1.000.000 \times 1{,}0296 = 1.029.600 \t
 
 > ⚠ **Lỗi thường gặp.** "Futures lời nhanh, ít vốn — dễ giàu." Đòn bẩy làm lỗ cũng nhanh tương ứng; **margin call** (yêu cầu nộp thêm ký quỹ) có thể buộc đóng vị thế lỗ đúng lúc xấu nhất. Đa số nhà đầu tư cá nhân dùng đòn bẩy cao đều thua nặng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hợp đồng 500 triệu, ký quỹ 5% (25 triệu). Giá tăng 4%. Lời bao nhiêu, % trên ký quỹ?
+> 🔁 **Thực hành.** Hợp đồng 500 triệu, ký quỹ 5% (25 triệu). Giá tăng 4%. Lời bao nhiêu, % trên ký quỹ?
 > <details><summary>Đáp án</summary>Lời $= 500 \times 4\% = 20$ triệu trên ký quỹ 25 triệu = **+80%**. (Đòn bẩy ~20× → biến động ×20.)</details>
 
 > 📝 **Tóm tắt toàn bài.**

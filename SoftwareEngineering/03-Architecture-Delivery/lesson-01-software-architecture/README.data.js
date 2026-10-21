@@ -38,7 +38,7 @@ window.README_MD = `# Lesson 01 — Kiến trúc phần mềm
 
 > ⚠ **Lỗi thường gặp.** "Vẽ kiến trúc thật hoành tráng ngay từ ngày đầu rồi mới code." Kiến trúc *quá chi tiết quá sớm* khóa cứng những giả định mà bạn chưa kiểm chứng. Quyết định kiến trúc tốt là quyết định **trì hoãn được những gì có thể trì hoãn** — chỉ chốt sớm những thứ thực sự khó đảo ngược. (Đây là mầm của over-engineering, xem mục 6.)
 
-> 🔁 **Dừng lại tự kiểm tra.** "Chúng ta sẽ lưu password bằng bcrypt với cost factor 12" — kiến trúc hay thiết kế chi tiết?
+> 🔁 **Thực hành.** "Chúng ta sẽ lưu password bằng bcrypt với cost factor 12" — kiến trúc hay thiết kế chi tiết?
 > <details><summary>Đáp án</summary><b>Thiết kế chi tiết</b> (gần như). Đổi cost factor hay thuật toán hash là cục bộ trong module xác thực, không phá vỡ cấu trúc hệ thống. Còn "có một service xác thực riêng hay nhúng trong app" thì mới là <b>kiến trúc</b>. Lưu ý: <i>việc chọn lưu password ở đâu, mã hóa hay không</i> mới chạm tới mức kiến trúc/bảo mật toàn hệ thống.</details>
 
 📝 **Tóm tắt mục 1.** Kiến trúc = các quyết định cấu trúc **lớn, khó đảo ngược** (chia thành phần, giao tiếp, ràng buộc toàn cục). Thiết kế chi tiết = các lựa chọn **cục bộ, dễ đổi**. Ranh giới là phổ liên tục; phán đoán bằng "đổi sai sau này đắt bao nhiêu".
@@ -83,7 +83,7 @@ Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng*
 
 > ⚠ **Lỗi thường gặp.** "Tầng" không phải là "thư mục". Tạo 3 thư mục \`presentation/ business/ data/\` rồi vẫn để controller gọi thẳng SQL = phân tầng *hình thức*, không có ràng buộc thật. Phân tầng chỉ có giá trị khi **chiều phụ thuộc được ép tuân thủ** (qua review, qua công cụ, qua interface).
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn muốn đổi từ PostgreSQL sang MongoDB. Trong kiến trúc phân tầng "thuần", việc này dễ hay khó?
+> 🔁 **Thực hành.** Bạn muốn đổi từ PostgreSQL sang MongoDB. Trong kiến trúc phân tầng "thuần", việc này dễ hay khó?
 > <details><summary>Đáp án</summary>Thường <b>khó hơn mong đợi</b>, vì tầng business gọi thẳng API của tầng data (ORM cụ thể). Câu lệnh, kiểu dữ liệu, transaction lẫn vào logic nghiệp vụ. Để dễ đổi, cần <b>đảo ngược phụ thuộc</b>: business chỉ phụ thuộc một <i>interface</i> trừu tượng, data hiện thực interface đó — đây chính là ý tưởng của hexagonal (mục 3).</details>
 
 📝 **Tóm tắt mục 2.** Phân tầng = chồng các tầng Presentation → Business → Data, phụ thuộc chỉ chảy xuống. Đơn giản, quen thuộc, tách trách nhiệm tốt; nhưng business hay dính chặt vào data nên khó test/đổi hạ tầng.
@@ -154,7 +154,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 > ⚠ **Lỗi thường gặp.** Định nghĩa port ở *tầng hạ tầng* (vd interface nằm trong gói \`repository\`) rồi để lõi import nó. Sai chiều — khi đó lõi vẫn phụ thuộc hạ tầng. **Port phải do lõi sở hữu**, đặt cạnh use case; adapter ở ngoài import vào lõi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao đặt interface \`PaymentGateway\` trong gói lõi (chứ không trong gói \`stripe\`) lại quan trọng?
+> 🔁 **Thực hành.** Vì sao đặt interface \`PaymentGateway\` trong gói lõi (chứ không trong gói \`stripe\`) lại quan trọng?
 > <details><summary>Đáp án</summary>Vì như vậy <b>lõi không import gói <code>stripe</code></b> — phụ thuộc chỉ chảy từ ngoài vào trong. Nếu interface nằm trong gói <code>stripe</code> và lõi import nó, lõi lại dính vào hạ tầng: đổi sang PayPal phải sửa lõi, và test phải kéo theo gói stripe. Đặt port trong lõi = đảo ngược phụ thuộc đúng nghĩa.</details>
 
 📝 **Tóm tắt mục 3.** Hexagonal tách **lõi nghiệp vụ** khỏi hạ tầng qua **port (interface lõi sở hữu)** và **adapter (hiện thực bên ngoài)**. Đảo chiều phụ thuộc (ngoài → trong) → lõi test được không cần DB/mạng. Đổi lại: nhiều lớp/boilerplate, thừa cho ứng dụng CRUD đơn giản.
@@ -219,7 +219,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 > ❓ **"Microservices có làm hệ thống nhanh hơn không?"** Thường là **không** — gọi hàm trong bộ nhớ nhanh cỡ nano-giây, gọi qua mạng cỡ mili-giây (chậm hơn ~1000 lần) và có thể thất bại. Microservices đổi lấy **khả năng scale độc lập, tự chủ đội ngũ, cô lập lỗi**, chứ không phải tốc độ một request. Nếu mục tiêu chỉ là "nhanh hơn", microservices là lựa chọn sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đội 4 người làm sản phẩm mới, chưa rõ tính năng nào trụ lại. Họ định chia ngay thành 12 microservices "cho hiện đại". Khuyên gì?
+> 🔁 **Thực hành.** Một đội 4 người làm sản phẩm mới, chưa rõ tính năng nào trụ lại. Họ định chia ngay thành 12 microservices "cho hiện đại". Khuyên gì?
 > <details><summary>Đáp án</summary>Khuyên <b>bắt đầu bằng monolith (modular monolith)</b>. Đội nhỏ + yêu cầu chưa ổn định = đúng điểm yếu của microservices: chi phí vận hành 12 service, transaction phân tán, CI/CD ×12 sẽ bóp nghẹt 4 người, trong khi <i>chưa có</i> nhu cầu scale độc lập hay nhiều đội. Tách service sau, khi biên giới nghiệp vụ đã rõ và có lý do thật.</details>
 
 📝 **Tóm tắt mục 4.** Monolith = một đơn vị triển khai, gọi hàm trong bộ nhớ — đơn giản, mặc định nên bắt đầu từ đây. Microservices = nhiều service độc lập, gọi qua mạng — đổi độ phức tạp code lấy độ phức tạp vận hành + eventual consistency. Chỉ tách khi có lý do thật (đội lớn, scale lệch, cô lập lỗi); microservices không miễn phí và không tự làm nhanh hơn.
@@ -275,7 +275,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 > ⚠ **Lỗi thường gặp.** Dùng event-driven cho nghiệp vụ *bắt buộc nhất quán tức thì* (chuyển tiền, giữ chỗ duy nhất) mà không xử lý. Eventual consistency mở ra cửa sổ cho double-spend, oversell. Nếu cần atomic, hoặc giữ trong một transaction (monolith/1 DB), hoặc dùng saga + bù trừ có chủ đích — không "phát sự kiện rồi hy vọng".
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao thêm tính năng "tích điểm thưởng khi đặt hàng" trong kiến trúc event-driven lại *không* phải sửa Order service?
+> 🔁 **Thực hành.** Vì sao thêm tính năng "tích điểm thưởng khi đặt hàng" trong kiến trúc event-driven lại *không* phải sửa Order service?
 > <details><summary>Đáp án</summary>Vì Order service chỉ <b>phát sự kiện <code>OrderPlaced</code></b> và không biết ai nghe. Tính năng tích điểm chỉ cần thêm một <b>consumer mới</b> đăng ký nghe cùng sự kiện đó và tự xử lý. Producer không thay đổi → đây chính là lợi ích "tách rời" của event-driven (đối lập với việc Order phải <i>gọi thẳng</i> service tích điểm trong kiểu đồng bộ).</details>
 
 📝 **Tóm tắt mục 5.** Event-driven = producer phát **sự kiện** lên **message queue**, nhiều consumer xử lý **bất đồng bộ, độc lập**. Tách rời mạnh, dễ mở rộng, chịu tải; đổi lại khó suy luận luồng, khó debug, và **eventual consistency** — dữ liệu *rốt cuộc* đúng chứ không *tức thì*. Tránh cho nghiệp vụ cần nhất quán mạnh.
@@ -308,7 +308,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 > ❓ **"Vậy không bao giờ nên 'chuẩn bị cho tương lai' à?"** Có, nhưng phân biệt: **chuẩn bị rẻ** (giữ biên giới module rõ, đặt interface ở chỗ dễ đổi) thì nên — nó *mở cửa* mà không tốn kém. **Chuẩn bị đắt** (dựng 12 service cho "sau này scale") thì không — bạn trả chi phí *ngay bây giờ* cho một tương lai *có thể không tới*. Nguyên tắc YAGNI ("You Aren't Gonna Need It") áp cho cả kiến trúc.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sếp nói "Netflix dùng microservices nên ta cũng phải dùng". Phản biện thế nào?
+> 🔁 **Thực hành.** Sếp nói "Netflix dùng microservices nên ta cũng phải dùng". Phản biện thế nào?
 > <details><summary>Đáp án</summary>Netflix có <b>hàng nghìn kỹ sư, hàng trăm triệu người dùng, nhu cầu scale cực lớn và lệch</b> — microservices giải đúng <i>vấn đề của họ</i>. Kiến trúc phải lái bởi <b>NFR của chính ta</b>, không phải sao chép công ty khác. Nếu ta là đội 5 người, 1000 user, copy microservices = gánh chi phí phân tán mà không có lợi ích tương ứng (over-engineering). Câu hỏi đúng: "<i>ràng buộc của ta</i> là gì?", không phải "<i>người nổi tiếng</i> dùng gì?".</details>
 
 📝 **Tóm tắt mục 6.** Không có kiến trúc tốt nhất tuyệt đối — chọn theo **yêu cầu phi chức năng** (testability, scalability, nhất quán, tự chủ đội...). Liệt kê 2–3 NFR ưu tiên → chọn kiến trúc *đơn giản nhất* thỏa chúng → trì hoãn quyết định khó-đảo-ngược. **Tránh over-engineering**: độ phức tạp kiến trúc phải tương xứng độ phức tạp bài toán; "đơn giản hơn" là lựa chọn mặc định an toàn.

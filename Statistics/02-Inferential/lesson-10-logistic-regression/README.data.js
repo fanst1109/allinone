@@ -133,7 +133,7 @@ $$p = \\sigma(0.6) = \\dfrac{1}{1 + e^{-0.6}} = \\dfrac{1}{1 + 0.5488} \\approx 
 > - *"Sigmoid có chạm 0 hoặc 1 không?"* → Không bao giờ. Nó tiệm cận. Nên xác suất dự đoán luôn nằm strictly trong $(0,1)$ — tốt, vì "chắc chắn 100%" hiếm khi đúng.
 > - *"$\\beta_0, \\beta_1$ ở đâu ra?"* → Từ MLE (mục 4), không phải least squares.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Tính $\\sigma(-3)$ (làm tròn 3 chữ số).
 > <details><summary>Đáp án</summary>
 >
@@ -242,7 +242,7 @@ $$e^{0.8} \\approx 2.2255$$
 > - *"$\\beta_1 < 0$?"* → OR $< 1$ → $x$ tăng làm odds (và xác suất) **giảm**. Vd $\\beta_1 = -0.5 \\to e^{-0.5} = 0.607$: mỗi đơn vị $x$, odds còn 60.7%.
 > - *"OR khác xác suất tương đối (relative risk) chứ?"* → Đúng, hai khái niệm khác nhau. Logistic cho OR; với biến cố hiếm thì OR ≈ relative risk.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Một mô hình có $\\beta_1 = 1.1$. Diễn giải odds ratio.
 > <details><summary>Đáp án</summary>
 >
@@ -354,7 +354,7 @@ Công thức tổng quát: ranh giới tại $x^* = -\\dfrac{\\beta_0}{\\beta_1}
 > - *"Ngưỡng 0.5 có bắt buộc không?"* → Không! Nếu đổi ngưỡng (vd 0.3), ranh giới $x$ dịch theo. Xem mục 6 — ngưỡng là một lựa chọn, không cố định.
 > - *"Với nhiều biến thì ranh giới là gì?"* → Là một **siêu phẳng (hyperplane)** $\\beta_0 + \\beta_1 x_1 + \\beta_2 x_2 + \\dots = 0$ — đường thẳng (2 biến), mặt phẳng (3 biến), v.v.
 
-> 🔁 **Dừng lại tự kiểm tra**: Mô hình $z = -4 + x$. Ranh giới ở đâu? Sinh viên $x = 4.5$ dự đoán lớp nào?
+> 🔁 **Thực hành**: Mô hình $z = -4 + x$. Ranh giới ở đâu? Sinh viên $x = 4.5$ dự đoán lớp nào?
 > <details><summary>Đáp án</summary>
 >
 > Ranh giới: $x^* = -(-4)/1 = 4$. Với $x = 4.5 > 4 \\to z = 0.5 > 0 \\to p > 0.5 \\to$ **lớp 1**.

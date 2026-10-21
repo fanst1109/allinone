@@ -141,7 +141,7 @@ Một câu để nhớ: **"Probability 0 không có nghĩa là impossible — ch
 | $P(a \leq X \leq b) \leq 1$ | ✓ | Vì xác suất luôn ≤ 1 |
 | $P(X \in A) = \int_A f(x)\,dx$ | ✓ | Tổng quát hoá cho tập đo được $A$ |
 
-### 🔁 Dừng lại tự kiểm tra (mục 2)
+### 🔁 Thực hành (mục 2)
 
 Cho $f(x) = c \cdot x^2$ trên $[0, 3]$, $f(x) = 0$ ngoài. Tìm $c$ và tính $P(1 \leq X \leq 2)$.
 
@@ -216,7 +216,7 @@ Ví dụ với $\text{Exponential}(\lambda=2)$: $F(x) = 1 - e^{-2x}$ → giải 
 - "CDF có thể $> 1$ không?" → Không. CDF $\in [0, 1]$ luôn — vì nó **là** xác suất.
 - "CDF có liên tục/khả vi tại mọi điểm không?" → Liên tục: có (cho biến liên tục). Khả vi: gần như mọi nơi; $F'(x) = f(x)$ ở những chỗ $f$ liên tục.
 
-### 🔁 Dừng lại tự kiểm tra (mục 3)
+### 🔁 Thực hành (mục 3)
 
 Cho $f(x) = 3x^2$ trên $[0, 1]$. Tìm $F(x)$ và $P(X \leq 0.5)$.
 
@@ -364,7 +364,7 @@ Exponential là **phân phối liên tục duy nhất** có tính chất này. T
 - **Bayesian priors**: cho tham số dương (vd precision của Gaussian).
 - **Sampling baseline**: do có inverse CDF dạng đóng ($X = -\ln(1-U)/\lambda$), Exp là 1 trong vài phân phối sample được trực tiếp.
 
-### 🔁 Dừng lại tự kiểm tra (mục 5)
+### 🔁 Thực hành (mục 5)
 
 Một website nhận trung bình 3 request/giây. Giả sử thời gian giữa các request $\sim \text{Exp}(3)$. Hỏi $P(\text{không có request nào trong 2 giây})$?
 
@@ -460,7 +460,7 @@ $$\log p_X(x) = \log p_Z(g^{-1}(x)) + \log |\det J_{g^{-1}}(x)|.$$
 - Khi $g$ không đơn điệu mà quên **tổng** trên các nhánh $g^{-1}$ → ra sai tổng tích phân.
 - Quên đổi miền giá trị ($Y$ chạy đâu đến đâu?).
 
-### 🔁 Dừng lại tự kiểm tra (mục 6)
+### 🔁 Thực hành (mục 6)
 
 $X \sim \text{Exp}(1)$, đặt $Y = 2X + 3$. Tìm $f_Y(y)$.
 

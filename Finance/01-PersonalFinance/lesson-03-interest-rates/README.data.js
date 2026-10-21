@@ -59,7 +59,7 @@ với $r$ = lãi danh nghĩa năm, $m$ = số lần ghép lãi/năm.
 
 > ⚠ **Lỗi thường gặp.** Cộng lãi: "1%/tháng = 12%/năm". Sai (dù gần đúng) — đó là APY $= 1{,}01^{12} - 1 = 12{,}68\\%$, không phải 12%. Lãi tháng ghép lại **luôn** cho năm cao hơn ×12.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lãi danh nghĩa 6%/năm ghép quý. APY bằng bao nhiêu?
+> 🔁 **Thực hành.** Lãi danh nghĩa 6%/năm ghép quý. APY bằng bao nhiêu?
 > <details><summary>Đáp án</summary>$APY = (1 + 0{,}06/4)^4 - 1 = 1{,}015^4 - 1 = 1{,}06136 - 1 = 6{,}14\\%$.</details>
 
 ---
@@ -111,7 +111,7 @@ Tính chính xác bằng cách giải lãi suất thực của dòng tiền (nh�
 
 > ⚠ **Lỗi thường gặp.** Lấy tổng lãi chia gốc chia số năm: $14{,}4/120 = 12\\%$ rồi tưởng đó là lãi suất. Sai — đó là **lãi phẳng**, bỏ qua việc gốc đã giảm dần. Lãi thực cao gần gấp đôi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vay 60 triệu, lãi phẳng 0,8%/tháng, 10 tháng. Tổng lãi phẳng? Ước lượng lãi thực/năm.
+> 🔁 **Thực hành.** Vay 60 triệu, lãi phẳng 0,8%/tháng, 10 tháng. Tổng lãi phẳng? Ước lượng lãi thực/năm.
 > <details><summary>Đáp án</summary>Lãi phẳng/tháng $= 60 \\times 0{,}8\\% = 0{,}48$ tr; ×10 = 4,8 triệu tổng lãi. Lãi phẳng/năm ≈ $0{,}8\\% \\times 12 = 9{,}6\\%$. Lãi thực ≈ gần gấp đôi ≈ ~17–18%/năm.</details>
 
 ---

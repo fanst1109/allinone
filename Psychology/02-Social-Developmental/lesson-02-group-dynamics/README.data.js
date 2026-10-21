@@ -80,7 +80,7 @@ Irving Janis (1972) phân tích Bay of Pigs và nhiều thất bại chính sác
 - **Anonymous feedback**: bỏ phiếu kín, không áp lực xã hội.
 - Kennedy sau Bay of Pigs áp dụng tất cả điều này → Cuban Missile Crisis (1962) xử lý tốt hơn nhiều.
 
-🔁 **Tự kiểm tra**: Trong Challenger, triệu chứng nào xảy ra rõ nhất?
+🔁 **Thực hành**: Trong Challenger, triệu chứng nào xảy ra rõ nhất?
 <details>
 <summary>Đáp án</summary>
 Pressure on dissenters (kỹ sư bị áp lực đổi quyết định), self-censorship (nhiều người biết nhưng không nói đủ mạnh), và collective rationalization ("o-ring có thể chịu được"). Cả 8 triệu chứng đều có dấu hiệu.
@@ -152,7 +152,7 @@ Pressure on dissenters (kỹ sư bị áp lực đổi quyết định), self-ce
 1. Loafing có xảy ra với nhóm cohesive không? → Ít hơn nhiều. Friends + commitment → mỗi người cố gắng vì người kia.
 2. Có "social facilitation" không (ngược loafing)? → Có! Đối với *simple tasks*, sự có mặt người khác *tăng* performance (Zajonc 1965). Loafing xảy ra khi đóng góp ẩn danh.
 
-🔁 **Tự kiểm tra**: Bạn là manager, team 10 người làm project chung. Áp dụng kiến thức về social loafing, bạn thiết kế quy trình như thế nào?
+🔁 **Thực hành**: Bạn là manager, team 10 người làm project chung. Áp dụng kiến thức về social loafing, bạn thiết kế quy trình như thế nào?
 <details>
 <summary>Đáp án</summary>
 (1) Assign clear individual deliverables — có thể measure từng người. (2) Weekly update công khai — identifiability. (3) Nhóm nhỏ 3-4 người thay vì 10 trong một team — group size effect. (4) Build group cohesion — friends loaf ít hơn.

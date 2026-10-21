@@ -79,7 +79,7 @@ Thêm 4 ví dụ với hai sóng cùng tần số, lệch pha — $y_1 = \\sin t
 
 ⚠ **Lỗi thường gặp.** Superposition chỉ đúng trong **hệ tuyến tính**. Nhiều hệ thực tế *phi tuyến* (loa quá tải, dây đàn căng cực mạnh) sẽ sinh thêm tần số mới (distortion) — lúc đó "tổng" không còn đơn giản là cộng. Trong bài này ta luôn giả định hệ tuyến tính.
 
-🔁 **Dừng lại tự kiểm tra.** Cho $y_1 = \\sin t$, $y_2 = -\\sin t$. Tổng tại $t = \\pi/2$ bằng bao nhiêu?
+🔁 **Thực hành.** Cho $y_1 = \\sin t$, $y_2 = -\\sin t$. Tổng tại $t = \\pi/2$ bằng bao nhiêu?
 <details><summary>Đáp án</summary>
 $\\sin(\\pi/2) + (-\\sin(\\pi/2)) = 1 + (-1) = 0$. Thực ra tổng bằng $0$ ở **mọi** $t$ — hai sóng ngược pha triệt tiêu nhau hoàn toàn (xem §3).
 </details>
@@ -148,7 +148,7 @@ Thêm ví dụ số:
 
 ⚠ **Lỗi thường gặp.** Nhầm $f_\\text{beat} = \\frac{|f_1-f_2|}{2}$ (tần số của hàm cos envelope) với tần số phách **nghe được**. Tai nghe $|f_1 - f_2|$ vì mỗi chu kỳ cos cho **hai** đỉnh biên độ (do $|\\cos|$).
 
-🔁 **Dừng lại tự kiểm tra.** Đánh đồng thời hai âm $300$ Hz và $304$ Hz. Bạn nghe bao nhiêu "phách" mỗi giây, ở cao độ nào?
+🔁 **Thực hành.** Đánh đồng thời hai âm $300$ Hz và $304$ Hz. Bạn nghe bao nhiêu "phách" mỗi giây, ở cao độ nào?
 <details><summary>Đáp án</summary>
 $f_\\text{beat} = |300 - 304| = 4$ Hz → 4 phách/giây. Cao độ nghe: $\\frac{300+304}{2} = 302$ Hz.
 </details>
@@ -237,7 +237,7 @@ Khác sóng vuông ở chỗ: dùng **cả harmonic chẵn**, nên dốc một b
 
 ❓ **Câu hỏi tự nhiên.** *"Vì sao sóng vuông chỉ cần harmonic lẻ?"* → Sóng vuông có tính **đối xứng nửa sóng** (half-wave symmetry): nửa sau là bản lật của nửa trước. Tính đối xứng này khử sạch mọi harmonic chẵn. Sóng răng cưa không có đối xứng đó nên giữ cả harmonic chẵn.
 
-🔁 **Dừng lại tự kiểm tra.** Sóng vuông $f_0 = 100$ Hz. Ba tần số đầu tiên xuất hiện trong nó là gì?
+🔁 **Thực hành.** Sóng vuông $f_0 = 100$ Hz. Ba tần số đầu tiên xuất hiện trong nó là gì?
 <details><summary>Đáp án</summary>
 Chỉ harmonic lẻ: $100$ Hz ($n=1$), $300$ Hz ($n=3$), $500$ Hz ($n=5$). Không có $200$ Hz.
 </details>

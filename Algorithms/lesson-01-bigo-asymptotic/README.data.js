@@ -111,7 +111,7 @@ Bốn ví dụ nữa, đa dạng:
 
 > ⚠ **Lỗi thường gặp #2.** $O(2n) = O(n)$ — viết hằng số trong Big-O là **dư thừa và sai chuẩn**. Big-O đã nuốt hằng số rồi (mục 7.1). Đừng viết $O(2n)$, $O(n/2)$, $O(100)$ — viết $O(n)$, $O(n)$, $O(1)$.
 
-> 🔁 **Dừng lại tự kiểm tra.** $f(n) = 6n + 4$. Chứng minh $f(n) = O(n)$ bằng cách chỉ ra $c$ và $n_0$ cụ thể.
+> 🔁 **Thực hành.** $f(n) = 6n + 4$. Chứng minh $f(n) = O(n)$ bằng cách chỉ ra $c$ và $n_0$ cụ thể.
 > <details><summary>Đáp án</summary>
 >
 > Chọn $c = 7$. Cần $6n + 4 \\leq 7n$ ⟺ $4 \\leq n$. Vậy $n_0 = 4$. Kiểm $n=4$: $28 \\leq 28$ ✓; $n=10$: $64 \\leq 70$ ✓. (Nhiều cặp $(c, n_0)$ khác cũng đúng, ví dụ $c=10, n_0=1$.)
@@ -155,7 +155,7 @@ Bốn ví dụ phân biệt O / Ω / Θ:
 > - *"Vậy $O(n)$ có sai không nếu thực ra là $\\Theta(n)$?"* — Không sai ($\\Theta(n) \\Rightarrow O(n)$), chỉ là nói "yếu" hơn. Như nói "cao ≤ 2m" trong khi biết chính xác "cao 1.7m".
 > - *"Quicksort là $O(n \\log n)$ hay $O(n^2)$?"* — Tùy case! Average: $\\Theta(n \\log n)$. Worst: $\\Theta(n^2)$. Người ta hay nói "quicksort $O(n \\log n)$" ngầm ý average-case (mục 5).
 
-> 🔁 **Dừng lại tự kiểm tra.** $f(n) = 4n^3 + 10n$. Cho biết Θ của nó và một O **không chặt** cũng đúng.
+> 🔁 **Thực hành.** $f(n) = 4n^3 + 10n$. Cho biết Θ của nó và một O **không chặt** cũng đúng.
 > <details><summary>Đáp án</summary>
 >
 > $\\boldsymbol{\\Theta(n^3)}$ (chặt). Một O không chặt đúng: $\\boldsymbol{O(n^4)}$ (hoặc $O(2^n)$...) — vẫn là chặn trên hợp lệ nhưng lỏng.
@@ -274,7 +274,7 @@ Tuy vậy, average-case vẫn quan trọng khi worst hiếm gặp (quicksort dù
 
 > ❓ **Câu hỏi tự nhiên.** *"Best-case có dùng để chọn thuật toán không?"* — Hầu như **không**. Best-case là input may mắn nhất, không phản ánh hiệu năng đáng tin. Chọn thuật toán chủ yếu nhìn worst (đảm bảo) và average (thực tế).
 
-> 🔁 **Dừng lại tự kiểm tra.** Linear search trên \`a=[5,3,8,1,9,2]\` (n=6), target=2. Đây là case nào? Bao nhiêu so sánh?
+> 🔁 **Thực hành.** Linear search trên \`a=[5,3,8,1,9,2]\` (n=6), target=2. Đây là case nào? Bao nhiêu so sánh?
 > <details><summary>Đáp án</summary>
 >
 > target=2 ở vị trí cuối (index 5) → **worst case**, **6 so sánh** (phải duyệt hết).
@@ -344,7 +344,7 @@ Ví dụ so sánh độ sâu stack:
 
 > ❓ **Câu hỏi tự nhiên.** *"Đệ quy đuôi (tail recursion) có cứu được không?"* — Trong ngôn ngữ tối ưu tail-call (như Scheme), có → $O(1)$. Nhưng **Go KHÔNG tối ưu tail call** → đệ quy đuôi trong Go vẫn $O(n)$ stack. Muốn $O(1)$ phải viết vòng lặp thủ công.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hàm tính giai thừa đệ quy \`fact(n) = n*fact(n-1)\`. Time và space?
+> 🔁 **Thực hành.** Hàm tính giai thừa đệ quy \`fact(n) = n*fact(n-1)\`. Time và space?
 > <details><summary>Đáp án</summary>
 >
 > **Time $O(n)$** ($n$ lời gọi, mỗi lời $O(1)$). **Space $O(n)$** (stack sâu $n$). Viết lại bằng vòng lặp → space $O(1)$.
@@ -395,7 +395,7 @@ for i := 0; i < n*n; i++ { ... }    // O(n²)
 
 > ⚠ **Lỗi thường gặp.** Nhầm "tuần tự" với "lồng nhau". Hai vòng \`for\` **liên tiếp** (kết thúc cái này mới chạy cái kia) → CỘNG. Hai vòng **lồng** (cái trong nằm trong thân cái ngoài) → NHÂN. Đọc kỹ dấu ngoặc \`{}\`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Rút gọn: $O(3n^2 + 2n \\log n + 10n + 50)$.
+> 🔁 **Thực hành.** Rút gọn: $O(3n^2 + 2n \\log n + 10n + 50)$.
 > <details><summary>Đáp án</summary>
 >
 > Giữ bậc cao nhất + bỏ hằng số → $\\boldsymbol{O(n^2)}$ (vì $n^2 > n \\log n > n > 1$).
@@ -621,7 +621,7 @@ Average-case phụ thuộc **giả định về phân phối input**. Quicksort 
 
 > ⚠ **Lỗi thường gặp.** Báo cáo average-case mà không nói rõ giả định phân phối → người đọc tưởng nó luôn đúng. Luôn ghi "average với input ngẫu nhiên đều".
 
-> 🔁 **Dừng lại tự kiểm tra.** Thuật toán A: $O(n^2)$ với hằng số 1 ($f=n^2$). Thuật toán B: $O(n \\log n)$ với hằng số 1000 ($f=1000 \\cdot n \\log n$). Với $n=10$, ai nhanh hơn?
+> 🔁 **Thực hành.** Thuật toán A: $O(n^2)$ với hằng số 1 ($f=n^2$). Thuật toán B: $O(n \\log n)$ với hằng số 1000 ($f=1000 \\cdot n \\log n$). Với $n=10$, ai nhanh hơn?
 > <details><summary>Đáp án</summary>
 >
 > A: $10^2 = 100$. B: $1000 \\cdot 10 \\cdot \\log_2 10 \\approx 1000 \\cdot 10 \\cdot 3{,}32 = 33\\,200$. **A nhanh hơn** dù lớp tệ hơn — hằng số B quá lớn, và $n=10$ còn nhỏ. Điểm cắt ở $n$ lớn hơn nhiều.

@@ -120,7 +120,7 @@ Khoan — $|f|=5$ mâu thuẫn với "max=4" ở mục 1? **Không.** Mục 1 ch
 
 > ⚠ **Lỗi thường gặp.** Bơm tham lam theo đường đầu tiên tìm được rồi tưởng đã xong. **Một quyết định bơm sớm có thể "chặn" đường tốt hơn về sau.** Để sửa sai lầm này mà không phải tính lại từ đầu, ta cần **cạnh ngược** trong residual graph (mục 4) — cho phép "rút lại" luồng đã bơm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trên đường $s \\to x \\to y \\to t$ với residual $c_f = 4, 2, 7$, ta bơm thêm bao nhiêu?
+> 🔁 **Thực hành.** Trên đường $s \\to x \\to y \\to t$ với residual $c_f = 4, 2, 7$, ta bơm thêm bao nhiêu?
 > <details><summary>Đáp án</summary>$\\min(4,2,7) = 2$. Sau đó cạnh $x \\to y$ bão hòa ($c_f$ về 0), không còn dùng được trên đường khác cho tới khi có luồng rút lại nó.</details>
 
 ---
@@ -184,7 +184,7 @@ Cụ thể: $c(s,a)=3, c(s,b)=3, c(a,b)=1, c(a,t)=3, c(b,t)=3$. Max flow thật 
 
 > ⚠ **Lỗi thường gặp.** Cài residual graph chỉ với cạnh xuôi. Phải lưu **cả cặp cạnh** (xuôi + ngược) và khi bơm \`Δ\` qua cạnh \`e\`, **trừ** \`Δ\` ở residual của \`e\` và **cộng** \`Δ\` ở residual của cạnh đối \`e.rev\`. Mẹo cài: lưu các cạnh trong một mảng, cạnh \`i\` và \`i^1\` là cặp đối nhau (XOR 1).
 
-> 🔁 **Dừng lại tự kiểm tra.** Cạnh \`(u,v)\` có \`c=5, f=3\`. Residual graph có những cạnh nào liên quan cặp này?
+> 🔁 **Thực hành.** Cạnh \`(u,v)\` có \`c=5, f=3\`. Residual graph có những cạnh nào liên quan cặp này?
 > <details><summary>Đáp án</summary>Cạnh xuôi \`u→v\` dung lượng \`5−3=2\` (bơm thêm 2 được) và cạnh ngược \`v→u\` dung lượng \`3\` (rút lại tối đa 3).</details>
 
 > 📝 **Tóm tắt mục 4.**
@@ -252,7 +252,7 @@ Bảng tóm tắt các vòng:
 | 3 | s→a→b→t | 1 | 5 |
 | 4 | (không có) | — | 5 (dừng) |
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao vòng 3 đi đường 3 cạnh chứ không phải sớm hơn?
+> 🔁 **Thực hành.** Vì sao vòng 3 đi đường 3 cạnh chứ không phải sớm hơn?
 > <details><summary>Đáp án</summary>BFS ưu tiên đường ít cạnh. Hai đường 2-cạnh (\`s→a→t\`, \`s→b→t\`) bị "tiêu thụ" trước (vòng 1-2) tới khi bão hòa, lúc đó đường 3-cạnh mới là ngắn nhất còn lại. Khoảng cách BFS từ \`s\` tới \`t\` tăng dần — đặc trưng của Edmonds-Karp.</details>
 
 ---
@@ -310,7 +310,7 @@ Dùng mạng mục 6 sau khi đạt max flow = 5 (\`f(s,a)=3, f(s,b)=2\` đều 
 
 > ⚠ **Lỗi thường gặp.** Tính min cut bằng cách "tìm cạnh bão hòa" tùy tiện. **Đúng** phải là: BFS từ \`s\` **trên residual graph** → lấy tập tới được \`S\` → đếm cạnh gốc \`S→T\`. Cạnh bão hòa không nằm trong cut nếu cả 2 đầu cùng phía. Và **không** đếm cạnh ngược \`T→S\`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một cut có cạnh \`S→T\` capacity tổng 7 và cạnh \`T→S\` capacity tổng 4. \`cap(S,T)\` bằng bao nhiêu?
+> 🔁 **Thực hành.** Một cut có cạnh \`S→T\` capacity tổng 7 và cạnh \`T→S\` capacity tổng 4. \`cap(S,T)\` bằng bao nhiêu?
 > <details><summary>Đáp án</summary>\`7\`. Cut capacity **chỉ** tính cạnh chiều \`S→T\`. Cạnh \`T→S\` bị bỏ qua hoàn toàn.</details>
 
 > 📝 **Tóm tắt mục 8.**
@@ -364,7 +364,7 @@ Mạng giới hạn lượng đi **qua một đỉnh** \`v\` (không chỉ qua c
 
 > ❓ **Câu hỏi tự nhiên.** *"Vertex-disjoint paths thì sao?"* — Đặt vertex capacity = 1 (split node, cạnh \`v_in→v_out\` cap 1) cho mọi đỉnh giữa, capacity cạnh = \`∞\` (hoặc 1). Max flow = số đường rời đỉnh.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bài "tối đa hàng từ 3 kho tới 2 cửa hàng, mỗi trạm trung chuyển chỉ qua được 10 đơn vị". Cần kỹ thuật reduce nào?
+> 🔁 **Thực hành.** Bài "tối đa hàng từ 3 kho tới 2 cửa hàng, mỗi trạm trung chuyển chỉ qua được 10 đơn vị". Cần kỹ thuật reduce nào?
 > <details><summary>Đáp án</summary>**Cả hai**: super source nối 3 kho + super sink nối 2 cửa hàng; **split node** cho trạm trung chuyển (cạnh \`in→out\` cap 10) để áp vertex capacity. Rồi chạy 1 lần max flow.</details>
 
 ---

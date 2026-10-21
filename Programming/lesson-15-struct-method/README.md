@@ -235,7 +235,7 @@ fmt.Println(p.X) // PANIC: runtime error: invalid memory address or nil pointer 
 
 Khi pointer là `nil`, không có struct nào để deref → panic. Luôn check `if p == nil` trước khi access field nếu pointer có thể nil.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Cho `p := &Point{X: 5, Y: 6}` (`p` là `*Point`). Đoạn nào hợp lệ?
 
@@ -374,7 +374,7 @@ func userEqual(a, b User) bool {
 }
 ```
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Struct sau có compare được không? Vì sao?
 
@@ -613,7 +613,7 @@ fmt.Println(c.N)  // 0 !!! không phải 3
 
 Đây là bug #1 với người mới học Go. Method tăng đếm nhưng counter không tăng. Phải đổi thành `func (c *Counter) Inc() { c.N++ }`.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Dự đoán output:
 
@@ -1173,7 +1173,7 @@ type X struct {
 
 **Phần lớn code thường**: đừng tối ưu sớm. Đọc dễ quan trọng hơn 8 byte/struct.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Struct sau bao nhiêu byte trên 64-bit?
 

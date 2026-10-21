@@ -159,7 +159,7 @@ func runPool(ctx context.Context, numWorkers int, jobs []Job) []Result {
 
 > ⚠ **Pitfall**: Quên \`close(jobCh)\` → worker \`for range jobCh\` block mãi mãi → goroutine leak.
 
-🔁 **Tự kiểm tra**: Nếu bạn có 1000 job, 4 worker, mỗi job 100ms — tổng thời gian ước lượng?
+🔁 **Thực hành**: Nếu bạn có 1000 job, 4 worker, mỗi job 100ms — tổng thời gian ước lượng?
 
 <details>
 <summary>Đáp án</summary>

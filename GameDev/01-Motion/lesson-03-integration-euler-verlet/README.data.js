@@ -62,7 +62,7 @@ $$\\int_0^t v\\,d\\tau \\approx \\sum_{i} v_i \\cdot \\Delta t$$
 - *"Tại sao không luôn dùng công thức kín cho gọn?"* — Vì chỉ vài bài toán hiếm có công thức kín. Hễ lực phụ thuộc vào trạng thái đang thay đổi (drag, spring, n-body) là hết. Tích phân số dùng được cho **mọi** lực.
 - *"Cộng dồn thì sai số chứ?"* — Đúng, luôn có sai số. Cả bài này nói về việc **sai bao nhiêu, theo kiểu gì, và cách chọn phương pháp để sai ít/an toàn**.
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao bài "thả bóng dưới trọng lực thuần" lại có công thức kín, còn bài "thả bóng có lực cản" thì không?
+🔁 **Thực hành.** Vì sao bài "thả bóng dưới trọng lực thuần" lại có công thức kín, còn bài "thả bóng có lực cản" thì không?
 
 <details><summary>Đáp án</summary>
 
@@ -208,7 +208,7 @@ $a = -x, \\omega = 1, x_0 = 1, v_0 = 0, \\Delta t = 0.5$. Lần này cập nhậ
 
 So với explicit (§2.4) leo $0.5 \\to 0.625 \\to 1.227 \\to \\ldots$ (phình vô hạn), semi-implicit **dao động quanh** $0.5$ ($0.625, 0.431, 0.553, 0.453$) mà **không tăng dần** → quỹ đạo giữ hình dạng, không xoắn ra. Đây là tính chất **symplectic**: nó không bảo toàn năng lượng tuyệt đối từng bước, nhưng giữ năng lượng dao động bị chặn quanh giá trị đúng mãi mãi → ổn định lâu dài.
 
-🔁 **Dừng lại tự kiểm tra.** Bạn có một game với 500 hành tinh quay quanh mặt trời, chạy hàng giờ. Dùng explicit hay semi-implicit Euler? Vì sao?
+🔁 **Thực hành.** Bạn có một game với 500 hành tinh quay quanh mặt trời, chạy hàng giờ. Dùng explicit hay semi-implicit Euler? Vì sao?
 
 <details><summary>Đáp án</summary>
 
@@ -362,7 +362,7 @@ Nếu $\\Delta t$ thay đổi mỗi frame theo tốc độ máy (variable timest
 
 → Giải pháp: **fixed timestep** (đã học [Lesson 01 — Game loop & timestep](../lesson-01-game-loop-timestep/)) — luôn bước vật lý với $\\Delta t$ cố định (vd 1/60 s), tách rời khỏi tốc độ vẽ. Đây là điều kiện sống còn để 3 integrator trên ổn định và tất định.
 
-🔁 **Dừng lại tự kiểm tra.** Game của bạn chạy 60fps trên máy mạnh, 20fps trên máy yếu. Dùng variable timestep ($\\Delta t = $ thời gian frame thực). Điều gì có thể xảy ra trên máy yếu mà không xảy ra trên máy mạnh?
+🔁 **Thực hành.** Game của bạn chạy 60fps trên máy mạnh, 20fps trên máy yếu. Dùng variable timestep ($\\Delta t = $ thời gian frame thực). Điều gì có thể xảy ra trên máy yếu mà không xảy ra trên máy mạnh?
 
 <details><summary>Đáp án</summary>
 

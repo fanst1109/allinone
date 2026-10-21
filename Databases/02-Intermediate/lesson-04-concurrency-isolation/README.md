@@ -126,7 +126,7 @@ Bán tổng 7 sản phẩm nhưng `stock` chỉ giảm 3 (từ 10 còn 7). Đún
 
 ⚠ **Lỗi thường gặp.** Nghĩ rằng "đọc rồi ghi trong cùng transaction là an toàn". KHÔNG — nếu hai transaction *đan xen* (đọc-đọc-ghi-ghi) thì vẫn mất update. Phải dùng khóa hoặc `UPDATE stock = stock - 4` (tính ngay trong DB) hoặc mức cô lập đủ cao.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Dirty read và non-repeatable read khác nhau ở điểm cốt lõi nào?
 2. Phantom read khác non-repeatable read ở chỗ nào?
 
@@ -161,7 +161,7 @@ Chuẩn SQL định nghĩa 4 mức, từ lỏng tới chặt. Mỗi mức ngăn 
 
 **4 ví dụ chọn mức:** (1) thống kê "ước lượng" số đơn đang chờ, chấp nhận sai số → READ UNCOMMITTED. (2) hiển thị số dư tài khoản cho user xem → READ COMMITTED. (3) tính báo cáo cần đọc nhiều dòng nhất quán trong một transaction → REPEATABLE READ. (4) chuyển tiền liên ngân hàng, kiểm kho không được âm → SERIALIZABLE.
 
-🔁 **Dừng lại tự kiểm tra.** Mức tối thiểu nào ngăn được dirty read? Còn non-repeatable read?
+🔁 **Thực hành.** Mức tối thiểu nào ngăn được dirty read? Còn non-repeatable read?
 
 <details><summary>Đáp án</summary>
 
@@ -277,7 +277,7 @@ T2 không phải chờ T1 (không bị chặn), và trong suốt T2 luôn thấy
 
 ⚠ **Lỗi thường gặp.** Tưởng MVCC làm mọi anomaly biến mất. Không — MVCC ngăn dirty/non-repeatable read tốt, nhưng *lost update* vẫn có thể xảy ra dưới snapshot isolation nếu hai bên cùng update; DBMS phát hiện *write conflict* và bắt một bên rollback (lỗi `serialization failure`), ứng dụng phải thử lại.
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao trong MVCC "đọc không chặn ghi"?
+🔁 **Thực hành.** Vì sao trong MVCC "đọc không chặn ghi"?
 
 <details><summary>Đáp án</summary>
 

@@ -60,7 +60,7 @@ Mỗi bước đệ quy gồm đúng ba việc:
 
 ⚠ **Lỗi thường gặp.** Quên bước 3 (`undo`) → trạng thái của nhánh này **rò rỉ** sang nhánh kia. Ví dụ đang xây `[1, 2]`, sau khi xong nhánh `[1,2]` mà không bỏ `2` ra, thì khi quay lên thử `3` ta lại có `[1, 2, 3]` thay vì `[1, 3]`. Sai hoàn toàn.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Backtracking duyệt cây trạng thái theo kiểu gì — DFS hay BFS?
 2. Sau khi gọi đệ quy xong cho một lựa chọn, ta phải làm gì trước khi thử lựa chọn tiếp theo?
 
@@ -232,7 +232,7 @@ Thứ tự ghi: `[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]` — đủ 8 t�
 
 ⚠ **Lỗi thường gặp.** Dùng vòng lặp `for i := 0` thay vì `for i := start` → sinh trùng (`[1,2]` lẫn `[2,1]`) và lặp vô hạn nếu không kiểm soát. `start` là cách *pruning* để cây chỉ đi "tiến tới" theo index.
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao subsets cách 2 ghi nhận lời giải ở **mọi node** chứ không chỉ ở lá như permutations?
+🔁 **Thực hành.** Vì sao subsets cách 2 ghi nhận lời giải ở **mọi node** chứ không chỉ ở lá như permutations?
 
 <details><summary>Đáp án</summary>
 Vì mỗi prefix `path` đang xây *đã là* một tập con hợp lệ rồi (tập con không cần dùng hết phần tử). `[1]` là tập con, `[1,2]` cũng là tập con. Ngược lại một hoán vị phải dùng *hết* các phần tử nên chỉ lá mới hợp lệ.
@@ -383,7 +383,7 @@ Không pruning: `for i := start; i <= n`. Với pruning: chặn trên `i <= n - 
 
 Không pruning, gốc thử cả `i=4` → vào `dfs(5,[4])` → `need=1` nhưng `start=5 > 4` → vòng lặp rỗng → trả về không ghi gì = lãng phí một lần gọi đệ quy. Pruning loại bỏ những lần gọi vô ích này. Với n,k lớn, tiết kiệm rất nhiều.
 
-🔁 **Dừng lại tự kiểm tra.** Với `n=5, k=3`, tại gốc `path=[]` pruning cho phép `i` chạy tới mức nào?
+🔁 **Thực hành.** Với `n=5, k=3`, tại gốc `path=[]` pruning cho phép `i` chạy tới mức nào?
 
 <details><summary>Đáp án</summary>
 `need = 3 - 0 = 3`, chặn trên `i <= 5 - 3 + 1 = 3`. Tức chỉ thử `i = 1,2,3` làm phần tử đầu. Bỏ `i=4,5` vì chọn 4 hoặc 5 đầu thì không còn đủ 2 phần tử lớn hơn để lấp đầy.
@@ -612,7 +612,7 @@ func combinationSum(cands []int, target int) [][]int {
 
 So sánh số node duyệt **với** và **không** pruning (đo bằng đếm số lần gọi `dfs`) thường chênh nhau hàng chục đến hàng nghìn lần khi target lớn — đó là khác biệt giữa "chạy trong 1ms" và "treo máy".
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao `break` (không phải `continue`) là đúng trong combination sum sau khi đã `sort`?
+🔁 **Thực hành.** Vì sao `break` (không phải `continue`) là đúng trong combination sum sau khi đã `sort`?
 
 <details><summary>Đáp án</summary>
 Vì mảng đã sort tăng dần. Nếu `cands[i] > remain` thì mọi `cands[j]` với `j > i` cũng `> remain` (do đã sort). Không chỉ `i` này vô vọng mà *cả phần đuôi* cũng vô vọng → `break` cắt luôn, `continue` chỉ bỏ một phần tử (lãng phí kiểm tra phần còn lại).

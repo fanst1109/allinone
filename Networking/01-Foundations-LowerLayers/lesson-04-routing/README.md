@@ -86,7 +86,7 @@ Router hoạt động ở **tầng 3 (Network)**. Nó đọc **địa chỉ IP �
 
 ⚠ **Lỗi thường gặp:** Nhiều người nhầm "default gateway là địa chỉ của DNS server". Không. Default gateway là địa chỉ IP của **router** trong mạng LAN của bạn. DNS server (thường là `8.8.8.8` hoặc `1.1.1.1`) là một dịch vụ trên Internet, hoàn toàn khác.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Máy `10.0.0.5/24` muốn gửi đến `10.0.0.7`. Nó có cần qua router không?
 
@@ -207,7 +207,7 @@ Trên router biên (edge router) của một tổ chức, thường có dòng:
 ```
 Mọi gói tin đến đích Internet không nằm trong mạng nội bộ sẽ được đẩy sang ISP.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Bảng định tuyến có các dòng sau. IP đích `10.10.10.5` sẽ dùng dòng nào?
 

@@ -60,7 +60,7 @@ Logic modal bổ sung hai toán tử vào ngôn ngữ của logic:
 
 > ⚠ **Lỗi thường gặp: nhầm "khả dĩ" với "thực tế xảy ra".** ◇p (có thể p) *không* có nghĩa là p đang xảy ra trong thực tế. "Có thể trời mưa mai" — đây là ◇(trời mưa mai), đúng ngay cả khi thực tế mai không mưa. ◇p chỉ nói: *tồn tại ít nhất một tình huống* (thế giới khả dĩ) mà trong đó p đúng. Thực tế có thể là p sai hoàn toàn ở thế giới hiện tại.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại mỗi câu sau:
+> 🔁 **Thực hành.** Phân loại mỗi câu sau:
 > 1. "Tất yếu 2 + 2 = 4" — công thức modal nào?
 > 2. "Có thể tồn tại hành tinh khác có sự sống" — công thức modal nào?
 > 3. "Không thể có số nguyên tố lớn nhất" — diễn đạt bằng □ hoặc ◇?
@@ -120,7 +120,7 @@ Giá trị mệnh đề p tại từng thế giới: V(p, w₁) = F, V(p, w₂) 
 > - *Quan hệ truy cập R có ý nghĩa gì thực tế?* — Tùy cách diễn giải logic modal. Với modal nhận thức (epistemic): wRw' nghĩa là "từ thế giới w, tôi không thể phân biệt w và w' dựa trên điều tôi biết" — tức w' là một thế giới nhất quán với mọi điều tôi biết ở w. Với modal nghĩa vụ (deontic): wRw' nghĩa là "w' là một thế giới lý tưởng về mặt đạo đức có thể đạt được từ w".
 > - *Tại sao cần quan hệ R thay vì đơn giản là "mọi thế giới"?* — Nếu □p phải đúng ở *mọi* thế giới trong W, logic trở nên quá chặt (□p sẽ rất hiếm khi đúng). Quan hệ R cho phép "thu hẹp" phạm vi: □p tại w chỉ cần đúng ở những thế giới *liên quan* đến w theo nghĩa của R. Điều này linh hoạt hơn nhiều.
 
-> 🔁 **Dừng lại tự kiểm tra.** Xét mô hình: W = {a, b, c}; aRb, aRc, bRc; V(p, a) = T, V(p, b) = F, V(p, c) = T.
+> 🔁 **Thực hành.** Xét mô hình: W = {a, b, c}; aRb, aRc, bRc; V(p, a) = T, V(p, b) = F, V(p, c) = T.
 > 1. □p tại a là T hay F?
 > 2. ◇p tại b là T hay F?
 > 3. □p tại b là T hay F?
@@ -188,7 +188,7 @@ Ví dụ: □¬(2 + 2 = 5) = ¬◇(2 + 2 = 5). "Tất yếu 2+2≠5" tương đ�
 
 > ⚠ **Lỗi thường gặp: nhầm ◇p với ¬□p.** Xem lại: ◇p ≡ ¬□¬p (phủ định bên ngoài □ và phủ định p), còn ¬□p ≡ ◇¬p (có thể không-p). Kiểm tra nhanh bằng analogy ∀/∃: ∃x.P(x) ≡ ¬∀x.¬P(x), không phải ¬∀x.P(x).
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết lại mỗi công thức sau bằng cách dùng đối ngẫu:
+> 🔁 **Thực hành.** Viết lại mỗi công thức sau bằng cách dùng đối ngẫu:
 > 1. □(p ∧ q) — viết lại dùng ◇.
 > 2. ◇(p → q) — viết lại dùng □.
 > 3. ¬◇p — đơn giản hóa thành dạng □.

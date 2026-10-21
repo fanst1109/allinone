@@ -824,7 +824,7 @@ func main() {
 | Dữ liệu phẳng, chỉ tra theo khóa | Cây thêm tầng vô ích | \`map\` / hash |
 | Cây quá sâu (đệ quy → stack overflow) | DFS đệ quy tràn stack | Duyệt bằng **stack tường minh** (lặp) |
 
-> 🔁 **Tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Vì sao cây biểu thức cho \`10 - 2 * 3\` ra \`4\`, không phải \`24\`?
 >    <details><summary>Đáp án</summary>Grammar đặt \`*\` trong \`term\` (sâu hơn), \`-\` trong \`expr\` (gần gốc). Cây: gốc \`-\`, con trái \`10\`, con phải là node \`*\`(2,3). Postorder tính \`2*3=6\` trước, rồi \`10-6=4\`. Hình dạng cây mã hóa độ ưu tiên.</details>
 > 2. \`filepath.WalkDir\` duyệt theo thứ tự pre/in/post-order nào? Trả \`filepath.SkipDir\` làm gì?

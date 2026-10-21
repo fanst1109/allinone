@@ -93,7 +93,7 @@ Ngoài lý do "n + m", IR phẳng và độc lập máy còn cho ta **một nơi
 - Lập luận **n + m thay vì n × m**: n front-end + m back-end thay vì n × m bộ dịch trực tiếp. Đây là kiến trúc LLVM.
 - IR còn là nơi viết tối ưu **một lần dùng cho mọi cặp** (nguồn, đích).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Một bộ công cụ hỗ trợ 5 ngôn ngữ nguồn và 6 kiến trúc đích. Cần bao nhiêu module nếu có IR? Nếu không có?
 2. Vì sao IR không phải là assembly?
 
@@ -218,7 +218,7 @@ Kiểm tra `a=2,b=3,c=4`: `t1=6, t2=8, t3=14`; `2*3+2*4=14` ✓. (Tối ưu **co
 - *"Vì sao đúng 3 địa chỉ, không phải 2 hay 4?"* — 3 là tối thiểu để biểu diễn `đích = nguồn op nguồn` đủ tổng quát. Nhiều hơn 3 thì lệnh không còn map gọn xuống lệnh CPU một-phép.
 - *"TAC có lưu thật trong file không?"* — Tùy compiler. Trong thực tế TAC thường là cấu trúc trong bộ nhớ (mảng các struct lệnh — gọi là **quadruple** hoặc **triple**), không nhất thiết là text. Text chỉ để con người đọc.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Dịch `(a - b) * (a - b)` sang TAC.
 2. Trong walk-through `(2+3)*4`, temp nào chứa kết quả cuối cùng?
 
@@ -365,7 +365,7 @@ mul          ; pop 4, pop 5, push 20
 - SSA là tính chất, không đối lập TAC; LLVM IR = TAC + SSA.
 - Stack-based (JVM, WASM) gọn dễ sinh; register-based (TAC, LLVM IR) dễ tối ưu.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Viết đoạn sau ở dạng SSA: `s = 0; s = s + a; s = s + b`.
 2. WebAssembly là stack-based hay register-based?
 
@@ -534,7 +534,7 @@ CFG là **cấu trúc dữ liệu nền** cho gần như mọi phân tích/tối
 - Nhảy điều kiện tạo 2 cạnh; cạnh ngược = vòng lặp.
 - CFG là nền cho mọi tối ưu (L12).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Trong CFG ví dụ 6.3, block nào có 2 cạnh đi ra? Vì sao?
 2. Một block kết thúc bằng `goto L5`. Lệnh ngay sau nó (không có label) có là leader không?
 

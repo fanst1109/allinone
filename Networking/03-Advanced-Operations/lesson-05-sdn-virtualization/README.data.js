@@ -278,7 +278,7 @@ Nếu frame thuộc VLAN 20 → Switch KHÔNG chuyển vào VLAN 10. Hoàn toàn
 **"Vì sao VID chỉ có 12 bit (4094 VLAN) mà không nhiều hơn?"**
 → Khi 802.1Q được thiết kế năm 1998, 4094 VLAN tưởng là đủ cho mạng doanh nghiệp. Nhưng cloud/data center cần hàng triệu tenant cô lập → sinh ra VXLAN (xem mục 4).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 Switch có port 3 cấu hình "access VLAN 20". Máy A (VLAN 10) gửi frame broadcast ARP. Frame có đến port 3 không?
 

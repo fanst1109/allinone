@@ -44,7 +44,7 @@ Sau bài này bạn sẽ:
 > - *"Nếu lạm phát = 0 và không rủi ro thì tiền tương lai có bằng tiền hiện tại không?"* — Vẫn không, miễn là tồn tại **cơ hội đầu tư sinh lời dương** (lãi suất thực > 0). Chừng nào bạn còn có thể cho vay/đầu tư để nhận thêm, tiền hiện tại vẫn nhỉnh hơn.
 > - *"Có khi nào tiền tương lai đáng giá hơn không?"* — Trong môi trường **lãi suất âm** (hiếm, từng xảy ra ở châu Âu, Nhật), giữ tiền mặt bị "phạt". Nhưng đây là ngoại lệ; mặc định lãi suất dương.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lãi suất 10%/năm. Bạn chọn nhận 100 triệu bây giờ hay 105 triệu sau 1 năm?
+> 🔁 **Thực hành.** Lãi suất 10%/năm. Bạn chọn nhận 100 triệu bây giờ hay 105 triệu sau 1 năm?
 > <details><summary>Đáp án</summary>Nhận 100 triệu bây giờ. Vì 100tr đầu tư 10% → 110tr sau 1 năm > 105tr. "100tr bây giờ" giá trị hơn "105tr sau 1 năm".</details>
 
 ---
@@ -80,7 +80,7 @@ Kiểm chứng năm 2 lãi kép: $100 \\times 1{,}1^2 = 100 \\times 1{,}21 = 121
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "lãi 10%/năm trong 30 năm = 300% tổng cộng". Đó là **lãi đơn**. Với lãi kép, 10% trong 30 năm cho tổng tăng **1644%** ($1{,}1^{30} = 17{,}45$ lần). Đừng bao giờ nhân thẳng lãi suất với số năm khi có ghép lãi.
 
-> 🔁 **Dừng lại tự kiểm tra.** $P = 50$ triệu, lãi kép $8\\%$/năm, sau 2 năm còn bao nhiêu?
+> 🔁 **Thực hành.** $P = 50$ triệu, lãi kép $8\\%$/năm, sau 2 năm còn bao nhiêu?
 > <details><summary>Đáp án</summary>$50 \\times 1{,}08^2 = 50 \\times 1{,}1664 = 58{,}32$ triệu.</details>
 
 ---
@@ -134,7 +134,7 @@ $$FV = PV \\cdot e^{r t}$$
 
 > ⚠ **Lỗi thường gặp.** Lẫn lộn "lãi suất mỗi kỳ" với "lãi suất năm". Nếu ghép tháng, lãi mỗi kỳ là $r/12$ **không phải** $r$. Mũ cũng phải là số kỳ ($m \\cdot t$), không phải số năm.
 
-> 🔁 **Dừng lại tự kiểm tra.** $100$ triệu, $6\\%$/năm ghép **tháng**, sau 2 năm?
+> 🔁 **Thực hành.** $100$ triệu, $6\\%$/năm ghép **tháng**, sau 2 năm?
 > <details><summary>Đáp án</summary>$100 \\times (1 + 0{,}06/12)^{12 \\times 2} = 100 \\times 1{,}005^{24} = 100 \\times 1{,}1272 = 112{,}72$ triệu.</details>
 
 ---
@@ -170,7 +170,7 @@ Ví dụ cuối đáng chú ý: 50 triệu nhận sau **20 năm** với chiết 
 
 > ⚠ **Lỗi thường gặp.** Cộng thẳng các khoản tiền ở những năm khác nhau. Sai — "100 triệu năm nay + 100 triệu năm thứ 5" **không** bằng 200 triệu hôm nay. Phải chiết khấu từng khoản về hiện tại rồi mới cộng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lời hứa trả 121 triệu sau 2 năm, discount rate 10%. PV bằng bao nhiêu?
+> 🔁 **Thực hành.** Lời hứa trả 121 triệu sau 2 năm, discount rate 10%. PV bằng bao nhiêu?
 > <details><summary>Đáp án</summary>$PV = 121 / 1{,}1^2 = 121 / 1{,}21 = 100$ triệu.</details>
 
 ---
@@ -198,7 +198,7 @@ Thời gian nhân đôi chính xác giải từ $(1+r)^n = 2 \\Rightarrow n = \\
 
 > ⚠ **Lỗi thường gặp.** Dùng $72/0{,}08$ (lãi dạng thập phân) → ra 900 năm, vô lý. Phải dùng **số phần trăm**: $72/8 = 9$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lãi 9%/năm, bao lâu tiền gấp đôi? Gấp bốn?
+> 🔁 **Thực hành.** Lãi 9%/năm, bao lâu tiền gấp đôi? Gấp bốn?
 > <details><summary>Đáp án</summary>Gấp đôi: $72/9 = 8$ năm. Gấp bốn = gấp đôi hai lần = $8 \\times 2 = 16$ năm.</details>
 
 ---

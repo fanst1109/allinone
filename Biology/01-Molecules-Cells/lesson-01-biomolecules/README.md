@@ -114,7 +114,7 @@ $$\text{monomer–monomer} + \text{H}_2\text{O} \rightarrow \text{monomer–OH} 
 - **Nhầm chiều phản ứng**: trùng ngưng **tách** nước (tổng hợp, tốn năng lượng); thủy phân **thêm** nước (phân giải, tiêu hóa). Đảo ngược là sai bản chất.
 - **Coi lipid là polymer**: lipid (đặc biệt triglyceride) **không** phải polymer thật — nó chỉ là glycerol + vài acid béo, không phải chuỗi lặp đơn phân giống nhau. Xem §5.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Nối 250 amino acid thành 1 chuỗi polypeptide, tách ra bao nhiêu phân tử nước?
 2. Thủy phân hoàn toàn 1 phân tử sucrose (`C₁₂H₂₂O₁₁`) cho ra glucose + fructose (đều `C₆H₁₂O₆`). Cần thêm mấy phân tử nước? Kiểm tra cân bằng nguyên tử.
@@ -223,7 +223,7 @@ A: Không. Người tự tổng hợp ~11 loại; còn **9 amino acid thiết y�
 **Q: Vì sao chỉ 20 amino acid mà tạo được mọi sinh vật?**
 A: Vì sức mạnh nằm ở **tổ hợp và độ dài**. Giống 26 chữ cái tiếng Anh viết được mọi cuốn sách, 20 amino acid xếp theo trình tự + độ dài khác nhau tạo ra hàng triệu protein khác chức năng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một protein gồm 2 chuỗi, mỗi chuỗi 150 amino acid. Tổng số liên kết peptide là bao nhiêu?
 2. Vì sao luộc trứng không thể "luộc ngược" cho lỏng lại được?
@@ -334,7 +334,7 @@ A: Uracil "rẻ" hơn để tổng hợp, nhưng cytosine có thể tự phân h
 **Q: Bài này với Tầng 2 khác nhau chỗ nào?**
 A: Bài này chỉ giới thiệu nucleic acid là **1 trong 4 nhóm phân tử** (cấu tạo, bắt cặp). Tầng 2 (`02-Genetics-Evolution`) sẽ học **cơ chế**: nhân đôi, phiên mã, dịch mã, đột biến.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một DNA có C = 17%. Tính %A, %T, %G.
 2. Đoạn DNA 1000 nucleotide có 350 G. Có bao nhiêu liên kết hydrogen tổng cộng giữa 2 mạch?

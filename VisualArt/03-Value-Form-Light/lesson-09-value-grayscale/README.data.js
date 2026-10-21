@@ -100,7 +100,7 @@ Kiểm tra: bậc 5 (giữa) = $\\frac{4}{8}\\times 100\\% = 50\\%$, value 0–2
 
 > ⚠ **Lỗi thường gặp — "value bị đục" (muddy).** Người mới hay tô mọi thứ trong khoảng bậc 4–6 (37.5%–62.5%), né cả đen lẫn trắng. Kết quả: tranh **phẳng, xám xịt, không có điểm nhấn**. Cách chữa: cố tình đẩy vùng tối xuống bậc 1–2 và vùng chói lên bậc 8–9 để **mở rộng dải value** (value range). Chênh lệch lớn = khối chắc, không gian sâu.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trên thang 9 bậc, bậc 3 ứng với value bao nhiêu % và bao nhiêu trên thang 0–255?
 > 2. Một vùng có value 62.5% rơi vào bậc mấy?
 >
@@ -179,7 +179,7 @@ Ví dụ: chủ thể 90% cạnh nền 15% ⇒ tương phản $|90-15| = 75$ đi
 
 > ⚠ **Lỗi thường gặp.** Đặt tương phản value mạnh **rải rác nhiều chỗ** ⇒ mắt bị giật khắp nơi, không biết nhìn đâu (không có tâm điểm). Nguyên tắc: **một** vùng tương phản value cao nhất cho chủ thể; các nơi khác giữ chênh lệch value nhỏ hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một bức có value chủ đạo 10%–35%, điểm nhấn 88%. Đây là high-key hay low-key?
 > 2. Chủ thể value 70%, nền value 68%. Vì sao chủ thể "chìm"? Sửa thế nào?
 >

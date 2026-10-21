@@ -135,7 +135,7 @@ Gam: `D E F♯ G A B C♯` (2 dấu thăng: F♯ C♯)
 | vi | Bm | B–D–F♯ | Thứ |
 | vii° | C♯° | C♯–E–G | Giảm |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Điệu E♭ trưởng (gam: `E♭ F G A♭ B♭ C D`). Hợp âm bậc ii và bậc V là gì?
 > <details><summary>Đáp án</summary>
 >
@@ -211,7 +211,7 @@ Công thức: lấy nốt 1–3–5–7 trong gam, đếm từ bậc root (bư�
 
 **Ký hiệu viiø7:** "ø" là ký hiệu cho half-diminished (thứ♭5 + bảy thứ). Bm7♭5 trong C trưởng: B–D–F–A. B→D: m3 ✓. B→F: dim5 ✓. B→A: m7 ✓.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Điệu G trưởng. Hợp âm bảy tại bậc V là gì? Liệt kê 4 nốt và xác nhận chất.
 > <details><summary>Đáp án</summary>
 >
@@ -271,7 +271,7 @@ Cả hai chuyển động đồng thời về C–E = phần lõi của hợp â
 |---|----|----|---|---|----|----|
 | Dm | E° | F | Gm | Am | B♭ | C |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Điệu A trưởng (gam: A B C♯ D E F♯ G♯). Hợp âm ở bậc ii, IV, vi là gì?
 > <details><summary>Đáp án</summary>
 >

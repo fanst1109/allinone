@@ -1,0 +1,208 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "🏠 Trang chính" [ref=e3] [cursor=pointer]:
+      - /url: ../index.html
+    - generic [ref=e4]: ·
+    - generic [ref=e5]: "L01: Game Loop & Timestep"
+    - generic [ref=e6]: ·
+    - 'link "L02: Vectors & Kinematics →" [ref=e7] [cursor=pointer]':
+      - /url: ../lesson-02-vectors-kinematics/visualization.html
+  - main [ref=e8]:
+    - heading "Lesson 01 — Game Loop & Timestep" [level=1] [ref=e9]
+    - paragraph [ref=e10]:
+      - text: Ba mô phỏng chạy thật bằng
+      - code [ref=e11]: requestAnimationFrame
+      - text: ": thấy tận mắt vì sao phải nhân Δt, fixed vs variable timestep với accumulator, và đồng hồ FPS / frame-budget thực."
+    - heading "1. Frame-rate độc lập — Δt vs cộng hằng số" [level=2] [ref=e12]
+    - paragraph [ref=e13]:
+      - text: Hai viên bi cùng đặt mục tiêu
+      - strong [ref=e14]: 100 px/giây
+      - text: . Bi
+      - strong [ref=e15]: hồng
+      - text: cập nhật
+      - code [ref=e16]: x += v·Δt
+      - text: (đúng); bi
+      - strong [ref=e17]: xám
+      - text: cộng hằng số
+      - code [ref=e18]: x += k
+      - text: "mỗi frame (sai). Kéo slider giả lập FPS: bi hồng luôn về đích cùng lúc ở mọi FPS; bi xám nhanh dần khi FPS cao."
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]: "FPS giả lập:"
+        - generic [ref=e22]:
+          - button "15" [ref=e23] [cursor=pointer]
+          - button "30" [ref=e24] [cursor=pointer]
+          - button "60" [ref=e25] [cursor=pointer]
+          - button "120" [ref=e26] [cursor=pointer]
+        - button "↺ Reset" [ref=e27] [cursor=pointer]
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - text: "Δt:"
+          - code [ref=e31]: x += 100·Δt
+          - text: (đúng)
+        - generic [ref=e32]:
+          - text: "hằng số:"
+          - code [ref=e34]: x += 1.67
+          - text: /frame (sai)
+        - generic [ref=e35]: ▏ vạch đích = 100 px/giây × số giây
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]: Δt mô phỏng
+          - generic [ref=e40]: "0.0167"
+          - generic [ref=e41]: giây/frame
+        - generic [ref=e42]:
+          - generic [ref=e43]: Bi Δt (hồng)
+          - generic [ref=e44]: "22"
+          - generic [ref=e45]: px · ≈ 100·t
+        - generic [ref=e46]:
+          - generic [ref=e47]: Bi hằng số (xám)
+          - generic [ref=e48]: "22"
+          - generic [ref=e49]: px
+        - generic [ref=e50]:
+          - generic [ref=e51]: Thời gian mô phỏng
+          - generic [ref=e52]: "0.2"
+          - generic [ref=e53]: giây
+      - paragraph [ref=e54]: Ở đúng 60 fps, bi xám tình cờ khớp bi hồng (vì hằng số được tinh chỉnh cho 60 fps).
+    - heading "2. Fixed vs Variable timestep — accumulator" [level=2] [ref=e55]
+    - paragraph [ref=e56]:
+      - text: FPS thật
+      - strong [ref=e57]: dao động
+      - text: (mô phỏng lag ngẫu nhiên). Mỗi frame dồn Δt thật vào
+      - emphasis [ref=e58]: accumulator
+      - text: ", rồi tiêu thành các bước cố định"
+      - code [ref=e59]: FIXED = 1/60 s
+      - text: ". Số ô hồng = số bước vật lý chạy trong frame đó: lag → chạy nhiều bước đuổi kịp; frame ngắn → 0 bước."
+    - generic [ref=e60]:
+      - generic [ref=e61]:
+        - generic [ref=e62]: "Biên độ dao động FPS:"
+        - slider [ref=e63]: "55"
+        - generic [ref=e64]: ±55%
+        - button "↺ Reset" [ref=e65] [cursor=pointer]
+      - generic [ref=e66]:
+        - generic [ref=e67]: "Bước fixed frame này:"
+        - generic [ref=e68]:
+          - generic [ref=e69]: "1"
+          - generic [ref=e70]: "2"
+          - generic [ref=e71]: "3"
+      - generic [ref=e73]: Accumulator (0 → FIXED, vạch đen = ngưỡng FIXED)
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e80]: Δt thật frame
+          - generic [ref=e81]: "0.049"
+          - generic [ref=e82]: giây
+        - generic [ref=e83]:
+          - generic [ref=e84]: Bước/frame
+          - generic [ref=e85]: "3"
+          - generic [ref=e86]: lần update(FIXED)
+        - generic [ref=e87]:
+          - generic [ref=e88]: Tổng bước
+          - generic [ref=e89]: "23"
+          - generic [ref=e90]: × FIXED
+        - generic [ref=e91]:
+          - generic [ref=e92]: Accumulator dư
+          - generic [ref=e93]: "0.009"
+          - generic [ref=e94]: giây < FIXED
+      - paragraph [ref=e95]:
+        - text: Bi hồng dùng
+        - strong [ref=e96]: fixed timestep
+        - text: (nội suy theo accumulator → mượt & tất định). Tổng số bước luôn bám sát tổng thời gian thật ÷ FIXED — vật lý không phụ thuộc nhịp render thất thường.
+    - heading "3. FPS & Frame budget meter" [level=2] [ref=e97]
+    - paragraph [ref=e98]:
+      - text: Đồng hồ FPS thật của trình duyệt bạn (đo từ Δt thật của
+      - code [ref=e99]: requestAnimationFrame
+      - text: ). Bấm "Tải nặng giả lập" để cố tình đốt thời gian mỗi frame → xem frame budget bị ăn mòn và FPS tụt.
+    - generic [ref=e100]:
+      - generic [ref=e101]:
+        - generic [ref=e102]: "Mục tiêu:"
+        - generic [ref=e103]:
+          - button "30 fps" [ref=e104] [cursor=pointer]
+          - button "60 fps" [ref=e105] [cursor=pointer]
+          - button "120 fps" [ref=e106] [cursor=pointer]
+        - generic [ref=e107]: "Tải giả lập:"
+        - slider [ref=e108]: "0"
+        - generic [ref=e109]: 0 ms
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - generic [ref=e113]: FPS thật
+          - generic [ref=e114]: "75"
+          - generic [ref=e115]: 1 / Δt
+        - generic [ref=e116]:
+          - generic [ref=e117]: Δt thật
+          - generic [ref=e118]: "13.3"
+          - generic [ref=e119]: ms/frame
+        - generic [ref=e120]:
+          - generic [ref=e121]: Frame budget
+          - generic [ref=e122]: "16.67"
+          - generic [ref=e123]: ms (mục tiêu)
+        - generic [ref=e124]:
+          - generic [ref=e125]: Còn dư / vượt
+          - generic [ref=e126]: "+3.4"
+          - generic [ref=e127]: ms
+      - paragraph [ref=e128]: Frame xong trong budget (13.3 ≤ 16.67 ms) → giữ được 60 fps.
+    - heading "4. Bảng so sánh nhanh" [level=2] [ref=e129]
+    - generic [ref=e130]:
+      - table [ref=e132]:
+        - rowgroup [ref=e133]:
+          - row "Variable timestep Fixed timestep" [ref=e134]:
+            - columnheader [ref=e135]
+            - columnheader "Variable timestep" [ref=e136]
+            - columnheader "Fixed timestep" [ref=e137]
+          - row "Δt mỗi update thay đổi (Δt thật) cố định FIXED" [ref=e138]:
+            - cell "Δt mỗi update" [ref=e139]
+            - cell "thay đổi (Δt thật)" [ref=e140]
+            - cell "cố định FIXED" [ref=e141]:
+              - text: cố định
+              - code [ref=e142]: FIXED
+          - row "Code đơn giản cần accumulator" [ref=e143]:
+            - cell "Code" [ref=e144]
+            - cell "đơn giản" [ref=e145]
+            - cell "cần accumulator" [ref=e146]
+          - row "Tất định? không có" [ref=e147]:
+            - cell "Tất định?" [ref=e148]
+            - cell "không" [ref=e149]
+            - cell "có" [ref=e150]:
+              - strong [ref=e151]: có
+          - row "Ổn định vật lý cứng? kém (dễ nổ với Δt to) tốt" [ref=e152]:
+            - cell "Ổn định vật lý cứng?" [ref=e153]
+            - cell "kém (dễ nổ với Δt to)" [ref=e154]
+            - cell "tốt" [ref=e155]:
+              - strong [ref=e156]: tốt
+          - row "Rủi ro xuyên tường khi Δt vọt spiral of death (nếu không kẹp)" [ref=e157]:
+            - cell "Rủi ro" [ref=e158]
+            - cell "xuyên tường khi Δt vọt" [ref=e159]
+            - cell "spiral of death (nếu không kẹp)" [ref=e160]
+          - row "Hợp cho prototype, chuyển động đơn giản vật lý, netcode, replay" [ref=e161]:
+            - cell "Hợp cho" [ref=e162]
+            - cell "prototype, chuyển động đơn giản" [ref=e163]
+            - cell "vật lý, netcode, replay" [ref=e164]
+      - paragraph [ref=e165]: "Chi tiết spiral of death và cách kẹp Δt: xem README §4.3 (nút 📖 ở góc)."
+  - button "📖 Đọc README" [ref=e166] [cursor=pointer]
+  - dialog [ref=e167]:
+    - generic [ref=e168]:
+      - generic [ref=e169]: 📖 README
+      - button [ref=e170] [cursor=pointer]: 📑 TOC
+      - generic [ref=e171]:
+        - button [ref=e172] [cursor=pointer]: Modal
+        - button [ref=e173] [cursor=pointer]: Sidebar
+        - button [ref=e174] [cursor=pointer]: Full
+      - button [ref=e175] [cursor=pointer]: ✕
+    - navigation [ref=e177]:
+      - generic [ref=e178]: 📑 Mục lục
+  - button "📑 Mục lục" [ref=e180] [cursor=pointer]
+  - navigation "Mục lục":
+    - generic:
+      - text: 📑 Mục lục
+      - button "Đóng": ✕
+    - list:
+      - listitem:
+        - link "1. Frame-rate độc lập — Δt vs cộng hằng số":
+          - /url: "#1-frame-rate-doc-lap-t-vs-cong-hang-so"
+      - listitem:
+        - link "2. Fixed vs Variable timestep — accumulator":
+          - /url: "#2-fixed-vs-variable-timestep-accumulator"
+      - listitem:
+        - link "3. FPS & Frame budget meter":
+          - /url: "#3-fps-frame-budget-meter"
+      - listitem:
+        - link "4. Bảng so sánh nhanh":
+          - /url: "#4-bang-so-sanh-nhanh"

@@ -74,7 +74,7 @@ Sau bài này bạn sẽ:
 > - *"Vậy con số nào quan trọng với tôi?"* — Hai con số cho hai mục đích: **suất biên** để quyết định "làm thêm/đầu tư thêm có đáng không" (đồng tiếp theo bị đánh bao nhiêu); **suất trung bình** để biết thực tế mất bao nhiêu % tổng thu nhập.
 > - *"Vì sao suất trung bình luôn thấp hơn suất biên?"* — Vì các bậc đầu chịu suất thấp kéo trung bình xuống. Hai cái chỉ bằng nhau nếu toàn bộ thu nhập nằm trong bậc 1.
 
-> 🔁 **Dừng lại tự kiểm tra.** Thu nhập tính thuế 12 triệu/tháng. Tính tổng thuế, suất biên, suất trung bình.
+> 🔁 **Thực hành.** Thu nhập tính thuế 12 triệu/tháng. Tính tổng thuế, suất biên, suất trung bình.
 > <details><summary>Đáp án</summary>Bậc1 $5{\times}5\%=0{,}25$; bậc2 $5{\times}10\%=0{,}5$; bậc3 $(12{-}10){\times}15\%=0{,}3$. Tổng $=1{,}05$ tr. Suất biên 15%; trung bình $1{,}05/12 = 8{,}75\%$.</details>
 
 ---

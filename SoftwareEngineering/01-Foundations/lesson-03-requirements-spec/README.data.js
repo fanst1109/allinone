@@ -48,7 +48,7 @@ Bốn ví dụ (cùng app trên):
 
 ⚠ **Lỗi thường gặp.** Chỉ liệt kê yêu cầu chức năng rồi quên hẳn NFR. Hậu quả: code chạy đúng trong demo (1 người dùng) nhưng sập khi có 1.000 người thật, hoặc bị từ chối kiểm định bảo mật. NFR phải được viết ra *cùng lúc* với chức năng, không phải "để sau tính".
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại các yêu cầu sau là chức năng (F) hay phi chức năng (NF): (a) "Người dùng có thể đặt lại mật khẩu qua email"; (b) "API phản hồi trong dưới 200ms ở 95% request"; (c) "Hỗ trợ tiếng Việt và tiếng Anh"; (d) "Dữ liệu được mã hóa khi truyền (HTTPS)".
+> 🔁 **Thực hành.** Phân loại các yêu cầu sau là chức năng (F) hay phi chức năng (NF): (a) "Người dùng có thể đặt lại mật khẩu qua email"; (b) "API phản hồi trong dưới 200ms ở 95% request"; (c) "Hỗ trợ tiếng Việt và tiếng Anh"; (d) "Dữ liệu được mã hóa khi truyền (HTTPS)".
 > <details><summary>Đáp án</summary>(a) <b>F</b> — một việc hệ thống làm. (b) <b>NF</b> — hiệu năng, mức độ nhanh. (c) thường xem là <b>F</b> (tính năng đa ngôn ngữ) nhưng có thể coi là NF nếu phát biểu dạng ràng buộc "mọi text hiển thị phải hỗ trợ i18n". (d) <b>NF</b> — bảo mật. Lưu ý (c): ranh giới đôi khi mờ, điều quan trọng là *viết ra được* chứ không phải tranh cãi nhãn.</details>
 
 📝 **Tóm tắt mục 1.** Yêu cầu **chức năng** = hệ thống *làm gì* (hành vi); yêu cầu **phi chức năng** = hệ thống làm *tốt đến mức nào* (hiệu năng, bảo mật, khả dụng, khả mở rộng). Cả hai phải được viết ra sớm — NFR đặc biệt khó sửa muộn.
@@ -87,7 +87,7 @@ Vài câu mơ hồ khác và bản làm rõ:
 
 ⚠ **Lỗi thường gặp.** Dùng các tính từ "co giãn" mà không định lượng: *nhanh, dễ dùng, ổn định, an toàn, đẹp, hiện đại, trực quan*. Mỗi lần gặp một tính từ như vậy trong đặc tả, hãy coi đó là **cờ đỏ** và hỏi "đo bằng gì?".
 
-> 🔁 **Dừng lại tự kiểm tra.** Làm rõ câu mơ hồ: "Báo cáo phải xuất nhanh." Cần thêm thông tin gì?
+> 🔁 **Thực hành.** Làm rõ câu mơ hồ: "Báo cáo phải xuất nhanh." Cần thêm thông tin gì?
 > <details><summary>Đáp án</summary>Cần: (1) *nhanh* là bao nhiêu giây (vd "< 10s"); (2) báo cáo *kích thước nào* (vd "với 50.000 dòng dữ liệu"); (3) *định dạng* gì (PDF/Excel/CSV); (4) đo ở đâu. Ví dụ làm rõ: "Xuất báo cáo doanh thu 50.000 dòng ra Excel trong dưới 10 giây."</details>
 
 📝 **Tóm tắt mục 2.** Yêu cầu mơ hồ khiến mỗi người hiểu một kiểu → sai lộ ra muộn → sửa đắt. Mọi tính từ co giãn (nhanh, dễ dùng, ổn định) là cờ đỏ — phải làm rõ thành **tiêu chí đo được** (có con số / điều kiện / kiểm chứng khách quan).
@@ -121,7 +121,7 @@ Ba phần và vì sao quan trọng:
 
 ⚠ **Lỗi thường gặp.** Viết story theo góc nhìn *kỹ thuật* thay vì *người dùng*: "Là hệ thống, tôi muốn có một bảng \`orders\`, để lưu đơn." Sai — "hệ thống" và "bảng orders" là chi tiết hiện thực, không phải nhu cầu người dùng. Story phải bắt đầu từ một *con người* có mục đích.
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết một user story cho tính năng "đổi mật khẩu" của một app ngân hàng.
+> 🔁 **Thực hành.** Viết một user story cho tính năng "đổi mật khẩu" của một app ngân hàng.
 > <details><summary>Đáp án</summary>"<b>Là</b> chủ tài khoản, <b>tôi muốn</b> đổi mật khẩu đăng nhập, <b>để</b> giữ tài khoản an toàn khi nghi ngờ mật khẩu cũ bị lộ." Lưu ý phần "để" làm rõ giá trị bảo mật — gợi ý rằng tính năng nên kèm yêu cầu xác thực lại / thông báo cho người dùng.</details>
 
 📝 **Tóm tắt mục 3.** User story = mô tả yêu cầu từ góc nhìn người dùng theo mẫu **"Là <ai>, tôi muốn <gì>, để <mục đích>"**. Phần "để" (giá trị) quan trọng nhất nhưng hay bị bỏ. Story là lời nhắc trò chuyện, *cái gì + vì sao*; chi tiết "xong khi nào" thuộc về acceptance criteria.
@@ -168,7 +168,7 @@ Acceptance criteria:
 
 ⚠ **Lỗi thường gặp.** Viết acceptance criteria mơ hồ không kém yêu cầu gốc: "Then đăng nhập thành công" (thành công *trông như thế nào*?). Phải cụ thể hóa kết quả quan sát được: "chuyển tới trang chủ, hiển thị tên, tạo phiên hết hạn sau 30 phút".
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết một acceptance criterion (Given/When/Then) cho story "thêm sản phẩm vào giỏ hàng".
+> 🔁 **Thực hành.** Viết một acceptance criterion (Given/When/Then) cho story "thêm sản phẩm vào giỏ hàng".
 > <details><summary>Đáp án</summary><b>Given</b> sản phẩm còn hàng và người dùng đang xem trang sản phẩm; <b>When</b> bấm "Thêm vào giỏ"; <b>Then</b> số lượng trên biểu tượng giỏ tăng thêm 1 và hiển thị thông báo "Đã thêm vào giỏ". Có thể thêm ca biên: <b>Given</b> sản phẩm hết hàng → <b>Then</b> nút "Thêm vào giỏ" bị vô hiệu hóa và hiện "Hết hàng".</details>
 
 📝 **Tóm tắt mục 4.** Acceptance criteria = điều kiện cụ thể để coi một story là "xong", thường viết theo **Given / When / Then**. Phải kiểm chứng đúng/sai khách quan, phủ cả đường đi chính lẫn ca biên/lỗi quan trọng. Là cầu nối giữa story (cái gì) và test case (kiểm thế nào).
@@ -193,7 +193,7 @@ Acceptance criteria:
 
 ⚠ **Lỗi thường gặp.** Yêu cầu *mâu thuẫn ngầm*: hai yêu cầu riêng lẻ đều hợp lý nhưng không thể cùng thỏa. Ví dụ "tải trang phải < 1s" + "trang chủ hiển thị 200 sản phẩm kèm ảnh độ phân giải cao" có thể chọi nhau. Phải phát hiện sớm và thương lượng (vd phân trang, lazy-load ảnh).
 
-> 🔁 **Dừng lại tự kiểm tra.** Yêu cầu "Hệ thống phải hỗ trợ nhiều người dùng cùng lúc" vi phạm đặc điểm nào, và sửa thế nào?
+> 🔁 **Thực hành.** Yêu cầu "Hệ thống phải hỗ trợ nhiều người dùng cùng lúc" vi phạm đặc điểm nào, và sửa thế nào?
 > <details><summary>Đáp án</summary>Vi phạm <b>đo được/rõ ràng</b>: "nhiều" là bao nhiêu? Sửa: "Hệ thống chịu được <b>5.000 người dùng đồng thời</b> với thời gian phản hồi trung bình <b>≤ 1s</b> ở 95% request." Giờ QA viết được test tải (load test) để kiểm chứng.</details>
 
 📝 **Tóm tắt mục 5.** Yêu cầu tốt = **rõ ràng** + **đo được** + **khả thi** + **không mâu thuẫn** + **truy vết được**. Mỗi đặc điểm có một ví dụ phản chứng dễ nhận ra; bộ lọc này loại bỏ yêu cầu mơ hồ trước khi chúng gây hại ở giai đoạn sau.
@@ -225,7 +225,7 @@ Bốn nhóm (các chữ M-o-S-C-o-W):
 
 ⚠ **Lỗi thường gặp.** Gán *mọi thứ* là "Must" vì "cái gì cũng quan trọng". Khi mọi thứ là Must thì ưu tiên trở nên vô nghĩa và nhóm sẽ chạy theo deadline mà bỏ chất lượng. MoSCoW chỉ hữu ích khi *dám* xếp một số thứ xuống Should/Could/Won't.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho app ghi chú đơn giản, đợt 1. Xếp 4 yêu cầu sau vào MoSCoW: (a) tạo/sửa/xóa note; (b) đồng bộ đám mây; (c) đổi font chữ; (d) chia sẻ note cho người khác.
+> 🔁 **Thực hành.** Cho app ghi chú đơn giản, đợt 1. Xếp 4 yêu cầu sau vào MoSCoW: (a) tạo/sửa/xóa note; (b) đồng bộ đám mây; (c) đổi font chữ; (d) chia sẻ note cho người khác.
 > <details><summary>Đáp án</summary>(a) <b>Must</b> — không có thì app vô nghĩa. (b) <b>Should</b> — rất hữu ích nhưng đợt 1 có thể lưu cục bộ trước. (c) <b>Could</b> — bỏ được, chỉ là tiện nghi. (d) <b>Won't (lần này)</b> — tính năng phức tạp (phân quyền, mời người dùng), để đợt sau. Lưu ý: cách xếp có thể khác tùy mục tiêu sản phẩm — quan trọng là *lý do* xếp.</details>
 
 📝 **Tóm tắt mục 6.** MoSCoW = 4 nhóm ưu tiên **Must / Should / Could / Won't (this time)**. Giúp nhóm thống nhất làm gì trước khi nguồn lực có hạn. Bí quyết: số Must phải nhỏ; "Won't" cần viết ra để quản lý kỳ vọng; đừng gán mọi thứ là Must.

@@ -189,7 +189,7 @@ Tính overhead với 10.000 client hỏi mỗi 2 giây, 90% lần trả lời l�
 
 ⚠ **Lỗi thường gặp**: Nhiều developer dùng WebSocket cho mọi thứ dù SSE đủ dùng. Nếu ứng dụng chỉ cần server gửi dữ liệu về client (không cần client gửi ngược theo thời gian thực qua cùng kênh), SSE đơn giản hơn và dễ scale hơn.
 
-🔁 **Tự kiểm tra**: Dashboard hiển thị giá cổ phiếu cập nhật mỗi giây, người dùng chỉ xem không tương tác — nên dùng kỹ thuật nào?
+🔁 **Thực hành**: Dashboard hiển thị giá cổ phiếu cập nhật mỗi giây, người dùng chỉ xem không tương tác — nên dùng kỹ thuật nào?
 
 <details>
 <summary>Đáp án</summary>

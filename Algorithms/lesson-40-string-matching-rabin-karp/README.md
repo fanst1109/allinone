@@ -61,7 +61,7 @@ $O(n+m)$ là khác biệt giữa "chạy 1 giây" và "chạy 1 giờ".
 Lưu ý ví dụ 2: các vị trí khớp **được phép chồng nhau** (`"aa"` tại 0 và 1 dùng chung ký tự
 index 1). Đây là quy ước chuẩn — ta tìm mọi vị trí start hợp lệ, không "ngốn" ký tự.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với `T = "aaa"`, `P = "a"`, có bao nhiêu vị trí khớp?
+> 🔁 **Thực hành.** Với `T = "aaa"`, `P = "a"`, có bao nhiêu vị trí khớp?
 > <details><summary>Đáp án</summary>3 vị trí: 0, 1, 2. Mỗi ký tự `'a'` là một occurrence của pattern dài 1.</details>
 
 ---
@@ -189,7 +189,7 @@ h = (65·256 + 65) mod 101 = (16640 + 65) mod 101 = 16705 mod 101
 h = (67·256^0) mod 101 = 67 mod 101 = 67
 ```
 
-> 🔁 **Tự kiểm tra.** Tính `h("BB")` với cùng `b=256, q=101`. (`B=66`)
+> 🔁 **Thực hành.** Tính `h("BB")` với cùng `b=256, q=101`. (`B=66`)
 > <details><summary>Đáp án</summary>(66·256 + 66) mod 101 = (16896+66) mod 101 = 16962 mod 101. 16962 = 101·167 + 95 → <b>95</b>.</details>
 
 ### 3.3 Cập nhật trượt O(1) — công thức quan trọng nhất bài
@@ -353,7 +353,7 @@ Với $q=11$ (rất nhỏ), $b=10$: `h("AB")` và `h("LM")` (giá trị ASCII kh
 một số trong $[0,11)$ vì chỉ có 11 ô. Xác suất 2 chuỗi ngẫu nhiên trùng hash $\approx 1/11 \approx 9\%$ —
 quá cao. Tăng $q$ lên $10^9$ → xác suất $\approx 10^{-9}$, false positive gần như biến mất.
 
-> 🔁 **Tự kiểm tra.** False positive trong Rabin-Karp có làm sai kết quả không?
+> 🔁 **Thực hành.** False positive trong Rabin-Karp có làm sai kết quả không?
 > <details><summary>Đáp án</summary>Không — vì luôn verify ký tự sau khi hash khớp. Nó chỉ làm <i>chậm</i> (verify thừa), không làm sai.</details>
 
 > 📝 **Tóm tắt mục 5.** Collision không gây sai (nhờ verify) nhưng gây chậm. Chọn $q$ nguyên tố

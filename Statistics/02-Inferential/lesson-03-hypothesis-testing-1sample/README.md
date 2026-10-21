@@ -192,7 +192,7 @@ Ví dụ (two-sided, $\alpha=0{,}05$): $p < 0{,}05 \Leftrightarrow |z| > 1{,}96$
 > - Fail to reject H₀ ≠ Accept H₀.
 > - Two-sided mặc định; one-sided chỉ khi có lý thuyết chỉ định chiều trước.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. $n=25$, $\bar{x}=48$, $s=8$, $H_0: \mu=50$, $H_1: \mu<50$, $\alpha=0{,}05$. Tính $t$ và kết luận.
 > 2. Với dữ liệu trên, tại sao ta dùng t-test thay z-test?
 > <details><summary>Đáp án</summary>

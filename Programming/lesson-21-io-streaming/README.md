@@ -165,7 +165,7 @@ Nếu `Read` tự tạo slice trả về, mỗi lần đọc sẽ allocate → G
 
 Theo doc: "implementations of Read are discouraged from returning a zero byte count with a nil error". Tức là cố gắng tránh, nhưng caller phải vẫn handle được.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Code dưới có bug gì?
 

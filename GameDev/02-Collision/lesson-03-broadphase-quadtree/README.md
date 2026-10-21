@@ -59,7 +59,7 @@ phải test xuống còn cỡ **vài nghìn** thay vì 500k — giảm ~100 lầ
 > vật với chính nó ($i = j$). Đúng phải là `for i: for j = i+1 ...` → đúng $\binom{n}{2}$ cặp,
 > không trùng. Đếm sai → tưởng chậm gấp đôi hoặc crash vì self-collision.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $n = 100$ vật, vòng lặp ngây thơ `for j=i+1` xét bao nhiêu cặp?
+> 🔁 **Thực hành.** Với $n = 100$ vật, vòng lặp ngây thơ `for j=i+1` xét bao nhiêu cặp?
 > <details><summary>Đáp án</summary>
 > $\binom{100}{2} = \dfrac{100 \times 99}{2} = 4{.}950$ cặp. Ở 60 FPS là ~297k test/giây — vẫn ổn với 100 vật. $O(n^2)$ chỉ thành vấn đề khi $n$ lớn (hàng nghìn).
 > </details>
@@ -125,7 +125,7 @@ Lưới ô $200 \times 200$ px (mỗi ô rộng 200), bán kính vật $r = 10$:
 >   Broad-phase phải đảm bảo **mọi cặp đủ gần để chạm đều nằm trong danh sách ứng viên** — lý do phải xét ô kề
 >   (§3.3), không chỉ ô của chính nó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong 4 ví dụ trên, broad-phase loại được mấy cặp khỏi narrow-phase?
+> 🔁 **Thực hành.** Trong 4 ví dụ trên, broad-phase loại được mấy cặp khỏi narrow-phase?
 > <details><summary>Đáp án</summary>
 > Chỉ 1 cặp (#4). Ba cặp còn lại (#1, #2, #3) đều thành ứng viên và phải qua narrow-phase. Với lưới ô to (200 px) và ít vật thì lọc chưa mạnh; lưới mịn hơn / nhiều vật phân tán → broad-phase loại được tỷ lệ lớn hơn nhiều.
 > </details>
@@ -225,7 +225,7 @@ Lưới $4 \times 4$ ô (16 ô), cell size $s = 100$ (không gian $400 \times 40
 → Grid cắt từ **15 xuống 4 cặp** (giảm ~73%) chỉ với 6 vật phân tán. Với hàng nghìn vật trải đều,
 tỷ lệ cắt còn mạnh hơn nhiều (vì hầu hết các ô không kề nhau → không sinh cặp nào).
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu thêm P7 tại $(390, 300)$ — ô (3,3) — thì ô (3,3) có những ai và sinh thêm mấy cặp?
+> 🔁 **Thực hành.** Nếu thêm P7 tại $(390, 300)$ — ô (3,3) — thì ô (3,3) có những ai và sinh thêm mấy cặp?
 > <details><summary>Đáp án</summary>
 > $\lfloor 390/100 \rfloor = 3$, $\lfloor 300/100 \rfloor = 3$ → ô (3,3) = {P4, P5, P7}. Trong ô 3 vật → $\binom{3}{2} = 3$ cặp (P4P5, P4P7, P5P7). Trước có 1 cặp (P4P5) nên **thêm 2 cặp**. Tổng ứng viên thành 6. (So mọi cặp giờ là $\binom{7}{2} = 21$.)
 > </details>
@@ -367,7 +367,7 @@ không gian nâng cao ([advanced structures](../../../DataStructures/03-Advanced
 k-d tree (chia luân phiên theo trục x/y, 2 con), octree (3D, 8 con), BVH (bao theo hộp bao), R-tree (CSDL không gian).
 Độ sâu quadtree cân bằng ~ $O(\log_4 n)$ — cùng tinh thần "chia để trị" với $O(\log n)$ của BST cân bằng (xem [Algorithms](../../../Algorithms/)).
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu `capacity = 4` thay vì 2 trong ví dụ §4.3, node gốc có phải chia không khi
+> 🔁 **Thực hành.** Nếu `capacity = 4` thay vì 2 trong ví dụ §4.3, node gốc có phải chia không khi
 > chèn đủ 6 vật (4 ở NW, 1 NE, 1 SE)? Wait — đếm lại: P1,P2,P3 ở NW; P4 NE; P5 SE; P6 SW. Gốc chứa được mấy?
 > <details><summary>Đáp án</summary>
 > Với capacity 4: chèn P1..P4 → gốc có 4 vật = capacity, vẫn là lá. Chèn P5 (vật thứ 5) → vượt 4 → subdivide gốc, phân P1..P5 về 4 con (NW có P1,P2,P3 = 3 vật ≤ 4 nên NW **không** chia tiếp). Chèn P6 → SW. Cây nông hơn hẳn so với capacity 2 — đó là đánh đổi: capacity lớn → cây nông, lá đông; capacity nhỏ → cây sâu, lá thưa.
@@ -446,7 +446,7 @@ mạnh khi vật di chuyển ít giữa các frame — danh sách gần như đ�
 > Test trùng = phí công, và với một số response (L09) còn gây **cộng lực hai lần** → vật giật. **Khử trùng:**
 > chỉ ghép cặp khi `id(A) < id(B)`, hoặc dồn mọi cặp vào một `set` rồi mới chạy narrow-phase một lần mỗi cặp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một game bắn súng top-down, kẻ địch thường dồn quanh người chơi (một cụm dày), phần
+> 🔁 **Thực hành.** Một game bắn súng top-down, kẻ địch thường dồn quanh người chơi (một cụm dày), phần
 > còn lại bản đồ trống. Nên chọn broad-phase nào?
 > <details><summary>Đáp án</summary>
 > **Quadtree.** Vì mật độ rất không đều (cụm dày quanh player, còn lại trống) — quadtree tự chia sâu ở cụm và giữ nông ở vùng trống, trong khi grid sẽ có một ô siêu đông (gần $O(k^2)$ trong ô đó) còn các ô khác trống lãng phí.

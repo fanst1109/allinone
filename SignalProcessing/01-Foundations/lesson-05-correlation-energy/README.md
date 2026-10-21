@@ -105,7 +105,7 @@ $$x[0]y[2] = 1\cdot2 = 2$$
 
 Vậy hàm tương quan (sắp theo $m$): $\ldots,\ 3\ (m{=}{-}1),\ 8\ (m{=}0),\ 5\ (m{=}1),\ 2\ (m{=}2),\ \ldots$ — **đỉnh tại $m=0$** nghĩa là $y$ khớp $x$ nhất khi không dịch.
 
-🔁 **Dừng lại tự kiểm tra.** Tính $(x \star y)[3]$ với $x,y$ ở trên.
+🔁 **Thực hành.** Tính $(x \star y)[3]$ với $x,y$ ở trên.
 
 <details><summary>Đáp án</summary>
 
@@ -171,7 +171,7 @@ Nhiễu không lặp nên không sinh đỉnh phụ; chỉ thành phần tuần 
 
 ⚠ **Lỗi thường gặp.** Nhầm đỉnh tại $m=0$ là "chu kỳ 0". KHÔNG — đỉnh $m=0$ luôn tồn tại với mọi tín hiệu (tín hiệu luôn khớp chính nó). Chu kỳ được đọc từ **đỉnh phụ đầu tiên ở $m>0$**.
 
-🔁 **Dừng lại tự kiểm tra.** Cho `x = [3, 0, 3, 0, 3, 0]`. Chu kỳ là bao nhiêu? Tính $R_x[2]$ để xác nhận.
+🔁 **Thực hành.** Cho `x = [3, 0, 3, 0, 3, 0]`. Chu kỳ là bao nhiêu? Tính $R_x[2]$ để xác nhận.
 
 <details><summary>Đáp án</summary>
 
@@ -260,7 +260,7 @@ $$P = \frac{E}{N} = \frac{1}{N}\sum_{n=0}^{N-1} |x[n]|^2$$
 
 Nhận xét: ví dụ 1 và 4 cùng $E=25$ nhưng **công suất khác nhau** (12.5 vs 8.33) vì trải trên số mẫu khác nhau — minh họa rõ vì sao cần cả hai đại lượng.
 
-🔁 **Dừng lại tự kiểm tra.** Tính $E$ và $P$ của `x = [0, 6, -8, 0]`.
+🔁 **Thực hành.** Tính $E$ và $P$ của `x = [0, 6, -8, 0]`.
 
 <details><summary>Đáp án</summary>
 

@@ -81,7 +81,7 @@ $$m = \frac{h_i}{h_o} = -\frac{d_i}{d_o}$$
 - **Cộng nhầm $\frac{1}{f} = \frac{1}{d_o} - \frac{1}{d_i}$.** Công thức đúng là $\frac{1}{f} = \frac{1}{d_o} + \frac{1}{d_i}$ (cộng). Dấu âm chỉ xuất hiện qua việc d_i tự mang dấu âm khi ảnh ảo.
 - **Tưởng ảnh ảo "không có thật".** Ảnh ảo vẫn nhìn thấy rõ bằng mắt (ảnh trong gương, kính lúp) — chỉ là không hứng được lên màn vì tia sáng không thực sự hội tụ tại đó.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Thấu kính lồi $f = 12 \text{ cm}$, vật ở $d_o = 24 \text{ cm}$. Tính $d_i$ và $m$. Ảnh thật hay ảo?
 2. Thấu kính phân kỳ $f = -15 \text{ cm}$, vật ở $d_o = 30 \text{ cm}$. $d_i$ dương hay âm?
@@ -130,7 +130,7 @@ Phương trình tương tự thấu kính: **$\frac{1}{f} = \frac{1}{d_o} + \fra
 - **Lẫn lồi/lõm giữa gương và thấu kính.** Gương LÕM (concave) hội tụ — như thấu kính LỒI. Tên gọi ngược nhau nhưng tác dụng (hội tụ, $f > 0$) giống nhau. Đừng ghép "lõm = phân kỳ".
 - **Quên đổi R sang f.** Đề cho $R = 40 \text{ cm}$ thì $f = 20 \text{ cm}$, KHÔNG phải 40 cm.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Gương cầu lõm có $R = 30 \text{ cm}$. Tiêu cự bằng bao nhiêu?
 2. Gương chiếu hậu xe là loại gương cầu gì, và vì sao?
@@ -192,7 +192,7 @@ Tương tự kính hiển vi nhưng cho vật rất xa.
 - **Đảo ngược cận/viễn.** Cận thị nhìn GẦN rõ, nhìn XA mờ → đeo kính phân kỳ. Nhiều người nhầm "nhìn xa mờ thì đeo kính phóng to" (hội tụ) — sai.
 - **Tưởng kính viễn vọng dùng thị kính f lớn.** Ngược lại: vật kính f LỚN, thị kính f NHỎ → $M = f_{\text{vật}}/f_{\text{thị}}$ lớn. Đặt ngược → $M < 1$ (thu nhỏ).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một người nhìn gần (đọc sách) bị mờ, nhìn xa rõ. Bị tật gì, đeo kính loại nào?
 2. Kính viễn vọng có $f_{\text{vật}} = 80 \text{ cm}$, $f_{\text{thị}} = 4 \text{ cm}$. Độ phóng đại?

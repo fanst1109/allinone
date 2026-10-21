@@ -106,7 +106,7 @@ Sau bài này, bạn có thể:
 > - *"Điệu xa thì sao, có chuyển được không?"* — Được, nhưng cần kỹ thuật phức tạp hơn (chuyển điệu qua bậc thứ ba chromatic, chuyển điệu enharmonic). Bài này tập trung điệu gần.
 > - *"Điệu thứ tương đối là gì?"* — Điệu trưởng và điệu thứ tương đối dùng cùng một bộ dấu hóa. C trưởng và Am cùng 0 dấu hóa; G trưởng và Em cùng 1 thăng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Liệt kê 5 điệu gần của Bb trưởng (2 giáng: Bb, Eb).
+> 🔁 **Ôn tập.** Liệt kê 5 điệu gần của Bb trưởng (2 giáng: Bb, Eb).
 > <details><summary>Đáp án</summary>
 >
 > 1. **F trưởng** (1 giáng) — bên phải
@@ -188,7 +188,7 @@ G trưởng:  G – D – Bm – [Bm] – F#7 – Em
 
 > ⚠ **Lỗi thường gặp.** Hợp âm bản lề phải là **cùng chất** (chứ không chỉ cùng tên nốt gốc). Am (thứ) không thể làm bản lề với A trưởng — chúng là hai hợp âm khác nhau về chất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong chuyển điệu C → Dm, hợp âm Am có thể làm bản lề không? Nó là bậc mấy trong mỗi điệu?
+> 🔁 **Ôn tập.** Trong chuyển điệu C → Dm, hợp âm Am có thể làm bản lề không? Nó là bậc mấy trong mỗi điệu?
 > <details><summary>Đáp án</summary>
 >
 > Trong C trưởng: Am = **vi** (bậc 6).
@@ -258,7 +258,7 @@ Hợp âm: **E7** → **Am**
 
 > ⚠ **Lỗi thường gặp.** Nhầm C7 (V/IV) với hợp âm mượn (borrowed chord). C7 trong C trưởng là **át thứ cấp** của F (bậc 4), không phải mượn từ C thứ. Hợp âm mượn thường là Fm, Ab, Bb trong C trưởng (lấy từ C thứ song song).
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong G trưởng, hợp âm A7 là gì? Nó giải về đâu?
+> 🔁 **Ôn tập.** Trong G trưởng, hợp âm A7 là gì? Nó giải về đâu?
 > <details><summary>Đáp án</summary>
 >
 > A7 = A–C#–E–G. Trong G trưởng, C# không có mặt (G trưởng chỉ có F#). A7 là **V⁷/V** — át thứ cấp của D (bậc V của G). Tiến trình: A7 → D → G. D là "tonic tạm" của đoạn A7–D.

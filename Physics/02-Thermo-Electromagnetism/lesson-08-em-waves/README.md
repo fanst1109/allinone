@@ -50,7 +50,7 @@ $$c = \frac{1}{\sqrt{\mu_0 \cdot \varepsilon_0}} \approx 3 \times 10^8 \text{ m/
 - **Tưởng $\nabla \cdot \vec{B} = 0$ nghĩa là không có từ trường**. Sai — nó nghĩa là **không có monopole** (từ tích đơn lẻ); đường sức từ luôn khép kín, không có điểm "bắt đầu/kết thúc". Từ trường vẫn tồn tại.
 - **Nhầm c phụ thuộc nguồn sáng**: $c = \frac{1}{\sqrt{\mu_0 \varepsilon_0}}$ là hằng số của chân không, không phụ thuộc nguồn hay người quan sát (nền tảng thuyết tương đối).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phương trình Maxwell nào nói "không có từ tích đơn lẻ"?
 2. Tốc độ sóng EM trong chân không được tính từ những hằng số nào?
@@ -104,7 +104,7 @@ Sóng EM mang năng lượng (qua công thức Poynting) **và** động lượn
 - **Tưởng sóng tần số cao đi nhanh hơn**. Sai — trong chân không **mọi** sóng EM (radio, ánh sáng, gamma) đi cùng $c$. Tần số khác nhau chỉ làm $\lambda$ khác nhau, không làm $v$ khác.
 - **Lẫn $c = \lambda f$**: nếu $f$ tăng gấp đôi thì $\lambda$ giảm một nửa (vì tích cố định $= c$). Phản ví dụ: $f = 10^{15} \text{ Hz}$ → $\lambda = 3 \times 10^8/10^{15} = 3 \times 10^{-7} \text{ m} = 300 \text{ nm}$.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Sóng radio và tia X — cái nào đi nhanh hơn trong chân không?
 2. Sóng EM có $f = 6 \times 10^{14} \text{ Hz}$. Tính bước sóng $\lambda$.
@@ -171,7 +171,7 @@ Vì Mặt Trời phát ra ánh sáng tập trung mạnh nhất ở dải nhìn t
 - **Tưởng năng lượng sóng EM phụ thuộc biên độ, giống sóng cơ**. Năng lượng **mỗi photon** chỉ phụ thuộc $f$ ($E = h \cdot f$), không phụ thuộc cường độ. Cường độ lớn = nhiều photon, không phải photon mạnh hơn. Phản ví dụ: đèn radio cực sáng vẫn không phá được DNA vì mỗi photon quá yếu.
 - **Lẫn thứ tự phổ**: từ năng lượng thấp đến cao là radio → vi sóng → hồng ngoại → ánh sáng → UV → tia X → gamma. Đừng đảo.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tia tử ngoại (UV) hay hồng ngoại (IR) — cái nào có photon năng lượng cao hơn?
 2. Photon ánh sáng tím $f = 7{,}5 \times 10^{14} \text{ Hz}$ có năng lượng bao nhiêu ($h = 6{,}63 \times 10^{-34} \text{ J·s}$)?

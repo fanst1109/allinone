@@ -100,7 +100,7 @@ KHÔNG có thứ tự topo (chu trình \`0→1→2→0\`).
 </svg>
 Một thứ tự topo hợp lệ: \`4, 5, 2, 3, 1, 0\`. Một thứ tự khác cũng hợp lệ: \`5, 4, 2, 3, 1, 0\`. (Kiểm: mọi cạnh đều "trái → phải".)
 
-> 🔁 **Tự kiểm tra 1.** Dãy \`0, 5, 2, 3, 1, 4\` có phải topo order hợp lệ cho ví dụ 4 không?
+> 🔁 **Thực hành 1.** Dãy \`0, 5, 2, 3, 1, 4\` có phải topo order hợp lệ cho ví dụ 4 không?
 > <details><summary>Đáp án</summary>
 > KHÔNG. Cạnh \`4 → 0\` đòi \`4\` trước \`0\`, nhưng trong dãy \`4\` đứng SAU \`0\` (vị trí cuối). Cũng vi phạm \`4 → 1\` (4 sau 1). Vậy dãy này không hợp lệ.
 > </details>
@@ -249,7 +249,7 @@ func main() {
 
 > ❓ **Vì sao "thiếu đỉnh ⟹ có chu trình"?** Một đỉnh chỉ vào queue khi in-degree về 0. Các đỉnh nằm trong một chu trình luôn có ít nhất một cạnh vào TỪ chính chu trình đó — cạnh này chỉ giảm khi đỉnh nguồn của nó được xử lý, mà đỉnh nguồn đó lại nằm trong chu trình... vòng tròn. Nên không đỉnh nào trong chu trình về được in-degree 0 ⟹ không vào queue ⟹ thiếu khỏi \`order\`.
 
-> 🔁 **Tự kiểm tra 2.** Nếu queue khởi tạo RỖNG ngay từ đầu (không đỉnh nào in-degree 0) thì kết luận gì?
+> 🔁 **Thực hành 2.** Nếu queue khởi tạo RỖNG ngay từ đầu (không đỉnh nào in-degree 0) thì kết luận gì?
 > <details><summary>Đáp án</summary>
 > Đồ thị chắc chắn có chu trình (mọi đỉnh đều có cha). \`order\` rỗng, \`len(order) != n\` ⟹ trả về \`false\`. Đây là trường hợp đặc biệt của bước 5.
 > </details>
@@ -400,7 +400,7 @@ Quá trình một đỉnh: \`white → gray (khi bắt đầu dfs) → black (kh
 | \`gray\` | **back edge** | trỏ ngược lên tổ tiên ⟹ **CHU TRÌNH** |
 | \`black\` | forward/cross edge | đỉnh đã hoàn thành, KHÔNG phải chu trình |
 
-> 🔁 **Tự kiểm tra 3.** Đồ thị \`a→b, b→c, a→c\`. Khi DFS từ \`a\` tới \`c\` (sau khi đã xong \`b→c\`), \`color[c]\` là gì? Có phải chu trình không?
+> 🔁 **Thực hành 3.** Đồ thị \`a→b, b→c, a→c\`. Khi DFS từ \`a\` tới \`c\` (sau khi đã xong \`b→c\`), \`color[c]\` là gì? Có phải chu trình không?
 > <details><summary>Đáp án</summary>
 > \`color[c] = black\` (vì \`c\` đã hoàn thành qua đường \`a→b→c\`). Cạnh \`a→c\` là **forward edge**, KHÔNG phải chu trình. Nếu dùng "visited" 2 trạng thái sẽ báo nhầm. Đây là lý do PHẢI dùng 3 màu.
 > </details>

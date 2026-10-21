@@ -213,7 +213,7 @@ Sau bước này, **kết nối TLS được thiết lập**. Mọi dữ liệu 
 - *"TLS 1.0 và 1.1 thì sao?"* — Đã chính thức bị loại bỏ (RFC 8996, 2021). Các trình duyệt hiện đại từ chối kết nối TLS < 1.2.
 - *"Làm thế nào biết kết nối đang dùng TLS phiên bản nào?"* — Trong Chrome: click vào biểu tượng khóa (🔒) → "Connection is secure" → xem chi tiết; hoặc dùng \`openssl s_client -connect example.com:443\`.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 Trong TLS handshake, thứ tự nào đúng?
 1. Certificate → ClientHello → ServerHello → Finished
@@ -314,7 +314,7 @@ Trình duyệt không tin tất cả CA trực tiếp — chỉ tin một danh s
 - *"Let's Encrypt là gì?"* — CA miễn phí, tự động (dùng giao thức ACME), cấp chứng chỉ 90 ngày. Tính đến 2024, chiếm > 50% chứng chỉ web trên toàn cầu.
 - *"Chứng chỉ wildcard là gì?"* — Chứng chỉ dạng \`*.example.com\` bao phủ mọi subdomain một cấp: \`api.example.com\`, \`www.example.com\`, nhưng không bao phủ \`sub.api.example.com\`.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 Trình duyệt thấy cảnh báo "Chứng chỉ hết hạn" nhưng bạn chắc chắn đây là trang ngân hàng thật. Bạn có nên tiếp tục?
 

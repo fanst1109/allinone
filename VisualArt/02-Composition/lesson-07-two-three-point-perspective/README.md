@@ -87,7 +87,7 @@ Vì $LT$ và $LB$ **cùng** $x = 220$ nên cạnh đứng xa bên trái **thẳn
 
 **Bước 3 — cạnh đứng sau (góc xa nhất)** = giao của (cạnh trên mặt trái kéo về $VP_R$) với (cạnh trên mặt phải kéo về $VP_L$). Điều đẹp đẽ: giao điểm đỉnh $BT$ và giao điểm đáy $BB$ luôn **cùng** $x$ → cạnh sau cũng thẳng đứng. Với ví dụ đối xứng ($x_R = 440$), tính ra $BT = BB.x \approx 334.8$ — đứng thẳng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Cạnh trước ở $x=330$, $VP_L=(90,210)$, đỉnh trước $FT=(330,140)$. Điểm trên $FT\to VP_L$ tại $x=170$ có tung độ bao nhiêu?
 > 2. Trong 2 điểm tụ, cạnh nào **không** bao giờ hội tụ?
 >
@@ -140,7 +140,7 @@ $$C = N + 0.34\,(VP_3 - N) = (330 + 5.1,\ 430 - 132.6) = (335.1,\ 297.4)$$
 
 ⚠ **Lỗi thường gặp (3 điểm).** Đặt $VP_3$ **quá gần** khối → toà nhà "đổ" như sắp ngã, méo phi thực tế. Với ảnh hiện thực, để $VP_3$ ra thật xa; chỉ kéo gần khi cố ý cường điệu kịch tính.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trong worm's eye, $VP_3$ ở trên hay dưới đường chân trời?
 > 2. $N=(330,430)$, $VP_3=(345,40)$, hệ số $c=0.34$. Toạ độ $C$ (đỉnh cạnh đứng gần) là?
 >

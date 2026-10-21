@@ -105,7 +105,7 @@ $$\\text{Biên ròng} = \\frac{NI}{S}$$
 > - *"Vốn chủ và tài sản lấy đầu kỳ hay cuối kỳ?"* → Chuẩn nhất là **bình quân** $(\\text{đầu}+\\text{cuối})/2$ vì lợi nhuận sinh ra suốt kỳ. Bài này dùng số cuối kỳ cho gọn; nhớ nguyên tắc bình quân khi làm thật.
 > - *"ROE cao luôn tốt?"* → Không hẳn. ROE có thể cao *giả tạo* nhờ vay nợ nhiều (đòn bẩy lớn) → rủi ro tăng. Phải đọc kèm nhóm đòn bẩy.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Công ty có $NI = 60$, $E = 300$, $TA = 900$. Tính ROE và ROA.
 > 2. ROE > ROA hay ngược lại? Điều đó nói gì?
 >
@@ -166,7 +166,7 @@ $$\\text{Quick ratio} = \\frac{CA - Inv}{CL}$$
 > - *"Vì sao loại đúng tồn kho mà không loại phải thu?"* → Phải thu thường thu được trong vài tuần (khách sẽ trả); tồn kho phải *bán được đã* rồi mới thu — thêm một tầng bất định và rủi ro giảm giá.
 > - *"Ngưỡng an toàn là bao nhiêu?"* → Kinh nghiệm: current $\\geq 1.5$, quick $\\geq 1.0$ là "khỏe" với đa số ngành. Nhưng ngưỡng phụ thuộc ngành — so với đối thủ cùng ngành tốt hơn so với con số tuyệt đối.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Công ty: $CA = 240$, $Inv = 90$, $CL = 120$. Tính current và quick.
 >
 > <details><summary>Đáp án</summary>
@@ -225,7 +225,7 @@ $$\\text{Interest coverage} = \\frac{EBIT}{I}$$
 > - *"EBIT ở đâu ra?"* → EBIT = Lợi nhuận ròng + Thuế + Lãi vay (cộng ngược hai khoản đã bị trừ). Nó là lãi *thuần từ hoạt động*, chưa dính cấu trúc vốn hay thuế.
 > - *"D/E bao nhiêu là ổn?"* → Tùy ngành: ngân hàng/bất động sản D/E cao là bình thường; công ty công nghệ thường thấp. So với đối thủ cùng ngành.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Công ty: $D = 600$, $E = 300$, $EBIT = 90$, $I = 30$. Tính D/E và interest coverage. Nhận xét.
 >
 > <details><summary>Đáp án</summary>
@@ -284,7 +284,7 @@ $$\\text{DSO} = \\frac{AR}{S} \\times 365$$
 > - *"DSO 36.5 ngày là tốt hay xấu?"* → Phụ thuộc chính sách bán chịu. Nếu công ty cho khách nợ 30 ngày mà DSO = 36.5 → khá sát hạn, ổn. Nếu chính sách 15 ngày mà DSO = 36.5 → khách trả trễ, cần siết.
 > - *"Tồn kho quay nhanh mà DSO dài thì sao?"* → Bán chạy nhưng thu tiền chậm → vốn vẫn kẹt ở phải thu. Phải nhìn cả **chu kỳ tiền mặt** (tồn kho + phải thu − phải trả), sẽ học kỹ ở bài dòng tiền.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Công ty: $S = 1460$, $Inv = 200$, $AR = 160$. Tính vòng quay tồn kho, số ngày tồn, và DSO.
 >
 > <details><summary>Đáp án</summary>
@@ -346,7 +346,7 @@ Cùng ROE $15\\%$ nhưng: **X** kiếm tiền bằng *tốc độ* (biên mỏng
 
 > ⚠ **Lỗi thường gặp.** Thấy ROE tăng liền khen "làm ăn giỏi hơn". Có thể ROE tăng *chỉ vì* công ty vay thêm nợ (đòn bẩy $TA/E$ tăng), trong khi biên và vòng quay đứng yên hoặc tệ đi — tức rủi ro tăng chứ không phải hiệu quả tăng. DuPont vạch trần điều này.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Công ty: biên ròng $10\\%$, vòng quay tài sản $0.8$, đòn bẩy $2.5$. Tính ROE bằng DuPont.
 >
 > <details><summary>Đáp án</summary>

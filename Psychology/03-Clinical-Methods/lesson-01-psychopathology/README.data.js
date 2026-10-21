@@ -85,7 +85,7 @@ Nhà tâm lý học dùng **4 D's** để xác định một hành vi hoặc tr�
 - HPA axis dysregulation (xem Lesson 03): CRH tăng cao, cortisol response bất thường.
 - Serotonin và GABA đều liên quan. SSRIs và benzodiazepines (GABA-A agonist) là thuốc điều trị đầu tay.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 > Nếu ai đó lo lắng về nhiều chủ đề khác nhau kéo dài 3 tháng, dễ mệt và căng cơ nhưng vẫn đi làm và sinh hoạt bình thường — họ có đáp ứng tiêu chuẩn GAD không?
 
 <details>
@@ -161,7 +161,7 @@ Chưa đáp ứng. Tiêu chí A yêu cầu ≥6 tháng (mới 3 tháng). Tiêu c
 - Nhưng block D2 ở striatum → EPS (extrapyramidal side effects). Block ở prefrontal → làm negative symptoms tệ hơn.
 - Glutamate (NMDA) hypothesis phổ biến gần đây: NMDA hypofunction ở prefrontal → cognitive symptoms.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 > Một bệnh nhân có MZ twin bị schizophrenia. Xác suất bản thân cũng bị là bao nhiêu?
 
 <details>

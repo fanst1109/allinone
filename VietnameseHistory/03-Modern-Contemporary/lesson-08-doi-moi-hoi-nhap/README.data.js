@@ -92,7 +92,7 @@ Trước Đổi mới, đầu tư nước ngoài vào Việt Nam hầu như khô
 
 Ban đầu dòng vốn FDI vào còn hạn chế do Hoa Kỳ vẫn cấm vận. Sau khi cấm vận được dỡ bỏ (1994) và bình thường hóa quan hệ (1995), FDI tăng mạnh — đặc biệt từ Nhật Bản, Hàn Quốc, Đài Loan và từ 2007 trở đi từ các nước OECD rộng hơn.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 > Khoán 10 khác gì so với chính sách hợp tác xã trước đó? Nêu một thay đổi cụ thể.
 
@@ -232,7 +232,7 @@ Từ nhà nước Văn Lang (huyền sử) đến các triều đại quân ch�
 
 🔗 **Liên hệ với kinh tế học**: Chuyển đổi từ kinh tế kế hoạch hóa sang kinh tế thị trường là một chủ đề quan trọng trong kinh tế học phát triển. Các khái niệm "kinh tế chuyển đổi" (transition economy), lý thuyết "cú sốc" so với "tiệm tiến" trong cải cách có thể đọc thêm tại [Economics](../../../Economics/).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 > Theo bạn, đặc điểm nào trong năm đặc điểm trên thể hiện rõ nhất trong giai đoạn Đổi mới (1986 – nay)? Giải thích bằng ít nhất một sự kiện cụ thể.
 

@@ -58,7 +58,7 @@ Kiểm chứng ngược: đóng 4,30 tr/tháng, $FV = 4{,}30 \cdot \frac{1{,}005
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao kéo dài thời gian lại nhẹ gánh đến vậy?"* — Hai lý do cộng hưởng: (1) chia mục tiêu cho nhiều kỳ hơn, (2) lãi kép có thêm thời gian sinh lời. Đây là lý do "bắt đầu sớm" mạnh hơn "đóng nhiều" (mục 4).
 
-> 🔁 **Dừng lại tự kiểm tra.** Mục tiêu 120 triệu trong 4 năm (48 tháng), lãi 0,5%/tháng. Ước lượng PMT? (Gợi ý: dùng công thức.)
+> 🔁 **Thực hành.** Mục tiêu 120 triệu trong 4 năm (48 tháng), lãi 0,5%/tháng. Ước lượng PMT? (Gợi ý: dùng công thức.)
 > <details><summary>Đáp án</summary>$PMT = 120 \cdot \frac{0{,}005}{1{,}005^{48}-1} = 120 \cdot \frac{0{,}005}{0{,}2705} = 2{,}22$ triệu/tháng.</details>
 
 ---
@@ -92,7 +92,7 @@ Kiểm chứng ngược: đóng 4,30 tr/tháng, $FV = 4{,}30 \cdot \frac{1{,}005
 
 > ⚠ **Lỗi thường gặp.** Cố "chờ giá xuống mới mua". Đa số nhà đầu tư cá nhân căn thời điểm **sai**, bỏ lỡ những ngày tăng mạnh. DCA tránh cái bẫy đó bằng kỷ luật.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đóng 10 triệu/tháng, 2 tháng: giá 50k rồi 25k. Tổng đơn vị? Giá vốn trung bình?
+> 🔁 **Thực hành.** Đóng 10 triệu/tháng, 2 tháng: giá 50k rồi 25k. Tổng đơn vị? Giá vốn trung bình?
 > <details><summary>Đáp án</summary>Tháng 1: $10tr/50k = 200$ đơn vị; tháng 2: $10tr/25k = 400$ đơn vị; tổng 600 đơn vị / 20 triệu = 33.333đ giá vốn. (So với giá trung bình $(50+25)/2 = 37{,}5$k → DCA thấp hơn.)</details>
 
 ---

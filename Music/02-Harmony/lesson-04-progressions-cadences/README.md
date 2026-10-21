@@ -132,7 +132,7 @@ Trong lý thuyết âm nhạc, hợp âm được ghi bằng **số La Mã** tha
 > - I–vi–IV–V: C–Am–F–G (50s, doo-wop, cổ điển hơn).
 > Cùng 4 hợp âm, thứ tự khác → cảm xúc và phong cách khác rõ ràng. Phân biệt bằng cách nghe hợp âm thứ 2 (G vs. Am).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Tiến trình I–V–vi–IV trong điệu **G trưởng** sẽ là những hợp âm nào (theo tên nốt)?
 > <details><summary>Đáp án</summary>
 >
@@ -265,7 +265,7 @@ Có 4 loại kết chính:
 | **Kết nửa** (Half) | ... → V | Lửng, chờ đợi, câu hỏi | ●●○○ |
 | **Kết lừa** (Deceptive) | V → vi | Bất ngờ, chưa xong | ●○○○ |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Trong điệu **D trưởng**, xác định loại kết cho mỗi trường hợp sau:
 > 1. A–D
 > 2. G–D

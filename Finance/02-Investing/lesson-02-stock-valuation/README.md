@@ -82,7 +82,7 @@ $$P = \frac{3.000}{0{,}10 - 0{,}04} = \frac{3.000}{0{,}06} = 50.000 \text{đ/cp}
 
 > ⚠ **Lỗi thường gặp.** Lấy $g$ quá cao (vd 9% khi $r=10\%$) → mẫu số 1% → giá phóng đại khủng khiếp. Mô hình **cực nhạy** với $g$; dùng $g$ thực tế, bền vững (thường ≤ tăng trưởng GDP dài hạn).
 
-> 🔁 **Dừng lại tự kiểm tra.** $D_1 = 4.000$đ, $r = 9\%$, $g = 3\%$. Giá trị nội tại?
+> 🔁 **Thực hành.** $D_1 = 4.000$đ, $r = 9\%$, $g = 3\%$. Giá trị nội tại?
 > <details><summary>Đáp án</summary>$P = 4.000/(0{,}09 - 0{,}03) = 4.000/0{,}06 = 66.667$đ.</details>
 
 ---

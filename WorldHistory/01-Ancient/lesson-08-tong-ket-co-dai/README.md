@@ -137,7 +137,7 @@ Không. Các phim như "300" mô tả Ba Tư phiến diện. Thực tế, đế 
 - **Nhầm**: "Tất cả người Hy Lạp đều được hưởng dân chủ." — **Đúng hơn**: Dân chủ Athens chỉ áp dụng cho nam công dân tự do (khoảng 10–20% dân số Athens). Phụ nữ, nô lệ, và dân nước ngoài định cư (metics) không có quyền bầu phiếu.
 - **Nhầm**: "La Mã sụp đổ năm 476." — **Đúng hơn**: Đông La Mã (Byzantine) tiếp tục tồn tại thêm gần 1.000 năm đến năm 1453. Và ngay ở phương Tây, nhiều cơ sở hạ tầng, luật pháp và tiếng Latin vẫn tiếp tục được dùng bởi các vương quốc man tộc kế thừa.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 1. Xếp các nền văn minh theo thứ tự ra đời từ sớm đến muộn: Hy Lạp, Lưỡng Hà, La Mã, văn minh sông Ấn, Trung Hoa (nhà Thương).
 
@@ -230,7 +230,7 @@ Bộ luật Hammurabi (~1750 TCN) của vua Babylon là bộ luật thành văn 
 - Archimedes (~287–212 TCN, Syracuse): nguyên lý đòn bẩy, cơ học chất lỏng. Phương pháp tính xấp xỉ của ông tiền thân của tích phân.
 - Eratosthenes (~276–194 TCN): tính chu vi Trái Đất bằng cách đo bóng tại hai địa điểm — kết quả sai chưa đến 2% so với giá trị hiện đại.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Nối đúng: Thành tựu — Nguồn gốc — Ảnh hưởng hiện đại.
 

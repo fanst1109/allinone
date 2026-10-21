@@ -212,7 +212,7 @@ Bảng:
 
 → **Resize khi α > 0.7**: tạo bảng mới gấp đôi, rehash tất cả keys. Amortized O(1) per insert.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 1. m=7, n=7 → α = ? Nên resize chưa?
 

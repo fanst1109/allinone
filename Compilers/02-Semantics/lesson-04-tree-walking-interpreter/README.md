@@ -118,7 +118,7 @@ Bắt đầu với `env = { }` (rỗng):
 
 Kết thúc: `env = { "x": 5 }`, màn hình hiện `8`. Đúng như mong đợi — câu hỏi mở bài đã được trả lời cụ thể.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với `env` rỗng ban đầu, eval `Print(Var(x))` (in `x` trước khi gán) sẽ ra gì?
+> 🔁 **Thực hành.** Với `env` rỗng ban đầu, eval `Print(Var(x))` (in `x` trước khi gán) sẽ ra gì?
 > <details><summary>Đáp án</summary>
 > `eval(Var(x), env)` tra `env["x"]` nhưng `x` chưa có trong `env` → <strong>lỗi runtime "biến chưa gán"</strong> (xem §6). Type check (L08) có thể đã bắt nếu nó kiểm tra "use-before-def", nhưng nếu không, lỗi lộ ra đúng lúc này.
 > </details>
@@ -381,7 +381,7 @@ Lưu ý vòng 4: ta vẫn **eval cond một lần nữa** (`3 < 3 = false`) rồ
 
 > ⚠ **Lỗi thường gặp: vòng lặp vô tận (infinite loop).** Nếu thân while **không** thay đổi biến trong điều kiện, `cond` mãi mãi `true` → chạy mãi. Ví dụ `i = 0; while i < 3 { print i }` (quên `i = i + 1`) sẽ in `0` không ngừng. Type check (L08) **không** bắt được lỗi này — nó là lỗi *logic*, không phải lỗi kiểu. Trong viz của bài, ta đặt giới hạn số vòng để tránh treo trình duyệt.
 
-> 🔁 **Dừng lại tự kiểm tra.** `i = 5; while i < 3 { print i; i = i+1 }` in ra gì?
+> 🔁 **Thực hành.** `i = 5; while i < 3 { print i; i = i+1 }` in ra gì?
 > <details><summary>Đáp án</summary>
 > Kiểm tra `cond` lần đầu: `5 < 3 = false` → <strong>không vào thân lần nào</strong> → không in gì. while kiểm tra điều kiện <em>trước</em> mỗi vòng, nên nếu sai ngay từ đầu thì thân chạy 0 lần.
 > </details>
@@ -433,7 +433,7 @@ eval(BinaryOp(*, Lit(2000000000), Lit(2)), env)
 
 > ⚠ **Lỗi thường gặp: tưởng "compile sạch = không lỗi".** Compile sạch chỉ nghĩa là *cấu trúc và kiểu* đúng. Chia 0, index ngoài mảng, null pointer… đều là chương trình hợp lệ về cú pháp/kiểu nhưng **sai lúc chạy**. Một interpreter tốt phân biệt rõ hai loại để báo lỗi đúng giai đoạn: "lỗi cú pháp dòng 3" rất khác "chia cho 0 lúc chạy dòng 3".
 
-> 🔁 **Dừng lại tự kiểm tra.** `x = 6; y = x - 6; print 10 / y` thuộc lỗi gì, lộ ra khi nào?
+> 🔁 **Thực hành.** `x = 6; y = x - 6; print 10 / y` thuộc lỗi gì, lộ ra khi nào?
 > <details><summary>Đáp án</summary>
 > Compile sạch (cú pháp đúng, mọi thứ là số). Lúc chạy: `y = 6 - 6 = 0`, rồi `10 / y = 10 / 0` → <strong>lỗi runtime chia cho 0</strong>. Không pass nào trước runtime biết được `y` sẽ bằng 0, vì nó phụ thuộc giá trị tính ra lúc chạy.
 > </details>

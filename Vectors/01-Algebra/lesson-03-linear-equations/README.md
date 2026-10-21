@@ -75,7 +75,7 @@ Vậy $x = 2$ là nghiệm. **"Giải phương trình"** = tìm tất cả các 
 - *"Sao biết một phương trình đã "giải xong"?"* — Khi đã viết được dạng $x = \langle\text{số cụ thể}\rangle$ (hoặc kết luận được vô nghiệm / vô số nghiệm). Đó là đích đến.
 - *"Vế trái và vế phải có vai trò khác nhau không?"* — Không. $2x + 3 = 7$ và $7 = 2x + 3$ là cùng một phương trình. Theo thói quen, ta hay viết ẩn bên trái cho dễ nhìn.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi:** $3y - 4$ là biểu thức hay phương trình? Còn $3y - 4 = 11$ thì sao? Nếu là phương trình, $y = 5$ có phải nghiệm không?
 
@@ -190,7 +190,7 @@ Kiểm tra: $\dfrac{1}{2} + \dfrac{1}{3} = \dfrac{3}{6} + \dfrac{2}{6} = \dfrac{
 - *"$x$ ở mẫu ($3/x = 6$) có phải bậc 1 không?"* — **Không**. $3/x = 3 \cdot x^{-1}$ → ẩn ở bậc $-1$, không phải bậc 1. Đó là phương trình **phân thức**, cách giải khác (nhân chéo, kèm điều kiện $x \neq 0$).
 - *"Sao chỉ ghi $a \neq 0$ mà không ghi $b \neq 0$?"* — $b = 0$ là **hợp lệ**, chỉ có nghĩa "không có hằng số tự do". $2x = 0$ vẫn là phương trình bậc 1, nghiệm $x = 0$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi:** Phương trình $-4x + 12 = 0$ có phải bậc 1? Nghiệm là bao nhiêu?
 
@@ -503,7 +503,7 @@ Kiểm tra: $2 \cdot 7 - 5 = 14 - 5 = 9$ ✓.
 - **"Trừ một số khỏi từng số hạng riêng lẻ"** — $2x + 3 = 7$ → $2x = 4 - 3 = 1$ (sai). Đúng là trừ 3 vào cả vế phải: $7 - 3 = 4$, không phải trừ thêm lần nữa.
 - **"Chia chỉ một số hạng"** — $2x + 4 = 10$ → $x + 4 = 5$ (sai, chỉ chia 2 cho $2x$ mà không chia 4 và 10). Đúng là chia 2 cho **cả vế**: $\dfrac{2x + 4}{2} = \dfrac{10}{2}$ → $x + 2 = 5$. Hoặc làm gọn hơn: trừ 4 trước rồi mới chia: $2x = 6$ → $x = 3$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi:** Cho phương trình $4x - 3 = x + 9$. Bạn muốn dồn ẩn về trái và hằng số về phải bằng quy tắc cân — viết ra 2 thao tác cụ thể, kết quả mỗi bước, và nghiệm cuối cùng.
 
@@ -656,7 +656,7 @@ Kiểm tra: VT $= \dfrac{-1/3 + 1}{2} = \dfrac{2/3}{2} = \dfrac{1}{3}$. VP $= \d
 - **"Chuyển vế phần bên trong ngoặc":** $2(x + 3) = 10$ → viết $2x = 10 - 3 = 7$ (sai, bỏ qua hệ số 2 đang nhân với cả ngoặc). Đúng: khai triển trước → $2x + 6 = 10$ → $2x = 4$ → $x = 2$.
 - **"Chuyển hệ số nhân chỉ qua một số hạng":** $3x + 6 = 15$ → viết $x + 6 = 15/3 = 5$ (sai, chỉ chia 3 cho $3x$). Đúng: hoặc trừ 6 trước ($3x = 9$ → $x = 3$), hoặc chia 3 cho cả vế: $x + 2 = 5$ → $x = 3$.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi:** Giải $-3x + 8 = 2$ bằng quy tắc chuyển vế (viết tắt). Sau đó kiểm tra lại bằng cách thay vào.
 
@@ -798,7 +798,7 @@ $$\begin{aligned}
 - **"Nhận diện sai vô nghiệm/vô số nghiệm":** thấy $3 = 3$ (hoặc $0 = 0$) tưởng là $x = 3$ (sai). $3 = 3$ nghĩa là phương trình đã trở thành phát biểu luôn đúng → mọi $x$ đều thoả, KHÔNG phải $x = 3$.
 - **"Chia hai vế cho biểu thức chứa $x$":** ví dụ $x^2 = x$ → chia $x$ cả 2 vế → $x = 1$. Sai! Mất nghiệm $x = 0$. Lý do: nếu $x = 0$ thì đang chia 0, không hợp lệ. Đúng: chuyển vế $x^2 - x = 0$ → $x(x - 1) = 0$ → $x = 0$ hoặc $x = 1$. (Phương trình này là bậc 2, chỉ minh hoạ.) Bài học: không chia cho biểu thức ẩn nếu chưa loại trừ trường hợp nó bằng 0.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi:** Mỗi phương trình sau là nghiệm duy nhất, vô nghiệm, hay vô số nghiệm?
 
@@ -973,7 +973,7 @@ Sau khi có $n = 75$, thay vào pt đầu: $75 \cdot (200000 - p) = 4000000$ →
 - **Dịch sai ngôn ngữ:** "A nhiều hơn B 5" → $A = B + 5$, KHÔNG phải $A + 5 = B$. "Gấp 3 lần" → $A = 3B$, KHÔNG phải $B = 3A$. Đọc kỹ chủ ngữ - vị ngữ.
 - **Quên kiểm tra:** giải xong, không thay vào đề gốc → bỏ sót lỗi.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi:** Hiện nay mẹ 30 tuổi, con 6 tuổi. Hỏi sau bao nhiêu năm nữa tuổi mẹ gấp 3 lần tuổi con?
 

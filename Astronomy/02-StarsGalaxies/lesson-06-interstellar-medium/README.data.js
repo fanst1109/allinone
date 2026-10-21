@@ -33,7 +33,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "không gian giữa sao là chân không tuyệt đối". Sai — nó cực loãng nhưng không trống. Chính lượng bụi nhỏ bé này gây hiệu ứng quan sát rõ rệt (làm đỏ, tắt sáng) trên quãng đường hàng nghìn năm ánh sáng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Khí hay bụi chiếm khối lượng lớn hơn trong ISM?
+> 🔁 **Thực hành.** Khí hay bụi chiếm khối lượng lớn hơn trong ISM?
 > <details><summary>Đáp án</summary>Khí (~99%). Bụi chỉ ~1% khối lượng, nhưng gây hiệu ứng quang học (làm đỏ, tắt sáng) lớn không cân xứng với khối lượng.</details>
 
 ---
@@ -66,7 +66,7 @@ Sau bài này bạn sẽ:
 > - *"Vì sao vạch 21 cm quan trọng đến thế?"* — Vì sóng radio 21 cm **xuyên qua bụi** (ánh sáng nhìn thấy bị chặn). Nhờ nó, các nhà thiên văn vẽ được cấu trúc xoắn ốc của Ngân Hà dù ta ở bên trong và bị bụi che.
 > - *"Cái gì biến HI thành HII?"* — Bức xạ tử ngoại năng lượng cao từ các sao **O và B** (nóng > 25.000 K) bứt electron khỏi nguyên tử hydro, tạo vùng HII (vùng Strömgren) bao quanh chúng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn quan sát một đám khí phát mạnh vạch Hα 656 nm màu đỏ. Đó là trạng thái hydro nào, và gần nó có gì?
+> 🔁 **Thực hành.** Bạn quan sát một đám khí phát mạnh vạch Hα 656 nm màu đỏ. Đó là trạng thái hydro nào, và gần nó có gì?
 > <details><summary>Đáp án</summary>HII (hydro ion hóa). Hα phát ra khi electron tái hợp với proton → gần đó phải có sao nóng (O/B) phát tử ngoại đang ion hóa khí.</details>
 
 ---
@@ -98,7 +98,7 @@ Sau bài này bạn sẽ:
 > - *"Làm sao biết một sao đỏ vì bụi hay vì nó vốn nguội?"* — So phổ vạch (loại sao) với màu quan sát: nếu phổ nói sao nóng (xanh) nhưng màu lại đỏ → phần dư đỏ là do bụi (reddening). Đây là cách đo \`E(B−V)\`.
 > - *"Bụi có chặn được mọi bước sóng không?"* — Không. Bước sóng **càng dài càng ít bị chặn**: hồng ngoại và radio xuyên qua bụi tốt → kính hồng ngoại (JWST) nhìn được vào trong các đám mây sinh sao mà kính nhìn-thấy không thấy.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao thật màu trắng-xanh nhưng quan sát thấy hơi vàng-cam. Bụi đã làm gì?
+> 🔁 **Thực hành.** Một sao thật màu trắng-xanh nhưng quan sát thấy hơi vàng-cam. Bụi đã làm gì?
 > <details><summary>Đáp án</summary>Reddening: bụi tán xạ/chặn ánh xanh mạnh hơn ánh đỏ → màu quan sát dịch về phía đỏ (vàng-cam) so với màu thật. Đồng thời sao mờ đi (extinction).</details>
 
 ---
@@ -116,7 +116,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nhầm tinh vân **phản xạ** (xanh, vì tán xạ xanh) với tinh vân **phát xạ** (đỏ, vì Hα). Mẹo: phản xạ = xanh (như bầu trời xanh do tán xạ), phát xạ = đỏ (Hα). Và **tinh vân hành tinh** không liên quan hành tinh — là sao nhỏ chết (xem [Lesson 05](../lesson-05-star-death/)).
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đám mây trông như vệt đen cắt ngang dải sáng phía sau, không tự phát sáng. Loại nào?
+> 🔁 **Thực hành.** Một đám mây trông như vệt đen cắt ngang dải sáng phía sau, không tự phát sáng. Loại nào?
 > <details><summary>Đáp án</summary>Tinh vân tối (dark nebula) — bụi dày che ánh sáng phía sau, ví dụ Tinh vân Đầu Ngựa.</details>
 
 ---
@@ -144,7 +144,7 @@ $$\\frac{M_J(B)}{M_J(A)} = \\left(\\frac{40}{10}\\right)^{3/2} = 4^{3/2} = 4 \\c
 > - *"Cái gì kích cho đám mây bắt đầu sụp?"* — Thường là một cú "huých": sóng xung kích từ **supernova** gần đó (nối [Lesson 05](../lesson-05-star-death/)), va chạm giữa các đám mây, hoặc đi qua nhánh xoắn ốc. Cú huých nén đám vượt \`M_J\`.
 > - *"Sinh ra một sao hay nhiều sao?"* — Thường **nhiều**: một đám lớn vỡ thành nhiều mảnh (fragmentation), mỗi mảnh thành một sao → sao thường sinh theo **cụm (cluster)**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai đám cùng khối lượng và mật độ, một ở 10 K, một ở 100 K. Đám nào dễ sụp đổ sinh sao?
+> 🔁 **Thực hành.** Hai đám cùng khối lượng và mật độ, một ở 10 K, một ở 100 K. Đám nào dễ sụp đổ sinh sao?
 > <details><summary>Đáp án</summary>Đám 10 K. Vì $M_J \\propto T^{3/2}$, đám lạnh có khối lượng Jeans nhỏ hơn → khối lượng thật dễ vượt ngưỡng → dễ sụp.</details>
 
 ---

@@ -79,7 +79,7 @@ Mỗi chunk có thể chứa nhiều đơn vị thông tin — dung lượng WM 
 > - *Tại sao PIN 4 số, không 6 số?* 4 số = 1 chunk (có thể học được ngay) hoặc 2 chunks nhỏ; 6 số cần 2–3 chunks, tỉ lệ quên cao hơn.
 > - *Experts có WM lớn hơn người thường không?* Không (WM capacity bẩm sinh ~tương đương). Họ có LTM patterns tốt hơn để chunk từ, giải phóng WM cho xử lý mới.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Bạn có thể mở rộng STM capacity thực sự không? Giải thích chunking vs capacity.
 > <details><summary>Đáp án</summary>Không — capacity (4 slots theo Cowan, 7±2 theo Miller) là giới hạn hệ thống. Chunking không tăng capacity mà tăng lượng thông tin mỗi slot chứa. Đây là khác biệt quan trọng: không thể "train" để nhớ 12 random digits, nhưng có thể train để nhóm chúng thành chunks.</details>
 > 2. Chase & Simon 1973: kiện tướng nhớ 25 quân nhưng chỉ nhớ 8 quân khi random. Giải thích bằng mô hình WM.

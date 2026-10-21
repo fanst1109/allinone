@@ -349,7 +349,7 @@ f(1) &= 1 - 2 = -1
 
 > ❓ **Câu hỏi tự nhiên.** *"Sao hàm $f(x) = x^4 - 2x^2$ có max ở giữa cao bằng 0, nhưng 2 min bên hai bên cùng $= -1$? Hai min cùng giá trị có ý nghĩa gì?"* — Vì f là hàm **chẵn**: $f(-x) = f(x)$. Đối xứng qua trục y nên giá trị tại $x$ và $-x$ giống hệt. Đây là biểu hiện của **đối xứng** — một khái niệm quan trọng trong vật lý và ML.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho $f(x) = x^4 - 4x$. Tìm tất cả cực trị địa phương và phân loại.
+> 🔁 **Thực hành.** Cho $f(x) = x^4 - 4x$. Tìm tất cả cực trị địa phương và phân loại.
 >
 > <details><summary>Đáp án</summary>
 >

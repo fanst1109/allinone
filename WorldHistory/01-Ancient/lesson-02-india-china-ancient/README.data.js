@@ -64,7 +64,7 @@ Nguyên nhân còn được tranh luận. Các giả thuyết chính: (a) biến
 
 ⚠ **Hiểu lầm thường gặp:** Không nên đồng nhất "văn minh sông Ấn sụp đổ" với "bị người Arya tiêu diệt". Người Arya di cư vào Ấn Độ khoảng 1500–1200 TCN — khi Harappa và Mohenjo-daro đã bỏ hoang 200–400 năm. Quan hệ giữa hai nền văn hóa phức tạp hơn một cuộc xâm lăng đơn thuần.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 > Kể tên ba đặc điểm cho thấy văn minh sông Ấn có trình độ tổ chức đô thị cao.
 
@@ -263,7 +263,7 @@ Triều Tần sụp đổ nhanh vì cai trị quá hà khắc — thuế nặng,
 
 🔗 **Liên hệ Việt Nam:** Năm 111 TCN, Hán Vũ Đế chinh phục vương quốc Nam Việt (thuộc Triệu) — mở đầu thời kỳ Bắc thuộc lần 1 cho vùng đất nay là miền Bắc Việt Nam. Trong hơn 1.000 năm Bắc thuộc, Trung Hoa đưa vào Việt Nam chữ Hán, Nho giáo, hệ thống hành chính, kỹ thuật nông nghiệp — xem thêm tại [VietnameseHistory/01-Origins-Independence](../../../VietnameseHistory/01-Origins-Independence/).
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 > Tần Thủy Hoàng chuẩn hóa những gì? Tại sao việc chuẩn hóa chữ viết quan trọng hơn chuẩn hóa đo lường (xét về ảnh hưởng văn hóa dài lâu)?
 

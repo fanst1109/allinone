@@ -130,7 +130,7 @@ $$v_2' = \frac{(3-2)\cdot(-2) + 2\cdot 2\cdot 4}{5} = \frac{-2 + 16}{5} = \frac{
 > - *"Game 2D thì sao? Bi-a có đụng xiên cơ mà?"* — Đúng. Công thức 1D chỉ dùng khi va chạm trực diện (cùng đường thẳng). Va chạm xiên cần **chiếu vận tốc lên pháp tuyến** rồi mới áp công thức — chính là impulse resolution 2D ở §4.
 > - *"Động năng có luôn bảo toàn không?"* — Chỉ khi $e = 1$ (đàn hồi hoàn toàn). Thực tế $e < 1$, một phần động năng biến thành nhiệt/âm thanh/biến dạng. Động *lượng* thì luôn bảo toàn, động *năng* thì không.
 
-> 🔁 **Dừng lại tự kiểm tra.** $m_1 = 4, v_1 = 2$ đâm $m_2 = 4, v_2 = 0$ (cùng khối lượng). Vận tốc sau?
+> 🔁 **Thực hành.** $m_1 = 4, v_1 = 2$ đâm $m_2 = 4, v_2 = 0$ (cùng khối lượng). Vận tốc sau?
 > <details><summary>Đáp án</summary>
 > Cùng khối lượng → đổi vận tốc cho nhau: $v_1' = 0$, $v_2' = 2$. Vật 1 dừng, vật 2 chạy đi với $2$ m/s.
 > </details>
@@ -198,7 +198,7 @@ $$v_1' = \frac{4 + 0.9(-4)}{2} = \frac{4 - 3.6}{2} = 0.2, \qquad v_2' = \frac{4 
 > - *"$e$ là thuộc tính của vật hay của cặp va chạm?"* — Về lý thuyết là của *cặp* (bóng cao su nảy trên gỗ khác trên cát). Trong game, ta thường gán $e$ cho từng vật rồi kết hợp khi chạm: `e = min(a.e, b.e)`.
 > - *"Bóng rơi mãi sao cuối cùng nó nằm im?"* — Vì mỗi lần nảy mất $(1 - e^2)$ phần động năng. Sau nhiều lần, vận tốc nảy giảm dần về gần $0$ → game đặt ngưỡng "ngủ" (sleep) cho vật, sẽ gặp ở [L10](../lesson-05-friction-resting-stacking/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Thả bóng chạm đất ($e = 0.8$) với vận tốc $5$ m/s xuống. Đất coi như tường tĩnh. Vận tốc nảy lên?
+> 🔁 **Thực hành.** Thả bóng chạm đất ($e = 0.8$) với vận tốc $5$ m/s xuống. Đất coi như tường tĩnh. Vận tốc nảy lên?
 > <details><summary>Đáp án</summary>
 > Tường tĩnh ($m_2 = \infty$, $v_2 = 0$): vận tốc tương đối sau $= -e \times$ trước $= -0.8 \times (-5) = 4$ m/s (đi lên). Bóng nảy lên với $4$ m/s. Tổng quát với tường: $v' = -e \cdot v$.
 > </details>
@@ -297,7 +297,7 @@ $$\vec v_2' = (-1, 0) + (3.413,\; 2.560) = (2.413,\; 2.560)$$
 > - *"Vì sao chia cho $\frac{1}{m_1} + \frac{1}{m_2}$ chứ không phải $m_1 + m_2$?"* — Vì xung lực làm đổi vận tốc theo $\Delta v = J/m$, nên "khối lượng hiệu dụng" của hệ hai vật là khối lượng rút gọn (reduced mass) $\mu = \frac{1}{1/m_1 + 1/m_2}$. Chia cho $\frac{1}{m_1}+\frac{1}{m_2}$ chính là nhân với $\mu$.
 > - *"Dùng $\frac{1}{m}$ có lợi gì so với $m$?"* — Lưu sẵn `invMass = 1/m` cho mỗi vật. Vật tĩnh (tường) đặt `invMass = 0` → tự động "vô hạn khối lượng" mà không chia cho 0 (xem §5). Code sạch hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong walk-through, nếu đổi $e$ từ $1$ xuống $0$, $j$ thay đổi thế nào và ý nghĩa?
+> 🔁 **Thực hành.** Trong walk-through, nếu đổi $e$ từ $1$ xuống $0$, $j$ thay đổi thế nào và ý nghĩa?
 > <details><summary>Đáp án</summary>
 > $j = \frac{-(1+0)(-3.2)}{1.5} = \frac{3.2}{1.5} \approx 2.133$ — bằng **một nửa** $j$ lúc $e=1$. Xung lực nhỏ hơn → hai vật chỉ vừa đủ thôi lao vào nhau (vận tốc tương đối pháp tuyến về $0$) chứ không bật ra. Đó là va chạm dính.
 > </details>
@@ -354,7 +354,7 @@ $\vec v_{rel} = \vec v_{wall} - \vec v_1 = (-5, 3)$. $v_n = \vec v_{rel}\cdot\ve
 
 > ⚠ **Lỗi thường gặp.** Nếu lỡ để tường có $\frac{1}{m} \neq 0$ (vd quên gán, dùng $m$ rất lớn nhưng hữu hạn) → tường **bị xê dịch chút ít** mỗi va chạm, lâu dần "trôi". Đặt thẳng `invMass = 0` cho vật tĩnh là an toàn nhất, đồng thời tránh chia cho 0.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai vật **đều** là tường ($\frac{1}{m_1} = \frac{1}{m_2} = 0$). Công thức $j$ ra gì?
+> 🔁 **Thực hành.** Hai vật **đều** là tường ($\frac{1}{m_1} = \frac{1}{m_2} = 0$). Công thức $j$ ra gì?
 > <details><summary>Đáp án</summary>
 > Mẫu số $= 0 + 0 = 0$ → chia cho 0 (NaN). Trong code phải **bỏ qua** cặp tĩnh-tĩnh (cả hai invMass = 0): chúng không bao giờ va chạm động với nhau. Thêm guard `if (invMass1 + invMass2 == 0) return;`.
 > </details>

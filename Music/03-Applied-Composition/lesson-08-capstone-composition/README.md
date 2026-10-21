@@ -101,7 +101,7 @@ Tiến trình này chia 2 câu 4 ô nhịp giống nhau về cấu trúc chức 
 > - *"Có thể dùng hợp âm bậc ii hoặc vii° không?"* — Được. ii thay IV (cùng chức năng S), vii° thay V (cùng chức năng D). Nhưng với đoạn ngắn 8 ô, I/IV/V/vi là đủ.
 > - *"Tiến trình có cố định không hay đổi giữa chừng?"* — Có thể thay đổi trong câu 2 để tạo tương phản. Đây là bước phát triển tự nhiên sau khi nắm được khuôn cơ bản.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Cho gam G trưởng, hợp âm bậc IV là gì và thuộc chức năng nào?
 > <details><summary>Đáp án</summary>
 >
@@ -155,7 +155,7 @@ Mỗi ô nhịp 4/4 có 4 phách. Ghi theo phách:
 > - *"Nốt passing tone là gì?"* — Nốt không thuộc hợp âm, nằm giữa 2 chord tone, đi theo bước. Ví dụ: hợp âm C (C–E–G), đi C–D–E: nốt D là passing tone — nó "lướt qua" từ C đến E, không tạo xung đột vì thời gian ngắn và ở phách yếu.
 > - *"Giai điệu phải đúng nốt chord tone 100% không?"* — Không. Quy tắc thực tế: phách mạnh (1,3) nên là chord tone hoặc nốt gam gần; phách yếu (2,4) linh hoạt hơn, passing tone được phép.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Ô nhịp có hợp âm Am (A–C–E). Giai điệu đặt nốt B4 vào phách 1. B4 có phải chord tone không? Điều gì xảy ra?
 > <details><summary>Đáp án</summary>
 >
@@ -264,7 +264,7 @@ Câu 2 lặp lại chức năng T–S–D nhưng bỏ vi, thêm ô S–D bổ su
 > - *"Phân tích số La Mã có tùy thuộc vào điệu không?"* — Hoàn toàn. Cùng hợp âm C major nhưng trong điệu C trưởng là I, trong điệu G trưởng là IV, trong điệu F trưởng là V. Số La Mã là vị trí tương đối, không phải tên hợp âm tuyệt đối.
 > - *"Nếu đoạn nhạc có hợp âm ngoài diatonic thì sao?"* — Đó là mượn hợp âm (modal mixture) hoặc hợp âm chuyển điệu (modulation) — kiến thức ở [Lesson 06 — Modulation](../../02-Harmony/lesson-06-modulation/).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Cho tiến trình: Am–F–C–G (lặp lại). Phân tích bằng số La Mã trong điệu C trưởng và gán chức năng T-S-D.
 > <details><summary>Đáp án</summary>
 >

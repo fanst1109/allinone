@@ -110,7 +110,7 @@ Filesystem hiện đại (ext4, NTFS, APFS) tổ chức thư mục theo cây:
 
 ⚠ **Lỗi thường gặp:** Nhiều người nghĩ directory "chứa" file. Thực ra directory chỉ chứa **ánh xạ tên → inode**. File thực sự nằm ở block dữ liệu trên đĩa, được trỏ đến bởi inode.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Lệnh `ln /home/user/a.txt /home/backup/a.txt` tạo hard link. Có bao nhiêu inode được tạo?
 
@@ -275,7 +275,7 @@ Block 233: [dữ liệu...][next: NULL]
 | Độ tin cậy | Cao | Thấp (chain corruption) | Cao |
 | Thực tế dùng | CD-ROM | FAT (USB/SD) | **ext4, NTFS, APFS** |
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 File 10 block. Truy cập block thứ 7 tốn bao nhiêu lần đọc đĩa với mỗi phương pháp? (block size 4 KB, inode pointer size 4 bytes, 12 direct pointers)
 

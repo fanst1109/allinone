@@ -143,7 +143,7 @@ func knapsack01(wt, val []int, W int) int {
 // knapsack01([2,3,4,5], [3,4,5,6], 5) = 7  (khớp walk-through)
 \`\`\`
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Với cùng input nhưng \`W = 7\`, \`dp[4][7]\` bằng bao nhiêu? Món nào được chọn?
 >
@@ -387,7 +387,7 @@ func canPartition(nums []int) bool {
 // canPartition([1,5,11,5]) = true ; canPartition([1,2,3,5]) = false
 \`\`\`
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > \`nums = [2, 2, 3, 5]\` chia đôi được không?
 >

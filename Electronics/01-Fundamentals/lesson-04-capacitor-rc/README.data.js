@@ -249,7 +249,7 @@ I(\\tau) &= \\frac{V_R}{R} = \\frac{3.31}{10{,}000} = 0.33 \\text{ mA} \\approx 
 
 $\\tau = 1$ s KHÔNG có nghĩa "tụ nạp đầy sau 1 giây". Sau 1 s tụ mới nạp được 63%. Phải sau $5\\tau = 5$ s mới coi là đầy (~99%). Sai số khi thiết kế timer: nếu dùng 1τ thay vì 5τ làm mốc "đầy" → kết quả sai 37%.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Cho R = 4.7 kΩ, C = 220 µF, $V_s = 5$ V. Tính: (a) $\\tau$, (b) $V_C$ sau 1τ, (c) thời gian để coi là nạp xong.
 
@@ -335,7 +335,7 @@ $$t = -1 \\cdot \\ln\\!\\left( 1 - \\frac{7}{9} \\right) = -\\ln\\!\\left( \\fra
 
 Sai khi nói "tụ nạp 50% điện áp thì mất nửa thời gian so với nạp 100%". Tụ nạp 50% mất thời gian $t = -\\tau \\ln(0.5) \\approx 0.693\\tau$ (không phải $0.5 \\times 5\\tau$). Đường cong là hàm mũ, không tuyến tính.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Tụ 47 µF xả qua R = 22 kΩ từ $V_0 = 12$ V. Sau bao lâu thì còn 3 V?
 

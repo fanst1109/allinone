@@ -135,7 +135,7 @@ Dataset lương: `[12M, 13M, 11M, 14M, 12M, 150M]`
 
 > ⚠ **Lỗi thường gặp**: Quên sắp xếp trước khi tìm median. Dataset `[3, 7, 1, 5]` không phải "median = (7+1)/2 = 4". Phải sắp xếp: `[1, 3, 5, 7]` → median = (3+5)/2 = 4 (trùng hợp trong ví dụ này, nhưng không phải luôn luôn).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Dataset: `[15, 3, 20, 7, 11]`. Tính mean và median.
 > <details><summary>Đáp án</summary>
 > Mean $= \dfrac{15+3+20+7+11}{5} = \dfrac{56}{5} = 11{,}2$. Sắp xếp: $[3, 7, 11, 15, 20]$, Median $= 11$ (vị trí 3). Mean và median gần nhau — dataset khá đối xứng.
@@ -268,7 +268,7 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 
 **Trimmed mean** là thỏa hiệp: bỏ 5% hay 10% đầu và đuôi, tính mean phần còn lại. Được dùng trong thể thao (loại điểm cao nhất và thấp nhất của ban giám khảo).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Dataset: `[2, 3, 5, 7, 8, 9, 1000]`. Tính mean và median. Thước đo nào phản ánh "trung tâm" của 6 giá trị đầu tốt hơn?
 > <details><summary>Đáp án</summary>
 > Mean $= \dfrac{2+3+5+7+8+9+1000}{7} = \dfrac{1034}{7} \approx 147{,}7$. Median: sắp xếp [2, 3, 5, 7, 8, 9, 1000], median = 7 (vị trí 4). Median (7) phản ánh tốt hơn — nó nằm trong phạm vi 6 giá trị thực tế, còn mean ($147{,}7$) bị kéo xa bởi 1000.

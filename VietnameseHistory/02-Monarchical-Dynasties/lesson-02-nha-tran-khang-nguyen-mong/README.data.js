@@ -68,7 +68,7 @@ Không hoàn toàn. Họ Trần dùng hôn nhân chính trị và quyền thế 
 - Thái thượng hoàng, điền trang–thái ấp và quân đội gia binh là ba đặc điểm tổ chức nhà nước riêng biệt.
 - Việc triệt hạ tôn thất nhà Lý (1232) ổn định quyền lực nhưng bị đánh giá là tàn nhẫn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Trần Thủ Độ giữ chức vụ gì và vai trò của ông là gì trong nhà Trần buổi đầu?
 
@@ -205,7 +205,7 @@ Quân Nguyên theo đường bộ từ phía bắc xuống, không qua sông B�
 - Trận Bạch Đằng 1288 là đỉnh cao: bắt sống tướng địch, tiêu diệt thủy quân, buộc lực lượng bộ binh phải rút lui.
 - Trần Hưng Đạo là linh hồn quân sự; hội nghị Diên Hồng là biểu tượng tinh thần toàn dân.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Vì sao kế "vườn không nhà trống" hiệu quả với quân Nguyên – Mông, dù họ là đế quốc mạnh nhất thế giới?
 

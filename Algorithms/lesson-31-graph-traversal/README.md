@@ -151,7 +151,7 @@ edges := []Edge{{0, 1, 0}, {0, 2, 0}, {1, 3, 0}, {2, 4, 0}}
 > - *"Có hướng (directed) thì AddEdge khác gì?"* — Chỉ thêm `adj[u] = append(adj[u], v)`, **không** thêm chiều ngược. `u→v` không kéo theo `v→u`.
 > - *"Weighted lưu thế nào trong list?"* — `adj[u]` lưu cặp `{đỉnh, trọng số}` thay vì chỉ `int`. Sẽ dùng nhiều ở Dijkstra (L33).
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị **có hướng** 3 đỉnh với cạnh `0→1, 1→2, 0→2`. Viết adjacency list.
+> 🔁 **Thực hành.** Đồ thị **có hướng** 3 đỉnh với cạnh `0→1, 1→2, 0→2`. Viết adjacency list.
 > <details><summary>Đáp án</summary>
 >
 > `adj[0]=[1,2]`, `adj[1]=[2]`, `adj[2]=[]`. Đỉnh 2 không có cạnh đi ra → list rỗng. Tổng độ dài list = 3 = E (vì có hướng, không nhân đôi).
@@ -262,7 +262,7 @@ Với đồ thị mục 2.1: `dist = [0,1,1,2,2,3]`. Đường đi 0→5: truy `
 > - *"Vì sao lần đầu chạm = ngắn nhất?"* — Vì queue xử lý theo level tăng dần: mọi đỉnh level k được lấy ra trước mọi đỉnh level k+1. Lần đầu một đỉnh được phát hiện, nó đến từ level nhỏ nhất có thể.
 > - *"dist[v]==-1 thay visited được không?"* — Được, và còn gọn hơn: `-1` vừa là "chưa thăm" vừa là "khoảng cách chưa xác định".
 
-> 🔁 **Dừng lại tự kiểm tra.** Trên đồ thị mục 2.1, BFS từ đỉnh **3**, `dist[2]` = ?
+> 🔁 **Thực hành.** Trên đồ thị mục 2.1, BFS từ đỉnh **3**, `dist[2]` = ?
 > <details><summary>Đáp án</summary>
 >
 > Từ 3: `dist[3]=0`; hàng xóm 1,5 → `dist=1`; từ 1: 0,4 → `dist=2`; từ 5: 4 đã có; từ 0: 2 → `dist[2]=3`; từ 4: 2 đã chờ. Vậy `dist[2]=3`. (Đường 3→1→0→2.)
@@ -336,7 +336,7 @@ Walk-through DFS từ đỉnh `0` trên đồ thị mục 2.1 (hàng xóm xét t
 > - *"DFS có cho đường ngắn nhất không?"* — KHÔNG. DFS đâm sâu nên đường nó tìm thấy thường dài. Muốn ngắn nhất (unweighted) → BFS.
 > - *"Pre hay post quan trọng hơn?"* — Tùy bài. Connected components / flood fill chỉ cần thăm là đủ. Topological sort cần **post-order đảo ngược**. Cycle detection (đồ thị có hướng) cần phân biệt trạng thái đang-trong-stack.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị có hướng `0→1, 0→2, 1→3, 2→3`. DFS pre-order từ 0 (hàng xóm theo thứ tự)?
+> 🔁 **Thực hành.** Đồ thị có hướng `0→1, 0→2, 1→3, 2→3`. DFS pre-order từ 0 (hàng xóm theo thứ tự)?
 > <details><summary>Đáp án</summary>
 >
 > Vào 0 → vào 1 → vào 3 (cụt) → RỜI 3, RỜI 1 → quay lại 0, vào 2 → 3 đã thăm → RỜI 2, RỜI 0. Pre-order = `[0, 1, 3, 2]`.
@@ -573,7 +573,7 @@ Từ ô start tới ô đích, mỗi bước đi 1 ô (4 hướng), tránh tư�
 > - Đếm hướng sai (dùng 4 trong khi đề yêu cầu 8, hoặc ngược lại).
 > - Quên đánh dấu visited trên grid → lặp vô hạn giữa 2 ô kề nhau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Grid đảo trên nhưng tính **8 hướng**, số đảo = ?
+> 🔁 **Thực hành.** Grid đảo trên nhưng tính **8 hướng**, số đảo = ?
 > <details><summary>Đáp án</summary>
 >
 > Với 8 hướng, `(1,1)` chéo tới `(2,2)` → tất cả đất nối thành 1 cụm → **1 đảo**. (Hướng kết nối thay đổi kết quả!)
@@ -699,7 +699,7 @@ Walk-through grid:
 >
 > *"Multi-source khác chạy BFS từng nguồn rồi lấy min?"* — Multi-source O(V+E) **một lần**; chạy từng nguồn là O(nguồn × (V+E)) — chậm hơn nhiều khi nhiều nguồn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Grid `[[2,1,1],[1,1,1],[0,1,2]]` — sau bao nhiêu phút?
+> 🔁 **Thực hành.** Grid `[[2,1,1],[1,1,1],[0,1,2]]` — sau bao nhiêu phút?
 > <details><summary>Đáp án</summary>
 >
 > 2 nguồn `(0,0)` và `(2,2)` loang đồng thời. Ô xa nguồn nhất là `(0,2)`/`(2,0)`... thực ra mọi ô tươi cách ≤2 từ một nguồn → **2 phút**. (Nhờ 2 nguồn, nhanh hơn 1 nguồn.)

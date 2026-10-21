@@ -55,7 +55,7 @@ A: Mỗi sinh vật có **điểm đặt riêng** do enzyme của nó tối ưu 
 - **Nghĩ "nội môi = không đổi"**: sai. Đường huyết bạn dao động trong ngày (sau ăn lên 140 mg/dL rồi về 90); thân nhiệt cũng dao động ~0.5°C theo nhịp sinh học. "Nội môi" là **dao động có kiểm soát quanh điểm đặt**, không phải đường thẳng.
 - **Cho rằng phản hồi âm nghĩa là "phủ định"**: chữ "âm" ở đây nghĩa là **trở ngược** (đảo chiều), không phải "xấu". Khi đường huyết cao, cơ thể trở lại giảm xuống — đó là phản hồi âm và đó là **điều tốt**.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Khoảng pH máu cho phép sống được rộng cỡ nào? Tại sao enzyme là lý do của khoảng hẹp này?
 2. Một người vận động viên có thân nhiệt 38.5°C khi đang chạy marathon — có phải bệnh không?
@@ -176,7 +176,7 @@ Cơ chế nằm ở **tính tan**:
 - **Nhầm hormone với chất dẫn truyền thần kinh**: hormone đi qua **máu** tới đích xa. Chất dẫn truyền đi qua **synapse** ~20 nm. Adrenaline làm cả 2 vai (xem mục 2.3).
 - **Cho rằng "liều càng cao càng mạnh tỷ lệ thuận"**: receptor có giới hạn — khi tất cả receptor đã bão hòa, thêm hormone không tăng hiệu ứng. Hệ thống "bão hòa" này khác với liều tỷ lệ tuyến tính.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Nếu một loại thuốc cản trở quá trình **phiên mã gen** trong tế bào đích, nó sẽ ảnh hưởng tới hormone peptide hay hormone steroid nhiều hơn? Vì sao?
 2. Một người có testosterone trong máu bình thường nhưng cơ thể không phát triển cơ bắp tuổi dậy thì. Lỗi có thể ở đâu (vẫn ở tuyến tiết)?
@@ -344,7 +344,7 @@ Phản hồi dương luôn có **điểm dừng** (sinh xong, mạch khâu kín,
 - **Nghĩ "phản hồi dương luôn nguy hiểm"**: không. Phản hồi dương dùng đúng chỗ rất hữu ích (sinh nở, đông máu). Vấn đề chỉ là nếu nó xảy ra không kiểm soát.
 - **Quên rằng cảm biến cũng có thể sai**: bệnh tiểu đường type 2 không phải thiếu insulin mà **cảm biến (receptor insulin trên tế bào) hỏng** → tế bào không nghe lệnh dù tín hiệu vẫn có.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Khi bạn ra ngoài trời 5°C, da bạn co mạch. Liệt kê đầy đủ 4 thành phần phản hồi âm trong tình huống này.
 2. Vì sao phản hồi dương "tạo điện thế hoạt động" trong neuron không chạy mãi mà có điểm dừng?

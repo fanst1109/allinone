@@ -104,7 +104,7 @@ Cơ chế biến "cái nhãn" thành "thiên vị" gồm **3 bước nối tiế
 > - *"Có cần lịch sử xung đột thật giữa hai nhóm không?"* → Không. Bước 3 chạy được **chỉ nhờ nhu cầu tự trọng**, không cần lý do khách quan. Đó là điều minimal group paradigm chứng minh (mục 3.2).
 > - *"Vậy so sánh xã hội luôn xấu?"* → Không. Nó cũng tạo gắn kết, hợp tác nội bộ, động lực. Vấn đề là **mặt trái**: định kiến và xung đột.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Sắp xếp đúng thứ tự 3 bước và nói mỗi bước "thêm" gì so với bước trước.
 > 2. Một cổ động viên hò hét mắng trọng tài vì bắt bất lợi cho đội nhà — đó là biểu hiện của bước nào?
 >
@@ -162,7 +162,7 @@ Rồi họ được yêu cầu **chia điểm/tiền** cho hai người khác, c
 
 > ⚠ **Lỗi thường gặp.** *"Nhóm này ghét nhóm kia chắc do lịch sử/lợi ích xung đột."* Đôi khi đúng, nhưng minimal group paradigm cảnh báo: **thiên vị có thể xuất hiện KHÔNG cần bất kỳ lý do khách quan nào.** Đừng mặc định phải có "nguyên nhân sâu xa" — đôi khi chỉ cần một cái nhãn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trong minimal group paradigm, yếu tố nào đã bị *cố tình loại bỏ* mà thiên vị **vẫn** xảy ra?
 > 2. Vì sao kết quả "thắng tương đối > thắng tuyệt đối" lại củng cố bước 3 (so sánh) của lý thuyết?
 >
@@ -303,7 +303,7 @@ Vì sao "ít gặp nhau" lại nguy hiểm? Một vòng lặp tự củng cố:
 > - *"Mô hình chỉ có một tham số $b$ — đơn giản quá phải không?"* → **Đúng, đây là toy model.** Thực tế $b$ khác nhau giữa người, nhóm không bằng nhau, tương tác có trí nhớ và mạng lưới. Nó không dùng để *dự báo con số*, mà để **cô lập một cơ chế**: chỉ riêng thiên vị đã đủ tạo chia rẽ. Mạng lưới thật sự (ai nối với ai) là chủ đề [Lesson 05 — Mạng xã hội](../../02-Networks-Structure/lesson-05-social-networks/).
 > - *"$b$ ngoài đời đo bằng gì?"* → Bằng tỷ lệ tương tác thực trong-nhóm so với kỳ vọng ngẫu nhiên (chính là chỉ số $S$ ở 5.3) — dữ liệu bạn bè, hôn nhân, đồng nghiệp thân... đều đo được homophily kiểu này.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Với $n=24$, tính tỷ lệ tương tác giữa-nhóm kỳ vọng ở $b = 0.8$.
 > 2. Chỉ số phân cực $S$ đo được trong một lần mô phỏng là $0.53$ trong khi đặt $b = 0.5$. Có mâu thuẫn với lý thuyết không?
 >

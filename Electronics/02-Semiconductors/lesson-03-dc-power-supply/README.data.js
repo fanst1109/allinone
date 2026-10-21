@@ -292,7 +292,7 @@ Trong mỗi bán kỳ, dòng phải qua **2 diode nối tiếp** (một ở cạ
 
 Mỗi bán kỳ của AC 50 Hz tạo ra một xung dương. 2 bán kỳ mỗi chu kỳ → 100 xung/giây → tần số gợn 100 Hz. Gợn tần số cao hơn dễ lọc hơn (cần tụ nhỏ hơn hoặc gợn nhỏ hơn với cùng tụ).
 
-🔁 **Dừng lại tự kiểm tra**: Biến áp 9 V_rms, cầu 4 diode. Tính V_dc trung bình.
+🔁 **Thực hành**: Biến áp 9 V_rms, cầu 4 diode. Tính V_dc trung bình.
 <details>
 <summary>Xem đáp án</summary>
 
@@ -383,7 +383,7 @@ Tụ phải chịu ít nhất V_peak_out. Thực tế chọn điện áp danh đ
 
 Đúng về gợn sóng, nhưng tụ lớn có dòng nạp khởi động rất cao (inrush current) — có thể làm hỏng cầu diode hoặc biến áp. Thực tế thêm điện trở hạn dòng nhỏ (NTC thermistor) hoặc dùng cầu diode chịu dòng cao.
 
-🔁 **Dừng lại tự kiểm tra**: Nguồn 5 V, tải 300 mA, ripple cho phép 0.3 V. Tính C tối thiểu.
+🔁 **Thực hành**: Nguồn 5 V, tải 300 mA, ripple cho phép 0.3 V. Tính C tối thiểu.
 <details>
 <summary>Xem đáp án</summary>
 

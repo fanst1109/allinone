@@ -107,7 +107,7 @@ Từ [L02](../lesson-02-double-entry/): Tài sản & Chi phí bình thường **
 > - *"Post là chép y nguyên số, hay tính toán gì?"* → Chép **y nguyên**. Số ở bên Nợ của bút toán → chép sang bên Nợ của T-account tương ứng; bên Có → chép sang bên Có. Posting không "sáng tạo" con số nào, chỉ **đổi chỗ sắp xếp**. Nhờ vậy tổng tiền không đổi (nền tảng để mục 5 chứng minh cân).
 > - *"Một tài khoản có thể dư 0 không?"* → Có. Nếu Σ Nợ = Σ Có (vd vay 100 rồi trả hết 100) thì dư 0, không xuất hiện trên bảng cân đối thử.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tài khoản *Phải trả người bán* (nợ phải trả) có: bên Có 70 và 50, bên Nợ 90. Dư bao nhiêu, bên nào?
+> 🔁 **Thực hành.** Tài khoản *Phải trả người bán* (nợ phải trả) có: bên Có 70 và 50, bên Nợ 90. Dư bao nhiêu, bên nào?
 >
 > <details><summary>Đáp án</summary>
 >

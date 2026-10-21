@@ -128,7 +128,7 @@ Vector \`(x, y)\` có góc $\\theta = \\text{atan2}(y, x)$ (đo từ trục x d�
 Ngược lại, từ góc + tốc độ → vector (xem §5):
 $$\\vec{v} = (\\cos\\theta,\\; \\sin\\theta) \\cdot \\text{speed}$$
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Tính $|(8, 6)|$ và chuẩn hoá nó.
 > 2. Vector \`(0, 5)\` trong canvas trỏ lên hay xuống?
 >
@@ -217,7 +217,7 @@ Quan sát: \`vx\` không đổi (không có gia tốc ngang); \`vy\` tăng đề
 
 > ⚠ **Lỗi thường gặp:** cập nhật \`p += v·Δt\` **trước** rồi mới \`v += a·Δt\` (Euler tường minh) cho kết quả hơi khác và kém ổn định với lò xo. Giữ đúng thứ tự \`v\` trước, \`p\` sau.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Với $\\vec p_0=(0,0)$, $\\vec v_0=(10,10)$, $\\vec a=(0,100)$, $\\Delta t=0.5$: tính $\\vec v_1, \\vec p_1$.
 >
 > <details><summary>Đáp án</summary>
@@ -282,7 +282,7 @@ Cho $s = 100$ (pixel/s), $\\theta = 30°$, $g = 200$ (pixel/s²). Biết $\\sin 
 
 > ⚠ **Lỗi thường gặp:** quên dấu trừ ở \`v0y\`. Nếu viết $v_{0y} = s \\cdot \\sin\\theta$ (dương) trong canvas, đạn sẽ bắn **xuống đất** ngay thay vì lên trời. Nhớ: góc bắn lên → \`vy\` âm.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Với $s = 200$, $\\theta = 45°$, $g = 200$: tính tầm xa $R$ và độ cao max $H$. ($\\sin 90° = 1$, $\\sin 45° \\approx 0.707$.)
 >
 > <details><summary>Đáp án</summary>
@@ -377,7 +377,7 @@ Bây giờ đi chéo cũng đúng 200 — bằng đi thẳng.
 > - *"Game thật có cố tình giữ bug này không?"* → Hiếm. Một số speedrun lợi dụng nó (vd "strafe jumping" trong Quake) nhưng đó là quyết định thiết kế, không phải mặc định nên có.
 > - *"Có cần normalize khi dùng joystick analog không?"* → Joystick analog đã cho vector có độ dài ≤ 1 sẵn (tròn), nên **không** ép về 1 — chỉ **clamp** nếu vượt 1. Normalize cứng chỉ dùng cho input số (phím on/off).
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > Nhân vật bấm Trái + Xuống, speed = 300. Không normalize thì tốc độ thật bao nhiêu? Có normalize thì vector vận tốc là gì?
 >
 > <details><summary>Đáp án</summary>

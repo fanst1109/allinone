@@ -245,7 +245,7 @@ void shiftOut595(byte data) {
 - **Thiếu cạnh latch**: với 74HC595, nếu không kéo RCLK lên sau khi dịch xong → dữ liệu đã vào thanh ghi dịch nhưng ngõ ra song song ($Q_0$–$Q_7$) chưa cập nhật.
 - **LSB/MSB nhầm hướng**: kiểm tra datasheet — một số IC xuất LSB trước, số khác MSB trước.
 
-🔁 **Tự kiểm tra**
+🔁 **Thực hành**
 
 Thanh ghi dịch 4 bit chứa 0110. Đưa bit **1** vào đầu (dịch phải). Sau 2 xung clock, nội dung là gì?
 
@@ -389,7 +389,7 @@ Giải pháp: dùng **bộ đếm đồng bộ** (xem mục 4) hoặc chỉ đ�
 - *"4 bit đếm được tối đa bao nhiêu?"* → $2^4 - 1 = 15$. n bit → $2^n$ trạng thái (0 đến $2^n - 1$).
 - *"Làm sao đếm ngược (down counter)?"* → Dùng Q (thay $\overline{Q}$) làm clock cho tầng kế tiếp. Hoặc dùng IC chuyên dụng có chân UP/DOWN.
 
-🔁 **Tự kiểm tra**
+🔁 **Thực hành**
 
 Ripple counter 3 bit, CLK = 100 kHz. Tần số tại $Q_2$ là bao nhiêu? Sau bao nhiêu xung CLK thì bộ đếm quay về 0?
 
@@ -574,7 +574,7 @@ $$32{,}768 \text{ kHz} = 2^{15} \text{ Hz} \xrightarrow{\div 2^{15}} \mathbf{1 \
 - **Dùng reset đồng bộ vs bất đồng bộ**: reset bất đồng bộ (CLR trực tiếp) nhanh hơn nhưng tạo glitch ngắn; reset đồng bộ (latch vào clock) sạch hơn nhưng bỏ lỡ 1 chu kỳ.
 - **Mod-N với N không phải lũy thừa 2**: cần đủ bit. Ví dụ $N=10$ cần 4 bit ($2^3=8 < 10 \leq 16=2^4$).
 
-🔁 **Tự kiểm tra**
+🔁 **Thực hành**
 
 Thiết kế bộ đếm mod-5. Cần bao nhiêu flip-flop? Nối bit nào vào NAND?
 

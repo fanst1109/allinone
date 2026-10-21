@@ -114,7 +114,7 @@ Một số action thực sự không phải Create/Read/Update/Delete — ví d�
 
 Pragmatic: chọn cách nào team đồng thuận, **giữ nhất quán** xuyên suốt API.
 
-> 🔁 **Tự kiểm tra mục 2**
+> 🔁 **Thực hành mục 2**
 >
 > 1. URL nào sai trong list sau: \`/users/42\`, \`/users/42/getOrders\`, \`/orders/99\`, \`/posts/42/comments\`?
 > <details><summary>Đáp án</summary>\`/users/42/getOrders\` — có động từ \`getOrders\` trong URL. Đúng là \`/users/42/orders\`. Method GET đã đảm nhiệm phần "get".</details>
@@ -295,7 +295,7 @@ Giải pháp: **\`Idempotency-Key\` header** (xem mục 16). Client sinh UUID, g
 > - Trả **500 cho validation fail** → sai hoàn toàn. Đúng: **400** (syntax) hoặc **422** (semantic).
 > - Trả **200 với \`{ "status": "error" }\`** thay vì status 4xx/5xx → phá vỡ uniform interface, client phải parse body mới biết success/fail.
 
-> 🔁 **Tự kiểm tra mục 5**
+> 🔁 **Thực hành mục 5**
 >
 > User gọi \`GET /users/42\`. Server thấy user 42 đã bị xoá tháng trước. Trả status nào?
 > <details><summary>Đáp án</summary>**410 Gone** nếu muốn nói rõ "từng có, không còn nữa". **404 Not Found** cũng chấp nhận được. KHÔNG phải 204 (vì 204 nghĩa là thành công không body, dễ nhầm).</details>

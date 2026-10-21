@@ -151,7 +151,7 @@ Kiểm chứng \`lps[4]=3\`: \`"ABABA"\` có prefix \`"ABA"\` và suffix \`"ABA"
 > - **Nhầm \`lps[i]\` là "có prefix-suffix hay không"** (boolean). Không — nó là **độ dài** dài nhất.
 > - **Lấy bất kỳ prefix-suffix nào** thay vì DÀI NHẤT. \`"ABABA"\` có cả \`"A"\` (dài 1) và \`"ABA"\` (dài 3); phải lấy 3.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính \`lps\` cho \`P = "AABA"\`.
+> 🔁 **Thực hành.** Tính \`lps\` cho \`P = "AABA"\`.
 > <details><summary>Đáp án</summary>
 > i=0 "A"→0; i=1 "AA"→1; i=2 "AAB"→0; i=3 "AABA"→ prefix "A"=suffix "A" → 1. Vậy <code>lps = [0,1,0,1]</code>.
 > </details>
@@ -233,7 +233,7 @@ func computeLPS(p string) []int {
 > - *"Tại sao bước \`length = lps[length-1]\` lại không tăng \`i\`?"* — Vì ta vẫn đang xét cùng một \`P[i]\`, chỉ thử khớp nó với một prefix ngắn hơn. Chỉ khi quyết định xong \`lps[i]\` mới \`i++\`.
 > - *"Có off-by-one nào dễ vướng không?"* — Có: \`lps[length-1]\`, KHÔNG phải \`lps[length]\`. Vì \`length\` là độ dài (1-based count), index của ký tự cuối prefix là \`length-1\`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Áp dụng \`computeLPS("AABAACAABAA")\` cho ra mảng gì?
+> 🔁 **Thực hành.** Áp dụng \`computeLPS("AABAACAABAA")\` cho ra mảng gì?
 > <details><summary>Đáp án</summary>
 > <code>[0,1,0,1,2,0,1,2,3,4,5]</code> — khớp Ví dụ 4 mục 2.2.
 > </details>
@@ -332,7 +332,7 @@ func kmpSearch(t, p string) []int {
 > - **Tăng \`i\` trong nhánh mismatch & j>0** → bỏ sót match (text không được lùi nhưng cũng KHÔNG nên nhảy qua ký tự chưa xét).
 > - **Quên \`j = lps[j-1]\` sau khi tìm thấy match** → vòng vô hạn (j luôn = m) hoặc bỏ sót match overlap.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tìm \`P="AA"\` trong \`T="AAAA"\` cho ra các vị trí nào?
+> 🔁 **Thực hành.** Tìm \`P="AA"\` trong \`T="AAAA"\` cho ra các vị trí nào?
 > <details><summary>Đáp án</summary>
 > <code>[0,1,2]</code>. lps=[0,1]. Match tại 0 → j=lps[1]=1, tiếp tục match tại 1, 2 (overlap). Nhờ <code>j=lps[j-1]</code> giữ overlap đúng.
 > </details>
@@ -380,7 +380,7 @@ Ví dụ với \`P = "ABABC"\`, mismatch tại \`j=4\` (\`P[4]='C'\`):
 
 Nói cách khác: \`lps[j-1]\` cho biết **phần nào của pattern đã chắc chắn match** (vì nó trùng với đuôi text vừa khớp) → bỏ qua phần đó, tiếp tục từ giữa pattern.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`P="AAACAAAA"\`, mismatch ở \`j=3\` (\`P[3]='C'\`). Nhảy \`j\` về đâu?
+> 🔁 **Thực hành.** Với \`P="AAACAAAA"\`, mismatch ở \`j=3\` (\`P[3]='C'\`). Nhảy \`j\` về đâu?
 > <details><summary>Đáp án</summary>
 > Đã khớp "AAA". lps[2]=2 (cho "AAA": "AA"="AA"). Nhảy j=2. (Đoạn "AA" cuối đã chắc chắn khớp.)
 > </details>

@@ -86,7 +86,7 @@ Trước khi chọn thuật toán, phải xác định **key** dùng để đế
 
 > ⚠ **Pitfall — per-IP và NAT.** Văn phòng có 200 nhân viên ngồi sau 1 IP công cộng. Nếu API limit `100 req/min/IP` → cả văn phòng chỉ được 100/phút. Một dev test API là người khác bị block. **Fix:** ở layer Application luôn ưu tiên **per-user**, per-IP chỉ dùng ở edge cho traffic chưa auth.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Endpoint `POST /login` nên rate limit theo key gì?
 > 2. Vì sao không nên dùng per-IP cho mọi endpoint?
 >
@@ -271,7 +271,7 @@ Giảm đều khi window cũ "trôi ra ngoài". **Mượt, không burst tại bo
 | Sliding window (counter) | ✗ | Cao | $O(1)$ (2 counters) | Vừa |
 | Sliding log | ✗ | Tuyệt đối | $O(N)$ | Vừa |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Limit 10/phút. Token bucket B=10, R=10/60. Fixed window 60s. User gửi 10 req lúc t=0, sau đó 10 req lúc t=59. Cái nào allow tất, cái nào deny?
 > 2. Vì sao sliding window counter là **xấp xỉ** chứ không chính xác tuyệt đối?
 >

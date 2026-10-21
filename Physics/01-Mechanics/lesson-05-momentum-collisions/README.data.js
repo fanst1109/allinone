@@ -72,7 +72,7 @@ $$p = m \\cdot v$$
 - *"Viên đạn nhẹ vs xe tải nặng — cái nào động lượng lớn hơn?"* Tùy tốc độ. Đạn 10 g bay 800 m/s có p = 8 kg·m/s; xe tải 5000 kg chạy 20 m/s có p = 100,000 kg·m/s. Khối lượng lớn thường thắng vì p tỉ lệ thuận m.
 - *"Ánh sáng không có khối lượng sao có động lượng?"* Photon có p = E/c dù m = 0 (cơ học lượng tử/tương đối). Đó là vì sao ánh sáng "đẩy" được — cánh buồm mặt trời dùng áp suất bức xạ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính động lượng của xe 1000 kg chạy 25 m/s.
 2. Hai vật: A (3 kg, +4 m/s) và B (2 kg, −6 m/s). Tổng động lượng của hệ?
@@ -136,7 +136,7 @@ b) **Có túi khí** (dừng trong 0.3 s do túi khí phồng và xẹp dần):
 - *"Vì sao bóng dội ngược 'đập' mạnh hơn bóng dính lại?"* Vì dội ngược đổi hướng vận tốc → $\\Delta p$ lớn hơn (từ $+v$ đến $-v'$, chênh $v + v'$) so với dính lại (từ $+v$ đến 0). $\\Delta p$ lớn hơn → xung lượng và lực lớn hơn.
 - *"Định lý xung lượng có phải định luật mới không?"* Không — chỉ là định luật II Newton viết lại: $F = ma = m \\cdot \\frac{\\Delta v}{\\Delta t} \\to F \\cdot \\Delta t = m \\cdot \\Delta v = \\Delta p$. Tiện hơn khi lực biến thiên nhanh trong thời gian ngắn (va chạm).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bóng 0.2 kg bay vào tường v = 15 m/s, dội ngược v = 12 m/s. Tính độ biến thiên động lượng.
 2. Nếu va chạm trên kéo dài 0.02 s, lực trung bình tường tác dụng lên bóng?
@@ -190,7 +190,7 @@ Không cần "đẩy vào không khí" — tên lửa hoạt động cả trong 
 - *"Vì sao súng giật ngược khi bắn?"* Trước khi bắn p = 0. Đạn bay tới mang động lượng dương → súng phải mang động lượng âm (giật ngược) để tổng p giữ = 0. Súng nặng hơn đạn nhiều nên vận tốc giật nhỏ.
 - *"Bảo toàn p và bảo toàn năng lượng — dùng cái nào?"* p luôn bảo toàn trong va chạm hệ kín → dùng trước tiên. Năng lượng (KE) chỉ bảo toàn nếu va chạm đàn hồi. Va chạm mềm: chỉ dùng p.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Súng 4 kg bắn đạn 0.01 kg với 500 m/s. Vận tốc giật của súng?
 2. Người 60 kg đứng yên trên ván trượt (không ma sát), ném quả bóng 2 kg về trước với 5 m/s. Người chuyển động thế nào?
@@ -279,7 +279,7 @@ v_{chung} &= \\frac{m_1 v_1 + m_2 v_2}{m_1 + m_2}
 - *"Vì sao hai vật cùng khối lượng va chạm đàn hồi lại đổi vận tốc cho nhau?"* Giải hệ hai phương trình (bảo toàn p và KE) với $m_1 = m_2$ ra đúng $v_1' = v_2$, $v_2' = v_1$. Trực giác: bida — bóng đang chạy đụng bóng đứng yên cùng cỡ → bóng chạy dừng lại, bóng đứng yên chạy đi (stun shot).
 - *"Khi nào va chạm là đàn hồi, khi nào mềm?"* Đàn hồi (xấp xỉ): vật cứng, bật ra không méo — bida, bóng cao su, hạt cơ bản. Mềm: vật biến dạng, dính, phát nhiệt — xe tông, đạn cắm gỗ, đất sét. Thực tế đa số va chạm thường có chút mất KE (không hoàn toàn đàn hồi).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật A (2 kg, 6 m/s) va chạm hoàn toàn mềm với B (4 kg, đứng yên), dính nhau. Vận tốc chung sau va chạm?
 2. Trong va chạm đàn hồi, A (1 kg, 8 m/s) đụng B (1 kg, đứng yên). Vận tốc của A và B sau va chạm?

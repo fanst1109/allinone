@@ -103,7 +103,7 @@ Giống lúa kháng sâu trung bình đẻ 200 hạt/cây; giống thường đ�
 - **Quên fitness là TƯƠNG ĐỐI**: $w = W / W_{\max}$, không phải con số tuyệt đối. Cùng 50 con có thể là w=1 (nếu là max) hoặc w=0.5 (nếu max là 100).
 - **Tưởng s âm**: theo định nghĩa $s = 1 - w \in [0, 1]$. Nếu kiểu gen được ưu ái, ta chọn nó làm chuẩn (w=1, s=0), không viết "s âm".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một quần thể có 3 kiểu gen với số con trung bình: BB = 80, Bb = 100, bb = 60. Tính w và s cho mỗi kiểu gen.
 2. Nếu một allele lặn gây chết khi đồng hợp ở tuổi 5 (trước sinh sản), w(aa) = ? s(aa) = ?
@@ -238,7 +238,7 @@ Vùng giữa phân bố bị bất lợi; hai đầu được ưu ái → phân 
 - **Tưởng định hướng là duy nhất quan trọng**: thực tế ổn định mới phổ biến nhất. Chỉ khi môi trường thay đổi mạnh (bồ hóng, kháng sinh, biến đổi khí hậu) thì định hướng mới rõ.
 - **Coi disruptive = hình thành loài ngay**: disruptive chỉ là *tiền đề*. Hình thành loài cần thêm cách ly sinh sản (Lesson 08).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Sau khi dùng kháng sinh penicillin nhiều năm, tỉ lệ vi khuẩn kháng penicillin trong bệnh viện tăng từ 1% lên 80%. Đây là kiểu chọn lọc nào?
 2. Trong một loài cá hồ, có 2 loại con mồi rõ rệt (cá nhỏ ăn rong + cá lớn ăn cá khác); cá miệng vừa khó kiếm ăn. Sau nhiều thế hệ, kích thước miệng phân thành 2 mode. Đây là kiểu nào?
@@ -299,7 +299,7 @@ A: Vì khi $q \to 0$, $q^2 \to 0$ nhanh hơn → tốc độ loại bỏ về 0.
 **Q: Công thức trên giả định gì?**
 A: Quần thể lớn (bỏ qua drift), không di-nhập (bỏ qua gene flow), bỏ qua đột biến trở lại, chỉ chọn lọc chống aa với hệ số s, các điều kiện Hardy-Weinberg khác giữ nguyên.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. $q_0 = 0{,}3$, $s = 0{,}2$. Tính $q_1$ bằng công thức xấp xỉ.
 2. Theo công thức cân bằng đột biến-chọn lọc $q_\text{cân bằng} = \sqrt{\mu/s}$, nếu μ = 10⁻⁶ và s = 0.01 thì q ổn định ở mức bao nhiêu?

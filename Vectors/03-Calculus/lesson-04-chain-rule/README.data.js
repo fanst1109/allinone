@@ -123,7 +123,7 @@ Cho $f(x) = x^2$, $g(u) = u + 1$. Composition: $y = x^2 + 1$.
 - Chain rule: $\\frac{dy}{dx} = 2(x+1) \\cdot 1 = 2(x+1) = 2x + 2$.
 - Kiểm tra trực tiếp: $(x + 1)^2 = x^2 + 2x + 1$, đạo hàm $= 2x + 2$. ✓
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi**: Cho $f(x) = 2x + 3$, $g(u) = 5u$. Tính $(g \\circ f)'(x)$ bằng 2 cách (trực tiếp và chain rule), verify bằng nhau.
 
@@ -322,7 +322,7 @@ Tại $x = 1$: $v = 1$, $u = \\sin 1 \\approx 0.8415$, $y = e^{0.8415} \\approx 
 | Áp 1 lần khi cần 2 lần | $(e^{\\sin x^2})' = e^{\\sin x^2} \\cdot 2x$ | Thiếu $\\cos(x^2)$: $= 2x \\cos(x^2) e^{\\sin x^2}$ |
 | Không thay $u$ về $x$ ở bước cuối | Để $\\frac{dy}{du} = 2u$ mà không nói $u = ?$ | Thay rõ $u = 3x + 1$ |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi 1**: Đạo hàm của $y = \\cos(3x + 5)$ là gì?
 
@@ -654,7 +654,7 @@ Vẫn là chain rule — chỉ thay $\\cdot$ (scalar) bằng phép ma trận (ou
 | Quên reset gradient giữa các batch (PyTorch) | Gradient tích lũy → sai |
 | Dùng $\\delta_{z_2}$ thay vì $\\delta_y$ ở output không có activation cuối | Tùy bài, có thể trùng nhưng cần verify |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 **Hỏi**: NN cùng kiến trúc mục 6.1, nhưng $x = 1$, target $= 0$, $W_1 = 1.0$, $b_1 = 0$, $W_2 = 2.0$, $b_2 = 0$. Tính forward và $\\frac{\\partial L}{\\partial W_1}$.
 

@@ -197,7 +197,7 @@ Không phải error nào cũng giống nhau. Trộn lẫn là sai. Có **3 nhóm
 
 > ⚠ **Lỗi thường gặp.** Nhiều team gom hết về `INTERNAL` rồi quăng HTTP 500 cho mọi thứ. Hệ quả: frontend không biết hiển thị "email sai định dạng" (422) khác "DB down" (503), user thấy "Có lỗi xảy ra" mãi không sửa được. Phân nhóm là bước **tiên quyết** để UX đúng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Hết tiền trong tài khoản khi rút" thuộc nhóm nào?
 >
 > <details><summary>Đáp án</summary>
@@ -840,7 +840,7 @@ http.Error(w, err.Error(), 500)
 
 Lộ IP DB, lộ port, lộ driver. Dùng `httpError(err)` middleware tách internal/external.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đoạn code nào sai?
+> 🔁 **Thực hành.** Đoạn code nào sai?
 >
 > ```go
 > func charge(amount int) error {

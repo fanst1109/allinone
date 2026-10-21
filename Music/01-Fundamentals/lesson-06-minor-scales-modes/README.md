@@ -85,7 +85,7 @@ Verify bậc 3: G→A = 2, A→B♭ = 1 ✓. Bậc 6: D→E♭ = 1 ✓.
 > - *"Gam thứ có 7 nốt như gam trưởng không?"* — Có. Mọi gam 7 bậc đều gồm chủ âm (bậc 1) + 6 nốt khác + chủ âm lặp lại ở bậc 8. Số lượng nốt khác nhau giữa major và minor, nhưng đều là 7 nốt phân biệt.
 > - *"Vì sao gam thứ nghe 'buồn'?"* — Không hẳn là khoa học — nhiều nhạc vui cũng dùng gam thứ (nhạc Flamenco, nhạc dân gian châu Phi). Sự liên kết cảm xúc phụ thuộc nhiều vào văn hóa, tempo, và hòa âm đi kèm. Nhưng về mặt vật lý, bậc 3 thấp (♭3) tạo quãng ba thứ (minor third) với chủ âm — quãng này có tần số hơi "ít hòa hợp" hơn quãng ba trưởng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dựng B natural minor bằng công thức 2–1–2–2–1–2–2. Bắt đầu từ nốt B.
+> 🔁 **Ôn tập.** Dựng B natural minor bằng công thức 2–1–2–2–1–2–2. Bắt đầu từ nốt B.
 > <details><summary>Đáp án</summary>
 >
 > B → C♯ (+2) → D (+1) → E (+2) → F♯ (+2) → G (+1) → A (+2) → B (+2)
@@ -140,7 +140,7 @@ C minor có **3 nốt khác** so với C major: bậc 3 (E♭), bậc 6 (A♭), 
 > - *"Khi nào dùng relative, khi nào dùng parallel?"* — Relative hữu ích khi phân tích bản nhạc cùng ký hiệu hóa (key signature). Parallel hữu ích khi so sánh màu sắc trưởng/thứ trên cùng chủ âm (vd nhạc phim chuyển từ C major sang C minor để tạo cảm giác nặng nề hơn).
 > - *"F major tương đối là D minor — verify?"* — F major: F–G–A–B♭–C–D–E. Bậc 6 là D. D minor: D–E–F–G–A–B♭–C–D. Cùng 7 nốt {F G A B♭ C D E} ✓.
 
-> 🔁 **Dừng lại tự kiểm tra.** D major (2♯: F♯, C♯) — gam thứ tương đối là gì?
+> 🔁 **Ôn tập.** D major (2♯: F♯, C♯) — gam thứ tương đối là gì?
 > <details><summary>Đáp án</summary>
 >
 > Bậc 6 của D major: D–E–F♯–G–A–**B**–C♯. Đáp án: **B minor** (2♯: F♯, C♯ — cùng ký hiệu hóa với D major ✓).
@@ -207,7 +207,7 @@ E♭→F♯: E♭→E = 1, E→F = 1, F→F♯ = 1 → tổng 3 ✓.
 > - *"Leading tone có phải lúc nào cũng nâng bậc 7 không?"* — Trong hòa âm tông (tonal harmony) cổ điển (Bach, Mozart, Beethoven): hầu hết khi hợp âm dominant (bậc 5) giải quyết về tonic (bậc 1), bậc 7 sẽ được nâng lên. Trong jazz, nhạc modal, hay folk, quy tắc này linh hoạt hơn nhiều.
 > - *"Augmented 2nd nghe thế nào?"* — Nghe có vẻ kỳ lạ, "Đông phương" hoặc "Do Thái" với tai phương Tây — đó là lý do nhạc Trung Đông và nhiều thể loại flamenco ưa dùng gam hòa thanh.
 
-> 🔁 **Dừng lại tự kiểm tra.** B natural minor: B C♯ D E F♯ G A B. Dựng B harmonic minor.
+> 🔁 **Ôn tập.** B natural minor: B C♯ D E F♯ G A B. Dựng B harmonic minor.
 > <details><summary>Đáp án</summary>
 >
 > Nâng bậc 7 (A) lên A♯: **B C♯ D E F♯ G A♯ B**. Khoảng G→A♯ = 3 nửa cung ✓.
@@ -262,7 +262,7 @@ So sánh ba biến thể A minor:
 > - *"Vì sao nâng cả bậc 6 lại làm giai điệu trơn hơn?"* — Bằng cách nâng bậc 6, khoảng từ bậc 5→6→7 trở thành hai nguyên cung liên tiếp (như đi trong gam trưởng) thay vì nguyên cung + augmented 2nd. Giai điệu bước dần từng nửa cung / nguyên cung thường dễ hát hơn là bước nhảy khoảng lớn bất ngờ.
 > - *"Classical vs jazz melodic minor khác gì?"* — Classical: lên nâng 6+7, xuống trở về tự nhiên. Jazz: luôn dùng biến thể nâng 6+7 (gọi là "acoustic scale" hoặc "jazz minor"). Nhiều mode của jazz melodic minor (Lydian dominant, Altered scale...) được dùng rộng rãi trong ngẫu hứng jazz.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dựng B melodic minor đi lên (biết B natural minor: B C♯ D E F♯ G A B).
+> 🔁 **Ôn tập.** Dựng B melodic minor đi lên (biết B natural minor: B C♯ D E F♯ G A B).
 > <details><summary>Đáp án</summary>
 >
 > Nâng bậc 6 (G→G♯) và bậc 7 (A→A♯): **B C♯ D E F♯ G♯ A♯ B**. Công thức nửa cung: 2–1–2–2–2–2–1 ✓.
@@ -337,7 +337,7 @@ So sánh D Dorian với D natural minor (D–E–F–G–A–B♭–C–D):
 > - *"Locrian có thực sự ít dùng không?"* — Đúng — hợp âm tonic của Locrian là diminished (B–D–F), thiếu quãng 5 đúng, rất bất ổn. Trong thực tế Locrian xuất hiện trong metal và jazz avant-garde, nhưng hiếm hơn 6 mode kia nhiều.
 > - *"Có thể dựng mode từ gam minor không, hay chỉ từ major?"* — Có thể. Mode từ melodic minor jazz đặc biệt quan trọng (Lydian Dominant = bậc 4 melodic minor, Altered Scale = bậc 7). Sẽ học ở [Tầng 2 — Hòa âm](../../02-Harmony/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Từ G major (G A B C D E F♯), dựng A Dorian (bậc 2 của G major).
+> 🔁 **Ôn tập.** Từ G major (G A B C D E F♯), dựng A Dorian (bậc 2 của G major).
 > <details><summary>Đáp án</summary>
 >
 > A Dorian = bắt đầu từ A, dùng nốt G major: **A B C D E F♯ G A**. Công thức: 2–1–2–2–2–1–2 ✓. Nốt đặc trưng: F♯ (bậc 6 tự nhiên, trong khi A natural minor có F♮).

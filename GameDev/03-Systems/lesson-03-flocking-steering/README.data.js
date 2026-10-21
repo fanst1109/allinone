@@ -155,7 +155,7 @@ $$\\textbf{v}_{\\text{desired}} = \\widehat{(\\textbf{target} - \\textbf{pos})} 
 
 → Tốc độ giảm **tuyến tính** từ \`maxSpeed\` (mép vùng) về 0 (tâm). Không còn dao động quanh đích.
 
-**🔁 Dừng lại tự kiểm tra.**
+**🔁 Thực hành.**
 1. Boid $v=(4,0)$, muốn $v_{desired}=(4,0)$ (y hệt). $steering = ?$ Có cần bẻ lái không?
 2. Vì sao Arrive cần \`slowing radius\` còn Seek thì không?
 
@@ -277,7 +277,7 @@ Mục §4 sẽ trộn 3 lực này theo trọng số. (Viz module C vẽ đúng 
 - *"Nếu boid không có lân cận nào thì sao?"* → Cả 3 lực = 0 (tổng rỗng, tránh chia cho 0). Boid bay thẳng theo quán tính — đúng như con chim lạc đàn.
 - *"Tính 3 lực mỗi boid mỗi frame có đắt không?"* → Phần đắt không phải 3 phép cộng, mà là **tìm lân cận** — xem §5.
 
-**🔁 Dừng lại tự kiểm tra.**
+**🔁 Thực hành.**
 1. Đàn co tụ thành một chấm duy nhất — thiếu luật nào?
 2. Các boid gần nhau nhưng bay loạn xạ mỗi con một hướng — yếu luật nào?
 

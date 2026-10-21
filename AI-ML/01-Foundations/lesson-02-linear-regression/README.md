@@ -142,7 +142,7 @@ MSE   = 0.4956 / 4 = 0.1239
 
 > ⚠ **Lỗi thường gặp**: quên chuẩn hoá feature. Diện tích cỡ 50-100, số phòng cỡ 2-4 — chênh nhau ~20 lần. GD sẽ rất chậm hoặc dao động. Xử lý: **standardize** ($(x - \mu)/\sigma$) hoặc **min-max scale** trước khi train. Closed-form ít nhạy với scale hơn, nhưng vẫn nên scale để $X^\top X$ không quá ill-conditioned.
 
-> 🔁 **Tự kiểm tra**: nếu căn nhà thứ 5 có (70 m², 3 phòng, 8 năm), dự đoán giá bằng $\tilde{w}$ ở trên là bao nhiêu?
+> 🔁 **Thực hành**: nếu căn nhà thứ 5 có (70 m², 3 phòng, 8 năm), dự đoán giá bằng $\tilde{w}$ ở trên là bao nhiêu?
 > <details><summary>Đáp án</summary>
 > $\hat{y}_5 = 0{,}5 + 0{,}04 \cdot 70 + 0{,}3 \cdot 3 + (-0{,}02) \cdot 8 = 0{,}5 + 2{,}8 + 0{,}9 - 0{,}16 = 4{,}04$ tỷ.
 > </details>
@@ -334,7 +334,7 @@ Normal equation $X^\top X\, w = X^\top y$ là **hệ phương trình tuyến tí
 | $(1,1),(2,2),(3,3),(4,4)$ | $\begin{bmatrix}4&10\\10&30\end{bmatrix}$ | $[10,30]$ | $b=0, w=1$ | line qua gốc |
 | $(0,2),(1,2),(2,2)$ (y hằng) | $\begin{bmatrix}3&3\\3&5\end{bmatrix}$ | $[6,6]$ | $b=2, w=0$ | đường ngang |
 
-> 🔁 **Tự kiểm tra**: cho $(0, 1), (1, 3), (2, 5)$. Đường hồi quy?
+> 🔁 **Thực hành**: cho $(0, 1), (1, 3), (2, 5)$. Đường hồi quy?
 > <details><summary>Đáp án</summary>
 > $X^\top X = \begin{bmatrix}3&3\\3&5\end{bmatrix}$, $\det = 6$, $X^\top y = [9, 13]$.
 > $w = \dfrac{1}{6}\begin{bmatrix}5&-3\\-3&3\end{bmatrix}[9,13] = \dfrac{1}{6}[5 \cdot 9 - 3 \cdot 13,\ -3 \cdot 9 + 3 \cdot 13] = \dfrac{1}{6}[6, 12] = [1, 2]$.
@@ -599,7 +599,7 @@ Hệ quả thực dụng: dùng Lasso để **feature selection** — model tự
 
 > ❓ **Câu hỏi tự nhiên**: *Sao không dùng L0 = số feature $\neq$ 0?* — L0 không lồi, không khả vi, NP-hard. Lasso (L1) là **xấp xỉ lồi tốt nhất của L0**.
 
-> 🔁 **Tự kiểm tra**: với $X^\top X = \begin{bmatrix}3&6\\6&14\end{bmatrix}$, $X^\top y = [10, 23]$, tính $w_{\text{ridge}}$ cho $\lambda = 1$.
+> 🔁 **Thực hành**: với $X^\top X = \begin{bmatrix}3&6\\6&14\end{bmatrix}$, $X^\top y = [10, 23]$, tính $w_{\text{ridge}}$ cho $\lambda = 1$.
 > <details><summary>Đáp án</summary>
 > $X^\top X + I = \begin{bmatrix}4&6\\6&15\end{bmatrix}$. $\det = 4 \cdot 15 - 36 = 24$.
 > $\text{inv} = \dfrac{1}{24}\begin{bmatrix}15&-6\\-6&4\end{bmatrix}$.

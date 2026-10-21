@@ -177,7 +177,7 @@ S: 221 Bye
 - **Nhầm envelope với header**: `MAIL FROM` trong SMTP envelope là địa chỉ dùng để định tuyến và báo lỗi bounce — có thể khác với `From:` trong header email mà người dùng nhìn thấy. Spammer lợi dụng điều này để giả mạo sender.
 - **Quên dòng chấm kết thúc DATA**: nếu nội dung thư thực sự có một dòng chỉ gồm dấu chấm, phải escape thành `..` (hai chấm).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 Câu hỏi: Trong phiên SMTP trên, bước nào là quan trọng nhất về bảo mật? Tại sao?
 
@@ -561,7 +561,7 @@ FTPS vẫn giữ kiến trúc hai kênh (control + data) của FTP, nên vẫn c
 - *"SCP (Secure Copy) có phải SFTP không?"* — Không. SCP là lệnh `scp` chạy trên SSH để copy file, nhưng không có tính năng SFTP đầy đủ (liệt kê thư mục, resume...). SFTP là giao thức con đầy đủ hơn.
 - *"Tại sao FTP vẫn còn tồn tại?"* — Vì hệ thống cũ (legacy system), một số hosting rẻ tiền, và người dùng quen thuộc chưa chuyển đổi. Về nguyên tắc, mọi FTP server hiện đại nên chuyển sang SFTP hoặc FTPS.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 Câu hỏi: Trong công ty có firewall cho phép client ra ngoài internet nhưng chặn kết nối từ ngoài vào client. FTP Active hay Passive mode sẽ hoạt động? Tại sao?
 

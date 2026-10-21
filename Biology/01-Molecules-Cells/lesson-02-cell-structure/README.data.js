@@ -54,7 +54,7 @@ A: Virus ở ranh giới giữa sống và không sống. Khi ở ngoài (dạng
 **Q: Tế bào nhỏ nhất và lớn nhất là gì?**
 A: Nhỏ nhất: vi khuẩn *Mycoplasma* ~0.1–0.3 µm. Lớn nhất quen thuộc: **lòng đỏ trứng đà điểu** là một tế bào khổng lồ (đường kính nhiều cm) — nhưng đây là ngoại lệ vì phần lớn thể tích là chất dự trữ không hoạt động trao đổi chất. Lý do vì sao tế bào *hoạt động* phải nhỏ → xem mục 5 (SA/V).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một bạn nói: "Cây mọc từ hạt, hạt từ đất, nên tế bào cây sinh ra từ đất." Sai ở đâu?
 2. Tại sao virus không được xem là một tế bào?
@@ -121,7 +121,7 @@ A: Vi khuẩn thực hiện hô hấp ngay trên **màng sinh chất** của ch�
 **Q: Có màng nhân thì lợi gì mà nhân thực phải "mất công" tạo ra?**
 A: Tách DNA khỏi tế bào chất cho phép **phiên mã (transcription) và dịch mã (translation) tách rời nhau theo không gian và thời gian** → điều hòa gen tinh vi hơn, bảo vệ DNA khỏi va chạm, và đóng gói được lượng DNA lớn hơn nhiều. Đó là điều kiện để tế bào phức tạp (đa bào, chuyên hóa) ra đời.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một tế bào không có màng nhân, có ribosome 70S, có thành peptidoglycan. Là nhân sơ hay nhân thực?
 2. Vì sao việc "đóng gói DNA trong nhân" lại là bước ngoặt cho sự sống phức tạp?
@@ -206,7 +206,7 @@ A: Vì enzyme được **nhốt trong màng lysosome** và chỉ hoạt động 
 - **Nghĩ "ribosome là bào quan có màng"**: ribosome **không** có màng — nó là phức hợp rRNA + protein. Vì vậy nhân sơ (không có bào quan màng) vẫn có ribosome.
 - **Gán lục lạp cho cả động vật**: lục lạp **chỉ** có ở thực vật và tảo (sinh vật quang hợp). Động vật không quang hợp → không có lục lạp.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một tế bào tiết nhiều enzyme ra ngoài sẽ giàu bào quan nào? Vì sao?
 2. Vì sao tế bào cơ và tế bào gan có nhiều ti thể hơn tế bào da chết?
@@ -269,7 +269,7 @@ A: Khi mất nước, không bào xẹp → mất áp suất trương → tế b
 - **"Tế bào động vật không có không bào"**: nói cho đúng là động vật có thể có **không bào nhỏ** (tạm thời), chỉ là không có **không bào trung tâm lớn** như thực vật.
 - **Nhầm "màng tế bào" với "thành tế bào"**: mọi tế bào đều có **màng** sinh chất; chỉ thực vật/nấm/vi khuẩn mới có thêm **thành** cứng bao ngoài. Hai lớp khác nhau.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Quan sát một tế bào dưới kính hiển vi thấy: có thành cứng, có lục lạp, có không bào lớn. Là động vật hay thực vật?
 2. Một tế bào không có thành, hình tròn mềm, giàu lysosome, có trung thể nổi bật. Là động vật hay thực vật?
@@ -353,7 +353,7 @@ A: Không. Tế bào của voi và của chuột **gần như cùng kích thư�
 - **Cho rằng "động vật to thì tế bào to"**: SAI (xem câu hỏi con voi). To là do nhiều tế bào.
 - **Quên đơn vị bình phương/lập phương**: SA đo bằng đơn vị², V bằng đơn vị³ → khi đổi đơn vị phải mũ tương ứng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Tính SA, V và SA/V cho khối lập phương cạnh s = 5. Verify bằng công thức 6/s.
 2. Một tế bào cạnh 4 µm và một tế bào cạnh 8 µm: tế bào nào trao đổi chất qua màng hiệu quả hơn so với khối nội dung của nó? SA/V chênh bao nhiêu lần?
@@ -411,7 +411,7 @@ A: Qua hàng tỉ năm, phần lớn gen của vi khuẩn gốc đã **chuyển 
 **Q: Vì sao bằng chứng "màng kép" lại thuyết phục?**
 A: Vì nếu ti thể chỉ là một nếp gấp của màng tế bào chủ (giả thuyết đối thủ), nó sẽ chỉ có **một** lớp màng. Có **hai** lớp — một từ chủ (lúc nuốt), một từ khách (màng gốc) — khớp chính xác với kịch bản thực bào, khó giải thích bằng cách khác.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Liệt kê 3 bằng chứng cho thuyết nội cộng sinh.
 2. Vì sao ribosome bên trong ti thể là 70S chứ không phải 80S như phần còn lại của tế bào người?

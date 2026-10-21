@@ -158,7 +158,7 @@ $$\\begin{aligned}
 
 Số mũ âm không có gì "lạ" — nó chỉ là sự tiếp diễn tự nhiên của dãy. Mỗi bước xuống = chia cho $a$.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 1.2-1.3)
+#### 🔁 Thực hành (mục 1.2-1.3)
 
 Tính nhẩm các giá trị sau (không nhìn đáp án):
 
@@ -260,7 +260,7 @@ Dãy hội tụ. Ta định nghĩa $2^\\pi$ chính là giới hạn này. Quy lu
 - **Nhầm dấu khi mũ âm**: $2^{-3} = -8$ (sai). Đúng: $2^{-3} = 1/8$. Số mũ âm **không** làm kết quả âm — nó làm kết quả nhỏ (nghịch đảo).
 - **Nhầm $(-2)^2$ với $-2^2$**: $(-2)^2 = 4$ (bình phương của $-2$), còn $-2^2 = -4$ (lấy âm của $2^2$). Thứ tự ưu tiên: lũy thừa trước, dấu âm sau.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 1.4)
+#### 🔁 Thực hành (mục 1.4)
 
 1. $27^{1/3}$ = ?
 2. $81^{1/4}$ = ?
@@ -377,7 +377,7 @@ Người mới hay nhầm các "quy luật giả" sau:
 - **Nhầm $a^{m \\cdot n}$ với $a^{m^n}$** — $2^{3 \\cdot 2} = 2^6 = 64$, còn $2^{3^2} = 2^9 = 512$. Khác hẳn.
 - **Quên rằng quy luật chia chỉ đúng với $a \\neq 0$** — $0^m / 0^n$ không xác định.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 2)
+#### 🔁 Thực hành (mục 2)
 
 Rút gọn (không tính ra số cuối) hoặc tính nhanh:
 
@@ -466,7 +466,7 @@ $$\\begin{aligned}
 
 Tương tự $\\sqrt{48} = \\sqrt{16 \\cdot 3} = 4\\sqrt{3}$, $\\sqrt{50} = \\sqrt{25 \\cdot 2} = 5\\sqrt{2}$.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 3)
+#### 🔁 Thực hành (mục 3)
 
 1. $\\sqrt{16 \\cdot 25}$ = ?
 2. $\\sqrt{49 + 0}$ so với $\\sqrt{49} + \\sqrt{0}$?
@@ -703,7 +703,7 @@ Xuất hiện trong: thuật toán \`Union-Find\` với inverse Ackermann $\\app
 - **Nhầm $\\log$ (không cơ số) trong Go là $\\log_{10}$** — **sai**. Trong Go, \`math.Log\` là $\\ln$ (cơ số $e$). \`math.Log10\` mới là log thập phân, \`math.Log2\` là log nhị phân.
 - **Nhầm $\\log(1/x) = 1/\\log(x)$** — **sai**. Đúng: $\\log(1/x) = -\\log(x)$ (quy luật 2 với tử = 1).
 
-#### 🔁 Dừng lại tự kiểm tra (mục 4)
+#### 🔁 Thực hành (mục 4)
 
 1. $\\log_3(81)$ = ?
 2. $\\log_{10}(0.0001)$ = ?
@@ -912,7 +912,7 @@ $$\\begin{aligned}
 - **Đổi cơ số chia nhầm chiều**: nhớ $\\log_b(x) = \\log_c(x) / \\log_c(b)$ — **base mới** ở dưới, **argument** ở trên. Đảo lại sẽ ra sai số.
 - **Áp quy luật 3 nhầm dấu**: $\\log(x^{-n}) = -n \\cdot \\log(x)$, không phải $1/(n \\cdot \\log x)$.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 6)
+#### 🔁 Thực hành (mục 6)
 
 1. Rút gọn: $\\log_{10}(50) + \\log_{10}(2)$ = ?
 2. Rút gọn: $\\log_2(96) - \\log_2(3)$ = ?

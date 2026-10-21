@@ -153,7 +153,7 @@ $$\\text{Tiền}_{\\text{cuối}}^{BS} = \\text{Tiền}_{\\text{đầu}} + \\und
 $$\\text{Tiền cuối} = 150 + (90 - 80 - 40) = 150 - 30 = \\mathbf{120}$$
 → khoản Tiền trên BS cuối kỳ phải đúng bằng **120**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Net income 60, khấu hao 20, phải thu tăng 15, không có tồn kho/phải trả đổi. CFO bằng bao nhiêu?
 > 2. Khấu hao xuất hiện ở IS với dấu gì, ở CF với dấu gì?
 > 3. Tiền đầu 100, CFO 50, CFI −70, CFF +30. Tiền cuối kỳ trên BS là bao nhiêu?
@@ -300,7 +300,7 @@ Kết luận: $A_{\\text{cuối}} - (L+E)_{\\text{cuối}} = 0$, tức $A_{\\tex
 
 > ⚠ **Lỗi thường gặp (chí mạng khi dựng model).** Nhập tay khoản **Tiền** trên BS rồi lại tự tính $\\Delta$Tiền ở CF theo cách khác → hai chỗ lệch nhau → BS không cân, và người ta đi "vá" bằng một dòng "plug" bí ẩn. **Đúng phải là:** Tiền trên BS = tiền đầu kỳ + tổng CF. Chỉ có *một* nguồn sự thật cho khoản Tiền. Đó là lý do mô hình trong [visualization.html](./visualization.html) không bao giờ lệch.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong chứng minh, hạng tử $Cx$ (capex) xuất hiện ở những chỗ nào và vì sao triệt tiêu?
+> 🔁 **Thực hành.** Trong chứng minh, hạng tử $Cx$ (capex) xuất hiện ở những chỗ nào và vì sao triệt tiêu?
 >
 > <details><summary>Đáp án</summary>
 >

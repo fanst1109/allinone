@@ -68,7 +68,7 @@ Khác về bản chất: đây là nội loạn chứ không phải ngoại xâm
 - 12 thế lực song song kiểm soát toàn bộ lãnh thổ trong ~24 năm (944–968).
 - Đất nước không bị nước ngoài chiếm, nhưng phân liệt và suy yếu nghiêm trọng.
 
-🔁 **Tự kiểm tra**:
+🔁 **Ôn tập**:
 > Vì sao sau Ngô Quyền mất lại xảy ra loạn sứ quân, chứ không phải một người con kế vị bình thường?
 <details>
 <summary>Đáp án</summary>
@@ -124,7 +124,7 @@ Không. Đây là ngoại giao hai mặt phổ biến của các nước nhỏ b
 - Lập quốc hiệu Đại Cồ Việt, đặt kinh đô Hoa Lư, dùng niên hiệu Thái Bình — tuyên bố chủ quyền hoàn toàn.
 - Xây dựng bộ máy quân chủ sơ khai; ngoại giao thực dụng với nhà Tống (triều cống về danh nghĩa, độc lập trên thực tế).
 
-🔁 **Tự kiểm tra**:
+🔁 **Ôn tập**:
 > Đinh Tiên Hoàng chọn Hoa Lư làm kinh đô vì lý do gì? Hãy nêu cả ưu và nhược điểm của lựa chọn này.
 <details>
 <summary>Đáp án</summary>
@@ -189,7 +189,7 @@ Tình huống đòi hỏi người có thực lực quân sự ngay lập tức.
 - Chiến thắng chống Tống 981 tại Bạch Đằng và Chi Lăng — bảo vệ nền độc lập vừa mới được lập lại.
 - Đây là lần đầu tiên nhà nước Đại Cồ Việt độc lập đánh thắng nhà Tống — một trong những đế quốc mạnh nhất thế giới lúc bấy giờ.
 
-🔁 **Tự kiểm tra**:
+🔁 **Ôn tập**:
 > Nếu nhà Tống thắng trong cuộc xâm lược 980–981, điều gì có thể xảy ra với Đại Cồ Việt?
 <details>
 <summary>Đáp án</summary>

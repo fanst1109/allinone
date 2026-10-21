@@ -121,7 +121,7 @@ A: Vì r là **tỉ lệ** (per-capita rate), nó **chuẩn hóa theo kích thư
 **Q: r là số dương luôn à?**
 A: Không. r > 0 → tăng (đường J/S đi lên). r = 0 → ổn định. r < 0 → giảm (nguy cơ tuyệt chủng nếu kéo dài).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Quần thể chuột có 500 con sống trên 100 m². Tính mật độ.
 2. Trong 1 năm, quần thể nai có 200 con sinh ra, 80 con chết, 30 con đi nơi khác, 10 con từ nơi khác đến. ΔN trong năm bằng bao nhiêu?
@@ -195,7 +195,7 @@ A: Có nhưng ngắn. Vi khuẩn mới cấy vào môi trường giàu dưỡng 
 **Q: Vì sao dùng $e$ mà không dùng $2$?**
 A: Vì $e$ xuất hiện tự nhiên khi giải phương trình vi phân $\frac{dN}{dt} = rN$. Nếu dùng cơ số 2 phải viết $N(t) = N_0 \cdot 2^{t/t_{double}}$ — biến đổi qua lại bằng $2 = e^{\ln 2}$, kết quả như nhau. $e$ chỉ gọn hơn về mặt toán.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Một quần thể nấm men có r = 0.4/giờ, N₀ = 50. Tính N sau 5 giờ và sau 10 giờ. Tỉ số `N(10)/N(5)` bằng bao nhiêu? Nó nói gì về tăng trưởng cấp số nhân?
 
@@ -296,7 +296,7 @@ A: Có. Khi r < 0 (vd ô nhiễm nặng), logistic suy biến thành cấp số 
 **Q: Thực tế N có chạm K rồi đứng yên không?**
 A: Hiếm. Quần thể thực dao động quanh K — lúc trên, lúc dưới — do nhiễu môi trường, dịch bệnh, mùa. Mô hình logistic là **trung bình dài hạn**.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Hồ cá rô có K = 4,000 con, r = 0.2/năm.
 

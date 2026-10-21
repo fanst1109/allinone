@@ -100,7 +100,7 @@ Nhận xét: tất cả 8 cặp đều thuận; bài kết thúc bằng quãng 8
 | **4** | 1:1 lệch | Nốt-đối-nốt nhưng bè đối âm **trễ hơn** (suspension) → tạo nghịch âm có kiểm soát, giải quyết xuống |
 | **5** | Hỗn hợp | Kết hợp tất cả các loài trên; bè đối âm "hoa mỹ" nhất |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Cho CF: D4 – E4 – F4 – G4 – A4. Bè đối âm bên trên: F4 – G4 – A4 – B4 – C5. Kiểm tra từng quãng: có hợp lệ trong Loài 1 không?
 > <details><summary>Đáp án</summary>
 >
@@ -155,7 +155,7 @@ Phân tích chuyển động giữa 2 cặp nốt liên tiếp (so sánh chiều
 > - *"Vì sao quãng 5/8 song song bị cấm nhưng quãng 3/6 song song lại cho phép?"* — Câu trả lời là thẩm mỹ lịch sử: quãng 5 và 8 thuần là "quá hòa hợp" — hai bè cùng hướng tạo ra "đường song song" quá rõ, làm bè mất tính độc lập. Quãng 3/6 ít "hoàn hảo" hơn nên nghe vẫn có cá tính riêng.
 > - *"Trong nhạc hiện đại có còn cấm parallel fifths không?"* — Không. Nhạc Organum thời Trung Cổ dùng quãng 5 song song cố tình; Debussy dùng làm hiệu ứng màu sắc. Quy tắc Fux chỉ áp dụng trong phong cách counterpoint cổ điển.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Bè dưới: C4→F4; Bè trên: G4→C5. Đây là kiểu chuyển động gì? Có lỗi không?
 > <details><summary>Đáp án</summary>
 >

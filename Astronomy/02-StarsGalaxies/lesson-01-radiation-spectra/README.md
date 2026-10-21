@@ -39,7 +39,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** "Vật đen" nghe như *màu đen*, nhưng một vật đen nóng lại **rực sáng** (Mặt Trời là một vật đen tuyệt vời!). Chữ "đen" chỉ nghĩa là *hấp thụ hoàn toàn*, không nói gì về độ sáng khi nung nóng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao một thanh sắt nung "trắng" lại nóng hơn thanh nung "đỏ"?
+> 🔁 **Thực hành.** Vì sao một thanh sắt nung "trắng" lại nóng hơn thanh nung "đỏ"?
 > <details><summary>Đáp án</summary>Vì nóng hơn thì đỉnh phát xạ dịch sang bước sóng ngắn (định luật Wien). "Đỏ" = đỉnh ở bước sóng dài (nhiệt độ thấp); "trắng/xanh" = đỉnh dịch về phía tím + phát mạnh ở mọi màu → mắt trộn thành trắng → nhiệt độ cao hơn.</details>
 
 ---
@@ -81,7 +81,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nhầm đơn vị: nếu để $\lambda$ bằng nm trong công thức ($\lambda_{max} = 2{,}9 \times 10^{-3}/T$) sẽ ra số vô lý. Hằng số $b = 2{,}9 \times 10^{-3}$ chỉ đúng khi $\lambda$ tính bằng $\text{m}$. Tính ra mét rồi mới đổi sang nm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao Betelgeuse có $T \approx 3500 \ \text{K}$. Ước lượng $\lambda_{max}$ và cho biết vùng phổ.
+> 🔁 **Thực hành.** Sao Betelgeuse có $T \approx 3500 \ \text{K}$. Ước lượng $\lambda_{max}$ và cho biết vùng phổ.
 > <details><summary>Đáp án</summary>$\lambda_{max} = \dfrac{2{,}9 \times 10^{-3}}{3500} = 8{,}29 \times 10^{-7} \ \text{m} = 829 \ \text{nm}$ → hồng ngoại gần → sao đỏ. Khớp: Betelgeuse là siêu khổng lồ đỏ.</details>
 
 ---
@@ -128,7 +128,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Quên mũ 4 khi dùng tỉ số nhiệt độ — viết $\left(\dfrac{T}{T_\odot}\right)$ thay vì $\left(\dfrac{T}{T_\odot}\right)^4$. Sai số khổng lồ. Luôn nhớ: **R bình phương, T mũ bốn**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai sao cùng bán kính, sao A có $T = 6000 \ \text{K}$, sao B có $T = 12000 \ \text{K}$. Sao B sáng gấp mấy lần A?
+> 🔁 **Thực hành.** Hai sao cùng bán kính, sao A có $T = 6000 \ \text{K}$, sao B có $T = 12000 \ \text{K}$. Sao B sáng gấp mấy lần A?
 > <details><summary>Đáp án</summary>Cùng R nên $\dfrac{L_B}{L_A} = \left(\dfrac{12000}{6000}\right)^4 = 2^4 = 16$ lần. Nhiệt độ gấp đôi → sáng gấp 16 lần.</details>
 
 ---
@@ -161,7 +161,7 @@ Sau bài này bạn sẽ:
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao cùng một nguyên tố lúc cho vạch sáng, lúc cho vạch tối?"* — Cùng các bước sóng đó! Khi khí *nóng và tự phát* → ta thấy vạch **sáng** ở các bước sóng đó. Khi khí *nguội và đứng trước nguồn sáng mạnh hơn* → nó *lấy bớt* đúng các bước sóng đó khỏi phổ liên tục → vạch **tối** tại cùng vị trí. Vạch sáng và vạch tối của một nguyên tố **trùng bước sóng** — đó là dấu vân tay không đổi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn quan sát một tinh vân khí loãng nóng phát sáng, không có sao nền phía sau. Phổ của nó loại gì?
+> 🔁 **Thực hành.** Bạn quan sát một tinh vân khí loãng nóng phát sáng, không có sao nền phía sau. Phổ của nó loại gì?
 > <details><summary>Đáp án</summary>Phổ **phát xạ** (vạch sáng) — theo quy tắc 2 của Kirchhoff: khí loãng nóng tự phát ra các vạch sáng.</details>
 
 ---
@@ -204,7 +204,7 @@ $$\begin{aligned}
 
 > ⚠ **Lỗi thường gặp.** Tưởng "màu của sao do thành phần hóa học". Sai — **màu** (đỉnh Planck) do **nhiệt độ** (Wien). **Vạch** mới do thành phần hóa học. Hai thông tin tách bạch: nền liên tục → nhiệt độ; vạch trên nền → thành phần.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một vạch hấp thụ ở $589 \ \text{nm}$ (vàng) xuất hiện trong phổ sao. Nó cho biết điều gì?
+> 🔁 **Thực hành.** Một vạch hấp thụ ở $589 \ \text{nm}$ (vàng) xuất hiện trong phổ sao. Nó cho biết điều gì?
 > <details><summary>Đáp án</summary>Có **natri (Na)** trong khí quyển sao — 589 nm là vạch đôi đặc trưng của natri (giống màu vàng đèn đường natri). Nó cho biết *thành phần*, không phải nhiệt độ.</details>
 
 ---

@@ -66,7 +66,7 @@ Phát biểu trong lễ nhậm chức → tạo ra nghĩa vụ pháp lý và đ�
 > - *"Tôi hứa" có phải lúc nào cũng là performative không?"* — Không. *"Tôi hứa mỗi ngày"* (nói về thói quen) là mô tả. *"Tôi sẽ làm"* không phải lời hứa nếu không có ý định tạo nghĩa vụ. Ngữ cảnh và ý định quyết định.
 > - *"Performative có thể nói gián tiếp không?"* — Có. *"Bạn có thể mở cửa không?"* ngữ pháp là câu hỏi, nhưng thực tế là yêu cầu (request). Austin gọi đây là performative ngầm ẩn (implicit performative) — dẫn đến lý thuyết illocution của Searle.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Câu nào là performative, câu nào là constative?
 > 1. *"Mặt Trời mọc ở hướng Đông."*
 > 2. *"Tôi xin lỗi vì đã đến muộn."*
@@ -144,7 +144,7 @@ Lấy ví dụ cụ thể: Trong cuộc họp, sếp nói với nhân viên:
 > - *"Perlocution có phải là phần của ngôn ngữ không?"* — Theo nghĩa hẹp, perlocution thuộc tâm lý học và xã hội học hơn là ngôn ngữ học thuần túy. Austin đưa nó vào để cho thấy ngôn ngữ nhúng vào hành động xã hội.
 > - *"Locutionary act có phải lúc nào cũng cần không?"* — Không nhất thiết phải là lời nói — gật đầu, ký tên cũng có thể có illocutionary force. Nhưng Austin tập trung vào ngôn ngữ nói.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phân tích câu sau thành 3 tầng: *"Anh có biết đèn đỏ không?"* — nói với tài xế vừa vượt đèn đỏ.
 >
 > <details><summary>Đáp án</summary>
@@ -228,7 +228,7 @@ John Searle (1969, *Speech Acts*; 1979, *Expression and Meaning*) hệ thống h
 > - *"Assertives và declarations khác nhau thế nào — cả hai đều khẳng định?"* — Assertives điều chỉnh lời nói cho khớp với thế giới đã có (thế giới không đổi). Declarations **tạo ra** một thực tại mới bằng chính hành động nói (thế giới thay đổi). Sa thải một nhân viên = declaration; nhận xét "anh ấy làm kém" = assertive.
 > - *"Expressives có thể sai không?"* — Expressive không sai/đúng về nội dung, nhưng có thể **không thành thật** (insincere). *"Tôi xin lỗi"* mà không thực sự hối hận — đây là expressive thực hiện về mặt xã hội nhưng thiếu điều kiện tâm lý.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phân loại mỗi câu theo 5 nhóm Searle:
 > 1. *"Trái Đất có 8 hành tinh trong Hệ Mặt Trời."*
 > 2. *"Xin hãy im lặng trong khi thi."*
@@ -298,7 +298,7 @@ Austin phân biệt:
 > - *"Nếu tôi hứa trong khi say rượu, lời hứa có hiệu lực không?"* — Đây là câu hỏi thú vị: điều kiện A2 ("đúng hoàn cảnh") có thể không thỏa mãn nếu khả năng nhận thức bị ảnh hưởng. Pháp luật nhiều nơi không công nhận hợp đồng ký khi say.
 > - *"Felicity conditions có phổ quát không?"* — Không hoàn toàn. Thẩm quyền và thủ tục khác nhau giữa các nền văn hóa. Người đứng đầu bộ tộc có thể có thẩm quyền tuyên hôn mà không cần đăng ký nhà nước.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Xác định loại "bất thành" (misfire hay abuse):
 > 1. Một diễn viên trong vở kịch nói *"Tôi tuyên bố phiên tòa khai mạc"* — có phiên tòa thật không?
 > 2. Một quan chức tuyên bố mở phiên họp theo đúng thủ tục, nhưng thầm nghĩ *"buổi họp này vô nghĩa"* — phiên họp có mở không?

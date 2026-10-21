@@ -113,7 +113,7 @@ Giảm thì ngược lại. Gọn thành bảng:
 
 Cả bốn: một dòng Nợ, một dòng Có, **số tiền hai bên bằng nhau**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. "Mua thiết bị 60, trả bằng tiền" — ghi Nợ tài khoản nào, Có tài khoản nào?
 > 2. "Mua nguyên liệu 15, chưa trả tiền (nợ người bán)" — định khoản?
 >

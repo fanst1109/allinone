@@ -56,7 +56,7 @@ Sau bài này, bạn có thể:
 
 > ⚠ **Lỗi thường gặp: nhầm "đúng" (true) với "chứng minh được" (provable).** Trước Gödel, nhiều người ngầm giả định hai khái niệm này trùng nhau trong một hệ tốt. Gödel cho thấy chúng có thể tách rời: một câu có thể đúng trong toán học nhưng không chứng minh được trong hệ hình thức cụ thể.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Hệ H = {tiên đề: "mọi số đều lớn hơn 0", luật: modus ponens}. Câu "5 > 0" — trong hệ này câu đó chứng minh được không?
 >
 > <details><summary>Đáp án</summary>
@@ -154,7 +154,7 @@ G("x = x") = 2^17 × 3^9 × 5^17
 > - *"Mọi số tự nhiên đều là mã của một công thức nào đó?"* — Không. Hầu hết số tự nhiên không giải mã ra công thức có nghĩa. Ví dụ số 4 = 2² → mã [2] → ký hiệu [S] → chuỗi "S" không phải công thức hoàn chỉnh. Chỉ một tập con số tự nhiên mã hóa các công thức hợp lệ, và một tập con nhỏ hơn nữa mã hóa các chứng minh.
 > - *"Có liên hệ gì với máy tính không?"* — Rất nhiều. Alan Turing đọc Gödel và dùng ý tưởng tương tự (chương trình máy tính chính là dữ liệu) để xây dựng lý thuyết máy Turing và chứng minh bài toán dừng (halting problem) không giải được. Sẽ học kỹ hơn ở [Lesson 07 — Logic & Computation](../lesson-07-logic-computation/).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Với bảng ký hiệu ở trên, tính số Gödel của chuỗi "0 + 0" (gợi ý: + có mã 5).
 >
 > <details><summary>Đáp án</summary>
@@ -223,7 +223,7 @@ Giả sử hệ H là **nhất quán** và **đủ mạnh** để diễn đạt 
 > - *"Làm sao ta biết G đúng nếu không chứng minh được?"* — Ta thấy G đúng bằng cách suy luận "từ bên ngoài" hệ H (meta-reasoning). Trong hệ H, không có chứng minh nào. Nhưng chúng ta — ngồi bên ngoài nhìn vào hệ — thấy lập luận hai trường hợp ở trên và kết luận G đúng. Đây là sự phân biệt giữa lý luận trong hệ (object-level) và về hệ (meta-level).
 > - *"Câu Gödel có thực tế không — hay chỉ là trò ảo thuật?"* — Câu Gödel nguyên bản của ông là câu số học thuần túy, dạng "không tồn tại số tự nhiên p nào là chứng minh của công thức có số Gödel N". Khô khan, không có vẻ triết học. Sau này người ta tìm được câu số học "tự nhiên" hơn không chứng minh được — ví dụ định lý Paris-Harrington (1977), một câu về tổ hợp học đúng nhưng không chứng minh được trong Peano Arithmetic.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Giải thích bằng lời tại sao câu "Câu này là sai" (kẻ nói dối) tạo ra *mâu thuẫn*, còn câu Gödel G = "Câu này không chứng minh được" *không* tạo ra mâu thuẫn — chỉ cho thấy bất toàn.
 >
 > <details><summary>Đáp án</summary>
@@ -284,7 +284,7 @@ Ký hiệu: nếu F nhất quán, thì F ⊬ Con(F) (Con(F) là câu nói "F nh�
 > - *"Gödel có phá toán học không?"* — Không. Ông tinh lọc tầm nhìn về toán học. Trước ông, Hilbert tin có thể có nền tảng tuyệt đối. Sau ông, ta biết toán học giống một hệ sinh thái sống hơn là một tòa nhà đóng kín. Nhiều nhà toán học cho đây là kết quả *đẹp nhất* của thế kỷ 20.
 > - *"Máy tính có bị ảnh hưởng không?"* — Có và rất nhiều. Bài toán dừng (halting problem) của Turing về bản chất là hệ quả tính toán của Gödel: không có chương trình tổng quát nào quyết định được mọi chương trình khác có dừng không. Sẽ học ở [Lesson 07](../lesson-07-logic-computation/).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Định lý 2 nói hệ F không thể chứng minh Con(F). Điều đó có nghĩa là hệ *không nhất quán* không? Giải thích.
 >
 > <details><summary>Đáp án</summary>

@@ -105,7 +105,7 @@ Với mô hình căn hộ ở trên:
 > - "Mô hình tuyến tính nghĩa là quan hệ phải thẳng?" → Tuyến tính **theo tham số $\beta$**, không nhất thiết theo biến. Ta có thể đưa $x^2$, $\log x$, hay tích $x_1 x_2$ (tương tác) vào làm một "biến" mới — mô hình vẫn tuyến tính theo $\beta$.
 > - "p biến thì hình học là gì?" → 1 biến: đường thẳng. 2 biến: mặt phẳng trong không gian 3D. $p$ biến: siêu phẳng trong không gian $(p+1)$ chiều.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Mô hình $\hat{y} = 3 + 2x_1 - 4x_2$. Dự báo tại $x_1 = 5, x_2 = 1$?
 > <details><summary>Đáp án</summary>
 >
@@ -196,7 +196,7 @@ $$\beta = (X^\top X)^{-1} X^\top y = \begin{bmatrix} 14/6 & -1 \\ -1 & 1/2 \end{
 
 **Kiểm chứng**: $\hat{y}_1 = 1{,}667$, $\hat{y}_2 = 2{,}667$, $\hat{y}_3 = 3{,}667$. Residual: $0{,}333; -0{,}667; 0{,}333$. Tổng residual $= 0$ ✓ (đặc tính của OLS). Cùng đáp số nếu bạn tính bằng công thức hồi quy đơn $\beta_1 = \frac{\sum(x-\bar x)(y-\bar y)}{\sum (x-\bar x)^2} = \frac{2}{2} = 1$ ✓.
 
-> 🔁 **Dừng lại tự kiểm tra**: Tại sao cột đầu của $X$ toàn số 1?
+> 🔁 **Thực hành**: Tại sao cột đầu của $X$ toàn số 1?
 > <details><summary>Đáp án</summary>
 >
 > Để $\beta_0$ (intercept) được "nhân với 1" trong mỗi hàng: hàng $i$ cho $\beta_0 \cdot 1 + \beta_1 x_{i1} + \dots$. Không có cột 1 thì mô hình bị ép đi qua gốc toạ độ ($\beta_0 = 0$).
@@ -263,7 +263,7 @@ Khác biệt then chốt: mẫu số $n - p - 1$ **co lại** khi $p$ tăng → 
 > - "Adjusted $R^2$ có thể âm không?" → Có, khi mô hình tệ hơn cả việc đoán $\bar{y}$ sau khi phạt. Dấu hiệu mô hình rất kém.
 > - "Adjusted có giải quyết overfitting hoàn toàn không?" → Không, chỉ giảm bớt thiên vị do số biến. Bảo hiểm thật là **đánh giá trên dữ liệu chưa thấy** (train/test split, cross-validation — thuộc về AI-ML).
 
-> 🔁 **Dừng lại tự kiểm tra**: $n = 10$, $p = 1$, $R^2 = 0{,}64$. Tính adjusted.
+> 🔁 **Thực hành**: $n = 10$, $p = 1$, $R^2 = 0{,}64$. Tính adjusted.
 > <details><summary>Đáp án</summary>
 >
 > $R^2_{\text{adj}} = 1 - (1-0{,}64)\frac{10-1}{10-1-1} = 1 - 0{,}36 \cdot \frac{9}{8} = 1 - 0{,}405 = \mathbf{0{,}595}$.
@@ -323,7 +323,7 @@ $$\text{VIF}_j = \dfrac{1}{1 - R^2_j}$$
 > - "Đa cộng tuyến có làm $R^2$ giảm không?" → Không. $R^2$ và dự báo tổng vẫn ổn; chỉ các hệ số riêng và sai số chuẩn của chúng bị ảnh hưởng.
 > - "VIF = 1 có nghĩa biến hoàn toàn không liên quan biến khác?" → Đúng theo nghĩa tuyến tính: $x_j$ không đoán được từ các biến khác.
 
-> 🔁 **Dừng lại tự kiểm tra**: Hồi quy phụ của $x_3$ theo các biến khác cho $R^2_3 = 0{,}9$. VIF bằng bao nhiêu, có đáng lo không?
+> 🔁 **Thực hành**: Hồi quy phụ của $x_3$ theo các biến khác cho $R^2_3 = 0{,}9$. VIF bằng bao nhiêu, có đáng lo không?
 > <details><summary>Đáp án</summary>
 >
 > $\text{VIF}_3 = \frac{1}{1-0{,}9} = \mathbf{10}$ — đúng ngưỡng nghiêm trọng, nên xem xét bỏ/gộp biến.
@@ -389,7 +389,7 @@ Cột $d_{\text{cc}} + d_{\text{phố}} + d_{\text{bt}} = [1,1,1]^\top = $ cột
 > - "Đổi mức tham chiếu có đổi mô hình không?" → Dự báo $\hat{y}$ và $R^2$ **không đổi**; chỉ các hệ số được diễn giải *so với mức tham chiếu khác*. Chọn mức tham chiếu dễ giải thích nhất.
 > - "Nếu không muốn mức tham chiếu thì sao?" → Bỏ intercept và dùng đủ $k$ cột giả (one-hot không intercept) — khi đó mỗi $\beta$ là *giá trị trung bình của mức đó*, không phải chênh lệch.
 
-> 🔁 **Dừng lại tự kiểm tra**: Biến "thành phố" có 5 mức. Cần bao nhiêu biến giả nếu mô hình có intercept?
+> 🔁 **Thực hành**: Biến "thành phố" có 5 mức. Cần bao nhiêu biến giả nếu mô hình có intercept?
 > <details><summary>Đáp án</summary>
 >
 > $5 - 1 = \mathbf{4}$ biến giả (một thành phố làm tham chiếu). Dùng cả 5 sẽ dính bẫy biến giả.

@@ -501,7 +501,7 @@ defer stop()
 | 9 | Progress | in `[progress] 7/20` |
 | 10 | Ctrl+C → cancel | nhấn Ctrl+C → in "dừng do signal" |
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Bạn có thể giải thích vì sao **không cần `select { case jobs <- url }`** lúc enqueue, mà dùng `jobs <- url` thuần?
 >

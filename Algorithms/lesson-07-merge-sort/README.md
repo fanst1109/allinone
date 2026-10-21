@@ -141,7 +141,7 @@ func merge(a, b []int) []int {
 > - **Quên đổ nốt phần còn lại.** Vòng `for` dừng ngay khi **một** mảng hết, mảng kia còn phần tử chưa copy. Bỏ quên hai dòng `append(...a[i:]...)`/`...b[j:]...` → mất dữ liệu, kết quả thiếu phần tử.
 > - **So sai biên.** Điều kiện phải là `i < len(a) && j < len(b)` (cả hai còn). Viết `||` → truy cập `a[i]` khi `i == len(a)` → panic index out of range.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. `merge([2], [1])` cho ra gì và mất mấy lần so sánh?
 > 2. Vì sao `out = make([]int, 0, len(a)+len(b))` dùng cap nhưng len = 0?
 >
@@ -230,7 +230,7 @@ Kết quả cuối: [1,2,3,4,5] ✓
 > - *"Mỗi tầng tốn bao nhiêu công?"* — Tổng kích thước các merge ở **một tầng** luôn = $n$ (vì các mảnh không chồng nhau, ghép lại đúng cả mảng). Nên mỗi tầng $O(n)$, có $\log n$ tầng → $O(n \log n)$.
 > - *"Có sửa mảng gốc không?"* — Bản trên trả về mảng **mới**, không sửa input (vì `merge` tạo `out` mới). Có biến thể sort tại chỗ trong mảng dùng index `lo, hi` + mảng `tmp` dùng lại (xem mục 5 và bài tập).
 
-> 🔁 **Dừng lại tự kiểm tra.** Trace `mergeSort([3,1,2])`. Cây chia và thứ tự merge?
+> 🔁 **Thực hành.** Trace `mergeSort([3,1,2])`. Cây chia và thứ tự merge?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -494,7 +494,7 @@ func mergeSortBottomUp(a []int) {
 > - *"Điều kiện `lo < n-size` nghĩa gì?"* — Đảm bảo còn **ít nhất một** phần tử ở mảnh phải (`lo+size < n`). Nếu mảnh phải rỗng thì không cần merge.
 > - *"Hai cách có cho cùng kết quả và cùng độ phức tạp?"* — Có. Cùng $O(n \log n)$ thời gian, $O(n)$ bộ nhớ phụ. Cả hai đều stable nếu merge dùng `<=`. Khác biệt chỉ ở dùng stack (top-down) hay vòng lặp (bottom-up).
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $n = 5$, bottom-up chạy mấy pass và size là bao nhiêu?
+> 🔁 **Thực hành.** Với $n = 5$, bottom-up chạy mấy pass và size là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -617,7 +617,7 @@ func countMerge(a, tmp []int, lo, mid, hi int) int64 {
 > - **Đếm `mid - i` thay vì `mid - i + 1`** → off-by-one, thiếu 1 phần tử (`a[i]` cũng còn trong nửa trái).
 > - **Tràn số:** với $n$ lớn, số nghịch thế tối đa $\dfrac{n(n-1)}{2} \approx 5 \times 10^{17}$ với $n=10^9$ → phải dùng `int64`, không `int32`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Mảng `[5,4,3,2,1]` có bao nhiêu nghịch thế?
+> 🔁 **Thực hành.** Mảng `[5,4,3,2,1]` có bao nhiêu nghịch thế?
 >
 > <details><summary>Đáp án</summary>
 >

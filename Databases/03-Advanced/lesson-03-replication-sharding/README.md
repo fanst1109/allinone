@@ -134,7 +134,7 @@ Follower → leader: chỉ có giao dịch  1..40
 
 ⚠ **Lỗi thường gặp: split-brain (não chẻ đôi).** Mạng bị chia, leader cũ *vẫn sống* nhưng bị cô lập; hệ thống bầu leader mới → **hai leader cùng nhận ghi** → dữ liệu phân kỳ. Phòng tránh bằng quorum/fencing (chỉ phía giữ được đa số mới được làm leader).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Replication có làm tăng năng lực **ghi** không? Vì sao?
 2. Async + leader chết → vì sao có thể mất dữ liệu, còn sync thì không?
 
@@ -266,7 +266,7 @@ Khi dữ liệu nằm rải trên N shard, các thao tác gom dữ liệu nhiề
 - *"Vậy sharding luôn tốt hơn một máy to?"* — Không. Sharding thêm độ phức tạp lớn (cross-shard query, rebalancing, transaction phân tán). Khi dữ liệu còn vừa một máy mạnh (scale up), cứ dùng một máy. Chỉ shard khi thật sự vượt sức một máy.
 - *"Làm sao tránh cross-shard JOIN?"* — Đặt dữ liệu hay-nối-cùng-nhau vào **cùng shard** (vd shard cả `users` và `orders` theo `user_id`), hoặc **nhân bản (replicate)** bảng nhỏ ít đổi (vd bảng `countries`) sang mọi shard để nối cục bộ.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao `hash(key) % N` khiến việc thêm node rất đắt, còn consistent hashing thì không?
 2. Range partition theo "ngày tạo" của log, ghi mới luôn dồn vào đâu? Đó là vấn đề gì?
 

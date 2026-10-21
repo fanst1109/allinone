@@ -163,7 +163,7 @@ API blog hỗ trợ:
 >   service** (bên dùng), theo nguyên tắc "interface thuộc về consumer". Storage chỉ cần
 >   thoả nó, không cần import service.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu yêu cầu thêm rule "bài viết phải có ít nhất 10 từ",
+> 🔁 **Thực hành.** Nếu yêu cầu thêm rule "bài viết phải có ít nhất 10 từ",
 > bạn sửa file nào?
 > <details><summary>Đáp án</summary>
 > Sửa <code>posts/service.go</code> (hàm <code>validate</code>). Handler và storage không
@@ -287,7 +287,7 @@ Quy trình **verify** (trong `auth.Parse`):
 > - *"Phải tự viết JWT không?"* → Học thì nên (như đây, để hiểu cơ chế). Production thường
 >   dùng thư viện đã kiểm thử kỹ như `github.com/golang-jwt/jwt`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hacker đổi `username` trong payload từ `alice` thành `admin`
+> 🔁 **Thực hành.** Hacker đổi `username` trong payload từ `alice` thành `admin`
 > rồi gửi lên. Chuyện gì xảy ra?
 > <details><summary>Đáp án</summary>
 > Payload đổi → chuỗi <code>header.payload</code> đổi → HMAC tính lại khác signature cũ.
@@ -411,7 +411,7 @@ Nếu xây lại từ đầu, đây là thứ tự hợp lý (mỗi bước đ�
     chain → `http.Server` + graceful shutdown.
 12. **Test + Dockerfile** — `auth_test.go`, `main_test.go`, rồi `Dockerfile` multi-stage.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao bước 2 (errors) đứng gần đầu?
+> 🔁 **Thực hành.** Vì sao bước 2 (errors) đứng gần đầu?
 > <details><summary>Đáp án</summary>
 > Vì gần như mọi package đều cần trả <code>AppError</code>. Làm trước → các package sau
 > import được ngay, không phải quay lại sửa.</details>

@@ -52,7 +52,7 @@ Reviewer đọc và hỏi: *"Nếu \`percent = 150\` (lỗi nhập liệu) thì 
 
 > ⚠ **Lỗi thường gặp.** Coi review là "cửa kiểm tra hình thức để có người chịu trách nhiệm". Sai — mục tiêu là *cùng nhau làm code tốt hơn*, không phải tìm người đổ lỗi. Một văn hóa "review để bắt lỗi người khác" sẽ khiến mọi người sợ gửi PR và phòng thủ khi nhận góp ý.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhóm A bỏ qua review để "đẩy nhanh feature", nhóm B luôn review. Sau 6 tháng, vì sao codebase nhóm A thường khó bảo trì hơn dù *ban đầu* chạy nhanh hơn?
+> 🔁 **Thực hành.** Nhóm A bỏ qua review để "đẩy nhanh feature", nhóm B luôn review. Sau 6 tháng, vì sao codebase nhóm A thường khó bảo trì hơn dù *ban đầu* chạy nhanh hơn?
 > <details><summary>Đáp án</summary>Không review → mỗi người viết theo phong cách riêng, edge case lọt nhiều, chỉ tác giả hiểu vùng code của mình (bus factor = 1). Lỗi tích lại lên production (đắt theo đường cong chi phí Lesson 01), kiến thức không lan tỏa, người mới vào không đọc nổi. "Nhanh" ban đầu là vay nợ kỹ thuật với lãi cao.</details>
 
 📝 **Tóm tắt mục 1.** Code review = ít nhất một kỹ sư khác đọc & duyệt thay đổi trước khi merge. Ba lợi ích: bắt lỗi sớm (rẻ theo đường cong chi phí), lan tỏa kiến thức (giảm bus factor), giữ chất lượng/nhất quán. Review bổ sung cho test chứ không thay thế.
@@ -105,7 +105,7 @@ Ba trạng thái quyết định của reviewer (chuẩn GitHub/GitLab):
 
 > ⚠ **Lỗi thường gặp.** Author "force-push" ghi đè lịch sử branch khi đang review giữa chừng → reviewer mất dấu các comment đã đặt, không biết commit nào đã sửa gì. Trong lúc review, hãy đẩy **commit mới** (review nhìn được "đã sửa gì từ lần xem trước"); chỉ squash/rebase khi đã approve, ngay trước merge.
 
-> 🔁 **Dừng lại tự kiểm tra.** Reviewer thấy code đúng chức năng nhưng tên hàm khó hiểu và thiếu một test cho trường hợp rỗng. Nên chọn \`approve\`, \`comment\`, hay \`request changes\`?
+> 🔁 **Thực hành.** Reviewer thấy code đúng chức năng nhưng tên hàm khó hiểu và thiếu một test cho trường hợp rỗng. Nên chọn \`approve\`, \`comment\`, hay \`request changes\`?
 > <details><summary>Đáp án</summary>Tùy mức độ. Nếu test thiếu là <i>edge case quan trọng</i> (rỗng có thể gây crash) → <b>request changes</b>. Nếu chỉ là cải thiện đặt tên + một test phụ "nên có" → có thể <b>approve</b> kèm comment "đổi tên + thêm test giúp nhé" và tin author xử lý. Nguyên tắc: chỉ <b>request changes</b> cho thứ thật sự phải sửa trước khi vào <code>main</code>; đừng chặn merge vì sở thích cá nhân.</details>
 
 📝 **Tóm tắt mục 2.** Vòng lặp PR: author mở PR → reviewer đọc diff & comment theo dòng → quyết định Approve / Comment / Request changes → author sửa & đẩy commit mới → lặp tới khi Approve → merge. Branch protection thường yêu cầu đủ approve + CI pass.
@@ -149,7 +149,7 @@ Review theo checklist:
 
 > ⚠ **Lỗi thường gặp.** Chỉ review **tính đúng** ("code chạy đúng là duyệt") mà bỏ qua khả đọc & thiết kế. Code "chạy đúng nhưng không ai đọc nổi" sẽ trở thành nợ kỹ thuật — đúng hôm nay, không sửa được tháng sau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong 7 lớp, lớp nào reviewer hay quên nhất, và vì sao bỏ sót nó nguy hiểm?
+> 🔁 **Thực hành.** Trong 7 lớp, lớp nào reviewer hay quên nhất, và vì sao bỏ sót nó nguy hiểm?
 > <details><summary>Đáp án</summary>Thường là <b>edge case</b> và <b>bảo mật</b>. Lý do: với input "đẹp" code chạy đúng nên dễ tưởng ổn; còn lỗ hổng bảo mật/edge case chỉ lộ với input bất thường hoặc cố ý phá. Bỏ sót nguy hiểm vì chúng thường không bị test "happy path" bắt và chỉ bùng ra trên production với dữ liệu thật.</details>
 
 📝 **Tóm tắt mục 3.** Review qua 7 lớp kính lọc: tính đúng, khả đọc, thiết kế, test, bảo mật, hiệu năng, edge case. Mỗi lớp một câu hỏi → không bỏ sót cả một loại vấn đề. Trọng số tùy ngữ cảnh PR; bảo mật & edge case là chỗ dễ lọt nhất.
@@ -184,7 +184,7 @@ Review theo checklist:
 
 > ⚠ **Lỗi thường gặp.** Reviewer áp đặt *sở thích cá nhân* như thể là quy tắc ("tôi thích đặt dấu ngoặc kiểu này"). Nếu không có chuẩn chung quy định, đó là \`nit:\` tùy chọn — không được \`request changes\` vì nó. Ngược lại, author đừng coi mọi comment là tấn công — phần lớn là thiện chí giúp code tốt hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết lại comment tệ sau thành comment xây dựng: *"Hàm này dài quá, refactor đi."*
+> 🔁 **Thực hành.** Viết lại comment tệ sau thành comment xây dựng: *"Hàm này dài quá, refactor đi."*
 > <details><summary>Đáp án</summary>Ví dụ: <i>"Hàm <code>processOrder</code> đang ~120 dòng làm nhiều việc (validate + tính giá + ghi DB + gửi mail). Tách phần gửi mail ra <code>sendConfirmation()</code> sẽ dễ đọc & test riêng hơn — bạn thấy sao?"</i> Khác biệt: chỉ rõ <i>hàm nào</i>, <i>vì sao</i> dài là vấn đề (làm nhiều việc), <i>gợi ý cụ thể</i> cách tách, và mời thảo luận thay vì ra lệnh.</details>
 
 📝 **Tóm tắt mục 4.** Văn hóa lành mạnh: phê bình code không phê bình người; đánh dấu rõ \`nit:\` (gợi ý) vs vấn đề chặn; luôn giải thích *vì sao* + gợi ý hướng sửa; nhận feedback không tự ái. Bất đồng giải bằng lý do kỹ thuật, không bằng quyền lực hay giọng to.
@@ -219,7 +219,7 @@ Nghịch lý: **PR 2000 dòng cần review kỹ nhất lại được review h�
 
 > ⚠ **Lỗi thường gặp.** Gom cả tuần làm việc vào một PR "cho gọn" rồi gửi cuối sprint. Reviewer đối mặt 1500 dòng, đọc lướt, approve → lỗi lọt. Tốt hơn: gửi PR nhỏ *liên tục* trong tuần.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao một PR 2000 dòng vừa *khó bắt lỗi* vừa *dễ bị rubber-stamp* hơn một PR 50 dòng?
+> 🔁 **Thực hành.** Vì sao một PR 2000 dòng vừa *khó bắt lỗi* vừa *dễ bị rubber-stamp* hơn một PR 50 dòng?
 > <details><summary>Đáp án</summary>Khó bắt lỗi: lượng thông tin vượt khả năng tập trung của reviewer → đọc lướt, bỏ qua edge case. Dễ rubber-stamp: vì biết đọc kỹ 2000 dòng rất tốn sức (và sửa lại càng tốn hơn), reviewer có xu hướng "LGTM" cho qua. Càng to, tỉ lệ bắt lỗi càng tụt — đúng lúc PR to lại càng cần review kỹ.</details>
 
 📝 **Tóm tắt mục 5.** PR nhỏ (~≤200–400 dòng) được review kỹ hơn → bắt nhiều lỗi hơn; PR khổng lồ bị đọc lướt và rubber-stamp. Chia thay đổi lớn thành nhiều PR nhỏ một-mục-đích, và **self-review** diff của mình trước khi gửi để loại lỗi ngớ ngẩn.

@@ -116,7 +116,7 @@ Trong đó:
 
 $V_L$ không phải điện áp nguồn cấp cho cuộn cảm; đó là điện áp cuộn cảm **tự sinh ra** để chống lại thay đổi dòng. Trong mạch RL mắc nối tiếp nguồn $V_s$, tổng điện áp: $V_s = V_R + V_L = I R + L \\dfrac{dI}{dt}$. Khi dòng ổn định ($\\frac{dI}{dt} = 0$): $V_L = 0$, toàn bộ điện áp rơi trên $R$.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Câu hỏi: Cuộn cảm $L = 5$ mH có dòng tăng từ 0 lên 3 A trong 15 ms. Tính $V_L$.
 
@@ -271,7 +271,7 @@ Giả sử đang ở $t = 5\\tau$ ($I_0 \\approx 120$ mA), ngắt nguồn, dòng
 
 **"Đơn vị của τ = L/R là gì?"** — $L$ đơn vị H $=$ V·s/A; $R$ đơn vị Ω $=$ V/A. Vậy $\\dfrac{L}{R} = \\dfrac{\\text{V·s/A}}{\\text{V/A}} = \\text{s}$. Đúng là giây.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Cho mạch RL với L = 5 mH, R = 50 Ω, $V_s = 5$ V. Tính $\\tau$, $I_{\\max}$, và dòng tại $t = 2\\tau$.
 

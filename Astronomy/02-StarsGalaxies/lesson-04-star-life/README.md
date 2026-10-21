@@ -40,7 +40,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng "áp suất do nhiệt hạch nổ tung đẩy ra". Không hẳn — áp suất chủ yếu là **áp suất nhiệt của khí** (và áp suất bức xạ ở sao nặng). Nhiệt hạch chỉ *duy trì nhiệt độ* để giữ áp suất đó. Nếu nhiệt hạch là "vụ nổ" thì sao đã tan; thực ra nó là "lò sưởi" điều hòa.
 
-> 🔁 **Dừng lại tự kiểm tra.** Điều gì xảy ra với một sao nếu nhiệt hạch ở lõi đột ngột yếu đi?
+> 🔁 **Thực hành.** Điều gì xảy ra với một sao nếu nhiệt hạch ở lõi đột ngột yếu đi?
 > <details><summary>Đáp án</summary>Áp suất giảm → hấp dẫn thắng → lõi **co lại**. Co lại làm nhiệt độ tăng (nén khí) → có thể khơi lại nhiệt hạch (hoặc đốt nhiên liệu nặng hơn). Đây là động lực của giai đoạn cuối đời sao (Lesson 05).</details>
 
 ---
@@ -73,7 +73,7 @@ Mỗi phản ứng tiêu 4 proton → tiêu $3{,}6 \times 10^{38}$ proton/giây 
 > - *"CNO khác p–p ở chỗ nào về mặt tốc độ?"* — CNO nhạy nhiệt độ hơn nhiều ($\propto T^{17}$ vs p–p $\propto T^4$). Lõi nóng hơn một chút → CNO tăng vọt → sao nặng cực sáng (khớp $L \propto M^{3{,}5}$ của Lesson 03).
 > - *"Heli sản phẩm có cháy tiếp không?"* — Chưa, trong giai đoạn dải chính. Heli tích lại ở lõi; chỉ khi hydro lõi cạn và lõi co nóng lên ~100 triệu K thì heli mới cháy (Lesson 05).
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao 5 M☉ (lớp B) chủ yếu dùng cơ chế nào? Vì sao?
+> 🔁 **Thực hành.** Sao 5 M☉ (lớp B) chủ yếu dùng cơ chế nào? Vì sao?
 > <details><summary>Đáp án</summary>**Chu trình CNO.** Vì sao nặng có lõi nóng hơn (>17 triệu K), nơi CNO (nhạy T) vượt trội chuỗi p–p. Đó cũng là lý do nó đốt nhiên liệu cực nhanh.</details>
 
 ---
@@ -124,7 +124,7 @@ Mỗi phản ứng tiêu 4 proton → tiêu $3{,}6 \times 10^{38}$ proton/giây 
 
 > ⚠ **Lỗi thường gặp.** Quên dấu **âm** trong số mũ → kết luận ngược (sao nặng sống lâu). Luôn nhớ: số mũ $-2{,}5$ ⇒ **nặng = ngắn**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao $4 \ M_\odot$ sống được bao lâu (so với 10 tỉ năm của Mặt Trời)?
+> 🔁 **Thực hành.** Sao $4 \ M_\odot$ sống được bao lâu (so với 10 tỉ năm của Mặt Trời)?
 > <details><summary>Đáp án</summary>$\dfrac{t}{t_\odot} = 4^{-2{,}5} = (2^2)^{-2{,}5} = 2^{-5} = \dfrac{1}{32} = 0{,}03125$; $t = 10 \text{ tỉ} \times 0{,}03125 \approx 313$ triệu năm.</details>
 
 ---
@@ -158,7 +158,7 @@ Mỗi phản ứng tiêu 4 proton → tiêu $3{,}6 \times 10^{38}$ proton/giây 
 
 > ⚠ **Lỗi thường gặp.** Tưởng tiền sao đã "cháy" nhiệt hạch. Chưa — tiền sao sáng nhờ **co hấp dẫn**, nhiệt hạch chỉ bật khi lõi chạm ~10 triệu K. Ranh giới đó mới là lúc "sao thật" ra đời.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một vật khối lượng $0{,}05 \ M_\odot$ co lại từ đám mây. Nó có trở thành sao dải chính không?
+> 🔁 **Thực hành.** Một vật khối lượng $0{,}05 \ M_\odot$ co lại từ đám mây. Nó có trở thành sao dải chính không?
 > <details><summary>Đáp án</summary>**Không.** $0{,}05 \ M_\odot < 0{,}08 \ M_\odot$ → lõi không bao giờ đạt ~10 triệu K để đốt hydro → thành **sao lùn nâu**, không vào dải chính.</details>
 
 ---

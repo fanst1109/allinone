@@ -49,7 +49,7 @@ $$\boxed{\; X(f) = \int_{-\infty}^{\infty} x(t)\, e^{-i2\pi f t}\, dt \qquad\Lon
 
 Tổng đếm vạch ($\sum_n$) đã biến thành **tích phân quét liên tục** ($\int df$). Đó là toàn bộ ý tưởng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao tín hiệu **không tuần hoàn** lại cần phổ **liên tục**, còn tuần hoàn thì rời rạc?
+> 🔁 **Thực hành.** Vì sao tín hiệu **không tuần hoàn** lại cần phổ **liên tục**, còn tuần hoàn thì rời rạc?
 > <details><summary>Đáp án</summary>
 > Tuần hoàn chu kỳ $T$ ⇒ chỉ chứa các tần số là bội của $f_0 = 1/T$ (răng lược cách $f_0$). Không tuần hoàn = "chu kỳ vô hạn" ⇒ $f_0 = 1/T \to 0$ ⇒ răng lược sít lại thành liên tục. Một xung đơn chứa **mọi** tần số một chút, nên phổ là một hàm liên tục, không phải vài vạch.
 > </details>
@@ -164,7 +164,7 @@ Khác biệt cos vs sin nằm ở **pha**: cos cho hai delta cùng pha (thực),
 
 > ⚠ **Time–frequency uncertainty (lỗi/hiểu lầm thường gặp).** Không có tín hiệu nào **vừa** hẹp trong thời gian **vừa** hẹp trong tần số. Cứ ép $x(t)$ ngắn lại (xung sắc) thì $X(f)$ phình rộng ra, và ngược lại. Cực đoan: delta (cực hẹp thời gian) ↔ hằng (cực rộng tần số). Đây **không phải** hạn chế đo đạc mà là tính chất toán học của FT. Hệ quả thực tế: muốn định vị **thời điểm** chính xác (gõ trống) thì phải hy sinh độ phân giải **tần số**, và ngược lại (đây là lý do tồn tại của short-time FT / wavelet).
 
-> 🔁 **Dừng lại tự kiểm tra.** Xung vuông rộng $T = 0.5$ s. Zero đầu tiên của $|X(f)|$ ở tần số nào?
+> 🔁 **Thực hành.** Xung vuông rộng $T = 0.5$ s. Zero đầu tiên của $|X(f)|$ ở tần số nào?
 > <details><summary>Đáp án</summary>
 > Zero đầu tiên ở $f = 1/T = 1/0.5 = 2$ Hz. Xung hẹp hơn (T=0.5 < 1) ⇒ zero xa hơn ⇒ phổ rộng hơn. Đúng uncertainty.
 > </details>
@@ -243,7 +243,7 @@ Lọc thông thấp lý tưởng: $H(f) = 1$ với $|f| \le 10$ Hz, bằng $0$ n
 
 > 💡 **Trực giác.** Lọc = "nhân với mặt nạ phổ". Trong miền tần số, bộ lọc chỉ là một **mặt nạ** $H(f)$: nhân với 1 ở dải muốn giữ, 0 ở dải muốn bỏ. Tích chập rối rắm trong thời gian biến thành phép nhân tầm thường trong tần số — đây là lý do FFT (sẽ học ở [L09 DFT](../lesson-04-dft/)) làm tích chập nhanh: thay $O(N^2)$ trượt bằng $O(N\log N)$ biến đổi + $O(N)$ nhân.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhân hai tín hiệu trong thời gian tương ứng phép gì trong tần số?
+> 🔁 **Thực hành.** Nhân hai tín hiệu trong thời gian tương ứng phép gì trong tần số?
 > <details><summary>Đáp án</summary>
 > Tích chập trong tần số: $x\cdot h \leftrightarrow X * H$ (đối ngẫu của định lý tích chập). Ví dụ: nhân tín hiệu với cửa sổ (windowing) ⇒ phổ bị "bôi nhòe" (convolve với phổ của cửa sổ) — gốc của hiện tượng spectral leakage.
 > </details>

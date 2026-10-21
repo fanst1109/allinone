@@ -139,7 +139,7 @@ ps aux  # Chỉ thấy bash (PID 1) và ps
 
 ⚠ **Lỗi thường gặp:** Nhiều người nghĩ "Docker tạo ra một kernel riêng cho container". Sai. Container Linux chạy trực tiếp trên kernel host. Lệnh kernel trong container = lệnh kernel host — chỉ với namespace filter. Hệ quả: nếu container exploit lỗ hổng kernel, nó ảnh hưởng toàn bộ host.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Tiến trình Nginx chạy trong container Docker có PID 1 (nhìn từ bên trong container). Từ host, bạn thấy PID của Nginx này là 4521. Hỏi: Nếu bạn chạy \`kill -9 4521\` trên host, điều gì xảy ra?
 
@@ -220,7 +220,7 @@ Docker thực hiện (ví dụ số cụ thể):
 - **cgroup v1** (kernel 2.6.24): mỗi subsystem có hierarchy riêng → phức tạp, mâu thuẫn khi tiến trình thuộc nhiều group.
 - **cgroup v2** (kernel 4.5, ổn định từ 5.x): một hierarchy thống nhất cho tất cả subsystem. Hỗ trợ delegation tốt hơn cho rootless container. Ubuntu 22.04+, RHEL 9+ dùng cgroup v2 mặc định.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Container được giới hạn \`--cpus="0.5"\` trên máy 4 core. Nếu trong container có một vòng lặp \`while(true)\`, vòng lặp sẽ chạy nhanh như thế nào (so với khi không giới hạn)?
 

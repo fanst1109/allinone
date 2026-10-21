@@ -55,7 +55,7 @@ Những hậu quả cụ thể:
 
 > ❓ **"Branch có làm code bị 'lệch' nhau không, ai cũng có bản riêng?"** Branch chỉ là một *con trỏ tới một commit*, rất nhẹ — không phải bản copy toàn bộ repo. Khi bạn `git checkout -b feature-x`, git chỉ tạo thêm một nhãn trỏ vào commit hiện tại. Code chỉ "lệch" khi bạn commit lên branch đó, và sự lệch này là *có chủ đích* — để cô lập công việc dang dở. Khi xong, ta hợp nhất lại.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao việc giữ `main` luôn "chạy được" lại quan trọng với cả nhóm, không chỉ cá nhân?
+> 🔁 **Thực hành.** Vì sao việc giữ `main` luôn "chạy được" lại quan trọng với cả nhóm, không chỉ cá nhân?
 > <details><summary>Đáp án</summary>Vì <code>main</code> là điểm xuất phát chung: ai cũng <code>pull</code> từ đó để bắt đầu việc mới, và thường <code>main</code> được tự động triển khai (deploy). Nếu <code>main</code> hỏng, (1) người mới checkout về không build được → kẹt; (2) bản deploy có thể vỡ ngoài production. Một người làm hỏng <code>main</code> = cả nhóm + người dùng cùng chịu.</details>
 
 📝 **Tóm tắt mục 1.** Push thẳng vào `main` khiến code dở của một người làm kẹt cả nhóm, không review được, lịch sử rối, khó rollback. Giải pháp: cô lập công việc trên branch riêng và giữ `main` luôn ở trạng thái chạy được.
@@ -148,7 +148,7 @@ Hai người làm hai tính năng song song, không giẫm chân nhau:
 
 > ❓ **"Tôi phải đợi review xong mới làm tiếp được à? Mất thời gian quá."** Không phải đợi *không làm gì*. Trong lúc PR đang chờ review, bạn tạo branch mới cho việc tiếp theo (rẽ từ `main` hoặc từ branch đang chờ nếu phụ thuộc). Đó là lý do branch phải **nhẹ và nhanh tạo**. Bí quyết để review nhanh là PR nhỏ — reviewer đọc 50 dòng mất 10 phút, đọc 3000 dòng thì để đó cả tuần.
 
-> 🔁 **Dừng lại tự kiểm tra.** PR (Pull Request) khác gì với lệnh `git merge` chạy trên máy bạn?
+> 🔁 **Thực hành.** PR (Pull Request) khác gì với lệnh `git merge` chạy trên máy bạn?
 > <details><summary>Đáp án</summary><code>git merge</code> hợp nhất ngay lập tức trên máy bạn — không ai kiểm tra. PR là một <b>cổng kiểm soát</b> trên server (GitHub/GitLab): đề nghị hợp nhất branch vào <code>main</code>, mở ra để đồng đội review, chạy CI tự động, rồi mới merge khi được duyệt. PR = merge + review + CI + thảo luận, thay vì merge "âm thầm".</details>
 
 📝 **Tóm tắt mục 2.** Feature branch workflow: mỗi tính năng một branch → push → mở PR/MR → review + CI → merge vào `main` → xóa branch. PR là cổng kiểm soát giúp review trước khi code chạm `main`. Giữ PR nhỏ và một mục đích.
@@ -290,7 +290,7 @@ Trunk-Based giảm tối đa số branch: chỉ một nhánh chính (`main`, g�
 
 > ❓ **"Trunk-Based nghe đơn giản hơn, sao không phải ai cũng dùng?"** Vì nó **dồn gánh nặng sang test tự động và feature flag**. Khi mọi thay đổi vào `main` nhiều lần mỗi ngày mà không có `develop` đỡ, chỉ cần test yếu là `main` (đang được deploy) hỏng ngay. Trunk-Based "đơn giản về branch" nhưng "đòi hỏi cao về kỷ luật test". Không có test mạnh thì GitFlow an toàn hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một nhóm dùng branch sống 3 tuần mới merge, lần nào merge cũng conflict khổng lồ mất cả ngày. Chiến lược nào sẽ giảm đau này, và cơ chế nào giúp tính năng chưa xong vẫn vào `main` được?
+> 🔁 **Thực hành.** Một nhóm dùng branch sống 3 tuần mới merge, lần nào merge cũng conflict khổng lồ mất cả ngày. Chiến lược nào sẽ giảm đau này, và cơ chế nào giúp tính năng chưa xong vẫn vào `main` được?
 > <details><summary>Đáp án</summary><b>Trunk-Based Development</b> — merge branch ngắn vào <code>main</code> nhiều lần mỗi ngày, nên mỗi lần hợp nhất chỉ chênh vài thay đổi → conflict nhỏ. Tính năng chưa hoàn thiện được bọc trong <b>feature flag</b> (đang tắt) để code vào <code>main</code> sớm mà người dùng chưa thấy. Đổi lại nhóm phải có bộ test tự động mạnh.</details>
 
 📝 **Tóm tắt mục 3.** GitFlow = nhiều branch sống lâu (`main`/`develop`/`feature`/`release`/`hotfix`), hợp sản phẩm nhiều version, release theo đợt. Trunk-Based = branch ngắn merge liên tục vào `main` + feature flag, hợp release liên tục nhưng đòi test mạnh. Chọn theo nhịp phát hành, không theo "nghe oai".
@@ -351,7 +351,7 @@ giaVAT := math.Round(giaGoc * 1.10)   // làm tròn
 
 > ❓ **"Conflict có phải là lỗi của ai đó không?"** Không — conflict là **bình thường** khi nhiều người làm song song, không phải dấu hiệu ai làm sai. Nó chỉ là lúc git nói "tôi không tự quyết được, cần con người". Cách *giảm* conflict: branch ngắn, merge `main` về branch của mình thường xuyên, PR nhỏ (xem mục 3 Trunk-Based). Cách *giải* conflict: bình tĩnh đọc cả hai phía, gộp theo nghiệp vụ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao branch sống càng lâu thì conflict càng có xu hướng *to* hơn?
+> 🔁 **Thực hành.** Vì sao branch sống càng lâu thì conflict càng có xu hướng *to* hơn?
 > <details><summary>Đáp án</summary>Branch càng sống lâu thì <code>main</code> càng tiến xa khỏi điểm bạn rẽ ra, càng nhiều người sửa nhiều vùng code. Khi cuối cùng merge, số "vùng chồng lấn" tích tụ lớn → conflict nhiều và rối. Đây chính là lý do Trunk-Based ưa branch ngắn merge liên tục: mỗi lần chỉ chênh vài thay đổi nên conflict nhỏ.</details>
 
 📝 **Tóm tắt mục 4.** Conflict xảy ra khi hai người sửa cùng vùng cùng file. Git chèn dấu `<<<<<<< / ======= / >>>>>>>`; giải bằng cách hiểu ý cả hai → gộp đúng nghiệp vụ → xóa dấu → `git add` → commit → **build & test lại**. Conflict là bình thường; branch ngắn + merge thường xuyên giúp conflict nhỏ.
@@ -470,7 +470,7 @@ giaVAT := math.Round(giaGoc * 1.10)   // làm tròn
 
 > ❓ **"Vậy rebase nguy hiểm thì né luôn cho lành?"** Không cần né hẳn — chỉ cần dùng đúng chỗ. rebase rất hữu ích để **giữ branch riêng của bạn luôn tươi** (theo kịp `main`) và **dọn lịch sử nháp trước khi mở PR** cho gọn. Ranh giới đơn giản: *commit nào còn riêng tư → rebase thoải mái; commit nào đã chia sẻ → đừng động vào, dùng merge*.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn và đồng nghiệp cùng làm trên branch `feature/bao-cao` đã push lên remote. Bạn `git rebase main` rồi `git push --force`. Điều gì xảy ra với đồng nghiệp?
+> 🔁 **Thực hành.** Bạn và đồng nghiệp cùng làm trên branch `feature/bao-cao` đã push lên remote. Bạn `git rebase main` rồi `git push --force`. Điều gì xảy ra với đồng nghiệp?
 > <details><summary>Đáp án</summary>Tai họa. <code>rebase</code> đã viết lại hash các commit; <code>push --force</code> ghi đè lịch sử trên remote. Đồng nghiệp vẫn giữ lịch sử <i>cũ</i> trên máy họ; lần pull tiếp theo git báo lịch sử phân kỳ (divergent), commit mới của họ có thể mất hoặc bị nhân đôi. Đây đúng là tình huống "không rebase nhánh đã chia sẻ" — lẽ ra phải dùng <code>merge</code>.</details>
 
 📝 **Tóm tắt mục 5.** merge = giữ lịch sử thật, tạo merge commit, an toàn cho nhánh chung. rebase = viết lại lịch sử cho thẳng, sạch nhưng đổi hash → **chỉ dùng cho commit riêng tư chưa chia sẻ**. Quy tắc vàng: không bao giờ rebase (rồi force-push) một nhánh người khác đã pull.
@@ -511,7 +511,7 @@ Các `<loại>` thường dùng:
 
 > ⚠ **Lỗi thường gặp.** Gom mọi thứ vào **một commit khổng lồ** với message `WIP` hoặc `update`. Khi cần tìm "commit nào làm hỏng tính năng X" (dùng `git bisect`), commit gộp khiến không khoanh vùng được. Mỗi commit = một thay đổi logic, một message mô tả nó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết lại commit message xấu `"fixed it"` cho tình huống: bạn vừa sửa lỗi đăng nhập bị treo khi mật khẩu rỗng.
+> 🔁 **Thực hành.** Viết lại commit message xấu `"fixed it"` cho tình huống: bạn vừa sửa lỗi đăng nhập bị treo khi mật khẩu rỗng.
 > <details><summary>Đáp án</summary>Ví dụ: <code>fix(dang-nhap): xử lý trường hợp mật khẩu rỗng gây treo</code>. Có <b>loại</b> (<code>fix</code>), <b>phạm vi</b> (<code>dang-nhap</code>), và <b>mô tả cụ thể</b> điều đã sửa — người đọc <code>git log</code> hiểu ngay mà không cần mở diff.</details>
 
 📝 **Tóm tắt mục 6.** Commit message theo Conventional Commits: `<loại>(<phạm vi>): <mô tả>`. Mỗi commit một mục đích, mô tả cụ thể "đổi gì" để `git log` thành tài liệu tra cứu được. Tránh `WIP`/`update`/`fix bug` mơ hồ.

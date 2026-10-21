@@ -131,7 +131,7 @@ $$\\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix} \\neq \\begin{bmatrix} 1 & 2 
 
 $$\\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix} \\neq \\begin{bmatrix} 1 & 2 \\\\ 3 & 5 \\end{bmatrix} \\quad (\\text{khác phần tử})$$
 
-> **🔁 Dừng lại tự kiểm tra**: Một ma trận có **3 hàng và 5 cột** có cấp bao nhiêu? Phần tử $a_{34}$ ở vị trí nào?
+> **🔁 Thực hành**: Một ma trận có **3 hàng và 5 cột** có cấp bao nhiêu? Phần tử $a_{34}$ ở vị trí nào?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -202,7 +202,7 @@ $$B + A = \\begin{bmatrix} 5+1 & 6+2 \\\\ 7+3 & 8+4 \\end{bmatrix} = \\begin{bma
 
 > **⚠ Lỗi thường gặp**: Cố gắng cộng hai ma trận **khác cấp**. Ví dụ $\\begin{bmatrix} 1 & 2 & 3 \\end{bmatrix}$ (cấp $1 \\times 3$) $+ \\begin{bmatrix} 1 \\\\ 2 \\\\ 3 \\end{bmatrix}$ (cấp $3 \\times 1$) — **không tồn tại tổng**, dù cả hai đều có 3 phần tử. Cấp khác nhau = phép cộng không được định nghĩa.
 
-> **🔁 Dừng lại tự kiểm tra**: Cộng hai ma trận sau:
+> **🔁 Thực hành**: Cộng hai ma trận sau:
 >
 > $$A = \\begin{bmatrix} 2 & -1 \\\\ 5 & 0 \\end{bmatrix} \\qquad B = \\begin{bmatrix} -3 & 4 \\\\ 1 & -2 \\end{bmatrix}$$
 >
@@ -408,7 +408,7 @@ c_{23} &= [2, 3] \\cdot [3, 6] = 6 + 18 = \\mathbf{24}
 
 $$AB = \\begin{bmatrix} -3 & -3 & -3 \\\\ 14 & 19 & 24 \\end{bmatrix}$$
 
-> **🔁 Dừng lại tự kiểm tra**: Cho $A = \\begin{bmatrix} 2 & 1 \\\\ 0 & 3 \\end{bmatrix}$ và $B = \\begin{bmatrix} 1 & 4 \\\\ 5 & 2 \\end{bmatrix}$. Tính $AB$.
+> **🔁 Thực hành**: Cho $A = \\begin{bmatrix} 2 & 1 \\\\ 0 & 3 \\end{bmatrix}$ và $B = \\begin{bmatrix} 1 & 4 \\\\ 5 & 2 \\end{bmatrix}$. Tính $AB$.
 >
 > <details><summary>Đáp án</summary>
 >

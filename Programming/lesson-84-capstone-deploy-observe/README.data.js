@@ -140,7 +140,7 @@ Image nhỏ → pull nhanh khi scale (HPA thêm pod), bề mặt tấn công nh�
 > - *"Sao không nén bằng UPX cho nhỏ nữa?"* → UPX giải nén lúc start → cold start chậm + một số scanner cảnh báo "packed binary". Với service cần scale nhanh, không nên.
 > - *"Image 12MB rồi, tối ưu thêm có đáng?"* → Không. Dừng ở đây. Tối ưu thêm là *gold-plating*.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao \`CGO_ENABLED=0\` bắt buộc khi dùng \`scratch\`?
 > 2. \`-s -w\` trong ldflags làm gì?
 > <details><summary>Đáp án</summary>
@@ -263,7 +263,7 @@ _, span := tracer.Start(ctx, "worker.process_click")  // span con cùng trace
 
 Kết quả: trên Jaeger/Tempo bạn thấy 1 trace \`redirect\` → có span con \`worker.process_click\` *dù nó xảy ra sau, ở goroutine khác* — biết được "redirect trả về 4ms, nhưng click được ghi 200ms sau khi worker bận".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Khi nào dùng log, khi nào dùng metric để điều tra "tại sao p99 tăng"?
 > 2. Vì sao latency phải xem p99 chứ không xem average?
 > <details><summary>Đáp án</summary>
@@ -673,7 +673,7 @@ Bạn vừa hoàn thành **lesson cuối cùng** của lộ trình Programming. 
 - **Đóng góp open-source / portfolio**: capstone này là 1 portfolio piece — viết blog post mô tả design → implement → deploy → load test before/after.
 - **Học sâu hơn**: service mesh thật (Istio/Linkerd, L70), cost optimization, FinOps.
 
-> 🔁 **Dừng lại tự kiểm tra (toàn lộ trình).**
+> 🔁 **Thực hành (toàn lộ trình).**
 > 1. Vì sao redirect đẩy click vào queue thay vì ghi DB ngay tại chỗ?
 > 2. Khi p99 tăng, bạn dùng 3 trụ observability theo thứ tự nào để điều tra?
 > 3. Vì sao liveness probe không nên check Redis?

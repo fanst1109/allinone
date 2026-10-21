@@ -53,7 +53,7 @@ A: Cả hai, tùy nhiệt độ — nó là "bộ điều hòa". Khi **ấm**, c
 - **Nghĩ protein cố định một chỗ**: phần lớn protein trôi được trong màng (động). Chỉ một số bị "neo" vào khung tế bào.
 - **Nhầm "đầu kỵ nước quay ra ngoài"**: ngược lại — **đầu ưa nước** (phosphate) quay ra ngoài tiếp xúc nước, đuôi kỵ nước giấu vào trong.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao đuôi acid béo lại quay vào trong lõi màng chứ không ra ngoài?
 2. Glycoprotein nằm ở mặt nào của màng và làm gì?
@@ -111,7 +111,7 @@ A: **Bán thấm (semipermeable)** trong vật lý/hóa thường nghĩa "cho n�
 - **Nghĩ phân tử càng nhỏ càng dễ qua**: kích thước chỉ là một yếu tố. Na⁺ nhỏ hơn O₂ nhưng qua **khó hơn nhiều** vì nó tích điện. Tính phân cực/điện tích quan trọng hơn kích thước.
 - **Nghĩ glucose tự khuếch tán qua màng**: glucose cần protein mang (GLUT) dù đi xuôi gradient. "Có hỗ trợ" vẫn là thụ động, nhưng không phải "đơn giản".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Sắp xếp theo độ dễ qua lớp kép trực tiếp (dễ → khó): glucose, CO₂, Cl⁻.
 2. Tại sao CO₂ thải ra từ tế bào có thể đi thẳng ra máu mà không cần protein?
@@ -183,7 +183,7 @@ A: Không — chúng vẫn qua lại liên tục, nhưng **tốc độ hai chi�
 - **Coi khuếch tán có hỗ trợ là chủ động** vì "có protein": sai — không tốn ATP, vẫn xuôi gradient.
 - **Nghĩ cân bằng = một bên hết sạch**: cân bằng là **nồng độ bằng nhau**, không phải dồn hết một bên.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Túi màng bán thấm chứa dung dịch đường 10%, thả vào cốc nước đường 2%. Nước đi vào hay ra khỏi túi? Túi phồng hay xẹp?
 2. Phân loại: glucose vào tế bào qua GLUT là thụ động hay chủ động? Có tốn ATP không?
@@ -257,7 +257,7 @@ A: Muối/đường tạo môi trường **ưu trương** quanh vi khuẩn → n
 - **Quên tế bào thực vật có vách**: trong nhược trương, động vật **vỡ** nhưng thực vật chỉ **căng (turgid)** vì vách giữ lại — kết cục khác nhau.
 - **Nghĩ "nước đi về nơi loãng"**: ngược — nước đi về nơi **đặc chất tan** (ưu trương). Trong môi trường ưu trương, nước **rời** tế bào.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Đặt hồng cầu vào dung dịch NaCl 5%. Mô tả số phận của nó và giải thích.
 2. Tế bào thực vật trong nước cất: trương đến vỡ như hồng cầu không? Vì sao?
@@ -327,7 +327,7 @@ A: Rất nhiều — ước tính bơm này tiêu tốn **~20–25% ATP** lúc n
 - **Nghĩ bơm dùng nhiều ATP mỗi ion**: 1 ATP cho **cả** 3 Na⁺ + 2 K⁺ trong một chu kỳ, không phải mỗi ion 1 ATP.
 - **Nghĩ vận chuyển chủ động đi xuôi gradient**: không — định nghĩa của nó là đi **ngược** gradient (vì thế mới cần ATP).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Sau 25 chu kỳ bơm Na⁺/K⁺, có bao nhiêu Na⁺ ra, K⁺ vào, và bao nhiêu ATP đã dùng?
 2. Một tế bào đã đưa vào 60 K⁺ nhờ bơm này. Đã đẩy ra bao nhiêu Na⁺?
@@ -374,7 +374,7 @@ A: Bơm vận chuyển **từng phân tử/ion** qua protein xuyên màng. Nhậ
 - **Nghĩ nhập/xuất bào không tốn năng lượng**: SAI — biến dạng màng tạo túi cần ATP.
 - **Nhầm "phagocytosis = uống"**: phago = **ăn** (vật rắn); pino = **uống** (dịch lỏng). Nhớ "phago = food".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Bạch cầu nuốt một vi khuẩn — đây là quá trình gì? Có tốn ATP không?
 2. Neuron giải phóng chất dẫn truyền thần kinh vào synapse — nhập bào hay xuất bào?

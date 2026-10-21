@@ -148,7 +148,7 @@ Trực giác: phủ định "không xác định" vẫn là "không xác định
 - ¬T = F; F ∨ U → lookup bảng: hàng F, cột U → **U**.
 - Tức là p → q = U khi p = T, q = U. Đúng với bảng → ở trên. ✓
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho p = U, q = T. Tính: (a) ¬p; (b) p ∧ q; (c) p ∨ q; (d) p → q.
 >
 > <details><summary>Đáp án</summary>
@@ -215,7 +215,7 @@ Công thức xấp xỉ: μ(h) = max(0, min(1, (h − 160) / 20))
 > - *"Vì sao dùng hình thang hay đường thẳng mà không dùng hàm phức tạp hơn?"* — Nhiều dạng hàm thành viên được dùng: hình tam giác (triangular), hình thang (trapezoidal), hình chuông Gauss, hình chữ S (sigmoid). Hình tam giác/thang phổ biến vì đơn giản, dễ tính, đủ tốt cho hầu hết ứng dụng điều khiển.
 > - *"Tập mờ có liên hệ gì với xác suất?"* — Xem mục 5 phân biệt rõ.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Dùng hàm μ("cao") = max(0, min(1, (h−160)/20)). Tính μ cho: (a) h=162; (b) h=178; (c) h=193.
 >
 > <details><summary>Đáp án</summary>
@@ -284,7 +284,7 @@ Tại sao không dùng phép nhân (x × y) cho AND? Hoặc (x + y − x×y) cho
 > - *"Luật De Morgan có còn đúng trong logic mờ không?"* — Có! ¬(x∧y) = ¬x∨¬y vẫn đúng với min/max: ¬min(x,y) = max(¬x,¬y) = max(1−x, 1−y) = 1 − min(x,y). Kiểm tra: x=0.7, y=0.3: ¬min(0.7,0.3) = ¬0.3 = 0.7; max(0.3, 0.7) = 0.7. ✓
 > - *"Luật trung gian loại trừ (p∨¬p = T) còn đúng không?"* — Không! p∨¬p = max(p, 1−p). Khi p=0.5: max(0.5, 0.5) = **0.5** ≠ 1. Đây là một trong những thay đổi cơ bản nhất của logic mờ.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho p = 0.6, q = 0.4. Tính: (a) ¬q; (b) p∧q; (c) p∨¬q; (d) ¬(p∧q) vs ¬p∨¬q (kiểm tra De Morgan).
 >
 > <details><summary>Đáp án</summary>

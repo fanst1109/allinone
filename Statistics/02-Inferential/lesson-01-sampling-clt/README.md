@@ -103,7 +103,7 @@ Trong đó $s$ là standard deviation của mẫu.
 > - **SE**: Mô tả sự phân tán của **$\bar{x}$** qua nhiều mẫu.
 > - Khi $n$ tăng: SD **không thay đổi** (dữ liệu vẫn phân tán như vậy); SE **giảm** ($\bar{x}$ chính xác hơn).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. $\sigma = 20$, $n = 25$. Tính SE.
 > 2. Muốn SE giảm một nửa, cần tăng $n$ bao nhiêu lần?
 > <details><summary>Đáp án</summary>

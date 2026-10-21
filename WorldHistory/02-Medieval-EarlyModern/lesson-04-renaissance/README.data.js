@@ -73,7 +73,7 @@ Cosimo de' Medici (1389–1464) và cháu trai Lorenzo de' Medici "Il Magnifico"
 
 ⚠ **Hiểu lầm thường gặp:** Không phải chỉ sau 1453 mới có học giả Hy Lạp ở Ý. Manuel Chrysoloras đã dạy tiếng Hy Lạp tại Florence từ 1396. Sự kiện 1453 là chất xúc tác tăng tốc, không phải điểm khởi đầu tuyệt đối.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Hãy liệt kê 3 yếu tố giải thích vì sao Phục hưng bắt đầu ở Ý mà không phải ở Anh hay Pháp thế kỉ XIV.
 
@@ -129,7 +129,7 @@ Quan trọng: humanism **không phủ nhận Thiên Chúa giáo** — hầu hế
 
 **Đáp:** Humanism thay đổi câu hỏi trung tâm. Trung đại hỏi: "Làm sao cứu rỗi linh hồn?" Phục hưng thêm câu hỏi: "Con người có thể làm được gì trên trần gian này?" Nó mở rộng không gian tri thức hợp lệ — chính trị, lịch sử, nghệ thuật, tự nhiên — không phải để thay thế tôn giáo mà để bổ sung.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Pico della Mirandola viết rằng Chúa đặt con người ở "trung tâm thế giới" để tự tạo hình hài mình. Điều này khác gì với quan niệm về con người trong tư duy Trung đại?
 
@@ -263,7 +263,7 @@ Bộ tổ hợp này tạo ra **hệ thống in ấn quy mô công nghiệp đ�
 
 **Đáp:** Câu hỏi rất thú vị và các nhà sử học còn tranh luận. Một vài điểm: (1) Tiếng Trung có hàng nghìn ký tự — chữ rời kim loại kém hiệu quả hơn nhiều so với 26 chữ Latin. (2) Nhà nước Trung Quốc kiểm soát in ấn chặt hơn — không có sự phân mảnh quyền lực như các thành bang Ý hay Đức. (3) Câu hỏi "vì sao Cách mạng Công nghiệp không xảy ra ở Trung Quốc?" (câu hỏi Needham) là một vấn đề lớn trong sử học so sánh, chưa có đáp án dứt khoát.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Trước năm 1450, toàn châu Âu có khoảng 30.000 bản thảo viết tay. Đến năm 1500, có khoảng 10 triệu cuốn sách in (lấy con số trung bình). Tính gần đúng: số lượng tăng bao nhiêu lần? Điều này có ý nghĩa gì với việc kiểm soát thông tin của Giáo hội?
 

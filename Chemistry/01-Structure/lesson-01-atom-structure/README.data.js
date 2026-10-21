@@ -65,7 +65,7 @@ A: Vì lực đẩy giữa các electron ngoài cùng. Tay bạn có lớp elect
 **Q: Tại sao gọi là "nguyên tử của nguyên tố oxy" mà không phải "phân tử của oxy"?**
 A: Vì "oxy" được định danh bằng số proton trong hạt nhân ($Z = 8$). Bất kỳ hạt nhân nào có 8 proton đều là một nguyên tử oxy — bất kể có bao nhiêu neutron hay electron. Còn "phân tử oxy" thường ám chỉ $\\text{O}_2$, là hai nguyên tử oxy liên kết với nhau.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Nếu hạt nhân to bằng quả đậu (1 cm), thì electron ngoài cùng cách xa bao nhiêu?
 2. Vì sao Democritus định nghĩa "atomos" sai (theo nghĩa hiện đại)?
@@ -152,7 +152,7 @@ A: Đây là câu hỏi cổ điển đầu thế kỷ 20. Mô hình Rutherford 
 **Q: Quark là gì? Proton có chia tiếp được không?**
 A: Có. Proton = 2 up quark + 1 down quark; neutron = 1 up + 2 down. Quark là hạt cơ bản (theo Standard Model, hiện chưa chia được). Ngoài phạm vi bài này — đây là vật lý hạt cơ bản.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một nguyên tử có 17 proton, 18 neutron, 17 electron. Khối lượng xấp xỉ bao nhiêu u?
 2. Nếu lấy 1 proton ra khỏi hạt nhân Fe ($Z = 26$), nó còn là Fe không?
@@ -254,7 +254,7 @@ A: Vì Mendeleev (1869) sắp xếp ban đầu theo khối lượng nguyên tử
 **Q: Có nguyên tố nào có Z > 118 không?**
 A: Hiện tại bảng tuần hoàn đến $Z = 118$ (Oganesson). Các nguyên tố $Z = 119, 120$ đang được nghiên cứu nhưng chưa được công nhận chính thức. Càng Z cao, hạt nhân càng kém bền, chu kỳ bán rã càng ngắn (có khi chỉ vài mili giây).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cho $^{31}_{15}\\text{P}^{3-}$: tính số proton, neutron, electron.
 2. Một ion có 18 proton, 22 neutron, 18 electron. Đây là gì? Ký hiệu thế nào?
@@ -391,7 +391,7 @@ A: ~ 250 đồng vị bền + ~ 3000 đồng vị phóng xạ (có cái t½ ch�
 **Q: Vì sao bảng tuần hoàn ghi khối lượng nguyên tử không phải số nguyên (vd Cl 35.45)?**
 A: Vì đó là **trung bình theo tỉ lệ đồng vị**. Mỗi đồng vị riêng có A là số nguyên (35 hoặc 37), nhưng trộn theo tỉ lệ tự nhiên thì trung bình ra số lẻ.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Đồng vị $^{16}_{8}\\text{O}$, $^{17}_{8}\\text{O}$, $^{18}_{8}\\text{O}$ — đây có phải đồng vị của cùng một nguyên tố không? Tại sao?
 2. Magnesium có 3 đồng vị: Mg-24 (78.99%), Mg-25 (10.00%), Mg-26 (11.01%). Tính khối lượng nguyên tử trung bình.

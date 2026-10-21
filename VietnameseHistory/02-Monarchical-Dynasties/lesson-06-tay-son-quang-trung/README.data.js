@@ -82,7 +82,7 @@ Tây Sơn kiểm soát theo chiều dọc: khởi điểm Bình Định (giữa)
 
 Trương Phúc Loan bóc lột → nông dân khổ cực → khởi nghĩa Tây Sơn bùng nổ → chúa Nguyễn suy yếu và bị đánh đổ → Nguyễn Ánh cầu viện Xiêm → trận Rạch Gầm – Xoài Mút 1785 (xem mục 3).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Câu hỏi: Ba anh em Tây Sơn lần lượt là ai? Ai trong số họ sau này trở thành Quang Trung?*
 
@@ -273,7 +273,7 @@ Nguyễn Nhạc (anh cả) đã suy yếu từ trước — sau khi mâu thuẫn
 
 *"Tây Sơn sụp đổ vì quân Pháp"* — Không chính xác. Người Pháp (lính đánh thuê và cố vấn kỹ thuật) giúp Nguyễn Ánh hiện đại hóa vũ khí nhưng không chiến đấu trực tiếp với số lượng lớn. Tây Sơn sụp đổ chủ yếu do nội bộ phân rã sau khi mất người lãnh đạo có uy tín và năng lực cao nhất.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Câu hỏi: Kể ba chính sách cải cách của Quang Trung và giải thích tại sao chữ Nôm quan trọng về mặt văn hóa.*
 

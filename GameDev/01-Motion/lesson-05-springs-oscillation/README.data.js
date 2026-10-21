@@ -106,7 +106,7 @@ Thêm 4 ví dụ với độ cứng khác để thấy vai trò của $k$ — c�
 > nghỉ thay vì kéo về → vật bay ra vô cực ngay frame đầu. Đây là bug "vật biến mất" kinh điển. Luôn
 > nhớ: **lò xo kéo về → lực ngược chiều lệch → có dấu âm.**
 
-> 🔁 **Dừng lại tự kiểm tra.** Lò xo $k = 80$ N/m bị **nén** $0.05$ m (tức $x = -0.05$). Lực bằng bao nhiêu, hướng nào?
+> 🔁 **Thực hành.** Lò xo $k = 80$ N/m bị **nén** $0.05$ m (tức $x = -0.05$). Lực bằng bao nhiêu, hướng nào?
 > <details><summary>Đáp án</summary>
 > $F = -80 \\times (-0.05) = +4.0$ N. Dấu dương → lực đẩy về phía $x$ dương, tức **đẩy lò xo dãn trở lại vị trí nghỉ**. Đúng: nén thì lò xo đẩy ra.
 > </details>
@@ -181,7 +181,7 @@ $$f = \\dfrac{1}{T} = \\dfrac{\\omega}{2\\pi} \\quad (\\text{Hz})$$
 > dao động quanh nhân vật không bao giờ ổn định. Trong thực tế **luôn cần thêm damping** (§4). Dao
 > động điều hoà thuần tuý chỉ là mô hình lý tưởng để hiểu nhịp cơ bản.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lò xo $k = 90$ N/m, vật $m = 10$ kg. Tính $\\omega$ và $T$.
+> 🔁 **Thực hành.** Lò xo $k = 90$ N/m, vật $m = 10$ kg. Tính $\\omega$ và $T$.
 > <details><summary>Đáp án</summary>
 > $\\omega = \\sqrt{90/10} = \\sqrt{9} = 3.0$ rad/s. $T = 2\\pi/3 \\approx 2.094$ s. Mỗi dao động mất ~2.1 giây.
 > </details>
@@ -284,7 +284,7 @@ cản $-60v$ lớn tới mức **kéo gia tốc thành dương** ngay từ bư�
 > $c$ quá lớn → camera lờ đờ, "đuổi" mãi không tới (over-damped). Mẹo thực dụng: muốn camera mượt không
 > nảy → nhắm $\\zeta \\approx 1$, tức $c \\approx 2\\sqrt{km}$. Muốn UI hơi nảy vui mắt → $\\zeta \\approx 0.3$–$0.5$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lò xo $k = 64$ N/m, $m = 1$ kg. Hỏi $c$ bằng bao nhiêu để critically damped?
+> 🔁 **Thực hành.** Lò xo $k = 64$ N/m, $m = 1$ kg. Hỏi $c$ bằng bao nhiêu để critically damped?
 > <details><summary>Đáp án</summary>
 > $c_{\\text{crit}} = 2\\sqrt{k m} = 2\\sqrt{64 \\times 1} = 2 \\times 8 = 16$ N·s/m. Chọn $c = 16$ → về nhanh không nảy. $c < 16$ → nảy; $c > 16$ → ì.
 > </details>
@@ -382,7 +382,7 @@ func main() {
 > ($\\zeta \\approx 0.3$): panel trượt tới vị trí đích, vọt qua một chút, nảy ngược, rồi ổn định — hiệu ứng
 > "bouncy" của iOS/Material chính là một lò xo under-damped. Câu hỏi 1 & 2 ở §1 đã được "đóng".
 
-> 🔁 **Dừng lại tự kiểm tra.** Camera $k = 120$, $m = 1$. Muốn mượt không nảy thì đặt $c$ bao nhiêu?
+> 🔁 **Thực hành.** Camera $k = 120$, $m = 1$. Muốn mượt không nảy thì đặt $c$ bao nhiêu?
 > <details><summary>Đáp án</summary>
 > $c = 2\\sqrt{120 \\times 1} = 2 \\times 10.954 \\approx 21.9$. (Đúng giá trị dùng trong code §5.3.) Critically damped → đuổi nhanh nhất không vọt qua.
 > </details>
@@ -469,7 +469,7 @@ chu kỳ ($T = 2\\pi/\\sqrt{2000} \\approx 0.14$ s, mà $\\Delta t = 0.1$ s gầ
 > $\\Delta t$ phải càng nhỏ. Ràng buộc ổn định xấp xỉ: $\\Delta t < 2/\\omega = 2\\sqrt{m/k}$. Với
 > $k = 2000, m = 1$: $\\Delta t < 2/\\sqrt{2000} \\approx 0.045$ s — nên $\\Delta t = 0.1$ s ở trên **vi phạm** → nổ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lò xo $k = 400$, $m = 1$. Ước lượng $\\Delta t$ tối đa để explicit Euler còn ổn định.
+> 🔁 **Thực hành.** Lò xo $k = 400$, $m = 1$. Ước lượng $\\Delta t$ tối đa để explicit Euler còn ổn định.
 > <details><summary>Đáp án</summary>
 > $\\Delta t < 2\\sqrt{m/k} = 2\\sqrt{1/400} = 2 \\times 0.05 = 0.1$ s. Tức ở 60 FPS ($\\Delta t \\approx 0.0167$) thì rất an toàn; nhưng nếu game tụt xuống 8 FPS ($\\Delta t = 0.125$) thì có thể nổ — lý do nên dùng fixed timestep + substep (L01/L03).
 > </details>

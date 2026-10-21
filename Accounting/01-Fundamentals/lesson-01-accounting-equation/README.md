@@ -146,7 +146,7 @@ $$A = L + \text{Vốn góp} + (\text{Doanh thu} - \text{Chi phí} - \text{Cổ t
 
 > ⚠ **Lỗi thường gặp.** Coi **cổ tức là chi phí**. Không phải. Cổ tức là **phân phối lợi nhuận cho chủ**, trừ thẳng vào vốn chủ, không nằm trong tính lãi/lỗ. Chi phí (lương, điện) mới làm giảm lợi nhuận.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Công ty có $A = 500$, $L = 320$. Vốn chủ bằng bao nhiêu?
 > 2. Trong kỳ: doanh thu 200, chi phí 150, cổ tức 20. Lợi nhuận giữ lại tăng bao nhiêu?
 >

@@ -104,7 +104,7 @@ Vì $\beta \gg 1$ nên $I_E \approx I_C$ (thường đúng trong tính toán th�
 - Nhầm $I_B$ với $I_C$: *"transistor có $I_B = 1$ mA và $\beta = 100$, tôi cấp 1 mA vào mạch là đủ"* — SAI. $I_B = 1$ mA kéo theo $I_C = 100$ mA, mạch cần tổng $I_E = 101$ mA từ nguồn.
 - Dùng $\beta$ điển hình thay vì $\beta_{\text{min}}$: datasheet 2N3904 ghi $\beta_{\text{min}} = 40$ (ở $I_C = 10$ mA), $\beta$ điển hình = 100. Nếu thiết kế với $\beta = 100$, những con transistor có $\beta = 50$ trong lô sẽ không hoạt động đúng.
 
-🔁 **Tự kiểm tra**:
+🔁 **Thực hành**:
 - Transistor BC547 có $\beta = 200$, cần $I_C = 5$ mA. Tính $I_B$?
 <details>
 <summary>Đáp án</summary>
@@ -284,7 +284,7 @@ Hai điểm mút:
 - Quên C_E → R_E không bị bypass → A_v thấp (~3 lần) → tín hiệu ra nhỏ dù không clipping.
 - Dùng transistor beta thấp hơn dự kiến → I_C thực thấp hơn → Q dịch về phía Cutoff.
 
-🔁 **Tự kiểm tra**: Thay $R_C = 1$ kΩ vào mạch ví dụ, giữ nguyên phân cực. Điểm Q mới là gì?
+🔁 **Thực hành**: Thay $R_C = 1$ kΩ vào mạch ví dụ, giữ nguyên phân cực. Điểm Q mới là gì?
 <details>
 <summary>Đáp án</summary>
 

@@ -59,7 +59,7 @@ A: Đột biến *ngẫu nhiên*, không có nhãn tốt/xấu. Đa số trung t
 - **Nhầm "đột biến" với "biến dị tổ hợp"**: đột biến *tạo allele mới*; biến dị tổ hợp *tổ hợp lại allele cũ* qua giảm phân + thụ tinh (học ở L1 Mendel).
 - **Nghĩ đột biến soma di truyền cho con**: chỉ đột biến ở tế bào sinh dục (germ line) mới truyền cho thế hệ sau. Đột biến soma chỉ ảnh hưởng cá thể (vd nguyên nhân ung thư).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao tia UV gây ung thư da nhưng không gây đột biến di truyền cho con?
 2. DNA polymerase sai 1/10⁹ bp. Sau 1 lần nhân đôi bộ gen người (3×10⁹ bp), trung bình bao nhiêu đột biến mới được tạo ra?
@@ -165,7 +165,7 @@ A: Gần như luôn xấu *cho cá thể đó*. Nhưng đôi khi tạo ra protei
 - **Nhầm nonsense với "tạo codon vô nghĩa"**: nonsense = tạo STOP codon. Codon STOP có ý nghĩa (kết thúc dịch mã); tên "nonsense" lịch sử là vì nó không mã hóa amino acid nào.
 - **Cho frameshift luôn cần thêm/mất 1 bp**: cứ thêm/mất số bp **không chia hết cho 3** đều gây frameshift (1, 2, 4, 5, 7...).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Codon `UUC` (Phe). Liệt kê tất cả thay thế ở vị trí thứ 3 và phân loại. Tra bảng: UUU=Phe, UUA=Leu, UUG=Leu.
 2. Đoạn mRNA `AUG-AAA-GGG-UAA` mã hóa Met-Lys-Gly-STOP. Nếu **thêm 1 G** ngay sau AUG, viết lại trình tự dịch khung và xác định loại đột biến.
@@ -244,7 +244,7 @@ A: NST 21 là NST **nhỏ nhất** ở người, chứa ít gene → mất cân 
 - **Nhầm đảo đoạn = mất gene**: đảo đoạn **giữ nguyên tất cả gene**, chỉ đổi thứ tự + chiều đọc. Có thể vô hại nếu không cắt giữa gene.
 - **Đếm sai NST trong trisomy**: 47, không phải 46+1=47 "cặp". Là 22 cặp bình thường + 1 bộ 3 (NST 21).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một người có 45 NST với karyotype 45,X. Đây là dạng đột biến gì? Tên hội chứng?
 2. NST gốc `A-B-C-D-E`. Sau đột biến: `A-B-D-C-E`. Đây là kiểu đột biến nào?
@@ -330,7 +330,7 @@ A: Sau ~30-35 chu kỳ, các thành phần (dNTP, mồi, enzyme) cạn dần và
 - **Nhầm "denature" trong PCR với "denature" của protein**: PCR denature DNA (tách 2 mạch); protein denature là mất gấp 3D. Cùng từ, khác cơ chế.
 - **Nghĩ Taq tự "biết" đâu là đoạn cần copy**: Taq chỉ kéo dài *từ mồi*. Tính đặc hiệu nằm ở thiết kế mồi, không ở enzyme.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Bắt đầu với 3 phân tử DNA, làm 25 chu kỳ PCR. Hỏi tối đa bao nhiêu bản sao?
 2. Cần ít nhất bao nhiêu chu kỳ để khuếch đại 1 phân tử thành ≥ 1 tỉ bản sao?
@@ -411,7 +411,7 @@ A: Về kỹ thuật được (vụ He Jiankui ở Trung Quốc 2018 đã làm v
 - **Bỏ quên PAM**: thiết kế gRNA mà không kiểm tra có NGG ngay sau đích → Cas9 không cắt. Một số biến thể (Cas12, SpCas9-VQR) dùng PAM khác.
 - **Cho HDR hoạt động ở mọi tế bào**: HDR yêu cầu tế bào đang nhân đôi DNA (pha S/G2). Tế bào không chia (neuron trưởng thành) chỉ dùng được NHEJ → khó knock-in.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Bạn muốn **tắt** gene gây bệnh trong 1 dòng tế bào. Nên dùng NHEJ hay HDR? Vì sao?
 2. gRNA dài 20 nt. Có bao nhiêu trình tự 20-nt khả dĩ về mặt toán học? Vì sao trong thực tế Cas9 vẫn có off-target?

@@ -54,7 +54,7 @@ Client viết code dựa trên hợp đồng này: nó *biết* sẽ có field \
 
 > ⚠ **Lỗi thường gặp.** Coi API là "cứ trả ra cái gì code đang có". Đúng ra phải thiết kế API theo *nhu cầu của client* và *ổn định lâu dài*, tách rời khỏi cấu trúc database hay biến nội bộ. Lộ thẳng cột database ra ngoài → sau này muốn đổi schema database là kẹt vì client đã phụ thuộc vào tên cột.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một API trả về \`{ "user_full_name": "Linh" }\`. Sáu tháng sau, lập trình viên muốn đổi tên field thành \`name\` cho gọn. Có nên làm trực tiếp không?
+> 🔁 **Thực hành.** Một API trả về \`{ "user_full_name": "Linh" }\`. Sáu tháng sau, lập trình viên muốn đổi tên field thành \`name\` cho gọn. Có nên làm trực tiếp không?
 > <details><summary>Đáp án</summary>Không nên đổi trực tiếp — đó là <b>breaking change</b>. Mọi client đang đọc <code>user_full_name</code> sẽ nhận <code>undefined</code> và vỡ. Cách an toàn: <i>thêm</i> field <code>name</code> mới, giữ <code>user_full_name</code> song song (đánh dấu deprecated), thông báo cho client chuyển dần, rồi mới bỏ field cũ ở một version sau. Xem mục 6.</details>
 
 📝 **Tóm tắt mục 1.** API là hợp đồng giữa bên cung cấp và bên sử dụng: định nghĩa gửi gì / nhận gì, che giấu chi tiết bên trong. Vì client phụ thuộc vào hợp đồng và bạn không kiểm soát được client, **đổi API là tốn kém và rủi ro** — nên thiết kế đúng từ đầu và lên kế hoạch tiến hóa cẩn thận.
@@ -161,7 +161,7 @@ POST /products
 
 > ⚠ **Lỗi thường gặp.** Dùng \`GET\` để gây thay đổi (vd \`GET /deleteUser?id=42\`). \`GET\` phải **an toàn (safe)** — chỉ đọc, không đổi gì. Trình duyệt, proxy, crawler có thể tự gọi lại \`GET\` bất cứ lúc nào; nếu \`GET\` xóa dữ liệu thì một con bot crawl link là đủ xóa sạch.
 
-> 🔁 **Dừng lại tự kiểm tra.** Thiết kế endpoint để "thêm một bình luận vào bài viết số 15". Verb gì, URL gì, trả status nào khi thành công?
+> 🔁 **Thực hành.** Thiết kế endpoint để "thêm một bình luận vào bài viết số 15". Verb gì, URL gì, trả status nào khi thành công?
 > <details><summary>Đáp án</summary><code>POST /posts/15/comments</code> với body chứa nội dung bình luận. Thành công trả <code>201 Created</code> kèm header <code>Location</code> trỏ tới comment vừa tạo (vd <code>/posts/15/comments/88</code>). Dùng <code>POST</code> vì đang tạo tài nguyên mới; URL lồng <code>comments</code> dưới <code>posts/15</code> thể hiện quan hệ "bình luận thuộc bài viết".</details>
 
 📝 **Tóm tắt mục 2.** REST = tài nguyên (danh từ, có URL) + HTTP verb (động từ). Đặt URL bằng danh từ số nhiều, lồng để thể hiện quan hệ, để verb cho HTTP method. Dùng status code đúng nhóm (2xx/4xx/5xx) và đưa lọc/trang vào query string. \`GET\` luôn chỉ đọc.
@@ -224,7 +224,7 @@ service PriceService {
 
 > ⚠ **Lỗi thường gặp.** Đổi field tag trong \`.proto\` (vd đổi \`email = 3\` thành \`email = 4\`). Field tag là *định danh nhị phân* — đổi nó là breaking change ngầm: client cũ giải mã số 3 ra một field khác. Quy tắc: **không bao giờ tái sử dụng hoặc đổi số tag** đã phát hành; chỉ thêm tag mới.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn xây hệ thống: một app di động gọi vào "API Gateway", gateway này lại gọi 5 service backend để tổng hợp dữ liệu. Nên dùng REST hay gRPC ở (a) giữa app và gateway, (b) giữa gateway và 5 service?
+> 🔁 **Thực hành.** Bạn xây hệ thống: một app di động gọi vào "API Gateway", gateway này lại gọi 5 service backend để tổng hợp dữ liệu. Nên dùng REST hay gRPC ở (a) giữa app và gateway, (b) giữa gateway và 5 service?
 > <details><summary>Đáp án</summary>(a) <b>App ↔ gateway: REST/JSON</b> — biên công khai, client là thiết bị ngoài, cần dễ debug và tương thích rộng. (b) <b>Gateway ↔ service: gRPC</b> — giao tiếp nội bộ giữa các service bạn kiểm soát, ưu tiên hiệu năng, kiểu chặt, có thể streaming. Đây là pattern phổ biến: REST ở rìa, gRPC ở trong.</details>
 
 📝 **Tóm tắt mục 3.** gRPC = RPC (gọi hàm từ xa) + protobuf (hợp đồng + binary + sinh code) trên HTTP/2 với streaming. Mạnh cho giao tiếp **nội bộ, hiệu năng cao, streaming**; ít hợp cho public API hướng trình duyệt vì khó tiếp cận và khó debug.
@@ -287,7 +287,7 @@ Một request, đúng field cần, dữ liệu lồng nhau giải quyết cả o
 
 > ⚠ **Lỗi thường gặp.** Tưởng "client tự chọn field" nghĩa là "server cứ trả mọi thứ rồi client lọc". Thực tế server chỉ *thực thi* đúng phần được hỏi — nhưng nếu không cẩn thận, một query lồng sâu (\`post → comments → author → posts → ...\`) khiến server nổ ra hàng nghìn truy vấn DB (**vấn đề N+1**). Phải dùng kỹ thuật như *dataloader* (gộp truy vấn) và giới hạn độ sâu/độ phức tạp query.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một app di động ở màn hình "danh sách" chỉ cần \`name + avatar\` của user, nhưng màn hình "chi tiết" cần đủ 20 field. Với REST một endpoint \`GET /users/42\` thì gặp vấn đề gì, và GraphQL giải ra sao?
+> 🔁 **Thực hành.** Một app di động ở màn hình "danh sách" chỉ cần \`name + avatar\` của user, nhưng màn hình "chi tiết" cần đủ 20 field. Với REST một endpoint \`GET /users/42\` thì gặp vấn đề gì, và GraphQL giải ra sao?
 > <details><summary>Đáp án</summary>REST gây <b>over-fetching</b> ở màn hình danh sách: tải đủ 20 field dù chỉ cần 2 → tốn băng thông × số user. GraphQL cho mỗi màn hình hỏi đúng field nó cần: màn danh sách hỏi <code>{ name avatar }</code>, màn chi tiết hỏi đủ 20 field — cùng một schema, không cần tạo hai endpoint REST riêng (vd <code>/users/42</code> và <code>/users/42/summary</code>).</details>
 
 📝 **Tóm tắt mục 4.** GraphQL = client mô tả đúng field cần qua một query, server trả đúng hình dạng đó. Giải quyết over/under-fetching và gộp round-trip. Đánh đổi: caching khó hơn, rủi ro query nặng (N+1), hạ tầng phức tạp hơn. Mạnh khi nhiều client cần nhiều hình dạng dữ liệu.
@@ -317,7 +317,7 @@ Một request, đúng field cần, dữ liệu lồng nhau giải quyết cả o
 
 > ❓ **"Phải chọn đúng một cái cho cả hệ thống?"** Không. Hệ thống thật thường **trộn**: REST ở biên công khai cho client ngoài, gRPC giữa các service nội bộ, GraphQL ở tầng gateway/BFF (Backend-For-Frontend) để gom dữ liệu cho UI. Chọn theo *từng đường biên*, không theo cả hệ thống.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho 3 tình huống, chọn phong cách: (a) API thời tiết công khai cho lập trình viên khắp nơi tích hợp; (b) service "thanh toán" gọi service "tồn kho" trong cùng cụm backend, cần nhanh; (c) một app mạng xã hội với feed phức tạp, nhiều màn hình mobile lấy dữ liệu khác nhau.
+> 🔁 **Thực hành.** Cho 3 tình huống, chọn phong cách: (a) API thời tiết công khai cho lập trình viên khắp nơi tích hợp; (b) service "thanh toán" gọi service "tồn kho" trong cùng cụm backend, cần nhanh; (c) một app mạng xã hội với feed phức tạp, nhiều màn hình mobile lấy dữ liệu khác nhau.
 > <details><summary>Đáp án</summary>(a) <b>REST</b> — public, cần dễ tiếp cận, cache CDN tốt. (b) <b>gRPC</b> — nội bộ, ưu tiên hiệu năng/độ trễ, kiểu chặt. (c) <b>GraphQL</b> — nhiều màn hình cần nhiều hình dạng dữ liệu, tránh over/under-fetch, gộp round-trip cho feed lồng nhau.</details>
 
 📝 **Tóm tắt mục 5.** Không có "cái tốt nhất" tuyệt đối. REST cho biên công khai/đơn giản/cache; gRPC cho nội bộ/hiệu năng/streaming; GraphQL cho nhiều client cần nhiều hình dạng dữ liệu. Hệ thống thật trộn cả ba theo từng đường biên.
@@ -374,7 +374,7 @@ GET /v1/users/42
 
 > ⚠ **Lỗi thường gặp.** "Chỉ là đổi tên cho đẹp, có gì đâu" — đổi tên field/endpoint là **breaking change** dù logic không đổi. Một cái tên cũng là một phần của hợp đồng. Trước khi đổi bất cứ gì client *đọc được*, hãy hỏi: "có client nào đang dựa vào đúng tên/kiểu này không?"
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại breaking / non-breaking: (a) thêm field \`currency\` vào response; (b) đổi \`created_at\` từ Unix timestamp số sang chuỗi ISO; (c) thêm endpoint \`/products/7/reviews\`; (d) bắt buộc param \`apiKey\` cho mọi request.
+> 🔁 **Thực hành.** Phân loại breaking / non-breaking: (a) thêm field \`currency\` vào response; (b) đổi \`created_at\` từ Unix timestamp số sang chuỗi ISO; (c) thêm endpoint \`/products/7/reviews\`; (d) bắt buộc param \`apiKey\` cho mọi request.
 > <details><summary>Đáp án</summary>(a) <b>Non-breaking</b> — thêm field, client cũ bỏ qua. (b) <b>Breaking</b> — đổi kiểu dữ liệu, client cũ parse số sẽ vỡ với chuỗi. (c) <b>Non-breaking</b> — thêm endpoint mới, không động tới cái cũ. (d) <b>Breaking</b> — thêm param *bắt buộc*, mọi request cũ thiếu nó sẽ bị từ chối. (b) và (d) cần lên version mới hoặc giai đoạn quá độ.</details>
 
 📝 **Tóm tắt mục 6.** Thêm thì an toàn (non-breaking), đổi/bỏ thì phá vỡ (breaking). Khi buộc phải breaking, tạo version mới (URL \`/v1\`,\`/v2\` hoặc header) và giữ bản cũ song song, deprecate có lộ trình. Mục tiêu: tiến hóa API mà **không bắt client vỡ đột ngột**.

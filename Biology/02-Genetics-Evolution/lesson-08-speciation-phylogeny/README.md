@@ -74,7 +74,7 @@ A: Có. Hình thành loài là **quá trình liên tục**, không phải sự k
 - **Nghĩ "lai được = cùng loài"**: liger, mule, beefalo đều là lai *được* nhưng vô sinh hoặc không tự nhiên → vẫn khác loài.
 - **Áp khái niệm Mayr cho vi khuẩn / hóa thạch**: không phù hợp, phải dùng khái niệm khác.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Hai con chim trông giống hệt, sống cùng khu rừng, nhưng tiếng hót khác hẳn và chưa từng quan sát thấy giao phối lẫn nhau. Chúng có cùng loài không? Cần kiểm tra thêm gì?
 2. Lúa mì hoang dã (2n = 14) lai tự nhiên với cỏ goat-grass (2n = 14), con lai 2n = 14 nhưng vô sinh. Sau khi đa bội hóa thành 4n = 28 thì hữu sinh và tạo dòng riêng. Đây có phải hình thành loài không?
@@ -156,7 +156,7 @@ A: Vùng địa lý nơi 2 loài chớm phát sinh vẫn còn giao phối đư�
 - **Coi rào cản hành vi là "kém quan trọng"**: thực ra hành vi (tiếng hót, vũ điệu) là rào cản phổ biến và mạnh nhất ở chim, ếch — đủ tách hàng nghìn loài.
 - **Nghĩ rào cản phải tuyệt đối 100%**: không cần. Chỉ cần đủ mạnh để dòng gen giữa 2 quần thể nhỏ hơn nhiều so với dòng gen nội bộ.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Hai loài ếch sống chung 1 ao, mùa sinh sản trùng nhau, nhưng tiếng kêu của con đực khác nhau — con cái mỗi loài chỉ tiến lại gần con đực kêu đúng "giọng". Rào cản nào?
 2. Lai chuột nhà với chuột đồng được phôi nhưng phôi chết trước khi sinh. Rào cản nào?
@@ -247,7 +247,7 @@ A: Có thật, nhưng phải chứng minh chặt: bằng chứng địa lý + ph
 - **Nhầm "polyploidy" với "đột biến điểm"**: polyploidy là **nhân đôi cả bộ NST**, không phải đổi 1 base. Hệ quả là *bước nhảy* về số NST, không phải đổi từ từ.
 - **Coi sympatric là "không cần cách ly"**: vẫn cần cách ly *sinh sản* (rào cản giao phối), chỉ không cần cách ly *địa lý*.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một quần thể cá vàng (2n = 100) trong hồ A có một số cá thể bị tự đa bội thành 4n = 200. Cá 4n lai với 2n ra con 3n. Tại sao con 3n vô sinh? Cá 4n có thành loài mới không?
 2. Hai loài thực vật P (2n = 18) và Q (2n = 12) lai → con vô sinh. Đa bội hóa → loài mới có bao nhiêu NST?
@@ -383,7 +383,7 @@ A: Có nhiều phương pháp: (1) **Maximum parsimony** (cây nào ít thay đ�
 - **Nghĩ "loài hiện đại tiến hóa từ loài hiện đại khác"** — SAI. Hai loài hiện đại cùng tiến hóa từ tổ tiên *đã tuyệt chủng*. Người KHÔNG tiến hóa từ tinh tinh; cả hai tiến hóa từ tổ tiên chung (đã không còn).
 - **Tin tuyệt đối đồng hồ phân tử** — chỉ là ước lượng, có sai số.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Hai loài có DNA khác 2.4%. $\mu = 10^{-9}$. Thời gian phân kỳ là bao nhiêu?
 2. Trong cây ((A,B),(C,(D,E))), MRCA của D và E là ai? MRCA của A và E? Nhóm {C, D, E} có phải clade không?

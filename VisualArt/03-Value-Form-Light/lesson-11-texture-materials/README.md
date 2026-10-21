@@ -41,7 +41,7 @@ Chỉ cần số học cộng/nhân và chút lượng giác (`cos`, `arccos`) c
 
 > ⚠ **Lỗi thường gặp.** *"Muốn ra gỗ thì cứ vẽ vân là xong."* Vân là **kết cấu**, chỉ là lớp trang trí trên cùng. Nếu hành vi ánh sáng sai (đốm sáng chói sắc), khối vẫn không "ra gỗ". Vẽ đúng **chất liệu trước** (ánh sáng đục mờ), thêm **kết cấu (vân) sau** — không làm ngược.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một khối cầu bê tông nhám và một khối cầu nhựa nhám cùng độ ráp bề mặt. Cái nào có đốm sáng rõ hơn?
 > 2. Kết cấu là thành phần nào trong "chất liệu"?
 >
@@ -116,7 +116,7 @@ $$\alpha_{1/2} = \arccos\!\left(0.5^{1/n}\right)$$
 > - *"Nhám thì đốm sáng biến mất hẳn không?"* → Không biến mất, mà **loang rộng và mờ đi** đến mức gần như hòa vào vùng khuếch tán — nên nhìn tưởng không có.
 > - *"Tôi có phải tính `arccos` khi vẽ tay không?"* → Không. Bảng trên chỉ để *hiểu quy luật*. Khi vẽ, bạn ước lượng: gỗ → đốm to nhòe; men sứ → đốm bé chói.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Tăng `k_s` từ 0.3 lên 0.9 (giữ nguyên `n`). Đốm sáng thay đổi *kích thước* hay *độ chói*?
 > 2. Bề mặt có `n = 8` và bề mặt `n = 512` — cái nào là men sứ?
 >
@@ -185,7 +185,7 @@ Bề mặt nhẵn nhưng **đục** (không cho sáng xuyên). Vẫn có phần 
 
 > ❓ **Câu hỏi tự nhiên.** *"Vẽ thủy tinh có phải mô phỏng khúc xạ bằng công thức không?"* → Không cần chính xác vật lý. Chỉ cần: (1) cho thấy **nền sau bị méo/đảo** qua khối, (2) **mép sáng**, (3) **1–2 đốm sáng sắc**, (4) **một đốm caustic** dưới đáy. Bốn dấu hiệu này đủ để não đọc ra "trong suốt".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Nhìn một khối cầu: đốm sáng ánh **vàng cam**, value tương phản rất mạnh và như bị đảo. Chất liệu gì?
 > 2. Khối cầu cho thấy vân bàn phía sau bị cong, mép phát sáng, có chấm sáng gom trên bàn. Chất liệu gì?
 >

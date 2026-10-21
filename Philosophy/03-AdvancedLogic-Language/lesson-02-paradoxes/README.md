@@ -124,7 +124,7 @@ Nếu phần lớn là sai → câu này có thể đúng → nhưng "phần l�
 > - *"Logic giải quyết nghịch lý kẻ nói dối bằng cách nào?"* — Có nhiều cách: (1) **Phân tầng ngôn ngữ (Tarski)**: ngôn ngữ đối tượng (object language) không được nói về giá trị chân lý của chính mình — phải dùng ngôn ngữ meta. (2) **Logic paraconsistent**: cho phép mâu thuẫn tồn tại mà không "phổ xạ" (từ mâu thuẫn không suy ra mọi thứ). (3) **Từ chối tự quy chiếu**: hệ thống hình thức không cho phép câu nói về chính nó.
 > - *"Máy tính có bao giờ gặp nghịch lý kẻ nói dối không?"* — Có. Bài toán dừng (halting problem) của Turing sử dụng cấu trúc tự quy chiếu tương tự: "Chương trình này có dừng không khi chạy trên chính đầu vào của nó?" — không thể trả lời nhất quán.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Xét câu: "Câu này không thể chứng minh là đúng." Giả sử câu đúng — thì có thể chứng minh không? Giả sử câu sai — thì "không thể chứng minh" sai nghĩa là có thể chứng minh nhưng nó lại sai — mâu thuẫn?
 >
 > <details><summary>Gợi ý phân tích</summary>
@@ -213,7 +213,7 @@ Trong ZFC: Phải có tập A trước, rồi mới lấy: {x ∈ A : x ∉ x}. 
 > - *"Nghịch lý thợ cắt tóc và nghịch lý Russell có giống nhau không?"* — Gần giống nhưng không hoàn toàn. Nghịch lý thợ cắt tóc *có* giải quyết được: thợ cắt tóc như mô tả đơn giản là không tồn tại trong thực tế. Nghịch lý Russell *không* giải quyết được theo cách đó — vì tập R được đảm bảo tồn tại bởi nguyên lý bao hàm toàn diện. Vì vậy Russell phải từ bỏ nguyên lý bao hàm, không phải "từ bỏ R".
 > - *"Toán học hiện đại (ZFC) đã an toàn chưa — còn nghịch lý nào không?"* — ZFC đến nay chưa phát hiện mâu thuẫn. Nhưng theo Định lý bất toàn Gödel (Lesson 03), ta không thể *chứng minh* ZFC nhất quán từ bên trong ZFC. Đây là giới hạn cơ bản, không phải dấu hiệu ZFC sai.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Tập S = {x : x = x} ("tập tất cả mọi thứ bằng chính nó") có gây nghịch lý trong lý thuyết tập hợp ngây thơ không?
 >
 > <details><summary>Phân tích</summary>
@@ -306,7 +306,7 @@ Ngôn ngữ tự nhiên vốn mơ hồ — không có nghĩa là lỗi, mà là 
 > - *"Sorites có ảnh hưởng thực tế đến luật pháp hay khoa học không?"* — Rất nhiều. Luật pháp: khi nào bào thai trở thành "người"? Khoa học: khi nào một quần thể trở thành "loài" mới (speciation)? Kinh tế: khi nào giá tăng gọi là "lạm phát cao"? Mọi trường hợp đều có vùng mờ — và các quyết định pháp lý/khoa học phải tùy tiện vẽ ranh giới.
 > - *"Logic mờ (fuzzy logic) có giải quyết hoàn toàn sorites không?"* — Không hoàn toàn. Khi dùng logic mờ, câu hỏi "khi nào độ chân lý vượt 0.5 để gọi là đống?" lại tạo ra vấn đề sorites ở bậc cao hơn (higher-order vagueness). Sorites là vấn đề sâu hơn bất kỳ hệ thống giá trị chân lý nào có thể giải quyết hoàn toàn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Vị từ "cao" áp dụng cho người: 1m50 rõ ràng không cao, 2m20 rõ ràng cao. Hãy xây dựng lập luận sorites với vị từ này.
 >
 > <details><summary>Phân tích</summary>

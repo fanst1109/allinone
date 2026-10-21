@@ -67,7 +67,7 @@ E5 trong 12-TET (7 nửa cung): \`f = 440 × 2^(7/12) = 440 × 1.49831 = 659.26 
 > - *"Beating nghe như thế nào?"* — Như tiếng "wah-wah-wah" rất chậm khi hai cây đàn không cùng tần số. Thợ chỉnh đàn dùng beating để so chuẩn: khi hai dây không còn beating, tức là chúng khớp hoàn toàn.
 > - *"Tỷ lệ 3:2 từ đâu ra?"* — Từ dãy bội âm tự nhiên. Khi gảy dây đàn, nó rung ở tần số gốc \`f\` và đồng thời ở \`2f\`, \`3f\`, \`4f\`... Tỷ lệ \`3:2\` xuất hiện giữa bội âm thứ 3 (\`3f\`) và bội âm thứ 2 (\`2f\`) — hoàn toàn tự nhiên.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nốt gốc C4 = 261.63 Hz. Tính tần số của quãng 3 trưởng JI (tỷ lệ 5:4) từ C4.
 > <details><summary>Đáp án</summary>
 >
@@ -145,7 +145,7 @@ Nếu nhạc cụ phím (organ, harpsichord, piano) được chỉnh theo JI ho�
 > - *"Nhạc cụ không phím (đàn violin, giọng người) có bị ảnh hưởng không?"* — Không. Vì chúng có thể điều chỉnh tần số liên tục — người chơi violin tự nhiên nghe và chỉnh mỗi nốt. Vấn đề chỉ xảy ra với nhạc cụ có nốt **cố định** (fixed-pitch instruments).
 > - *"Vì sao đúng 12 bước mới về gần?"* — Vì 12 là số mà \`(3/2)^12\` gần \`2^7\` nhất trong các số nguyên nhỏ. Thử 5 bước: \`(3/2)^5 = 7.594\` vs \`2^2 = 4\` — lệch quá xa. Thử 7 bước: \`(3/2)^7 = 17.086\` vs \`2^4 = 16\` — lệch 91 cents. Thử 12 bước: lệch 23.46 cents — tốt hơn nhiều!
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Chồng 7 quãng 5 thuần thay vì 12, kết quả so với 4 octave lệch bao nhiêu cents?
 > <details><summary>Đáp án</summary>
 >
@@ -222,7 +222,7 @@ Hệ quả: \`r^{12} = 2^{12/12} = 2\` — 12 bước đúng bằng 1 octave ✓
 > - *"Các hệ nào khác đã được thử trước ET?"* — Nhiều: **Meantone temperament** (tối ưu quãng 3 trưởng nhưng wolf fifth tệ hơn), **Well temperament** (Bach dùng — mỗi điệu có màu sắc riêng), **53-TET** (53 nửa cung/octave — gần JI hơn nhưng phức tạp). ET chiến thắng vì đơn giản và công bằng.
 > - *"Có hệ điều âm nào tốt hơn 12-TET không?"* — Tùy mục đích. **31-TET** xấp xỉ quãng 3 trưởng JI tốt hơn nhiều; **53-TET** xấp xỉ gần như mọi quãng JI. Nhưng cả hai yêu cầu nhạc cụ phức tạp hơn nhiều.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Tính tần số E5 trong ET và trong JI (từ A4 = 440 Hz). Tính beating.
 > <details><summary>Đáp án</summary>
 >

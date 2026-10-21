@@ -77,7 +77,7 @@ Trong thời kỳ đồ đá cũ (Paleolithic), con người sống theo lối *
 - *"Nông nghiệp xuất hiện có nghĩa là cuộc sống tốt hơn ngay không?"* — Không nhất thiết. Nghiên cứu khảo cổ học cho thấy những người nông dân đầu tiên có **vóc dáng thấp hơn và nhiều bệnh hơn** so với người săn bắt–hái lượm (do ăn ít đa dạng hơn, sống gần nhau nên lây bệnh nhiều hơn). Nhưng về mặt **dân số và sức mạnh tập thể**, cộng đồng nông nghiệp áp đảo cộng đồng săn bắt–hái lượm.
 - *"Tại sao không phải tất cả mọi người đều chuyển sang nông nghiệp cùng lúc?"* — Vì điều kiện tự nhiên không đồng đều. Vùng có cây hạt hoang dại phong phú và khí hậu phù hợp sẽ chuyển sang nông nghiệp sớm hơn; vùng nhiệt đới rậm rạp hoặc sa mạc thì lâu hơn hoặc không chuyển.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Tại sao việc xuất hiện **thặng dư lương thực** là tiền đề không thể thiếu để hình thành nhà nước và văn minh?
 
@@ -134,7 +134,7 @@ Tất cả những điều này dẫn đến **nhà nước như tổ chức qu�
 - *"Nếu vùng ven sông màu mỡ vậy, tại sao chỉ có 4 nền văn minh sông lớn đầu tiên chứ không phải nhiều hơn?"* — Không phải mọi con sông đều tạo ra văn minh sớm. Sông Amazon, Congo, hay Mississippi cũng là sông lớn nhưng điều kiện khác: rừng rậm nhiệt đới không thuận cho nông nghiệp hạt, khí hậu khác biệt. Các nền văn minh sông đầu tiên xuất hiện ở vùng **khí hậu ôn đới và bán khô hạn**, nơi sông là nguồn nước độc tôn và đất khô ráo dễ canh tác khi có nước.
 - *"Các nền văn minh sông có tiếp xúc với nhau không?"* — Có, nhưng ít và chậm so với sau này. Có bằng chứng thương mại giữa Lưỡng Hà và Sông Ấn (vật liệu lưu niệm tìm thấy ở cả hai địa điểm). Ai Cập và Lưỡng Hà cũng có thương mại thỉnh thoảng.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Giải thích tại sao **nhu cầu trị thủy** (quản lý nước sông) thúc đẩy sự hình thành nhà nước, chứ không phải chỉ là nông nghiệp tự phát của mỗi hộ gia đình?
 
@@ -208,7 +208,7 @@ Tầm quan trọng: xe bánh xe kéo bằng động vật vận chuyển **10–
 
 💡 **Tầm quan trọng của Hammurabi:** Đây không phải bộ luật đầu tiên của Lưỡng Hà (Bộ luật Ur-Nammu của Sumer khoảng 2100 TCN còn cổ hơn) nhưng là bộ luật **hoàn chỉnh nhất và được bảo tồn tốt nhất** từ thế giới cổ đại. Nguyên bản đang trưng bày tại Bảo tàng Louvre, Paris.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Chữ hình nêm được "phát minh" vì nhu cầu gì, và điều này cho thấy gì về bản chất của chữ viết trong giai đoạn đầu?
 
@@ -285,7 +285,7 @@ Trong cuộc sống hàng ngày, người Ai Cập dùng **chữ Hieratic** (d�
 - **Lịch Ai Cập** (khoảng 3000 TCN): 365 ngày, 12 tháng × 30 ngày + 5 ngày lễ hội. Đây là lịch dương đầu tiên, gần với lịch hiện đại.
 - **Toán học:** Cuộn giấy Rhind (Rhind Mathematical Papyrus, khoảng 1550 TCN) ghi lại 84 bài toán thực hành — diện tích ruộng, thể tích kho lúa, phân phối bánh mì. Người Ai Cập biết tính gần đúng số Pi (π ≈ 3,16) và có cách tính diện tích tam giác, thang thức.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Tại sao sự **đều đặn của lũ sông Nile** lại khiến Ai Cập cổ đại phát triển thiên văn học và toán học sớm hơn so với một nền văn minh sống ở nơi thời tiết không thể đoán trước?
 

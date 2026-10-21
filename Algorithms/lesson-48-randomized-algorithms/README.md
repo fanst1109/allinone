@@ -69,7 +69,7 @@ Hai họ thuật toán ngẫu nhiên, phân loại theo *cái gì là ngẫu nhi
 
 > ❓ **Có thể biến Monte Carlo thành Las Vegas không?** Đôi khi có — nếu ta có cách *kiểm tra nhanh* kết quả đúng/sai. Khi đó: chạy Monte Carlo, kiểm tra; nếu sai thì chạy lại. Kết quả luôn đúng (Las Vegas) nhưng thời gian thành ngẫu nhiên. Ngược lại, Las Vegas có thể thành Monte Carlo bằng cách *cắt thời gian*: chạy đến deadline, nếu chưa xong thì đoán bừa.
 
-> 🔁 **Dừng lại tự kiểm tra.** Thuật toán "chạy đúng deadline cố định, nếu chưa tìm được nghiệm thì trả về null" thuộc họ nào?
+> 🔁 **Thực hành.** Thuật toán "chạy đúng deadline cố định, nếu chưa tìm được nghiệm thì trả về null" thuộc họ nào?
 > <details><summary>Đáp án</summary>Monte Carlo — thời gian cố định (deadline), kết quả có thể "sai" (trả null dù thực ra có nghiệm).</details>
 
 > 📝 **Tóm tắt mục 2.** Las Vegas = đúng chắc chắn, thời gian biến động. Monte Carlo = thời gian chắc chắn, đúng theo xác suất (kiểm soát được bằng số vòng lặp).
@@ -213,7 +213,7 @@ $$E[T(n)] = n + \frac{3}{4}n + \left(\frac{3}{4}\right)^2 n + \dots = n \cdot \f
 
 > ❓ **Sao không dùng median-of-medians để có $O(n)$ chắc chắn?** Median-of-medians cho worst-case $O(n)$ *đảm bảo* nhưng hằng số lớn và code phức tạp. Quickselect random đơn giản hơn nhiều và nhanh hơn trên thực tế — đây chính là lợi ích "đơn giản hoá" của ngẫu nhiên (mục 1b).
 
-> 🔁 **Dừng lại tự kiểm tra.** Để tìm phần tử *lớn* thứ $k$ trong mảng $n$ phần tử, gọi quickselect với chỉ số nào?
+> 🔁 **Thực hành.** Để tìm phần tử *lớn* thứ $k$ trong mảng $n$ phần tử, gọi quickselect với chỉ số nào?
 > <details><summary>Đáp án</summary>Phần tử lớn thứ $k$ = phần tử nhỏ thứ $(n-k)$. Gọi `quickselect(a, 0, n-1, n-k)`.</details>
 
 > 📝 **Tóm tắt mục 4.** Quickselect = quicksort nhưng đệ quy *một* phía → expected $O(n)$. Dùng để tìm trung vị / top-k mà không sắp toàn mảng.
@@ -349,7 +349,7 @@ Naive sinh ra $n^n$ đường đi, nhưng chỉ có $n!$ hoán vị. Vì $n^n$ *
 
 > ❓ **Trong Go thật có sẵn không?** Có: `rand.Shuffle(n, swap)` (Go 1.10+) cài đặt đúng Fisher-Yates. Không cần tự viết trong production — nhưng phải hiểu nó để không dùng sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao Fisher-Yates đều mà naive không? Trả lời bằng số đường đi.
+> 🔁 **Thực hành.** Vì sao Fisher-Yates đều mà naive không? Trả lời bằng số đường đi.
 > <details><summary>Đáp án</summary>Fisher-Yates sinh đúng $n \times (n{-}1) \times \dots \times 1 = n!$ đường đi, song ánh với $n!$ hoán vị → đều. Naive sinh $n^n$ đường đi không chia hết cho $n!$ → một số hoán vị xuất hiện nhiều hơn → bias.</details>
 
 > 📝 **Tóm tắt mục 6.** Fisher-Yates: đi từ cuối, swap với vị trí ngẫu nhiên trong $[0, i]$. Đều ($1/n!$), $O(n)$. Naive shuffle (dải đầy đủ) bị bias vì $n^n \nmid n!$.
@@ -584,7 +584,7 @@ $$E[X] = O(n \ln n) = O(n \log n). \qquad \blacksquare$$
 
 $E[X] = 3(1.0) + 2(0.667) + 0.5 = 3 + 1.333 + 0.5 = 4.833$ phép so sánh kỳ vọng. (Phần tử liền kề luôn bị so sánh; càng xa nhau, xác suất càng giảm.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao $z_i$ và $z_{i+1}$ (liền kề) *luôn* bị so sánh ($P=1$)?
+> 🔁 **Thực hành.** Vì sao $z_i$ và $z_{i+1}$ (liền kề) *luôn* bị so sánh ($P=1$)?
 > <details><summary>Đáp án</summary>Đoạn $[z_i, z_{i+1}]$ chỉ có 2 phần tử, không có phần tử nào nằm giữa. Cái nào được pivot trước cũng so sánh với cái kia. $P = 2/2 = 1$.</details>
 
 > 📝 **Tóm tắt mục 12.** Indicator variable + linearity of expectation = công cụ chuẩn để phân tích thuật toán ngẫu nhiên. Quicksort: $E[\text{so sánh}] = \sum_{i<j} \frac{2}{j-i+1} = O(n \log n)$.

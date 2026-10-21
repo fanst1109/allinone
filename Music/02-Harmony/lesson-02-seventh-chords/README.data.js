@@ -146,7 +146,7 @@ Ví dụ số (≥ 4):
 > - *"dim7 cách đều 3 nửa cung — có nghĩa là nó 'đối xứng' không?"* — Đúng. Vì mọi khoảng đều bằng nhau (3 nửa cung), đảo vị trí (inversion) của Cdim7 cũng tạo ra một dim7 khác. Thực tế chỉ có 3 "nhóm" dim7 khác nhau về âm thanh, dù ký hiệu 12.
 > - *"Sự khác biệt giữa m7♭5 và dim7 là gì?"* — Chỉ khác ở nốt thứ 7: m7♭5 dùng quãng 7 nhỏ (10 nửa cung), dim7 dùng quãng 7 giảm (9 nửa cung). m7♭5 nghe "ít hoảng hơn", dim7 nghe căng và đối xứng hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Dựng Gmaj7 và G7 — nốt nào khác nhau giữa hai hợp âm đó?
 > 2. Dựng Bm7♭5. Liệt kê 4 nốt và offset từ B.
 >
@@ -206,7 +206,7 @@ Offset maj7 = {0, 4, 7, 11}.
 
 > ⚠ **Lỗi thường gặp: nhầm "maj7" với hợp âm "M" (major triad).** Ký hiệu "Cmaj7" = C trưởng bảy (4 nốt). "CM" hay "C" không có số = C trưởng ba (3 nốt). Khi thấy "7" không có "m" hay "maj" trước — ví dụ "C7" — đó là dominant 7, **không phải** major 7.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Dựng D♭m7♭5. Liệt kê 4 nốt.
 >
 > <details><summary>Đáp án</summary>

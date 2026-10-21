@@ -182,7 +182,7 @@ chmod o= sensitive.conf  # xóa mọi quyền của other
 
 ⚠ **Lỗi thường gặp — \`chmod 777\`:** Nhiều người debug "permission denied" bằng cách \`chmod 777 file\` — đặt mọi quyền cho mọi người. Đây là **lỗi bảo mật nghiêm trọng**: mọi user trên hệ thống (và qua web nếu web server chạy) đều đọc/ghi/chạy được file đó. Giải pháp đúng: tìm hiểu *tại sao* bị denied và cấp quyền tối thiểu cần thiết.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 File có quyền \`0754\`. Điền vào bảng:
 

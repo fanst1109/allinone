@@ -94,7 +94,7 @@ A: Có — một số virus (vd parvovirus, phage M13) có genome DNA mạch đ�
 - **Quên rằng đường kính xoắn kép không đổi**: nếu một bài tập "cho cặp A–G", đó là bài lỗi hoặc cố tình bẫy. Trong DNA bình thường chỉ có A–T và G–C.
 - **Coi backbone (đường–phosphate) là thông tin di truyền**: SAI. Backbone giống nhau ở mọi đoạn DNA. Thông tin nằm ở **trình tự base**.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cho mạch khuôn 5'– \`GATTACA\` –3'. Viết mạch bổ sung theo chiều 5'→3'.
 2. Một DNA có 1500 bp, A = 25%. Tính tổng số liên kết hydrogen giữa hai mạch.
@@ -178,7 +178,7 @@ A: Không trực tiếp. Meselson–Stahl chỉ chứng minh **cơ chế phân c
 - **Tính tỉ lệ lai trên tổng là $1/2^n$**: gần đúng nhưng không chính xác — phải là $2/2^n = 1/2^{\\,n-1}$.
 - **Nhầm "bán bảo toàn" với "bảo toàn một nửa"**: "bán" ở đây không có nghĩa "một nửa được bảo toàn"; nó nghĩa là "**bảo toàn ở mức mạch**" — toàn bộ thông tin gốc vẫn còn, chỉ là chia đôi vào 2 DNA con.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Bắt đầu 1 DNA N15. Sau 6 chu kỳ trong N14, có bao nhiêu DNA con? Bao nhiêu cái là "lai"? Tỉ lệ % lai là bao nhiêu?
 2. Nếu Meselson–Stahl thấy ở chu kỳ 1 có **2 băng** (1 nặng + 1 nhẹ), bạn kết luận gì về cơ chế?
@@ -255,7 +255,7 @@ A: 5'-phosphate là "đầu chết" của mạch đang được tổng hợp. N�
 - **Nghĩ rằng polymerase có thể khởi đầu một mạch từ con số không**: SAI. Luôn cần primer (mồi).
 - **Quên triphosphate**: dNTP có 3 phosphate, không phải 1. Hai phosphate "thừa" cung cấp năng lượng cho phản ứng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cho mạch khuôn 3'– \`TTACCG\` –5'. Mạch mới tổng hợp có trình tự 5'→3' là gì?
 2. Vì sao việc polymerase "không khởi đầu được" lại sinh ra nhu cầu cho primase? (Trả lời ngắn).
@@ -370,7 +370,7 @@ A: Đây là **vấn đề end-replication**: sau khi primer cuối cùng đư�
 - **Quên ligase**: thiếu ligase, đoạn Okazaki vẫn rời rạc — mạch trễ không hoàn chỉnh, DNA con bị "rách".
 - **Nhầm "Okazaki" cho mạch dẫn đầu**: đoạn Okazaki là đặc trưng riêng của mạch trễ.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao tại 1 chạc nhân đôi cần *ít nhất 2 primer* để khởi đầu cả 2 mạch?
 2. Một đoạn DNA 5000 bp được nhân đôi từ 1 origin. Đoạn Okazaki ~500 nt. Mỗi chạc cần bao nhiêu primer cho mạch trễ?
@@ -439,7 +439,7 @@ A: Vì (1) phần lớn lỗi rơi vào vùng không mã hóa (intron, vùng gi�
 - **Quên rằng 1 origin = 2 chạc**: tính số chạc = số origin là sai. Phải nhân 2.
 - **Tính tỉ lệ sai trên 1 lần đính nucleotide vs trên 1 genome**: 1/10⁹ là **trên 1 nucleotide**; trên cả genome người 3×10⁹ bp → kỳ vọng 3 lỗi. Đây là 2 đại lượng khác nhau, đừng nhầm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một virus có genome 100,000 bp. Nếu chỉ có 1 origin, tốc độ 500 nt/s, thời gian nhân đôi là bao nhiêu?
 2. Genome 6×10⁹ bp (giả định một loài lớn), muốn nhân đôi trong 4 giờ, tốc độ 50 nt/s. Cần tối thiểu bao nhiêu origin?

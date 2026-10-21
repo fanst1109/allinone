@@ -54,7 +54,7 @@ $$\frac{\text{Sáng}_1}{\text{Sáng}_2} = \left(\frac{1000}{100}\right)^2 = 10^2
 > - *"Vì sao không cứ tăng phóng đại để thấy vật mờ?"* — Phóng đại chỉ "kéo to" ảnh; nếu không đủ photon thì ảnh vẫn tối và mờ, phóng to chỉ ra mảng xám. Cần khẩu độ để **gom sáng**, không phải zoom.
 > - *"Kính nghiệp dư 200 mm thấy được gì?"* — Vành Sao Thổ, các vệ tinh Galileo của Sao Mộc, nhiều tinh vân — vì thu sáng ~800 lần mắt.
 
-> 🔁 **Dừng lại tự kiểm tra.** Kính A có khẩu độ 40 cm, kính B 20 cm. A thu sáng gấp mấy lần B?
+> 🔁 **Thực hành.** Kính A có khẩu độ 40 cm, kính B 20 cm. A thu sáng gấp mấy lần B?
 > <details><summary>Đáp án</summary>$(40/20)^2 = 2^2 = 4$ lần. (Không phải 2 lần — nhớ bình phương!)</details>
 
 > 📝 **Tóm tắt mục 1.** Khẩu độ = cái xô hứng photon. Lượng sáng $\propto D^2$. Đây là công dụng chính của kính, quan trọng hơn phóng đại.
@@ -110,7 +110,7 @@ $$\begin{aligned}
 > - *"Nếu Hubble $\theta \sim 0{,}06''$ thì kính mặt đất 10 m phải tốt hơn chứ?"* — Trên lý thuyết có ($\theta \sim 0{,}014''$), nhưng **khí quyển làm nhiễu** (turbulence) khiến kính mặt đất thường chỉ đạt ~0,5–1″ — đó là vì sao Hubble (trên khí quyển) lâu nay thắng về độ nét, dù nhỏ hơn. (Quang học thích nghi — adaptive optics — nay giúp kính mặt đất bù phần nào.)
 > - *"Tại sao $\theta$ phụ thuộc $\lambda$?"* — Vì nhiễu xạ mạnh hơn với bước sóng dài. Kính vô tuyến ($\lambda$ rất dài) cần khẩu độ **khổng lồ** (hàng chục–trăm mét) để có cùng độ phân giải.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cùng khẩu độ, quan sát bằng tia hồng ngoại ($\lambda$ lớn hơn khả kiến) thì độ phân giải tốt hơn hay kém hơn?
+> 🔁 **Thực hành.** Cùng khẩu độ, quan sát bằng tia hồng ngoại ($\lambda$ lớn hơn khả kiến) thì độ phân giải tốt hơn hay kém hơn?
 > <details><summary>Đáp án</summary>**Kém hơn** ($\theta$ lớn hơn) vì $\theta \propto \lambda$. Bước sóng dài → nhiễu xạ mạnh → khó tách hai điểm. Muốn bù phải tăng D.</details>
 
 > 📝 **Tóm tắt mục 2.** Độ phân giải $\theta = 1{,}22\lambda/D$. $\theta$ nhỏ = nét hơn. Khẩu độ lớn → $\theta$ nhỏ ($\propto 1/D$). Bước sóng dài → $\theta$ lớn ($\propto \lambda$). Khí quyển có thể làm kính mặt đất kém hơn lý thuyết.
@@ -146,7 +146,7 @@ $$\begin{aligned}
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao kính lớn đều là phản xạ?"* — Vì thấu kính lớn rất nặng, chỉ đỡ được ở viền (giữa võng xuống), và bị quang sai màu. Gương đỡ được toàn bộ mặt sau và không quang sai màu → mọi kính khổng lồ (Hubble, Keck, JWST) đều dùng gương.
 
-> 🔁 **Dừng lại tự kiểm tra.** Kính khẩu độ 80 mm. Phóng đại hữu ích tối đa khoảng bao nhiêu?
+> 🔁 **Thực hành.** Kính khẩu độ 80 mm. Phóng đại hữu ích tối đa khoảng bao nhiêu?
 > <details><summary>Đáp án</summary>~2× khẩu độ(mm) $= 2 \times 80 = 160\times$. Zoom quá mức này chỉ phóng to ảnh mờ.</details>
 
 > 📝 **Tóm tắt mục 3.** Phóng đại $= f_{\text{vật}}/f_{\text{thị}}$, đổi bằng thị kính. Hữu ích tối đa ~2× khẩu độ(mm). Kính lớn dùng gương (phản xạ).
@@ -205,7 +205,7 @@ $$\begin{aligned}
 > - *"Vì sao JWST quan sát hồng ngoại chứ không khả kiến như Hubble?"* — Vì (1) hồng ngoại xuyên qua bụi, thấy sao/thiên hà trẻ; (2) ánh sáng từ thiên hà rất xa bị **dịch đỏ (redshift)** từ khả kiến sang hồng ngoại do vũ trụ giãn nở → muốn thấy vũ trụ sơ khai phải nhìn IR. Vì IR bị khí quyển + chính nhiệt của kính làm nhiễu, JWST đặt ở không gian và làm lạnh sâu.
 > - *"Vì sao Hubble vẫn hữu ích dù nhỏ hơn kính mặt đất?"* — Trên khí quyển, không bị turbulence → đạt độ phân giải gần giới hạn lý thuyết θ ~0.06″, ổn định.
 
-> 🔁 **Dừng lại tự kiểm tra.** Muốn quan sát tia X từ đĩa khí quanh một lỗ đen, kính mặt đất có làm được không?
+> 🔁 **Thực hành.** Muốn quan sát tia X từ đĩa khí quanh một lỗ đen, kính mặt đất có làm được không?
 > <details><summary>Đáp án</summary>**Không.** Khí quyển chặn gần hết tia X. Phải dùng kính không gian (như Chandra) đặt trên khí quyển.</details>
 
 > 📝 **Tóm tắt mục 4.** Phổ điện từ: radio → IR → khả kiến → UV → X → gamma (λ giảm, năng lượng tăng). Mỗi dải kể chuyện khác → quan sát đa bước sóng. Khí quyển chỉ mở "cửa sổ" khả kiến + vô tuyến → các dải khác cần kính không gian (Hubble, JWST, Chandra).

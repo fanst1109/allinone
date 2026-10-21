@@ -55,7 +55,7 @@ Kết luận:        Vậy phải chọn Y.
 > - *"Làm sao biết còn lựa chọn khác?"* — Hỏi: "Đây có phải tất cả các khả năng không?" rồi chủ động liệt kê thêm. Thường tác giả ngụy biện không đưa ra lý do tại sao chỉ còn hai lựa chọn đó.
 > - *"Trong áp lực quyết định nhanh, đây có thường xảy ra không?"* — Rất thường. False dilemma hiệu quả nhất trong bối cảnh khủng hoảng vì não người dưới áp lực có xu hướng chấp nhận đơn giản hóa.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Bạn phải hoặc thi đỗ đại học hoặc cả đời nghèo khổ." Đây có phải false dilemma không? Lựa chọn nào bị bỏ qua?
 >
 > <details><summary>Đáp án</summary>
@@ -105,7 +105,7 @@ Vậy không được để A xảy ra.
 > - *"Làm sao biết khi nào chuỗi nhân quả là hợp lý?"* — Hỏi: "Bằng chứng gì cho thấy A dẫn đến B?" với *từng bước*. Nếu không có bằng chứng → slippery slope ngụy biện.
 > - *"Slippery slope có hữu ích gì không?"* — Có. Trong phân tích rủi ro, ta cần xét *chuỗi hệ quả có thể*. Vấn đề là đừng trình bày khả năng như tất yếu.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Nếu cho phép sử dụng cần sa hợp pháp → thanh niên sẽ dùng đại trà → rồi chuyển sang ma túy nặng hơn → xã hội xuống cấp." Đây có phải slippery slope ngụy biện không? Cần bổ sung gì để lập luận trở nên hợp lệ?
 >
 > <details><summary>Đáp án</summary>
@@ -153,7 +153,7 @@ Kết luận: [Kết luận]
 > - *"Lập luận vòng tròn đôi khi rất khó thấy — làm sao nhận ra?"* — Thử hỏi: "Nếu bỏ kết luận ra, tiền đề còn đứng vững độc lập không?" Nếu tiền đề cần kết luận để có nghĩa → vòng tròn.
 > - *"Định nghĩa từ điển có phải vòng tròn không?"* — Đôi khi có (ví dụ: "từ đồng nghĩa là từ có cùng nghĩa"). Trong logic học, ta tránh định nghĩa vòng bằng cách dùng khái niệm nguyên thủy (primitive terms).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Người này đáng tin vì anh ấy không bao giờ nói dối. Tôi biết anh ấy không nói dối vì anh ấy là người đáng tin." Xác định vòng tròn ở đây.
 >
 > <details><summary>Đáp án</summary>
@@ -197,7 +197,7 @@ Kết luận: [Kết luận]
 > - *"Cỡ mẫu bao nhiêu mới đủ?"* — Phụ thuộc vào độ biến thiên của tổng thể, mức độ tin cậy mong muốn, và hậu quả của sai lầm. Không có con số tuyệt đối — thống kê học cung cấp công thức tính cỡ mẫu tối thiểu cho từng bài toán.
 > - *"Trải nghiệm cá nhân có giá trị không?"* — Có, nhưng là bằng chứng *gợi ý* (anecdotal evidence), không phải bằng chứng kết luận. Dùng để đặt giả thuyết, không để xác nhận.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Tôi đã thử học online 2 khóa học và cả hai đều chán. Học online vô dụng." Phân tích ngụy biện này.
 >
 > <details><summary>Đáp án</summary>
@@ -239,7 +239,7 @@ Kết luận: [Kết luận]
 > - *"Làm sao phát hiện equivocation?"* — Theo dõi từ khóa qua toàn bộ lập luận. Mỗi lần từ xuất hiện, hỏi: "Nghĩa ở đây có giống chỗ trước không?" Nếu không — equivocation.
 > - *"Equivocation có xảy ra trong tranh luận học thuật không?"* — Rất nhiều. Đặc biệt với các từ như "tự nhiên", "bình thường", "quyền", "tự do" — mỗi lĩnh vực dùng những từ này với nghĩa kỹ thuật riêng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Chúng ta nên tin vào khoa học. Khoa học phong thủy nói nhà này có vượng khí. Vậy chúng ta nên tin nhà này có vượng khí." Xác định từ bị đánh tráo và hai nghĩa.
 >
 > <details><summary>Đáp án</summary>
@@ -280,7 +280,7 @@ Kết luận: [Kết luận]
 > - *"Câu hỏi của nhà báo có thường là loaded question không?"* — Có, đây là kỹ thuật phỏng vấn đôi khi được dùng cố ý. Cách chống: nhận ra giả định ẩn, từ chối trả lời theo khung đặt ra, tự đặt lại câu hỏi.
 > - *"Loaded question và false dilemma có liên quan không?"* — Có. Loaded question thường tạo ra false dilemma ngay trong cấu trúc câu: mọi trả lời đều phải chọn một trong hai hướng đều chấp nhận giả định sai.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Xác định giả định ẩn trong câu: "Khi nào chính phủ sẽ thừa nhận rằng chính sách này là thất bại?"
 >
 > <details><summary>Đáp án</summary>
@@ -327,7 +327,7 @@ Vậy A gây ra B.
 > - *"Làm sao chứng minh nhân quả thật sự?"* — Thí nghiệm ngẫu nhiên có kiểm soát (randomized controlled trial) là tiêu chuẩn vàng: nhóm thực nghiệm và nhóm kiểm soát được gán ngẫu nhiên, kiểm soát biến số khác.
 > - *"Post hoc có phải cơ sở của mê tín dị đoan không?"* — Rất nhiều. Mê tín thường bắt đầu từ một trùng hợp "A trước B" rồi kết luận nhân quả, sau đó confirmation bias củng cố thêm.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > "Từ khi cài ứng dụng mới, máy tính chậm hơn. Ứng dụng đó làm máy chậm." Đây có phải post hoc không, hay có thể hợp lý?
 >
 > <details><summary>Đáp án</summary>

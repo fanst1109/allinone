@@ -231,7 +231,7 @@ Vậy cần ~31 bước. (Verify: $5 \\cdot 0.8^{31} \\approx 5 \\cdot 0.000951 
 
 Bạn có thể nhận ra: bước $t$ ta luôn nhân với hệ số $(1 - 2\\eta)$. Với $\\eta = 0.1$, hệ số là $0.8$ → hội tụ nhanh. Với $\\eta = 0.01$, hệ số là $0.98$ → hội tụ chậm (cần ~228 bước cho cùng độ chính xác). Với $\\eta = 0.5$, hệ số là $0$ → một bước tới đích (!). Với $\\eta = 0.6$, hệ số là $-0.2$ → "đu" qua đu lại quanh 0, vẫn hội tụ nhưng dao động. Với $\\eta = 1.1$, hệ số là $-1.2$ → bay ra xa! (sẽ phân tích kỹ ở mục 6.)
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. Với $f(x) = x^2$, $x_0 = 10$, $\\eta = 0.05$, sau 2 bước $x = ?$
 >    <details><summary>Đáp</summary>
@@ -307,7 +307,7 @@ Sau 7 bước, y đã gần 0 (0.14), x còn ~1.05. **Chiều y hội tụ nhanh
 - Khi các chiều có curvature **khác nhau** (gọi là *ill-conditioned*), GD vanilla bị "đu" theo chiều dốc nhanh và bò chậm theo chiều dốc thoải.
 - Mathematical fix: **preconditioning** (chia gradient từng chiều cho căn của curvature). Adam/RMSProp làm gần đúng cái này tự động.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Với $f(x,y) = x^2 + 9y^2$, $(x_0, y_0) = (1, 1)$, $\\eta = 0.1$, tìm $(x_1, y_1)$.
 >

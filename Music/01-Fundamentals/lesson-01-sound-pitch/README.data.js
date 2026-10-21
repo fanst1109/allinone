@@ -86,7 +86,7 @@ Tai người nghe được khoảng **20 Hz đến 20 000 Hz** (20 kHz). Dưới
 
 Đây là lý do A2, A3, A4, A5 cùng tên "A": chúng cách nhau các bội số nguyên của octave (×2, ×4...), nên nghe như "cùng một nốt" lặp lại.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Nốt E4 = 329.63 Hz. E5 là bao nhiêu Hz?
 > 2. Một nốt có tần số 100 Hz. Nốt thấp hơn nó 1 octave là bao nhiêu?
 >
@@ -157,7 +157,7 @@ $$\\text{cents} = 1200 \\cdot \\log_2\\!\\left(\\frac{f_2}{f_1}\\right)$$
 - Quãng 5 đúng (equal temperament, 7 nửa cung): \`700 cents\`. Còn quãng 5 "thuần" tỷ lệ 3:2: \`1200·log₂(1.5) = 701.96 cents\` → lệch ≈ **2 cents** (tai khó phân biệt).
 - Quãng 3 trưởng equal temperament (4 nửa cung) = \`400 cents\`; quãng 3 thuần 5:4 = \`1200·log₂(1.25) = 386.31 cents\` → lệch ≈ **−13.7 cents** (nghe được rõ — lý do hợp âm trên piano "hơi chua" so với hát bè thuần).
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai tần số 440 Hz và 442 Hz lệch bao nhiêu cents?
+> 🔁 **Ôn tập.** Hai tần số 440 Hz và 442 Hz lệch bao nhiêu cents?
 > <details><summary>Đáp án</summary>
 >
 > \`1200·log₂(442/440) = 1200·log₂(1.004545) = 1200·0.006547 = 7.86 cents\`. Lệch ~8 cents — đủ để một tai nhạy nhận ra hai cây đàn "phô" nhau.

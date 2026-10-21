@@ -172,7 +172,7 @@ Khi $z = 10$, $\sigma(z) \approx 0{,}99995$, gradient $\sigma'(z) \approx 0{,}00
 
 Hậu quả: nếu $w^\top x + b$ rất lớn (model rất tự tin), gradient gần $0$ → cập nhật chậm. Đây là một lý do tại sao **deep networks** không dùng sigmoid ở hidden layer (dùng ReLU thay), nhưng vẫn dùng ở **output** cho bài binary.
 
-> 🔁 **Dừng lại tự kiểm tra**  
+> 🔁 **Thực hành**  
 > Cho $z = 2$. Tính $\sigma(z)$ và $\sigma'(z)$.  
 > <details><summary>Đáp án</summary>  
 > $e^{-2} \approx 0{,}1353$, $1 + e^{-2} \approx 1{,}1353$, $\sigma(2) \approx 1/1{,}1353 \approx 0{,}8808$.  
@@ -492,7 +492,7 @@ Khởi tạo $w = (0, 0)$, $b = 0$, $\eta = 0{,}5$. (Lý do $\eta$ to: bộ data
 
 (Số chính xác phụ thuộc seed; xem viz để tự chạy.)
 
-> 🔁 **Dừng lại tự kiểm tra**  
+> 🔁 **Thực hành**  
 > Tại step 1 ở trên, tại sao $\text{grad}_b = 0$ mặc dù dữ liệu không cân?  
 > <details><summary>Đáp án</summary>  
 > Trùng hợp vì $\sum(p-y) = 0{,}5+0{,}5-0{,}5-0{,}5 = 0$ với $p$ đồng đều $= 0{,}5$ và $y$ cân bằng. Bước sau khi $p$ lệch sẽ làm $\text{grad}_b \neq 0$.  

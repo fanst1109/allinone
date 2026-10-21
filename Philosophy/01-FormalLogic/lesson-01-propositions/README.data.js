@@ -56,7 +56,7 @@ Hai điều kiện *đồng thời* phải thỏa:
 > - *"Câu nào cũng phải đúng hoặc sai — vậy mọi câu đều là mệnh đề?"* — Không. Câu hỏi ("Bạn khỏe không?"), mệnh lệnh ("Đóng cửa lại!"), câu cảm thán ("Ôi trời!") không có giá trị chân lý — không thể nói chúng "đúng" hay "sai". Và câu mở ("x + 1 = 5") chưa xác định được vì phụ thuộc biến x chưa gán giá trị.
 > - *"Logic hai giá trị có phải duy nhất không?"* — Không. Có logic ba giá trị (true/false/unknown) và logic mờ (fuzzy logic). Nhưng trong chuỗi này ta học logic cổ điển Aristotle — hai giá trị, nền tảng của mọi logic hình thức và khoa học máy tính.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Câu nào dưới đây là mệnh đề? Nếu là mệnh đề, giá trị chân lý là gì?
 > 1. "3 × 5 = 15"
 > 2. "Trời đang mưa không?"
@@ -139,7 +139,7 @@ Câu tự đề cập đến giá trị chân lý của chính nó theo cách g�
 > - *"Câu mở 'x > 3' không phải mệnh đề — nhưng sau này ta hay viết 'Nếu x > 3 thì...' — có mâu thuẫn không?"* — Không. Trong logic vị từ (Lesson 05), ta dùng **lượng từ** (quantifier): "Với mọi x, nếu x > 3 thì..." hay "Tồn tại x sao cho x > 3" — khi đó câu trở thành mệnh đề vì biến x đã được ràng buộc (bound variable).
 > - *"'Câu này đúng' thì sao — có phải mệnh đề không?"* — Câu "Câu này đúng" không tạo ra mâu thuẫn (nếu gán T thì tự nhất quán, gán F thì cũng tự nhất quán) — đây là câu "không xác định" chứ không phải nghịch lý. Tuy vậy, vì không có nội dung thực sự, logic hình thức cũng không coi đây là mệnh đề có ý nghĩa.
 
-> 🔁 **Dừng lại tự kiểm tra.** Xác định loại của mỗi câu sau:
+> 🔁 **Thực hành.** Xác định loại của mỗi câu sau:
 > 1. "2x = 10"
 > 2. "Hãy giải phương trình này đi."
 > 3. "Câu này là sai."
@@ -195,7 +195,7 @@ Trong bài này ta chỉ làm việc với mệnh đề đơn. Mệnh đề ph�
 > - *"Tại sao dùng p, q, r chứ không dùng A, B, C?"* — Quy ước tùy sách/tác giả. Một số sách dùng A, B, C. Nhưng p, q, r (viết thường) phổ biến hơn trong logic toán học để phân biệt với **tập hợp** (thường dùng A, B, C viết hoa) và **vị từ** (thường dùng P, Q viết hoa trong logic vị từ — Lesson 05). Quy ước này giúp đọc văn bản logic không bị nhầm lẫn.
 > - *"Giá trị chân lý có thể thay đổi không?"* — Trong logic mệnh đề cổ điển, mỗi biến có một giá trị cố định trong một bài toán. Khi làm bảng chân lý (Lesson 02), ta liệt kê tất cả tổ hợp có thể của T/F. Biến p "nhận" giá trị T trong dòng này, F trong dòng khác — nhưng trong mỗi dòng, giá trị là cố định.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho: p = "Mặt Trời là ngôi sao", q = "8 là số lẻ", r = "Nước đóng băng ở 0°C".
 > Giá trị chân lý của p, q, r lần lượt là gì?
 >
@@ -246,7 +246,7 @@ Ví dụ 4: s = "Có vô hạn số nguyên tố dạng 4k+1" (Định lý Diric
 > - *"Vậy logic mờ (fuzzy logic) dùng ở đâu?"* — Fuzzy logic mở rộng giá trị chân lý thành khoảng [0, 1]. Ứng dụng: máy giặt "nước hơi bẩn", điều khiển nhiệt độ, AI mờ. Nhưng nền tảng lý thuyết vẫn xây từ logic cổ điển. Ta sẽ học logic cổ điển hoàn chỉnh trước.
 > - *"Logic ba giá trị (true/false/unknown) có thực tế không?"* — Có, trong cơ sở dữ liệu: SQL dùng logic ba giá trị (TRUE/FALSE/NULL). Điều này dẫn đến nhiều bẫy lập trình thú vị — ví dụ \`NULL = NULL\` trong SQL là NULL (không phải TRUE).
 
-> 🔁 **Dừng lại tự kiểm tra.** Xác định giá trị chân lý:
+> 🔁 **Thực hành.** Xác định giá trị chân lý:
 > 1. "100 là số chính phương" (perfect square)
 > 2. "Mọi số chẵn lớn hơn 2 đều là tổng của hai số nguyên tố" (Goldbach's conjecture)
 > 3. "−1 > −2"

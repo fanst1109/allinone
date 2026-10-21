@@ -166,7 +166,7 @@ Từ khóa `AS` có thể bỏ: `SELECT name ten_san_pham FROM products;` cũng 
 - *"`SELECT *` có hại gì không?"* — Trong code production thường tránh `*` vì: (1) lấy thừa cột làm tốn băng thông, (2) nếu bảng đổi cấu trúc, kết quả đổi theo gây lỗi ngầm. Liệt kê cột rõ ràng an toàn hơn.
 - *"Thứ tự cột trong kết quả theo cái gì?"* — Theo đúng thứ tự bạn viết trong `SELECT`, không theo thứ tự cột trong bảng.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Viết câu lấy `category` và `stock` của mọi sản phẩm.
 2. `SELECT price stock FROM products;` trả về mấy cột?
 
@@ -362,7 +362,7 @@ Các ví dụ minh họa thêm: `WHERE stock = 0` → Chuột không dây (hết
 - *"`stock = 0` và `stock IS NULL` khác nhau ra sao?"* — `0` là "biết chắc tồn kho bằng không" (đã bán hết). `NULL` là "chưa biết tồn kho là bao nhiêu". Khác nhau hoàn toàn về ý nghĩa.
 - *"Một dòng NULL có lọt vào `WHERE price > 500` không?"* — Không. So sánh NULL ra "unknown", mà WHERE chỉ giữ hàng cho kết quả *true*.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Viết câu lấy sản phẩm `electronics` có giá từ 300 đến 900 (bao gồm hai mút).
 2. Vì sao `WHERE stock = NULL` không lấy được dòng có stock NULL?
 
@@ -595,7 +595,7 @@ ORDER BY gia_tri DESC;        -- ✓ alias đã được tạo ở bước SELEC
 - *"Vậy `ORDER BY` dùng alias được, `WHERE` thì không — nhớ thế nào cho dễ?"* — Nhớ vị trí trong dây chuyền: SELECT tạo alias ở **bước 3**. Cái nào *trước* bước 3 (WHERE) không thấy alias; cái nào *sau* (ORDER BY) thấy được.
 - *"`GROUP BY` xen vào đâu?"* — Giữa WHERE và SELECT (sau WHERE, trước SELECT). Sẽ học ở [Lesson 04](../lesson-04-sql-trung-cap/).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Câu nào lỗi, vì sao: `SELECT price*2 AS gp FROM products WHERE gp > 100;`?
 2. Sửa lại câu trên cho chạy được.
 

@@ -91,7 +91,7 @@ Ba câu hỏi cần trả lời trước khi code mọi bài:
 > - *"Tái dùng kiểu này luôn hợp lệ không?"* — Chỉ khi đại lượng cập nhật được **tăng dần** (incrementally): tổng (cộng/trừ), đếm số phần tử thỏa điều kiện (map ++/--). Với "max của window" thì **không** trừ ra được dễ dàng (xem §8).
 > - *"Window có buộc phải kích thước cố định?"* — Không. §3 cho window co giãn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`nums=[4,2,1,7,8,1,2,8,1,0]\`, \`k=2\`, sum max bằng bao nhiêu?
+> 🔁 **Thực hành.** Với \`nums=[4,2,1,7,8,1,2,8,1,0]\`, \`k=2\`, sum max bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 > Các tổng: \`6,3,8,15,9,3,10,9,1\`. Max = **15** (cặp \`[7,8]\`). Trượt: khởi tạo $4+2=6$; rồi $6-4+1=3$; $3-2+7=8$; $8-1+8=15$; ... mỗi bước $O(1)$.
 > </details>
@@ -189,7 +189,7 @@ for r := 0; r < n; r++ {
 >
 > Vì \`l\` **chỉ tăng**, không bao giờ giảm. Trong toàn bộ chạy, \`l\` đi từ $0$ tới $n$ — tức tổng số lần thực thi thân \`while\` (trên TẤT CẢ các vòng \`for\`) tối đa là $n$. Cộng với $n$ lần vòng \`for\` → tổng $2n$ thao tác = $O(n)$. Đây chính là **amortized analysis** ([Lesson 02](../lesson-02-amortized-analysis/)): mỗi phần tử vào window 1 lần (\`r++\`) và ra khỏi window tối đa 1 lần (\`l++\`).
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu thay \`l++\` bằng \`l = 0\` (reset về đầu mỗi lần shrink), độ phức tạp đổi thành gì?
+> 🔁 **Thực hành.** Nếu thay \`l++\` bằng \`l = 0\` (reset về đầu mỗi lần shrink), độ phức tạp đổi thành gì?
 > <details><summary>Đáp án</summary>
 > Thành $O(n^2)$ (tệ hơn). Reset \`l\` phá vỡ tính chất "mỗi phần tử ra khỏi window ≤ 1 lần". Đây là lỗi phổ biến biến sliding window thành brute-force.
 > </details>
@@ -531,7 +531,7 @@ Output \`[3,3,5,5,6,7]\` ✓.
 | 6 | **Cập nhật \`best\` sai chỗ** | "longest" cập nhật trong shrink, "shortest" cập nhật ngoài → sai | longest: ngoài vòng shrink; shortest: trong vòng shrink |
 | 7 | **Deque lưu giá trị thay vì chỉ số** | Không biết front đã hết hạn | Lưu chỉ số, so \`dq[0] <= r-k\` |
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong bài "longest no-repeat", nên cập nhật \`best\` ở đâu — trước hay sau khi nhảy \`l\`?
+> 🔁 **Thực hành.** Trong bài "longest no-repeat", nên cập nhật \`best\` ở đâu — trước hay sau khi nhảy \`l\`?
 > <details><summary>Đáp án</summary>
 > **Sau** khi đã điều chỉnh \`l\` (cập nhật trên window đã hợp lệ \`[l..r]\`). Nếu cập nhật trước, độ dài tính trên window còn chứa ký tự lặp → sai.
 > </details>

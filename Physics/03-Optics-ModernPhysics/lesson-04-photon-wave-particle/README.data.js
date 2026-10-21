@@ -36,7 +36,7 @@ Trước 1900, lý thuyết sóng cổ điển dự đoán: vật đen ở nhi�
 
 ⚠ **Lỗi thường gặp**: tưởng "lượng tử hóa" nghĩa là ánh sáng yếu đi. Không — nghĩa là năng lượng đến theo BƯỚC rời rạc (bội của $hf$), không liên tục mượt mà.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Giá trị và đơn vị của hằng số Planck h?
 2. Theo Planck, năng lượng phát xạ có giá trị bất kỳ hay rời rạc?
@@ -98,7 +98,7 @@ Einstein đoạt **Nobel 1921** cho phát hiện này (không phải tương đ�
 - **Lẫn lộn f và λ.** $E = hf = \\frac{hc}{\\lambda}$. f tăng thì E tăng, nhưng $\\lambda$ tăng thì E GIẢM (vì $\\lambda = c/f$). Ánh sáng tím ($\\lambda$ nhỏ) năng lượng cao hơn đỏ ($\\lambda$ lớn).
 - **Lẫn eV và J.** $1 \\text{ eV} = 1{,}6 \\times 10^{-19} \\text{ J}$. Quên đổi → sai 19 bậc độ lớn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Photon tia X có $f = 3 \\times 10^{18} \\text{ Hz}$. Năng lượng bằng bao nhiêu (J và eV)?
 2. Kim loại có công thoát $\\Phi = 2 \\text{ eV}$. Photon $\\lambda = 400 \\text{ nm}$ ($E \\approx 3{,}1 \\text{ eV}$) có bứt được electron không? Nếu có, động năng cực đại bằng bao nhiêu?
@@ -175,7 +175,7 @@ Mọi thứ trong vũ trụ vừa là sóng vừa là hạt. Tùy thí nghiệm 
 - **Tưởng chỉ ánh sáng mới lưỡng tính.** de Broglie: MỌI vật chất (electron, neutron, nguyên tử, cả phân tử $C_{60}$) đều có tính sóng — đã xác nhận thực nghiệm.
 - **Dùng nhầm vận tốc thay động lượng.** $\\lambda = \\frac{h}{p}$, với $p = mv$. Quên nhân khối lượng → sai hoàn toàn về độ lớn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính $\\lambda$ de Broglie của neutron ($m = 1{,}67 \\times 10^{-27} \\text{ kg}$) đi $v = 2000 \\text{ m/s}$.
 2. Vì sao máy "kính hiển vi điện tử" nhìn được vật nhỏ hơn kính hiển vi quang học?

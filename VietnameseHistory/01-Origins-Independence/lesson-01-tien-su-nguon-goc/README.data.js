@@ -76,7 +76,7 @@ Bước chuyển căn bản của văn hóa Bắc Sơn là xuất hiện công c
 
 Kỹ thuật mài đá và làm gốm → con người có thể sống định cư lâu hơn → hình thành làng nhỏ → dân số tăng → cần sản xuất lương thực chủ động hơn → nông nghiệp lúa nước manh nha.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Câu hỏi: Điểm khác biệt cơ bản nhất giữa văn hóa đồ đá cũ (Sơn Vi) và đồ đá mới (Bắc Sơn) là gì?
 
@@ -178,7 +178,7 @@ Trống đồng không chỉ là nhạc cụ. Chúng được dùng trong nghi l
 
 "Chim Lạc" trên trống đồng không phải là chim lạc đà (ostrich) hay bất kỳ loài chim kỳ lạ nào. Học giới còn tranh luận về loài chim cụ thể được khắc họa — có ý kiến cho là sếu (crane), có ý kiến cho là cò hoặc chim cắt. Điều quan trọng là chức năng biểu tượng của hình ảnh này, không phải danh tính chính xác của loài.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Câu hỏi: Biểu tượng nào ở trung tâm mặt trống đồng Ngọc Lũ, và nó tượng trưng cho điều gì?
 
@@ -276,7 +276,7 @@ Truyền thuyết "Con Rồng cháu Tiên" không phải là lịch sử theo ng
 
 Các nhà sử học phân biệt rõ: **truyền thuyết** (legend) là câu chuyện dân gian mang tính biểu tượng; **lịch sử** là tường thuật dựa trên bằng chứng có thể kiểm chứng. Cả hai đều có giá trị riêng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Câu hỏi: Bằng chứng nào từ ba lĩnh vực nghiên cứu (khảo cổ học, ngôn ngữ học, di truyền học) đều chỉ ra người Việt cổ đại là cư dân bản địa Đông Nam Á?
 

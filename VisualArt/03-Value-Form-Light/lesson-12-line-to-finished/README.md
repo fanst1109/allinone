@@ -130,7 +130,7 @@ Ví dụ số — một khối hộp trong **phối cảnh 1 điểm tụ**, đ�
 - Các cạnh *đi sâu* nối mỗi góc mặt trước về VP $(600,200)$: góc $(520,250)$, $(520,375)$, $(400,250)$, $(400,375)$ đều kéo về $(600,200)$.
 - Mặt sau nằm trên các đường hội tụ đó, nhỏ hơn mặt trước → cảm giác chiều sâu.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Khung $1200 \times 800$. Các đường 1/3 dọc và ngang nằm ở toạ độ nào?
 > 2. Nếu cốc cao 1.30 đơn vị và bạn vẽ nó cao 260 px, thì 1 đơn vị = bao nhiêu px? Quả táo (0.90 đơn vị cao) nên vẽ cao bao nhiêu?
 >
@@ -194,7 +194,7 @@ Ví dụ số — một bố cục mạnh thường chia diện tích **không �
 
 Chia đều $33\%/33\%/33\%$ thường cho cảm giác "lửng lơ, thiếu điểm nhấn"; một mảng nên trội hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sắp các vùng của quả cầu từ **tối nhất** đến **sáng nhất**: nửa sáng, highlight, bóng đổ, vùng sáng, bóng lõi, ánh phản.
+> 🔁 **Ôn tập.** Sắp các vùng của quả cầu từ **tối nhất** đến **sáng nhất**: nửa sáng, highlight, bóng đổ, vùng sáng, bóng lõi, ánh phản.
 >
 > <details><summary>Đáp án</summary>
 >
@@ -240,7 +240,7 @@ Ví dụ số — mặt hướng sáng của khối hộp đã dựng ở **bậ
 > - *"Làm sao biết value của một màu?"* → Chuyển tạm màu đó sang grayscale (nhiều app có nút này), hoặc nheo mắt so với thang xám. Trong hệ HSL, lightness là xấp xỉ nhanh (không hoàn hảo vì mắt nhạy với vàng hơn lam).
 > - *"Bóng có phải chỉ là màu vật tối đi không?"* → Không hẳn — bóng thường **ngả lạnh** và giảm chroma, còn vùng sáng ngả ấm. Nhưng bước đầu, cứ giữ đúng *value* đã là 80% kết quả.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn dựng vùng bậc 4 ($\approx 50\%$) cho một chiếc lá. Trong hai màu lục sau, màu nào giữ đúng khối: `hsl(120,40%,50%)` hay `hsl(120,70%,28%)`?
+> 🔁 **Ôn tập.** Bạn dựng vùng bậc 4 ($\approx 50\%$) cho một chiếc lá. Trong hai màu lục sau, màu nào giữ đúng khối: `hsl(120,40%,50%)` hay `hsl(120,70%,28%)`?
 >
 > <details><summary>Đáp án</summary>
 >

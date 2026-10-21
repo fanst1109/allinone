@@ -192,7 +192,7 @@ Effect size cho proportion: $h = 2 \\arcsin(\\sqrt{p_2}) - 2 \\arcsin(\\sqrt{p_1
 
 $$n = \\dfrac{(1{,}96+0{,}842)^2}{0{,}0986^2} \\approx \\dfrac{7{,}849}{0{,}00972} \\approx \\mathbf{808 \\text{ người mỗi nhóm}} \\ (\\text{1616 tổng})$$
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. $d=0{,}5$, $\\alpha=0{,}05$. Nếu muốn tăng power từ 0,80 lên 0,90, $n$ thay đổi thế nào?
 > <details><summary>Đáp án</summary>
 > Power$=0{,}90$: $n = \\dfrac{2 (1{,}96+1{,}282)^2}{0{,}25} = \\dfrac{2 \\times 10{,}509}{0{,}25} \\approx 84$ mỗi nhóm.

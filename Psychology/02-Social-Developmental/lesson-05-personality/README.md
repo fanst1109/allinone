@@ -85,7 +85,7 @@ Big Five cross-culturally valid — factor structure replicate qua 50+ quốc gi
 1. Personality thay đổi không? → Có, từ từ. Mean-level changes: Conscientiousness và Agreeableness tăng theo tuổi (Roberts et al. 2006). Neuroticism giảm ở trung niên. Rank-order stability: tương đối stable nhưng có room for change (especially with therapy).
 2. Big Five là model duy nhất không? → Không. HEXACO model thêm dimension Honesty-Humility (H). PEN model (Eysenck) chỉ có 3. Nhưng Big Five là standard nhất.
 
-🔁 **Tự kiểm tra**: Một người rất high Openness nhưng low Conscientiousness sẽ look như thế nào ở công việc?
+🔁 **Thực hành**: Một người rất high Openness nhưng low Conscientiousness sẽ look như thế nào ở công việc?
 <details>
 <summary>Đáp án</summary>
 Nhiều ý tưởng sáng tạo, brainstorming tốt, nhưng khó follow through, deadline miss, disorganized. "Creative but unreliable." Combination này predict điểm số học thuật thấp dù IQ cao.
@@ -190,7 +190,7 @@ Nhiều ý tưởng sáng tạo, brainstorming tốt, nhưng khó follow through
 
 ⚠ **Lỗi hay gặp**: "MBTI không tốt nhưng tôi thấy nó phù hợp với mình" → Barnum effect / confirmation bias. Con người rất giỏi tìm bằng chứng confirm identity mình đã được assign.
 
-🔁 **Tự kiểm tra**: Một công ty dùng MBTI để assign team roles (INTJ làm strategic planning, ENFP làm sales). Điều gì có thể sai?
+🔁 **Thực hành**: Một công ty dùng MBTI để assign team roles (INTJ làm strategic planning, ENFP làm sales). Điều gì có thể sai?
 <details>
 <summary>Đáp án</summary>
 1. Reliability kém: 50% sẽ nhận type khác sau 5 tuần — roles bị assign dựa trên unstable measure. 2. Predictive validity thấp: MBTI không predict job performance → assignment không based on evidence. 3. Forced bimodal: người score E=51 và E=85 đều bị gọi là "E" nhưng rất khác nhau. 4. Missing Neuroticism: một người rất anxious và high N sẽ không được identify, ảnh hưởng cách manage. Big Five + structured interview là alternatives tốt hơn.

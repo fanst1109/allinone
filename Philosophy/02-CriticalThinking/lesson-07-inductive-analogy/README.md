@@ -47,7 +47,7 @@ Sau bài này, bạn có thể:
 > - *"Lập luận quy nạp có thể mạnh nhưng kết luận vẫn sai không?"* — Có. Ví dụ: trước năm 1697, người châu Âu quan sát hàng nghìn con thiên nga trắng → lập luận quy nạp mạnh "mọi thiên nga đều trắng". Sau đó người ta phát hiện thiên nga đen ở Úc. Lập luận quy nạp mạnh vẫn có thể bị bác bỏ bởi bằng chứng mới — đó là bản chất của tri thức khoa học: có thể sửa được (fallible).
 > - *"Thế thì quy nạp khác gì đoán mò?"* — Đoán mò không dựa vào bằng chứng có hệ thống. Quy nạp mạnh dựa vào mẫu lớn, đại diện, và phương pháp thu thập dữ liệu kiểm soát được. Xác suất từ quy nạp mạnh có thể đạt 99%+ — trong khi đoán mò là 50/50.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Lập luận sau mạnh hay yếu? "Trong 200 bệnh nhân thử thuốc A trong thử nghiệm lâm sàng kiểm soát ngẫu nhiên, 180 người (90%) hồi phục trong 7 ngày. Vậy thuốc A hiệu quả với bệnh này."
 >
 > <details><summary>Đáp án</summary>
@@ -100,7 +100,7 @@ Mẫu phải phản ánh đa dạng của tổng thể. Lệch mẫu (sampling b
 > - *"Cỡ mẫu bao nhiêu thì đủ?"* — Phụ thuộc vào: (1) độ chính xác cần thiết (biên sai số), (2) độ tin cậy muốn đạt (95%? 99%?), (3) tính đồng nhất của tổng thể. Công thức thống kê cho biên sai số ±3% với độ tin cậy 95% cần khoảng 1.067 quan sát ngẫu nhiên — bất kể tổng thể là 1 triệu hay 1 tỷ người. Điều ngạc nhiên: cỡ mẫu cần thiết không tỷ lệ thuận với tổng thể.
 > - *"Thăm dò ngẫu nhiên hoàn toàn có khả thi không?"* — Trong thực tế rất khó đạt "hoàn toàn ngẫu nhiên". Thống kê học có nhiều phương pháp bù: stratified sampling (phân tầng), cluster sampling (cụm). Quan trọng là nhận ra và ghi nhận các nguồn lệch còn lại, không giả vờ mẫu hoàn hảo khi không phải.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Đánh giá lập luận: "Chúng tôi khảo sát 500 người dùng app của chúng tôi — 92% hài lòng với dịch vụ. Vậy 92% khách hàng hài lòng."
 >
 > <details><summary>Đáp án</summary>
@@ -165,7 +165,7 @@ Lỗi: các điểm tương đồng (xử lý thông tin, lưu trữ) là phép 
 > - *"Làm sao biết điểm tương đồng có 'liên quan' không?"* — Hỏi: "Điểm này có ảnh hưởng trực tiếp tới tính chất P đang kết luận không?" Nếu loại bỏ điểm đó, kết luận có còn đứng vững không? Ví dụ: "đều uống cà phê" không liên quan tới kết luận về năng suất làm việc, nhưng "đều có chu trình ngủ tương tự" thì có.
 > - *"Loại suy có bao giờ cho kết luận chắc chắn không?"* — Không. Ngay cả loại suy rất mạnh cũng chỉ cho "rất có khả năng" — vẫn có thể có điểm dị biệt chưa phát hiện. Đó là lý do trong khoa học, thử nghiệm trên chuột chỉ là bước đầu, không phải bằng chứng cuối cùng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Đánh giá: "Đất nước A giống B ở chỗ: cùng đang phát triển, cùng dân số trẻ, cùng có nền kinh tế chủ yếu nông nghiệp, cùng vừa mở cửa thị trường. B đã tăng trưởng 8%/năm trong 10 năm sau mở cửa. Vậy A cũng sẽ tăng trưởng tương tự."
 >
 > <details><summary>Đáp án</summary>
@@ -214,7 +214,7 @@ Kết luận:  x có thể (có xác suất X%) là B.
 
 > ⚠ **Vấn đề "lớp tham chiếu" (reference class problem):** kết luận phụ thuộc vào lớp nào ta đặt x vào. "Người đàn ông Việt Nam sống đến 75 tuổi." — Có thể dùng lớp "người Việt Nam" (tỷ lệ một kiểu), hoặc "người Việt Nam không hút thuốc" (tỷ lệ khác), hoặc "người Việt Nam sống tại thành phố lớn, đi khám sức khỏe định kỳ" (tỷ lệ khác nữa). Lớp tham chiếu càng cụ thể và liên quan tới x càng tốt.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Đánh giá: "80% bệnh nhân dùng thuốc B hồi phục trong 2 tuần. Chị Hoa mắc bệnh này và dùng thuốc B. Vậy chị Hoa sẽ hồi phục trong 2 tuần."
 >
 > <details><summary>Đáp án</summary>
@@ -265,7 +265,7 @@ Kết luận: H có khả năng đúng.
 > - *"Abduction khác khái quát hóa quy nạp ở điểm nào?"* — Khái quát hóa đi từ nhiều trường hợp cụ thể → quy luật tổng quát. Abduction đi từ các quan sát hiện tại → giải thích nguyên nhân. Khái quát hóa nói về "mẫu hình", abduction nói về "cơ chế/nguyên nhân".
 > - *"Làm thế nào để so sánh các giả thuyết?"* — Tiêu chí: toàn diện (giải thích được bao nhiêu quan sát?), giản tiện (đòi bao nhiêu giả định thêm?), khả năng kiểm chứng (có thể test không?), nhất quán với kiến thức đã có.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Quan sát: Mỗi sáng tôi vào văn phòng, cốc cà phê trên bàn làm việc của tôi đã được pha sẵn. Điều này xảy ra đều đặn trong 3 tháng. Giả thuyết tốt nhất là gì?
 >
 > <details><summary>Đáp án</summary>

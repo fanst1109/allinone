@@ -187,7 +187,7 @@ Amos Tversky và Daniel Kahneman (1974, *Science*) hệ thống hóa chương tr
 
 **Replication**: Kết quả reproduce ở nhiều ngôn ngữ, nhiều format. Ngay cả khi người được nhắc nhở "xác suất và logic," 65–70% vẫn chọn B (Tversky & Kahneman, 1983).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Bài toán Bayes với prevalence 0.1% (rare disease), sensitivity 99%, specificity 99%. Tính P(disease|positive).
 > <details><summary>Đáp án</summary>10,000 người: 10 bệnh, 9,990 khỏe. True positive: 10 × 0.99 = 9.9 ≈ 10. False positive: 9,990 × 0.01 = 99.9 ≈ 100. Tổng positive: 110. P(disease|positive) = 10/110 ≈ 9.1%. Dù test 99% accurate, positive chỉ có 9% khả năng thực sự bệnh vì bệnh cực hiếm.</details>
 > 2. Anchoring: bạn đang mua xe, và người bán đưa ra giá $35,000 trước. Theo kết quả Northcraft & Neale, điều gì sẽ xảy ra với counter-offer của bạn?

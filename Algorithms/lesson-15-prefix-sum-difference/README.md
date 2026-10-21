@@ -136,7 +136,7 @@ func rangeSum(P []int, l, r int) int {
 > - **Off-by-one**: nhầm `P[r] − P[l]` thay vì `P[r+1] − P[l]`. Vì `P` lệch 1 (có `P[0]=0`), đầu phải luôn là `r+1`. Mẹo nhớ: "`P[i]` đếm `i` phần tử đầu tiên" → muốn gồm `a[r]` phải lấy `P[r+1]`.
 > - **Quên `P[0] = 0`**: nếu `P` chỉ dài `n` và `P[0] = a[0]`, công thức trở nên rối (phải xử lý riêng `l == 0`). Dùng độ dài `n+1` với `P[0]=0` cho công thức thống nhất.
 
-> **🔁 Dừng lại tự kiểm tra.** Với `a = [2, 0, 6, 4]`, tính `P` rồi cho biết `sum(1, 3)`.
+> **🔁 Thực hành.** Với `a = [2, 0, 6, 4]`, tính `P` rồi cho biết `sum(1, 3)`.
 > <details><summary>Đáp án</summary>
 >
 > `P = [0, 2, 2, 8, 12]`. `sum(1,3) = P[4] − P[1] = 12 − 2 = 10` (= `0+6+4`). ✓
@@ -246,7 +246,7 @@ func rangeUpdate(n int, ops [][3]int) []int {
 > - **`d[r+1]` tràn**: nếu `d` chỉ dài $n$ thì `d[r+1]` với `r=n-1` lỗi index. Luôn để `d` dài $n+1$.
 > - Difference array chỉ đúng cho update kiểu **cộng vào đoạn** rồi query **một lần ở cuối**. Nếu query xen kẽ update → xem mục 8.
 
-> **🔁 Dừng lại tự kiểm tra.** `n=4`, update `(0,1,+3)` và `(1,3,+2)`. Mảng `a` cuối?
+> **🔁 Thực hành.** `n=4`, update `(0,1,+3)` và `(1,3,+2)`. Mảng `a` cuối?
 > <details><summary>Đáp án</summary>
 >
 > `d`: `(0,1,3)` → `d[0]+=3, d[2]-=3`; `(1,3,2)` → `d[1]+=2, d[4]-=2`. `d = [3, 2, -3, 0, -2]`. Prefix (lấy 4 phần tử): `a = [3, 5, 2, 2]`. Kiểm tra: `a[0]=3, a[1]=3+2=5, a[2]=2, a[3]=2` ✓
@@ -346,7 +346,7 @@ func regionSum(P [][]int, r1, c1, r2, c2 int) int {
 > - **Sai dấu inclusion-exclusion**: nhớ "lớn − trên − trái + góc". Nhầm dấu góc (trừ thay vì cộng) là lỗi phổ biến nhất.
 > - **Off-by-one chỉ số `+1`**: query dùng `r2+1, c2+1` ở góc dưới-phải nhưng `r1, c1` (không +1) ở góc trên-trái — vì `P[r1]` đã là "dải trên không gồm hàng r1".
 
-> **🔁 Dừng lại tự kiểm tra.** Với `P` ở bảng trên, tính tổng cột cuối `(0,2)→(2,2)`.
+> **🔁 Thực hành.** Với `P` ở bảng trên, tính tổng cột cuối `(0,2)→(2,2)`.
 > <details><summary>Đáp án</summary>
 >
 > `P[3][3] − P[0][3] − P[3][2] + P[0][2] = 45 − 0 − 27 + 0 = 18` (= `3+6+9`). ✓

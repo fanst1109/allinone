@@ -39,7 +39,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng "cấp sao cao = sáng". **Ngược lại!** `m = −1.46` (Sirius) **sáng hơn** `m = +6` (sao mờ). Luôn nhớ: **số nhỏ/âm = sáng; số lớn/dương = mờ.**
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao A có $m = 2$, sao B có $m = 5$. Sao nào sáng hơn khi nhìn từ Trái Đất?
+> 🔁 **Thực hành.** Sao A có $m = 2$, sao B có $m = 5$. Sao nào sáng hơn khi nhìn từ Trái Đất?
 > <details><summary>Đáp án</summary>Sao **A** ($m = 2$) sáng hơn, vì số nhỏ hơn. Chênh 3 cấp ⇒ A sáng hơn B khoảng $100^{3/5} \approx 15{,}8$ lần.</details>
 
 ---
@@ -78,7 +78,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Quên dấu trừ → ra kết quả ngược (sáng thành mờ). Cách kiểm tra nhanh: sao sáng hơn phải có m **nhỏ hơn**; nếu phép tính cho ngược, bạn quên dấu $-$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai sao chênh 10 cấp. Tỉ số độ sáng bằng bao nhiêu?
+> 🔁 **Thực hành.** Hai sao chênh 10 cấp. Tỉ số độ sáng bằng bao nhiêu?
 > <details><summary>Đáp án</summary>10 cấp = 2 lần "bậc 5 cấp" $= 100 \times 100 = 10000$ lần. Hoặc: $\dfrac{F_1}{F_2} = 10^{0{,}4 \times 10} = 10^4 = 10000$.</details>
 
 ---
@@ -123,7 +123,7 @@ F &= \frac{3{,}83 \times 10^{26}}{4\pi \times (1{,}496 \times 10^{11})^2} \\
 > - *"Sao trông sáng tức là sao mạnh?"* — **Không nhất thiết.** Sao có thể trông sáng vì *gần* (m nhỏ) hoặc vì *thực sự mạnh* (L lớn). Sirius trông là sao sáng nhất đêm phần lớn vì nó **gần** ($8{,}6$ ly), không phải vì mạnh nhất. M tách hai nguyên nhân đó.
 > - *"Mặt Trời cấp tuyệt đối bao nhiêu?"* — $M_{Sun} \approx +4{,}83$. Nghĩa là nếu đặt Mặt Trời ở 10 pc, nó chỉ là một sao mờ nhạt mắt thường vừa thấy — Mặt Trời thực ra là sao khá tầm thường.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao bị dời ra xa gấp 5 lần. Flux nhận được thay đổi thế nào?
+> 🔁 **Thực hành.** Một sao bị dời ra xa gấp 5 lần. Flux nhận được thay đổi thế nào?
 > <details><summary>Đáp án</summary>$F \propto \dfrac{1}{d^2}$ nên xa gấp 5 → flux giảm $\dfrac{1}{5^2} = \dfrac{1}{25}$ lần (chỉ còn 4%). Sao trông mờ đi nhiều.</details>
 
 ---
@@ -165,7 +165,7 @@ F &= \frac{3{,}83 \times 10^{26}}{4\pi \times (1{,}496 \times 10^{11})^2} \\
 
 > ⚠ **Lỗi thường gặp.** Quên rằng $p$ phải tính bằng **giây cung**, không phải độ. $0{,}1^\circ$ rất khác $0{,}1''$ ($1^\circ = 3600''$). Công thức $d = \dfrac{1}{p}$ chỉ đúng với p tính bằng arcsecond.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao Vega có $p = 0{,}13''$. Khoảng cách bằng bao nhiêu pc và ly?
+> 🔁 **Thực hành.** Sao Vega có $p = 0{,}13''$. Khoảng cách bằng bao nhiêu pc và ly?
 > <details><summary>Đáp án</summary>$d = \dfrac{1}{0{,}13} = 7{,}7 \ \text{pc}$; đổi sang ly: $7{,}7 \times 3{,}26 = 25 \ \text{ly}$. (Vega cách ~25 năm ánh sáng — khớp.)</details>
 
 ---

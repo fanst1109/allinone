@@ -190,7 +190,7 @@ Xử lý ngắt dài có thể block ngắt khác → chia làm 2 phần:
 - Nhầm "ngắt" với "exception" — exception do CPU tự sinh (page fault), ngắt do phần cứng bên ngoài.
 - Nghĩ ISR có thể chạy lâu — ISR phải cực kỳ ngắn gọn. Code dài trong ISR gây missed interrupts và hệ thống bị lag.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Lệnh `read()` của một process đọc từ ổ đĩa SSD: CPU sử dụng interrupt-driven I/O hay polling? Mô tả flow.
 
@@ -318,7 +318,7 @@ module_exit(my_exit);
 - Nhầm driver với firmware — firmware là code chạy trên microcontroller của thiết bị (bên trong card mạng), driver là code trên host CPU.
 - Nghĩ driver phải compile cùng kernel — Không. Kernel module (`.ko`) compile riêng, nạp động. Một số driver builtin thì đúng phải compile cùng kernel.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Bạn cắm USB Wi-Fi vào laptop Linux. Liệt kê các bước xảy ra từ lúc cắm đến lúc `iwconfig` thấy giao diện mới.
 

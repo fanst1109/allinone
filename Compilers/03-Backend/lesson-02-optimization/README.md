@@ -66,7 +66,7 @@ Frontend ưu tiên **đơn giản và đúng**, không ưu tiên gọn. Ba ngu�
 - *"Tối ưu có làm chương trình chạy SAI không?"* — Không được phép. Đó là ràng buộc bất khả xâm phạm — xem §2.
 - *"Tối ưu hóa giúp được bao nhiêu?"* — Tùy code, nhưng từ `-O0` lên `-O2` thường nhanh hơn 2–5×, đôi khi hơn. Vòng lặp số học là nơi hưởng lợi nhất.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Trong `a = 5; b = a + 0; c = b`, có bao nhiêu cơ hội tối ưu?
 2. Phép `0 * q → 0` có an toàn không nếu việc tính `q` có thể làm chương trình treo/lỗi?
 
@@ -109,7 +109,7 @@ Phạm vi phân tích quyết định tối ưu "nhìn xa" được tới đâu:
 
 ❓ **Câu hỏi tự nhiên.** *"Vậy compiler làm sao biết một lời gọi có side effect hay không?"* — Bằng **phân tích thuần khiết (purity analysis)**: nếu hàm chỉ đọc tham số và trả giá trị, không ghi biến toàn cục / không I/O, nó **pure** → tối ưu thoải mái. Khi không chắc, compiler chọn **bảo thủ (conservative)**: coi như có side effect, không xóa. Thà bỏ lỡ một tối ưu còn hơn sinh code sai.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. `t = x + 0` với `x` là `int` → có an toàn để rút thành `t = x` không? Còn nếu `x` là `float`?
 2. Một lệnh `print(y)` mà `y` không được dùng ở đâu sau đó — có phải dead code không?
 
@@ -174,7 +174,7 @@ Nếu `t1`, `t2` không dùng ở đâu khác, DCE (§5) bỏ chúng, chỉ còn
 - *"Folding cần propagation mới gập được `t1 + t2`?"* — Đúng. Bản thân folding chỉ gập khi toán hạng là **literal hằng**. Để gập `t1 + t2` ta cần biết `t1`, `t2` là hằng — đó là việc của **constant propagation** (§4). Hai pass này phối hợp, thường chạy xen kẽ tới khi không còn gì để gập.
 - *"Chia cho 0 thì sao?"* — `t = 5 / 0` **không** được fold thành một hằng cụ thể; compiler để nguyên (chạy mới biết là lỗi runtime) hoặc cảnh báo. Fold thành giá trị bừa = phá ngữ nghĩa.
 
-🔁 **Dừng lại tự kiểm tra.** Fold `t = 3 * 4 - 2`. (Gợi ý: theo thứ tự `*` trước.)
+🔁 **Thực hành.** Fold `t = 3 * 4 - 2`. (Gợi ý: theo thứ tự `*` trước.)
 
 <details><summary>Đáp án</summary>
 
@@ -235,7 +235,7 @@ y = x + 1        ← KHÔNG được thay x bằng 5!
 
 ❓ **Câu hỏi tự nhiên.** *"Phân biệt constant propagation với copy propagation?"* — Constant propagation thay biến bằng **hằng** (`x = 5; y = x` → `y = 5`). Copy propagation thay biến bằng **một biến khác** (`a = b; c = a + 1` → `c = b + 1`). Cùng ý tưởng, khác chỗ thay bằng hằng hay biến.
 
-🔁 **Dừng lại tự kiểm tra.** Propagate + fold:
+🔁 **Thực hành.** Propagate + fold:
 ```
 k = 4
 m = k + k
@@ -336,7 +336,7 @@ Nếu xóa vì "t không dùng" → **mất luôn việc phóng tên lửa**. Sa
 - *"Làm sao biết biến 'không dùng nữa'?"* — Phân tích **liveness**: một biến **live** tại điểm p nếu trên một đường đi từ p còn có lệnh đọc nó **trước khi** nó bị ghi đè. Quét ngược CFG.
 - *"DCE chạy một lần là xong?"* — Không. Xóa một lệnh có thể làm lệnh khác trở thành chết (lệnh kia tính giá trị chỉ để cấp cho lệnh vừa xóa). Nên DCE (và cả pipeline) chạy **lặp tới điểm bất động (fixpoint)** — tới khi một vòng quét không xóa được gì nữa.
 
-🔁 **Dừng lại tự kiểm tra.** Đoạn nào chết?
+🔁 **Thực hành.** Đoạn nào chết?
 ```
 a = 1
 b = 2
@@ -448,7 +448,7 @@ Bốn ví dụ verify:
 
 ❓ **Câu hỏi tự nhiên.** *"Strength reduction còn dùng ở đâu nữa?"* — Mạnh nhất trong **vòng lặp**: thay phép nhân chỉ số `i * step` (tính lại mỗi vòng) bằng một biến cộng dồn `+= step` — xem §7.
 
-🔁 **Dừng lại tự kiểm tra.** Rút gọn tối đa: `a = (m + 0) * 1; b = m * 4; c = m - m`.
+🔁 **Thực hành.** Rút gọn tối đa: `a = (m + 0) * 1; b = m * 4; c = m - m`.
 
 <details><summary>Đáp án</summary>
 

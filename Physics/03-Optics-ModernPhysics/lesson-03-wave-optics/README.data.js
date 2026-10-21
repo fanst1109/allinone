@@ -59,7 +59,7 @@ Tại điểm P bất kỳ, hiệu đường đi từ 2 khe đến P $= \\Delta 
 - **Đảo điều kiện sáng/tối.** Vân SÁNG khi $\\Delta l = n\\lambda$ (nguyên lần); vân TỐI khi $\\Delta l = (n + \\frac{1}{2})\\lambda$ (nửa lẻ). Nhiều người nhớ ngược.
 - **Tưởng cần 2 nguồn vật lý riêng.** Thực tế chỉ cần 1 nguồn kết hợp chia làm hai (2 khe) — đó mới đảm bảo hiệu pha cố định.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\lambda = 600 \\text{ nm}$. Tại điểm P, hiệu quang lộ $\\Delta l = 1500 \\text{ nm}$. Vân sáng hay tối?
 2. Tại điểm Q, $\\Delta l = 1800 \\text{ nm}$. Vân gì?
@@ -118,7 +118,7 @@ Nếu d quá lớn → $\\Delta y$ quá nhỏ → vân quá sát nhau, không ph
 - **Lẫn d và L.** d = khoảng cách GIỮA 2 KHE (rất nhỏ, sub-mm); L = khoảng cách KHE-MÀN (lớn, ~m). Đặt nhầm → kết quả vô lý.
 - **Đếm sai số khoảng.** "5 vân sáng liên tiếp" tạo ra **4 khoảng** Δy, không phải 5. Chia tổng độ dài cho 4.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. $\\lambda = 400 \\text{ nm}$, $d = 0{,}1 \\text{ mm}$, $L = 1{,}5 \\text{ m}$. Tính $\\Delta y$.
 2. Đo được 6 vân sáng liên tiếp trải dài 10 mm. Mỗi $\\Delta y$ bằng bao nhiêu?
@@ -178,7 +178,7 @@ $$\\sin\\theta = \\frac{\\lambda}{a}$$
 - **Tưởng khe càng rộng càng tỏa nhiều.** Ngược lại: khe HẸP tỏa rộng (góc lớn). $\\sin\\theta = \\frac{\\lambda}{a}$ — a nhỏ thì $\\theta$ lớn.
 - **Nghĩ ánh sáng "luôn đi thẳng tuyệt đối".** Đó chỉ là xấp xỉ quang hình, đúng khi khe/vật cản $\\gg \\lambda$. Khi kích thước $\\sim \\lambda$ thì nhiễu xạ rõ.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ánh sáng $\\lambda = 500 \\text{ nm}$ qua khe rộng $a = 1 \\text{ μm}$. Tính góc tới vân tối đầu tiên.
 2. Vì sao radio ($\\lambda \\sim$ vài trăm m) thu được tín hiệu dù có núi/nhà che, còn ánh sáng thì không "vòng" qua được?

@@ -84,7 +84,7 @@ Ngày 25 tháng 12 năm 800, tại Vương cung Thánh đường Thánh Phêrô 
 - *Vì sao Charlemagne lại quan trọng đến vậy?* — Ngoài lãnh thổ rộng lớn, Charlemagne chuẩn hóa tiền tệ, khuyến khích giáo dục (cải cách Caroline), thống nhất luật pháp, và tạo ra mô hình hợp tác nhà thờ–nhà nước mà toàn bộ thời Trung đại châu Âu kế thừa. Nhiều nhà sử học gọi ông là "Cha đẻ của châu Âu".
 - *Đế quốc Frank có phải "La Mã tái sinh" không?* — Không hoàn toàn. Nó mang tên "đế quốc La Mã" nhưng dân số là người German, ngôn ngữ là tiếng Latin mới (tiền thân tiếng Pháp, Ý, Tây Ban Nha) và tiếng Đức, cấu trúc xã hội là phong kiến — hoàn toàn khác La Mã cổ điển.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Năm 800, Charlemagne được trao danh hiệu gì, bởi ai, và ý nghĩa biểu tượng là gì?
 
@@ -146,7 +146,7 @@ Lãnh địa (*manor*) là đơn vị kinh tế–xã hội cơ bản: một vù
 
 Mô hình "kim tự tháp phong kiến" đơn giản hóa thực tế rất phức tạp. Trên thực tế: một lãnh chúa có thể vừa là chư hầu của vua X lại vừa là chư hầu của vua Y ở phần đất khác (hệ thống *liege homage* và *sub-infeudation*). Một hiệp sĩ nghèo đôi khi có ít quyền lực thực tế hơn một nông dân tự do giàu. Giáo hội sở hữu đất đai khổng lồ nhưng không nằm trong chuỗi phong kiến thuần túy. Phong kiến thực tế là mạng lưới hợp đồng chồng chéo, không phải tháp rõ ràng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Điểm khác biệt cơ bản giữa nông nô (*serf*) và nô lệ (*slave*) trong chế độ phong kiến là gì?
 
@@ -213,7 +213,7 @@ Dù quyền lực Giáo hội rất lớn, có những mâu thuẫn nội tại.
 - *Giáo hoàng có thực sự mạnh hơn các vua không?* — Phụ thuộc thời kỳ. Từ thế kỉ XI–XIII, khi Giáo hoàng có thể tuyệt thông và phế truất vua, quyền lực rất cao. Nhưng vào cuối thế kỉ XIII đầu XIV, khi Vương quốc Pháp bắt đầu kiểm soát Giáo hoàng (Cuộc giam cầm Avignon 1309–1377), thế cân bằng đã đổi. Đây là mối quan hệ liên tục thay đổi, không cố định.
 - *"Tuyệt thông" có nghĩa gì trong thực tế?* — Tuyệt thông (*excommunication*) loại một người ra khỏi cộng đồng Kitô giáo: không được dự lễ, không được nhận các phép bí tích, về mặt xã hội bị cô lập. Với một vua, tuyệt thông cho phép chư hầu được "giải thoát" khỏi lời thề trung thành — có thể nổi loạn mà không vi phạm đạo đức. Đây là vũ khí chính trị mạnh.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Sự kiện Canossa (1077) nói lên điều gì về quyền lực của Giáo hoàng so với Hoàng đế vào thế kỉ XI?
 
@@ -298,7 +298,7 @@ Hệ quả quân sự: Về mặt mục tiêu ban đầu, Thập tự chinh th�
 
 - *Tại sao Thập tự chinh thứ tư lại tấn công Constantinople thay vì Đất Thánh?* — Yếu tố chính là nợ nần tài chính: quân Thập tự chinh nợ Venice chi phí vận chuyển, Venice đề nghị họ trả nợ bằng cách tấn công Zara (đối thủ thương mại của Venice) và sau đó Constantinople. Sự kiện này cho thấy lợi ích thương mại đôi khi chi phối mục tiêu tôn giáo.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Ngoài mục tiêu tôn giáo, hai hệ quả kinh tế và văn hóa nào của Thập tự chinh có ảnh hưởng lâu dài đến châu Âu?
 
@@ -368,7 +368,7 @@ Từ thế kỉ XI, các thành phố ở Tây Âu bắt đầu hồi sinh sau n
 - *Cái Chết Đen có phải dịch duy nhất thời Trung đại không?* — Không. Dịch Justinianus (541–549) đã giết chết hàng chục triệu người ở Byzantine và Địa Trung Hải. Nhưng Cái Chết Đen 1347–1351 là trầm trọng nhất về quy mô và hệ quả xã hội ở Tây Âu.
 - *Sao người trung đại không biết "cách tránh dịch"?* — Vi trùng học không tồn tại trước thế kỉ XIX. Tuy nhiên, một số biện pháp ngẫu nhiên có tác dụng: cách ly người bệnh (*quarantine* — từ *quaranta giorni*, "40 ngày" ở Venice) và tránh xa xác chết. Những người chạy trốn thành phố đôi khi sống sót — như nhóm kể chuyện trong *Decameron* của Boccaccio (1353), một trong những tác phẩm văn học quan trọng sinh ra từ thời kỳ này.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 Cái Chết Đen ảnh hưởng đến chế độ phong kiến như thế nào? Nêu ít nhất hai cơ chế.
 

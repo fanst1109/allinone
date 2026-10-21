@@ -40,7 +40,7 @@ Sóng vuông thoả điều kiện Dirichlet (chỉ có 2 điểm nhảy mỗi c
 > - *"Tại sao chỉ dùng tần số bội nguyên $\omega_0, 2\omega_0, 3\omega_0\dots$ mà không phải tần số bất kỳ?"* — Vì $f$ **tuần hoàn chu kỳ $T$**. Một sin chỉ tuần hoàn theo $T$ nếu nó "vừa khít" $k$ chu kỳ trong $T$, tức tần số là bội của $\omega_0$. Sin tần số lẻ (như $1.5\,\omega_0$) sẽ không lặp lại sau mỗi $T$ → phá tính tuần hoàn của tổng.
 > - *"Tổng vô hạn — vậy có thật sự bằng, hay chỉ xấp xỉ?"* — Bằng theo nghĩa: tại mọi điểm $f$ liên tục, tổng riêng phần hội tụ về đúng $f(t)$. Tại điểm nhảy, nó hội tụ về **trung bình** của giá trị hai bên (xem §5).
 
-> 🔁 **Dừng lại tự kiểm tra.** Một tín hiệu có chu kỳ $T = 0.5$ s. Tần số gốc $\omega_0$ và harmonic thứ 3 có tần số bao nhiêu (rad/s)?
+> 🔁 **Thực hành.** Một tín hiệu có chu kỳ $T = 0.5$ s. Tần số gốc $\omega_0$ và harmonic thứ 3 có tần số bao nhiêu (rad/s)?
 > <details><summary>Đáp án</summary>
 >
 > $\omega_0 = \dfrac{2\pi}{T} = \dfrac{2\pi}{0.5} = 4\pi \approx 12.57$ rad/s. Harmonic thứ 3: $3\omega_0 = 12\pi \approx 37.70$ rad/s.
@@ -98,7 +98,7 @@ Lấy $T = 2\pi$ nên $\omega_0 = 1$.
 3. $f(t) = \cos t$. $a_1 = \frac{1}{\pi}\int_0^{2\pi}\cos^2 t\,dt = \frac{1}{\pi}\cdot\pi = 1$; còn lại $0$.
 4. $f(t) = 2\cos t$ có $a_1 = 2$ (tuyến tính — nhân đôi tín hiệu thì nhân đôi mọi hệ số).
 
-> 🔁 **Dừng lại tự kiểm tra.** Tín hiệu $f(t) = 4$ trên chu kỳ $T = 1$. Hệ số $b_3$ bằng bao nhiêu?
+> 🔁 **Thực hành.** Tín hiệu $f(t) = 4$ trên chu kỳ $T = 1$. Hệ số $b_3$ bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
 > $b_3 = \frac{2}{1}\int_0^1 4\sin(3\cdot 2\pi t)\,dt = 8\int_0^1\sin(6\pi t)\,dt = 0$ vì tích phân của sin trên trọn số nguyên chu kỳ luôn bằng 0. Thực ra **mọi** $a_n, b_n$ ($n\ge1$) đều bằng 0 cho hằng số — chỉ còn DC $= 4$.
@@ -161,7 +161,7 @@ $$\frac{4}{\pi}\left(1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \cdots\right)
 
 > ⚠ **Lỗi thường gặp:** quên đổi dấu của tích phân nửa sau ($-1$ nhân vào). Nếu cộng nhầm dấu, hai số hạng triệt tiêu và bạn ra $b_n = 0$ với mọi $n$ — kết quả vô lý (sóng vuông không phải hằng 0).
 
-> 🔁 **Dừng lại tự kiểm tra.** Biên độ harmonic thứ 5 ($b_5$) lớn hơn hay nhỏ hơn harmonic thứ 3, và tỉ lệ bao nhiêu?
+> 🔁 **Thực hành.** Biên độ harmonic thứ 5 ($b_5$) lớn hơn hay nhỏ hơn harmonic thứ 3, và tỉ lệ bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
 > $b_3 = \frac{4}{3\pi} \approx 0.4244$, $b_5 = \frac{4}{5\pi}\approx 0.2546$. $b_5$ nhỏ hơn; tỉ lệ $b_5/b_3 = 3/5 = 0.6$. Biên độ giảm như $1/n$ — harmonic càng cao đóng góp càng ít.
@@ -200,7 +200,7 @@ Khi $N$ tăng, $S_N$ tiến càng gần sóng vuông ở vùng phẳng. Nhưng *
 
 > ❓ **Câu hỏi tự nhiên.** *"Nếu đỉnh không hề thấp đi, sao người ta vẫn nói chuỗi hội tụ về $f$?"* — Vì hội tụ ở đây là **theo từng điểm** (pointwise) tại các điểm $f$ liên tục, và **theo nghĩa năng lượng** ($L^2$): diện tích phần sai lệch tiến về 0 vì vùng overshoot ngày càng hẹp. Chỉ có hội tụ **đều** (uniform) là thất bại — và đó chính xác là điều Gibbs mô tả.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $N \to \infty$, đỉnh Gibbs của một sóng vuông nhảy từ $0$ lên $10$ (biên độ bước nhảy = 10) sẽ chạm tới giá trị bao nhiêu?
+> 🔁 **Thực hành.** Với $N \to \infty$, đỉnh Gibbs của một sóng vuông nhảy từ $0$ lên $10$ (biên độ bước nhảy = 10) sẽ chạm tới giá trị bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
 > Overshoot $\approx 8.95\%$ của biên độ bước nhảy $= 0.0895 \times 10 \approx 0.895$. Đỉnh chạm $\approx 10.895$.

@@ -54,7 +54,7 @@ $$\\text{VaR}_{95\\%} = 1{,}645 \\times 0{,}02 \\times 1.000 = 32{,}9 \\text{ tr
 > - *"VaR 95% = 33 triệu nghĩa là tối đa mất 33 triệu?"* — KHÔNG. Nghĩa là 95% thời gian mất ≤ 33 triệu; 5% thời gian còn lại có thể mất **nhiều hơn nữa** (VaR không cho biết tệ tới đâu — đó là nhược điểm lớn, mục 4).
 > - *"VaR nhiều ngày tính sao?"* — Dùng căn thời gian (Lesson 01): $\\text{VaR}_T = \\text{VaR}_{\\text{ngày}} \\times \\sqrt{T}$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Danh mục 500 triệu, σ ngày 1,5%, tin cậy 99% (z=2,326). VaR ngày?
+> 🔁 **Thực hành.** Danh mục 500 triệu, σ ngày 1,5%, tin cậy 99% (z=2,326). VaR ngày?
 > <details><summary>Đáp án</summary>$\\text{VaR} = 2{,}326 \\times 0{,}015 \\times 500 = 17{,}4$ triệu.</details>
 
 ---

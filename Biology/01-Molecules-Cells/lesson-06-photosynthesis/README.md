@@ -69,7 +69,7 @@ A: Không biến mất — nó **chuyển thành năng lượng hóa học** lư
 - **Nghĩ "quang hợp tạo năng lượng"**: chính xác hơn là **tích lũy/lưu trữ** năng lượng (từ ánh sáng vào liên kết hóa học), không phải "tạo ra" năng lượng từ hư không (vi phạm bảo toàn năng lượng).
 - **Nhầm phương trình quang hợp = đảo hệ số bừa của hô hấp**: hai phương trình đối xứng đúng từng hệ số (6:6:1:6), nhưng **cơ chế bên trong hoàn toàn khác** — không phải "chạy ngược cùng một dây chuyền".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một cây trong phòng kín, tối hoàn toàn 24 giờ. Nồng độ O₂ trong phòng tăng hay giảm? Vì sao?
 2. Carbon trong glucose ở trạng thái oxy hóa hay khử so với carbon trong CO₂?
@@ -126,7 +126,7 @@ A: Để **tối đa hóa diện tích bề mặt** bắt ánh sáng trong một
 - **Nhầm lục lạp với ti thể**: ti thể làm **hô hấp** (Lesson 05), lục lạp làm **quang hợp**. Cả hai đều có màng kép và đều tạo ATP nhờ gradient H⁺, nhưng chiều và mục đích ngược nhau.
 - **Nghĩ "pha tối chỉ chạy ban đêm"**: sai do tên gọi — thực tế Calvin chạy ban ngày khi có sẵn ATP+NADPH.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Quang phân ly nước (tạo O₂) diễn ra ở vùng nào của lục lạp?
 2. Nếu một chất độc phá hủy chỉ riêng màng thylakoid (giữ nguyên stroma), pha nào ngừng trước, và vì sao pha kia cũng dừng theo?
@@ -206,7 +206,7 @@ A: Một photon "đá" electron lên một mức năng lượng, nhưng chưa đ
 - **Nhầm thứ tự hệ quang**: electron đi **PSII → PSI** dù tên là "II trước I".
 - **Nghĩ pha sáng tạo đường**: pha sáng **không** tạo đường — nó chỉ tạo ATP, NADPH và thải O₂. Đường được tạo ở chu trình Calvin.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một cây quang hợp thải ra 5 phân tử O₂. Đã tách bao nhiêu phân tử nước, giải phóng bao nhiêu electron?
 2. Trong thí nghiệm đồng vị, cây nhận H₂¹⁸O và CO₂ thường. O₂ thải ra chứa đồng vị nào? Kết luận gì?
@@ -283,7 +283,7 @@ A: Vì khi cố định 3 CO₂, chu trình tạo ra tổng cộng 6 phân tử 
 - **Quên Calvin cần ATP+NADPH**: dù không cần ánh sáng trực tiếp, Calvin **dừng** ngay khi hết ATP+NADPH.
 - **Nhầm sản phẩm trực tiếp là glucose**: sản phẩm trực tiếp của Calvin là **G3P**; glucose chỉ được ghép từ 2 G3P sau đó.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Để tạo 4 phân tử glucose, cây cần cố định bao nhiêu CO₂, tiêu bao nhiêu ATP và NADPH, quay bao nhiêu vòng Calvin?
 2. Một tế bào cố định được 9 CO₂. Tạo ra bao nhiêu G3P ròng? Đủ ghép thành mấy glucose, còn dư G3P không?
@@ -350,7 +350,7 @@ A: Mùa thu cây ngừng tạo diệp lục (xanh lục) → diệp lục cũ ph
 - **Nghĩ mọi bước sóng quang hợp như nhau**: không — xanh tím và đỏ hiệu quả cao, lục thấp.
 - **Nhầm phổ hấp thụ với phổ ánh sáng**: phổ hấp thụ là "diệp lục ăn bước sóng nào", không phải toàn bộ dải ánh sáng mặt trời.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Chiếu cùng cường độ ba loại đèn (đỏ 660 nm, lục 550 nm, xanh tím 430 nm) lên ba cây giống nhau. Cây nào quang hợp yếu nhất? Vì sao?
 2. Lá có màu xanh lục nói lên điều gì về ánh sáng mà nó hấp thụ?
@@ -413,7 +413,7 @@ A: Vì quang hợp phụ thuộc enzyme (đặc biệt RuBisCO). Nhiệt độ v
 - **Nghĩ nhiệt độ cao luôn tốt**: sai — quá nóng làm RuBisCO biến tính, tốc độ tụt.
 - **Quên rằng chỉ MỘT yếu tố giới hạn tại một thời điểm**: muốn tăng tốc, phải nới đúng yếu tố đang "kẹt", nới yếu tố khác vô ích.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một cây ở ánh sáng yếu. Tăng nồng độ CO₂ lên gấp 3 nhưng tốc độ quang hợp gần như không đổi. Yếu tố giới hạn ở đây là gì?
 2. Vì sao đường cong "tốc độ theo nhiệt độ" đi lên rồi đổ xuống, còn đường cong "tốc độ theo ánh sáng" đi lên rồi nằm ngang?

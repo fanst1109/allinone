@@ -49,7 +49,7 @@ Câu trả lời ngắn: **thêm bit dư thừa (redundancy)**. Ta gửi nhiều
 - *"Thêm bit dư thì tốn băng thông, có đáng không?"* — Đáng, vì chi phí dư thừa (vài %) nhỏ hơn nhiều so với chi phí một file hỏng âm thầm. Cân bằng giữa "tốn bit" và "an toàn" chính là nội dung cả bài này.
 - *"Phát hiện được MỌI lỗi không?"* — Không. Không có sơ đồ nào bắt được 100% lỗi với số bit dư hữu hạn. Mỗi sơ đồ chỉ đảm bảo bắt được một **lớp lỗi** nhất định (vd parity bắt mọi lỗi lẻ-bit). Đây là điểm dễ hiểu nhầm nhất, ta sẽ làm rõ ở từng phần.
 
-🔁 **Dừng lại tự kiểm tra**: Detection và correction khác nhau ở đâu? Cái nào cần nhiều bit dư hơn?
+🔁 **Thực hành**: Detection và correction khác nhau ở đâu? Cái nào cần nhiều bit dư hơn?
 
 <details><summary>Đáp án</summary>
 
@@ -116,7 +116,7 @@ Bên nhận XOR tất cả = 0  →  ✅ "có vẻ đúng" — nhưng SAI! Bỏ 
 - *"Parity sửa được lỗi không?"* — Không. Nó báo "có lỗi lẻ-bit" nhưng **không biết bit nào**. 1 parity bit không đủ thông tin để định vị. Muốn sửa phải dùng Hamming (mục 5).
 - *"Even hay odd parity tốt hơn?"* — Khả năng phát hiện như nhau. Odd parity có ưu điểm nhỏ: chuỗi toàn `0` (`00000000`) là hợp lệ với even nhưng không với odd → odd bắt được lỗi "đường truyền chết im thành toàn 0".
 
-🔁 **Dừng lại tự kiểm tra**: Dữ liệu `1101`. Even parity bit là gì? Nếu bit đầu lật, bên nhận có phát hiện không?
+🔁 **Thực hành**: Dữ liệu `1101`. Even parity bit là gì? Nếu bit đầu lật, bên nhận có phát hiện không?
 
 <details><summary>Đáp án</summary>
 
@@ -186,7 +186,7 @@ Bù trừ: [0x15, 0x1B]  sum = 0x30   ← cùng checksum, KHÔNG phát hiện
 
 Đây chính là lý do người ta cần **CRC** (mục 4): CRC nhạy với cả thứ tự và vị trí bit, không bị "bù trừ".
 
-🔁 **Dừng lại tự kiểm tra**: Tính checksum đơn giản (mod 256) của `[0x80, 0x80]`. Nếu cả hai từ cùng lật bit cao nhất thành `0x00`, checksum có bắt được không?
+🔁 **Thực hành**: Tính checksum đơn giản (mod 256) của `[0x80, 0x80]`. Nếu cả hai từ cùng lật bit cao nhất thành `0x00`, checksum có bắt được không?
 
 <details><summary>Đáp án</summary>
 
@@ -315,7 +315,7 @@ Generator được chọn theo lý thuyết đại số (không phải tùy ti�
 - *"Vì sao XOR mà không phải cộng có nhớ?"* — Số học GF(2) (XOR) làm phép chia có tính chất đại số đẹp, không bị "bù trừ" như cộng thường, và phần cứng cài bằng thanh ghi dịch (shift register) + cổng XOR cực nhanh.
 - *"Liên hệ bitwise XOR ở đâu?"* — Mỗi "bước trừ" trong chia CRC chính là một phép `XOR` 5 bit. Toàn bộ CRC = chuỗi XOR có hệ thống. Đây đúng là [bitwise XOR](../../01-NumberRepresentation/lesson-02-bitwise-ops/) áp dụng quy mô lớn.
 
-🔁 **Dừng lại tự kiểm tra**: Với `G = 10011` (bậc 4), CRC sẽ dài bao nhiêu bit? Trước khi chia, data được nối thêm bao nhiêu số `0`?
+🔁 **Thực hành**: Với `G = 10011` (bậc 4), CRC sẽ dài bao nhiêu bit? Trước khi chia, data được nối thêm bao nhiêu số `0`?
 
 <details><summary>Đáp án</summary>
 
@@ -452,7 +452,7 @@ syndrome = s4 s2 s1 = 0 1 0 = 2  → lỗi ở vị trí 2, sửa → 0011001 �
 - *"Syndrome = 0 chắc chắn không lỗi?"* — Chỉ chắc chắn khi ≤ 1 bit lỗi. Với ≥ 3 bit lỗi syndrome có thể tình cờ = 0 (lỗi rơi đúng vào một codeword hợp lệ khác). Mọi mã đều có giới hạn này.
 - *"Vì sao lại tốn tận 3 bit cho 4 bit data?"* — Để định vị 1 trong 7 vị trí (+ trường hợp "không lỗi") cần phân biệt 8 khả năng = 2³ → tối thiểu 3 bit syndrome. Đó là chi phí của *correction* so với *detection*.
 
-🔁 **Dừng lại tự kiểm tra**: Nhận codeword `1100100` (cho là Hamming(7,4)). Tính syndrome và sửa (nếu cần).
+🔁 **Thực hành**: Nhận codeword `1100100` (cho là Hamming(7,4)). Tính syndrome và sửa (nếu cần).
 
 <details><summary>Đáp án</summary>
 
@@ -511,7 +511,7 @@ $$\boxed{\text{Phát hiện được tới } d_{\min}-1 \text{ bit lỗi} \qquad
 - *"Muốn sửa 2 bit cần `d_min` bao nhiêu?"* — `d_min ≥ 5` (vì `t=2` cần `d_min ≥ 2·2+1 = 5`). Đắt hơn nhiều → ít dùng trừ kênh rất nhiễu.
 - *"Vì sao parity chỉ `d_min = 2`?"* — Đổi 1 bit data làm parity đổi theo → hai codeword hợp lệ gần nhất khác nhau **2 vị trí** (1 data + 1 parity). Nên phát hiện 1, sửa 0 — đúng như mục 2.
 
-🔁 **Dừng lại tự kiểm tra**: Một bộ mã có `d_min = 4`. Nó phát hiện được tối đa mấy bit? Sửa được mấy bit?
+🔁 **Thực hành**: Một bộ mã có `d_min = 4`. Nó phát hiện được tối đa mấy bit? Sửa được mấy bit?
 
 <details><summary>Đáp án</summary>
 

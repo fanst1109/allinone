@@ -120,7 +120,7 @@ Vậy `hsv(210,80,70) = rgb(36, 107, 179) = #246BB3`. Kiểm tra ngược mã he
 > - *"S=0 mà V=50% thì màu gì?"* → Xám trung tính `rgb(128,128,128) = #808080`. Không hue vì không bão hòa.
 > - *"Tại sao dân web hay dùng HSL hơn HSV?"* → Vì L đối xứng quanh 50% giúp sinh nhanh "màu nhạt / màu đậm" của cùng một hue cho theme sáng/tối. Sẽ dùng nhiều ở các bài về phối màu.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. `#00FF00` là màu gì, hue bao nhiêu độ?
 > 2. Một màu có `S = 0%`. Đổi Hue từ 40° sang 250° thì màu đổi không?
 >
@@ -202,7 +202,7 @@ Xếp hết 12 cung theo thứ tự (mỗi cung cách nhau 30° trên vòng RYB)
 
 > ⚠ **Lỗi thường gặp.** Gọi *mọi* màu nhạt là "tint". Sai: hồng phấn `#FFABAB` là tint (chỉ thêm trắng), nhưng đỏ gạch `#C04040` là **tone** (thêm xám) — tuy cũng "nhạt hơn đỏ" nhưng đục chứ không sáng. Phân biệt bằng Value: tint làm Value **không giảm**; tone làm Value **giảm** đi kèm Saturation giảm.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Trộn lục `rgb(0,255,0)` với 50% đen. Kết quả RGB & hex? Là tint, shade hay tone?
 > 2. Một màu có `hsv(120, 40%, 100%)`. So với lục nguyên chất `hsv(120,100,100)`, đây là kiểu sắc độ gì?
 >

@@ -177,7 +177,7 @@ Dấu ngoặc \`(\` \`)\` đã **biến mất** khỏi AST — không phải vì
 > - *"Vậy parser phải tạo parse tree rồi mới rút ra AST à?"* — Không bắt buộc. Recursive-descent / Pratt parser (L04, L05) thường **tạo thẳng AST**, bỏ qua parse tree đầy đủ. Parse tree đầy đủ chủ yếu xuất hiện ở các parser sinh tự động (yacc/ANTLR) hoặc khi cần.
 > - *"Mất dấu ngoặc thì lúc in lại mã có sai thứ tự không?"* — Không, vì khi in lại từ AST ta **tự thêm ngoặc** đúng chỗ dựa trên độ ưu tiên (xem mục 6). Hình dạng cây đã giữ đủ thông tin.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Biểu thức \`(a)\` (một biến trong ngoặc) có AST là gì?
 > 2. Vì sao AST của \`2+3*4\` và \`2+(3*4)\` giống hệt nhau?
 >
@@ -267,7 +267,7 @@ Mỗi biểu thức nguồn ↦ một giá trị \`Expr\` cụ thể:
 > - *"Vì sao \`BinaryOp\` không tách riêng \`AddOp\`, \`MulOp\`...?"* — Có thể tách, nhưng gộp vào một \`BinaryOp\` với trường \`Op string\` gọn hơn khi mọi toán tử nhị phân duyệt giống nhau (đều có 2 con). Tách riêng chỉ đáng khi mỗi toán tử có *cấu trúc* khác nhau, không chỉ khác *tên*.
 > - *"\`NumberLit\` và \`Var\` đều là lá (leaf) — gộp được không?"* — Không nên. Chúng khác ngữ nghĩa: \`NumberLit\` đã có giá trị; \`Var\` phải *tra cứu* giá trị trong môi trường (sẽ học ở L07 Symbol Table). Visitor xử lý chúng khác nhau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết giá trị \`Expr\` cho \`-(a + 1)\`.
+> 🔁 **Thực hành.** Viết giá trị \`Expr\` cho \`-(a + 1)\`.
 >
 > <details><summary>Đáp án</summary>
 >
@@ -360,7 +360,7 @@ Cùng cây \`(2+3)*4\`, node ghi nhãn \`*\`, \`+\`, \`2\`, \`3\`, \`4\`:
 3. **Post-order** (L→R→N): \`2, 3, +, 4, *\` → đọc là postfix \`2 3 + 4 *\`.
 4. **Cây khác — \`a + b * c\`** (\`*\` dưới \`+\`), post-order: \`a, b, c, *, +\`.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cây của \`-(2 * 3)\`: node ngoài là \`UnaryOp(-)\`, con là \`BinaryOp(*)\` với hai lá \`2\`, \`3\`. Viết thứ tự **post-order** và tính eval.
+> 🔁 **Thực hành.** Cây của \`-(2 * 3)\`: node ngoài là \`UnaryOp(-)\`, con là \`BinaryOp(*)\` với hai lá \`2\`, \`3\`. Viết thứ tự **post-order** và tính eval.
 >
 > <details><summary>Đáp án</summary>
 >
@@ -482,7 +482,7 @@ Hai cách tương đương về tư tưởng (đều tách thao tác khỏi node
 > - *"\`any\` (interface{}) làm mất type safety không?"* — Có phần. Đó là giá của Visitor tổng quát trong Go (chưa generic hóa). Có thể dùng generics \`Visitor[T]\` để mỗi visitor trả kiểu riêng (Eval→float64, Print→string), an toàn hơn nhưng dài hơn.
 > - *"Visitor luôn post-order à?"* — Không. Bạn quyết định *khi nào* gọi \`Accept\` trên con. Gọi sau khi xử lý node = pre-order; gọi trước = post-order. Eval cần post-order; một visitor in cây có thể pre-order.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn cần thêm thao tác "thu thập tên mọi biến (\`Var\`) trong cây". Visitor hay type switch? Phác cấu trúc.
+> 🔁 **Thực hành.** Bạn cần thêm thao tác "thu thập tên mọi biến (\`Var\`) trong cây". Visitor hay type switch? Phác cấu trúc.
 >
 > <details><summary>Đáp án</summary>
 >

@@ -70,7 +70,7 @@ Cả Bồ Đào Nha và Tây Ban Nha đều kết hợp tham vọng thương m�
 - Vị trí địa lý rìa Đại Tây Dương của Bồ Đào Nha và Tây Ban Nha là lợi thế đặc biệt.
 - Tiến bộ kỹ thuật: tàu caravel, la bàn, astrolabe, bản đồ — thiếu một trong số này thì không thể thám hiểm đại dương xa bờ.
 
-🔁 **Dừng lại tự kiểm tra**: Vì sao Bồ Đào Nha và Tây Ban Nha — chứ không phải Anh, Pháp hay Ý — là hai nước đi đầu phát kiến địa lý?
+🔁 **Ôn tập**: Vì sao Bồ Đào Nha và Tây Ban Nha — chứ không phải Anh, Pháp hay Ý — là hai nước đi đầu phát kiến địa lý?
 
 <details>
 <summary>Đáp án</summary>
@@ -132,7 +132,7 @@ Hai lý do chính: (1) Vị trí địa lý — nằm ở rìa tây Đại Tây 
 - Dias (1488) chứng minh châu Phi có tận cùng và con đường biển sang Ấn Độ khả thi.
 - Da Gama (1498) hoàn thành mục tiêu: đặt chân lên đất Ấn Độ bằng đường biển, mở ra độc quyền thương mại gia vị cho Bồ Đào Nha.
 
-🔁 **Dừng lại tự kiểm tra**: Vì sao Bồ Đào Nha cần đến hơn 80 năm để đi từ Ceuta (1415) đến Calicut (1498)?
+🔁 **Ôn tập**: Vì sao Bồ Đào Nha cần đến hơn 80 năm để đi từ Ceuta (1415) đến Calicut (1498)?
 
 <details>
 <summary>Đáp án</summary>
@@ -184,7 +184,7 @@ Vì đây là quá trình khám phá thực sự từng bước, không ai biế
 - Magellan–Elcano (1519–1522) hoàn thành vòng tròn đầu tiên quanh Trái Đất, chứng minh thực nghiệm hình cầu của hành tinh và quy mô thực của Thái Bình Dương.
 - Hai cường quốc Iberia chia nhau quyền thống trị đại dương qua Điều ước Tordesillas (1494).
 
-🔁 **Dừng lại tự kiểm tra**: Tại sao chuyến đi của Columbus năm 1492 được coi là bước ngoặt lịch sử dù người Norse đã đến châu Mỹ từ trước?
+🔁 **Ôn tập**: Tại sao chuyến đi của Columbus năm 1492 được coi là bước ngoặt lịch sử dù người Norse đã đến châu Mỹ từ trước?
 
 <details>
 <summary>Đáp án</summary>
@@ -245,7 +245,7 @@ Dân số bản địa suy giảm mạnh tạo ra "thiếu lao động" theo nh�
 - Chiều Cựu→Tân: dịch bệnh tàn phá dân số bản địa châu Mỹ ở quy mô khủng khiếp; dẫn đến sự sụp đổ của Aztec và Inca; mở đường cho buôn bán nô lệ xuyên Đại Tây Dương.
 - Sự kiện này không thể chỉ đánh giá một chiều — cần nhìn từ nhiều góc độ: người châu Âu, người bản địa, người châu Phi bị bắt làm nô lệ.
 
-🔁 **Dừng lại tự kiểm tra**: Vì sao dịch bệnh mà không phải vũ khí là yếu tố quan trọng nhất trong sự sụp đổ của Aztec và Inca?
+🔁 **Ôn tập**: Vì sao dịch bệnh mà không phải vũ khí là yếu tố quan trọng nhất trong sự sụp đổ của Aztec và Inca?
 
 <details>
 <summary>Đáp án</summary>

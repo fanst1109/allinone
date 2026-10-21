@@ -82,7 +82,7 @@ Bốn mục tiếp theo mổ xẻ từng tầng. Cuối cùng, mục 5 ghép t�
 
 > ⚠ **Lỗi thường gặp.** *"Pose-to-pose = luôn mượt, straight-ahead = luôn sống."* Sai cả hai vế. Pose-to-pose mà inbetween nội suy tuyến tính (spacing đều) sẽ **cứng như robot** — đúng cái lỗi ở [Lesson 01](../../01-Principles/lesson-01-timing-spacing/). Còn straight-ahead cẩu thả thì thành **rung giật vô nghĩa**, không phải "sống". Chất lượng nằm ở *tay nghề*, không ở phương pháp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn cần làm: (1) nhân vật nói "Xin chào" đúng khẩu hình; (2) một tia lửa bắn ra từ pháo hoa. Mỗi cái nên dùng phương pháp nào?
+> 🔁 **Ôn tập.** Bạn cần làm: (1) nhân vật nói "Xin chào" đúng khẩu hình; (2) một tia lửa bắn ra từ pháo hoa. Mỗi cái nên dùng phương pháp nào?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -118,7 +118,7 @@ Nhận xét: hành động **càng nhanh, tỉ lệ key càng cao** (cú đấm 
 
 > ⚠ **Lỗi thường gặp.** Coi inbetween là *trung điểm hình học* của hai key. Trung điểm đều = spacing đều = robot. Đúng ra, phân bố inbetween phải **theo ease**: dồn frame về gần key khi vào/ra chậm. Ví dụ giữa K3 (takeoff) và K4 (apex), inbetween phải **chụm dần về phía apex** để có *hang time* — xem [Lesson 04](../../01-Principles/lesson-04-ease-in-out/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Một shot 0.5 s @ 24 fps có 4 key. Nếu tỉ lệ key nên rơi khoảng 25–30% cho hành động vừa, số key này *hợp lý* không? Còn bao nhiêu frame là inbetween/breakdown?
+> 🔁 **Ôn tập.** Một shot 0.5 s @ 24 fps có 4 key. Nếu tỉ lệ key nên rơi khoảng 25–30% cho hành động vừa, số key này *hợp lý* không? Còn bao nhiêu frame là inbetween/breakdown?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -157,7 +157,7 @@ Khi đã có key, phần mềm hỏi bạn: *nối các key bằng cách nào đ
 > - *"Sao không làm spline luôn cho nhanh?"* → Vì spline mượt che lỗi. Một pose xấu trong spline vẫn "trôi qua êm", bạn không nhận ra tới lúc render. Stepped ép bạn nhìn thẳng từng pose.
 > - *"Stepped có phải là 'on twos/threes' không?"* → Không hẳn. "On twos" là *cách chiếu* (1 bản vẽ cho 2 frame) áp dụng cả khi đã mượt; Stepped là *chế độ review* giữ pose tới tận key sau. Khác mục đích.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đạo diễn xem bản blocking và nói *"pose đỉnh (apex) chưa đủ cao và tới trễ nửa nhịp"*. Bạn nên đang ở chế độ nào, và sửa gì?
+> 🔁 **Ôn tập.** Đạo diễn xem bản blocking và nói *"pose đỉnh (apex) chưa đủ cao và tới trễ nửa nhịp"*. Bạn nên đang ở chế độ nào, và sửa gì?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -192,7 +192,7 @@ Bảng dưới cho thấy **mỗi nguyên lý đóng góp gì** — và điều 
 
 Bật ease làm bóng ở gần đỉnh **lâu hơn 2.3 lần** (0.29 vs 0.13 s) *mà không đổi tổng thời lượng shot* — đúng bản chất "spacing tạo cảm giác, timing giữ nguyên" từ [Lesson 01](../../01-Principles/lesson-01-timing-spacing/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong viz, bạn tắt **hết** nguyên lý rồi bấm Play. Mô tả chuyển động sẽ trông thế nào? Rồi bật **riêng** Arc + Ease — khác gì?
+> 🔁 **Ôn tập.** Trong viz, bạn tắt **hết** nguyên lý rồi bấm Play. Mô tả chuyển động sẽ trông thế nào? Rồi bật **riêng** Arc + Ease — khác gì?
 >
 > <details><summary>Đáp án</summary>
 >

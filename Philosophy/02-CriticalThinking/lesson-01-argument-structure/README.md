@@ -77,7 +77,7 @@ Một tiền đề là đủ để rút kết luận (dù lập luận này bỏ
 > - *"Lập luận có phải luôn bằng lời nói không?"* — Không. Lập luận có thể được trình bày qua hình ảnh (một poster "Hút thuốc gây ung thư — hãy bỏ thuốc"), qua số liệu, hay qua hành động. Trong bài này ta tập trung vào lập luận bằng ngôn ngữ để rèn kỹ năng nhận diện cấu trúc.
 > - *"Một lập luận có thể có nhiều kết luận không?"* — Theo định nghĩa chuẩn: không. Một lập luận chỉ có một kết luận chính (main conclusion). Nhưng trong lập luận chuỗi (mục 3), có *kết luận phụ* (sub-conclusion) đóng vai tiền đề cho kết luận chính.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Đoạn nào dưới đây là lập luận?
 > 1. "Hôm nay trời nắng. Tôi mặc áo trắng. Đường phố đông người."
 > 2. "Bạn nên mang ô vì dự báo thời tiết nói trời sẽ mưa chiều nay."
@@ -138,7 +138,7 @@ Các từ/cụm từ thường đứng trước hoặc kèm theo kết luận:
 > ⚠ **Lỗi thường gặp 2: thiếu từ chỉ dẫn không có nghĩa là không có lập luận.** Nhiều lập luận trong tiếng Việt hàng ngày bỏ qua từ chỉ dẫn:
 > "Trời sắp mưa. Bạn hãy mang ô." — không có "vì" hay "vậy", nhưng câu 1 rõ ràng là tiền đề cho câu 2.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Trong mỗi đoạn sau, tìm từ chỉ dẫn và xác định câu nào là tiền đề, câu nào là kết luận:
 > 1. "Bởi vì chó là động vật có vú, và mọi động vật có vú đều nuôi con bằng sữa, suy ra chó nuôi con bằng sữa."
 > 2. "Nhiệt độ Trái Đất đang tăng do lượng CO₂ trong khí quyển tăng. Vì thế, ta cần giảm sử dụng nhiên liệu hóa thạch."
@@ -265,7 +265,7 @@ T1 → KL_phụ → KL_chính
 > - *"Một lập luận có thể kết hợp cả hai kiểu không?"* — Có. Ví dụ: T1+T2 là linked (cần nhau để rút ra KL_phụ), rồi KL_phụ + T3 (independent) cùng ủng hộ KL_chính.
 > - *"Vì sao phân biệt ba kiểu này quan trọng?"* — Vì nó quyết định chiến lược phản biện. Với tiền đề độc lập: phải phản bác từng tiền đề một, vì mỗi cái tự đứng vững. Với tiền đề liên kết: chỉ cần phản bác một tiền đề là đủ làm sụp cả lập luận.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phân loại sơ đồ lập luận:
 > 1. "Bạn nên học thêm tiếng Anh vì tiếng Anh là ngôn ngữ quốc tế, và vì công ty bạn muốn vào yêu cầu tiếng Anh."
 > 2. "Nếu bạn thức khuya thì bạn sẽ mệt sáng hôm sau. Bạn đang thức khuya. Vậy sáng mai bạn sẽ mệt."
@@ -344,7 +344,7 @@ Nhiều tiền đề ẩn kết hợp — quảng cáo ẩn hết để câu ng�
 > - *"Khi nào bỏ tiền đề ẩn là hợp lý, khi nào là nguy hiểm?"* — Hợp lý: khi tiền đề ẩn là chân lý phổ quát mà mọi người đồng ý (ví dụ "mọi người đều chết"). Nguy hiểm: khi tiền đề ẩn là giả định tranh cãi được, hoặc khi người nghe có thể bị dắt mũi mà không nhận ra.
 > - *"Enthymeme có phải là ngụy biện không?"* — Không nhất thiết. Enthymeme là trình bày rút gọn, không sai về bản chất. Ngụy biện (fallacy) là lỗi trong cấu trúc suy luận. Enthymeme *trở thành* vấn đề khi tiền đề ẩn sai mà người nghe không nhận ra.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Tìm tiền đề ẩn trong lập luận sau:
 > "Bạn học CNTT, vậy bạn chắc biết lập trình."
 >
@@ -412,7 +412,7 @@ và các khoản nợ ngắn hạn đã vượt quá tiền mặt hiện có."
 
 > ⚠ **Lỗi thường gặp: đánh giá giải thích như lập luận.** Nếu ai đó nói "Trời mưa vì áp thấp nhiệt đới đổ bộ" — đây là giải thích khoa học. Đòi hỏi người đó "chứng minh trời mưa" là nhầm lẫn — trời mưa là sự thật đã quan sát được, không cần chứng minh.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phân biệt lập luận hay giải thích:
 > 1. "Anh ấy không đến cuộc họp vì bị ốm."
 > 2. "Anh ấy đang bị ốm, vì vậy anh ấy sẽ không đến cuộc họp được."

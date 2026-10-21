@@ -118,7 +118,7 @@ Vì mỗi cá thể AA đóng góp 2 allele A, mỗi cá thể Aa đóng góp 1 
 - **Quên dị hợp đóng góp cả 2 allele**: chỉ cộng "2×AA + 2×aa" rồi chia → bỏ sót Aa. Mỗi Aa cho 1 A và 1 a, không phải 0.
 - **Coi $p + q \neq 1$**: với gen 2 allele luôn $p + q = 1$; nếu tính ra $p + q = 1{,}1$ hay $0{,}9$ → đã tính sai ở bước nào đó.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một quần thể 500 cá thể: 180 AA, 240 Aa, 80 aa. Tính p và q.
 2. Cách 1 (đếm allele trực tiếp) và Cách 2 (qua D, H, R) ra cùng đáp án không?
@@ -215,7 +215,7 @@ A: Nếu xuất phát từ quần thể **chưa cân bằng** (vd kiểu gen ban
 - **Lẫn p² với p**: p = 0.6 → p² = 0.36, không phải 0.6. Đây là lỗi cơ học hay gặp khi vội.
 - **Áp HW khi quần thể quá nhỏ**: với N = 20-30 cá thể, drift rất mạnh, HW không phù hợp. HW hợp lý khi N ≥ vài trăm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. p = 0.7, q = 0.3. Tính 3 tần số kiểu gen theo HW.
 2. Nếu 5 điều kiện HW đều thỏa mãn, sau 10 thế hệ giao phối ngẫu nhiên, tần số allele A có đổi không?
@@ -302,7 +302,7 @@ Khi q nhỏ (bệnh hiếm), tỉ lệ carrier/người-bệnh = 2pq / q² = **2
 - **Áp HW khi bệnh có chọn lọc mạnh**: nếu bệnh lặn gây chết trước tuổi sinh sản (vd Tay-Sachs), q² quan sát phản ánh tần số khi sinh, không phải tần số ổn định. Vẫn dùng được nhưng cần thận trọng.
 - **Tưởng carrier cũng có triệu chứng**: theo định nghĩa, carrier (Aa) **không biểu hiện kiểu hình lặn** vì có 1 allele A trội che. Họ chỉ "ẩn mang" gen lặn để truyền cho con.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một bệnh lặn có tần số mắc 1/2500. Ước lượng tần số carrier 2pq.
 2. Nếu q² = 0.16, tính p², 2pq.
@@ -381,7 +381,7 @@ E(aa) &= q^2 \times N
 - **Lấy p, q theo HW lý thuyết thay vì từ dữ liệu**: bước 1 phải tính p, q **từ chính dữ liệu quan sát**, không phải gán bừa. Sau đó mới so sánh.
 - **Kết luận "không HW" chỉ vì lệch nhỏ**: lệch chút có thể do mẫu nhỏ — cần kiểm định χ² mới chắc chắn. Trực giác chỉ là gợi ý ban đầu.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Một quần thể 1000 cá thể: 250 AA, 500 Aa, 250 aa. Tính p, q, dự đoán HW, và quan sát có khớp không?
 
@@ -457,7 +457,7 @@ A: Có. Cân bằng **đột biến–chọn lọc (mutation–selection balance
 - **Nghĩ "1 thế hệ chọn lọc xóa sạch allele lặn"**: hoàn toàn sai. Loại aa rất chậm khi q nhỏ. Ngay cả với s = 1 (lethal), cần ~100 thế hệ để giảm q từ 0.5 xuống ~0.01.
 - **Quên rằng dị hợp Aa là "kho dự trữ" allele lặn**: hầu hết allele a nằm ở đây khi q nhỏ.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Khởi đầu q = 0.4, s = 1 (aa chết trước sinh sản). Tính q sau 2 thế hệ.
 

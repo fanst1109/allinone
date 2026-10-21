@@ -137,7 +137,7 @@ $$C_C(v) = \\frac{n - 1}{\\displaystyle\\sum_{u \\ne v} d(v, u)}$$
 
 > ⚠ **Lỗi thường gặp.** Dùng closeness trên **mạng không liên thông** (bị chia mảnh). Nếu $v$ không tới được $u$ thì $d(v,u) = \\infty$, tổng thành vô cực, công thức vỡ. Cách xử lý: hoặc tính closeness **trong từng mảnh liên thông**, hoặc dùng biến thể *harmonic closeness* $\\sum_{u} \\frac{1}{d(v,u)}$ (khoảng cách vô cực đóng góp 0). Visualization của bài dùng cách "trong từng mảnh".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Node F có tổng khoảng cách $\\text{far}(F) = 28$. Closeness của F bằng bao nhiêu?
 > 2. Giữa hub A và cầu nối M, ai "gần mọi người" hơn? Con số nào chứng minh?
 >
@@ -185,7 +185,7 @@ $$C_B(v) = \\sum_{s \\ne v \\ne t} \\frac{\\sigma_{st}(v)}{\\sigma_{st}}$$
 > - *"Nếu có nhiều đường ngắn nhất bằng nhau thì sao?"* → Chia đều: nếu giữa $s,t$ có 2 đường ngắn nhất và $v$ nằm trên 1 đường, $v$ nhận $\\frac{1}{2}$ cho cặp đó. Ở mạng ví dụ mọi đường ngắn nhất là duy nhất nên $\\sigma_{st}(v)/\\sigma_{st}$ luôn là 0 hoặc 1.
 > - *"Betweenness cao thì tốt hay nguy hiểm cho mạng?"* → Cả hai. Tốt cho *cá nhân* M (quyền lực môi giới), nhưng **rủi ro cho tổ chức**: M là điểm chết một-lỗi (single point of failure). Mục 5 cho thấy gỡ M là mạng vỡ đôi.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Vì sao betweenness của M (16) lớn hơn của D (15) đúng 1 đơn vị?
 > 2. Một node có degree cao nhất mạng thì có chắc betweenness cao nhất không?
 >

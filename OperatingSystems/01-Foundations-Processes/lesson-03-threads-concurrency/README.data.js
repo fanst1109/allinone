@@ -77,7 +77,7 @@ Process PID=1000:
 - *"Stack của thread 2 thì ở đâu? Ai cấp?"* — Khi tạo thread (pthread_create), thư viện hoặc OS cấp phát một vùng stack riêng cho thread mới, thường bằng \`mmap\`. Kích thước mặc định: 8 MB mỗi thread trên Linux. 1000 thread → 8 GB stack nếu mỗi thread 8 MB (mặc dù phần lớn chưa được cấp RAM thật do lazy allocation).
 - *"Thread 1 có thể đọc stack của Thread 2 không?"* — Về kỹ thuật CÓ thể (cùng address space), nhưng đây là **undefined behavior** — không có cơ chế bảo vệ phần cứng giữa stack của các thread trong cùng process. Đây là lý do thread dễ gây bug hơn process: một thread viết sai địa chỉ có thể corrupt data của thread khác.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Thread A trong process P tăng biến global \`counter++\`. Thread B trong cùng process P có thấy sự thay đổi không? Nếu Thread A trong process P1 tăng \`counter++\`, Thread B trong process P2 (process khác, cùng chạy binary) có thấy không?
 

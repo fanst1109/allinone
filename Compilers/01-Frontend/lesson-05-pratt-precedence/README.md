@@ -167,7 +167,7 @@ Khi parser gặp toán tử `op` ở vế phải, nó gọi `parseExpr(rbp_của
 
 Kiểm chứng `2 ^ 3 ^ 2`: `3^2 = 9`, rồi `2^9 = 512`. Nếu gom sai `(2^3)^2 = 8^2 = 64`. Khác hẳn → kết hợp **rất** quan trọng.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. `10 - 2 - 3` gom thế nào, bằng bao nhiêu?
 > 2. `a = b = c` (`=` phải-kết-hợp) gom thế nào?
@@ -379,7 +379,7 @@ Bước 11:     +              ← gom 2 và (3*4) ở mức ngoài (minbp 0)
 
 **Verify giá trị:** `3*4 = 12`, rồi `2 + 12 = 14`. ✓
 
-> **🔁 Dừng lại tự kiểm tra:** Nếu biểu thức là `2 * 3 + 4`, ở bước "ăn `*` rồi gọi `parseExpr(41)` cho vế phải", khi quay vào parse `3` ta gặp `+` (lbp 30). So `30 > 41`? **Không** → đệ quy dừng ngay, chỉ trả `3`. → cây `((2*3) + 4)`. Tự vẽ thử và kiểm tra `= 10`.
+> **🔁 Thực hành:** Nếu biểu thức là `2 * 3 + 4`, ở bước "ăn `*` rồi gọi `parseExpr(41)` cho vế phải", khi quay vào parse `3` ta gặp `+` (lbp 30). So `30 > 41`? **Không** → đệ quy dừng ngay, chỉ trả `3`. → cây `((2*3) + 4)`. Tự vẽ thử và kiểm tra `= 10`.
 
 ---
 
@@ -467,7 +467,7 @@ while ... :
 
 Ví dụ `5! + 1`: postfix `!` (lbp rất cao) gom `(5!)` trước → `(5!) + 1 = 121`. Pratt xử lý gọn cả ba dạng (prefix/infix/postfix) chỉ bằng cách phân loại token và tra `lbp/rbp` — đây là ưu thế lớn so với phân tầng L04.
 
-> **🔁 Dừng lại tự kiểm tra:** `-2 + 3` với `rbp(unary) = 60`. Unary `-` parse `parseExpr(60)`. Khi vào, gặp `+` (lbp 30). `30 > 60`? Không → unary chỉ ôm `2` → `(-2)`. Quay ra, `+` gom `(-2) + 3 = 1`. ✓ Tự kiểm tra: đổi `rbp(unary)=5` thì sao? → unary sẽ ôm cả `2+3` → `-(2+3) = -5` (sai về quy ước thông thường).
+> **🔁 Thực hành:** `-2 + 3` với `rbp(unary) = 60`. Unary `-` parse `parseExpr(60)`. Khi vào, gặp `+` (lbp 30). `30 > 60`? Không → unary chỉ ôm `2` → `(-2)`. Quay ra, `+` gom `(-2) + 3 = 1`. ✓ Tự kiểm tra: đổi `rbp(unary)=5` thì sao? → unary sẽ ôm cả `2+3` → `-(2+3) = -5` (sai về quy ước thông thường).
 
 > **📝 Tóm tắt mục 6**
 > - Prefix (`-x`, `!x`): xử lý trong `atom()`, `rbp` lớn để dính chặt.

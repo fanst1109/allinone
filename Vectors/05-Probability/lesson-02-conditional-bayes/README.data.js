@@ -225,7 +225,7 @@ Nhiều người (và cả bác sĩ!) đoán: "Test 99% chính xác → tôi 99%
 
 Ta sẽ tính chi tiết ở mục 8. Hãy ghi nhớ con số này — nó là một trong những "shocker" lớn nhất của lý thuyết xác suất ứng dụng.
 
-**🔁 Dừng lại tự kiểm tra**:
+**🔁 Thực hành**:
 
 > 1. Trong ví dụ family, vì sao "ít nhất 1 trai" cho $\\frac{1}{3}$ chứ không phải $\\frac{1}{2}$?
 > 2. Trong ví dụ cards, vì sao $P(A \\mid B) \\neq P(B \\mid A)$?

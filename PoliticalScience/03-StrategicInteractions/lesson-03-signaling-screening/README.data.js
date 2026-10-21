@@ -145,7 +145,7 @@ Người mua bảo hiểm biết sức khỏe của mình, công ty bảo hiểm
 3. **Reputation**: repeat-interaction sellers care about reputation.
 4. **Government regulation**: mandatory disclosure.
 
-> 🔁 **Tự kiểm tra**: Tại sao "adverse selection spiral" không xảy ra cho tất cả thị trường? (Có gì ngăn chặn?)
+> 🔁 **Thực hành**: Tại sao "adverse selection spiral" không xảy ra cho tất cả thị trường? (Có gì ngăn chặn?)
 
 <details>
 <summary>Gợi ý</summary>

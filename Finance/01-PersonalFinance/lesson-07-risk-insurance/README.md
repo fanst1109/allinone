@@ -42,7 +42,7 @@ Tức trung bình mỗi năm "đáng lẽ" mất 2 triệu vì rủi ro này —
 
 > ⚠ **Lỗi thường gặp.** Đánh giá rủi ro chỉ bằng xác suất ("hiếm lắm, kệ đi") hoặc chỉ bằng mức độ ("to quá, phải lo"). Phải nhân **cả hai**: rủi ro hiếm-nhưng-thảm khốc (cháy nhà) vẫn cần xử lý.
 
-> 🔁 **Dừng lại tự kiểm tra.** Xác suất hỏng máy 4%/năm, sửa hết 15 triệu. Kỳ vọng tổn thất năm?
+> 🔁 **Thực hành.** Xác suất hỏng máy 4%/năm, sửa hết 15 triệu. Kỳ vọng tổn thất năm?
 > <details><summary>Đáp án</summary>$E[L] = 0{,}04 \times 15 = 0{,}6$ triệu/năm.</details>
 
 ---
@@ -67,7 +67,7 @@ Tức trung bình mỗi năm "đáng lẽ" mất 2 triệu vì rủi ro này —
 > - *"Vì sao gộp lại làm rủi ro giảm?"* — Không phải rủi ro biến mất, mà **độ dao động của tổng** giảm tương đối khi số người tăng (luật số lớn). Quỹ gần như chắc chắn chi ~20 tỷ/năm; một cá nhân thì hoặc 0 hoặc 200 triệu.
 > - *"Rủi ro phải độc lập mới gộp được?"* — Đúng. Bảo hiểm hoạt động tốt khi tổn thất **độc lập** (tai nạn xe ngẫu nhiên). Với rủi ro **tương quan** (động đất phá cả vùng cùng lúc, khủng hoảng tài chính), nhiều người mất cùng lúc → quỹ có thể vỡ. Đây là lý do một số rủi ro khó bảo hiểm.
 
-> 🔁 **Dừng lại tự kiểm tra.** 5.000 người, xác suất cháy 0,4%, thiệt hại 500 triệu. Kỳ vọng số vụ/năm? Phí thuần mỗi người?
+> 🔁 **Thực hành.** 5.000 người, xác suất cháy 0,4%, thiệt hại 500 triệu. Kỳ vọng số vụ/năm? Phí thuần mỗi người?
 > <details><summary>Đáp án</summary>Số vụ $= 5000 \times 0{,}4\% = 20$; tổng bồi thường $= 20 \times 500 = 10.000$ tr; phí thuần $= 10.000/5000 = 2$ triệu/người (= $0{,}004 \times 500$).</details>
 
 ---

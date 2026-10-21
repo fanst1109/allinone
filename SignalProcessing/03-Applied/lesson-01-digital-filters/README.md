@@ -96,7 +96,7 @@ Ba thuật ngữ chốt:
 - **Roll-off**: độ dốc của vùng chuyển, đo bằng **dB/octave** (mỗi lần gấp đôi tần số) hoặc **dB/decade** (mỗi lần ×10 tần số). Lọc bậc 1: $-6$ dB/octave. Bậc 2: $-12$ dB/octave. Bậc $N$: $-6N$ dB/octave.
 - **Ripple**: gợn sóng dư trong passband (làm méo biên độ) hoặc stopband (rò rỉ tần số đáng lẽ chặn).
 
-🔁 **Dừng lại tự kiểm tra.** Một bộ lọc bậc 3 có roll-off bao nhiêu dB/octave? Để chặn tốt hơn 20 dB ở một octave ngoài cutoff thì bậc tối thiểu là bao nhiêu?
+🔁 **Thực hành.** Một bộ lọc bậc 3 có roll-off bao nhiêu dB/octave? Để chặn tốt hơn 20 dB ở một octave ngoài cutoff thì bậc tối thiểu là bao nhiêu?
 
 <details><summary>Đáp án</summary>
 
@@ -265,7 +265,7 @@ $|H|$ đi từ 1 (DC) xuống 0 → đúng là **low-pass**. (Điểm 0 tại $f
 | **Roll-off** | độ dốc sau cutoff (dB/octave) | bậc càng cao càng dốc |
 | **Ripple** | gợn sóng nhỏ trong pass/stop band | sai số biên độ |
 
-🔁 **Dừng lại tự kiểm tra.** Một bộ lọc có $|H(f_c)| = 0.707$. Đó là $-3$ dB. Vì sao gọi là "nửa công suất"?
+🔁 **Thực hành.** Một bộ lọc có $|H(f_c)| = 0.707$. Đó là $-3$ dB. Vì sao gọi là "nửa công suất"?
 
 <details><summary>Đáp án</summary>
 
@@ -312,7 +312,7 @@ Số tap quyết định độ dốc transition. **4 ví dụ** (low-pass $f_c' 
 
 → **Nhiều tap = dốc hơn nhưng trễ lớn hơn và tính nặng hơn.** Đây là đánh đổi cốt lõi khi thiết kế FIR. Để chuyển LP thành HP: lấy "all-pass trừ low-pass" (spectral inversion). Để thành BP: nhân kernel LP với cosin tại tần số trung tâm (modulation). Để thành BS: cộng LP với HP.
 
-🔁 **Dừng lại tự kiểm tra.** Bạn cần FIR low-pass vùng chuyển hẹp $\Delta f' \approx 0.02$. Ước lượng số tap?
+🔁 **Thực hành.** Bạn cần FIR low-pass vùng chuyển hẹp $\Delta f' \approx 0.02$. Ước lượng số tap?
 
 <details><summary>Đáp án</summary>
 

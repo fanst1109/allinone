@@ -31,7 +31,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nhầm hoàng đạo (đường Mặt Trời đi trong **năm**) với đường đi hằng **ngày** của Mặt Trời (do Trái Đất tự quay, đông → tây). Hoàng đạo là chuyển động chậm trên nền sao (1°/ngày); chuyển động ngày là nhanh (15°/giờ — xem Lesson 01, nhật động).
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao ta không thấy được các sao "phía sau" Mặt Trời?
+> 🔁 **Thực hành.** Vì sao ta không thấy được các sao "phía sau" Mặt Trời?
 > <details><summary>Đáp án</summary>Vì ánh sáng Mặt Trời ban ngày làm sáng cả bầu trời, che mất các sao nằm cùng hướng. Khi Mặt Trời "đi" dọc hoàng đạo, chòm sao bị che cũng đổi theo tháng — đó là gốc của 12 chòm hoàng đạo (zodiac).</details>
 
 ---
@@ -63,7 +63,7 @@ Sau bài này bạn sẽ:
 
 **Ví dụ số (góc tới):** Cường độ nắng tỉ lệ với $\sin(\text{alt})$. Ở Hà Nội trưa hạ chí $\text{alt} \approx 88^\circ \to \sin 88^\circ \approx 0{,}999$; trưa đông chí $\text{alt} \approx 45^\circ \to \sin 45^\circ \approx 0{,}707$. Tỉ lệ $0{,}707 / 0{,}999 \approx 0{,}71$ → mùa đông mỗi mét vuông chỉ nhận ~71% năng lượng so với mùa hè, chỉ riêng do góc.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao Thiên Vương (Uranus) có độ nghiêng trục ~98° (gần như "nằm ngang"). Mùa của nó sẽ cực đoan thế nào?
+> 🔁 **Thực hành.** Sao Thiên Vương (Uranus) có độ nghiêng trục ~98° (gần như "nằm ngang"). Mùa của nó sẽ cực đoan thế nào?
 > <details><summary>Đáp án</summary>Cực kỳ cực đoan: mỗi cực lần lượt hướng thẳng vào Mặt Trời suốt ~42 năm Trái Đất (một nửa chu kỳ quỹ đạo 84 năm), rồi chìm trong bóng tối 42 năm. Độ nghiêng càng lớn, mùa càng khắc nghiệt.</details>
 
 ---
@@ -97,7 +97,7 @@ Bốn mốc đặc biệt khi Mặt Trời đi dọc hoàng đạo, xác định
 > - *"Vì sao mùa hè nóng nhất là tháng 7-8, chứ không phải đúng hạ chí 21/6?"* — Vì có **độ trễ mùa (seasonal lag)**: mặt đất và đại dương cần thời gian để tích nhiệt. Đỉnh nhận nắng là hạ chí, nhưng đỉnh nhiệt độ trễ ~1-1.5 tháng. Giống đun nước: lửa to nhất một lúc, nước sôi sau đó.
 > - *"Ngày 'dài nhất' nghĩa là Mặt Trời ở lâu nhất trên trời?"* — Đúng. Hạ chí ở bắc bán cầu là ngày có nhiều giờ sáng nhất vì cung đường Mặt Trời trên chân trời dài nhất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ngày xuân phân, một người ở xích đạo ($\varphi = 0$) thấy Mặt Trời trưa cao bao nhiêu?
+> 🔁 **Thực hành.** Ngày xuân phân, một người ở xích đạo ($\varphi = 0$) thấy Mặt Trời trưa cao bao nhiêu?
 > <details><summary>Đáp án</summary>$\text{alt}_{noon} = 90^\circ - |0^\circ - 0^\circ| = 90^\circ$ — ngay đỉnh đầu (thiên đỉnh). Ở xích đạo vào điểm phân, Mặt Trời trưa đúng zenith.</details>
 
 ---
@@ -174,7 +174,7 @@ H_0 &= \arccos(-0{,}1669) = 99{,}6^\circ \\
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao ở Vòng Bắc Cực có ngày 24h?"* — Vì ở $\varphi \geq 66{,}5^\circ = 90^\circ - 23{,}5^\circ$, vào hạ chí $-\tan\varphi \times \tan\delta_\odot < -1$ → $\cos H_0 < -1$ (vô nghiệm) → Mặt Trời **không lặn** suốt 24h. Đông chí thì ngược lại: 24h đêm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ngày điểm phân ($\delta_\odot = 0$), độ dài ngày ở MỌI vĩ độ là bao nhiêu?
+> 🔁 **Thực hành.** Ngày điểm phân ($\delta_\odot = 0$), độ dài ngày ở MỌI vĩ độ là bao nhiêu?
 > <details><summary>Đáp án</summary>$\cos H_0 = -\tan\varphi \times \tan 0 = 0 \to H_0 = 90^\circ$. Độ dài ngày $= 2 \times 90 / 15 = 12$h ở mọi vĩ độ. Đây đúng là ý nghĩa "equinox = đêm bằng".</details>
 
 > 📝 **Tóm tắt toàn bài.**

@@ -114,7 +114,7 @@ Nếu phản hồi > 512 bytes (vd DNSSEC), chuyển sang TCP 53.
 - Nhầm rằng DNS chỉ dùng UDP: DNS dùng **UDP 53 cho truy vấn thông thường**, nhưng chuyển TCP 53 khi phản hồi cắt ngắn (TC bit = 1) hoặc khi zone transfer.
 - Quên rằng TTL 0 = không cache = mỗi request đều phải full resolution → tốn thời gian.
 
-🔁 **Tự kiểm tra**
+🔁 **Thực hành**
 
 Lệnh `dig +trace www.example.com` cho thấy gì? Tại sao cần cờ `+trace`?
 <details>

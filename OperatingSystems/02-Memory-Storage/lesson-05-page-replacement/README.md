@@ -140,7 +140,7 @@ Reference string: `7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1`
 
 **Tổng page fault Optimal = 9**
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Ở bước 6, tại sao đuổi trang 1 mà không đuổi trang 2?
 
@@ -263,7 +263,7 @@ Kết quả: `[5:1, 2:0, 3:0, 4:0]`, kim ở F1.
 
 ⚠ **Lỗi thường gặp:** Nhiều người nghĩ Clock = FIFO vì đều quay vòng. Không — FIFO không nhìn vào R bit, cứ đuổi trang vào sớm nhất. Clock nhìn vào R bit — trang vừa dùng (R=1) được cơ hội thứ hai, không bị đuổi ngay.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Nếu tất cả frame đều có R=1 khi cần đuổi, Clock làm gì?
 

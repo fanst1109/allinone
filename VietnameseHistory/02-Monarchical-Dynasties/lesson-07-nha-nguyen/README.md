@@ -58,7 +58,7 @@ Lãnh thổ Việt Nam sau 1802 trải dài từ ải Nam Quan (biên giới ph�
 
 🔗 **Nhân – quả:** Quốc hiệu Việt Nam 1804 → được dùng liên tục đến tận ngày nay (trừ giai đoạn 1839–1945 đổi thành "Đại Nam" theo ý Minh Mạng, và khoảng thời gian thuộc Pháp gọi là "Đông Dương"). Ý nghĩa: tên gọi "Việt Nam" gắn với một nhà nước thống nhất và có chủ quyền — là di sản chính trị quan trọng của nhà Nguyễn sơ.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 > **Câu hỏi:** Vì sao nhà Thanh đổi "Nam Việt" thành "Việt Nam"?
 >
@@ -120,7 +120,7 @@ Hệ thống tỉnh của Minh Mạng là **tiền thân trực tiếp** của h
 
 ⚠ **Hiểu lầm thường gặp:** Không phải Minh Mạng "chia" Việt Nam thành 30 tỉnh từ một đơn vị hành chính thống nhất. Trước đó, Bắc Thành và Gia Định Thành là hai "siêu đơn vị" bán tự trị — Minh Mạng thực chất là phá vỡ các đơn vị lớn này, thay bằng các tỉnh nhỏ hơn, dễ kiểm soát hơn từ trung ương.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 > **Câu hỏi:** Vì sao Minh Mạng giải thể Bắc Thành và Gia Định Thành thay vì giữ nguyên như thời Gia Long?
 >
@@ -238,7 +238,7 @@ Chính sách cấm đạo và đóng cửa → Pháp dùng cớ bảo vệ giáo
 
 **Đáp:** Hầu hết các nhà sử học hiện đại (cả Việt Nam và quốc tế) cho rằng: có. Việt Nam nằm ở vị trí chiến lược quan trọng — cửa ngõ vào thị trường Trung Quốc, cạnh tranh với Anh ở Đông Nam Á. Pháp đã lên kế hoạch xâm lược từ đầu thế kỉ XIX, và cấm đạo chỉ là cớ thuận tiện. Nhưng: chính sách cấm đạo *làm cho* cuộc xâm lược dễ dàng hơn về mặt ngoại giao (Pháp có lý do chính đáng trước dư luận quốc tế) và chiến thuật (cộng đồng Công giáo người Việt ở một số vùng không ủng hộ triều đình kháng chiến).
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 > **Câu hỏi:** Liệt kê 2 lý do từ góc độ triều đình Nguyễn để giải thích chính sách cấm đạo, và 2 hậu quả bất lợi của chính sách này.
 >

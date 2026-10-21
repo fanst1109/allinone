@@ -65,7 +65,7 @@ Chữ "Lạc" (駱) có thể liên quan đến từ chỉ đồng bằng hoặc
 *3. Liệu có thực sự "18 đời" Hùng Vương không?*
 Con số 18 mang tính tượng trưng trong văn hóa Á Đông (như 18 vị La Hán). Hơn nữa, 18 đời vua kéo dài hơn 2000 năm là không hợp lý về mặt sinh học. Các nhà sử học hiện đại cho rằng "18 đời Hùng Vương" nên được hiểu là 18 giai đoạn hoặc triều đại của liên minh bộ lạc Lạc Việt, không phải đúng nghĩa 18 cá nhân nối nhau.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 **Câu hỏi**: Tổ chức nhà nước Văn Lang có mấy tầng? Kể tên các cấp từ trên xuống.
 
@@ -117,7 +117,7 @@ So với Văn Lang, Âu Lạc có bước tiến rõ rệt:
 *Âu Lạc khác Văn Lang thế nào về bản chất?*
 Âu Lạc là sự hợp nhất chính trị của hai nhóm cư dân (Âu Việt và Lạc Việt), có lãnh thổ lớn hơn, tổ chức quân sự và phòng thủ chặt chẽ hơn (thể hiện qua thành Cổ Loa), và có thể sử dụng vũ khí sắt — dấu hiệu của bước chuyển sang thời đại sắt trong vùng.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 **Câu hỏi**: An Dương Vương tên thật là gì? Âu Lạc được thành lập khoảng năm nào?
 
@@ -165,7 +165,7 @@ Các cuộc khai quật khảo cổ tại Cổ Loa (thực hiện từ thập ni
 
 ⚠ **Lưu ý về bảo tồn**: Hiện nay di tích thành Cổ Loa còn lại chủ yếu là thành nội và một số đoạn thành trung — các vòng ngoài đã bị dân cư xây dựng che phủ nhiều. Di tích được xếp hạng Di tích lịch sử quốc gia đặc biệt.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 **Câu hỏi**: Thành Cổ Loa có đặc điểm kiến trúc gì nổi bật? Bằng chứng khảo cổ nào xác nhận năng lực vũ khí của Âu Lạc tại Cổ Loa?
 
@@ -219,7 +219,7 @@ Thành Cổ Loa có ba vòng thành hình xoáy ốc (thành nội, thành trung
 *Truyền thuyết có thể dùng làm sử liệu không?*
 Truyền thuyết không phải sử liệu chính xác, nhưng là nguồn tư liệu hữu ích khi kết hợp với khảo cổ học, địa danh học và sử liệu các nước láng giềng. Phương pháp đúng: đặt truyền thuyết cạnh bằng chứng vật chất và sử liệu có niên đại, rồi xác định đâu là cốt lõi lịch sử, đâu là lớp văn hóa – tín ngưỡng bồi đắp về sau.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 **Câu hỏi**: Trong truyền thuyết Mỵ Châu – Trọng Thủy, bài học lịch sử thực sự là gì (không phải ý nghĩa thần thoại)?
 
@@ -267,7 +267,7 @@ Không. Triệu Đà là người gốc Hán (quê ở Chân Định, nay là H�
 
 ⚠ **Phân biệt Nam Việt và Việt Nam**: "Nam Việt" (Nanyue) là quốc gia của Triệu Đà, tồn tại 111 năm (207–111 TCN), có kinh đô ở Phiên Ngung (nay là Quảng Châu, Trung Quốc). Đây không phải là tiền thân trực tiếp của "Việt Nam" — tên gọi "Việt Nam" xuất hiện từ thế kỉ XIX dưới thời Nguyễn.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 **Câu hỏi**: Năm 179 TCN xảy ra sự kiện gì? Tại sao đây là mốc quan trọng?
 

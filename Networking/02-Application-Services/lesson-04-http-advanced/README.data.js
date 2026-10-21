@@ -115,7 +115,7 @@ Response 204 No Content (không có body — đã xóa thành công).
 - Dùng \`POST\` cho mọi thứ như RPC — bỏ lỡ khả năng cache của GET.
 - URI chứa động từ: \`/getUsers\`, \`/createPost\` — sai. URI phải là danh từ (tài nguyên).
 
-🔁 **Tự kiểm tra**: Thiết kế API cho hệ thống blog. Cần: lấy danh sách bài, đọc 1 bài, đăng bài mới, sửa tiêu đề, xóa bài.
+🔁 **Thực hành**: Thiết kế API cho hệ thống blog. Cần: lấy danh sách bài, đọc 1 bài, đăng bài mới, sửa tiêu đề, xóa bài.
 <details>
 <summary>Xem đáp án</summary>
 

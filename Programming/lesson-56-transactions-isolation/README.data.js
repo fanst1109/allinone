@@ -107,7 +107,7 @@ commit thành công. Khi khởi động lại sau crash, DB đọc WAL và "repl
 commit. Vì vậy \`Commit()\` trả về nil = dữ liệu đã nằm an toàn trên đĩa (hoặc được
 fsync).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Chuyển tiền crash sau khi trừ A. Tính chất nào cứu ta?
 > 2. \`balance\` xuống âm bị từ chối — tính chất nào?
 >
@@ -166,7 +166,7 @@ Sau khi \`Begin()\`, **mọi** câu lệnh thuộc transaction phải gọi qua 
 **không** qua \`db.Exec\`. Vì \`db\` lấy một connection **khác** từ pool → câu lệnh đó nằm
 ngoài transaction, không được rollback chung.
 
-> 🔁 **Dừng lại tự kiểm tra.** \`tx.Rollback()\` gọi sau \`tx.Commit()\` thành công có crash
+> 🔁 **Thực hành.** \`tx.Rollback()\` gọi sau \`tx.Commit()\` thành công có crash
 > app không?
 >
 > <details><summary>Đáp án</summary>
@@ -314,7 +314,7 @@ ghi chú mục 4).
 > thay đổi. Phantom = **số lượng** row trong tập kết quả thay đổi (row mới xuất hiện/biến
 > mất). Cùng là "đọc lại ra khác" nhưng một cái về cell, một cái về tập row.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ở Read Committed, đọc cùng row 2 lần có thể ra khác nhau
+> 🔁 **Thực hành.** Ở Read Committed, đọc cùng row 2 lần có thể ra khác nhau
 > không? Đọc số row có thể khác không?
 >
 > <details><summary>Đáp án</summary>

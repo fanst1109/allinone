@@ -125,7 +125,7 @@ Vector này nằm trên đường tròn đơn vị — sẽ gặp lại ở mụ
 > - Bình phương rồi quên mở căn: $\\lVert (3, 4) \\rVert^2 = 25$, không phải $\\lVert (3, 4) \\rVert$. Phân biệt $\\lVert v \\rVert^2$ (bằng dot product, không cần căn) và $\\lVert v \\rVert$ (cần căn).
 > - Quên trị tuyệt đối khi tổng quát hóa: thực ra L2 không cần $\\lvert \\cdot \\rvert$ vì bình phương luôn $\\ge 0$. Nhưng L1 và L∞ thì cần.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > 1. Tính $\\lVert (0, 0, 5) \\rVert_2$.
 > 2. Vector $v = (1, 1)$ có $\\lVert v \\rVert_2 = ?$
@@ -191,7 +191,7 @@ Vector này nằm trên "hình thoi đơn vị" của L1 (sẽ thấy ở mục 
 
 > ⚠ **Lỗi thường gặp**: Quên trị tuyệt đối — $\\lVert (3, -4) \\rVert_1$ không phải $3 + (-4) = -1$, mà là $3 + 4 = 7$.
 
-> 🔁 **Tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > 1. Tính $\\lVert (0, 0, 5) \\rVert_1$.
 > 2. Vector nào có $\\lVert v \\rVert_1 = \\lVert v \\rVert_2$? (Gợi ý: chỉ có 1 thành phần khác 0.)
@@ -255,7 +255,7 @@ $$\\lVert v \\rVert_\\infty = 7$$
 
 > ⚠ **Lỗi thường gặp**: Nhầm max với min. L∞ là **max**, không phải min. Vector $(1, 100)$ có $\\lVert v \\rVert_\\infty = 100$, không phải 1.
 
-> 🔁 **Tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > Tính L1, L2, L∞ của $v = (6, 8, 0)$.
 >
@@ -442,7 +442,7 @@ Hàm $d$ thỏa 3 tính chất này gọi là **metric** trong toán. Khi đó $
 > - Quên trừ trước khi norm: $d(u, v) = \\lVert u \\rVert - \\lVert v \\rVert$ là **SAI**. Đúng phải là $\\lVert u - v \\rVert$.
 > - Phản ví dụ: $u = (1, 0)$, $v = (0, 1)$. $\\lVert u \\rVert_2 - \\lVert v \\rVert_2 = 1 - 1 = 0$, nhưng $\\lVert u - v \\rVert_2 = \\lVert (1, -1) \\rVert_2 = \\sqrt{2} \\ne 0$. Hai vector khác nhau nhưng cùng độ dài → khoảng cách phải $\\ne 0$.
 
-> 🔁 **Tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > Cho $u = (2, 5)$, $v = (5, 1)$. Tính $d_1$, $d_2$, $d_\\infty$.
 >
@@ -691,7 +691,7 @@ So sánh 3 unit ball trên cùng hệ trục:
 > - *"Sao L1 có cạnh thẳng, L2 cong, L∞ thẳng góc?"* — Vì L2 có $v_i^2$ → curved. L1 và L∞ chỉ dùng $\\lvert v_i \\rvert$ và max → piecewise linear → cạnh thẳng.
 > - *"Hình dạng này quan trọng vì sao?"* — Trong tối ưu hóa, hình dạng unit ball của penalty quyết định kết quả. **L1 có "góc nhọn" tại trục → nghiệm tối ưu hay rơi vào trục → sparse weights** (Lasso). L2 trơn → nghiệm phân tán đều.
 
-> 🔁 **Tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > Vector $v = (0.7, 0.7)$ có nằm trong L1 unit ball không? L2? L∞?
 >
@@ -804,7 +804,7 @@ $$\\begin{aligned}
 > - Normalize vector 0 → chia cho 0! Phải check trước.
 > - Quên dùng norm nào: thường L2. Nhưng bạn có thể "normalize theo L1" ($v / \\lVert v \\rVert_1$) trong một số ngữ cảnh (vd biến vector thành phân phối xác suất nếu các thành phần đều $\\ge 0$).
 
-> 🔁 **Tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > Normalize $v = (6, 8)$.
 >

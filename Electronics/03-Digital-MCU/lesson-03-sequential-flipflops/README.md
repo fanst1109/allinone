@@ -159,7 +159,7 @@ Dùng cổng NAND thay NOR. Ngõ vào tích cực thấp (active-low): $\overlin
 
 ⚠ **Lỗi thường gặp**: Nhầm giữa NOR latch và NAND latch khi đọc bảng — phải chú ý active-high hay active-low. Với NAND latch, mức 0 mới kích hoạt, không phải mức 1.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Cho SR NOR latch đang ở Q=0. Áp dụng: S=1, R=0 trong một lúc, rồi chuyển về S=0, R=0. Ngõ ra Q là bao nhiêu?
 
@@ -306,7 +306,7 @@ Giữa các cạnh clock, Q hoàn toàn không thay đổi dù D thay đổi li�
 - Ghép nối tiếp 8 D flip-flop → thanh ghi 8 bit (sẽ học ở [Lesson 04](../lesson-04-registers-counters/)).
 - Pipeline trong CPU: mỗi tầng pipeline là một hàng flip-flop lưu kết quả trung gian.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 D flip-flop (positive edge) đang Q=1. Clock có 3 cạnh lên. D lần lượt là: 0, 0, 1 tại mỗi cạnh. Q sau mỗi cạnh là bao nhiêu?
 
@@ -406,7 +406,7 @@ Lý do: Q chỉ thay đổi sau mỗi 2 cạnh clock — một chu kỳ của Q 
 
 ⚠ **Lỗi thường gặp**: Nhiều người nhầm "T=1 → Q=1". Không phải — T=1 nghĩa là Toggle (đảo). Nếu Q đang là 0 thì sau cạnh clock Q=1; nếu Q đang là 1 thì Q=0.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 T flip-flop, T=1 cố định, Q ban đầu = 0. Sau 5 cạnh lên clock, Q bằng bao nhiêu? Vẽ dạng sóng Q.
 

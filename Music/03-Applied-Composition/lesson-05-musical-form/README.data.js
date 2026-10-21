@@ -50,7 +50,7 @@ Sau bài này, bạn có thể:
 > - *"Form có bắt buộc không? Có bài nhạc nào không theo form nào cả?"* — Nhạc thực nghiệm (through-composed) viết liên tục không lặp lại, nhưng ngay cả đó cũng có "form tiềm ẩn" qua động học căng thẳng/giải tỏa. Form là khuôn khổ, không phải nhà tù — composer có thể phá vỡ nó, nhưng phải biết nó trước.
 > - *"Cùng chữ cái A có nghĩa là y chang nhau không?"* — Không nhất thiết. A có thể lặp lại y chang (giống hệt), lặp lại có biến tấu nhỏ (A'), hoặc chỉ lặp lại chủ đề chính nhưng điều chỉnh hòa âm. Ký hiệu A' (A prime) chỉ biến thể của A.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Một bài có cấu trúc: giới thiệu chủ đề → chủ đề lặp lại ở tông khác → đoạn mới hoàn toàn → chủ đề quay về. Đây là form gì?
 > <details><summary>Đáp án</summary>
 >
@@ -99,7 +99,7 @@ Ba đoạn rõ ràng: A trọn vẹn → B tương phản → A quay lại trọ
 > - *"Tại sao ABA phổ biến hơn AB?"* — Vì con người thích sự đối xứng và quen thuộc. Nghe A → thấy B lạ → trở về A tạo cảm giác "hoàn tất hành trình". AB kết ở B lạ → cảm giác mở, chưa về nhà.
 > - *"ABA có thể viết là ABA' không?"* — Được. A' tức A quay về có sửa đổi nhỏ (thêm hòa âm phong phú hơn, thêm ornament). Ký hiệu A' không phủ nhận đây là ternary.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nghe "Für Elise": phần chủ đề nổi tiếng đầu tiên kết ở đâu? Phần giữa có cảm giác gì khác? Phần cuối giống phần nào?
 > <details><summary>Đáp án</summary>
 >
@@ -166,7 +166,7 @@ Intro → V1 → PC → C → V2 → PC → C → Bridge → C → Outro
 > - *"Pre-chorus có bắt buộc không?"* — Không. Nhiều bài chỉ V → C. Pre-chorus xuất hiện khi composer cần thêm "build-up" — nó tạo một bước trung gian tăng năng lượng trước khi chorus nổ ra.
 > - *"Chorus phải khác lời so với verse, nhưng nhạc có thể giống không?"* — Trên lý thuyết chorus có nhạc riêng, nhưng một số bài (đặc biệt folk) dùng cùng giai điệu cho verse và chorus, chỉ đổi lời. Kỹ thuật này gọi là "strophic form".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nghe một bài pop bạn biết. Xác định: đoạn nào là verse (lời đổi)? Đoạn nào là chorus (lời cố định, "bùng")? Có bridge không?
 > <details><summary>Gợi ý phương pháp</summary>
 >
@@ -223,7 +223,7 @@ Hợp âm chuẩn dạng Gm (La giáng trưởng → Sol thứ):
 > - *"Nếu mỗi đoạn là 8 ô nhịp, liệu có bài AABA với đoạn dài hơn không?"* — Có. Một số bài dùng 16 ô nhịp/đoạn → tổng 64 ô nhịp. Cũng có AABA với đoạn A 12 ô nhịp. Nguyên tắc AABA không thay đổi, chỉ độ dài điều chỉnh.
 > - *"Tại sao bridge thường đẩy sang tông khác?"* — Để tạo tương phản hòa âm (harmonic contrast). Nếu cả 4 đoạn đều ở tông chủ, không có điểm cao trào. Bridge "phiêu lưu" → A3 quay về cảm giác như "trở về nhà".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nghe "Autumn Leaves". Hát theo hoặc đếm ô nhịp: đoạn nào cảm thấy khác hoàn toàn — đó chính là bridge (B). Nó kết thúc ở đâu trước khi A3 vào?
 > <details><summary>Đáp án</summary>
 >

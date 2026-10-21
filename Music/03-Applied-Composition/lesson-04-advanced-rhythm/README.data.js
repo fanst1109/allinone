@@ -76,7 +76,7 @@ Ký hiệu "and" (thường viết là "+") là nửa phách nằm giữa hai ph
 > - *"Có ký hiệu đặc biệt trong sheet music không?"* — Dấu nhấn \`>\` hoặc \`^\` đặt trên nốt. Tie từ phách yếu sang phách mạnh cũng là ký hiệu phổ biến cho syncopation.
 > - *"Trong DAW (phần mềm sản xuất âm nhạc), đảo phách trông như thế nào?"* — Trong piano roll, khối nốt bắt đầu không khớp với các đường lưới phách đen (grid lines).
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong 4/4, một nốt bắt đầu ở "and 3" (vị trí 6 trong 8 móc đơn) và kéo dài qua phách 4 (vị trí 7). Đây có phải là đảo phách không? Vì sao?
+> 🔁 **Ôn tập.** Trong 4/4, một nốt bắt đầu ở "and 3" (vị trí 6 trong 8 móc đơn) và kéo dài qua phách 4 (vị trí 7). Đây có phải là đảo phách không? Vì sao?
 > <details><summary>Đáp án</summary>
 >
 > **Có, đây là đảo phách.** Nốt bắt đầu ở vị trí yếu (vị trí 6 — "and 3"), và kéo sang phách 4 (vị trí 7 — phách yếu trong 4/4, nhưng mạnh hơn nửa phách). Phách 4 không có nốt mới mà được "carry over" từ nửa phách trước → nhấn thực tế rơi ở vị trí yếu (vị trí 6), không phải vị trí mạnh. Đây là cấu trúc syncopation bằng tie điển hình.
@@ -126,7 +126,7 @@ Ký hiệu "and" (thường viết là "+") là nửa phách nằm giữa hai ph
 > - *"Triplet và swing khác nhau như thế nào?"* — Triplet chia chính xác 3 đều; swing là **cặp** móc đơn chơi theo tỷ lệ xấp xỉ 2:1 (dài-ngắn), không phải 3 nốt đều. Triplet là ký hiệu chính xác; swing là phong cách trình diễn. Xem mục 4.
 > - *"Ký hiệu trong sheet music?"* — Nhóm nốt bọc trong khung với số "3" (triplet), "5" (quintuplet) v.v. Số này ghi phía trên hoặc dưới nhóm nốt.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ở 100 BPM, một ô nhịp 4/4 kéo dài bao lâu? Và mỗi nốt trong một triplet móc đơn dài bao nhiêu ms?
+> 🔁 **Ôn tập.** Ở 100 BPM, một ô nhịp 4/4 kéo dài bao lâu? Và mỗi nốt trong một triplet móc đơn dài bao nhiêu ms?
 > <details><summary>Đáp án</summary>
 >
 > - 1 phách đen ở 100 BPM = 60000/100 = **600 ms**.
@@ -198,7 +198,7 @@ Bảng vị trí (✓ = có nốt, · = im lặng):
 > - *"Làm sao tập tay chơi polyrhythm 3:2?"* — Cách cổ điển: đọc "nice-cup-of-TEA" — "nice-cup-of" = 3 nốt bên trái, "of-TEA" = 2 nốt bên phải. Hoặc đếm LCM: "1-2-3-4-5-6", tay trái đánh nhịp 1,3,5; tay phải đánh 1,4.
 > - *"Trong âm nhạc thật thì tìm thấy polyrhythm ở đâu?"* — "Piano Man" (Billy Joel) có 3:4, nhạc truyền thống Ghana/Nigeria dùng clave 3:2, Chopin mazurka, Brahms symphony.
 
-> 🔁 **Dừng lại tự kiểm tra.** Polyrhythm 5:3 có LCM bằng bao nhiêu? Trong chu kỳ đó, lớp 5 nốt đánh tại mốc nào?
+> 🔁 **Ôn tập.** Polyrhythm 5:3 có LCM bằng bao nhiêu? Trong chu kỳ đó, lớp 5 nốt đánh tại mốc nào?
 > <details><summary>Đáp án</summary>
 >
 > - LCM(5, 3) = **15**.
@@ -253,7 +253,7 @@ Bảng vị trí (✓ = có nốt, · = im lặng):
 > - *"Backbeat và swing liên quan nhau như thế nào?"* — Backbeat là về *vị trí nhấn* (phách 2 và 4). Swing là về *tỷ lệ thời gian* của cặp móc đơn. Nhạc jazz-rock có thể có cả hai: backbeat snare trên 2 và 4, đồng thời comping swing. Xem mục 5.
 > - *"Có phần mềm nào tự động thêm swing không?"* — Có. Logic Pro, Ableton Live đều có tính năng "Swing" hoặc "Groove" — đẩy off-beat về sau theo tỷ lệ tùy chọn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Ở 100 BPM, một cặp móc đơn kéo dài 600 ms. Với swing ratio 2:1, nốt đầu và nốt sau mỗi nốt dài bao nhiêu ms?
+> 🔁 **Ôn tập.** Ở 100 BPM, một cặp móc đơn kéo dài 600 ms. Với swing ratio 2:1, nốt đầu và nốt sau mỗi nốt dài bao nhiêu ms?
 > <details><summary>Đáp án</summary>
 >
 > - Tổng = 600 ms.

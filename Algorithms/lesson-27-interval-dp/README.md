@@ -60,7 +60,7 @@ Sau bài này bạn sẽ:
 > - *"Vì sao state lại là một KHOẢNG mà không phải một chỉ số như DP 1D?"* — Vì lời giải của bài không phân rã được theo "phần tử cuối" như DP 1D, mà phân rã theo "vết cắt ở giữa". Một khi cắt, hai nửa độc lập → state phải mô tả đủ một nửa, tức là một đoạn `[i..j]`.
 > - *"Có phải lúc nào cũng $O(n^3)$ không?"* — Thường có, vì $O(n^2)$ state nhân $O(n)$ điểm chia. Một số bài (Knuth optimization, Stone Game cùng số đống) giảm được, nhưng đó là nâng cao.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > 1. State `dp[i][j]` của interval DP mô tả cái gì?
 > 2. Transition tách `[i..j]` thành mấy phần, tại đâu?
@@ -235,7 +235,7 @@ func main() {
 }
 ```
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Với `dims = [10, 20, 30]` (2 ma trận `A1(10×20)`, `A2(20×30)`), chi phí là bao nhiêu?
 >
@@ -629,7 +629,7 @@ Người đi trước thắng/hòa khi `dp[0][n-1] >= 0`.
 >
 > Áp công thức Burst Balloons như "nổ `k` đầu tiên" → sai vì sau khi nổ, bóng `k-1` và `k+1` dính lại, điểm khi nổ chúng phụ thuộc lẫn nhau giữa hai nửa → không phải bài con độc lập. **Quy tắc**: nếu thao tác làm biên/cấu trúc thay đổi sau mỗi bước, hãy thử nghĩ **ngược** (thao tác cuối cùng).
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 >
 > Vì sao Matrix Chain dùng `dp[k+1][j]` còn Burst Balloons dùng `dp[k][j]`?
 >

@@ -122,7 +122,7 @@ Bước 4 — kiểm tra: khoảng cách mới $= |13 - 3| = 10 = L$ ✓. Một 
 
 **Ví dụ số 4 — đã đúng sẵn.** $A=(0,0)$, $B=(10,0)$, $L=10$. dist $=10$, diff $=0$ → không dịch gì (ràng buộc đã thỏa). ✓
 
-🔁 **Dừng lại tự kiểm tra.** Cho $A=(0,0)$, $B=(0,20)$, $L=12$. Sau một lần ép, $A$ và $B$ ở đâu?
+🔁 **Thực hành.** Cho $A=(0,0)$, $B=(0,20)$, $L=12$. Sau một lần ép, $A$ và $B$ ở đâu?
 <details><summary>Đáp án</summary>
 
 $\vec{d}=(0,20)$, dist $=20$, diff $=(20-12)/20=0.4$. $A \leftarrow (0,0)+0.5(0,20)(0.4)=(0,4)$; $B \leftarrow (0,20)-(0,4)=(0,16)$. Khoảng cách $=16-4=12=L$ ✓.
@@ -223,7 +223,7 @@ Một frame:
 
 Sau **nhiều frame**, chuỗi rơi và đung đưa thành hình **cong** (giống dây xích thật — đường catenary), với $P_0$ giữ nguyên ở đỉnh. Khi kéo $P_3$ bằng chuột, lực truyền ngược lên chuỗi qua các ràng buộc.
 
-🔁 **Dừng lại tự kiểm tra.** Nếu ghim **cả hai đầu** $P_0$ và $P_3$ rồi cho trọng lực kéo, hình dạng dây sẽ ra sao?
+🔁 **Thực hành.** Nếu ghim **cả hai đầu** $P_0$ và $P_3$ rồi cho trọng lực kéo, hình dạng dây sẽ ra sao?
 <details><summary>Đáp án</summary>
 
 Dây võng xuống ở giữa thành đường cong **catenary** (dây xích treo hai đầu), giống dây điện giữa hai cột. Hai đầu cố định, phần giữa rơi thấp nhất. Đây là cách mô phỏng dây thừng cầu treo, dây điện trong game.

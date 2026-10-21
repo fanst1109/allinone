@@ -144,7 +144,7 @@ Bốn giá trị \`(src_IP, src_port, dst_IP, dst_port)\` gọi là **4-tuple**,
 | SSH vào server | (10.0.0.5, 49200) | (192.168.1.100, 22) |
 | Game online (UDP) | (10.0.0.5, 55555) | (game-server, 27015) |
 
-🔁 **Tự kiểm tra**: Máy của bạn IP \`172.16.0.10\` gửi DNS query đến server \`1.1.1.1\`, OS cấp ephemeral port \`50123\`. Viết 4-tuple hoàn chỉnh.
+🔁 **Thực hành**: Máy của bạn IP \`172.16.0.10\` gửi DNS query đến server \`1.1.1.1\`, OS cấp ephemeral port \`50123\`. Viết 4-tuple hoàn chỉnh.
 
 <details>
 <summary>Đáp án</summary>
@@ -233,7 +233,7 @@ Phân tích từng 2 byte:
 
 → Kết luận: gói UDP nguồn ephemeral port 54321 gửi đến DNS server port 53, tổng 41 byte (33 byte DNS query).
 
-🔁 **Tự kiểm tra**: Header UDP hex: \`CF A4  00 43  00 12  00 00\`. Đây là gói gì? Payload bao nhiêu byte? Checksum có vấn đề gì không?
+🔁 **Thực hành**: Header UDP hex: \`CF A4  00 43  00 12  00 00\`. Đây là gói gì? Payload bao nhiêu byte? Checksum có vấn đề gì không?
 
 <details>
 <summary>Đáp án</summary>
@@ -308,7 +308,7 @@ Ví dụ số thực tế:
 - UDP DNS query: gửi ngay + response về = **~0.5 RTT** (chỉ 1 chiều đi + 1 chiều về).
 - Ở latency 20 ms (VN–Singapore), UDP DNS nhanh hơn TCP DNS khoảng 40 ms mỗi lần. Với hàng triệu query/ngày, đó là lý do DNS dùng UDP.
 
-🔁 **Tự kiểm tra**: Một VoIP app gửi 50 gói/giây, mỗi gói 160 byte audio. Nếu mạng mất 2% gói, ứng dụng bị ảnh hưởng gì? So sánh nếu dùng TCP.
+🔁 **Thực hành**: Một VoIP app gửi 50 gói/giây, mỗi gói 160 byte audio. Nếu mạng mất 2% gói, ứng dụng bị ảnh hưởng gì? So sánh nếu dùng TCP.
 
 <details>
 <summary>Đáp án</summary>

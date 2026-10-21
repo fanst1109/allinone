@@ -90,7 +90,7 @@ Trả về time **với location `Local`** (cần `t.UTC()` để chuyển nếu
 
 Xem mục 3.
 
-> 🔁 **Tự kiểm tra**: Năm 2024 có 366 ngày (nhuận). Dùng `time.Date` viết hàm `isLeap(year int) bool` không dùng phép `%`.
+> 🔁 **Thực hành**: Năm 2024 có 366 ngày (nhuận). Dùng `time.Date` viết hàm `isLeap(year int) bool` không dùng phép `%`.
 > 
 > <details><summary>Đáp án</summary>
 > 
@@ -297,7 +297,7 @@ Sự kiện: máy chủ ghi log một crash lúc instant Unix `1705314600`.
 
 `t.Unix()` = `1705314600` ở **tất cả 5 dòng** — cùng instant.
 
-> 🔁 **Tự kiểm tra**: User VN bảo "tôi tạo task lúc 8:00 sáng ngày 26/5/2024". DB lưu UTC. Lưu gì?
+> 🔁 **Thực hành**: User VN bảo "tôi tạo task lúc 8:00 sáng ngày 26/5/2024". DB lưu UTC. Lưu gì?
 > 
 > <details><summary>Đáp án</summary>
 > 

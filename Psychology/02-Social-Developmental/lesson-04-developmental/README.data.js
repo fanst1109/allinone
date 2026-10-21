@@ -202,7 +202,7 @@ Ví dụ: "Nếu A lớn hơn B, B lớn hơn C, A và C so sánh như thế nà
 
 **Implicit ToM** (Onishi & Baillargeon 2005): Babies 15 tháng tuổi *nhìn lâu hơn* khi actor hành xử không nhất quán với false belief — suggesting primitive ToM trước khi có explicit verbal ability. Piaget under-estimate age lại một lần nữa.
 
-🔁 **Tự kiểm tra**: Tại sao ToM liên quan đến lying (nói dối)?
+🔁 **Thực hành**: Tại sao ToM liên quan đến lying (nói dối)?
 <details>
 <summary>Đáp án</summary>
 Để nói dối hiệu quả, bạn cần hiểu (a) người khác có beliefs và (b) bạn có thể tạo false belief trong đầu họ. Trẻ trước 4 tuổi không có đủ ToM để nói dối có chiến lược — chúng chỉ nói thật. Sau 4 tuổi, strategic deception xuất hiện. Cũng lý do: actors và politicians cần ToM cao để model audiences.

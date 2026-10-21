@@ -59,7 +59,7 @@ $\Omega = \dfrac{\rho}{\rho_c}$ (mật độ thực chia mật độ tới hạn
 
 > ⚠ **Lỗi thường gặp.** Dùng quy tắc "$\Omega > 1$ → Big Crunch" cho vũ trụ thật. Quy tắc đó chỉ đúng khi vũ trụ **chỉ có vật chất**. Vũ trụ thật có năng lượng tối: dù tổng $\Omega = 1$ (phẳng), nó vẫn giãn tăng tốc, không co lại. Hình học (phẳng/cong) và số phận **tách rời nhau** khi có năng lượng tối.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vũ trụ có $\Omega = 1$ (phẳng). Theo mô hình *chỉ vật chất*, nó co hay giãn? Theo mô hình *có năng lượng tối* (thực tế), nó làm gì?
+> 🔁 **Thực hành.** Vũ trụ có $\Omega = 1$ (phẳng). Theo mô hình *chỉ vật chất*, nó co hay giãn? Theo mô hình *có năng lượng tối* (thực tế), nó làm gì?
 > <details><summary>Đáp án</summary>Chỉ vật chất: giãn mãi nhưng chậm dần tới 0 (ranh giới). Thực tế có năng lượng tối: giãn **tăng tốc** mãi → Big Freeze. Cùng $\Omega = 1$ nhưng số phận khác hẳn vì thành phần khác.</details>
 
 ---
@@ -104,7 +104,7 @@ $\Omega = \dfrac{\rho}{\rho_c}$ (mật độ thực chia mật độ tới hạn
 
 > ⚠ **Lỗi thường gặp.** Nghĩ ba kịch bản phụ thuộc *chỉ* mật độ vật chất Ω. Sau khám phá năng lượng tối (1998), **bản chất năng lượng tối** mới là yếu tố quyết định nhất: hằng số → Freeze; mạnh dần → Rip; suy yếu/đảo → có thể Crunch.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân biệt nhanh: kịch bản nào "xé toạc cả nguyên tử"? Kịch bản nào "co về điểm nóng đặc"? Kịch bản nào "loãng, lạnh dần tới 0 K"?
+> 🔁 **Thực hành.** Phân biệt nhanh: kịch bản nào "xé toạc cả nguyên tử"? Kịch bản nào "co về điểm nóng đặc"? Kịch bản nào "loãng, lạnh dần tới 0 K"?
 > <details><summary>Đáp án</summary>Xé nguyên tử → **Big Rip**. Co về điểm nóng đặc → **Big Crunch**. Loãng lạnh dần → **Big Freeze / chết nhiệt**.</details>
 
 ---

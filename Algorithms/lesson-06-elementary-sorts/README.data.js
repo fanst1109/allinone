@@ -201,7 +201,7 @@ Ví dụ: mảng \`[1, 2, 3, 4, 5]\` (đã sorted). Pass 1 chạy 4 comparison, 
 
 Ví dụ worst case \`[5,4,3,2,1]\` với $n=5$: comparison $= 10$, swap $= 10$ (mỗi comparison đều dẫn tới swap).
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Sau pass đầu tiên của bubble sort trên \`[3, 1, 4, 1, 5]\`, phần tử nào chắc chắn đúng vị trí?
 > 2. Vì sao early-exit giúp best case là $O(n)$ chứ không phải $O(n^2)$?
 >
@@ -375,7 +375,7 @@ Ví dụ \`[1, 2, 3, 4, 5]\`: mỗi \`i\` chỉ so 1 lần (\`a[i-1] ≤ key\`),
 
 Worst case \`[5,4,3,2,1]\` với $n=5$: mỗi key phải dịch qua toàn bộ phần đã sắp → comparison + shift đều = $10$.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Vì sao insertion sort dùng \`>\` chứ không \`>=\` trong điều kiện dịch?
 > 2. Mảng nào là best case của insertion sort? Worst case?
 >

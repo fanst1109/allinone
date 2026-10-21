@@ -150,7 +150,7 @@ Kết quả: `[3, 2, 4, 1, 5]`. Chia: `A[0..3] = [3,2,4,1]` (đều ≤ 5), `A[4
 > - *"Vì sao Hoare dùng `do...while` chứ không `while`?"* — Để đảm bảo cả 2 con trỏ tiến ít nhất 1 bước mỗi vòng, tránh kẹt vô hạn khi phần tử bằng đúng pivot.
 > - *"Pivot = A[lo] có an toàn không?"* — Cẩn thận: nếu pivot là phần tử nhỏ nhất, vòng `do j` có thể không dừng đúng nếu cài sai biên. Cài đặt chuẩn ở trên đã xử lý đúng vì `j` luôn lùi ít nhất 1 từ `hi+1`.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Lomuto trả về index của pivot ở vị trí cuối cùng; Hoare trả về cái gì?
 > 2. Sơ đồ nào swap nhiều hơn trên dữ liệu ngẫu nhiên?
 >
@@ -348,7 +348,7 @@ quickselect(A, lo, hi, k):       # tìm phần tử ở vị trí k (0-indexed) 
 
 Kiểm tra: sort `[7,2,5,1,9,3]` = `[1,2,3,5,7,9]`, phần tử index 2 = `3`. ✓ — chỉ 1 lần partition, không cần sort tiếp!
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao quickselect $O(n)$ còn quicksort $O(n \log n)$?
+> 🔁 **Thực hành.** Vì sao quickselect $O(n)$ còn quicksort $O(n \log n)$?
 > <details><summary>Đáp án</summary>
 > Quicksort đệ quy **cả 2 phía** → tổng công $n \cdot \log n$. Quickselect chỉ đệ quy **1 phía** → tổng $n + n/2 + n/4 + \cdots = 2n = O(n)$. Bỏ được nửa kia mỗi bước là chìa khóa.
 > </details>

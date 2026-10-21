@@ -64,7 +64,7 @@ Sau bài này bạn sẽ:
 
 → **Điểm hòa vốn** = strike + premium = $100 + 5 = 105$. Dưới 100: lỗ tối đa = phí (5). Trên 105: lời, **không giới hạn** khi giá càng cao.
 
-> 🔁 **Dừng lại tự kiểm tra.** Call strike 50, premium 3. Giá đáo hạn 58. Lợi nhuận? Điểm hòa vốn?
+> 🔁 **Thực hành.** Call strike 50, premium 3. Giá đáo hạn 58. Lợi nhuận? Điểm hòa vốn?
 > <details><summary>Đáp án</summary>Payoff $= \max(58-50,0)=8$; lợi nhuận $= 8-3 = +5$. Hòa vốn $= 50+3 = 53$.</details>
 
 ---
@@ -108,7 +108,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Bán call "trần" (naked call) vì "nhận phí ngon". Nếu giá tăng vọt, lỗ của người bán call **không giới hạn** (phải giao tài sản ở giá strike thấp dù thị trường cao bao nhiêu). Bán quyền chọn trần là một trong những vị thế rủi ro nhất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn nghĩ cổ phiếu sẽ tăng mạnh nhưng muốn giới hạn lỗ. Mua call hay bán put? Vì sao?
+> 🔁 **Thực hành.** Bạn nghĩ cổ phiếu sẽ tăng mạnh nhưng muốn giới hạn lỗ. Mua call hay bán put? Vì sao?
 > <details><summary>Đáp án</summary>**Mua call**: lỗ tối đa = phí (giới hạn), lời lớn nếu giá tăng. Bán put cũng cược giá tăng nhưng lỗ lớn nếu giá rớt mạnh — không giới hạn rủi ro như mong muốn.</details>
 
 > 📝 **Tóm tắt toàn bài.**

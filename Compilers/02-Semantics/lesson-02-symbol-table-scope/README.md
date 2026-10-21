@@ -124,7 +124,7 @@ Bốn entry trên minh hoạ: entry không chỉ cho biến mà cả **hàm** (l
 
 > ⚠ **Lỗi thường gặp.** Đừng nhầm *bảng ký hiệu* với *biến môi trường runtime (environment)*. Bảng ký hiệu là **tĩnh** (compile-time): lưu *kiểu/vị trí*. Environment (Lesson 09) là **động** (run-time): lưu *giá trị hiện tại*. Cùng cấu trúc "tên → X" nhưng X khác bản chất. Lẫn lộn hai cái → bạn sẽ thắc mắc "sao bảng ký hiệu không có giá trị của `x`?".
 
-> 🔁 **Dừng lại tự kiểm tra.** Có đoạn `int total; total = total + 1;`. Khi gặp `total` ở vế phải, compiler làm gì để biết `total` hợp lệ?
+> 🔁 **Thực hành.** Có đoạn `int total; total = total + 1;`. Khi gặp `total` ở vế phải, compiler làm gì để biết `total` hợp lệ?
 > <details><summary>Đáp án</summary>
 > Gọi <code>lookup("total")</code> trên bảng ký hiệu. Vì dòng <code>int total;</code> đã thêm entry <code>"total" → {int, ...}</code>, lookup trả về thành công → hợp lệ, kiểu <code>int</code>. Nếu chưa từng khai báo, lookup trả "không tìm thấy" → báo lỗi <em>undefined variable</em>.
 > </details>
@@ -209,7 +209,7 @@ func f(p) {            // (B) p: local của f
 
 > ⚠ **Lỗi thường gặp (lexical vs dynamic).** Người mới hay nghĩ "biến `x` mà hàm thấy là biến `x` *gần nhất đang có giá trị*". Sai — đó là tư duy **dynamic**. Trong ngôn ngữ **lexical** (đa số), hàm chỉ thấy các biến **bao quanh nó *trong văn bản***, không phải biến của hàm gọi nó. Cứ nhìn *nơi hàm được viết*, không phải *nơi hàm được gọi*.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong ví dụ §3.3, nếu thêm `print x;` *ngay sau* `func show()` (ở global), nó in gì với lexical scope?
+> 🔁 **Thực hành.** Trong ví dụ §3.3, nếu thêm `print x;` *ngay sau* `func show()` (ở global), nó in gì với lexical scope?
 > <details><summary>Đáp án</summary>
 > In <strong>10</strong>. Ở scope global chỉ có <code>x = 10</code>; biến <code>x = 99</code> nằm trong <code>test</code>, không bao quanh điểm <code>print</code> này về mặt văn bản → không nhìn thấy.
 > </details>
@@ -312,7 +312,7 @@ Lấy đoạn dài hơn để thấy `x` "đổi nghĩa" theo vị trí:
 
 > ⚠ **Lỗi thường gặp (shadowing nhầm).** Tưởng `let x = 2` ở khối trong *thay đổi* `x` của khối ngoài. Không — nó tạo một `x` **mới, khác**. Khối ngoài vẫn giữ `x = 1`. Shadowing chỉ *che tạm thời* trong vùng lồng; ra khỏi vùng, biến ngoài nguyên vẹn. (Muốn *sửa* biến ngoài thì dùng `x = 2` **không** `let` — gán vào biến tra được, không khai báo mới.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Với `{ let a=5; { let b=a; let a=9; print a; print b; } }`, hai lệnh print in gì?
+> 🔁 **Thực hành.** Với `{ let a=5; { let b=a; let a=9; print a; print b; } }`, hai lệnh print in gì?
 > <details><summary>Đáp án</summary>
 > <code>let b = a</code>: lúc này khối trong <em>chưa</em> khai báo <code>a</code> riêng → lookup leo lên ngoài → <code>a = 5</code> → <code>b = 5</code>. Ngay sau đó <code>let a = 9</code> tạo <code>a</code> mới che ngoài. <code>print a</code> → <strong>9</strong> (a của khối trong). <code>print b</code> → <strong>5</strong> (b đã chốt giá trị 5). Thứ tự khai báo trong cùng khối có ý nghĩa!
 > </details>

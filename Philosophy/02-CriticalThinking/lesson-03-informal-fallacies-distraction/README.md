@@ -91,7 +91,7 @@ Bằng cấp có thể ảnh hưởng đến độ tin cậy, nhưng không quy�
 2. Tách biệt: "Đặc điểm của người nói không liên quan đến tính đúng sai của luận điểm."
 3. Đưa về đúng hướng: "Hãy cùng xét lý lẽ/bằng chứng: [lặp lại luận điểm cần thảo luận]."
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Câu nào là ad hominem thật sự?
 > 1. "Chuyên gia này nhận tiền từ công ty thuốc lá — tôi sẽ kiểm tra thêm nghiên cứu độc lập trước khi tin."
 > 2. "Cô ấy ủng hộ tăng lương tối thiểu — nhưng cô ấy chưa bao giờ kinh doanh, biết gì mà nói!"
@@ -201,7 +201,7 @@ Việc dọn nhà không liên quan đến câu hỏi về bài tập.
 1. Nhận diện: "Thông tin đó thú vị, nhưng không trả lời câu hỏi ban đầu."
 2. Kéo về: "Hãy quay lại câu hỏi: [lặp lại câu hỏi/luận điểm ban đầu]."
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Câu trả lời nào là red herring?
 > 1. A hỏi: "Tại sao sản phẩm này bị thu hồi?" B trả lời: "Chúng tôi đã bán hơn 10 triệu sản phẩm thành công trong 5 năm qua."
 > 2. A hỏi: "Thuốc này có tác dụng phụ gì?" B trả lời: "Theo nghiên cứu 2023, tác dụng phụ phổ biến là buồn nôn và chóng mặt."
@@ -397,7 +397,7 @@ Kích động tức giận để thúc đẩy hành động mà không xét bằ
 2. Tách biệt: "Vấn đề thực tế là: [câu hỏi factual cần trả lời]."
 3. Yêu cầu bằng chứng: "Có số liệu hoặc nghiên cứu nào hỗ trợ điều này không?"
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Phân loại mỗi câu sau:
 > 1. "Trẻ em đang chết đói — bạn có thể làm gì đó không?" (kèm thống kê về nạn đói và chương trình từ thiện cụ thể)
 > 2. "Trẻ em đang chết đói — vậy bạn còn ngồi đó tranh luận về chính sách làm gì?"

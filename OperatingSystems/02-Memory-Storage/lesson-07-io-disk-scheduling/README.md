@@ -260,7 +260,7 @@ Giống C-SCAN nhưng chỉ quay về request thấp nhất (không về cylinde
 - SSD: disk scheduling không cần thiết (không có seek time cơ học).
 - Linux kernel: CFQ (Completely Fair Queuing), deadline, noop (cho SSD).
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 SSTF đạt tổng di chuyển bằng LOOK (299) nhưng có nhược điểm gì mà LOOK không có?
 

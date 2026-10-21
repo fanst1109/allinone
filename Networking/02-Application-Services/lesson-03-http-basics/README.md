@@ -230,7 +230,7 @@ Chỉ cập nhật field `stock`, không đụng đến `name`, `price`. Khác P
 - Nhầm PATCH và PUT → PUT với body thiếu field có thể xóa dữ liệu ngoài ý muốn.
 - Dùng POST cho mọi thứ kể cả lấy dữ liệu → vi phạm semantics, mất cơ hội cache.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Câu hỏi: API endpoint `/api/orders` nhận POST. Client gọi 3 lần liên tiếp (do lỗi mạng retry). Kết quả? Cách phòng tránh?
 

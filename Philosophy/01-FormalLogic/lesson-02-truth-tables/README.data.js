@@ -68,7 +68,7 @@ Một **liên từ logic** (logical connective) là phép toán nhận một ho�
 
 > ⚠ **Lỗi thường gặp: ¬¬p khác p?** Sai — ¬¬p = p luôn luôn. Phủ định hai lần trở về ban đầu: ¬(¬T) = ¬F = T; ¬(¬F) = ¬T = F. Đây là luật **song phủ định (double negation)**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho p = F. Tính ¬p, ¬(¬p), ¬(¬(¬p)).
 > <details><summary>Đáp án</summary>
 >
@@ -104,7 +104,7 @@ Một **liên từ logic** (logical connective) là phép toán nhận một ho�
 
 > ⚠ **Lỗi thường gặp: "và" trong tiếng Việt không phải lúc nào cũng là ∧.** Ví dụ: "Anh ấy vừa đến vừa đi ngay" — "vừa... vừa" có ý thời gian đồng thời, không chỉ là T∧T thuần túy. Logic hình thức chỉ quan tâm chân lý, không quan tâm thứ tự thời gian hay ngữ cảnh.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Không cần biết nội dung cụ thể, chỉ biết p = T và q = F. Tính p ∧ q, ¬p ∧ q, p ∧ ¬q.
 > <details><summary>Đáp án</summary>
 >
@@ -143,7 +143,7 @@ Một **liên từ logic** (logical connective) là phép toán nhận một ho�
 > - XOR (loại trừ) = "đúng một trong hai, không phải cả hai": \`p ⊕ q = (p ∨ q) ∧ ¬(p ∧ q)\`.
 > - **Mặc định khi gặp ∨ trong logic hình thức: LUÔN là bao hàm**. Nếu bài toán muốn loại trừ sẽ viết ⊕ hoặc XOR tường minh.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > p = F, q = F. Tính p ∨ q, ¬p ∨ q, p ∨ ¬p.
 > <details><summary>Đáp án</summary>
 >
@@ -191,7 +191,7 @@ Một **liên từ logic** (logical connective) là phép toán nhận một ho�
 > - *"p→q và q→p có như nhau không?"* — Không. q→p là **đảo** (converse) của p→q; chúng không tương đương. Ví dụ: "Nếu mưa thì đường ướt" không có nghĩa là "Nếu đường ướt thì trời mưa" (đường có thể ướt vì lý do khác). Ta sẽ phân tích kỹ ở bài 3.
 > - *"¬p→¬q thì sao?"* — Đó là **đảo phủ** (inverse), cũng không tương đương với p→q. Nhưng **¬q→¬p** (đối ngẫu/contrapositive) thì tương đương hoàn toàn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho p = T, q = F. Tính p→q, q→p, ¬q→¬p.
 > <details><summary>Đáp án</summary>
 >
@@ -231,7 +231,7 @@ Một **liên từ logic** (logical connective) là phép toán nhận một ho�
 > ⚠ **Lỗi thường gặp: p↔q = (p→q) ∧ (q→p)?**
 > Đúng — đây là một tương đương quan trọng: \`p↔q = (p→q) ∧ (q→p)\`. Có thể verify bằng bảng chân lý (xem bài tập 3).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Cho p = F, q = T. Tính p↔q và (p→q) ∧ (q→p).
 > <details><summary>Đáp án</summary>
 >

@@ -94,7 +94,7 @@ UPDATE v_khach_hn SET email = 'moi@x.com' WHERE id = 3;  -- OK, ghi vào khach_h
 - *"View có làm truy vấn chậm hơn không?"* — View thường không lưu gì, nên không tốn đĩa; nhưng mỗi lần đọc, câu truy vấn gốc chạy lại. Nếu câu đó nặng (join nhiều bảng) thì đọc view cũng nặng tương đương. Đó là động lực cho materialized view (mục 2).
 - *"View có lưu dữ liệu không?"* — Không. View thường chỉ lưu *định nghĩa truy vấn*. Dữ liệu luôn lấy tươi từ bảng gốc.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. View thường lưu dữ liệu hay chỉ lưu câu truy vấn?
 2. Vì sao view có `GROUP BY` thường không sửa được?
 
@@ -149,7 +149,7 @@ Materialized view là một kỹ thuật điển hình trong **kho dữ liệu (
 - *"Khi nào dữ liệu materialized view sai?"* — Ngay sau khi bảng gốc đổi mà chưa `REFRESH`. Nếu kết quả phải tuyệt đối tươi (số dư tài khoản) → đừng dùng materialized view. Nếu cũ vài phút cũng được (báo cáo doanh thu) → rất hợp.
 - *"Có tự refresh được không?"* — Có, qua lịch (cron job) hoặc cơ chế incremental refresh của DBMS, nhưng vẫn có độ trễ. Không có gì "vừa tức thì vừa miễn phí".
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Vì sao đọc materialized view nhanh hơn view thường?
 2. Cái giá phải trả của materialized view là gì?
 
@@ -301,7 +301,7 @@ Nếu một bảng có nhiều trigger cùng loại, DBMS chạy chúng theo th�
 - *"`BEFORE` và `AFTER` khác nhau khi nào quan trọng?"* — Dùng `BEFORE` khi cần *sửa hoặc chặn* giá trị sắp ghi (`NEW`). Dùng `AFTER` khi cần *phản ứng sau khi đã ghi xong* (ghi log, đồng bộ bảng khác) — lúc đó dữ liệu đã chắc chắn vào bảng.
 - *"Trigger có chạy khi rollback không?"* — Trigger chạy *trong cùng transaction*. Nếu transaction rollback, mọi thứ trigger ghi cũng bị huỷ theo.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. Muốn chuẩn hóa giá trị *trước khi* ghi, dùng `BEFORE` hay `AFTER`?
 2. Đệ quy trigger là gì và vì sao nguy hiểm?
 

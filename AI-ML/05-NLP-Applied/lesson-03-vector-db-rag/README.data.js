@@ -182,7 +182,7 @@ Ví dụ ở mục 3.2 dùng $c = 1000$ với $N = 10^6$. **Trong production**, 
 > - **Quên train centroid mới khi distribution đổi**: nếu sản phẩm bạn ngày càng nhiều dữ liệu lĩnh vực mới, các centroid cũ không còn "đặc trưng" cho dữ liệu nữa → recall tụt. Phải retrain định kỳ.
 > - **Chọn $c$ quá lớn**: search nhanh nhưng \`nprobe\` phải cao hơn để giữ recall → triệt tiêu lợi ích.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Cho $N = 10^8$, $d = 768$. Bạn muốn search trong 50ms với CPU 1 GFLOPS. Chọn $c$ và \`nprobe\` thế nào?
 >
@@ -275,7 +275,7 @@ Sơ đồ tầng trong sách giáo khoa thường vẽ 3-4 node mỗi tầng cho
 > - **\`efSearch\` quá thấp**: query nhanh nhưng miss top-k thực sự. Chỉnh \`efSearch\` $\\geq k \\times 2$ ít nhất.
 > - **Để nguyên default cho high-dim**: với $d = 1024$ hoặc cao hơn, \`M\` cần lớn hơn (32-64) để bù "curse of dimensionality" làm graph dễ trapping ở local minima.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Vì sao "greedy" trong HNSW vẫn cho recall cao dù không guarantee optimal?
 >
@@ -368,7 +368,7 @@ Ví dụ chia 8D thành 2 nhóm 4D (như trong viz) chỉ để dễ hình dung.
 > - **Quantize cả query**: nếu cũng quantize $q$ (Symmetric Distance), sai số gấp đôi. Luôn dùng **Asymmetric** (chỉ quantize database vector, giữ query nguyên).
 > - **PQ riêng không đủ**: PQ chỉ nén — vẫn cần IVF/HNSW để skip phần lớn vector. \`IVFPQ\` (FAISS) là combo chuẩn cho dataset lớn.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Với $d = 1536$ (OpenAI \`text-embedding-3-small\`), chọn $m$ thế nào để mỗi vector chiếm 24 byte?
 >

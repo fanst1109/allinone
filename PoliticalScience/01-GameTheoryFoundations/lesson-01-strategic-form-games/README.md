@@ -201,7 +201,7 @@ Nếu cả hai cải cách: chính sách tốt, cả hai được cử tri ủng
 
 → Cũng là PD! "Giữ nguyên" dominates "Cải cách" cho cả hai → kết quả là đình trệ dù cả hai thích (Cải cách, Cải cách).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Trong Stag Hunt (S=4, H=2), nếu A biết chắc B sẽ chọn H, A nên chọn gì?
 > <details><summary>Đáp án</summary>A nên chọn H: payoff(H|B=H) = 2 > payoff(S|B=H) = 0. Khi B chọn Hare, Stag trở thành vô ích vì cần cả hai để bắt hươu.</details>
 > 2. Bimatrix sau là game gì? (a) (2,2) (0,3) / (3,0) (1,1) — Đây có phải PD không?

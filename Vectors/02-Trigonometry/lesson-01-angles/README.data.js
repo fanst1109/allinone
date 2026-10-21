@@ -154,7 +154,7 @@ Nếu chỉ quan tâm **vị trí cuối** thì có — chúng kết thúc ở c
 
 Sai. Góc âm hoàn toàn hợp lệ, chỉ đơn giản nghĩa là "quay ngược chiều quy ước dương". Trong hệ trục tọa độ và lập trình đồ hoạ, góc âm dùng liên tục.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 1)
+#### 🔁 Thực hành (mục 1)
 
 1. Vẽ góc $+45^\\circ$ và góc $-45^\\circ$ trên hệ trục $Oxy$. Chúng có đối xứng qua đâu không?
 2. Trên đồng hồ, từ vị trí 12 quay tới vị trí 9 theo chiều ngược kim đồng hồ là góc bao nhiêu độ?
@@ -256,7 +256,7 @@ Quy ước này có từ thời chưa có máy tính, và hệ 60 cho phép chia
 
 Vì Go (và mọi thư viện toán) hiểu \`30\` là **30 radian**, không phải 30 độ. $30$ rad $\\approx \\frac{30}{2\\pi} \\approx 4.77$ vòng, tức quay gần 5 vòng + đoạn lẻ — kết quả \`sin\` ra số "ngẫu nhiên" như \`-0.988\`. Trước khi gọi \`math.Sin\`, bạn **phải đổi sang radian** (xem mục 3, 4).
 
-### 🔁 Dừng lại tự kiểm tra (mục 2)
+### 🔁 Thực hành (mục 2)
 
 1. $\\frac{1}{12}$ vòng = ? độ.
 2. Một chiếc bánh pizza chia 8 miếng đều nhau, mỗi miếng có góc đỉnh = ? độ.
@@ -391,7 +391,7 @@ Vì:
 2. **Dễ thấy quan hệ**: $\\frac{\\pi}{6}$ cho biết ngay đó là $30^\\circ$ (1/6 nửa vòng). Còn $0.5236$ thì phải tính ngược mới biết.
 3. **Quan trọng với các góc đặc biệt $30^\\circ / 45^\\circ / 60^\\circ / 90^\\circ$** — chúng cho \`sin\`, \`cos\` ra giá trị **đẹp** ($\\frac{1}{2}$, $\\frac{\\sqrt{2}}{2}$, $\\frac{\\sqrt{3}}{2}$, $1$). Sẽ học kỹ ở Lesson 02.
 
-### 🔁 Dừng lại tự kiểm tra (mục 3)
+### 🔁 Thực hành (mục 3)
 
 1. Đường tròn bán kính $r = 3$ m, cung dài $s = 6$ m. Tính góc ở tâm theo radian và độ.
 2. Đường tròn bán kính $r = 2$. Cung dài bao nhiêu để góc ở tâm là $\\frac{\\pi}{4}$ rad?
@@ -519,7 +519,7 @@ Không nhất thiết — nhưng nên thuộc **trục chính** ($0, 30^\\circ, 
 
 Bạn dùng **nhầm công thức**: $\\theta_\\text{deg} \\to \\theta_\\text{rad}$ phải nhân với $\\frac{\\pi}{180}$, không phải $\\frac{180}{\\pi}$. Mẹo phòng tránh: kết quả radian của góc nhỏ ($30^\\circ$) **phải nhỏ hơn** số độ rất nhiều ($30^\\circ \\approx 0.52$ rad). Nếu ra $1718$ thì biết ngay sai chiều.
 
-### 🔁 Dừng lại tự kiểm tra (mục 4)
+### 🔁 Thực hành (mục 4)
 
 1. $15^\\circ$ = bao nhiêu radian (dạng phân số $\\pi$ và dạng thập phân)?
 2. $\\frac{5\\pi}{4}$ rad = bao nhiêu độ?
@@ -657,7 +657,7 @@ v \\text{ (vận tốc dài)} &= \\omega \\cdot r
 
 Nếu $\\theta$ ở độ, phải nhân hệ số $\\frac{\\pi}{180}$ vào mọi công thức → mất đẹp.
 
-### 🔁 Dừng lại tự kiểm tra (mục 5)
+### 🔁 Thực hành (mục 5)
 
 1. Sửa đoạn code Go sau cho đúng (mong muốn in ra \`0.5\`):
    \`\`\`go
@@ -780,7 +780,7 @@ Vì \`math.Mod\` của Go (và \`fmod\` của C) trả lại số có cùng dấ
 
 Tuy nhiên, **với góc rất lớn** (như $10^{10}$), việc quy gọn nội bộ mất độ chính xác do float precision (xem [Lesson 01 Tầng 1](../../01-Algebra/lesson-01-numbers/)). Khi đó nên tự \`normalizeAngle\` trước khi gọi sin/cos để giữ chính xác. Đây là tình huống ít gặp nhưng có thật trong mô phỏng vật lý/đồ hoạ.
 
-### 🔁 Dừng lại tự kiểm tra (mục 6)
+### 🔁 Thực hành (mục 6)
 
 1. Quy gọn $-450^\\circ$ về $[0^\\circ, 360^\\circ)$.
 2. Quy gọn $\\frac{7\\pi}{3}$ về $[0, 2\\pi)$.
@@ -860,7 +860,7 @@ Lại "phụ thu" hệ số như mục 5. Vận tốc góc luôn ghi bằng rad/
 - **Tầng 4 (Linear Algebra)**: ma trận xoay (rotation matrix) — góc theo thời gian dùng để mô phỏng vật quay trong 3D (robotics, đồ hoạ).
 - **Tầng 6 (AI/ML)**: trong **RoPE** (Rotary Position Embedding của LLM), mỗi vị trí token được "xoay" bằng một góc tăng dần — y hệt vận tốc góc, chỉ thay "thời gian" bằng "vị trí token". Xem Lesson cuối Tầng 2 (RoPE preview).
 
-### 🔁 Dừng lại tự kiểm tra (mục 7)
+### 🔁 Thực hành (mục 7)
 
 1. Một quạt trần quay 60 vòng/phút. Tính $\\omega$ theo rad/s.
 2. Bánh xe ô tô bán kính $r = 0.3$ m quay với $\\omega = 30$ rad/s. Vận tốc xe bao nhiêu km/h?

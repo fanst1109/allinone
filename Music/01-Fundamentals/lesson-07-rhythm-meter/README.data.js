@@ -76,7 +76,7 @@ Kiểm chứng ngược: 120 BPM × 0.5 s = 60 s ✓ (60 giây = 1 phút).
 > - *"Nhạc có thể thay đổi tempo trong bài không?"* — Có. Kỹ thuật *ritardando* (rit.) = chậm dần; *accelerando* (accel.) = nhanh dần. Thậm chí *rubato* cho phép nhạc sĩ co giãn tempo tự do trong một đoạn.
 > - *"Metronome là gì?"* — Thiết bị (cơ học hoặc kỹ thuật số) tạo tiếng "tick" đều đặn theo BPM đặt sẵn, giúp nhạc sĩ luyện đúng tempo. Viz dưới đây có metronome thật để bạn thử.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một bài có tempo 90 BPM. Mỗi phách kéo dài bao nhiêu giây?
+> 🔁 **Ôn tập.** Một bài có tempo 90 BPM. Mỗi phách kéo dài bao nhiêu giây?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -138,7 +138,7 @@ $$\\frac{\\text{số TRÊN}}{\\text{số DƯỚI}}$$
 > - *"4/4 và 2/2 có bằng nhau không?"* — Về toán học mỗi ô nhịp đều chứa 1 nốt tròn. Nhưng 4/4 nhấn mạnh *4 phách đen* trong khi 2/2 (cut time) cảm nhận là *2 phách trắng* nhanh — phách của 2/2 dài gấp đôi.
 > - *"4/4 có ký hiệu nào đặc biệt không?"* — Có. 4/4 thường viết tắt là chữ **C** (common time). 2/2 viết tắt là **₵** (cut time, C có gạch ngang).
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhịp 3/8 có bao nhiêu móc đơn trong một ô? Nếu tempo = 120 BPM (móc đơn = 1 phách), mỗi ô kéo dài bao lâu?
+> 🔁 **Ôn tập.** Nhịp 3/8 có bao nhiêu móc đơn trong một ô? Nếu tempo = 120 BPM (móc đơn = 1 phách), mỗi ô kéo dài bao lâu?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -221,7 +221,7 @@ Nếu tempo ghi "♩. = 60" (nốt đen chấm = 60 BPM), thời lượng 1 phá
 > - *"Làm sao phân biệt 3/4 và 6/8 khi cả hai đều có 6 móc đơn mỗi ô?"* — Chia subdivision: 3/4 cảm nhận 3 phách đôi (1–và–2–và–3–và); 6/8 cảm nhận 2 phách ba (1–và–a–2–và–a). Nghe nhạc: 3/4 có "3 bước waltz" đều nhau; 6/8 có "chao đưa" 2 nhịp.
 > - *"12/8 nghe như thế nào?"* — 4 phách lớn, mỗi phách chia 3. Rất nhiều bài blues chậm và ballad rock dùng 12/8 vì cảm giác "lắc đầu" 3 của nó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhịp 9/8 có bao nhiêu phách cảm nhận thực? Mỗi phách là loại nốt gì?
+> 🔁 **Ôn tập.** Nhịp 9/8 có bao nhiêu phách cảm nhận thực? Mỗi phách là loại nốt gì?
 >
 > <details><summary>Đáp án</summary>
 >

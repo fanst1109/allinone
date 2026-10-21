@@ -85,7 +85,7 @@ for _, v := range xs {
 
 > ⚠ **Lỗi thường gặp.** Tưởng "ít dòng = tốt". Mục tiêu là *ít độ phức tạp cho người đọc*, không phải ít ký tự. Dòng clever ở trên còn cấp phát một map mới mỗi vòng lặp — vừa khó đọc vừa chậm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đoạn nào "thông minh" nhất bạn từng viết tuần này? Nếu đồng nghiệp phải hỏi bạn nó làm gì, đó là tín hiệu cần viết lại cho rõ.
+> 🔁 **Thực hành.** Đoạn nào "thông minh" nhất bạn từng viết tuần này? Nếu đồng nghiệp phải hỏi bạn nó làm gì, đó là tín hiệu cần viết lại cho rõ.
 > <details><summary>Gợi ý đánh giá</summary>Tiêu chí: một dev cùng team, đọc đoạn đó <strong>không có bạn ngồi cạnh giải thích</strong>, trong 30 giây có hiểu không? Nếu không → viết lại rõ hơn.</details>
 
 > 📝 **Tóm tắt mục 2.** Simplicity, readability, "clear is better than clever". Ít dòng không phải mục tiêu; ít độ phức tạp cho người đọc mới là.
@@ -173,7 +173,7 @@ Vì gọi `pkg.Name`, đừng nhét tên package vào tên type/func:
 > - *"4 ví dụ naming đủ chưa? cho thêm."* — `i`/`idx` (index), `s`/`str` (string), `ctx` (context.Context), `db` (*sql.DB), `tx` (transaction), `buf` (buffer), `n` (count/length). Các viết tắt này là *quy ước cộng đồng*, không phải viết tắt tuỳ tiện — đừng đặt `c` cho count (dễ nhầm context).
 > - *"Tên hằng số viết sao?"* — `MaxRetries`, `DefaultTimeout` (mixedCaps), KHÔNG `MAX_RETRIES` (đó là phong cách C, không phải Go).
 
-> 🔁 **Dừng lại tự kiểm tra.** `package authentication` có hàm tạo `AuthenticationManager`. Sửa thành idiomatic.
+> 🔁 **Thực hành.** `package authentication` có hàm tạo `AuthenticationManager`. Sửa thành idiomatic.
 > <details><summary>Đáp án</summary>Package nên là <code>auth</code>; type là <code>auth.Manager</code>; hàm tạo <code>auth.NewManager()</code>. Tránh stutter và package name dài.</details>
 
 > 📝 **Tóm tắt mục 3.**
@@ -441,7 +441,7 @@ Cùng một đoạn logic copy-paste ở nhiều nơi → sửa một chỗ quê
 
 Một struct/package "biết mọi thứ, làm mọi thứ" — vài chục field, hàng chục method không liên quan. Dấu hiệu thiếu phân tách trách nhiệm. Tách theo domain (liên hệ [Lesson 79 — Clean Architecture](../lesson-79-clean-architecture-go/)).
 
-> 🔁 **Dừng lại tự kiểm tra.** Hàm `func handle(r *http.Request) error` của bạn dài 90 dòng và có 4 tầng `if`. Hai smell nào? Cách sửa?
+> 🔁 **Thực hành.** Hàm `func handle(r *http.Request) error` của bạn dài 90 dòng và có 4 tầng `if`. Hai smell nào? Cách sửa?
 > <details><summary>Đáp án</summary>(1) Function quá dài (9.1) → tách validate/process/respond thành hàm riêng. (2) Nested sâu (9.3) → early return. Hai cái thường đi cùng nhau.</details>
 
 > 📝 **Tóm tắt mục 9.** Smell: hàm dài (>50), nhiều param (>4 → struct), nested sâu (>3 → early return), duplicate (DRY), god struct/package. Smell là *gợi ý nghi ngờ*, không phải luật cứng.

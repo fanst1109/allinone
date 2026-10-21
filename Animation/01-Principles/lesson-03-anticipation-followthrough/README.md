@@ -61,7 +61,7 @@ Một chuyển động do người mới làm thường trông "giả" vì nó v
 
 > ⚠ **Lỗi thường gặp #2.** Lấy đà **quá lâu** cho một hành động nhỏ → nhân vật trông do dự, "diễn lố". Đà phải **tỷ lệ** với lực của hành động: liếc mắt cần 1 frame đà, cú nhảy xa cần 5–6 frame.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Nhân vật sắp **đá bóng sang phải**. Pha lấy đà nên di chuyển chân theo hướng nào?
 > 2. Ở 24fps, một cú vung búa mạnh nên có pha lấy đà khoảng bao nhiêu frame để mắt kịp đọc — 1 hay 5?
 >
@@ -129,7 +129,7 @@ Chuỗi 14 → −5 → +2 → 0 gói gọn trong ~4 frame chính là "cảm gi�
 
 > ⚠ **Lỗi thường gặp.** Cho **mọi bộ phận dừng cùng một frame**. Kết quả: nhân vật "đóng băng" cứng đơ. Đúng ra thân dừng trước, tay dừng sau vài frame, tóc dừng sau cùng — mỗi lớp lệch nhau vài frame.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một vật phanh gấp với overshoot đầu $A = 20$px, ratio 0.35. Ba lần vọt đầu là bao nhiêu?
 > 2. Đâu là follow-through, đâu là overlapping: (i) áo choàng bay tiếp khi người đã đứng yên; (ii) tay dừng sau thân 3 frame?
 >

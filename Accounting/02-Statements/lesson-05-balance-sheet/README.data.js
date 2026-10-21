@@ -164,7 +164,7 @@ Kiểm tra cân: $L + E = 750 + 420 = 1.170 = A$ ✓.
 
 > ⚠ **Lỗi thường gặp — phần đến hạn của nợ dài hạn.** Một khoản vay dài hạn 400, trong đó **50 phải trả trong 12 tháng tới**, thì 50 đó **chuyển sang nợ ngắn hạn**, chỉ 350 còn ở nợ dài hạn. Lý do: 50 kia tạo áp lực thanh khoản ngay năm nay. Đừng để cả 400 nằm ở dài hạn chỉ vì gốc là khoản vay dài hạn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Xếp mỗi khoản vào ngắn hạn hay dài hạn:
+> 🔁 **Thực hành.** Xếp mỗi khoản vào ngắn hạn hay dài hạn:
 > 1. Xe tải dùng để giao hàng nhiều năm.
 > 2. Khoản phải thu khách hàng, dự kiến thu sau 2 tháng.
 > 3. Vay ngân hàng kỳ hạn 5 năm.
@@ -220,7 +220,7 @@ $$\\text{Current ratio} = \\frac{\\text{Tài sản ngắn hạn}}{\\text{Nợ ng
 
 > ❓ **Câu hỏi tự nhiên của người đọc.** *"Vốn lưu động và current ratio có mâu thuẫn nhau bao giờ không?"* → Không về dấu: current ratio > 1 **khi và chỉ khi** vốn lưu động > 0 (cùng tử số/mẫu số). Chúng chỉ khác **cách trình bày** — một số tuyệt đối, một tỷ lệ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Công ty có TS ngắn hạn 600, nợ ngắn hạn 400.
+> 🔁 **Thực hành.** Công ty có TS ngắn hạn 600, nợ ngắn hạn 400.
 > 1. Vốn lưu động?
 > 2. Current ratio?
 >

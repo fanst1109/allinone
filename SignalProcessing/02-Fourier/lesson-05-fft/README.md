@@ -104,7 +104,7 @@ $$\boxed{X[k] = E[k] + W_N^{k}\, O[k]}, \qquad \boxed{X[k + N/2] = E[k] - W_N^{k
 
 > ⚠ **Lỗi thường gặp.** Tưởng phải tính $E$ và $O$ cho **cả** $N$ chỉ số. **Sai.** Chỉ tính cho nửa đầu $k = 0 \ldots N/2-1$; nửa sau lấy lại nhờ tính tuần hoàn ($E[k+N/2]=E[k]$) và dấu trừ của twiddle. Đây chính là chỗ tiết kiệm tính toán.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $N = 8$, công thức cho $X[5]$ viết theo $E, O$ nào?
+> 🔁 **Thực hành.** Với $N = 8$, công thức cho $X[5]$ viết theo $E, O$ nào?
 > <details><summary>Đáp án</summary>
 > $5 = 1 + 8/2 = 1 + 4$, nên $X[5] = X[1+4] = E[1] - W_8^{1}\,O[1]$. Lưu ý dùng $E[1], O[1]$ (chỉ số $\bmod\ N/2$), không phải $E[5]$.
 > </details>
@@ -170,7 +170,7 @@ Vậy $\text{butterfly}(3, 1, -i) = (3 - i,\; 3 + i)$. Chỉ **một** phép nh�
 
 > ❓ **Câu hỏi tự nhiên.** *"Sao gọi là 1 phép nhân mà ra 2 output?"* — Vì $Wb$ tính **một lần**, rồi dùng chung: lần cộng cho output trên, lần trừ cho output dưới. Đó là chìa khóa tiết kiệm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính $\text{butterfly}(2, 2, W_8^0)$ với $W_8^0 = 1$.
+> 🔁 **Thực hành.** Tính $\text{butterfly}(2, 2, W_8^0)$ với $W_8^0 = 1$.
 > <details><summary>Đáp án</summary>
 > $Wb = 1 \cdot 2 = 2$. Output trên $= 2 + 2 = 4$. Output dưới $= 2 - 2 = 0$. Kết quả $(4, 0)$.
 > </details>
@@ -310,7 +310,7 @@ $$
 
 Đồng thời tín hiệu thực ⟹ phổ **đối xứng liên hợp**: $X[k] = \overline{X[8-k]}$. Kiểm: $X[1] = -4 + 9{,}66i$ và $X[7] = -4 - 9{,}66i$ đúng là liên hợp ✓. Mọi cặp khớp ⟹ tin tưởng kết quả.
 
-> 🔁 **Dừng lại tự kiểm tra.** FFT $N=8$ có mấy tầng, mỗi tầng mấy butterfly, tổng cộng bao nhiêu butterfly?
+> 🔁 **Thực hành.** FFT $N=8$ có mấy tầng, mỗi tầng mấy butterfly, tổng cộng bao nhiêu butterfly?
 > <details><summary>Đáp án</summary>
 > $\log_2 8 = 3$ tầng, mỗi tầng $N/2 = 4$ butterfly ⟹ $3 \times 4 = 12$ butterfly. Mỗi butterfly 1 nhân phức ⟹ ~12 nhân phức, so với DFT trực tiếp $N^2 = 64$.
 > </details>

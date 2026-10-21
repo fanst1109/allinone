@@ -60,7 +60,7 @@ $$
 ❓ **Câu hỏi tự nhiên**
 > *"Tại sao phải đếm pixel theo cả x và y, sao không duỗi thành 1 hàng dài rồi xử lý như tín hiệu 1D?"* — Duỗi được, nhưng ta sẽ **mất cấu trúc lân cận**: pixel ngay trên và ngay dưới (cách nhau 1 hàng) trong ảnh là hàng xóm, nhưng khi duỗi 1D chúng cách nhau $N$ phần tử. Cạnh, góc, texture đều là quan hệ 2D — phải giữ 2 chiều.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 <details><summary>Patch nào "tần số cao hơn": <code>[[100,100],[100,100]]</code> hay <code>[[0,255],[255,0]]</code>?</summary>
 
 Patch thứ hai. Patch đầu hoàn toàn phẳng (mọi pixel bằng nhau) → tần số = 0 (chỉ có thành phần DC). Patch thứ hai đảo trắng-đen theo cả hai chiều như bàn cờ → biến thiên cực nhanh → tần số cao nhất.
@@ -94,7 +94,7 @@ Patch thứ hai. Patch đầu hoàn toàn phẳng (mọi pixel bằng nhau) → 
 
 ⚠ **Lỗi thường gặp**: nghĩ "cạnh là tần số cao" rồi suy ra "ảnh càng sắc nét càng nhiều tần số cao, càng tốt". Thực tế **nhiễu (noise) cũng là tần số cao**. Vì thế low-pass (bỏ tần số cao) vừa làm mờ cạnh vừa khử nhiễu — luôn là đánh đổi.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 <details><summary>Làm mờ một bức ảnh tương đương với việc làm gì trong miền tần số?</summary>
 
 Loại bỏ (hoặc giảm) các thành phần tần số cao — tức là một bộ lọc **low-pass**. Cạnh và chi tiết nhỏ (tần số cao) bị suy giảm → ảnh trông nhòe.
@@ -149,7 +149,7 @@ Nghĩa là: **(1)** làm DFT 1D cho từng **hàng** → ma trận trung gian; *
 
 ⚠ **Lỗi thường gặp**: nhầm $u$ (tần số dọc) với $v$ (tần số ngang), hoặc quên fftshift rồi tưởng "DC ở góc trên trái là bug". DC ở góc $(0,0)$ là **đúng** khi chưa shift — fftshift chỉ là cách hiển thị.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 <details><summary>Ảnh chỉ gồm các vạch dọc đều nhau (sọc) sẽ cho phổ trông thế nào?</summary>
 
 Phổ tập trung thành vài điểm sáng nằm trên trục ngang (tần số $v$ ≠ 0, $u$ = 0) — vì sọc dọc là dao động thuần theo chiều ngang. Tần số càng dày (sọc càng sít) thì điểm sáng càng xa tâm.
@@ -179,7 +179,7 @@ $$G[u,v] = H[u,v] \cdot F[u,v] \quad \xrightarrow{\text{IDFT}} \quad g[x,y]$$
 
 ⚠ **Lỗi thường gặp**: dùng ideal low-pass (cắt phập một nhát) rồi ngạc nhiên vì cạnh có **gợn sóng** (ringing artifact). Cắt sắc trong miền tần số ⇔ tích chập với hàm sinc dao động trong miền không gian → sinh gợn. Vì thế thực tế dùng Gaussian (giảm mượt).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 <details><summary>Muốn phát hiện cạnh trong ảnh, dùng low-pass hay high-pass?</summary>
 
 High-pass. Cạnh là tần số cao; bỏ tần số thấp (vùng phẳng) đi thì chỉ còn lại đường viền nổi bật.
@@ -241,7 +241,7 @@ Pixel tâm từ $100 \to 180$. Tổng trọng số kernel $= 0-1+0-1+5-1+0-1+0 =
 
 ⚠ **Lỗi thường gặp**: quên **chuẩn hóa** kernel blur (chia tổng trọng số). Box blur mà không chia 9 → ảnh sáng gấp 9 lần, tràn trắng. Và quên xử lý **biên ảnh** (pixel ở mép không đủ hàng xóm) → viền đen/lỗi; thực tế dùng padding (lặp mép, phản chiếu, hoặc bọc 0).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 <details><summary>Tổng các phần tử của kernel Sobel-x bằng bao nhiêu, và điều đó nói gì?</summary>
 
 $-1+0+1-2+0+2-1+0+1 = 0$. Tổng = 0 nghĩa là áp lên **vùng phẳng** cho ra 0 (đen) — kernel chỉ phản ứng ở nơi có **thay đổi** độ sáng, đúng bản chất "bắt cạnh".
@@ -295,7 +295,7 @@ Từ 16 số → còn **3 số khác 0**. Quét zig-zag cho chuỗi `15, 1, 1, 0
 
 ⚠ **Lỗi thường gặp / artifact khối JPEG**: nén quá mạnh (chất lượng thấp) → bảng lượng tử quá thô → mỗi khối $8\times8$ gần như chỉ còn DC + vài hệ số thấp → các khối trở thành những **ô vuông màu phẳng**, lộ rõ **lưới khối $8\times8$** (blocking artifact), và **gợn sóng quanh cạnh sắc/chữ** (ringing do mất tần số cao). Đây là lý do ảnh JPEG nén kiệt nhìn "rỗ ô vuông" — đặc biệt ở vùng chữ trên nền phẳng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 <details><summary>Bước nào của JPEG là lossy (mất thông tin không hoàn lại), bước nào lossless?</summary>
 
 **Lossy**: chroma subsampling và đặc biệt **lượng tử hóa** (làm tròn về số nguyên, nhiều hệ số thành 0 — không khôi phục được). **Lossless**: DCT (về lý thuyết khả nghịch), quét zig-zag, run-length + Huffman. Muốn JPEG chất lượng cao hơn ⇒ dùng bảng lượng tử "nhẹ tay" hơn ở bước 4.

@@ -59,7 +59,7 @@ Các polis có ý thức bản sắc riêng rất mạnh — Athens tự hào v�
 
 Quy mô rất đa dạng: nhỏ vài trăm đến vài nghìn người; Athens lớn nhất, khoảng 250.000–300.000 người vào thế kỉ V TCN (bao gồm nô lệ). Phần lớn polis chỉ có 5.000–20.000 dân.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Tại sao nền văn minh Hy Lạp không phát triển theo mô hình "đế chế sông lớn" như Ai Cập hay Lưỡng Hà?*
 
@@ -160,7 +160,7 @@ Helot là người Messenia bị chinh phục, biến thành nô lệ cho toàn 
 
 Cả hai thành bang đều có mặt tối và mặt sáng. Athens xây nền dân chủ trên lưng nô lệ và quyền công dân hạn hẹp. Sparta tạo ra xã hội cực kỳ bất bình đẳng (helot) nhưng cũng có phụ nữ được trao quyền kinh tế và thể chất hơn Athens. Không có hệ thống nào là "lý tưởng" — mỗi hệ thống là sản phẩm của hoàn cảnh lịch sử và lựa chọn xã hội riêng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Tại sao Sparta không thể học theo mô hình Athens, tức là cũng mở rộng thương mại và phát triển văn hóa?*
 
@@ -225,7 +225,7 @@ Ba Tư chiếm và đốt Athens (dân đã sơ tán). Hải quân Hy Lạp do t
 
 Thebes ("medized" — theo tiếng Hy Lạp medismos) đã chọn cách phục tùng Ba Tư thay vì chống lại. Đây là nguồn xấu hổ lâu dài cho Thebes, và là lý do Thebes thường bị Athens và Sparta coi là kém vinh quang hơn. Thebes sau này sẽ trả thù bằng cách đánh bại Sparta tại Leuctra (371 TCN).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Vì sao eo biển hẹp Salamis lại có lợi cho Hy Lạp trong trận hải chiến?*
 
@@ -335,7 +335,7 @@ Sau khi cùng đánh bại Ba Tư, Hy Lạp không hòa hợp — ngược lại
 
 Sparta không chiến thắng Athens bằng sức mạnh đơn thuần. Sparta thắng vì: (1) nhận tài trợ Ba Tư xây hải quân; (2) Athens mắc sai lầm chiến lược nghiêm trọng (Viễn chinh Sicily); (3) dịch bệnh giết chết ~1/4–1/3 dân số Athens bao gồm Pericles. Chưa đầy 30 năm sau (371 TCN), Sparta bị Thebes đánh bại tại Leuctra.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Tại sao Viễn chinh Sicily (415–413 TCN) là thảm họa cho Athens?*
 

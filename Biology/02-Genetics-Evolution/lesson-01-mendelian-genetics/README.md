@@ -109,7 +109,7 @@ Hình dung mỗi gene như một **ô trên thẻ căn cước** — vd "ô màu
 - **Viết `AA` và `aa` mà coi như cùng kiểu gen**: 2 cá thể đều "đồng hợp" nhưng đồng hợp về allele KHÁC nhau → kiểu gen khác nhau, kiểu hình khác nhau.
 - **Viết `Aa` rồi nói "kiểu hình lai"**: kiểu hình của `Aa` (trội hoàn toàn) giống hệt `AA`. Đừng tự bịa ra "kiểu hình trung gian" cho `Aa` — đó là trội không hoàn toàn, một quy luật khác (sẽ học sau).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một cây đậu hoa tím lai với cây hoa trắng cho con có 50% hoa tím + 50% hoa trắng. Kiểu gen của bố mẹ là gì?
 2. Cây `AaBb` có bao nhiêu kiểu gen có thể có ở thế hệ con khi tự thụ phấn? (Chỉ đếm số dạng kiểu gen khác nhau, chưa cần tỉ lệ.)
@@ -201,7 +201,7 @@ A: Mendel đoán có "nhân tố di truyền" rời rạc đi vào giao tử v�
 **Q: Tỉ lệ 3:1 chỉ đúng với trội hoàn toàn?**
 A: Đúng. Khi trội không hoàn toàn (red × white → pink), F2 cho **1:2:1** ở cả kiểu gen lẫn kiểu hình (đỏ:hồng:trắng). Khi đồng trội (codominance, vd nhóm máu AB), cũng không cho 3:1. Bài này giả định trội hoàn toàn — quy luật khác sẽ học sau.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Lai `Aa × Aa` cho 240 con. Dự đoán số con kiểu gen `AA`, `Aa`, `aa`.
 2. Một cặp bố mẹ đều mang gene lặn gây bệnh (`Aa`, biểu hiện bình thường). Xác suất sinh con bị bệnh là bao nhiêu? Nếu họ đã có 1 con bị bệnh, xác suất con thứ 2 bị bệnh có thay đổi không?
@@ -277,7 +277,7 @@ Khung Punnett là **bảng cộng x bảng nhân của di truyền**. Hàng = gi
 - **Cộng kiểu gen sai khi gom kiểu hình**: trong trội hoàn toàn, gom `AA + Aa` thành "trội". Đừng quên `Aa` xuất hiện **2 ô** (1 hàng × 1 cột rồi cộng đối xứng).
 - **Vẽ Punnett 4×4 cho 1 gene 2 allele**: lãng phí. Bảng 4×4 dùng cho lai 2 gene độc lập (§5), không phải 1 gene.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Lai `AA × Aa`. Vẽ Punnett. Tỉ lệ kiểu gen và kiểu hình ở F1 là gì?
 
@@ -376,7 +376,7 @@ A: Vì có **2 gene độc lập**, mỗi gene cho 4 cách tổ hợp (Punnett 2
 **Q: Lai `AaBb × aabb` (lai phân tích kép) cho tỉ lệ kiểu hình gì?**
 A: `aabb` chỉ cho 1 loại giao tử `ab`. `AaBb` cho 4 loại (AB, Ab, aB, ab) đều 1/4. Tổ hợp: AaBb : Aabb : aaBb : aabb = **1 : 1 : 1 : 1** (vàng-trơn : vàng-nhăn : lục-trơn : lục-nhăn). Đây là cách quan trọng để **xác nhận gene độc lập** — nếu lệch khỏi 1:1:1:1, có thể có liên kết gene.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cá thể `AaBbCC` cho bao nhiêu loại giao tử khác nhau?
 2. Lai `AaBb × AaBb` cho 800 con. Trong số con có kiểu hình **vàng-trơn**, có bao nhiêu con có kiểu gen `AaBb` (dị hợp cả 2)?
@@ -437,7 +437,7 @@ Vì `aa` không "che giấu" giao tử của bố. Allele `a` mà cá thể bí 
 - **Lai với `Aa` thay vì `aa`**: lai với `Aa` cũng có 1/2 giao tử `a` nhưng kết quả khó đọc hơn — vì `Aa` × `Aa` cho 3:1 dù gì, không phân biệt được bố là `AA` hay `Aa`.
 - **Nhầm lai phân tích với "F2 tự thụ"**: 2 phép lai khác nhau. F2 = `Aa × Aa` → 3:1 kiểu hình; lai phân tích = `?` × `aa` → tỉ lệ phụ thuộc kiểu gen ẩn.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Một cây đậu hoa tím lai phân tích cho 56 con: 28 tím + 28 trắng. Kiểu gen của cây tím ban đầu? Nếu kết quả là 56 tím + 0 trắng (cỡ 56 đủ tin) thì sao?
 

@@ -60,7 +60,7 @@ Xét đồ thị 7 đỉnh `{0,1,2,3,4,5,6}` với các cạnh:
 > - *"Cạnh trùng (0-1 xuất hiện 2 lần) có làm tăng component không?"* — Không. Component chỉ phụ thuộc **đỉnh nào nối được đỉnh nào**, không phụ thuộc số lần.
 > - *"Đồ thị có hướng thì sao?"* — Khái niệm "connected component" cho đồ thị **có hướng** khác hẳn (gọi là **strongly/weakly connected**). Bài này chỉ xét **vô hướng**; phần có hướng để dành [Lesson 37 — Strongly Connected Components](../lesson-37-strongly-connected/).
 
-> 🔁 **Dừng lại tự kiểm tra.** Đồ thị 8 đỉnh, cạnh `0-1, 1-2, 3-4, 4-5, 5-3, 6-7`. Bao nhiêu component?
+> 🔁 **Thực hành.** Đồ thị 8 đỉnh, cạnh `0-1, 1-2, 3-4, 4-5, 5-3, 6-7`. Bao nhiêu component?
 > <details><summary>Đáp án</summary>
 >
 > `{0,1,2}`, `{3,4,5}` (tam giác), `{6,7}` → **3 thành phần**. (Không có đỉnh cô lập vì cả 8 đỉnh đều có cạnh.)

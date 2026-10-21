@@ -110,7 +110,7 @@ Gọi **độ nén tối đa lúc chạm đất** là $X$ (phần trăm chiều 
 
 Chú ý: **bảo toàn thể tích vẫn giữ nguyên** cho mọi vật liệu — chỉ **biên độ** biến dạng khác nhau. Bi sắt biến dạng ~0 nên nhìn gần như tròn suốt; bóng nước bẹp dí. Trong minh họa, kéo slider **Độ squash** từ trái (bi sắt) sang phải (bóng nước) để thấy cùng một cú nảy nhưng "chất liệu" đổi hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Bóng $D = 50$ nén lúc chạm đất còn cao $H = 30$. Rộng $W$ phải là bao nhiêu để bảo toàn thể tích?
 > 2. Hai bóng cùng $D$ thả cùng độ cao: bóng A chạm đất cao 49, bóng B chạm đất cao 30. Bóng nào **mềm hơn**? Vì sao?
 >

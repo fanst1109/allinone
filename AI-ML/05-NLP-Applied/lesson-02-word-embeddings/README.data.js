@@ -139,7 +139,7 @@ Lấy hàng của \`cat\` $= (1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)$ và hàng \`dog\
 
 > ⚠ **Lỗi thường gặp.** Distributional hypothesis **không nói** "từ giống nhau về nghĩa thì đồng nghĩa". Nó nói "**phân bố** co-occurrence giống nhau". Hai từ trái nghĩa như *hot* và *cold* cũng có context giống nhau (đều theo sau "feels", đều trước "weather") → embedding của chúng lại **gần nhau**. Đây là điểm yếu (sẽ bàn ở mục 11).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 >
 > 1. Nếu corpus chỉ có 1 câu, hỏi distributional hypothesis có còn ý nghĩa không?
 > 2. Cho vocab 100 000 từ, ma trận co-occurrence có bao nhiêu ô? Có thực tế không?
@@ -375,7 +375,7 @@ Loss $= -\\log(0,634) - \\log(0,475) - \\log(0,488) = 0,456 + 0,744 + 0,717 = 1,
 >
 > Đúng vậy — đó là vấn đề. Mikolov dùng **unigram distribution mũ 3/4**: $P(w) \\propto \\text{count}(w)^{0,75}$. Mũ 0.75 nén bớt frequency cao và lift up frequency thấp, cân bằng training tốt hơn so với đều hoặc theo unigram thường.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 >
 > 1. Skip-gram dùng cross-entropy. Cross-entropy yêu cầu xác suất tổng = 1. Negative sampling không cho ra xác suất tổng = 1 — vậy nó "đúng" theo nghĩa nào?
 > 2. Trong Skip-gram, ta có **2 ma trận** W và W'. Sau khi train xong, dùng ma trận nào làm embedding?
@@ -566,7 +566,7 @@ Loại bỏ 3 từ input để tránh trả về chính chúng (cos cao sẵn). 
 >
 > Vì embedding học từ corpus chứa hàng triệu lần \`queen\` cùng context royal/female, ít hơn với \`princess\` (trẻ + female) hay \`goddess\` (thần thoại). Vector offset đúng nhất từ \`king\` để tới "royal female adult" là \`queen\`. Princess thường top-3 hoặc top-5.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 >
 > 1. Tại sao trừ \`man\` và cộng \`woman\` chứ không phải ngược lại?
 > 2. Với analogy \`Tokyo : Japan = ? : Korea\`, viết phương trình vector và đáp án.

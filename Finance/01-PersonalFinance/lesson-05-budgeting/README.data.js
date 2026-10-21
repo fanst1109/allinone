@@ -36,7 +36,7 @@ Thu 20 triệu/tháng, chi 16 triệu → tiết kiệm 4 triệu → **tỷ l�
 
 > ⚠ **Lỗi thường gặp.** "Tiết kiệm = phần còn lại sau khi chi". Đây là tư duy bị động khiến phần còn lại thường = 0. Đảo lại: **"trả cho bản thân trước" (pay yourself first)** — trích tiết kiệm ngay khi nhận lương, rồi mới chi phần còn lại.
 
-> 🔁 **Dừng lại tự kiểm tra.** Thu 30 triệu, chi 24 triệu. Tỷ lệ tiết kiệm?
+> 🔁 **Thực hành.** Thu 30 triệu, chi 24 triệu. Tỷ lệ tiết kiệm?
 > <details><summary>Đáp án</summary>$(30-24)/30 = 6/30 = 20\\%$.</details>
 
 ---
@@ -90,7 +90,7 @@ Thu 20 triệu/tháng, chi 16 triệu → tiết kiệm 4 triệu → **tỷ l�
 
 > ⚠ **Lỗi thường gặp.** Tính 50/30/20 trên thu nhập **trước thuế**. Phải dùng thu nhập **ròng** (sau thuế, sau bảo hiểm bắt buộc) — đó mới là tiền thực về tài khoản.
 
-> 🔁 **Dừng lại tự kiểm tra.** Thu ròng 18 triệu. Theo 50/30/20, mỗi tháng nên tiết kiệm ít nhất bao nhiêu?
+> 🔁 **Thực hành.** Thu ròng 18 triệu. Theo 50/30/20, mỗi tháng nên tiết kiệm ít nhất bao nhiêu?
 > <details><summary>Đáp án</summary>$18 \\times 20\\% = 3{,}6$ triệu.</details>
 
 ---
@@ -116,7 +116,7 @@ Có 50 triệu, chi thiết yếu 10 triệu/tháng → runway 5 tháng (cầm c
 > - *"Để quỹ khẩn cấp ở đâu?"* — Nơi **dễ rút, ít rủi ro**: tài khoản tiết kiệm. KHÔNG để trong cổ phiếu (có thể phải bán lúc giá thấp đúng khi cần) — đây là lý do quỹ khẩn cấp tách khỏi đầu tư.
 > - *"Lãi thực âm thì sao?"* — Quỹ khẩn cấp ưu tiên **thanh khoản & an toàn** hơn lợi nhuận. Chấp nhận lãi thực thấp/âm cho phần này, đổi lấy sự an tâm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Chi thiết yếu 8 triệu/tháng, muốn quỹ 6 tháng. Cần bao nhiêu? Đang có 30 triệu thì runway mấy tháng?
+> 🔁 **Thực hành.** Chi thiết yếu 8 triệu/tháng, muốn quỹ 6 tháng. Cần bao nhiêu? Đang có 30 triệu thì runway mấy tháng?
 > <details><summary>Đáp án</summary>Cần $6 \\times 8 = 48$ triệu. Runway hiện tại $= 30/8 = 3{,}75$ tháng.</details>
 
 ---

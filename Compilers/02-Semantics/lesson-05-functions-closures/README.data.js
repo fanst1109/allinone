@@ -116,7 +116,7 @@ Bốn ví dụ về lời gọi và environment mới sinh ra:
 | \`square(7)\` (với \`fn square(x){return x*x}\`) | \`x→7\` | env định nghĩa \`square\` |
 | \`greet()\` (không tham số) | (rỗng) | env định nghĩa \`greet\` |
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`fn f(a) { return a + b; }\` định nghĩa ở global nơi \`b = 100\`, gọi \`f(5)\` cho ra gì?
+> 🔁 **Thực hành.** Với \`fn f(a) { return a + b; }\` định nghĩa ở global nơi \`b = 100\`, gọi \`f(5)\` cho ra gì?
 > <details><summary>Đáp án</summary>
 > \`105\`. \`callEnv\` có \`a → 5\`. Tra \`a\` → 5 ngay tại \`callEnv\`. Tra \`b\` → không có trong \`callEnv\`, leo lên cha (= global, nơi \`f\` định nghĩa) → \`100\`. Kết quả \`5 + 100 = 105\`. Đây là \`b\` được dùng như **biến tự do** (§5).
 > </details>
@@ -340,7 +340,7 @@ Bốn ví dụ closure khác nhau:
 > - *"Closure chụp giá trị hay chụp biến?"* — Chụp **biến (ô nhớ)**, không phải giá trị tức thời. Ví dụ \`counter\` ở trên: mỗi lần gọi \`c = c + 1\` thực sự **sửa** \`c\` trong environment captured → lần sau thấy giá trị mới. Đây vừa là sức mạnh, vừa là cái bẫy (§5.3, §4.4 dưới).
 > - *"Bộ nhớ của \`callEnv_A\` bao giờ được giải phóng?"* — Khi không còn closure nào trỏ tới nó. Trong ngôn ngữ có garbage collector (Go, JS, Python), GC tự phát hiện và thu hồi. Closure là một trong những lý do GC cần "đuổi theo con trỏ" thay vì chỉ giải phóng theo stack.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`add5\` và \`add10\` ở trên, \`add5(0)\` và \`add10(0)\` cho gì? Vì sao khác nhau dù cùng đối số \`0\`?
+> 🔁 **Thực hành.** Với \`add5\` và \`add10\` ở trên, \`add5(0)\` và \`add10(0)\` cho gì? Vì sao khác nhau dù cùng đối số \`0\`?
 > <details><summary>Đáp án</summary>
 > \`add5(0) = 0 + 5 = 5\`; \`add10(0) = 0 + 10 = 10\`. Khác nhau vì hai closure có \`defEnv\` khác: \`add5\` leo lên \`callEnv_A\` thấy \`x = 5\`, \`add10\` leo lên \`callEnv_B\` thấy \`x = 10\`. Đối số \`n = 0\` giống nhau, nhưng biến tự do \`x\` lấy từ hai cái túi khác.
 > </details>
@@ -437,7 +437,7 @@ for i = 0; i < 3; i = i + 1 {
 
 > ⚠ **Lỗi thường gặp — ghi nhớ.** "Closure bắt biến, không bắt giá trị." Mọi ngôn ngữ có closure + lặp đều dính bẫy này (JS trước ES6 với \`var\`, Go trước 1.22, Python). Go 1.22+ và JS với \`let\` đã sửa bằng cách **tự tạo biến mới mỗi vòng** — đúng như cách sửa thủ công ở trên. Module demo trong [visualization.html](./visualization.html) cho bạn bật/tắt bug này.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu vòng lặp chạy \`i\` từ 0 đến 4 (5 vòng) với bug, gọi \`funcs[2]()\` ra gì?
+> 🔁 **Thực hành.** Nếu vòng lặp chạy \`i\` từ 0 đến 4 (5 vòng) với bug, gọi \`funcs[2]()\` ra gì?
 > <details><summary>Đáp án</summary>
 > \`5\`. Tất cả closure bắt cùng ô \`i\`. Sau vòng lặp \`i = 5\` (điều kiện \`5 < 5\` sai). Mọi \`funcs[k]()\` đều ra \`5\`, kể cả \`funcs[2]\`.
 > </details>

@@ -143,7 +143,7 @@ Bốn ví dụ đầu **không có luật** nhưng vẫn được tuân thủ r�
 - **Tuân thủ vì thông tin (informational):** ta nghĩ *nhóm biết đúng hơn mình* nên theo (vd trong tình huống mơ hồ, nhìn người khác để đoán lối thoát hiểm).
 - **Tuân thủ vì chuẩn tắc (normative):** ta *biết* nhóm có thể sai nhưng vẫn theo để **được chấp nhận / tránh bị xa lánh**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. "Vô địch cờ vua cấp trường" là địa vị gán hay đạt được?
 > 2. Một bác sĩ đồng thời là cha của bệnh nhân đang cấp cứu — đây là *xung đột vai* hay *căng thẳng vai*?
 > 3. Tân binh học lại toàn bộ nếp sinh hoạt trong quân ngũ — đây là xã hội hóa loại nào?
@@ -231,7 +231,7 @@ Kết quả sau nhiều vòng: các **mảng đồng nhất lớn** hình thành
 
 > ⚠ **Đây là mô hình đồ chơi (toy model) — không phải bức tranh đầy đủ về xã hội thật.** Nó *cố tình* đơn giản hóa: bỏ qua quyền lực, truyền thông đại chúng, lợi ích khác nhau giữa hai lựa chọn, mạng lưới quan hệ không đều. Giá trị của nó **chỉ là một điểm**: cho thấy chuẩn mực *có thể* nổi lên từ tương tác cục bộ thuần túy, **không cần thiết kế trung tâm**. Đừng dùng nó để "dự báo" xã hội thật.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Ô X có 8 hàng xóm gồm 4 A và 4 B (hòa). Quy tắc "theo đa số, hòa thì giữ nguyên" cho X kết quả gì nếu X đang là A?
 > 2. Vì sao khi tăng nhiễu lên rất cao, mô phỏng **không** hội tụ về mảng đồng nhất?
 >

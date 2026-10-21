@@ -175,7 +175,7 @@ func SplitN(s, sep string, n int) []string
     ...
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Q1: Bạn vừa thấy gọi \`s.Charge(ctx, amount)\`. Để xem code thật của \`Charge\`, phím nào trong VS Code?
 > <details><summary>Đáp án</summary>\`F12\` — Go to Definition. Hoặc Ctrl+Click vào tên hàm.</details>
@@ -512,7 +512,7 @@ fatal error: concurrent map writes
 
 **Fix**: dùng \`sync.RWMutex\`, hoặc \`sync.Map\`, hoặc channel + 1 goroutine owner.
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Stack trace ngắn này — bug ở dòng nào file nào?
 > \`\`\`

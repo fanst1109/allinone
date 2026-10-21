@@ -927,7 +927,7 @@ ElasticSearch / Lucene tìm "apple AND banana": load posting list (bitmap doc-id
 
 → Bitwise không phải kỹ thuật "low-level cho fun" — nó là **ngôn ngữ làm việc với phần cứng và tối ưu**. Mọi codebase production lớn (Linux kernel, PostgreSQL, Go runtime, Chrome, Unreal Engine) đều có hàng nghìn dòng bitwise.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 >
 > 1. Vì sao Pokemon Red dùng bitwise để lưu badge của trainer?
 > 2. Cho `permission = 0o644`, viết biểu thức bitwise để "tăng quyền thực thi cho group".

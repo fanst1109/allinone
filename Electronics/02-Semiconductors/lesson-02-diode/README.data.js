@@ -159,7 +159,7 @@ Nhận xét: điện áp nguồn thấp → dòng nhỏ nhưng diode vẫn dẫn
 V_s < 0.7 V → diode không dẫn → I = 0 mA, V_R = 0 V, V_D = 0.5 V (toàn bộ điện áp rơi trên diode)
 \`\`\`
 
-🔁 **Dừng lại tự kiểm tra**: Mạch có V_s = 12 V, R = 560 Ω, một diode Si. Tính I và V_R.
+🔁 **Thực hành**: Mạch có V_s = 12 V, R = 560 Ω, một diode Si. Tính I và V_R.
 
 <details>
 <summary>Đáp án</summary>
@@ -328,7 +328,7 @@ Chọn $R_s$ sao cho $I_Z$ tối thiểu $\\approx$ 5–10% $I_{Z,\\text{max}}$ 
 
 ⚠ **Lỗi thường gặp**: Quên kiểm tra công suất Zener khi tải hở. Khi $I_L = 0$, toàn bộ dòng $I_R$ chảy qua Zener → $P_Z$ tối đa. Phải tính trường hợp xấu nhất này.
 
-🔁 **Dừng lại tự kiểm tra**: V_in = 12 V, V_Z = 5.1 V (1N4733), I_L = 30 mA. Tính R_s và P_Zener_max.
+🔁 **Thực hành**: V_in = 12 V, V_Z = 5.1 V (1N4733), I_L = 30 mA. Tính R_s và P_Zener_max.
 
 <details>
 <summary>Đáp án</summary>
@@ -414,7 +414,7 @@ A: LED không nối song song trực tiếp vì sụt áp mỗi chiếc không h
 **Q: LED có bị hỏng khi phân cực ngược không?**
 A: Có — LED thường chịu được tối đa 5 V ngược. Trong mạch AC, cần diode bảo vệ ngược chiều song song.
 
-🔁 **Dừng lại tự kiểm tra**: Nguồn 3.3 V, LED xanh dương (V_LED = 3.0 V), muốn dòng 10 mA. Tính R.
+🔁 **Thực hành**: Nguồn 3.3 V, LED xanh dương (V_LED = 3.0 V), muốn dòng 10 mA. Tính R.
 
 <details>
 <summary>Đáp án</summary>

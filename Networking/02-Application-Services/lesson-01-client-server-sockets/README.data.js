@@ -252,7 +252,7 @@ connect(fd, (93.184.216.34, 80))
 
 **"backlog là gì?"** — Kernel duy trì hai hàng đợi: hàng chờ bắt tay 3 bước chưa hoàn thành (SYN_RECEIVED) và hàng chờ được \`accept()\` (ESTABLISHED chưa được lấy). \`backlog\` giới hạn tổng hai hàng này. Nếu đầy, kernel tự động từ chối kết nối mới bằng cách bỏ qua gói SYN.
 
-🔁 **Tự kiểm tra**: Đặt lại thứ tự đúng cho phía server TCP: \`listen\`, \`accept\`, \`bind\`, \`socket\`, \`send/recv\`, \`close\`.
+🔁 **Thực hành**: Đặt lại thứ tự đúng cho phía server TCP: \`listen\`, \`accept\`, \`bind\`, \`socket\`, \`send/recv\`, \`close\`.
 
 <details>
 <summary>Đáp án</summary>
@@ -324,7 +324,7 @@ Giới hạn thực tế đến từ tài nguyên OS: mỗi socket tiêu tốn f
 
 ⚠ **Lỗi thường gặp**: Nhầm rằng mỗi client kết nối làm server "mở thêm port mới". **Sai** — server luôn dùng cùng port 80; kernel phân biệt bằng 4-tuple, không tạo thêm port.
 
-🔁 **Tự kiểm tra**: Client A \`(10.0.0.1:60000)\` và Client B \`(10.0.0.2:60000)\` cùng kết nối vào server \`(10.0.0.3:443)\`. Có phải 4-tuple giống nhau không?
+🔁 **Thực hành**: Client A \`(10.0.0.1:60000)\` và Client B \`(10.0.0.2:60000)\` cùng kết nối vào server \`(10.0.0.3:443)\`. Có phải 4-tuple giống nhau không?
 
 <details>
 <summary>Đáp án</summary>

@@ -169,7 +169,7 @@ Sau chiến thắng Biên giới 1950, Quân đội Nhân dân Việt Nam (tên 
 
 ⚠ **Hiểu lầm thường gặp:** Không phải mọi trận đánh đều là chiến thắng. Giai đoạn 1951 ghi nhận một số thất bại đáng kể khi quân VNDCCH cố gắng đánh xuống đồng bằng, nơi Pháp có ưu thế về hỏa lực và cơ giới. Sau những trận này, lãnh đạo quân sự VNDCCH điều chỉnh chiến lược: tránh công kích trực tiếp vùng đồng bằng, tập trung vào vùng núi và đánh điểm yếu của Pháp.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 <details>
 <summary>Chiến dịch Biên giới 1950 có ý nghĩa gì về mặt chiến lược?</summary>
 
@@ -249,7 +249,7 @@ Tổng quân số đồn trú: khoảng 10.800–16.200 lính (con số thay đ�
 
 ⚠ **Hiểu lầm thường gặp:** Chiến dịch Điện Biên Phủ kéo dài 56 ngày và có nhiều trận giành đi giành lại đẫm máu — không phải chiến thắng dễ dàng. Các trận đồi A1 (Eliane 2) là ví dụ điển hình: bị chiếm, bị phản kích lấy lại, rồi mới chiếm dứt điểm. Tổn thất của cả hai phía đều rất lớn.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 <details>
 <summary>Vì sao quyết định "đánh chắc tiến chắc" thay vì "đánh nhanh thắng nhanh" được coi là then chốt?</summary>
 

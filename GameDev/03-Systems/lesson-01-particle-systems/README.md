@@ -102,7 +102,7 @@ Mỗi hạt đi qua đúng 4 giai đoạn, lặp lại mỗi frame ở giai đo�
 
 📌 Bước UPDATE (vị trí từ vận tốc) **chính xác** là tích phân Euler ở [Lesson 03](../../01-Motion/lesson-03-integration-euler-verlet/): `pos += vel·Δt`. Hạt không cần Verlet hay RK4 — Euler "đủ tốt" vì hạt sống ngắn, sai số tích lũy không kịp lộ ra, và ta cần **rẻ × hàng nghìn lần**.
 
-🔁 **Dừng lại tự kiểm tra.** Một hạt có `Age = 0.6`, `Lifetime = 0.8`. (a) Tỉ số tuổi `t` là bao nhiêu? (b) Sau 0.3 s nữa hạt còn sống không?
+🔁 **Thực hành.** Một hạt có `Age = 0.6`, `Lifetime = 0.8`. (a) Tỉ số tuổi `t` là bao nhiêu? (b) Sau 0.3 s nữa hạt còn sống không?
 
 <details><summary>Đáp án</summary>
 
@@ -183,7 +183,7 @@ func (e *Emitter) spawnVelocity(angleCenter, spread, speedMin, speedMax float64)
 
 Ví dụ số: góc trung tâm $-\pi/2$ (lên, hệ trục y hướng xuống), spread `0.26 rad` (~15°), speed 80–140. Một lần gọi có thể ra `angle = −1.45 rad`, `speed = 112` → `vx = cos(−1.45)·112 ≈ 14.3`, `vy = sin(−1.45)·112 ≈ −111.1`. Hạt bay gần như thẳng lên, hơi lệch phải. Lần gọi khác ra số khác → cả chùm xòe tự nhiên.
 
-🔁 **Dừng lại tự kiểm tra.** Emitter rate = 90/giây, game 60 fps. (a) Trung bình bao nhiêu hạt/frame? (b) Sau đúng 1 giây, đã phun bao nhiêu hạt (giả sử acc bắt đầu từ 0)?
+🔁 **Thực hành.** Emitter rate = 90/giây, game 60 fps. (a) Trung bình bao nhiêu hạt/frame? (b) Sau đúng 1 giây, đã phun bao nhiêu hạt (giả sử acc bắt đầu từ 0)?
 
 <details><summary>Đáp án</summary>
 
@@ -232,7 +232,7 @@ p.Vy += fy * G * dt
 
 📌 **Va sàn cho nước** dùng đúng ý tưởng hệ số phục hồi và tiếp xúc từ [Lesson 10](../../02-Collision/lesson-05-friction-resting-stacking/), nhưng **xấp xỉ rẻ**: chỉ kiểm tra hạt với **một mặt phẳng sàn** (không phải mọi hạt với mọi hạt). Khi `Py > floorY`: đặt `Py = floorY`, đảo dấu `Vy` và nhân hệ số nảy (vd `Vy = -Vy * 0.5`). Đó là lý do hạt được phép bỏ qua hệ thống va chạm $O(n^2)$ đầy đủ.
 
-🔁 **Dừng lại tự kiểm tra.** Một hạt nước có `Vy = 60`, `Py = 398`, sàn `floorY = 400`, hệ số nảy 0.5, `Δt = 1/60`. Frame này hạt làm gì?
+🔁 **Thực hành.** Một hạt nước có `Vy = 60`, `Py = 398`, sàn `floorY = 400`, hệ số nảy 0.5, `Δt = 1/60`. Frame này hạt làm gì?
 
 <details><summary>Đáp án</summary>
 
@@ -286,7 +286,7 @@ Tàn lửa: `Lifetime = 0.8 s`. Size lerp `5 → 1`, alpha lerp `1.0 → 0.0`. M
 - *"Đổi màu nhiều chặng (vàng→đỏ→khói) làm sao?"* Chia tuổi thành các đoạn: `t` trong [0, 0.5] lerp vàng→đỏ; [0.5, 1] lerp đỏ→khói. Mỗi đoạn remap `t` về [0,1] cục bộ. Đây là **gradient nhiều chặng (color gradient)**.
 - *"Size lerp âm thì sao?"* Đừng để b < 0. Nếu cần hạt "biến mất bằng thu nhỏ", lerp size về một số dương nhỏ (vd 0.5) và để alpha lo phần tắt hẳn.
 
-🔁 **Dừng lại tự kiểm tra.** Khói: `Lifetime = 4 s`, size lerp `8 → 30`, alpha lerp `0.6 → 0`. Hạt ở `Age = 3 s`. Size và alpha hiện tại?
+🔁 **Thực hành.** Khói: `Lifetime = 4 s`, size lerp `8 → 30`, alpha lerp `0.6 → 0`. Hạt ở `Age = 3 s`. Size và alpha hiện tại?
 
 <details><summary>Đáp án</summary>
 
@@ -347,7 +347,7 @@ func (pl *Pool) Update(dt float64) {
 - *"Quét cả mảng tìm ô chết có chậm không?"* Với vài nghìn ô thì rẻ. Muốn nhanh hơn, giữ một **free list** (stack các chỉ số ô rỗng) → spawn là pop, die là push, O(1). Bắt đầu bằng quét tuyến tính cho đơn giản, tối ưu sau khi đo.
 - *"Vì sao chọn max cố định mà không cho lớn vô hạn?"* Vì ngân sách render và CPU hữu hạn. `max = 5000` vừa giới hạn bộ nhớ, vừa đảm bảo vòng update không bao giờ quá 5000 vòng/frame → fps ổn định, dự đoán được.
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao "đánh dấu `Alive = false`" lại tránh được GC, trong khi "xóa khỏi slice" thì không?
+🔁 **Thực hành.** Vì sao "đánh dấu `Alive = false`" lại tránh được GC, trong khi "xóa khỏi slice" thì không?
 
 <details><summary>Đáp án</summary>
 

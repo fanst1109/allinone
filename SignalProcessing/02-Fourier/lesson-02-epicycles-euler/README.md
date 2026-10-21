@@ -43,7 +43,7 @@ Lý do toán học khiến dạng phức "đẹp": $\dfrac{d}{dt} e^{in\omega_0 
 
 Một hình vẽ trên mặt phẳng là một đường đi của điểm $(x(t), y(t))$. Nếu ta **gói** nó thành **một số phức** $z(t) = x(t) + i\,y(t)$, thì toàn bộ hình chỉ là *một hàm phức theo thời gian*. Chuỗi Fourier phức phân tích $z(t)$ thành tổng các vector quay → vẽ lại hình bằng epicycle. Dạng sin/cos *không* gói gọn được $x$ và $y$ vào một đối tượng như vậy.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao ta không dùng dạng sin/cos để vẽ hình 2D trực tiếp?
+> 🔁 **Thực hành.** Vì sao ta không dùng dạng sin/cos để vẽ hình 2D trực tiếp?
 > <details><summary>Đáp án</summary>Vì hình 2D cần đồng thời toạ độ $x$ và $y$. Số phức $z = x + iy$ nhét cả hai vào một đối tượng nên một chuỗi Fourier phức là đủ. Với sin/cos bạn phải chạy hai chuỗi rời cho $x(t)$ và $y(t)$ — vẫn được, nhưng mất đi vẻ đẹp "một vector quay = một số hạng" và không nhìn ra ngay cấu trúc epicycle.</details>
 
 📝 **Tóm tắt mục 1.** Dạng phức: (1) gom cặp $\cos/\sin$ thành **một** vector quay; (2) đạo hàm/tích phân của $e^x$ bất biến → đại số gọn; (3) gói $x,y$ thành $z=x+iy$ → vẽ hình 2D bằng đúng một chuỗi.
@@ -87,7 +87,7 @@ $$\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}, \qquad \sin\theta = \frac{e
 > - *"$e$ mũ một số ảo nghĩa là gì? Mũ thường là nhân lặp cơ mà?"* — Không hiểu theo "nhân lặp". Hiểu qua **chuỗi luỹ thừa**: $e^{x} = 1 + x + \frac{x^2}{2!} + \cdots$. Thay $x = i\theta$, gom phần thực và ảo lại, ta được đúng chuỗi của $\cos\theta$ và $\sin\theta$. Euler là một **định lý**, không phải định nghĩa tuỳ tiện.
 > - *"Vì sao quay ngược chiều kim đồng hồ là chiều dương?"* — Quy ước toán học chuẩn: góc dương đo ngược chiều kim đồng hồ. Vector $e^{+i\theta}$ với $\theta$ tăng sẽ quay ngược chiều kim đồng hồ.
 
-🔁 **Dừng lại tự kiểm tra.** Tính $e^{i\cdot 3\pi/2}$.
+🔁 **Thực hành.** Tính $e^{i\cdot 3\pi/2}$.
 <details><summary>Đáp án</summary>$\cos(3\pi/2) + i\sin(3\pi/2) = 0 + i(-1) = -i$. Điểm $(0,-1)$ ở đáy đường tròn.</details>
 
 📝 **Tóm tắt mục 2.** $e^{i\theta}$ = điểm trên đường tròn đơn vị ở góc $\theta$. Nhân số phức = cộng góc. $\cos,\sin$ là tổ hợp của $e^{\pm i\theta}$ → một sóng thực luôn cần **cặp** tần số $+n$ và $-n$.
@@ -166,7 +166,7 @@ $$c_n = \begin{cases} \dfrac{2}{i\pi n} = -\dfrac{2i}{\pi n} & n \text{ lẻ} \\
 
 Vậy chỉ tần số lẻ tồn tại, biên độ $|c_n| = \dfrac{2}{\pi|n|}$ giảm dần như $1/|n|$. Số: $|c_1| = \frac{2}{\pi}\approx 0{,}637$, $|c_3| = \frac{2}{3\pi}\approx 0{,}212$, $|c_5|\approx 0{,}127$. Đây chính là preset "sóng vuông" trong viz.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $f(t)=\cos(2\omega_0 t)$ (hài bậc 2), các $c_n$ khác 0 là gì?
+> 🔁 **Thực hành.** Với $f(t)=\cos(2\omega_0 t)$ (hài bậc 2), các $c_n$ khác 0 là gì?
 > <details><summary>Đáp án</summary>$c_2 = c_{-2} = 1/2$, mọi hệ số khác bằng 0. Tần số gấp đôi → kim quay nhanh gấp đôi.</details>
 
 📝 **Tóm tắt mục 3.** $f(t)=\sum c_n e^{in\omega_0 t}$, $c_n = \frac1T\int_0^T f\,e^{-in\omega_0 t}dt$. Chỉ số âm đến từ việc một sóng thực = cặp vector quay ngược chiều; tín hiệu thực ⇒ $c_{-n}=\overline{c_n}$. Cầu nối L06: $c_n = (a_n - i b_n)/2$.
@@ -202,7 +202,7 @@ Nối các điểm $(x,y)$ này (và các mốc dày hơn) ta được một đ�
 
 > ❓ **Câu hỏi tự nhiên.** *"Thứ tự nối các vòng có quan trọng không?"* — Với *vị trí điểm cuối* thì không (cộng giao hoán). Với *hình ảnh động* thì chỉ ảnh hưởng thẩm mỹ. Thông lệ: sắp theo $|c_n|$ giảm dần, hoặc theo $n = 0, +1, -1, +2, -2, \dots$ để vòng to ở ngoài.
 
-🔁 **Dừng lại tự kiểm tra.** Nếu mọi $c_n$ đều nhân thêm $e^{i\pi/2}$ (cùng một pha), hình thay đổi thế nào?
+🔁 **Thực hành.** Nếu mọi $c_n$ đều nhân thêm $e^{i\pi/2}$ (cùng một pha), hình thay đổi thế nào?
 <details><summary>Đáp án</summary>Toàn bộ hình **quay** đi $90°$ quanh tâm $c_0$ (đúng hơn: quanh gốc nếu $c_0$ cũng được nhân). Nhân chung một pha cho mọi hệ số = quay cả tổng. Hình dạng giữ nguyên, chỉ định hướng đổi.</details>
 
 📝 **Tóm tắt mục 4.** Epicycle = chuỗi vector quay nối đuôi; vòng $n$ có bán kính $|c_n|$, pha đầu $\arg(c_n)$, tốc độ $n$. Đầu mút vòng cuối vẽ ra $f(t)$. Càng nhiều vòng, hình càng sắc.

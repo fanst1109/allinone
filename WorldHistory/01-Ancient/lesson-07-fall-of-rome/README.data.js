@@ -68,7 +68,7 @@ Dịch bệnh làm giảm dân số lao động và binh lính, đẩy nhà nư�
 
 ⚠ **Hiểu lầm thường gặp:** Nhiều người nghĩ các tộc German chỉ đơn thuần là "dã man xâm lược." Thực tế phức tạp hơn: nhiều tộc Germani ban đầu tìm cách nhập cư hòa bình vào đế quốc vì áp lực từ người Hung (Huns) từ phía đông, hoặc vì đói kém. La Mã lúc đầu thường cho phép họ định cư ở các vùng biên giới với điều kiện cung cấp binh lính. Vấn đề phát sinh khi số lượng quá lớn và La Mã không còn khả năng hòa nhập.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Hai nguyên nhân chính của Khủng hoảng thế kỉ III là gì?
 
@@ -203,7 +203,7 @@ Trả lời: Romulus Augustulus là một thiếu niên khoảng 16 tuổi, con 
 
 ⚠ **Hiểu lầm thường gặp:** "La Mã sụp đổ vì người man rợ tấn công" — đây là cách đơn giản hóa. Nhiều tộc "man rợ" đã sống trong lãnh thổ La Mã hàng thế kỉ, phục vụ trong quân đội La Mã, và hấp thụ văn hóa La Mã. Odoacer — người phế truất hoàng đế cuối cùng năm 476 — là một tướng quân trong quân đội La Mã, không phải kẻ xâm lược từ ngoài vào. Sự kiện năm 476 giống một cuộc đảo chính nội bộ hơn là một cuộc xâm lăng.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 Kể ra ba yếu tố khác nhau góp phần vào sự suy vong của Tây La Mã và giải thích ngắn gọn cơ chế của từng yếu tố.
 

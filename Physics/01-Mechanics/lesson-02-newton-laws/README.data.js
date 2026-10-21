@@ -66,7 +66,7 @@ Sau bài này bạn sẽ:
 - *"Vì sao đơn vị lực lại là kg·m/s²?"* Vì từ $F = m\\cdot a$: $m$ tính bằng kg, $a$ bằng m/s² $\\to$ tích là $\\text{kg}\\cdot\\text{m/s}^2$. Người ta gọi gọn cụm này là "Newton" để tiện. Nó không phải đơn vị bịa ra mà là hệ quả trực tiếp của định luật II.
 - *"Có lực 'âm' không?"* Lực là vector nên có dấu **theo trục đã chọn**: $F = -5$ N nghĩa là lực 5 N hướng theo chiều âm. "Âm" chỉ hướng, không phải lực "nhỏ hơn 0".
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Hai người đẩy một thùng cùng chiều, mỗi người 80 N. Tổng lực? Nếu đẩy ngược chiều nhau thì tổng lực?
 2. Một lực gia tốc vật 3 kg với a = 4 m/s². Lực bằng bao nhiêu N? Đổi ra "tương đương trọng lượng bao nhiêu kg gạo"?
@@ -118,7 +118,7 @@ Sau bài này bạn sẽ:
 - *"Quán tính có phải là một loại lực không?"* Không. Quán tính là **xu hướng** của vật giữ nguyên trạng thái — một thuộc tính, không phải lực. Khối lượng m chính là thước đo định lượng của quán tính.
 - *"Vật càng nặng quán tính càng lớn?"* Đúng. $m$ lớn $\\to$ khó thay đổi vận tốc hơn (cần lực lớn hơn để cùng $a$, theo $F = m\\cdot a$). Đẩy xe tải khó hơn đẩy xe đạp vì quán tính lớn hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một cuốn sách nằm yên trên bàn. Tổng lực tác dụng lên nó bằng bao nhiêu? Có lực nào tác dụng lên nó không?
 2. Phi thuyền trong không gian sâu tắt động cơ. Nó sẽ dừng lại, chậm dần, hay tiếp tục chạy đều?
@@ -205,7 +205,7 @@ Khi tổng các lực $= 0 \\to a = 0 \\to$ vật đứng yên hoặc chuyển �
 - *"$F = m\\cdot a$ hay $a = \\frac{F}{m}$ — cái nào đúng?"* Cùng một phương trình, chỉ viết khác. Dùng $F = m\\cdot a$ khi tìm lực (biết $m$, $a$); dùng $a = \\frac{F}{m}$ khi tìm gia tốc (biết lực, $m$).
 - *"Trên Mặt Trăng tôi nhảy cao hơn vì nhẹ hơn — khối lượng giảm à?"* Không, khối lượng giữ nguyên. Bạn nhảy cao hơn vì **trọng lượng** (lực kéo xuống) nhỏ hơn ($g$ chỉ $1{,}6\\ \\text{m/s}^2$), nên cùng lực đạp chân tạo gia tốc lên lớn hơn và rơi xuống chậm hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật 4 kg chịu lực kéo 30 N và lực ma sát 6 N ngược chiều. Tính gia tốc.
 2. Một người có khối lượng 50 kg. Trọng lượng trên Trái Đất ($g=9{,}8$)? Trên Sao Hỏa ($g=3{,}7$)?
@@ -271,7 +271,7 @@ Nếu 2 lực cùng tác dụng lên CÙNG 1 vật, đó **KHÔNG** phải cặp
 - *"Trái Đất hút tôi và tôi hút Trái Đất bằng nhau — sao chỉ tôi rơi mà Trái Đất không nhúc nhích?"* Lực bằng nhau, nhưng gia tốc $a = \\frac{F}{m}$. Trái Đất có $m$ khổng lồ ($\\approx 6\\times 10^{24}$ kg) $\\to a$ của nó $\\approx 0$; còn bạn $m$ nhỏ $\\to a = g$ lớn. Cùng lực, vật nặng hơn gia tốc nhỏ hơn.
 - *"Làm sao phân biệt cặp định luật III với hai lực cân bằng?"* Cặp định luật III: cùng **loại** lực, trên **hai vật khác nhau**, luôn bằng nhau (kể cả khi vật đang gia tốc). Hai lực cân bằng: trên **cùng một vật**, có thể khác loại, chỉ bằng nhau khi vật cân bằng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Bạn đẩy tường với lực 200 N. Tường đẩy lại bạn bao nhiêu? Theo hướng nào?
 2. Quả táo ($m = 0{,}1$ kg) rơi, Trái Đất hút nó với $F = 0{,}98$ N. Táo hút Trái Đất với lực bao nhiêu? Gia tốc của Trái Đất do lực này ($m_{TĐ} \\approx 6\\times 10^{24}$ kg)?
@@ -373,7 +373,7 @@ Phân tích W theo trục song song và vuông góc mặt nghiêng:
 - *"Phản lực N có luôn bằng trọng lượng không?"* Không. Chỉ khi mặt phẳng nằm ngang và không có lực dọc khác. Trên dốc $N = mg\\cdot\\cos\\theta$; có ai đè thêm lên thì N tăng; thang máy gia tốc thì N đổi theo.
 - *"Tại sao cần chọn hệ tọa độ — vẽ lực là đủ rồi mà?"* Vì để cộng vector lực phải chiếu chúng lên trục. Chọn trục khéo (vd song song mặt nghiêng) làm phương trình gọn nhất, ít phải tách lực.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật 2 kg nằm yên trên mặt ngang. Liệt kê các lực trong FBD và tính phản lực N. ($g=9{,}8$)
 2. Vật 3 kg trên mặt nghiêng 30° không ma sát. Thành phần trọng lực kéo vật xuống dốc bằng bao nhiêu? Gia tốc trượt?

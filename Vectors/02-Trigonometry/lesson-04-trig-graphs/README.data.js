@@ -221,7 +221,7 @@ Hãy nhìn lại bảng giá trị: $\\sin(\\frac{\\pi}{3}) = \\sin(\\frac{2\\pi
 
 **Chứng minh từng bước**: với mọi $a$, ta có $\\sin(\\frac{\\pi}{2} - a) = \\cos(a)$ (đồng nhất thức từ đường tròn đơn vị — ở Lesson 03 đã chỉ ra). Và $\\sin(\\frac{\\pi}{2} + a) = \\cos(a)$ cũng. Hai vế bằng nhau → đối xứng quanh $x = \\frac{\\pi}{2}$. (Sẽ học kỹ hơn ở Lesson 05 — identities.)
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > - $\\sin(\\frac{7\\pi}{6}) = ?$
 >   <details><summary>Đáp</summary>$-\\frac{1}{2}$. Vì $\\frac{7\\pi}{6} = \\pi + \\frac{\\pi}{6}$, và $\\sin(\\pi + a) = -\\sin(a) = -\\frac{1}{2}$.</details>
 > - $\\sin x = 1$ có bao nhiêu nghiệm trong $[0, 4\\pi]$?
@@ -345,7 +345,7 @@ Tất cả khớp. Đó là vì sao đồ thị $\\cos$ trông giống $\\sin$ c
   <text x="340.0" y="270.0" fill="#475569" font-size="11" text-anchor="middle">đỉnh tại −2π, 0, 2π · đáy tại −π, π · cắt 0 tại ±π/2, ±3π/2</text>
 </svg>
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > - $\\cos(-\\pi) = ?$
 >   <details><summary>Đáp</summary>$-1$. Hàm chẵn nên $\\cos(-\\pi) = \\cos(\\pi) = -1$.</details>
 > - Đồ thị $\\cos$ và $\\sin$ có cắt nhau không? Tại đâu trong $[0, 2\\pi]$?
@@ -452,7 +452,7 @@ $\\cos x = 0$ tại các điểm $x = \\frac{\\pi}{2} + k\\pi$, tức $\\ldots, 
 
 (Chú ý các đường dọc \`│\` ở $-\\frac{\\pi}{2}$ và $\\frac{\\pi}{2}$ chính là tiệm cận — đồ thị **không chạm** vào chúng, chỉ tiến tới $\\pm\\infty$.)
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > - $\\tan(\\frac{\\pi}{4}) + \\tan(\\frac{3\\pi}{4}) = ?$
 >   <details><summary>Đáp</summary>$1 + (-1) = 0$.</details>
 > - $\\tan x = 1$ có bao nhiêu nghiệm trong $[0, 4\\pi]$?
@@ -671,7 +671,7 @@ Sai lầm phổ biến: tưởng dịch trái $\\pi$ (theo $C$). Đúng là $\\f
 
 > ⚠ **Lỗi thường gặp** (rất nghiêm trọng): dịch theo $C$ thay vì $\\frac{C}{B}$. Ví dụ kinh điển: $\\sin(2x + \\pi)$ không phải dịch trái $\\pi$, mà là dịch trái $\\frac{\\pi}{2}$. Luôn phải **chia cho $B$** trước khi đọc pha.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > - $y = \\sin(4x - \\pi)$ dịch ngang bao nhiêu?
 >   <details><summary>Đáp</summary>$C = -\\pi$, $B = 4$. $\\frac{C}{B} = -\\frac{\\pi}{4}$. Dịch sang **phải** $\\frac{\\pi}{4}$.</details>
 > - $y = \\cos x$ viết được dưới dạng $\\sin(x + C)$ với $C = ?$

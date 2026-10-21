@@ -99,7 +99,7 @@ $$E_\lambda = \{ \mathbf{v} \in \mathbb{R}^n : A \mathbf{v} = \lambda \mathbf{v}
 - Nếu $\dim(E_\lambda) = 1$: chỉ có 1 hướng riêng (đường thẳng).
 - Nếu $\dim(E_\lambda) \geq 2$: nhiều hướng cùng eigenvalue (như ma trận $2I$ có mọi vector đều là eigenvector với $\lambda = 2$).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 1. Vector $0$ có phải eigenvector không? Vì sao?
 2. Cho $A \mathbf{v} = 5 \mathbf{v}$, hỏi $A (3\mathbf{v}) = ?$
 
@@ -187,7 +187,7 @@ $$p_A(\lambda) = \lambda^2 + 1 = 0 \to \lambda = \pm i$$
 - Đặt sai dấu trong khử Gauss khi $\lambda$ âm: phải xử lý $\lambda = -3$ cẩn thận, vd $A - (-3)I = A + 3I$.
 - Tưởng đa thức đặc trưng phải có nghiệm thực — với ma trận thực vẫn có thể nghiệm phức.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 1. Cho $A = \begin{bmatrix} 5 & 2 \\ -1 & 2 \end{bmatrix}$, lập đa thức đặc trưng.
 2. Đoán eigenvalue của $A = \begin{bmatrix} 7 & 0 & 0 \\ 0 & 3 & 0 \\ 0 & 0 & -1 \end{bmatrix}$ không cần tính.
 
@@ -311,7 +311,7 @@ p_A(\lambda) &= (\lambda - \lambda_1)(\lambda - \lambda_2)\dots(\lambda - \lambd
 
 So với khai triển $\det(\lambda I - A)$: hệ số của $\lambda^{n-1}$ là $-\operatorname{trace}(A)$, hệ số tự do là $(-1)^n \cdot \det(A)$. Đối chiếu hai bên → 2 hệ thức trên.
 
-🔁 **Tự kiểm tra**: Cho $A$ có eigenvalue $2, 3, -1$. Tính $\operatorname{trace}(A)$, $\det(A)$.
+🔁 **Thực hành**: Cho $A$ có eigenvalue $2, 3, -1$. Tính $\operatorname{trace}(A)$, $\det(A)$.
 
 <details>
 <summary>Đáp án</summary>

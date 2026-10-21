@@ -165,7 +165,7 @@ $(0, 5)$ đang ở trục Oy, dương. Xoay $90^\\circ$ → quay sang trục Ox 
 
 $(1, 1)$ lệch trục Ox $45^\\circ$. Sau khi xoay thêm $90^\\circ$, lệch $135^\\circ$. Khoảng cách giữ $\\sqrt{2}$. Tọa độ mới: $(\\sqrt{2} \\cos 135^\\circ, \\sqrt{2} \\sin 135^\\circ) = (\\sqrt{2} \\cdot (-\\tfrac{\\sqrt{2}}{2}), \\sqrt{2} \\cdot \\tfrac{\\sqrt{2}}{2}) = (-1, 1)$.
 
-> **🔁 Dừng lại tự kiểm tra**: Xoay $(3, 0)$ bởi $180^\\circ$ ra điểm nào? <details><summary>Đáp án</summary><code>(−3, 0)</code> — đảo dấu hoành độ, tung độ giữ 0.</details>
+> **🔁 Thực hành**: Xoay $(3, 0)$ bởi $180^\\circ$ ra điểm nào? <details><summary>Đáp án</summary><code>(−3, 0)</code> — đảo dấu hoành độ, tung độ giữ 0.</details>
 >
 > Xoay $(0, -2)$ bởi $90^\\circ$ ngược kim ra điểm nào? <details><summary>Đáp án</summary><code>(2, 0)</code>. Từ trục Oy âm xoay ngược kim 90° → trục Ox dương.</details>
 
@@ -548,7 +548,7 @@ Tầng 4 sẽ học chi tiết về định thức.
 | $45^\\circ$ | $\\tfrac{\\sqrt{2}}{2} \\cdot \\begin{bmatrix} 1 & -1 \\\\ 1 & 1 \\end{bmatrix}$ |
 | $60^\\circ$ | $\\begin{bmatrix} 0.5 & -0.866 \\\\ 0.866 & 0.5 \\end{bmatrix}$ |
 
-> **🔁 Dừng lại tự kiểm tra**: Tính $R(90^\\circ) \\cdot R(90^\\circ)$. <details><summary>Đáp án</summary><code>[[0,−1],[1,0]] · [[0,−1],[1,0]]</code>. Hàng 1 × cột 1 = 0·0 + (−1)·1 = −1. Hàng 1 × cột 2 = 0·(−1) + (−1)·0 = 0. Hàng 2 × cột 1 = 1·0 + 0·1 = 0. Hàng 2 × cột 2 = 1·(−1) + 0·0 = −1. → <code>[[−1,0],[0,−1]] = R(180°)</code> ✓.</details>
+> **🔁 Thực hành**: Tính $R(90^\\circ) \\cdot R(90^\\circ)$. <details><summary>Đáp án</summary><code>[[0,−1],[1,0]] · [[0,−1],[1,0]]</code>. Hàng 1 × cột 1 = 0·0 + (−1)·1 = −1. Hàng 1 × cột 2 = 0·(−1) + (−1)·0 = 0. Hàng 2 × cột 1 = 1·0 + 0·1 = 0. Hàng 2 × cột 2 = 1·(−1) + 0·0 = −1. → <code>[[−1,0],[0,−1]] = R(180°)</code> ✓.</details>
 
 > **📝 Tóm tắt Mục 6**
 > - Ma trận xoay **bảo toàn độ dài** và **bảo toàn dot product** (cosine similarity).

@@ -137,7 +137,7 @@ A: Vì bảng chỉ tính $f$ tại các $x$ **gần** $a$ chứ không tại ch
 
 A: Có. Hàm $f(x) = \\sin(1/x)$ khi $x \\to 0$ dao động giữa $-1$ và $+1$ vô số lần. Nếu bạn lập bảng tại $x = 1/\\pi, 1/2\\pi, 1/3\\pi, \\ldots$ toàn ra $0$, bạn sẽ tưởng giới hạn = 0. Nhưng tại $x = 2/(\\pi + 4k\\pi)$, giá trị = 1. Bảng giá trị **không phải chứng minh**, chỉ là gợi ý. Để chắc chắn cần ε-δ hoặc các quy tắc đại số (mục 3 và 7).
 
-#### 🔁 Dừng lại tự kiểm tra (mục 1)
+#### 🔁 Thực hành (mục 1)
 
 1. $\\lim_{x \\to 3} (x + 5)$ = ?
 2. $f(x) = |x|/x$. Tính $\\lim_{x \\to 0^-} f(x)$, $\\lim_{x \\to 0^+} f(x)$, và $\\lim_{x \\to 0} f(x)$.
@@ -262,7 +262,7 @@ May mắn là trong thực hành — và trong cả phần còn lại của Tầ
 - **Quên điều kiện $0 < |x - a|$**: phải có $0 <$ để loại trừ $x = a$. Nếu bỏ điều kiện này, định nghĩa sẽ yêu cầu cả $f(a)$, mà ta muốn tránh.
 - **Nghĩ $\\delta$ phải bằng $\\epsilon$**: hoàn toàn không. $\\delta$ có thể là $\\epsilon/5$, $\\epsilon^2$, $\\sqrt{\\epsilon}$, … tùy hàm. Quan trọng là tồn tại.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 2)
+#### 🔁 Thực hành (mục 2)
 
 1. Chứng minh nhanh $\\lim_{x \\to 3} (2x + 1) = 7$ bằng ε-δ — chọn δ theo ε.
 2. Đúng/sai: "với mọi ε > 0, δ = ε/2 đều dùng được cho $\\lim_{x \\to 2} x^2 = 4$."
@@ -487,7 +487,7 @@ A: Có — **L'Hôpital** (đạo hàm tử và mẫu rồi tính giới hạn) 
 
 A: Có thể là dạng $0/0$ "ẩn" cần biến đổi khác (đặt biến mới, lượng giác hóa, dùng Taylor expansion sau này). Không phải mọi $0/0$ đều xử được bằng nhân tử + liên hợp. Khi học chuỗi (Tầng cao hơn), sẽ có công cụ mạnh hơn.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 4)
+#### 🔁 Thực hành (mục 4)
 
 1. $\\lim_{x \\to 5} \\frac{x^2 - 25}{x - 5}$ = ?
 2. $\\lim_{x \\to 0} \\frac{\\sin 3x}{x}$ = ?  (gợi ý: viết $\\frac{\\sin 3x}{x} = 3 \\cdot \\frac{\\sin 3x}{3x}$ rồi đặt $u = 3x$).

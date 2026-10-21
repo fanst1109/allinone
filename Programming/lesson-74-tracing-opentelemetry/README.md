@@ -124,7 +124,7 @@ Root span (A) bao trùm toàn bộ request. Span con nằm trong khoảng thời
 
 > ⚠ **Lỗi thường gặp.** Nhầm `span_id` của span con với `parent_span_id`. `parent_span_id` của span con = `span_id` của span cha, KHÔNG phải `span_id` của chính nó. Sai chỗ này → cây dựng sai, waterfall hiển thị lệch.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong cây ở 2.2, span F có `parent_span_id` bằng bao nhiêu? Và `trace_id` của nó?
+> 🔁 **Thực hành.** Trong cây ở 2.2, span F có `parent_span_id` bằng bao nhiêu? Và `trace_id` của nó?
 > <details><summary>Đáp án</summary>
 >
 > `parent_span_id = 05` (span E "reserve stock" là cha của F). `trace_id = 7be2...` — giống hệt mọi span khác trong trace này. F là con của E, không phải con của root A.
@@ -204,7 +204,7 @@ gRPC không dùng HTTP header thuần mà dùng **metadata** (key-value đính k
 > - *"Còn message queue (Kafka, RabbitMQ) thì sao?"* Cũng propagate được: nhúng `traceparent` vào **message header**. Producer inject, consumer extract. Nhờ vậy trace nối được cả qua async boundary.
 > - *"Ai gọi inject/extract — tôi phải tự làm?"* Thường KHÔNG. Middleware/interceptor tự động (mục 8) làm việc đó. Bạn chỉ cần đảm bảo **truyền `context.Context`** xuyên suốt (mục 11).
 
-> 🔁 **Dừng lại tự kiểm tra.** Service A gửi `traceparent: 00-aaaa...aaaa-1111111111111111-01` sang B. B tạo span mới `span_id=2222...`. Span của B có `parent_span_id` và `trace_id` bằng bao nhiêu?
+> 🔁 **Thực hành.** Service A gửi `traceparent: 00-aaaa...aaaa-1111111111111111-01` sang B. B tạo span mới `span_id=2222...`. Span của B có `parent_span_id` và `trace_id` bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
 > `parent_span_id = 1111111111111111` (lấy từ phần parent_id của header), `trace_id = aaaa...aaaa` (giữ nguyên từ header). `span_id` mới `2222...` chỉ là của riêng span B.
@@ -274,7 +274,7 @@ span "POST /bank-api":
 
 > ⚠ **Lỗi thường gặp.** HTTP status `4xx` không tự động = span Error. `404 Not Found` có thể là hành vi bình thường (client hỏi resource không tồn tại). Quy ước OTel: `5xx` (lỗi server) → span Error; `4xx` thường để Unset (không phải lỗi của *server*). Đừng đánh dấu Error tràn lan, kẻo dashboard "error rate" sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một handler trả `503 Service Unavailable` vì DB sập. Span status nên là gì?
+> 🔁 **Thực hành.** Một handler trả `503 Service Unavailable` vì DB sập. Span status nên là gì?
 > <details><summary>Đáp án</summary>
 >
 > **Error** — `503` là `5xx`, lỗi phía server, request không hoàn thành được. Kèm event `exception` ghi "database connection refused".
@@ -308,7 +308,7 @@ Quyết định **sau khi trace hoàn thành**, dựa trên toàn bộ dữ li�
 
 > ⚠ **Lỗi thường gặp.** Dùng head-based 1% rồi than "không thấy trace của lỗi hiếm". Đương nhiên — lỗi xảy ra 0.1% request, head-based 1% mù thì xác suất bắt được lỗi cực thấp. Lỗi hiếm cần **tail-based** mới chắc giữ được.
 
-> 🔁 **Dừng lại tự kiểm tra.** Service 30k req/s, lỗi 0.05% (15 req/s lỗi). Bạn muốn thấy MỌI trace lỗi nhưng chỉ đủ ngân sách lưu ~1% tổng. Dùng sampling gì?
+> 🔁 **Thực hành.** Service 30k req/s, lỗi 0.05% (15 req/s lỗi). Bạn muốn thấy MỌI trace lỗi nhưng chỉ đủ ngân sách lưu ~1% tổng. Dùng sampling gì?
 > <details><summary>Đáp án</summary>
 >
 > **Tail-based**: luật "giữ 100% trace Error + 1% trace OK". Head-based 1% sẽ bỏ ~99% trong số 15 lỗi/s → mất gần hết. Tail-based đợi trace xong, thấy Error thì giữ chắc chắn.

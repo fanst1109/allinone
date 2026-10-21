@@ -130,7 +130,7 @@ Sự khác biệt **không phải** nằm ở subnet tự nó — mà ở **rout
 
 💡 **Tư duy phân tầng**: public subnet = "khu vực tiếp tân" (ai cũng vào được nếu có hẹn). Private subnet = "phòng máy chủ" (chỉ nhân viên nội bộ vào, không có lối đi từ đường phố thẳng vào).
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 - VPC \`172.16.0.0/20\` có bao nhiêu địa chỉ tổng? Bao nhiêu host?
 <details>
 <summary>Đáp án</summary>
@@ -224,7 +224,7 @@ So sánh với IGW:
 
 ⚠ **Lỗi thường gặp**: Tạo NAT Gateway nhưng quên cập nhật route table của private subnet (\`0.0.0.0/0 → nat-gw-xxx\`). Kết quả: instance private không ra được internet và lỗi bí ẩn. Kiểm tra route table luôn là bước đầu tiên khi debug.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 - Instance \`10.0.11.5\` (private subnet) muốn tải file từ \`52.84.10.20\` (server ngoài internet). Liệt kê các bước gói tin đi qua.
 <details>
 <summary>Đáp án</summary>

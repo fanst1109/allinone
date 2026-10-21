@@ -72,7 +72,7 @@ Mỗi bước thời gian 0.25 → giá trị cũng đi đúng 0.25. Slope = 1 �
 
 > ⚠ **Lỗi thường gặp.** Nhầm **đường cong easing** với **đường đi (path) của vật**. Đường cong easing **KHÔNG** phải quỹ đạo trong không gian. Một hộp trượt thẳng theo trục ngang vẫn có đường cong easing hình chữ S — vì trục tung của đồ thị là *tiến độ* (0→1), không phải *tọa độ y trên màn hình*. Quỹ đạo cong trong không gian là chủ đề [Lesson 07 — Cung chuyển động](../lesson-07-arcs-path/), khác hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một đường cong có đoạn **nằm ngang** ở giữa (slope ≈ 0 quanh $x=0.5$). Vật sẽ làm gì lúc đó?
 > 2. Đường cong đi qua điểm $(0.5,\ 0.8)$. Tới nửa thời gian, vật đã đi được bao nhiêu phần đường?
 >
@@ -113,7 +113,7 @@ Mỗi bước thời gian 0.25 → giá trị cũng đi đúng 0.25. Slope = 1 �
 > - *"Khi nào dùng cái nào?"* Quy tắc UI phổ biến: phần tử **đi vào màn hình** dùng **ease-out** (lao vào rồi đỗ êm — mắt bắt kịp đích ngay); phần tử **rời khỏi màn hình** dùng **ease-in** (chậm rồi vọt đi — không cần thấy nó "đỗ" ở đâu); chuyển động **qua lại trong màn hình** dùng **ease-in-out** (mượt hai đầu).
 > - *"ease-in-out có giống linear không, vì cùng đạt 0.5 ở giữa?"* Không. Cùng đi qua $(0.5, 0.5)$ nhưng **lối đi khác**: ease-in-out chậm ở hai đầu, nhanh ở giữa (đường cong chữ S uốn quanh đường chéo), trong khi linear thẳng tưng. "Cảm giác" khác hẳn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một icon menu **trượt ra từ mép trái** vào màn hình. Nên dùng ease-in hay ease-out? Vì sao?
+> 🔁 **Ôn tập.** Một icon menu **trượt ra từ mép trái** vào màn hình. Nên dùng ease-in hay ease-out? Vì sao?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -243,7 +243,7 @@ $t$ nhích đều 0.2 nhưng $x$ (thời gian) nhảy không đều (0.064 → 0
 
 > ❓ **Câu hỏi tự nhiên.** *"Tính giải ngược có đắt không?"* Rẻ. Vì $x(t)$ **đơn điệu tăng** khi $x_1,x_2 \in [0,1]$, chỉ cần **bisection** ~20–30 vòng là ra $t$ với sai số $10^{-6}$. Trình duyệt còn dùng Newton-Raphson nhanh hơn. Viz của bài này dùng bisection — bạn kéo tay nắm là thấy chấm chạy realtime.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính $x(t)$ và $y(t)$ của **linear** `cubic-bezier(0,0,1,1)` tại $t=0.25$, rồi kiểm tra có nằm trên đường chéo không.
+> 🔁 **Ôn tập.** Tính $x(t)$ và $y(t)$ của **linear** `cubic-bezier(0,0,1,1)` tại $t=0.25$, rồi kiểm tra có nằm trên đường chéo không.
 >
 > <details><summary>Đáp án</summary>
 >

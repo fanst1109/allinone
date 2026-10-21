@@ -175,7 +175,7 @@ Bước 6 (đọc đĩa) mất ~8 ms (HDD) hoặc ~100 µs (SSD). Trong khi đó
 - *"Nếu OS không tìm được frame trống thì sao?"* — OS phải **evict** (đuổi) một trang khác ra đĩa trước khi nạp trang mới. Đây là bài toán **page replacement** — chủ đề của Lesson 05.
 - *"Dirty bit dùng để làm gì trong quá trình này?"* — Khi evict một frame, OS kiểm tra dirty bit. Nếu dirty=1 (trang đã bị sửa sau khi nạp vào RAM) → phải ghi ra đĩa trước khi evict (tránh mất dữ liệu). Nếu dirty=0 → đơn giản overwrite frame.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Tiến trình truy cập page 3 (valid=0). OS xác nhận địa chỉ hợp lệ. RAM có 2 frame trống. Liệt kê các bước từ khi page fault xảy ra đến khi tiến trình tiếp tục.
 
@@ -342,7 +342,7 @@ Nếu $\sum_i |W(t_i)| >$ số frame RAM, thì:
 
 *"CPU utilization thấp = hệ thống nhàn rỗi, có thể chạy thêm tiến trình."* — Đây chính là bẫy thrashing! CPU utilization thấp do thrashing không phải do hệ thống rảnh. Nạp thêm tiến trình sẽ làm mọi thứ tệ hơn.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Hệ thống có 20 frame RAM. 3 tiến trình có working set lần lượt: {1,2,3,4,5}, {6,7,8,9,10,11}, {12,13,14,15,16}. Có xảy ra thrashing không?
 

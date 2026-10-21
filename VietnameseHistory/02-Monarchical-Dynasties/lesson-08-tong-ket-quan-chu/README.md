@@ -157,7 +157,7 @@ Khoa cử là con đường tuyển dụng quan lại chính thức:
 **Hỏi:** Tại sao quân Nguyên–Mông thắng khắp Á–Âu nhưng lại thất bại ba lần ở Đại Việt?
 **Đáp:** Nhiều nhân tố kết hợp: (1) Địa hình nhiệt đới — quân Mông Cổ quen thảo nguyên, không quen rừng nhiệt đới và sông ngòi dày đặc; (2) Dịch bệnh làm suy yếu quân địch nhanh; (3) Chiến lược "vườn không nhà trống" cắt đứt hậu cần địch; (4) Nhà Trần giữ được đoàn kết nội bộ — ba lần thất bại cũng là ba lần Trần không để nội gián phá vỡ từ bên trong.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Ôn tập**
 
 *Câu hỏi*: Trận Bạch Đằng 1288 khác trận Bạch Đằng 938 ở điểm nào về bối cảnh và kết quả?
 

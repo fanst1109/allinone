@@ -151,7 +151,7 @@ Kiểm tra: $A_v = 1 + R_f / R_{in} = 1 + 40/10 = 5$. ✓
 
 > Người mới hay nghĩ "$V_+ = V_-$ nghĩa là ngõ vào bị nối tắt" → KHÔNG ĐÚNG. $V_+ = V_-$ là kết quả của hồi tiếp âm, không phải dây nối. Nếu cắt hồi tiếp, $V_+ \\neq V_-$ và op-amp sẽ bão hòa ngay.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Op-amp có hồi tiếp âm, $V_+$ = 3 V. Hỏi $V_-$ bằng bao nhiêu?
 
@@ -400,7 +400,7 @@ $$A_v = \\frac{V_{\\text{out}}}{V_{in}} = -\\frac{R_f}{R_{in}}$$
 
 > Nhầm $A_v = -R_f/R_{in}$ của mạch đảo với $A_v = 1 + R_f/R_{in}$ của mạch không đảo. **Dấu hiệu nhận biết mạch đảo**: $V_{in}$ đi qua điện trở vào ngõ $V_-$; $V_+$ nối GND.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Mạch đảo: $R_f$ = 30 kΩ, $R_{in}$ = 6 kΩ, $V_{in}$ = 1.5 V. Tính $V_{\\text{out}}$.
 

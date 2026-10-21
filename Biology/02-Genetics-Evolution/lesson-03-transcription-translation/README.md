@@ -175,7 +175,7 @@ A: 3 khác biệt chính. (1) Sản phẩm là RNA chứ không phải DNA. (2) 
 **Q: Vì sao tế bào "phí phạm" tạo intron rồi cắt bỏ?**
 A: Intron không phải "rác". (1) Cho phép **alternative splicing** — 1 gen sinh nhiều protein (gen người trung bình ~3 isoform). (2) Intron là nơi chứa **trình tự điều hoà** (enhancer, silencer). (3) Intron có thể chứa các RNA nhỏ chức năng (microRNA). (4) Tiến hoá: thêm/bớt exon dễ hơn viết lại 1 gen từ đầu.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Cho mạch khuôn DNA `3'- A C G T T A C G G C A T -5'`. Viết mRNA tạo ra.
 2. Một gen ở người dài 12,000 base có 6 exon dài lần lượt 200, 150, 400, 100, 250, 300 base. Tính (a) chiều dài mRNA trưởng thành (không tính cap + poly-A), (b) tổng chiều dài intron.
@@ -280,7 +280,7 @@ Nhưng nhìn chung, **>99% trường hợp dùng cùng 1 bảng mã** — đó l
 **Q: Vì sao 6 codon mã hoá Leu nhưng chỉ 1 codon cho Met?**
 A: Mã thoái hoá thường thoái hoá ở **vị trí thứ 3 của codon** ("wobble position"). Các amino acid có gốc R hay xuất hiện trong protein (như Leu, Ser, Arg) được mã hoá bởi nhiều codon → tăng "đệm" chống đột biến. Met hiếm hơn nên không cần nhiều codon. Đây là tối ưu hoá tiến hoá.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một mRNA có vùng ORF dài 1500 nucleotide (tính từ AUG tới stop, gồm cả stop). Peptide tạo ra dài bao nhiêu amino acid?
 2. Cho mRNA `5'- AUG GCU UCG UAA -3'`. Viết peptide tạo ra (tra: GCU = Ala, UCG = Ser).
@@ -386,7 +386,7 @@ A: Tế bào có cơ chế kiểm soát chất lượng:
 - **No-go decay**: ribosome bị kẹt trên mRNA → mRNA bị phân huỷ.
 - **Non-stop decay**: mRNA không có codon stop → ribosome đi tới hết đuôi poly-A → tín hiệu phá huỷ.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một protein người dài 100 amino acid. Tính tổng số nucleotide ở vùng ORF của mRNA.
 2. Cho mRNA `5'- AUG UUC GGC UAG -3'`. Tra: UUC = Phe, GGC = Gly. Viết peptide.
@@ -450,7 +450,7 @@ A: Vì nó "đệm" chống lỗi. Nếu mỗi amino acid chỉ 1 codon, mọi �
 **Q: Đột biến nào nguy hiểm nhất?**
 A: Xếp thường (không tuyệt đối): **frameshift ≈ nonsense > missense > silent ≈ 0**. Frameshift và nonsense thường tạo protein cụt hoặc rối toàn diện → mất chức năng. Missense tuỳ thuộc vị trí và tính chất amino acid mới. Silent gần như vô hại.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Codon `UCA` (Ser) đột biến thành `UCG`. Loại đột biến gì?
 2. Codon `CAA` (Gln) đột biến thành `UAA`. Loại đột biến gì? Hậu quả?

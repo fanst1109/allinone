@@ -66,7 +66,7 @@ A: Có sự sống → là sinh vật → thuộc quần xã. "Vô sinh (abiotic
 - **Nghĩ dòng năng lượng tuần hoàn**: SAI. Năng lượng đi 1 chiều, cuối cùng thoát ra dưới dạng nhiệt (định luật II nhiệt động). Vì vậy hệ sinh thái phải nạp Mặt Trời liên tục.
 - **Cho rằng "hệ sinh thái cân bằng" nghĩa là không đổi**: cân bằng ở đây là cân bằng động — luôn có dao động (xem Lotka–Volterra ở Lesson 06).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một bể cá có cá vàng + rong + ốc + vi khuẩn + nước + đèn UV. Đây là quần thể, quần xã hay hệ sinh thái?
 2. Vì sao một hệ sinh thái không thể "tự cấp năng lượng" mãi mãi nếu cách ly hoàn toàn khỏi Mặt Trời?
@@ -141,7 +141,7 @@ A: Là sinh vật sản xuất **thật và quan trọng nhất** trên Trái Đ
 **Q: Người là consumer bậc mấy?**
 A: Tuỳ bữa. Trung bình người ăn tạp ở mức **bậc 2.2** (tính theo trọng số khẩu phần). So sánh: cá ngừ ~ bậc 4, bò ~ bậc 2 thuần, sư tử ~ bậc 3. Càng lên cao càng "đắt" về năng lượng → §3 sẽ giải thích.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Trong chuỗi: Lúa mì → Người (khi ăn bánh mì), người ở bậc nào?
 2. Một con cáo ăn thỏ (thỏ ăn cỏ), nó ở bậc mấy? Nếu cùng con cáo đó hôm sau ăn ếch (ếch ăn châu chấu, châu chấu ăn cỏ), nó ở bậc mấy?
@@ -290,7 +290,7 @@ A: Phân giải KHÔNG nằm trong cầu thang "bậc 1 → bậc 2 → ...". Ch
 **Q: Quy tắc 10% có nghĩa "ăn chay là đạo đức hơn" không?**
 A: Đó là vấn đề triết học/đạo đức ngoài phạm vi sinh thái. Sinh thái chỉ nói: ăn thấp trong chuỗi (gần bậc 1) **hiệu quả về năng lượng và đất sử dụng hơn**. Để nuôi 1 kg bò cần ~10 kg cỏ; cần ~10 m² đồng cỏ. Cùng diện tích đó trồng đậu nành có thể nuôi 10 người trực tiếp.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một đồng cỏ cố định 50,000 kJ/m²/năm vào sinh khối thực vật. Tính năng lượng còn ở bậc 4 nếu hiệu suất truyền là 10% mỗi bậc.
 2. Vì sao đại dương có thể duy trì cá ngừ (bậc 4) và cá mập (bậc 5) trong khi rừng nhiệt đới hiếm có chuỗi dài tương ứng?
@@ -417,7 +417,7 @@ A: Vì việc trồng thêm cây làm **tăng bể "sinh khối"** — chuyển 
 **Q: Phân đạm có thực sự "đáng kể" so với cố định đạm tự nhiên?**
 A: Có và rất đáng kể. Cố định đạm tự nhiên (vi khuẩn + sét) ~140 Tg N/năm. Cố định đạm công nghiệp (Haber–Bosch) ~120 Tg N/năm. Cộng thêm đốt nhiên liệu (~20 Tg N/năm dạng NOₓ). Người **đã tăng gần gấp đôi lượng N hoạt động trong sinh quyển** — đây là một trong những "ranh giới hành tinh (planetary boundary)" mà nhân loại đã vượt. Hậu quả: nitrate vào nước ngầm, "vùng chết" do tảo nở hoa ở vịnh Mexico, mất đa dạng sinh học.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Trong chu trình carbon, dòng nào là "đột nhập" của con người gây mất cân bằng?
 2. Vì sao trồng cây họ đậu (đậu nành, đậu xanh) lại "cải tạo đất"?

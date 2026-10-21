@@ -332,7 +332,7 @@ sched_setaffinity(pid, sizeof(cpuset), &cpuset);
 
 ⚠ **Lỗi thường gặp:** "Affinity mạnh luôn tốt hơn". Sai. Nếu task có affinity cứng vào core 0 nhưng core 0 quá tải, task phải chờ ngay cả khi core 1-7 rảnh. Affinity phải đi cùng với resource planning.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Hệ thống 4 core. Task T với CPU affinity cứng chỉ chạy trên Core 0. Tại thời điểm T được schedule:
 - Core 0 đang chạy task khác, queue Core 0 còn 5 task.
@@ -561,7 +561,7 @@ resources:
 
 ⚠ **Lỗi thường gặp:** Nhầm "NUMA chỉ quan trọng với HPC (High Performance Computing)". Sai. Hầu hết server 2-socket trở lên đều có NUMA. Web service, database, message queue đều bị ảnh hưởng. PostgreSQL có NUMA-aware memory allocation từ version 9.x. Java JVM có \`-XX:+UseNUMAInterleaving\`.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Server có 2 NUMA node (Node 0 và Node 1). Process P chạy trên Core 5 (Node 1). Mảng B của P được cấp phát mặc định trên Node 0 (vì \`malloc\` không NUMA-aware).
 

@@ -406,7 +406,7 @@ Khi mạng học tốt hoàn hảo (diagonal = 1, off-diagonal = 0), loss tối 
 
 Loss hiện tại 0.33 nằm giữa hai cực này → mạng đã học khá tốt.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Tính $S_{22}$ (cosine giữa $v_2$ và $u_2$). Đáp án trong panel dưới.
 > 2. Nếu thay $1/\tau = 1$ (thay vì 10), loss sẽ tăng hay giảm? Giải thích.
 >

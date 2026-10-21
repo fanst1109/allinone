@@ -46,7 +46,7 @@ Câu nói nổi tiếng của Werner Vogels (CTO Amazon): **"Everything fails al
 
 ⚠ **Lỗi thường gặp.** "Hệ thống của tôi rất ổn định, không cần lo incident." → Mọi hệ thống *đang chạy* đều sẽ có incident; câu hỏi chỉ là *khi nào*. Đội không chuẩn bị sẽ xử lý incident đầu tiên trong hoảng loạn, mất nhiều giờ cho việc lẽ ra mất vài phút.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Vì sao "100% uptime" là mục tiêu sai?</summary>
@@ -161,7 +161,7 @@ Bảng tổng hợp (tháng 30 ngày = 43200 phút; năm = 525600 phút):
 
 ⚠ **Lỗi thường gặp.** Nghĩ "thêm một số 9 thì cố một tí là được". Mỗi số 9 thêm vào **giảm downtime cho phép xuống 1/10** → đòi hỏi đầu tư (redundancy, automation, on-call 24/7) tăng *cấp số nhân*. Đi từ 99.9% lên 99.99% thường tốn gấp 5-10 lần công sức nhưng giá trị kinh doanh thêm có thể không tương xứng (xem pitfall mục 15).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>SLA của bạn là 99.9%. Nên đặt SLO nội bộ bằng bao nhiêu, vì sao?</summary>
@@ -223,7 +223,7 @@ Cao hơn SLA, ví dụ 99.95%. Lý do: cần "vùng đệm" để đội phát h
 
 ⚠ **Lỗi thường gặp.** Đặt SLO = 100% → error budget = 0 → *không bao giờ được phép ship gì rủi ro*, đồng thời mọi sự cố nhỏ đều là "vi phạm". SLO phải < 100% để budget có ý nghĩa.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Đội đã cạn error budget tháng này. Quản lý vẫn muốn ship feature mới gấp. Bạn nói gì?</summary>
@@ -281,7 +281,7 @@ Cao hơn SLA, ví dụ 99.95%. Lý do: cần "vùng đệm" để đội phát h
 
 ⚠ **Lỗi thường gặp.** Đặt alert cho *mọi* dao động metric "cho chắc". Kết quả: 200 alert/đêm → người trực mute hết → alert thật (DB down) bị bỏ qua 40 phút. **Ít alert nhưng đúng > nhiều alert.**
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Alert "CPU > 90%" có nên page người trực dậy lúc 3h sáng không?</summary>
@@ -342,7 +342,7 @@ Detect  →  Triage  →  Mitigate  →  Resolve  →  Postmortem
 
 ⚠ **Lỗi thường gặp.** Định nghĩa severity mơ hồ ("nghiêm trọng", "khá nghiêm trọng") → mỗi người hiểu khác → tranh cãi lúc đang cháy nhà. Severity phải có *tiêu chí khách quan* (số user ảnh hưởng, doanh thu/giờ mất, có mất data không).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Trang thanh toán lỗi 2% giao dịch. SEV mấy?</summary>
@@ -413,7 +413,7 @@ Khi incident lớn (SEV1/SEV2), hỗn loạn nếu ai cũng làm mọi thứ. M�
 
 > ❓ **Rollback có làm mất manh mối điều tra không?** Một chút, nhưng log/metric/trace trước khi rollback vẫn còn. Hãy *chụp ảnh trạng thái* (snapshot log, heap dump nếu cần) rồi rollback. User ổn định quan trọng hơn việc giữ "hiện trường" sống.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Deploy mới gây lỗi. Nên (a) rollback ngay hay (b) tìm bug rồi hotfix?</summary>
@@ -514,7 +514,7 @@ Phân tích 5 Whys / contributing factors (mục 10).
 
 ⚠ **Lỗi thường gặp.** Postmortem viết "do bạn A bất cẩn deploy giờ cao điểm". Sai: (1) đổ lỗi cá nhân → A và đồng nghiệp sẽ giấu giếm lần sau; (2) bỏ qua câu hỏi *vì sao hệ thống cho phép deploy giờ cao điểm mà không có chặn/canary?*. Viết lại blameless: "Quy trình deploy thiếu cơ chế canary và thiếu chặn deploy giờ cao điểm → action item: thêm cả hai."
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Vì sao "đổ lỗi cá nhân" lại làm hệ thống KÉM tin cậy hơn theo thời gian?</summary>
@@ -720,7 +720,7 @@ So sánh hai chiến lược cải thiện (giữ nguyên 4 incident/tháng):
 
 → Giảm MTTR (recover nhanh) cho kết quả tốt nhất ở đây, và thường *khả thi hơn* việc ép giảm số lần fail.
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 
 <details>
 <summary>Hai đội: đội A fail 10 lần/tháng nhưng recover trong 1 phút; đội B fail 1 lần/tháng nhưng mất 3 giờ recover. Đội nào availability cao hơn?</summary>

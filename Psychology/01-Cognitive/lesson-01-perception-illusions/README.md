@@ -117,7 +117,7 @@ Tâm lý học Gestalt (Max Wertheimer, 1923) xác định các quy tắc tổ c
 > - *Nếu biết illusion, có thoát khỏi không?* Gần như không — illusion xảy ra ở giai đoạn perceptual (sớm), trước khi cognitive knowledge can thiệp được. Biết Müller-Lyer là illusion vẫn thấy hai đoạn khác dài. Đây là bằng chứng cho modular processing.
 > - *Động vật có thấy illusion không?* Có, nhưng biên độ khác người. Chim bồ câu thấy illusion Müller-Lyer nhỏ hơn nhiều — họ không lớn lên trong "carpentered world".
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Müller-Lyer: tại sao người Zulu thấy illusion yếu hơn người châu Âu?
 > <details><summary>Đáp án</summary>Người Zulu truyền thống sống trong nhà hình tròn, ít tiếp xúc với góc vuông hình học — "carpentered world prior" yếu hơn, nên depth cue từ mũi tên ít ảnh hưởng hơn đến ước tính độ dài.</details>
 > 2. Color constancy: cùng RGB (128,128,128), một lần dưới đèn vàng, một lần dưới đèn lạnh — não làm gì để ta thấy cùng màu?

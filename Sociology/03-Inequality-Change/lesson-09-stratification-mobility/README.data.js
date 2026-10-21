@@ -63,7 +63,7 @@ Từ đây, để mô phỏng được, ta cố định **3 giai tầng: Thấp,
 
 > ⚠ **Lỗi thường gặp.** Coi "giai tầng" chỉ là **thu nhập**. Weber chỉ ra phân tầng **đa chiều**: một giáo sư có uy tín cao (status) nhưng thu nhập trung bình; một trùm cờ bạc có tiền nhưng uy tín thấp. Thu nhập, quyền lực, uy tín **không phải lúc nào cũng đi cùng nhau**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. "Tuần này An trúng số nên giàu hơn Bình" — đây có phải phân tầng xã hội không?
 > 2. Vì sao ta cần gom dân số thành tầng thay vì xét từng cá nhân?
 >
@@ -119,7 +119,7 @@ Con số minh hoạ sức nặng của địa vị gán: ở nhiều nước, đ
 
 > ⚠ **Lỗi thường gặp.** Nghĩ rằng chỉ cần "cố gắng" là chuyển tầng được, phủ nhận vai trò địa vị gán. Số liệu dịch chuyển cho thấy điều ngược lại: con nhà nghèo phải nỗ lực **nhiều hơn nhiều** để đạt cùng vị trí — vì điểm xuất phát khác nhau.
 
-> 🔁 **Dừng lại tự kiểm tra.** Phân loại: (a) là con trưởng dòng họ; (b) đỗ thủ khoa; (c) sinh ra ở quốc gia giàu; (d) được thăng trưởng phòng.
+> 🔁 **Ôn tập.** Phân loại: (a) là con trưởng dòng họ; (b) đỗ thủ khoa; (c) sinh ra ở quốc gia giàu; (d) được thăng trưởng phòng.
 >
 > <details><summary>Đáp án</summary>
 >
@@ -232,7 +232,7 @@ Tổng kiểm tra: $0.485 + 0.355 + 0.160 = 1.000\\ \\checkmark$ — **phân b�
 > $$\\sum_j v'_j = \\sum_j \\sum_i v_i P_{ij} = \\sum_i v_i \\underbrace{\\sum_j P_{ij}}_{=\\,1} = \\sum_i v_i = 1.$$
 > Dân số không tự sinh ra hay biến mất khi sang thế hệ mới — nó chỉ **được phân bố lại** giữa các tầng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với cùng $P$ trên và $v^{(0)} = (1, 0, 0)$ (cả xã hội khởi đầu ở Thấp), tính $v^{(1)}$.
+> 🔁 **Ôn tập.** Với cùng $P$ trên và $v^{(0)} = (1, 0, 0)$ (cả xã hội khởi đầu ở Thấp), tính $v^{(1)}$.
 >
 > <details><summary>Đáp án</summary>
 >
@@ -321,7 +321,7 @@ Nhận xét:
 > - *"Xã hội mở $O$ có $\\pi$ khác không?"* → Có, $\\pi_O \\approx (0.327, 0.347, 0.327)$ — **gần đều hơn** (sát $1/3$ mỗi tầng). Xã hội càng mở, phân bố dừng càng cân bằng.
 > - *"Bao nhiêu thế hệ thì coi như hội tụ?"* → Với $P$ dính ($\\lambda_2 = 0.65$): ~10 thế hệ (khoảng cách $0.65^{10} \\approx 1.3\\%$). Với $O$ mở ($\\lambda_2 = 0.15$): 2–3 thế hệ là gần như xong.
 
-> 🔁 **Dừng lại tự kiểm tra.** Không tính chi tiết, chỉ trả lời định tính: nếu ta **tăng** đường chéo của $P$ (làm xã hội dính hơn), $\\pi$ và **tốc độ** hội tụ thay đổi ra sao?
+> 🔁 **Ôn tập.** Không tính chi tiết, chỉ trả lời định tính: nếu ta **tăng** đường chéo của $P$ (làm xã hội dính hơn), $\\pi$ và **tốc độ** hội tụ thay đổi ra sao?
 >
 > <details><summary>Đáp án</summary>
 >

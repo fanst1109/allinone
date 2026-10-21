@@ -99,7 +99,7 @@ $$y(t) = 20t - 5t^{2}, \qquad x(t) = 5t$$
 > - *"Vì sao vật chậm lại ở đỉnh?"* → Vì $v_y$ giảm về $0$ tại đỉnh rồi đổi chiều. Ở gần đỉnh, vận tốc dọc nhỏ nên các frame nằm sát nhau → tạo cảm giác **"lơ lửng" (hang time)** rất tự nhiên.
 > - *"Muốn bóng nặng hơn thì chỉnh gì?"* → Tăng $g$: parabol **gắt và thấp** hơn, thời gian bay ngắn → bóng "nặng, chắc". Giảm $g$: bóng bay lâu, cao, "nhẹ như bóng bay".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Với $v_x = 5, v_{y0} = 20, g = 10$ ở trên, nếu tăng $v_x$ lên $8$ thì tầm xa (điểm chạm đất) là bao nhiêu? Đỉnh cao bao nhiêu?
 > 2. Bàn tay $R = 40$ vung từ $-90°$ đến $+90°$. Độ dài cung nó đi là bao nhiêu?
 >
@@ -144,7 +144,7 @@ Cùng một cặp điểm đầu-cuối, chỉ đổi $R$ mà cảm giác đi t�
 > - *"Trong phần mềm (After Effects, Blender) tôi có phải tính $s$ không?"* → Không tính tay. Bạn kéo **tay cầm (handle) của keyframe/đường Bézier** cho tới khi vết cong nhìn đúng. Công thức chỉ để hiểu **vì sao** kéo xa hơn = cong hơn. Bài này minh họa bằng đường Bézier bậc hai, kéo điểm đỉnh để đổi $s$.
 > - *"Bán kính xấp xỉ từ $s$ và $L$ tính sao?"* → Đảo công thức: $R \approx \dfrac{L^2}{8s} + \dfrac{s}{2}$. Ví dụ $L=100, s=13.4$: $R \approx \dfrac{10000}{107.2} + 6.7 = 93.3 + 6.7 = 100$ ✓ (khớp dòng $R=100$).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Dây cung $L = 80$. Tính sagitta cho $R = 50$. Cung này gắt hay thoải?
 >
 > <details><summary>Đáp án</summary>
@@ -178,7 +178,7 @@ Quy trình animator kinh điển ("track the arc"):
 
 > ⚠ **Lỗi thường gặp.** Chỉ nhìn từng frame riêng lẻ thấy "ổn", nhưng nối vết lại mới lộ ra một frame **nhô ra khỏi cung** (pop) hoặc cả đoạn **thẳng đơ**. Luôn kiểm tra bằng vết quỹ đạo, đừng tin mắt trên từng frame.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vết quỹ đạo của một điểm cho ra 5 chấm nằm **thẳng hàng, cách đều nhau**. Chuyển động này gợi cảm giác gì, và thường sai ở đâu?
+> 🔁 **Ôn tập.** Vết quỹ đạo của một điểm cho ra 5 chấm nằm **thẳng hàng, cách đều nhau**. Chuyển động này gợi cảm giác gì, và thường sai ở đâu?
 >
 > <details><summary>Đáp án</summary>
 >

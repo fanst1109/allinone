@@ -53,7 +53,7 @@ $$\text{Điều kiện hợp lệ:} \quad \text{Địa chỉ logic} < \text{Limi
 - *"Context switch thì sao?"* — OS lưu base/limit vào PCB (Process Control Block) khi switch out, nạp lại khi switch in. Mỗi tiến trình có cặp base/limit riêng.
 - *"Chỉ base+limit là đủ không?"* — Chưa đủ. Tiến trình thường có nhiều vùng (code, heap, stack) nằm rải rác. Paging giải quyết vấn đề này — xem Lesson 02.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Tiến trình có base = 8000, limit = 2000. CPU phát địa chỉ logic 1999 và 2000. Địa chỉ vật lý tương ứng là gì? Có lỗi không?
 
@@ -164,7 +164,7 @@ Lỗ C: 180 KB  [địa chỉ 900]
 - *"Chiến lược nào tốt nhất trong thực tế?"* — Thực nghiệm cho thấy first-fit thường nhanh nhất và tương đương best-fit về hiệu quả dùng bộ nhớ. Worst-fit thường kém nhất trong các benchmark thực.
 - *"Tìm kiếm lỗ mất O(N) mỗi lần — có cách nào nhanh hơn không?"* — Có. Dùng cây tìm kiếm nhị phân (BST) sắp xếp theo kích thước lỗ → O(log N). Nhưng phần cứng hiện đại dùng paging thay vì contiguous allocation, nên câu hỏi này ít quan trọng trong thực tiễn.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Danh sách lỗ: [50 KB, 300 KB, 150 KB, 600 KB]. Request 200 KB. First-fit và best-fit chọn lỗ nào?
 
@@ -241,7 +241,7 @@ Vì những lý do trên, OS hiện đại không dùng contiguous allocation + 
 - *"Compaction có bao giờ được dùng không?"* — Có, trong một số trường hợp đặc biệt: garbage collector của Java/Go dùng compacting GC; defragmentation ổ đĩa (HDD) cũng là một dạng compaction. Nhưng không dùng cho bộ nhớ RAM tiến trình trong OS hiện đại.
 - *"Nếu không dùng contiguous allocation, base+limit register còn ý nghĩa không?"* — Base+limit vẫn dùng ở cấp segment (segmentation). Nhưng x86-64 hiện đại chạy trong chế độ "flat memory" với paging, bỏ qua segmentation phần lớn. Chi tiết ở Lesson 02-03.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 RAM 500 KB, tiến trình X (100 KB) ở [0–100], Y (150 KB) ở [200–350], Z (50 KB) ở [400–450]. Lỗ trống ở đâu? Tổng trống? Có thể cấp tiến trình 200 KB không?
 

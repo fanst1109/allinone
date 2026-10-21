@@ -44,7 +44,7 @@ Ví dụ cụ thể: một hệ `Đặt hàng` chia thành 3 mô-đun gắn kế
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "ít file = đơn giản = tốt". Không. Một file `utils.go` 3000 dòng chứa đủ thứ (parse ngày, gọi DB, format tiền, gửi mail) là **cohesion cực thấp** dù chỉ một file. Đơn giản thật sự là *mỗi hộp một việc rõ ràng*, không phải *gộp tất cả vào một hộp*.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một hàm `processOrder()` vừa kiểm tra tồn kho, vừa tính giá, vừa ghi log ra file, vừa gửi email xác nhận. Hàm này cohesion cao hay thấp? Vì sao?
+> 🔁 **Thực hành.** Một hàm `processOrder()` vừa kiểm tra tồn kho, vừa tính giá, vừa ghi log ra file, vừa gửi email xác nhận. Hàm này cohesion cao hay thấp? Vì sao?
 > <details><summary>Đáp án</summary>Cohesion <b>thấp</b>. Nó trộn bốn trách nhiệm không cùng "lý do thay đổi": logic nghiệp vụ (tồn kho, giá), hạ tầng (ghi log), và giao tiếp (email). Đổi format email lẽ ra không nên đụng vào hàm xử lý đơn. Tách thành các mô-đun riêng → cohesion cao hơn, đúng tinh thần Single Responsibility.</details>
 
 📝 **Tóm tắt mục 1.** Hệ thống = hộp (mô-đun) + dây (dependency). Mục tiêu: **low coupling** (ít dây nối giữa hộp) + **high cohesion** (mỗi hộp gắn kết chặt). Cả hai cùng giảm **chi phí thay đổi**.
@@ -117,7 +117,7 @@ Giao kèo tối thiểu: A đưa B đúng dữ liệu B cần, không hơn. Đ�
 
 > ⚠ **Lỗi thường gặp.** Lẫn **control coupling** với data: truyền một boolean `silent=true` nghe như "data", nhưng nếu B *rẽ nhánh hành vi* theo nó thì đó là **control coupling** — A đang điều khiển luồng bên trong B. Dấu hiệu: tham số tên `mode`, `flag`, `type`, `isXxx` mà bên trong B có `if param == ...`.
 
-> 🔁 **Dừng lại tự kiểm tra.** `applyDiscount(order, true)` với `true` nghĩa là "khách VIP". Đây là coupling loại gì, và sửa thế nào?
+> 🔁 **Thực hành.** `applyDiscount(order, true)` với `true` nghĩa là "khách VIP". Đây là coupling loại gì, và sửa thế nào?
 > <details><summary>Đáp án</summary><b>Control coupling</b> — `true` là cờ điều khiển, người gọi phải nhớ "true = VIP" và `applyDiscount` rẽ nhánh theo nó. Sửa: hoặc tách hàm rõ nghĩa (<code>applyVipDiscount(order)</code>), hoặc truyền dữ liệu thay vì cờ (<code>applyDiscount(order, rate float64)</code> — người gọi quyết định rate, B chỉ áp dụng → thành data coupling).</details>
 
 📝 **Tóm tắt mục 2.** Coupling = mức A phụ thuộc chi tiết nội bộ của B. Thang từ chặt→lỏng: **content > common > control > stamp > data**. Mục tiêu: hạ về **data coupling** (giao kèo tối thiểu qua tham số rõ ràng). Coupling chặt làm thay đổi lan rộng và khó test.
@@ -173,7 +173,7 @@ func (Money) Add(a, b int) int                       { /* ... */ }
 
 > ⚠ **Lỗi thường gặp.** Đặt tên hộp kiểu `Manager`, `Util`, `Helper`, `Common`, `Misc` thường là dấu hiệu cohesion thấp: tên mơ hồ vì *bên trong cũng mơ hồ*. Nếu phải dùng chữ "and" để mô tả một mô-đun ("nó xử lý đơn hàng *and* gửi mail *and* ghi log") → cohesion đang thấp.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một package `account` có các hàm: `Login`, `Logout`, `ResetPassword`, `ExportSalesReportToExcel`. Hàm nào phá cohesion?
+> 🔁 **Thực hành.** Một package `account` có các hàm: `Login`, `Logout`, `ResetPassword`, `ExportSalesReportToExcel`. Hàm nào phá cohesion?
 > <details><summary>Đáp án</summary><code>ExportSalesReportToExcel</code>. Ba hàm đầu cùng nhiệm vụ "quản lý phiên đăng nhập" (functional cohesion). Hàm xuất báo cáo bán hàng thuộc nhiệm vụ khác hẳn → nên nằm ở package <code>report</code>. Để nó ở đây kéo cohesion của <code>account</code> xuống và tạo coupling thừa (account phải biết về Excel).</details>
 
 📝 **Tóm tắt mục 3.** Cohesion = mức các phần trong một mô-đun thuộc về *cùng một nhiệm vụ*. Thang từ thấp→cao: **coincidental → logical → temporal → procedural → communicational → functional**. Nhắm tới **functional cohesion**. Tên mơ hồ (`Util`, `Manager`) và chữ "and" trong mô tả là cờ đỏ.
@@ -302,7 +302,7 @@ Event đẩy coupling xuống mức thấp nhất: bên phát và bên nhận *k
 
 > ⚠ **Lỗi thường gặp.** Lạm dụng event biến hệ thống thành "ai gọi ai chẳng biết" — khó lần dấu luồng (debug ác mộng). Event tốt cho *fan-out nhiều người nghe & không cần kết quả ngay* (gửi mail, analytics); luồng nghiệp vụ cần đồng bộ & rõ ràng thì gọi trực tiếp/qua interface vẫn hơn. Lỏng coupling không miễn phí — đổi bằng độ khó truy vết.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn muốn `OrderService` test được mà không gọi Stripe thật. Kỹ thuật nào ở trên giải quyết, và vì sao?
+> 🔁 **Thực hành.** Bạn muốn `OrderService` test được mà không gọi Stripe thật. Kỹ thuật nào ở trên giải quyết, và vì sao?
 > <details><summary>Đáp án</summary><b>Interface + Dependency Injection</b>. Định nghĩa <code>PaymentGateway</code> interface; production tiêm <code>StripeClient</code> thật, test tiêm <code>fakeGateway</code> (luôn trả thành công). Vì <code>OrderService</code> chỉ phụ thuộc interface và nhận phụ thuộc từ ngoài, nó không "biết" Stripe → thay bằng fake trong test thoải mái.</details>
 
 📝 **Tóm tắt mục 5.** Hạ coupling bằng: **interface** (phụ thuộc hình dạng, không danh tính), **DI** (tiêm phụ thuộc từ ngoài → dễ test), **event** (bên phát không biết bên nhận → fan-out lỏng nhất). Mỗi kỹ thuật đánh đổi: lỏng hơn nhưng có thể khó truy vết hơn — dùng đúng chỗ.

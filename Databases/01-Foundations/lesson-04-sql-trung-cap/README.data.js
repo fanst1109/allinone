@@ -173,7 +173,7 @@ JOIN customers b ON a.city = b.city AND a.id < b.id;
 - *"\`LEFT JOIN\` và \`RIGHT JOIN\` khác nhau thật không, hay chỉ đảo tên?"* — Chỉ là góc nhìn: \`A LEFT JOIN B\` cho cùng kết quả với \`B RIGHT JOIN A\`. Người ta hầu như chỉ dùng \`LEFT JOIN\` cho dễ đọc.
 - *"\`ON\` khác \`WHERE\` chỗ nào?"* — \`ON\` định nghĩa *cách ghép*; \`WHERE\` *lọc* sau khi đã ghép. Với OUTER JOIN, đặt điều kiện ở \`ON\` hay \`WHERE\` cho kết quả **khác nhau** — \`WHERE o.amount > 100\` sẽ loại luôn dòng Dung-NULL (vì \`NULL > 100\` là không-đúng).
 
-🔁 **Dừng lại tự kiểm tra.**
+🔁 **Thực hành.**
 1. \`customers LEFT JOIN orders\` cho bao nhiêu dòng với dữ liệu mẫu? Dòng nào có NULL?
 2. Quên \`ON\` khi join \`customers\` (4) với \`orders\` (5) cho bao nhiêu dòng?
 
@@ -231,7 +231,7 @@ GROUP BY customer_id;
 
 ⚠ **Lỗi thường gặp.** Trong \`SELECT\` có \`GROUP BY\`, mọi cột **không nằm trong hàm tổng hợp** đều **phải có mặt trong \`GROUP BY\`**. Viết \`SELECT customer_id, amount, SUM(amount) ... GROUP BY customer_id\` là sai — \`amount\` của nhóm {200,150} là 200 hay 150? Không xác định. (PostgreSQL báo lỗi; MySQL chế độ lỏng lẻo trả bừa một giá trị — càng nguy hiểm.)
 
-🔁 **Dừng lại tự kiểm tra.** \`AVG(amount)\` của khách #1 và #3 là bao nhiêu?
+🔁 **Thực hành.** \`AVG(amount)\` của khách #1 và #3 là bao nhiêu?
 
 <details><summary>Đáp án</summary>
 
@@ -403,7 +403,7 @@ Hai hệ quả thực tế suy ra trực tiếp từ thứ tự này:
 
 ❓ *"Vậy DBMS thật sự chạy đúng thứ tự này từng bước?"* — Đây là **thứ tự logic** (để định nghĩa kết quả đúng). Optimizer có thể đảo thứ tự *vật lý* (ví dụ đẩy lọc xuống sớm) miễn là kết quả không đổi — xem [Lesson 05 — Query Execution](../../02-Intermediate/lesson-05-query-execution/).
 
-🔁 **Dừng lại tự kiểm tra.** Vì sao \`WHERE SUM(amount) > 100\` luôn báo lỗi nhưng \`HAVING SUM(amount) > 100\` thì không?
+🔁 **Thực hành.** Vì sao \`WHERE SUM(amount) > 100\` luôn báo lỗi nhưng \`HAVING SUM(amount) > 100\` thì không?
 
 <details><summary>Đáp án</summary>
 

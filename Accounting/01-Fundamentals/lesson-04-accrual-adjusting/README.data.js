@@ -64,7 +64,7 @@ Cần nắm phương trình kế toán $A = L + E$ và cách một giao dịch c
 
 > ⚠ **Lỗi thường gặp.** *"Tháng này tài khoản ngân hàng tăng 200 triệu nên công ty lãi 200 triệu."* **Sai.** Tiền tăng có thể do **vay**, do **thu nợ cũ** (doanh thu đã ghi kỳ trước), hay do **khách trả trước** (chưa kiếm được). Không khoản nào trong đó là "lãi tháng này". Lợi nhuận và dòng tiền là **hai đại lượng khác nhau** — Lesson này tồn tại để tách bạch chúng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tháng 5 công ty giao hàng trị giá 100 (khách trả tháng 7), và thu 40 tiền nợ của đơn hàng đã giao tháng 3. Doanh thu **dồn tích** tháng 5 là bao nhiêu? Còn theo **tiền mặt**?
+> 🔁 **Thực hành.** Tháng 5 công ty giao hàng trị giá 100 (khách trả tháng 7), và thu 40 tiền nợ của đơn hàng đã giao tháng 3. Doanh thu **dồn tích** tháng 5 là bao nhiêu? Còn theo **tiền mặt**?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -183,7 +183,7 @@ $$\\text{Khấu hao mỗi kỳ} = \\frac{\\text{Nguyên giá} - \\text{Giá tr�
 > - *"Loại 3 (nhận trước) và loại 4 (trả trước) khác gì nhau?"* → Đối xứng qua gương: nhận trước là *ta nợ khách một dịch vụ* (nợ phải trả); trả trước là *nhà cung cấp nợ ta một dịch vụ* (tài sản).
 > - *"Khấu hao và chi phí trả trước có phải cùng một ý?"* → Đúng, cùng ý "phân bổ dần khoản đã trả". Khác ở chỗ khấu hao dành cho **tài sản cố định hữu hình** và dùng tài khoản hao mòn lũy kế.
 
-> 🔁 **Dừng lại tự kiểm tra.** Xếp mỗi khoản vào 1 trong 5 loại: (a) đã dạy học nhưng chưa xuất hóa đơn; (b) trả trước 12 tháng thuê server; (c) khách đặt cọc tour du lịch tháng sau; (d) tiền điện tháng này chưa có hóa đơn.
+> 🔁 **Thực hành.** Xếp mỗi khoản vào 1 trong 5 loại: (a) đã dạy học nhưng chưa xuất hóa đơn; (b) trả trước 12 tháng thuê server; (c) khách đặt cọc tour du lịch tháng sau; (d) tiền điện tháng này chưa có hóa đơn.
 >
 > <details><summary>Đáp án</summary>
 >

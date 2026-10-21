@@ -137,7 +137,7 @@ Không. Nếu $c = a$ thì $a^2 + b^2 = a^2 \Rightarrow b^2 = 0 \Rightarrow b = 
 
 Có. Định lý đúng cho mọi số thực dương. Ví dụ tam giác cạnh $(1, 1, \sqrt{2})$: $1^2 + 1^2 = 2 = (\sqrt{2})^2$. Đó chính là tam giác vuông cân — sẽ dùng ngay ở mục giá trị đặc biệt $45^\circ$.
 
-### 🔁 Dừng lại tự kiểm tra (Mục 1)
+### 🔁 Thực hành (Mục 1)
 
 1. Cho tam giác vuông có cạnh huyền 13 và một cạnh góc vuông 5. Tìm cạnh còn lại. *(Đáp: $b^2 = 169 - 25 = 144 \to b = 12$)*
 2. Bộ $(6, 8, 10)$ có là tam giác vuông không? *(Đáp: $6^2 + 8^2 = 36 + 64 = 100 = 10^2$ → có)*
@@ -289,7 +289,7 @@ $$\frac{\sin\theta}{\cos\theta} = \frac{\text{opp}/\text{hyp}}{\text{adj}/\text{
 2. **Quên rằng cùng tam giác nhưng nhìn từ góc khác → tỷ số khác**. Trong tam giác 3-4-5, từ góc A (đối diện 4): $\sin A = \frac{4}{5}$. Nhưng từ góc B (đối diện 3): $\sin B = \frac{3}{5}$. Hai góc khác nhau → hai giá trị $\sin$ khác nhau.
 3. **Áp dụng cho tam giác không vuông**. SOH-CAH-TOA chỉ đúng cho tam giác vuông. Với tam giác bất kỳ, có **định luật sin** và **định luật cosin** (Lesson 04).
 
-### 🔁 Dừng lại tự kiểm tra (Mục 2)
+### 🔁 Thực hành (Mục 2)
 
 1. Trong tam giác 5-12-13, tính $\cos$ của góc đối diện cạnh 12. *(Đáp: cạnh kề = 5, huyền = 13 → $\cos = \frac{5}{13} \approx 0.385$)*
 2. Nếu $\sin\theta = 0.6$ thì $\cos\theta$ là bao nhiêu (giả sử $\theta$ nhọn)? *(Đáp: $\cos\theta = \sqrt{1 - 0.36} = \sqrt{0.64} = 0.8$)*
@@ -486,7 +486,7 @@ Cố gắng "song ngữ" — khi nghĩ $30^\circ$ luôn liên tưởng $\frac{\p
 
 Trong các bài đo đạc thực tế, đúng — không có bảng tay nào. Lúc đó dùng `math.Sin(22 * math.Pi / 180)`. Bảng tay chỉ phục vụ tính nhanh và để bạn **không bị lệ thuộc máy tính** khi suy luận lý thuyết.
 
-### 🔁 Dừng lại tự kiểm tra (Mục 3)
+### 🔁 Thực hành (Mục 3)
 
 1. $\sin 60^\circ + \cos 30^\circ = ?$ *(Đáp: $\frac{\sqrt{3}}{2} + \frac{\sqrt{3}}{2} = \sqrt{3}$)*
 2. $\tan 45^\circ \cdot \sin 30^\circ = ?$ *(Đáp: $1 \cdot 0.5 = 0.5$)*
@@ -638,7 +638,7 @@ Có. Khi mở rộng $\sin$ và $\cos$ ra ngoài tam giác vuông (bằng đư�
 
 Có, chính là Hệ quả 1: $\tan^2\theta = \sec^2\theta - 1$. Dùng khi trong tích phân và đạo hàm cần thay $1 + \tan^2$ bằng $\sec^2$.
 
-### 🔁 Dừng lại tự kiểm tra (Mục 5)
+### 🔁 Thực hành (Mục 5)
 
 1. $\sin\theta = 0.6$, $\theta$ nhọn. Tính $\cos\theta$ và $\tan\theta$. *(Đáp: $\cos\theta = 0.8$, $\tan\theta = \frac{0.6}{0.8} = 0.75$)*
 2. Chứng minh $\sin\theta \cdot \csc\theta = 1$ cho mọi $\theta$ mà $\sin\theta \neq 0$. *(Đáp: $\csc\theta = \frac{1}{\sin\theta} \to \sin\theta \cdot \frac{1}{\sin\theta} = 1$)*
@@ -760,7 +760,7 @@ Vì $\tan(\pm\frac{\pi}{2})$ **không xác định** (chia cho 0), nên $\arctan
 2. **Dùng `Atan` cho $(x, y)$ có $x < 0$**. Sẽ trả về sai quadrant. Luôn `Atan2(y, x)`.
 3. **Quên kiểm tra domain**. $\arcsin(1.0001)$ (do lỗi làm tròn float) → NaN. Trong code nên `math.Min(1.0, math.Max(-1.0, x))` trước khi gọi `Asin`.
 
-### 🔁 Dừng lại tự kiểm tra (Mục 6)
+### 🔁 Thực hành (Mục 6)
 
 1. $\arcsin\frac{\sqrt{2}}{2}$ bằng bao nhiêu (theo độ)? *(Đáp: $45^\circ$)*
 2. `Atan2(0, -1)` bằng bao nhiêu? *(Đáp: $\pi$ — điểm $(-1, 0)$ nằm trên trục Ox âm)*

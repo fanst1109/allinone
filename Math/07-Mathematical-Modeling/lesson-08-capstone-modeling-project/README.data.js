@@ -579,7 +579,7 @@ Liệt kê 3 đỉnh và tính $P$ tại mỗi đỉnh:
 | **Kiểm chứng** (15đ) | Không kiểm | Kiểm 1 thứ (vd $t\\to\\infty$) | Kiểm ≥ 2 cách (giới hạn, bảo toàn, dữ liệu) | __/15 |
 | **Hạn chế & phản biện** (15đ) | "Mô hình hoàn hảo" | Nêu 1 hạn chế | Nêu ≥ 2 hạn chế + hướng tinh chỉnh + độ nhạy | __/15 |
 
-🔁 **Tự kiểm tra rubric**: dự án video viral ở mục 2 nếu đem chấm thì *yếu* ở tiêu chí nào nhất?
+🔁 **Thực hành rubric**: dự án video viral ở mục 2 nếu đem chấm thì *yếu* ở tiêu chí nào nhất?
 
 <details><summary>Đáp án</summary>
 

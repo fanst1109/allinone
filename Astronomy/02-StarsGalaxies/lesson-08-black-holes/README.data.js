@@ -33,7 +33,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Tưởng lỗ đen là "máy hút bụi vũ trụ" hút mọi thứ quanh nó. **Không** — ở xa, trọng lực của lỗ đen y hệt một vật cùng khối lượng bình thường. Nếu thay Mặt Trời bằng lỗ đen 1 M☉, các hành tinh vẫn quay y nguyên quỹ đạo (chỉ tối đi). Chỉ khi tới rất gần (cỡ R_s) mới "không thoát được".
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao ánh sáng không thoát khỏi lỗ đen?
+> 🔁 **Thực hành.** Vì sao ánh sáng không thoát khỏi lỗ đen?
 > <details><summary>Đáp án</summary>Vì bên trong chân trời sự kiện, vận tốc thoát > c. Ánh sáng đi đúng tốc độ c (không nhanh hơn) nên cũng không đủ để thoát.</details>
 
 ---
@@ -85,7 +85,7 @@ $$R_s \\approx 2{,}95 \\ \\text{km} \\times 4 \\times 10^6 = 1{,}18 \\times 10^7
 > - *"$R_s$ tỉ lệ thế nào với M?"* — **Tuyến tính:** gấp đôi khối lượng → gấp đôi $R_s$. Khác với lùn trắng/sao neutron (nặng hơn thì nhỏ đi). Vì thế lỗ đen siêu khối có chân trời khổng lồ.
 > - *"Bên trong chân trời có gì?"* — Theo thuyết tương đối rộng, vật chất rơi về một **kỳ dị (singularity)** ở tâm — điểm mật độ vô hạn nơi vật lý hiện tại không mô tả nổi. Chân trời sự kiện chỉ là "ranh giới không quay lại", không phải bề mặt vật chất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một lỗ đen $20 \\ M_\\odot$ có $R_s$ bao nhiêu?
+> 🔁 **Thực hành.** Một lỗ đen $20 \\ M_\\odot$ có $R_s$ bao nhiêu?
 > <details><summary>Đáp án</summary>$R_s \\approx 2{,}95 \\ \\text{km} \\times 20 = 59 \\ \\text{km}$ (≈ 60 km). Tuyến tính theo khối lượng.</details>
 
 ---
@@ -107,7 +107,7 @@ $$R_s \\approx 2{,}95 \\ \\text{km} \\times 4 \\times 10^6 = 1{,}18 \\times 10^7
 
 > ❓ **Câu hỏi tự nhiên.** *"Tâm Ngân Hà có lỗ đen, vậy ta có bị hút vào không?"* — Không. Mặt Trời cách Sgr A\\* ~26.000 ly ([Lesson 07](../lesson-07-galaxies/)) và quay quanh tâm ổn định, y như Trái Đất quay quanh Mặt Trời. Ở khoảng cách đó, Sgr A\\* chỉ là một khối ~4 triệu M☉ tạo trọng lực bình thường.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lỗ đen ở tâm Ngân Hà thuộc loại nào, nặng bao nhiêu?
+> 🔁 **Thực hành.** Lỗ đen ở tâm Ngân Hà thuộc loại nào, nặng bao nhiêu?
 > <details><summary>Đáp án</summary>Siêu khối (supermassive), tên Sgr A*, ~4 triệu ($4 \\times 10^6$) $M_\\odot$, $R_s \\sim 1{,}2 \\times 10^7 \\ \\text{km}$.</details>
 
 ---
@@ -122,7 +122,7 @@ $$R_s \\approx 2{,}95 \\ \\text{km} \\times 4 \\times 10^6 = 1{,}18 \\times 10^7
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "đã thấy lỗ đen sáng thì nó không còn là lỗ đen". Ánh sáng đến từ **đĩa bồi tụ bên ngoài** chân trời sự kiện, không phải từ bên trong. Bản thân lỗ đen vẫn tối; ta nhìn cái "viền sáng" và bóng của nó.
 
-> 🔁 **Dừng lại tự kiểm tra.** Lỗ đen không phát sáng, vậy làm sao ta "thấy" nó?
+> 🔁 **Thực hành.** Lỗ đen không phát sáng, vậy làm sao ta "thấy" nó?
 > <details><summary>Đáp án</summary>Qua đĩa bồi tụ: khí rơi vào xoáy thành đĩa, ma sát đun nóng tới hàng triệu độ, phát tia X sáng. Ta thấy ánh sáng của đĩa (và bóng tối của chân trời sự kiện), không phải bản thân lỗ đen.</details>
 
 ---
@@ -139,7 +139,7 @@ $$R_s \\approx 2{,}95 \\ \\text{km} \\times 4 \\times 10^6 = 1{,}18 \\times 10^7
 
 > ❓ **Câu hỏi tự nhiên.** *"Ánh sáng bị 'bẻ cong' quanh lỗ đen nghĩa là gì?"* — Trọng lực mạnh **uốn cong không-thời gian**, khiến đường đi của ánh sáng cong lại (**thấu kính hấp dẫn — gravitational lensing**). Gần lỗ đen, ánh sáng có thể vòng quanh chân trời nhiều lần, tạo "vòng photon" sáng — đúng cái EHT chụp được. (Cơ sở: thuyết tương đối rộng, Tầng 3 L07.)
 
-> 🔁 **Dừng lại tự kiểm tra.** Bằng chứng nào trực tiếp cho thấy hai lỗ đen sáp nhập?
+> 🔁 **Thực hành.** Bằng chứng nào trực tiếp cho thấy hai lỗ đen sáp nhập?
 > <details><summary>Đáp án</summary>Sóng hấp dẫn (LIGO/Virgo, GW150914 năm 2015) — gợn sóng không-thời gian phát ra khi hai lỗ đen xoáy vào nhau và hợp nhất.</details>
 
 ---

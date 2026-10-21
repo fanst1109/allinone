@@ -133,7 +133,7 @@ Nhiều người nhầm "domain" là toàn bộ chuỗi. Đúng ra:
 - `www.google.com` = subdomain `www` của domain `google.com`.
 - `mail.google.com` = subdomain `mail` — hoàn toàn có thể trỏ về IP khác với `www.google.com`.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Cho tên miền `api.dev.company.co.vn.`, hãy xác định từng phần.
 
@@ -346,7 +346,7 @@ Resolver thường dùng anycast: các root server phân bố khắp nơi, khi r
 
 Có — khi câu trả lời quá lớn (>512 byte trong đặc tả cũ, >4096 byte với EDNS0). Ví dụ: zone transfer (AXFR) giữa các DNS server luôn dùng TCP/53. Truy vấn thông thường dùng UDP/53.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 Resolver nhận được câu trả lời từ TLD server: "domain `hackerspace.vn` do authoritative `ns1.cloudflare.com` quản lý". Resolver tiếp theo sẽ làm gì?
 

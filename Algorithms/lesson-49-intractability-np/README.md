@@ -60,7 +60,7 @@ Walk-through con số $n = 50$:
 
 > ⚠ **Lỗi thường gặp.** "n¹⁰⁰ là đa thức nên nhanh, 1,0001ⁿ là mũ nên chậm" — đúng về mặt **phân loại tiệm cận**, nhưng với $n$ nhỏ thực tế thì n¹⁰⁰ chậm kinh khủng còn 1,0001ⁿ vẫn nhanh. Lý thuyết độ phức tạp nói về **hành vi khi n → ∞**. May mắn là các thuật toán đa thức thực tế đều có $k \leq 4$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $n = 30$, ước lượng $2^n$ và $n^2$.
+> 🔁 **Thực hành.** Với $n = 30$, ước lượng $2^n$ và $n^2$.
 > <details><summary>Đáp án</summary>
 > $2^{30} \approx 1,07 \cdot 10^9$ (khoảng 1 giây), $n^2 = 900$. Khoảng cách hơn 1 triệu lần — và mới chỉ n=30.
 > </details>
@@ -156,7 +156,7 @@ Câu hỏi lớn: **liệu NP có lớn hơn P không, hay P = NP?**
 
 > ❓ **Câu hỏi tự nhiên.** *"Nếu chưa ai chứng minh P ≠ NP, sao dám nói TSP là khó?"* — Đúng, về mặt logic chặt chẽ ta chỉ nói: "TSP là NP-complete, nên **nếu** P ≠ NP thì TSP không có thuật toán đa thức". Vì gần như chắc P ≠ NP, trong thực hành ta hành xử như TSP là khó.
 
-> 🔁 **Dừng lại tự kiểm tra.** P ⊆ NP hay NP ⊆ P được chứng minh chắc chắn?
+> 🔁 **Thực hành.** P ⊆ NP hay NP ⊆ P được chứng minh chắc chắn?
 > <details><summary>Đáp án</summary>
 > P ⊆ NP **đã chứng minh** (solve nhanh ⟹ verify nhanh). NP ⊆ P là điều **chưa biết** — chính là câu hỏi P = NP. Nếu chứng minh được NP ⊆ P thì P = NP.
 > </details>
@@ -198,7 +198,7 @@ So sánh gọn:
 
 > ⚠ **Lỗi thường gặp #2.** Tưởng "NP-hard luôn thuộc NP". SAI. Halting problem NP-hard nhưng còn không giải được, nói gì verify. Sơ đồ Venn: NP-hard là một vùng **đè lên** NP (giao = NP-complete) và **tràn ra ngoài** NP.
 
-> 🔁 **Dừng lại tự kiểm tra.** Halting problem là NP-complete hay NP-hard?
+> 🔁 **Thực hành.** Halting problem là NP-complete hay NP-hard?
 > <details><summary>Đáp án</summary>
 > NP-hard nhưng **KHÔNG** NP-complete, vì NP-complete đòi hỏi thuộc NP, mà halting problem không thuộc NP (không decidable). Nó nằm ngoài NP.
 > </details>
@@ -276,7 +276,7 @@ Walk-through số: đường thẳng 0-1-2-3 (cạnh (0,1),(1,2),(2,3)), n=4. Ve
 
 > ⚠ **Lỗi thường gặp.** Tưởng vì "Vertex Cover ↔ Independent Set qua phần bù" mà cả hai dễ. KHÔNG — phần bù tính nhanh, nhưng *tìm cái nhỏ nhất/lớn nhất* vẫn NP-complete cho cả hai. Reduction chỉ nói chúng khó **như nhau**, không nói chúng dễ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Subset Sum và Partition khác nhau thế nào?
+> 🔁 **Thực hành.** Subset Sum và Partition khác nhau thế nào?
 > <details><summary>Đáp án</summary>
 > Partition là trường hợp đặc biệt của Subset Sum với T = (tổng cả tập)/2. Nếu tổng lẻ thì "No" ngay. Partition ≤ₚ Subset Sum hiển nhiên.
 > </details>
@@ -343,7 +343,7 @@ So sánh: nếu thật sự đa thức theo *kích thước input* (số bit), t
 
 > ⚠ **Lỗi thường gặp #4.** Tưởng "knapsack có DP O(nW) nên thuộc P". Knapsack 0/1 là **NP-complete**; DP O(nW) chỉ pseudo-polynomial. Nó nhanh khi W nhỏ, vô dụng khi W lớn (như 10⁹). Subset Sum cũng vậy — O(nT) pseudo-poly.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tại sao O(n²) là poly thật mà O(nW) chỉ pseudo-poly?
+> 🔁 **Thực hành.** Tại sao O(n²) là poly thật mà O(nW) chỉ pseudo-poly?
 > <details><summary>Đáp án</summary>
 > n là số phần tử = kích thước input thật. W là một *giá trị* viết bằng log W bit; O(nW) = O(n·2^(log W)) mũ theo số bit log W. n² đa thức theo n (kích thước), nW mũ theo bit của W.
 > </details>

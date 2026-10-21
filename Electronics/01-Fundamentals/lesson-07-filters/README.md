@@ -170,7 +170,7 @@ R &= \frac{1}{2\pi \times f_c \times C} = \frac{1}{2\pi \times 1000 \times 10 \t
 
 ⚠ **Lỗi thường gặp**: Nhầm $f_c = 1/(RC)$ (thiếu $2\pi$). Ví dụ: $R = 1$ kΩ, $C = 1$ µF → $1/(RC) = 1000$ rad/s $= \omega_c$ (tần số góc), còn $f_c = \omega_c/(2\pi) = 1000/6.283 \approx 159$ Hz. Phân biệt rõ $\omega_c$ (rad/s) và $f_c$ (Hz).
 
-🔁 **Tự kiểm tra**: Tính $f_c$ khi $R = 2.2$ kΩ, $C = 47$ nF.
+🔁 **Thực hành**: Tính $f_c$ khi $R = 2.2$ kΩ, $C = 47$ nF.
 
 <details>
 <summary>Đáp án</summary>
@@ -272,7 +272,7 @@ $$R = \frac{1}{2\pi \times 500 \times 22 \times 10^{-9}} = \frac{1}{6.912 \times
 
 → chọn 15 kΩ (tiêu chuẩn).
 
-🔁 **Tự kiểm tra**: Với HPF $R = 33$ kΩ, $C = 47$ nF, tần số 100 Hz suy giảm bao nhiêu?
+🔁 **Thực hành**: Với HPF $R = 33$ kΩ, $C = 47$ nF, tần số 100 Hz suy giảm bao nhiêu?
 
 <details>
 <summary>Đáp án</summary>
@@ -457,7 +457,7 @@ Phần dốc ở trái f_c dốc lên +20 dB/decade (tần số tăng gấp 10 �
 
 Không. Đường gấp khúc chỉ là **phép xấp xỉ tuyến tính** (straight-line Bode approximation). Đường thực tế là đường cong mượt, chỉ khớp với đường thẳng ở xa f_c và lệch tối đa 3 dB tại điểm f = f_c.
 
-🔁 **Tự kiểm tra**: Tại $f = 10 \cdot f_c$ (gấp 10 lần tần số cắt), độ suy giảm của LPF bậc 1 xấp xỉ bao nhiêu dB?
+🔁 **Thực hành**: Tại $f = 10 \cdot f_c$ (gấp 10 lần tần số cắt), độ suy giảm của LPF bậc 1 xấp xỉ bao nhiêu dB?
 
 <details>
 <summary>Đáp án</summary>

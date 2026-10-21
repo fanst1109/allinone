@@ -306,7 +306,7 @@ fmt.Println(a == b)        // false
 
 Trình biên dịch **không được** reorder floating-point operations tùy ý — kết quả có thể khác.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 
 1. Float32 \`0xBF800000\` là số gì?
 

@@ -64,7 +64,7 @@ $$v = \omega \cdot r$$
 - *"Chu kỳ và tần số khác nhau thế nào?"* Chu kỳ T = thời gian một vòng (giây); tần số f = số vòng mỗi giây (Hz). Chúng nghịch đảo: $f = \frac{1}{T}$. Quay nhanh → T nhỏ, f lớn.
 - *"rad/s nghĩa là gì — radian là gì?"* Radian là cách đo góc: 1 vòng đầy $= 2\pi$ rad $\approx 6{,}28$ rad. $\omega$ tính bằng rad/s = số radian quét mỗi giây. Dùng radian (không phải độ) để công thức $v = \omega \cdot r$ đúng.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đĩa quay với chu kỳ T = 0.5 s. Tính ω và tần số f.
 2. Một điểm cách tâm 0.2 m trên đĩa quay ω = 10 rad/s. Vận tốc dài của nó?
@@ -123,7 +123,7 @@ $\to \Delta v = v \cdot \frac{v \cdot \Delta t}{r} \to a = \frac{\Delta v}{\Delt
 - *"$a_c$ lớn khi nào?"* Khi v lớn ($a_c \propto v^2$) hoặc r nhỏ (cua gắt). Vào cua gắt tốc độ cao → $a_c$ rất lớn → cần lực hướng tâm lớn → dễ trượt nếu ma sát không đủ.
 - *"Vì sao $a_c = \frac{v^2}{r}$ mà không phải $\frac{v}{r}$?"* Chứng minh hình học (§2.1): $|\Delta v| = v \cdot \Delta\theta$ và $\Delta\theta = \frac{v \Delta t}{r} \to$ ghép lại được $a = \frac{v^2}{r}$. Bình phương v đến từ việc cả độ lớn vận tốc và tốc độ quét góc đều phụ thuộc v.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Xe vào cua bán kính 40 m với v = 12 m/s. Tính gia tốc hướng tâm.
 2. Nếu xe đó tăng tốc lên 24 m/s (gấp đôi) trên cùng cua, a_c thay đổi thế nào?
@@ -186,7 +186,7 @@ $$\frac{G \cdot M_T \cdot m}{r^2} = \frac{m \cdot v^2}{r}$$
 - *"Lực ly tâm có thật không?"* Không trong hệ quy chiếu quán tính (đứng yên). Cảm giác "bị đẩy ra" là do quán tính — thân bạn muốn đi thẳng còn xe bẻ lái vào trong. "Lực ly tâm" chỉ là một thủ thuật toán học trong hệ quy chiếu quay.
 - *"Vì sao vệ tinh không rơi xuống đất?"* Nó **đang rơi** liên tục! Nhưng nó cũng đang bay ngang đủ nhanh nên mặt đất "cong đi" dưới chân nó đúng bằng tốc độ rơi → quỹ đạo cong song song bề mặt → không bao giờ chạm đất. Cần $v \approx 7{,}9$ km/s.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Vật 0.5 kg buộc dây quay tròn r = 1 m với v = 4 m/s. Lực căng dây (= lực hướng tâm) bằng bao nhiêu?
 2. Ô tô 1000 kg vào cua r = 50 m với v = 10 m/s. Lực ma sát cần để giữ xe trên cua?
@@ -261,7 +261,7 @@ Cho hành tinh m quay tròn (xấp xỉ ellipse) quanh Mặt Trời M:
 - *"Làm sao Newton chứng minh được Kepler từ $F = \frac{GMm}{r^2}$?"* Cho lực hấp dẫn đóng vai lực hướng tâm ($\frac{GMm}{r^2} = \frac{mv^2}{r}$), suy ra $v^2 = \frac{GM}{r}$, rồi $T = \frac{2\pi r}{v} \to T^2 = \frac{4\pi^2 r^3}{GM} \to \frac{T^2}{r^3} = $ hằng số. Đúng Kepler III. Đây là chiến thắng hợp nhất "trời" và "đất".
 - *"Kepler III dùng để làm gì thực tế?"* Tính chu kỳ vệ tinh ở độ cao bất kỳ, thiết kế quỹ đạo địa tĩnh, ước lượng khối lượng sao/hành tinh từ chu kỳ của vật quay quanh nó.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Sao Hỏa cách Mặt Trời 1.52 AU. Dùng Kepler III ($T^2 = r^3$, đơn vị năm/AU), tính chu kỳ quỹ đạo.
 2. Hai hành tinh quay quanh cùng một sao. Hành tinh xa gấp 4 lần có chu kỳ gấp mấy lần?

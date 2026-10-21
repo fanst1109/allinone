@@ -78,7 +78,7 @@ err := row.Scan(&name, &age) // PHẢI có & — Scan ghi vào địa chỉ name
 
 Nếu viết \`row.Scan(name, age)\` (không \`&\`): Scan nhận **copy** của \`name\` (= rỗng) và \`age\` (= 0). Scan ghi vào copy đó. Sau khi \`Scan\` return, copy bị vứt. \`name\` và \`age\` của bạn không thay đổi. Đây là bug ngầm, compiler có thể không báo (nếu Scan nhận \`interface{}\`).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > \`\`\`go
 > x := 5
 > y := &x
@@ -231,7 +231,7 @@ Chênh ~13×. Với struct vài KB, dùng pointer là gần như bắt buộc. V
 
 > ⚠ **Lưu ý.** "Lớn" ở đây tương đối. Rule of thumb: **>~100 byte** thì cân nhắc pointer. Nhưng đo trước khi tin — copy 64 byte trong L1 cache vẫn rất nhanh.
 
-> 🔁 **Tự kiểm tra.**
+> 🔁 **Thực hành.**
 > \`\`\`go
 > func f(s []int) { s[0] = 99 }
 > xs := []int{1,2,3}

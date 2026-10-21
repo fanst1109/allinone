@@ -508,7 +508,7 @@ func nCk(n, k int, fact, invFact []int64) int64 {
 - **Đếm tổ hợp lớn $\bmod p$.** Số đường đi trên lưới, số hoán vị, Catalan number... thường khổng lồ → in $\bmod 10^9+7$ (mục 8).
 - **GCD trong phân số & chu kỳ.** Rút gọn phân số $a/b$ chia cả hai cho $\gcd(a,b)$. Tìm chu kỳ chung của hai sự kiện lặp = $\text{lcm}$. Khi nào hai bánh răng $m, n$ răng trở lại vị trí đầu = $\text{lcm}(m,n)$ vòng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai đèn nhấp nháy mỗi 6s và 8s, cùng sáng lúc t=0. Bao lâu lại cùng sáng?
+> 🔁 **Thực hành.** Hai đèn nhấp nháy mỗi 6s và 8s, cùng sáng lúc t=0. Bao lâu lại cùng sáng?
 > <details><summary>Đáp án</summary>$\text{lcm}(6,8) = 6/\gcd(6,8)\cdot 8 = 6/2\cdot 8 = 24$ giây.</details>
 
 ---

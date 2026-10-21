@@ -249,7 +249,7 @@ $\#\text{concordant} = 5$, $\#\text{discordant} = 1$, total = 6. $\tau = \dfrac{
 - Có outlier, hoặc quan hệ phi-tuyến nhưng monotonic → Spearman.
 - Sample nhỏ, cần thước đo chặt chẽ → Kendall.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Cho data (1, 10), (2, 8), (3, 3), (4, 5), (5, 1). Tính rank của y và xác định ρ Spearman dấu gì?
 > <details><summary>Đáp án</summary>
 > 

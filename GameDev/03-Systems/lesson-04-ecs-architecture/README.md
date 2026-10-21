@@ -78,7 +78,7 @@ Tổ hợp giờ là **phép cộng component**, không phải đẻ lớp — $
 - *"Kế thừa xấu hoàn toàn à?"* — Không. Kế thừa **nông** (1-2 tầng) cho quan hệ "is-a" thật sự vẫn tốt. ECS chỉ thay thế khi bạn cần **tổ hợp nhiều khả năng độc lập** — đúng đặc trưng của game object.
 - *"ECS có phải lúc nào cũng nên dùng?"* — Game nhỏ (puzzle, vài object) thì OOP đơn giản hơn. ECS tỏa sáng khi có **hàng trăm loại object** với khả năng đan xen, và khi cần hiệu năng cache (xem §3).
 
-🔁 **Dừng lại tự kiểm tra.** Với 4 khả năng độc lập (bay, bơi, bắn, nổ), cây kế thừa đơn cần tối đa bao nhiêu lớp để phủ mọi tổ hợp? ECS cần bao nhiêu component?
+🔁 **Thực hành.** Với 4 khả năng độc lập (bay, bơi, bắn, nổ), cây kế thừa đơn cần tối đa bao nhiêu lớp để phủ mọi tổ hợp? ECS cần bao nhiêu component?
 
 <details><summary>Đáp án</summary>
 
@@ -140,7 +140,7 @@ type AI       struct { Target Entity }     // đang nghĩ/đuổi theo ai?
 
 📝 **Nhận ra điều đẹp đẽ:** "Bức tường" và "viên đạn" khác nhau ở chỗ tường **thiếu** `Velocity` còn đạn **có**. "Bẫy vô hình" chỉ khác viên đạn ở chỗ **thiếu** `Sprite`. Thêm/bớt một component đổi luôn bản chất object — không sửa class nào.
 
-🔁 **Dừng lại tự kiểm tra.** Một "rương báu mở được" cần hiện ra, va chạm để người chơi đứng cạnh, và có trạng thái đóng/mở. Nó cần component nào? Có cần `Velocity` không?
+🔁 **Thực hành.** Một "rương báu mở được" cần hiện ra, va chạm để người chơi đứng cạnh, và có trạng thái đóng/mở. Nó cần component nào? Có cần `Velocity` không?
 
 <details><summary>Đáp án</summary>
 
@@ -321,7 +321,7 @@ func transition(s State, ev string) State {
 - *"FSM với ECS thì để ở đâu?"* — Thành một component `StateMachine{current State}` trên entity, và một `FSMSystem` đọc event rồi gọi `transition`. State data trong component, logic chuyển trong system — đúng tinh thần ECS.
 - *"State nhiều quá thì sao?"* — Khi state lồng nhau (vd Attack có sub-state Combo1/Combo2), người ta dùng **Hierarchical State Machine (HSM)** hoặc **Behavior Tree** (sẽ gặp khi làm AI phức tạp).
 
-🔁 **Dừng lại tự kiểm tra.** Bắt đầu Idle. Chuỗi: `press_move`, `press_jump`, `land`, `release_move`. Trạng thái cuối là gì?
+🔁 **Thực hành.** Bắt đầu Idle. Chuỗi: `press_move`, `press_jump`, `land`, `release_move`. Trạng thái cuối là gì?
 
 <details><summary>Đáp án</summary>
 

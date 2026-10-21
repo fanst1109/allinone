@@ -61,7 +61,7 @@ $$C = 0{,}667 \times 100 - 60 = 66{,}7 - 60 = 6{,}67$$
 > - *"Vì sao không dùng xác suất thật của tăng/giảm?"* — Đột phá: giá quyền chọn **không phụ thuộc** xác suất thật hay mức ưa rủi ro, chỉ phụ thuộc khả năng sao chép. "Xác suất trung hòa rủi ro" $p$ là công cụ tính, không phải niềm tin về thị trường.
 > - *"Một bước thì quá thô?"* — Đúng. Thực tế chia thành **nhiều bước nhỏ** (cây nhiều tầng); khi số bước → ∞, cây nhị phân **hội tụ về công thức Black–Scholes**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cây 1 bước, $S=100$, lên 110 / xuống 95, $r=0$, call strike 100. Tính $C_u, C_d, \Delta$.
+> 🔁 **Thực hành.** Cây 1 bước, $S=100$, lên 110 / xuống 95, $r=0$, call strike 100. Tính $C_u, C_d, \Delta$.
 > <details><summary>Đáp án</summary>$C_u=\max(110-100,0)=10$; $C_d=\max(95-100,0)=0$; $\Delta=(10-0)/(110-95)=10/15=0{,}667$.</details>
 
 ---

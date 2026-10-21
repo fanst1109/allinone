@@ -109,7 +109,7 @@ $\\varepsilon_i = y_i - \\hat{y}_i$ là **phần dư** — khoảng cách dọc 
 > - "Vì sao gọi là *tuyến tính*?" → Tuyến tính theo **hệ số** $\\beta_0, \\beta_1$ (mô hình là tổ hợp tuyến tính của chúng), không nhất thiết theo x. Mô hình $\\hat{y} = \\beta_0 + \\beta_1 x^2$ vẫn là "hồi quy tuyến tính" (tuyến tính theo $\\beta$).
 > - "ŷ và y khác nhau thế nào?" → $y$ là dữ liệu thật bạn đo được; $\\hat{y}$ là giá trị đường thẳng dự đoán cho cùng x đó. Hai cái lệch nhau một lượng $\\varepsilon$.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > Mô hình $\\hat{y} = 1{,}2 + 0{,}03x$. Dự đoán giá căn 120 m²? Căn 200 m² thì có nên tin không?
 > <details><summary>Đáp án</summary>
 >
@@ -210,7 +210,7 @@ Có một góc nhìn đẹp hơn từ [Vectors/04 LinearAlgebra](../../../Vector
 
 > 💡 **Trực giác**: Đứng ngoài mặt phẳng (điểm $\\mathbf{y}$), thả dây dọi xuống — chân dây dọi là $\\hat{\\mathbf{y}}$. "Vuông góc" chính là điều kiện **vector phần dư $\\mathbf{e} = \\mathbf{y} - \\hat{\\mathbf{y}}$ vuông góc với mọi cột của X**. Điều này tương đương với hai normal equations ở 3.4 — đó là lý do $\\sum e_i = 0$ và $\\sum x_i e_i = 0$.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > Cho 3 điểm (1, 1), (2, 3), (3, 2). Tính $\\beta_1, \\beta_0$.
 > <details><summary>Đáp án</summary>
 >
@@ -279,7 +279,7 @@ Trong hồi quy **một biến**, $R^2$ đúng bằng bình phương Pearson r:
 > - "$R^2$ cao thì mô hình *đúng* không?" → Không nhất thiết. Anscombe quartet (Lesson 05) có $R^2$ như nhau nhưng có dataset hình parabol — mô hình tuyến tính sai dù $R^2$ cao. **Luôn xem residual plot** (Mục 5).
 > - "$R^2$ có thể âm không?" → Trong OLS có intercept thì $R^2 \\in [0,1]$. Nhưng nếu ép đường qua gốc hoặc dùng mô hình tệ trên dữ liệu test, $R^2$ có thể âm (mô hình còn tệ hơn đoán $\\bar{y}$).
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > Một mô hình có SST = 200, SSE = 50. Tính $R^2$ và Pearson r.
 > <details><summary>Đáp án</summary>
 >
@@ -318,7 +318,7 @@ Vẽ $e_i$ (trục tung) theo $\\hat{y}_i$ hoặc $x_i$ (trục hoành). Đọc 
 
 > ⚠ **Lỗi thường gặp — outlier kéo đường**: Một điểm xa (đặc biệt ở rìa miền x, gọi là điểm có *leverage* cao) có thể kéo nghiêng cả đường OLS và bơm $R^2$ giả. Trong viz, thử thêm 1 điểm (200, 1.0): đường lệch hẳn. Vì least squares **bình phương** sai số, một điểm xa bị phạt cực nặng → đường "chạy theo" nó.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > Residual plot cho hình chữ U rõ rệt. Mô hình tuyến tính có phù hợp không?
 > <details><summary>Đáp án</summary>
 >

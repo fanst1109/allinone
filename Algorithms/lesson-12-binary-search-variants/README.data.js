@@ -79,7 +79,7 @@ func binarySearch(a []int, target int) int {
 }
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.** Với mảng \`[2,4,6,8]\`, \`binarySearch\` tìm \`5\` chạy bao nhiêu bước rồi trả gì?
+> 🔁 **Thực hành.** Với mảng \`[2,4,6,8]\`, \`binarySearch\` tìm \`5\` chạy bao nhiêu bước rồi trả gì?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -261,7 +261,7 @@ func lastOccurrence(a []int, target int) int {
 }
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.** Với \`a = [5,5,5,5]\`, \`firstOccurrence(5)\` và \`lastOccurrence(5)\` trả gì?
+> 🔁 **Thực hành.** Với \`a = [5,5,5,5]\`, \`firstOccurrence(5)\` và \`lastOccurrence(5)\` trả gì?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -585,7 +585,7 @@ func shipWithinDaysT(w []int, D int) int {
 
 > 💡 **Vì sao template này không bao giờ treo?** Mỗi vòng: nhánh \`pred\` đúng làm \`hi = mid\` (và \`mid < hi\` vì \`mid = lo+(hi-lo)/2 < hi\` khi \`lo < hi\`), nhánh sai làm \`lo = mid+1 > lo\`. Khoảng *luôn* co lại ít nhất 1 → kết thúc sau $O(\\log(hi-lo))$ bước. Không có cách viết \`lo = mid\` gây treo.
 
-> 🔁 **Dừng lại tự kiểm tra.** Viết "tìm last occurrence" qua \`firstTrue\`?
+> 🔁 **Thực hành.** Viết "tìm last occurrence" qua \`firstTrue\`?
 >
 > <details><summary>Đáp án</summary>
 >

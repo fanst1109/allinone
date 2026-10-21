@@ -172,7 +172,7 @@ Mỗi bước sẽ được mổ xẻ ở Mục 3–8 dưới đây. Iris là *t
 
 > **⚠ Toy example warning.** Iris có 150 mẫu, 4 chiều, 3 lớp — quá nhỏ và quá dễ. Production thật: 10⁶–10⁹ mẫu, hàng nghìn chiều, hàng chục đến hàng nghìn lớp. Mọi vấn đề khó (data leakage, imbalance, distribution shift) đều ẩn đi ở Iris. Bạn sẽ gặp lại ở Lesson 02–08.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > 1. Trong pipeline 6 bước, bước nào dùng **dữ liệu test**?
 > 2. Tham số $\\theta$ xuất hiện ở bước nào?
 >
@@ -284,7 +284,7 @@ Bài toán: dự đoán khách hàng có hủy đăng ký (\`churn\`) hay không
 
 Kiểm tra tỉ lệ trong train: 30/90 = 33.3% mỗi lớp ✓. Cân bằng.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > Bạn có 10.000 ảnh chó/mèo. 9.500 ảnh chụp năm 2020, 500 ảnh năm 2024. Bạn nên tách theo cách nào?
 >
 > <details><summary>Đáp án</summary>
@@ -394,7 +394,7 @@ Mẫu #1 raw = $(5{,}1, 3{,}5, 1{,}4, 0{,}2)$ → standardized:
 >
 > **⚠ Lỗi thường gặp 2.** One-hot cho feature có *quá nhiều giá trị* (ZIP code → 41.000 cột). Thay bằng embedding hoặc target encoding.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > Cột \`petal_length\` có giá trị $[1{,}4, 4{,}5, 1{,}3, 5{,}1, 4{,}7]$. Standardize cột này (tính tay $\\mu$, $\\sigma$, rồi giá trị mới).
 >
 > <details><summary>Đáp án</summary>
@@ -570,7 +570,7 @@ Loss tổng: $L = (0{,}01005 + 0{,}16252 + 0{,}91629)/3 = 1{,}08886/3 \\approx 0
 
 > **⚠ Lỗi thường gặp.** Dùng MSE cho classification 3+ lớp. MSE không phạt đủ nặng khi model tự tin sai, và gradient bão hòa (đi rất chậm) khi $\\hat{y}$ gần 0/1. → Cross-entropy luôn ưu việt hơn cho classification.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > Nhãn thật $y = 0$ (lớp 0 trong 3 lớp). Prediction softmax $\\hat{y} = (0{,}7, 0{,}2, 0{,}1)$. Tính cross-entropy.
 >
 > <details><summary>Đáp án</summary>
@@ -792,7 +792,7 @@ Iris có 3 lớp → confusion matrix 3×3. Mỗi metric (precision, recall, F1)
 
 > **⚠ Lỗi thường gặp.** Báo cáo chỉ accuracy với data imbalance. Phải kèm precision/recall/F1 và confusion matrix.
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > Có TP=80, FP=20, FN=40, TN=860. Tính accuracy, precision, recall, F1.
 >
 > <details><summary>Đáp án</summary>
@@ -976,7 +976,7 @@ for λ in [0.001, 0.01, 0.1, 1.0]:
 chọn λ với cv_score tốt nhất → retrain trên toàn bộ X_train → report trên X_test
 \`\`\`
 
-> **🔁 Dừng lại tự kiểm tra.**
+> **🔁 Thực hành.**
 > Tại sao LOOCV gần như không bao giờ dùng trên dataset 1 triệu mẫu?
 >
 > <details><summary>Đáp án</summary>

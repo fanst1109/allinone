@@ -187,7 +187,7 @@ func postMessage(m Message) {
 > Mỗi client đóng/mở tab = 1 goroutine zombie nằm đợi 30s. Sau 1h chạy → vài chục nghìn goroutine
 > rác. Phải `select { case <-r.Context().Done(): return }`.
 
-> 🔁 **Tự kiểm tra.** Nếu server có 1000 client đang long-poll và 1 sự kiện duy nhất xảy ra,
+> 🔁 **Thực hành.** Nếu server có 1000 client đang long-poll và 1 sự kiện duy nhất xảy ra,
 > server sẽ trả về cho bao nhiêu client?
 > <details><summary>Đáp án</summary>Tất cả 1000 client cùng wake (close(notify) wake mọi receiver),
 > mỗi client check `messagesAfter(since)` → tất cả đều thấy message mới → trả cho cả 1000.

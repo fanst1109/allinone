@@ -72,7 +72,7 @@ Nhận xét quan trọng: **kích thước bàn tay không đổi** (luôn 12 ô
 > - *"Vậy silhouette tốt nghĩa là lúc nào cũng phải dang tay rộng à?"* → Không. Chỉ cần bàn tay/đạo cụ **tách khỏi khối thân**, không nhất thiết dang to. Then chốt là có **không gian âm (negative space)** giữa chi và thân.
 > - *"Không gian âm là gì?"* → Là các khoảng trống lọt vào giữa các bộ phận: nách hở, khe giữa hai chân, kẽ giữa cánh tay và hông. Khe rõ ràng → silhouette phân tách → đọc tốt. Chân đứng khép sát (không có khe) → hai chân dính thành một cột, mất thông tin "đang bước".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Một pose có diện tích bàn tay 10 ô, chồng lên thân 9 ô. readability bằng bao nhiêu?
 > 2. Muốn tăng readability mà **không** dang tay rộng thêm, làm cách nào?
 >
@@ -127,7 +127,7 @@ Kiểm tra dòng $\theta=70°$: $\sin35°=0.5736$, $\cos35°=0.8192$ → $L=2\cd
 
 > ❓ **Câu hỏi tự nhiên.** *"Thế S-curve luôn xấu à?"* → Không. S-curve (contrapposto) rất mạnh cho pose thanh thoát, quyến rũ, thư giãn — nhưng phải **chủ ý và cân**, không phải ngẫu nhiên gãy. Với một pose *hành động* dồn lực, hãy ưu tiên một C-curve dứt khoát.
 
-> 🔁 **Dừng lại tự kiểm tra.** Cho $R = 100$, $\theta = 60°$. Tính $L$, $d$, tỉ lệ cong. Pose này thuộc vùng nào?
+> 🔁 **Ôn tập.** Cho $R = 100$, $\theta = 60°$. Tính $L$, $d$, tỉ lệ cong. Pose này thuộc vùng nào?
 >
 > <details><summary>Đáp án</summary>
 >

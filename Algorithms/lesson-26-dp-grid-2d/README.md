@@ -51,7 +51,7 @@ Sau bài này bạn sẽ:
 
 Mỗi đáp số được định vị bởi **hai chỉ số** — đó là dấu hiệu của DP 2D.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao knapsack ([Lesson 25](../lesson-25-knapsack-family/)) đã là DP 2D dù input là một dãy item?
 > 2. State của LCS dùng "prefix độ dài `i`" hay "ký tự thứ `i`"?
 >
@@ -169,7 +169,7 @@ func main() {
 > 1 3 6   → đáp số 6
 > ```
 
-> 🔁 **Dừng lại tự kiểm tra.** Lưới `2×3` (2 hàng, 3 cột) có bao nhiêu đường?
+> 🔁 **Thực hành.** Lưới `2×3` (2 hàng, 3 cột) có bao nhiêu đường?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -510,7 +510,7 @@ func main() {
 
 > ⚠ **Lỗi thường gặp.** Dùng `A[i]` thay vì `A[i-1]` khi so sánh → so nhầm ký tự, lệch toàn bảng. Quy ước: **chỉ số bảng `i` ↔ ký tự `A[i-1]`**.
 
-> 🔁 **Dừng lại tự kiểm tra.** LCS của `"aab"` và `"azb"` là gì?
+> 🔁 **Thực hành.** LCS của `"aab"` và `"azb"` là gì?
 >
 > <details><summary>Đáp án</summary>
 > `"ab"`, độ dài 2. (`a` đầu khớp, `b` cuối khớp; `a` thứ hai của A không có cặp.)
@@ -928,7 +928,7 @@ func tracePath(dp [][]int) [][2]int {
 
 Đường đi `[(0,0)(0,1)(0,2)(1,2)(2,2)]` = chi phí `1+3+1+1+1 = 7` ✓ (khớp walk-through 3.1).
 
-> 🔁 **Dừng lại tự kiểm tra.** Truy vết LCS (mục 5.4) đi theo hướng nào khi `A[i-1]==B[j-1]`?
+> 🔁 **Thực hành.** Truy vết LCS (mục 5.4) đi theo hướng nào khi `A[i-1]==B[j-1]`?
 >
 > <details><summary>Đáp án</summary>
 > Đi **đường chéo** `(i-1, j-1)` và ghi nhận ký tự đó vào kết quả. Khi khác nhau thì đi về ô lớn hơn (`dp[i-1][j]` hoặc `dp[i][j-1]`), không ghi gì.

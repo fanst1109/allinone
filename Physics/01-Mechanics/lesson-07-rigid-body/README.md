@@ -41,7 +41,7 @@ Chất điểm là **xấp xỉ tốt** khi kích thước vật nhỏ so với 
 - *"Khi nào dùng chất điểm, khi nào dùng vật rắn?"* Dùng chất điểm khi chỉ quan tâm chuyển động **tịnh tiến** và kích thước vật nhỏ so với quãng đường (vd Trái Đất quay quanh Mặt Trời, coi như điểm). Dùng vật rắn khi vật **quay** hoặc kích thước/hình dạng quan trọng (vd cánh cửa, bánh xe).
 - *"Vật rắn vừa tịnh tiến vừa quay thì phân tích sao?"* Tách thành hai phần: chuyển động tịnh tiến của **khối tâm** (dùng $F = m \cdot a$) và chuyển động quay quanh khối tâm (dùng $\tau = I \cdot \alpha$). Bánh xe lăn là ví dụ điển hình (xem yo-yo §4.2).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một viên bi nhỏ lăn xuống dốc. Để tính đúng gia tốc, nên coi là chất điểm hay vật rắn? Vì sao?
 2. "Vật rắn" có nhất thiết phải cứng và nặng không?
@@ -115,7 +115,7 @@ $$\tau = F \cdot d$$
 - *"Vì sao cờ-lê dài vặn ốc dễ hơn cờ-lê ngắn?"* $\tau = r \cdot F$. Cờ-lê dài → r lớn → cùng lực tay tạo torque lớn hơn → đủ "vặn" ốc chặt. Đó là nguyên lý đòn bẩy: r lớn bù cho F nhỏ.
 - *"$\theta = 0$ thì sao torque = 0?"* Khi lực **dọc theo** cánh tay đòn (kéo/đẩy thẳng vào hoặc ra trục), nó chỉ kéo căng/nén chứ không "vặn". $\sin(0^\circ) = 0 \to \tau = 0$. Chỉ thành phần lực **vuông góc** mới gây quay.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Lực 25 N tác dụng vuông góc tại điểm cách trục 0.6 m. Tính torque.
 2. Cùng lực 25 N nhưng ở góc 30° với cánh tay đòn 0.6 m. Torque bây giờ?
@@ -182,7 +182,7 @@ Lý do: **momen động lượng $L = I \cdot \omega$ được bảo toàn** (kh
 - *"Vì sao cùng khối lượng mà vòng tròn khó quay hơn đĩa đặc?"* Vì vòng tròn dồn toàn bộ khối lượng ở mép (r lớn nhất), còn đĩa đặc trải khối lượng từ tâm ra mép (nhiều phần r nhỏ). $I \propto r^2$ → vòng tròn có $I = m \cdot r^2$, đĩa đặc chỉ $\frac{1}{2}m \cdot r^2$.
 - *"Vì sao vận động viên kéo tay vào quay nhanh hơn?"* Kéo tay vào → khối lượng tay gần trục hơn (r giảm) → I giảm. Momen động lượng $L = I \cdot \omega$ bảo toàn → I giảm thì $\omega$ tăng → quay nhanh hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đĩa đặc m = 2 kg, r = 0.5 m. Tính momen quán tính quanh trục qua tâm.
 2. Một vòng tròn cùng m = 2 kg, r = 0.5 m. I của nó lớn hay nhỏ hơn đĩa, gấp mấy lần?
@@ -254,7 +254,7 @@ Tịnh tiến: $m \cdot g - \frac{1}{2} \cdot m \cdot a = m \cdot a \to g = \fra
 - *"Vì sao yo-yo (hay quả cầu lăn) rơi chậm hơn rơi tự do?"* Vì một phần năng lượng/lực "đi vào" làm vật **quay** thay vì chỉ tịnh tiến xuống. Lực căng dây tạo torque làm yo-yo quay, đồng thời giảm lực ròng kéo xuống → gia tốc thẳng nhỏ hơn g.
 - *"Hai vật lăn xuống dốc, vật nào tới chân trước?"* Vật có I nhỏ hơn (so với $m \cdot r^2$) — vì ít năng lượng vào quay hơn, nhiều vào tịnh tiến hơn. Cầu đặc ($\frac{2}{5}m \cdot r^2$) lăn nhanh hơn trụ đặc ($\frac{1}{2}m \cdot r^2$), nhanh hơn vòng tròn ($m \cdot r^2$).
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một bánh đà có $I = 0{,}5$ kg·m² chịu torque 10 N·m. Tính gia tốc góc $\alpha$.
 2. Yo-yo đĩa rơi với $a = \frac{2}{3}g$. Nếu thay bằng yo-yo dạng vòng tròn ($I = m \cdot r^2$), gia tốc rơi sẽ lớn hơn hay nhỏ hơn? (gợi ý: I lớn hơn)
@@ -314,7 +314,7 @@ Cho người thứ hai 40 kg.
 - *"Trên đòn bẩy, vì sao người nhẹ phải ngồi xa hơn?"* Vì cân bằng momen: $m_1 \cdot d_1 = m_2 \cdot d_2$. Người nhẹ (m nhỏ) phải có d lớn để bù lại, sao cho tích $m \cdot d$ hai bên bằng nhau. Đó là nguyên lý đòn bẩy "ít lực, nhiều khoảng cách".
 - *"Tính momen quanh điểm nào cũng được à?"* Đúng, với vật cân bằng, $\sum \tau = 0$ quanh mọi điểm. Mẹo: chọn điểm đi qua lực chưa biết (vd phản lực điểm tựa) để lực đó biến mất khỏi phương trình → ít ẩn hơn.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Đòn bẩy: vật 20 kg cách điểm tựa 1 m. Vật 5 kg đặt phía kia phải cách điểm tựa bao xa để cân bằng?
 2. Một thanh chịu hai lực 10 N bằng nhau, ngược chiều, ở hai đầu (cách nhau). ΣF có bằng 0 không? Thanh có cân bằng tĩnh không?

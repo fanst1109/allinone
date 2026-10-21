@@ -126,7 +126,7 @@ Khi đại thực bào gặp vi khuẩn, chúng tiết cytokine (vd IL-1) → t�
 - **Nghĩ "viêm = nhiễm trùng"**: viêm chỉ là *phản ứng* của cơ thể — có thể do nhiễm trùng, nhưng cũng có thể do chấn thương, dị ứng, tự miễn (không có vi sinh nào cả).
 - **Nhầm "thực bào" với "tế bào T diệt"**: thực bào (macrophage, neutrophil) là *bẩm sinh*, nuốt mầm bệnh nguyên con. Tế bào T diệt (cytotoxic T) là *thích ứng*, chỉ giết tế bào nhiễm đã được trình diện đúng kháng nguyên.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một người bị bỏng nhẹ, vùng da quanh vết bỏng đỏ, nóng, sưng, đau dù không có vi khuẩn xâm nhập. Vì sao?
 2. Nếu cơ thể không có bổ thể, hệ miễn dịch còn diệt được vi khuẩn không?
@@ -217,7 +217,7 @@ A: Vì 1 mầm bệnh có nhiều **epitope** (nhiều "khuôn mặt") trên b�
 **Q: Tế bào T helper hoạt hóa tế bào B kiểu gì?**
 A: Tế bào B bắt kháng nguyên qua thụ thể bề mặt → nuốt vào, cắt thành mẩu peptide → trình diện lên MHC class II. Tế bào T helper nhận diện peptide này (qua TCR) → tiết cytokine (IL-4, IL-21...) → tế bào B mới được phép nhân bản và tiết kháng thể. Đây là "double check" — cần cả tế bào B và T cùng nhận diện thì mới hoạt hóa, tránh kích hoạt nhầm.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một kháng nguyên virus có 8 epitope khác nhau. Sẽ kích hoạt được bao nhiêu *dòng* tế bào B?
 2. Vì sao IgM xuất hiện sớm nhất khi nhiễm khuẩn lần đầu, dù IgG mạnh hơn?
@@ -292,7 +292,7 @@ A: Vì virus cúm **đột biến epitope** rất nhanh (antigenic drift) — ch
 **Q: Có bệnh nào miễn dịch suốt đời sau khi mắc 1 lần không?**
 A: Có — đậu mùa, sởi, quai bị, thủy đậu. Virus của các bệnh này ổn định (ít đột biến epitope), nên tế bào nhớ một lần là đủ trọn đời.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Đường cong nồng độ kháng thể theo thời gian: thứ cấp khác sơ cấp ở 3 điểm chính nào?
 2. Tế bào nhớ là tế bào B hay tế bào T hay cả hai?
@@ -362,7 +362,7 @@ A: Không. mRNA tiêm vào tế bào chỉ ở phần **bào tương (cytoplasm)
 **Q: Vì sao kháng thể từ tiêm vaccine vẫn được gọi là "miễn dịch chủ động (active)" còn từ sữa mẹ là "thụ động (passive)"?**
 A: Vì tiêm vaccine khiến cơ thể *tự sản xuất* kháng thể và tế bào nhớ. Sữa mẹ cho con kháng thể *có sẵn* — không có tế bào nhớ → khi kháng thể đó hết (~vài tháng), không còn miễn dịch nữa. Chủ động bền lâu; thụ động nhanh nhưng tạm thời.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vì sao tiêm vaccine COVID 2 mũi cho hiệu lực cao hơn 1 mũi rất nhiều?
 2. Người bị suy giảm miễn dịch (vd HIV nặng) có nên tiêm vaccine sống suy yếu (MMR) không?

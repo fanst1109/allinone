@@ -59,7 +59,7 @@ $\mathbb{N}$ **đóng** dưới phép cộng và nhân: cộng hai số tự nhi
 
 **Q: ℕ có vô hạn không?** Có, vô hạn đếm được (countably infinite). Lực lượng (cardinality) của $\mathbb{N}$ ký hiệu là $\aleph_0$ (aleph-không). Sau này khi gặp $\mathbb{R}$, ta sẽ thấy $\mathbb{R}$ "vô hạn nhiều hơn" $\mathbb{N}$ — đây là kết quả nổi tiếng của Cantor.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. Trong các số sau, số nào thuộc $\mathbb{N}$: $7$, $-2$, $0$, $3.14$, $\sqrt{9}$, $0.5$?
 2. $\mathbb{N}$ có đóng dưới phép lũy thừa $a^b$ không?
@@ -120,7 +120,7 @@ Khi mở rộng từ $\mathbb{N}$ sang $\mathbb{Z}$, có một quy tắc mới m
 
 **Q: Trong Go, `int` có phải là $\mathbb{Z}$?** Không hẳn — `int` trong Go là số nguyên có chặn (vd `int64` từ $-2^{63}$ tới $2^{63}-1$). $\mathbb{Z}$ là tập vô hạn không chặn. Khi $n$ lớn (vd factorial), `int` bị overflow trong khi $\mathbb{Z}$ thì không. Để có $\mathbb{Z}$ thật, dùng `math/big.Int`.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Tính: $(-4) \times (-5) + (-2) \times 3 - (-1)$.
 
@@ -211,7 +211,7 @@ Nên $\mathbb{Q}$ **đóng** dưới 4 phép toán cơ bản (trừ chia cho 0).
 
 **Q: ℚ có đếm được không?** Có (lực lượng $\aleph_0$, bằng $\mathbb{N}$). Cantor chứng minh bằng cách liệt kê toàn bộ phân số $p/q$ theo đường zigzag trong bảng 2D. Đây là kết quả phản trực giác — "có vẻ $\mathbb{Q}$ nhiều hơn $\mathbb{N}$" nhưng thật ra bằng nhau về cardinality.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. $0.625$ có phải hữu tỉ không? Viết dưới dạng $p/q$ tối giản.
 2. Phần thập phân của $\frac{1}{11}$ là gì? Có tuần hoàn không?
@@ -289,7 +289,7 @@ Hệ quả thực tế: $\pi$ siêu việt → không thể "vẽ hình vuông c
 
 **Q: Tổng hai số vô tỉ có phải vô tỉ?** Không nhất thiết. $\sqrt{2} + (-\sqrt{2}) = 0$, hữu tỉ. $(1 + \sqrt{2}) + (1 - \sqrt{2}) = 2$, hữu tỉ. Vậy $\mathbb{R} \setminus \mathbb{Q}$ **không đóng** dưới phép cộng. Tuy nhiên, **tổng/tích của một hữu tỉ khác 0 và một vô tỉ luôn là vô tỉ** (chứng minh dễ bằng phản chứng).
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. Trong các số sau, số nào vô tỉ: $\sqrt{9}$, $\sqrt{10}$, $\pi - 3$, $1.414$, $e^2$, $\frac{0}{\pi}$?
 2. Nếu $a$ hữu tỉ và $b$ vô tỉ, $a + b$ thuộc tập nào?
@@ -351,7 +351,7 @@ Tóm gọn: **mọi số bạn từng viết ra dưới dạng thập phân** (d
 
 **Q: Vector embedding 768 chiều có gì liên quan?** Mỗi embedding là một điểm trong $\mathbb{R}^{768}$ — tức danh sách 768 số thực. Để hiểu "khoảng cách" giữa hai embedding, phải hiểu khoảng cách trong $\mathbb{R}$ — chính là $\lvert a - b \rvert$ mà ta sẽ học ở §3.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Tập $\{x \in \mathbb{Q} : x^2 < 3\}$ có cận trên đúng (sup) thuộc $\mathbb{Q}$ không? Thuộc $\mathbb{R}$ không?
 
@@ -545,7 +545,7 @@ Walk-through quy tắc 7: nhân hai vế của $2 < 5$ với $-3$. Kết quả: 
 
 **Q: $0.1 + 0.2 > 0.3$ đúng hay sai?** Trong float IEEE 754, $0.1 + 0.2 = 0.30000000000000004 > 0.3$. Đúng theo so sánh bit. Nhưng "về toán", chúng bằng nhau. Đây là một bẫy khi viết code với float.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Giải bất phương trình $-3x + 5 > 11$.
 
@@ -734,7 +734,7 @@ Walk-through:
 
 **Q: Mối liên hệ với $\sqrt{x^2}$?** $\lvert x \rvert = \sqrt{x^2}$. Quy ước $\sqrt{\ }$ luôn trả về giá trị **không âm**. Vd $\sqrt{(-3)^2} = \sqrt{9} = 3 = \lvert -3 \rvert$. Đây là một cách tính $\lvert x \rvert$ bằng phép đại số (không cần phân tích case).
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. Tính $\lvert 3 - \sqrt{2} \cdot \sqrt{2} \rvert$.
 2. Bất đẳng thức $\lvert x - 5 \rvert < 2$ mô tả tập số nào?
@@ -823,7 +823,7 @@ Giả thiết "$\sqrt{2}$ hữu tỉ" dẫn tới mâu thuẫn. Theo logic phả
 
 Cách chứng minh tương tự áp dụng được cho $\sqrt{3}$, $\sqrt{5}$, $\sqrt{p}$ với mọi số nguyên tố $p$ (sẽ làm $\sqrt{3}$ ở bài tập 4).
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 Tại sao chứng minh trên KHÔNG hoạt động cho $\sqrt{4}$? (Tức nếu áp dụng máy móc các bước thì lỗi ở đâu?)
 
@@ -1037,7 +1037,7 @@ Có — dùng số thập phân (decimal) hoặc phân số (rational/big-ration
 
 Rất nhiều. Loss function của bạn được tính bằng float, gradient được tính bằng float, weight được cập nhật bằng float. Khi loss "không hội tụ" hoặc "NaN", thường là do sai số float (vd $\log(0)$, $\frac{0}{0}$, overflow). Hiểu được điều này giúp bạn debug nhanh hơn 10 lần.
 
-#### 🔁 Dừng lại tự kiểm tra
+#### 🔁 Thực hành
 
 1. `0.5 + 0.25 == 0.75` trả về gì trong Go?
 2. `0.1 + 0.1 + 0.1 == 0.3` trả về gì?

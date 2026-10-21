@@ -177,7 +177,7 @@ func NewServer(opts ...Option) (*Server, error) {
 ```
 Dùng khi option có invariant cần check sớm.
 
-> 🔁 **Tự kiểm tra.** *Đoán output:* `NewServer(WithPort(9090), WithPort(3000), WithReadTimeout(10*time.Second))`?
+> 🔁 **Thực hành.** *Đoán output:* `NewServer(WithPort(9090), WithPort(3000), WithReadTimeout(10*time.Second))`?
 > <details><summary>Đáp án</summary>port=3000, readTimeout=10s — option sau ghi đè option trước.</details>
 
 > 📝 **Tóm tắt mục 2.** FO = mỗi tham số tuỳ chọn là một function `func(*T)`. Constructor nhận `...Option`. Lợi: tự documenting, extensible, default tốt. Dùng khi > 3 tuỳ chọn hoặc cần ổn định API.

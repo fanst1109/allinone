@@ -95,7 +95,7 @@ Một nguồn rung tuần hoàn với tần số cơ bản **f₁** (fundamental
 - H7: 770 Hz → G5 (ước tính; bội âm 7 không khớp hoàn toàn hệ equal temperament)
 - H8: 880 Hz → A5 (lên 3 octave; tỷ lệ 8:1)
 
-> 🔁 **Dừng lại tự kiểm tra.** f₁ = 200 Hz. Tính tần số bội âm H3, H5, H6. Chúng tương ứng quãng nhạc nào so với f₁?
+> 🔁 **Ôn tập.** f₁ = 200 Hz. Tính tần số bội âm H3, H5, H6. Chúng tương ứng quãng nhạc nào so với f₁?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -189,7 +189,7 @@ Chỉ bội **lẻ** như square, nhưng biên độ giảm nhanh hơn: 1, 1/9, 
 
 > ⚠ **Lỗi thường gặp: nghĩ dạng sóng = nhạc cụ thật.** Sine/square/saw/triangle là các mô hình lý thuyết và được dùng trong synthesizer (nhạc cụ điện tử). Nhạc cụ acoustic (đàn dây, hơi, gõ) có phổ phức tạp hơn nhiều, bao gồm cả inharmonic partials (tần số không phải bội số nguyên của f₁), và thay đổi theo thời gian. Tuy nhiên các dạng sóng đơn giản này là nền tảng để hiểu synthesizer và thiết kế âm thanh.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một âm thanh có phổ: 200 Hz, 400 Hz, 600 Hz, 800 Hz, 1000 Hz với biên độ 1, 1/2, 1/3, 1/4, 1/5. Đây là dạng sóng gì? f₁ là bao nhiêu?
+> 🔁 **Ôn tập.** Một âm thanh có phổ: 200 Hz, 400 Hz, 600 Hz, 800 Hz, 1000 Hz với biên độ 1, 1/2, 1/3, 1/4, 1/5. Đây là dạng sóng gì? f₁ là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -254,7 +254,7 @@ Tổng 8 harmonics trên nghe đã gần giống sawtooth. Thêm nhiều harmoni
 
 **Ứng dụng thực tế:** Đây là cách organ điện tử Hammond hoạt động — 9 drawbar, mỗi cái điều chỉnh biên độ của một harmonic (16', 8', 4', 2 2/3', 2', 1 3/5', 1 1/3', 1', tương ứng H1..H8). Kéo drawbar = thay đổi phổ = thay đổi timbre.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn chỉ bật H1 và H3 của f₁ = 300 Hz với biên độ bằng nhau. Âm thanh đó gần với dạng sóng nào nhất? Tần số nào có mặt?
+> 🔁 **Ôn tập.** Bạn chỉ bật H1 và H3 của f₁ = 300 Hz với biên độ bằng nhau. Âm thanh đó gần với dạng sóng nào nhất? Tần số nào có mặt?
 >
 > <details><summary>Đáp án</summary>
 >

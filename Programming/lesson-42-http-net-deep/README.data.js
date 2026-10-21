@@ -114,7 +114,7 @@ Bốn thứ cấu thành **request**:
 | 3 | \`GET /users/42\` | \`404 Not Found\\n\\n{"error":"user 42 not found"}\` |
 | 4 | \`DELETE /users/42\` (gọi lần 2) | \`404 Not Found\` — vẫn idempotent vì state cuối là "đã xoá" |
 
-> 🔁 **Tự kiểm tra.** Khi nào dùng \`409 Conflict\` thay vì \`422 Unprocessable Entity\`?
+> 🔁 **Thực hành.** Khi nào dùng \`409 Conflict\` thay vì \`422 Unprocessable Entity\`?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -572,7 +572,7 @@ limit, _ := strconv.Atoi(q.Get("limit"))
 | \`/?q=go&tag=x&tag=y\` | \`"go"\` | \`["x","y"]\` |
 | \`/\` | \`""\` | \`nil\` |
 
-> 🔁 **Tự kiểm tra.** Trong URL \`/search?empty=&missing\`, \`q.Get("empty")\` vs \`q.Has("empty")\` vs \`q.Get("missing")\` trả gì?
+> 🔁 **Thực hành.** Trong URL \`/search?empty=&missing\`, \`q.Get("empty")\` vs \`q.Has("empty")\` vs \`q.Get("missing")\` trả gì?
 >
 > <details><summary>Đáp án</summary>
 >

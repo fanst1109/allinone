@@ -88,7 +88,7 @@ Hệ số cụm toàn mạng $C$ là trung bình $C_i$ trên mọi đỉnh (bậ
 
 > ⚠ **Lỗi thường gặp thứ hai.** Tưởng $L$ nhỏ thì $C$ phải nhỏ (và ngược lại). Sai — chúng độc lập. Toàn bộ bất ngờ của thế giới nhỏ nằm ở chỗ **$L$ nhỏ mà $C$ vẫn to**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Đỉnh $i$ có 5 hàng xóm; trong đó có 2 cặp quen nhau. $C_i = ?$
 > 2. Trong tam giác $A-B-C$ (ba người quen nhau đôi một), $C_A = ?$
 >
@@ -238,7 +238,7 @@ Tổng $= 1+2+2+2+2+1+2+2+2+1+1 = 18$. Trung bình từ đỉnh 0 giảm từ $2
 
 Chỉ **một** đường tắt: $L$ giảm gấp hơn hai lần mức giảm của $C$ — dù mạng chỉ có 12 đỉnh. Với mạng nghìn/triệu đỉnh, một đường tắt phục vụ *hàng loạt* cặp ở hai phía nên $L$ giảm còn dữ dội hơn nhiều, trong khi $C$ chỉ nhúc nhích quanh vài đỉnh bị đụng tới. **Đó chính là cơ chế thế giới nhỏ, đọc ra từ số thật.**
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong mạng vòng $N=12, k=4$ ở trên, vì sao tái nối cạnh $0$–$2$ làm $C_0$ tụt từ 0.5 xuống 0.33?
+> 🔁 **Ôn tập.** Trong mạng vòng $N=12, k=4$ ở trên, vì sao tái nối cạnh $0$–$2$ làm $C_0$ tụt từ 0.5 xuống 0.33?
 >
 > <details><summary>Đáp án</summary>
 >
@@ -318,7 +318,7 @@ Hai góc nhìn, một sự thật:
 > - *"Vậy cứ kết bạn xã giao thật nhiều là tốt?"* → Về mặt tiếp cận thông tin và cơ hội thì có — liên kết yếu đa dạng mở rộng tầm với. Nhưng liên kết mạnh vẫn thiết yếu cho hỗ trợ sâu.
 > - *"Liên kết yếu nào cũng là cầu nối?"* → Không. Chỉ những liên kết yếu *bắc cầu sang cụm khác* mới quý. Liên kết yếu với người trong chính cụm mình thì không mang gì mới.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao "bộ ba bị cấm" ($A$ mạnh với $B$ và $C$ nhưng $B$–$C$ không quen) lại hiếm?
+> 🔁 **Ôn tập.** Vì sao "bộ ba bị cấm" ($A$ mạnh với $B$ và $C$ nhưng $B$–$C$ không quen) lại hiếm?
 >
 > <details><summary>Đáp án</summary>
 >

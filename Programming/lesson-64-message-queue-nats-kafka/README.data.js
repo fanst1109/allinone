@@ -100,7 +100,7 @@ Broker production luôn chạy **cluster** (Kafka: nhiều broker + replication 
 
 > ⚠ **Lỗi thường gặp**: dùng MQ cho thứ vốn cần sync. Ví dụ: "kiểm tra còn hàng không" qua queue rồi chờ message phản hồi → bạn vừa tự chế lại RPC trên MQ, mất hết ưu điểm async mà thêm độ phức tạp. Việc cần *request-reply tức thì* → dùng gRPC/REST. (NATS có hỗ trợ request-reply nhưng đó là exception có chủ đích.)
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Chọn sync hay async: (a) lấy thông tin profile để render trang, (b) ghi audit log mỗi action?</summary>
@@ -185,7 +185,7 @@ Mọi broker đều xoay quanh 2 pattern này (hoặc kết hợp).
 
 **Kafka khéo léo kết hợp cả hai** bằng **consumer group** (mục 4.3): nhiều group trên cùng topic = pub/sub (mỗi group 1 bản); trong 1 group = queue (chia partition cho member). Đó là vì sao Kafka "1 mô hình làm được cả 2".
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Bạn cần: (a) chia 1 triệu job gửi SMS cho 20 worker, (b) thông báo "user đăng ký" cho 3 service. Chọn pattern nào?</summary>
@@ -436,7 +436,7 @@ Kết luận thực dụng: **đừng dựa vào "exactly-once" của broker cho
 | At-least-once | commit **sau** process | process xong, commit chưa kịp → restart xử lý **LẠI** → **TRÙNG** |
 | Exactly-once | transaction / idempotent | dedup loại bản trùng → **đúng 1 lần** |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>Consumer trừ tiền user rồi mới commit offset. Crash sau khi trừ tiền, trước khi commit. Chuyện gì xảy ra? Cách sửa?</summary>
@@ -617,7 +617,7 @@ Một số thao tác vốn đã idempotent → không cần dedup store:
 
 Mẹo: thiết kế thao tác thành "gán trạng thái cuối" thay vì "cộng/trừ tương đối" khi có thể.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 <details>
 <summary>"INSERT order vào DB" có idempotent không? Làm sao cho idempotent?</summary>

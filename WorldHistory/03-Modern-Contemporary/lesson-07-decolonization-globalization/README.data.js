@@ -166,7 +166,7 @@ Việt Nam là trường hợp điển hình của phi thực dân hóa bị cu�
 
 Xem thêm: [VietnameseHistory/03-Modern-Contemporary/](../../../VietnameseHistory/03-Modern-Contemporary/)
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 <details>
 <summary>Câu hỏi: Tại sao Chiến tranh Lạnh khiến nhiều cuộc chiến tranh giành độc lập kéo dài và đẫm máu hơn? Nêu một ví dụ cụ thể.</summary>

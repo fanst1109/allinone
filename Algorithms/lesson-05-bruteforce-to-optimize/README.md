@@ -126,7 +126,7 @@ func verify() {
 }
 ```
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 >
 > Bạn viết bản tối ưu một bài, chạy thử 3 ví dụ trong đề thấy đúng. Có nên dừng không?
 >
@@ -353,7 +353,7 @@ Kết quả `6` — khớp đoạn `[4,-1,2,1]`. ✓
 // Kadane nhanh hơn O(n³) cỡ ~666000 lần.
 ```
 
-> 🔁 **Dừng lại tự kiểm tra** — Vì sao Kadane vẫn đúng khi **mọi** phần tử đều âm?
+> 🔁 **Thực hành** — Vì sao Kadane vẫn đúng khi **mọi** phần tử đều âm?
 > <details><summary>Đáp án</summary>
 > Khởi tạo `best = a[0]` (không phải 0). Mỗi bước `cur` luôn ≥ phần tử hiện tại, và `best` luôn cập nhật theo `cur`. Với mảng toàn âm, đoạn tốt nhất là **một phần tử lớn nhất (gần 0 nhất)** — và best sẽ giữ đúng nó. Nếu lỡ khởi tạo `best=0` thì sai (trả 0 dù không có đoạn rỗng được phép).
 > </details>
@@ -509,7 +509,7 @@ func twoSumSmall(nums []int, target int) []int {
 }
 ```
 
-> 🔁 **Dừng lại tự kiểm tra** — Bài có $n \leq 100$, gọi đúng 1 lần. Nên viết brute $O(n^2)$ hay hash $O(n)$?
+> 🔁 **Thực hành** — Bài có $n \leq 100$, gọi đúng 1 lần. Nên viết brute $O(n^2)$ hay hash $O(n)$?
 > <details><summary>Đáp án</summary>
 > Brute $O(n^2)$: $100^2=10000$ phép — vài micro giây. Hash không cải thiện gì cảm nhận được, lại tốn thời gian viết + space. Đây là chỗ KHÔNG nên tối ưu. Để dành công sức cho chỗ $n$ lớn.
 > </details>

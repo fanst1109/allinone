@@ -125,7 +125,7 @@ Theo Hiệp định Genève, người dân được phép di chuyển tự do tr
 
 ⚠ **Lưu ý về số liệu:** Số liệu thương vong trong giai đoạn này dao động rất lớn giữa các nguồn (chính phủ hai bên, nhà sử học độc lập, tổ chức quốc tế). Bài học không nêu các con số cụ thể về thương vong chiến đấu vì thiếu sự đồng thuận giữa các nguồn.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Sự kiện nào năm 1964 dẫn đến sự leo thang mạnh mẽ can thiệp trực tiếp của Mỹ?*
 
@@ -244,7 +244,7 @@ Việc kết thúc chiến tranh và thống nhất đất nước năm 1975–1
 - **Về những người ở phía VNCH:** Hàng trăm ngàn sĩ quan và công chức VNCH đi học tập cải tạo; một bộ phận lớn cộng đồng bị mất tài sản, địa vị xã hội; nhiều gia đình bị chia cắt qua làn sóng di cư.
 - **Nhìn từ học thuật quốc tế:** Cuộc chiến được nghiên cứu rộng rãi như một trường hợp điển hình về giới hạn của sức mạnh quân sự thông thường trước chiến tranh phi quy ước, về tác động của truyền thông đại chúng với ý kiến công luận tại các nền dân chủ, và về hậu quả lâu dài của chiến tranh hóa học.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Nêu hai hậu quả lâu dài của chiến tranh Việt Nam còn tác động đến ngày nay.*
 

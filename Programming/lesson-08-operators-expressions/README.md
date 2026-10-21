@@ -90,7 +90,7 @@ i=2  → (2+1)%4 = 3   → D
 i=3  → (3+1)%4 = 0   → A   ← quay về đầu
 ```
 
-> 🔁 **Tự kiểm tra.** `(-7) % 2` trong Go bằng bao nhiêu? Còn `-7 / 2`?
+> 🔁 **Thực hành.** `(-7) % 2` trong Go bằng bao nhiêu? Còn `-7 / 2`?
 
 <details>
 <summary>Đáp án</summary>
@@ -296,7 +296,7 @@ perm = perm ^ PermExecute         // 4 (r-x → r--)
 
 Đây chính xác là cách `chmod 755` được biểu diễn nội bộ: `owner=7, group=5, other=5`.
 
-> 🔁 **Tự kiểm tra.** `13 & 6` = ? `13 | 6` = ? `13 ^ 6` = ?
+> 🔁 **Thực hành.** `13 & 6` = ? `13 | 6` = ? `13 ^ 6` = ?
 
 <details>
 <summary>Đáp án</summary>
@@ -448,7 +448,7 @@ Nhưng trong C, `<<` thấp hơn `+`, ra `1 << (2+3) = 1 << 5 = 32`. **Khác k�
 
 > ⚠ **Lỗi thường gặp khi từ C sang Go.** `1 << 2 + 3` cho ra số khác. Lúc nghi ngờ, **dùng dấu ngoặc**: `(1 << 2) + 3`.
 
-> 🔁 **Tự kiểm tra.** Go eval `a == 0 || b == 0` như thế nào? Có cần ngoặc?
+> 🔁 **Thực hành.** Go eval `a == 0 || b == 0` như thế nào? Có cần ngoặc?
 
 <details>
 <summary>Đáp án</summary>

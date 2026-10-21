@@ -100,7 +100,7 @@ Trong 1 chu kỳ 0.8 giây (nhịp 75/phút): tâm trương ~0.5 s, tâm thu ~0.
 - **Nhầm hướng máu qua van**: van **chỉ mở theo dòng máu xuôi** (từ nhĩ → thất → động mạch). Nếu máu định chảy ngược → van đóng sập (đó là tiếng tim). Hỏng van (hở van) → máu trào ngược → giảm hiệu quả bơm.
 - **Coi 2 nửa tim đập lệch nhau**: thực ra **cả 2 nhĩ co cùng lúc**, **cả 2 thất co cùng lúc** — phối hợp bởi hệ dẫn truyền điện (nút xoang nhĩ SA node, nút nhĩ thất AV node — sẽ học chi tiết ở lesson nâng cao).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Khi van mitral đang đóng, tim đang ở pha nào và máu đang đi đâu?
 2. Tại sao thành tâm thất trái dày hơn thành tâm thất phải?
@@ -193,7 +193,7 @@ A: Vì máu trong tĩnh mạch chảy chậm (áp suất thấp ~5 mmHg) và có
 **Q: Mao mạch mỏng tới mức nào?**
 A: Mao mạch chỉ có **1 lớp tế bào nội mô**, đường kính ~5–10 μm (vừa khít cho 1 hồng cầu ~7 μm đi qua từng cái một). Mỏng vậy để O₂/CO₂ khuếch tán nhanh qua thành. Tổng chiều dài mao mạch trong cơ thể người ~100,000 km — đủ quấn Trái Đất 2.5 vòng.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Liệt kê thứ tự một giọt máu đi từ tâm nhĩ phải tới mô bắp tay, qua các cấu trúc lần lượt.
 2. Vì sao vận tốc máu ở mao mạch chậm hơn ở động mạch chủ ~1000 lần, mặc dù cùng cung lượng tim?
@@ -268,7 +268,7 @@ Trong đó:
 - **Nhầm áp suất với cung lượng**: áp suất là **lực/diện tích** (mmHg), cung lượng là **thể tích/thời gian** (L/phút). Hai khái niệm khác nhau, dù liên quan.
 - **Quên chia 1000 khi đổi đơn vị**: SV thường ghi mL, CO ghi L/phút. Vd 70 × 70 = 4900 mL/phút = **4.9 L/phút**, không phải 4900 L.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một người có HR = 80 bpm, SV = 75 mL. Tính CO theo L/phút.
 2. Lúc vận động, tim người đó tăng nhịp lên 140 bpm và SV tăng lên 100 mL. CO mới gấp bao nhiêu lần lúc nghỉ?
@@ -355,7 +355,7 @@ A: Thực ra cảm giác "ngạt" mà bạn cảm thấy chủ yếu là do **t�
 **Q: Hút thuốc lá phá phế nang thế nào?**
 A: Khói thuốc kích hoạt enzyme phá vỡ vách phế nang → 300 triệu quả nho nhỏ gộp thành **vài quả nho to** — tổng diện tích S giảm mạnh từ 70 m² xuống có khi còn 30–40 m². Theo định luật Fick, dòng O₂ vào máu tỉ lệ thuận với S → giảm gần một nửa → bệnh khí phế thũng (emphysema), khó thở mãn.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Nếu một người sống lâu ngày trên núi cao có PO₂ khí trời chỉ 90 mmHg (so với 160 ở mức biển). Giả sử PO₂ phế nang giảm còn 55. Gradient O₂ vào máu mao mạch phổi là bao nhiêu? Có đủ để O₂ khuếch tán hiệu quả không?
 2. Vì sao cơ hoành quan trọng hơn cơ liên sườn trong hô hấp yên tĩnh?
@@ -425,7 +425,7 @@ A: Do **cooperativity** giữa 4 vị trí. Toán học: nếu mỗi vị trí �
 **Q: Hb của thai nhi khác Hb của mẹ thế nào?**
 A: Hb thai (HbF) có 2 chuỗi γ thay 2 chuỗi β → **ái lực với O₂ cao hơn** Hb người lớn (HbA) → đường cong dịch trái. Hệ quả: ở cùng PO₂ ở nhau thai, HbF "giành" được O₂ từ HbA của mẹ. Đó là cách thai có đủ O₂ dù sống trong môi trường PO₂ thấp (~30 mmHg trong nhau thai).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Một hồng cầu chứa 280 triệu Hb. Tại phổi (PO₂=100, bão hòa 98%), hồng cầu đó chở bao nhiêu O₂?
 2. Khi xuống mô cơ đang vận động (PO₂=20, bão hòa 25% do Bohr), hồng cầu đó còn chở bao nhiêu O₂? Nhả ra bao nhiêu cho cơ?

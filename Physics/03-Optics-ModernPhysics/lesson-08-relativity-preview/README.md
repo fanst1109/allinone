@@ -40,7 +40,7 @@ Einstein (1905) đặt ra 2 tiền đề đơn giản nhưng cách mạng:
 - **Cộng vận tốc kiểu Newton với ánh sáng.** "Xe $0{,}5c$ bật đèn → ánh sáng đi $1{,}5c$" là SAI. Người ngoài vẫn đo ánh sáng đi đúng $c$.
 - **Tưởng hiệu ứng tương đối thấy rõ ở mọi tốc độ.** Chỉ đáng kể khi $v$ GẦN $c$. Ở tốc độ đời thường (máy bay, tên lửa) hiệu ứng nhỏ tới mức cần đồng hồ nguyên tử mới đo được.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một phi thuyền bay $0{,}6c$ và bắn một tia laser về phía trước. Người đứng yên đo tốc độ tia laser bằng bao nhiêu?
 2. Hai nguyên lý của tương đối hẹp là gì?
@@ -100,7 +100,7 @@ trong đó $\gamma = \frac{1}{\sqrt{1 - v^2/c^2}}$ = **hệ số Lorentz**.
 - **Đảo $\Delta t$ và $\Delta t'$.** Thời gian riêng (đo trên vật chuyển động) là NGẮN nhất. Người ngoài đo được thời gian DÀI hơn ($\times \gamma$). Nhầm chiều → kết luận ngược (tưởng người bay già nhanh hơn).
 - **Áp công thức khi $v \ll c$ rồi ngạc nhiên thấy hiệu ứng ~0.** Đúng vậy — ở tốc độ thường $\gamma \approx 1$, dãn thời gian không đáng kể. Đó là lý do đời sống hằng ngày không thấy.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phi hành gia bay $v = 0{,}6c$ trong 8 năm theo đồng hồ riêng. Trên Trái Đất trôi qua bao lâu? ($\gamma$ ở $0{,}6c$ ?)
 2. Trong hai người (một bay nhanh, một ở yên), ai già chậm hơn?
@@ -143,7 +143,7 @@ $$L = L_0 \cdot \sqrt{1 - v^2/c^2} = \frac{L_0}{\gamma}$$
 - **Nhân thay vì chia $\gamma$.** Độ dài CO lại: $L = L_0/\gamma$ (chia, ra ngắn hơn). Thời gian DÃN ra: $\Delta t' = \gamma \Delta t$ (nhân, ra dài hơn). Lẫn hai cái → sai chiều.
 - **Co cả chiều vuông góc.** Không — chỉ chiều dọc theo vận tốc bị co.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Phi thuyền dài 100 m (đứng yên) bay $v = 0{,}8c$ ($\gamma = 1{,}667$). Người ở Trái Đất đo dài bao nhiêu?
 2. Một quả cầu bay nhanh — người đứng yên thấy nó thành hình gì?
@@ -193,7 +193,7 @@ trong đó $m$ là **khối lượng nghỉ**. $E$ là năng lượng tổng (kh
 - **Quên bình phương c.** $E = mc^2$, KHÔNG phải $mc$. Bỏ bình phương → sai 8 bậc độ lớn.
 - **Lẫn đơn vị: $m$ phải tính bằng kg.** Đề cho gram phải đổi sang kg ($1\ \text{g} = 0{,}001\ \text{kg}$) trước khi thay vào, nếu không sai 1000 lần.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Tính năng lượng tương đương của 2 g khối lượng (J).
 2. Vì sao phản ứng hạt nhân tỏa năng lượng lớn hơn phản ứng hóa học hàng triệu lần?
@@ -239,7 +239,7 @@ trong đó $m$ là **khối lượng nghỉ**. $E$ là năng lượng tổng (kh
 - **Dùng Newton cho hạt gần c.** Ở $v = 0{,}9c$, Newton sai hoàn toàn ($\gamma = 2{,}29$). Phải dùng Einstein.
 - **Tưởng GPS không cần tương đối vì vệ tinh 'chậm'.** Sai — yêu cầu độ chính xác cực cao khuếch đại hiệu ứng nhỏ thành lỗi km/ngày.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một electron đi $v = 0{,}99c$. Dùng Newton hay Einstein? ($\gamma \approx ?$)
 2. Vì sao ta không cảm nhận hiệu ứng tương đối khi đi máy bay?

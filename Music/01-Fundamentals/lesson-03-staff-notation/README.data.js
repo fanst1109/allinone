@@ -42,7 +42,7 @@ Quy tắc cơ bản: **nốt đặt trên dòng hay trong khe; vị trí càng c
 > - *"5 dòng 4 khe = 9 vị trí, có đủ 12 nốt không?"* — Không đủ trực tiếp! 9 vị trí một khuông chỉ chứa được 9 bậc diatonic. Các nốt thăng/giáng (♯/♭) viết bằng ký hiệu phụ đặt trước nốt, không phải thêm dòng. Và khuông thực ra trải nhiều octave nhờ ledger lines.
 > - *"Vì sao dùng đúng 5 dòng?"* — Thực nghiệm lịch sử: ít hơn (4 dòng) thì không đủ biểu diễn tầm âm thanh nhạc; nhiều hơn (6-7 dòng) thì mắt khó đọc nhanh. 5 là điểm cân bằng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Khuông nhạc có bao nhiêu dòng và bao nhiêu khe? Dòng nào là dòng 1?
+> 🔁 **Ôn tập.** Khuông nhạc có bao nhiêu dòng và bao nhiêu khe? Dòng nào là dòng 1?
 > <details><summary>Đáp án</summary>
 >
 > 5 dòng, 4 khe. Dòng 1 là **dòng thấp nhất** (đáy khuông).
@@ -97,7 +97,7 @@ Cụm ghi nhớ: **"FACE"** (F-A-C-E) — tên 4 khe từ dưới lên.
 5. Nốt có 1 dòng kẻ phụ bên dưới, đầu nốt nằm *trên* dòng kẻ phụ đó → **C4** (261.63 Hz, "đô giữa").
 6. Nốt có 1 dòng kẻ phụ bên dưới, đầu nốt nằm *dưới* dòng kẻ phụ đó (trong khe phụ) → **B3** (246.94 Hz).
 
-> 🔁 **Dừng lại tự kiểm tra.** Không nhìn bảng: 5 dòng khóa Sol từ dưới lên là gì?
+> 🔁 **Ôn tập.** Không nhìn bảng: 5 dòng khóa Sol từ dưới lên là gì?
 > <details><summary>Đáp án</summary>
 >
 > E4 – G4 – B4 – D5 – F5. Ghi nhớ: "Em Gọi Bé Đáng Fê" hoặc "Every Good Boy Does Fine".
@@ -152,7 +152,7 @@ Ghi nhớ: **"All Cows Eat Grass"** (A-C-E-G).
 > - *"Vì sao cần 2 khóa?"* — Vì tầm âm nhạc cụ quá rộng. Khóa Sol tiện cho âm vực trung-cao (violin, tay phải piano: khoảng E3-F6); khóa Fa tiện cho âm vực trầm (cello, tay trái piano: khoảng C1-C4). Nếu chỉ dùng một khóa, nốt của khóa kia sẽ toàn dòng kẻ phụ, khó đọc.
 > - *"Còn khóa Đô (alto/tenor clef) thì sao?"* — Dùng cho viola và trombone, ít phổ biến hơn. Nguyên lý tương tự: neo dòng 3 hoặc dòng 4 = nốt C4. Bài nâng cao sẽ đề cập.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dòng 4 khuông khóa Fa là nốt gì? Đô giữa (C4) nằm ở đâu trong khóa Fa?
+> 🔁 **Ôn tập.** Dòng 4 khuông khóa Fa là nốt gì? Đô giữa (C4) nằm ở đâu trong khóa Fa?
 > <details><summary>Đáp án</summary>
 >
 > Dòng 4 = F3 (nốt neo). Đô giữa C4 nằm trên **1 dòng kẻ phụ bên trên** khuông khóa Fa.
@@ -267,7 +267,7 @@ Walk-through cụ thể:
 - Trắng chấm = 2 + 2×(1/2) = 2 + 1 = **3 phách** (= 1 đen + 1 trắng thường).
 - Đen chấm = 1 + 1×(1/2) = 1 + 0.5 = **1.5 phách** (= 1 đen + 1 móc đơn).
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính tổng phách: 1 nốt trắng + 2 nốt đen + 4 nốt móc đơn.
+> 🔁 **Ôn tập.** Tính tổng phách: 1 nốt trắng + 2 nốt đen + 4 nốt móc đơn.
 > <details><summary>Đáp án</summary>
 >
 > 2 + (2×1) + (4×0.5) = 2 + 2 + 2 = **6 phách**.

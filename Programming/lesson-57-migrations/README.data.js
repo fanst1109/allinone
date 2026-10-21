@@ -297,7 +297,7 @@ Lưu ý: down chạy **ngược thứ tự** up (tạo index sau → drop index 
 
 > ⚠ **Lỗi thường gặp.** Viết down không thật sự đảo ngược up. Vd up \`ALTER TABLE users ADD COLUMN email TEXT DEFAULT 'x'\` nhưng down chỉ \`DROP COLUMN email\` — ổn. Nhưng up \`UPDATE users SET status = 'active'\` (data migration) thì down **không thể** khôi phục giá trị status cũ vì nó đã bị ghi đè. Đây là lý do down migration của data thường **không an toàn** (mục 10).
 
-> 🔁 **Dừng lại tự kiểm tra.** Up của bạn là \`CREATE INDEX idx ON t(c); ALTER TABLE t ADD COLUMN c2 INT;\`. Down đúng phải là gì?
+> 🔁 **Thực hành.** Up của bạn là \`CREATE INDEX idx ON t(c); ALTER TABLE t ADD COLUMN c2 INT;\`. Down đúng phải là gì?
 > <details><summary>Đáp án</summary>
 > Đảo ngược thứ tự: <code>ALTER TABLE t DROP COLUMN c2; DROP INDEX idx;</code>. Drop cột trước (vì nó tạo sau), drop index sau. Thực tế thứ tự index/cột ở đây độc lập nên không bắt buộc, nhưng nguyên tắc "down đảo ngược up theo thứ tự ngược" luôn an toàn.
 > </details>
@@ -373,7 +373,7 @@ CREATE INDEX CONCURRENTLY idx_users_email ON users (email);
 
 > ⚠ **Lỗi thường gặp.** Tưởng \`RENAME COLUMN\` là zero-downtime vì nó "nhanh". Nó nhanh nhưng **phá tương thích**: không có thời điểm nào code cũ và code mới cùng đọc được. Luôn tách thành add → migrate → drop.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn cần thêm cột \`created_at TIMESTAMP NOT NULL DEFAULT now()\` vào bảng \`orders\` 50 triệu row trên Postgres 13. An toàn không?
+> 🔁 **Thực hành.** Bạn cần thêm cột \`created_at TIMESTAMP NOT NULL DEFAULT now()\` vào bảng \`orders\` 50 triệu row trên Postgres 13. An toàn không?
 > <details><summary>Đáp án</summary>
 > Khá an toàn. PG 11+ tối ưu DEFAULT hằng (không rewrite bảng). Nhưng <code>now()</code> là <strong>biểu thức động</strong>, không phải hằng → PG vẫn phải rewrite để điền giá trị thật cho từng row → lock lâu trên 50M row. An toàn hơn: add nullable → backfill <code>created_at</code> theo batch → set DEFAULT + NOT NULL.
 > </details>
@@ -541,7 +541,7 @@ Sáu cái bẫy kinh điển làm sập production:
 5. **Migration không test trên prod-like data size.** Migration chạy 0.1s trên 10 row dev, nhưng 40 phút lock trên 50M row prod. Luôn test trên dữ liệu cỡ production (staging clone).
 6. **Mỗi instance tự chạy migration → race.** (mục 9.1). Tách bước migration riêng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Migration của bạn là \`CREATE TABLE sessions (...)\`. Tại sao nó **không idempotent**, và sửa thế nào?
+> 🔁 **Thực hành.** Migration của bạn là \`CREATE TABLE sessions (...)\`. Tại sao nó **không idempotent**, và sửa thế nào?
 > <details><summary>Đáp án</summary>
 > Chạy lần 2 (vd sau khi lần 1 lỗi giữa chừng để lại dirty, rồi <code>force</code> và chạy lại) sẽ báo <code>relation "sessions" already exists</code>. Sửa: <code>CREATE TABLE IF NOT EXISTS sessions (...)</code>. Tổng quát hơn: tin vào version tracking + giữ migration chạy trong transaction để lỗi thì rollback sạch.
 > </details>

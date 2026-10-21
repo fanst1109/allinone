@@ -49,7 +49,7 @@ Sau bài này bạn sẽ:
 > - *"Đang ở giai đoạn nào thì biết?"* — Cực khó nhận ra **lúc đang trong đó** (chính vì khó nên bong bóng mới tồn tại). Dấu hiệu hưng phấn: định giá phi lý, người không chuyên đổ xô vào, "lần này khác" thành câu cửa miệng, đòn bẩy phổ biến.
 > - *"Vì sao người thông minh vẫn dính?"* — Áp lực bầy đàn + sợ bỏ lỡ (FOMO) + "giá vẫn đang lên thật". Ngay cả Newton mất tiền trong bong bóng South Sea, nói "tôi tính được chuyển động thiên thể chứ không tính được sự điên rồ của đám đông".
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong giai đoạn nào "lần này khác" và đòn bẩy tràn lan trở nên phổ biến nhất?
+> 🔁 **Thực hành.** Trong giai đoạn nào "lần này khác" và đòn bẩy tràn lan trở nên phổ biến nhất?
 > <details><summary>Đáp án</summary>Giai đoạn 3 — **hưng phấn (euphoria)**: định giá phi lý, niềm tin tuyệt đối, đòn bẩy cực cao trước khi vỡ.</details>
 
 ---

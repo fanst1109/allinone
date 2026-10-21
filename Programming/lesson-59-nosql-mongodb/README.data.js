@@ -93,7 +93,7 @@ Mỗi họ **đánh đổi** một thứ để mạnh ở thứ khác:
 
 > ⚠ **Lỗi thường gặp.** "NoSQL không có ACID" — **sai**. MongoDB có ACID ở mức 1 document từ lâu, và transaction multi-document từ 4.0. Cái đúng là: NoSQL **mặc định ưu tiên availability/scale hơn strong consistency** trong môi trường phân tán, nhưng vẫn có thể cấu hình chặt hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. SQL scale chủ yếu theo chiều nào? NoSQL theo chiều nào?
 > 2. "Eventual consistency" nghĩa là gì?
 >
@@ -256,7 +256,7 @@ NoSQL (document) tỏa sáng khi gặp các đặc điểm sau:
 
 > ❓ **Câu hỏi tự nhiên.** *"Có thể vừa embed vừa reference không?"* — Có, đây là pattern **extended reference / subset**: embed một **phần** dữ liệu hay dùng (vd \`author_name\` trong post để khỏi lookup), đồng thời giữ \`author_id\` để reference khi cần đầy đủ. Đánh đổi: một ít duplicate để đổi lấy đọc nhanh.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Quan hệ post ↔ comments của một bài viral nên embed hay reference? Vì sao?
 > 2. Giới hạn kích thước 1 document MongoDB là bao nhiêu?
 >
@@ -447,7 +447,7 @@ GROUP BY author ORDER BY count DESC;
 
 > ⚠ **Lỗi thường gặp.** Lạm dụng \`$lookup\` để mô phỏng cả schema SQL nhiều JOIN. \`$lookup\` **không có index trên foreignField được dùng tối ưu như JOIN của RDBMS** trong nhiều phiên bản, và nặng khi dữ liệu lớn. Nếu thấy mình \`$lookup\` 4-5 collection liên tục → dấu hiệu dữ liệu này vốn hợp SQL hơn (xem mục 5).
 
-> 🔁 **Dừng lại tự kiểm tra.** Stage nào tương đương \`WHERE\`? Stage nào tương đương \`GROUP BY\`?
+> 🔁 **Thực hành.** Stage nào tương đương \`WHERE\`? Stage nào tương đương \`GROUP BY\`?
 > <details><summary>Đáp án</summary>\`$match\` ↔ \`WHERE\`; \`$group\` ↔ \`GROUP BY\`.</details>
 
 > 📝 **Tóm tắt mục 9.**

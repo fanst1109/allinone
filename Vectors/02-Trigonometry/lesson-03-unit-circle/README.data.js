@@ -231,7 +231,7 @@ Nhưng quan trọng hơn: định nghĩa **không phụ thuộc bán kính**. C�
 
 Khớp. Mục 3 sẽ chứng minh chi tiết.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 2)
+#### 🔁 Thực hành (mục 2)
 
 1. $P$ nằm ở đâu trên đường tròn đơn vị khi $\\theta = 360^\\circ$?
 2. Phương trình của đường tròn đơn vị là gì?
@@ -501,7 +501,7 @@ Tra bảng: $\\sin 120^\\circ = \\frac{\\sqrt{3}}{2}$. Hoặc dùng quy gọn �
 - **Quên đổi đơn vị**. \`math.Sin(30)\` trong Go nghĩa là $\\sin(30 \\text{ radian})$, không phải $\\sin 30^\\circ$. Phải chuyển $30^\\circ = \\frac{\\pi}{6}$ trước: \`math.Sin(math.Pi/6)\` mới đúng.
 - **Viết $\\cos 30^\\circ = \\frac{1}{2}$** (sai — đó là $\\cos 60^\\circ$). Quy tắc nhớ: với góc nhỏ ($30^\\circ$), $\\cos$ lớn (gần 1); với góc lớn ($60^\\circ$), $\\cos$ nhỏ. Trên đường tròn: góc bé → $P$ gần $(1, 0)$ → $x$ lớn → $\\cos$ lớn.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 4)
+#### 🔁 Thực hành (mục 4)
 
 1. $\\cos 120^\\circ$ = ?
 2. $\\sin(\\frac{5\\pi}{6})$ = ?
@@ -659,7 +659,7 @@ Khi quá quen, bạn sẽ không cần mnemonic nữa — trực giác đường
 - **Nhầm QIV với QII**. $350^\\circ$ ở đâu? Nhiều người nói QII (vì gần $90^\\circ$ hay sao đó). Đáp: QIV (vì $270^\\circ < 350^\\circ < 360^\\circ$). Nhớ: QIV là vùng cuối, sát $360^\\circ$.
 - **Quên $\\tan\\theta < 0$ ở QII và QIV**. $\\tan$ âm ở 2 quadrant chứ không chỉ 1.
 
-#### 🔁 Dừng lại tự kiểm tra (mục 5)
+#### 🔁 Thực hành (mục 5)
 
 1. Dấu của $\\cos 100^\\circ$?
 2. Dấu của $\\tan 280^\\circ$?

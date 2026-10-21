@@ -43,7 +43,7 @@ Cùng một tính năng, chi phí chênh nhau cả chục lần — **đó là c
 
 > ⚠ **Lỗi thường gặp.** Coi nguyên lý là mục tiêu tự thân ("phải DRY bằng mọi giá", "phải tách interface cho mọi class"). Mục tiêu thật là **giảm chi phí thay đổi**. Nếu một lần áp dụng nguyên lý làm code *khó hiểu hơn* mà chẳng giảm chi phí gì, đó là dấu hiệu áp sai.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai đoạn code cùng chạy đúng và cùng tốc độ. Đoạn A là một hàm 500 dòng; đoạn B chia thành 12 hàm nhỏ có tên rõ. Về mặt *hiệu năng* chúng như nhau — vậy thiết kế tốt mua cho ta cái gì?
+> 🔁 **Thực hành.** Hai đoạn code cùng chạy đúng và cùng tốc độ. Đoạn A là một hàm 500 dòng; đoạn B chia thành 12 hàm nhỏ có tên rõ. Về mặt *hiệu năng* chúng như nhau — vậy thiết kế tốt mua cho ta cái gì?
 > <details><summary>Đáp án</summary>Mua <b>chi phí thay đổi thấp</b>: dễ đọc, dễ tìm chỗ sửa, dễ test từng phần, dễ thêm tính năng mà không phá phần khác. Lợi ích của thiết kế tốt hiện ra ở <i>lần sửa thứ hai, thứ ba…</i>, không phải ở lần chạy đầu.</details>
 
 📝 **Tóm tắt mục 1.** Nguyên lý thiết kế tồn tại để **giảm chi phí thay đổi** trong vòng đời dài của phần mềm, không phải để code đẹp hay chạy nhanh. Chúng có chi phí trả trước, nên chỉ "lời" khi code sẽ còn được sửa — và phải cân bằng với KISS/YAGNI.
@@ -238,7 +238,7 @@ func NewOrderService(db Store) *OrderService { // inject từ ngoài
 
 > ❓ **"Đảo phụ thuộc" đảo cái gì?** Bình thường code cấp cao (nghiệp vụ) "gọi xuống" code cấp thấp (DB) nên phụ thuộc chĩa từ cao → thấp. Sau khi đặt interface ở giữa, *cả hai* cùng phụ thuộc vào interface — và interface thuộc về tầng nghiệp vụ. Hướng phụ thuộc với chi tiết kỹ thuật giờ chĩa *vào trong* (về phía nghiệp vụ), nên gọi là "đảo". Đây là nền của test bằng mock và của Clean Architecture (Tier sau).
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn thấy đoạn code: một class \`if customerType == "vip" {...} else if customerType == "normal" {...} else if ...\`, và mỗi lần thêm hạng khách phải mở hàm này ra sửa. Nguyên lý nào bị vi phạm rõ nhất, và sửa thế nào?
+> 🔁 **Thực hành.** Bạn thấy đoạn code: một class \`if customerType == "vip" {...} else if customerType == "normal" {...} else if ...\`, và mỗi lần thêm hạng khách phải mở hàm này ra sửa. Nguyên lý nào bị vi phạm rõ nhất, và sửa thế nào?
 > <details><summary>Đáp án</summary><b>Open/Closed (O)</b>: thêm loại khách mới buộc sửa code cũ. Sửa: định nghĩa interface <code>CustomerPolicy</code> với method <code>Discount()</code>, mỗi hạng khách là một struct cài interface đó; thêm hạng mới = thêm struct, không đụng hàm cũ. (Cũng liên quan D nếu chỗ dùng nhận qua interface.)</details>
 
 📝 **Tóm tắt mục 2.** SOLID = **S** (một lý do thay đổi) · **O** (thêm hành vi bằng code mới, không sửa code cũ) · **L** (lớp con thay thế được lớp cha) · **I** (interface nhỏ, chuyên biệt) · **D** (phụ thuộc vào interface, inject từ ngoài). Năm nguyên lý đan vào nhau: I+L thường đi cùng, O thường đạt nhờ D.
@@ -277,7 +277,7 @@ func ApplyTax(p float64) float64 { return p + p*TaxRate }
 
 > ❓ **"Rule of three" là gì?** Một kinh nghiệm phổ biến: đừng vội trừu tượng hóa khi mới thấy code lặp **lần thứ hai** — chờ tới **lần thứ ba** mới gom. Vì sau ba lần bạn đã thấy đủ ngữ cảnh để biết phần nào *thật sự* chung, phần nào chỉ tình cờ giống.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn thấy hai hàm format ngày tháng giống hệt nhau từng ký tự, một dùng cho hóa đơn, một cho email marketing. Có nên gom làm một không?
+> 🔁 **Thực hành.** Bạn thấy hai hàm format ngày tháng giống hệt nhau từng ký tự, một dùng cho hóa đơn, một cho email marketing. Có nên gom làm một không?
 > <details><summary>Đáp án</summary>Tùy: hỏi "chúng có đổi cùng nhau vì cùng lý do không?". Nếu cả hai luôn phải hiển thị ngày theo đúng một chuẩn của công ty → gom (DRY thật). Nếu định dạng hóa đơn bị ràng buộc pháp lý còn email được tự do đổi theo marketing → đừng gom (trùng lặp ngẫu nhiên, gom sẽ tạo phụ thuộc giả giữa hai bộ phận không liên quan).</details>
 
 📝 **Tóm tắt mục 3.** DRY = mỗi *kiến thức/quy tắc nghiệp vụ* chỉ có **một nguồn duy nhất**, sửa một chỗ đúng mọi nơi. Nhưng đừng DRY theo chữ giống nhau — trùng lặp *ngẫu nhiên* gom lại tạo phụ thuộc giả. DRY theo "thay đổi cùng nhau vì cùng lý do".
@@ -310,7 +310,7 @@ func IsEven(n int) bool { return n%2 == 0 }
 
 > ❓ **"KISS với O (Open/Closed) chẳng phải mâu thuẫn? O bảo thêm abstraction, KISS bảo đừng."** Đúng là có lực kéo ngược nhau, và đó là điểm tinh tế. Cách hòa giải: thêm abstraction **khi đã có nhu cầu thật** (đã có ≥2 loại hình thật, hoặc chắc chắn sắp có), không thêm vì *tưởng tượng* sẽ cần. KISS + YAGNI ghìm không cho over-engineer; O xuất hiện đúng lúc nhu cầu mở rộng là thật. Xem mục 6.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một dev viết hệ thống config đọc được từ file, biến môi trường, database, và API từ xa — "để linh hoạt" — trong khi dự án chỉ đang đọc config từ một file YAML duy nhất. Vi phạm nguyên lý nào?
+> 🔁 **Thực hành.** Một dev viết hệ thống config đọc được từ file, biến môi trường, database, và API từ xa — "để linh hoạt" — trong khi dự án chỉ đang đọc config từ một file YAML duy nhất. Vi phạm nguyên lý nào?
 > <details><summary>Đáp án</summary>Vi phạm <b>KISS</b> (giải pháp phức tạp hơn vấn đề) và <b>YAGNI</b> (xây 3 nguồn config chưa ai cần — mục 5). Giải pháp KISS: đọc từ file YAML, đóng gói sau một hàm <code>LoadConfig()</code>; khi nào *thật sự* cần nguồn khác thì mở rộng (lúc đó nhu cầu là thật, áp O hợp lý).</details>
 
 📝 **Tóm tắt mục 4.** KISS = chọn giải pháp **đơn giản nhất đủ giải quyết vấn đề hiện tại**; phức tạp là kẻ thù của bảo trì. "Đơn giản" = dễ hiểu/dễ sửa, **không** phải code ẩu hay ít dòng bằng mọi giá.
@@ -344,7 +344,7 @@ func SendEmail(to, subject, body string) error { /* ... */ }
 
 > ❓ **"Nhưng thêm sau thì tốn refactor, làm sẵn chẳng phải rẻ hơn?"** Thường là ngược lại. Lý do: (1) phần lớn tính năng đầu cơ **không bao giờ được dùng** → chi phí xây + test + bảo trì là lãng phí thuần; (2) khi *thật sự* cần, bạn hiểu yêu cầu rõ hơn nhiều so với lúc đoán mò, nên làm đúng ngay; (3) code thừa làm hệ thống nặng và khó đổi hướng. Chi phí refactor một codebase *sạch* khi nhu cầu đến thường nhỏ hơn chi phí gánh code thừa suốt thời gian chờ.
 
-> 🔁 **Dừng lại tự kiểm tra.** Khách yêu cầu một blog hiển thị bài viết tiếng Việt. Dev quyết định ngay từ đầu dựng hệ thống đa ngôn ngữ (i18n) đầy đủ "vì sau này có thể ra tiếng Anh". Đúng hay sai theo YAGNI? Khi nào thì hợp lý?
+> 🔁 **Thực hành.** Khách yêu cầu một blog hiển thị bài viết tiếng Việt. Dev quyết định ngay từ đầu dựng hệ thống đa ngôn ngữ (i18n) đầy đủ "vì sau này có thể ra tiếng Anh". Đúng hay sai theo YAGNI? Khi nào thì hợp lý?
 > <details><summary>Đáp án</summary><b>Sai theo YAGNI</b> nếu đa ngôn ngữ chỉ là phỏng đoán — tốn công xây i18n mà có thể không bao giờ dùng. <b>Hợp lý</b> nếu đã có yêu cầu/kế hoạch <i>cụ thể, gần</i> (vd "quý sau ra mắt bản tiếng Anh, đã ký hợp đồng"). Ranh giới là <i>nhu cầu thật và gần</i> vs <i>phỏng đoán xa</i>.</details>
 
 📝 **Tóm tắt mục 5.** YAGNI = **không xây thứ chưa có yêu cầu thật**; tính năng đầu cơ phần lớn không dùng nhưng vẫn tốn chi phí và cản trở thay đổi. YAGNI nhắm vào *tính năng thừa*, không phải *thiết kế tốt* cho thứ đang làm.
@@ -367,7 +367,7 @@ Các xung đột điển hình và cách hòa giải:
 
 > ⚠ **Lỗi thường gặp.** Tranh cãi "nguyên lý X đúng hay nguyên lý Y đúng" như thể chỉ một cái thắng. Không nguyên lý nào "thắng" tuyệt đối — chúng là công cụ cho các tình huống khác nhau. Câu hỏi đúng luôn là: *trong ngữ cảnh cụ thể này, lựa chọn nào giảm chi phí dài hạn nhiều nhất?*
 
-> 🔁 **Dừng lại tự kiểm tra.** Một dev nói: "Tôi đã DRY-hóa nên gom 3 đoạn validate giống nhau vào một hàm có 5 tham số cờ (flag) bật/tắt từng quy tắc." Code giờ DRY hơn nhưng khó đọc hơn hẳn. Đánh giá?
+> 🔁 **Thực hành.** Một dev nói: "Tôi đã DRY-hóa nên gom 3 đoạn validate giống nhau vào một hàm có 5 tham số cờ (flag) bật/tắt từng quy tắc." Code giờ DRY hơn nhưng khó đọc hơn hẳn. Đánh giá?
 > <details><summary>Đáp án</summary>Đây là DRY <i>thắng sai</i> KISS. Một hàm với 5 cờ điều khiển hành vi là dấu hiệu trộn nhiều trách nhiệm (vi phạm cả <b>S</b>). Nếu ba validate đổi vì những lý do khác nhau → đó là trùng lặp ngẫu nhiên, nên <i>để lặp</i> cho đơn giản, hoặc chỉ gom phần <i>thật sự</i> chung. Mục tiêu là chi phí thay đổi thấp, không phải "ít dòng lặp".</details>
 
 📝 **Tóm tắt mục 6.** Nguyên lý là *lực kéo*, không phải luật: SOLID/DRY kéo về linh hoạt, KISS/YAGNI kéo về đơn giản. Khi mâu thuẫn, hỏi "lựa chọn nào làm lần sửa sau rẻ nhất?" và mặc định nghiêng về đơn giản — vì *thêm* abstraction dễ hơn *gỡ* abstraction thừa.

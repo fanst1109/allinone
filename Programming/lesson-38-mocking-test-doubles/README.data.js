@@ -165,7 +165,7 @@ func (s *InMemoryUserStore) Save(u *User) error {
 
 > ⚠ **Lỗi thường gặp.** Gọi mọi test double là "mock" rồi loạn khái niệm. "Mock everything" là anti-pattern (xem mục 14), nhưng "Stub everything" thường ổn — Stub không assert, chỉ cấp data.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 >
 > 1. Bạn test một hàm \`CalculateTax(price float64, taxRate TaxRateProvider) float64\`. \`taxRate.GetRate()\` luôn trả 0.1. Bạn dùng loại double nào cho \`taxRate\`?
 >    <details><summary>Đáp án</summary>

@@ -1,0 +1,1814 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "🏠 Trang chính" [ref=e3] [cursor=pointer]:
+      - /url: ../index.html
+    - generic [ref=e4]: ·
+    - generic [ref=e5]: "L01: Game Loop & Timestep"
+    - generic [ref=e6]: ·
+    - 'link "L02: Vectors & Kinematics →" [ref=e7] [cursor=pointer]':
+      - /url: ../lesson-02-vectors-kinematics/visualization.html
+  - main [ref=e8]:
+    - heading "Lesson 01 — Game Loop & Timestep" [level=1] [ref=e9]
+    - paragraph [ref=e10]:
+      - text: Ba mô phỏng chạy thật bằng
+      - code [ref=e11]: requestAnimationFrame
+      - text: ": thấy tận mắt vì sao phải nhân Δt, fixed vs variable timestep với accumulator, và đồng hồ FPS / frame-budget thực."
+    - heading "1. Frame-rate độc lập — Δt vs cộng hằng số" [level=2] [ref=e12]
+    - paragraph [ref=e13]:
+      - text: Hai viên bi cùng đặt mục tiêu
+      - strong [ref=e14]: 100 px/giây
+      - text: . Bi
+      - strong [ref=e15]: hồng
+      - text: cập nhật
+      - code [ref=e16]: x += v·Δt
+      - text: (đúng); bi
+      - strong [ref=e17]: xám
+      - text: cộng hằng số
+      - code [ref=e18]: x += k
+      - text: "mỗi frame (sai). Kéo slider giả lập FPS: bi hồng luôn về đích cùng lúc ở mọi FPS; bi xám nhanh dần khi FPS cao."
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]: "FPS giả lập:"
+        - generic [ref=e22]:
+          - button "15" [ref=e23] [cursor=pointer]
+          - button "30" [ref=e24] [cursor=pointer]
+          - button "60" [ref=e25] [cursor=pointer]
+          - button "120" [ref=e26] [cursor=pointer]
+        - button "↺ Reset" [ref=e27] [cursor=pointer]
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - text: "Δt:"
+          - code [ref=e31]: x += 100·Δt
+          - text: (đúng)
+        - generic [ref=e32]:
+          - text: "hằng số:"
+          - code [ref=e34]: x += 1.67
+          - text: /frame (sai)
+        - generic [ref=e35]: ▏ vạch đích = 100 px/giây × số giây
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]: Δt mô phỏng
+          - generic [ref=e40]: "0.0167"
+          - generic [ref=e41]: giây/frame
+        - generic [ref=e42]:
+          - generic [ref=e43]: Bi Δt (hồng)
+          - generic [ref=e44]: "300"
+          - generic [ref=e45]: px · ≈ 100·t
+        - generic [ref=e46]:
+          - generic [ref=e47]: Bi hằng số (xám)
+          - generic [ref=e48]: "300"
+          - generic [ref=e49]: px
+        - generic [ref=e50]:
+          - generic [ref=e51]: Thời gian mô phỏng
+          - generic [ref=e52]: "3.0"
+          - generic [ref=e53]: giây
+      - paragraph [ref=e54]: Ở đúng 60 fps, bi xám tình cờ khớp bi hồng (vì hằng số được tinh chỉnh cho 60 fps).
+    - heading "2. Fixed vs Variable timestep — accumulator" [level=2] [ref=e55]
+    - paragraph [ref=e56]:
+      - text: FPS thật
+      - strong [ref=e57]: dao động
+      - text: (mô phỏng lag ngẫu nhiên). Mỗi frame dồn Δt thật vào
+      - emphasis [ref=e58]: accumulator
+      - text: ", rồi tiêu thành các bước cố định"
+      - code [ref=e59]: FIXED = 1/60 s
+      - text: ". Số ô hồng = số bước vật lý chạy trong frame đó: lag → chạy nhiều bước đuổi kịp; frame ngắn → 0 bước."
+    - generic [ref=e60]:
+      - generic [ref=e61]:
+        - generic [ref=e62]: "Biên độ dao động FPS:"
+        - slider [ref=e63]: "55"
+        - generic [ref=e64]: ±55%
+        - button "↺ Reset" [ref=e65] [cursor=pointer]
+      - generic [ref=e66]:
+        - generic [ref=e67]: "Bước fixed frame này:"
+        - generic [ref=e68]:
+          - generic [ref=e1374]: "1"
+          - generic [ref=e1375]: "2"
+          - generic [ref=e1376]: "3"
+      - generic [ref=e73]: Accumulator (0 → FIXED, vạch đen = ngưỡng FIXED)
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e80]: Δt thật frame
+          - generic [ref=e81]: "0.042"
+          - generic [ref=e82]: giây
+        - generic [ref=e83]:
+          - generic [ref=e84]: Bước/frame
+          - generic [ref=e85]: "3"
+          - generic [ref=e86]: lần update(FIXED)
+        - generic [ref=e87]:
+          - generic [ref=e88]: Tổng bước
+          - generic [ref=e89]: "3985"
+          - generic [ref=e90]: × FIXED
+        - generic [ref=e91]:
+          - generic [ref=e92]: Accumulator dư
+          - generic [ref=e93]: "0.003"
+          - generic [ref=e94]: giây < FIXED
+      - paragraph [ref=e95]:
+        - text: Bi hồng dùng
+        - strong [ref=e96]: fixed timestep
+        - text: (nội suy theo accumulator → mượt & tất định). Tổng số bước luôn bám sát tổng thời gian thật ÷ FIXED — vật lý không phụ thuộc nhịp render thất thường.
+    - heading "3. FPS & Frame budget meter" [level=2] [ref=e97]
+    - paragraph [ref=e98]:
+      - text: Đồng hồ FPS thật của trình duyệt bạn (đo từ Δt thật của
+      - code [ref=e99]: requestAnimationFrame
+      - text: ). Bấm "Tải nặng giả lập" để cố tình đốt thời gian mỗi frame → xem frame budget bị ăn mòn và FPS tụt.
+    - generic [ref=e100]:
+      - generic [ref=e101]:
+        - generic [ref=e102]: "Mục tiêu:"
+        - generic [ref=e103]:
+          - button "30 fps" [ref=e104] [cursor=pointer]
+          - button "60 fps" [ref=e105] [cursor=pointer]
+          - button "120 fps" [ref=e106] [cursor=pointer]
+        - generic [ref=e107]: "Tải giả lập:"
+        - slider [ref=e108]: "0"
+        - generic [ref=e109]: 0 ms
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - generic [ref=e113]: FPS thật
+          - generic [ref=e114]: "74"
+          - generic [ref=e115]: 1 / Δt
+        - generic [ref=e116]:
+          - generic [ref=e117]: Δt thật
+          - generic [ref=e118]: "13.5"
+          - generic [ref=e119]: ms/frame
+        - generic [ref=e120]:
+          - generic [ref=e121]: Frame budget
+          - generic [ref=e122]: "16.67"
+          - generic [ref=e123]: ms (mục tiêu)
+        - generic [ref=e124]:
+          - generic [ref=e125]: Còn dư / vượt
+          - generic [ref=e126]: "+3.2"
+          - generic [ref=e127]: ms
+      - paragraph [ref=e128]: Frame xong trong budget (13.5 ≤ 16.67 ms) → giữ được 60 fps.
+    - heading "4. Bảng so sánh nhanh" [level=2] [ref=e129]
+    - generic [ref=e130]:
+      - table [ref=e132]:
+        - rowgroup [ref=e133]:
+          - row "Variable timestep Fixed timestep" [ref=e134]:
+            - columnheader [ref=e135]
+            - columnheader "Variable timestep" [ref=e136]
+            - columnheader "Fixed timestep" [ref=e137]
+          - row "Δt mỗi update thay đổi (Δt thật) cố định FIXED" [ref=e138]:
+            - cell "Δt mỗi update" [ref=e139]
+            - cell "thay đổi (Δt thật)" [ref=e140]
+            - cell "cố định FIXED" [ref=e141]:
+              - text: cố định
+              - code [ref=e142]: FIXED
+          - row "Code đơn giản cần accumulator" [ref=e143]:
+            - cell "Code" [ref=e144]
+            - cell "đơn giản" [ref=e145]
+            - cell "cần accumulator" [ref=e146]
+          - row "Tất định? không có" [ref=e147]:
+            - cell "Tất định?" [ref=e148]
+            - cell "không" [ref=e149]
+            - cell "có" [ref=e150]:
+              - strong [ref=e151]: có
+          - row "Ổn định vật lý cứng? kém (dễ nổ với Δt to) tốt" [ref=e152]:
+            - cell "Ổn định vật lý cứng?" [ref=e153]
+            - cell "kém (dễ nổ với Δt to)" [ref=e154]
+            - cell "tốt" [ref=e155]:
+              - strong [ref=e156]: tốt
+          - row "Rủi ro xuyên tường khi Δt vọt spiral of death (nếu không kẹp)" [ref=e157]:
+            - cell "Rủi ro" [ref=e158]
+            - cell "xuyên tường khi Δt vọt" [ref=e159]
+            - cell "spiral of death (nếu không kẹp)" [ref=e160]
+          - row "Hợp cho prototype, chuyển động đơn giản vật lý, netcode, replay" [ref=e161]:
+            - cell "Hợp cho" [ref=e162]
+            - cell "prototype, chuyển động đơn giản" [ref=e163]
+            - cell "vật lý, netcode, replay" [ref=e164]
+      - paragraph [ref=e165]: "Chi tiết spiral of death và cách kẹp Δt: xem README §4.3 (nút 📖 ở góc)."
+  - button "📖 Đọc README"
+  - dialog "README" [ref=e184]:
+    - generic [ref=e168]:
+      - generic [ref=e169]: 📖 README
+      - button "📑 TOC" [ref=e185] [cursor=pointer]
+      - generic [ref=e171]:
+        - button "Modal" [ref=e186] [cursor=pointer]
+        - button "Sidebar" [ref=e187] [cursor=pointer]
+        - button "Full" [ref=e188] [cursor=pointer]
+      - button "Đóng" [ref=e189] [cursor=pointer]: ✕
+    - generic [ref=e176]:
+      - navigation "Mục lục" [ref=e190]:
+        - generic [ref=e178]: 📑 Mục lục
+        - list [ref=e191]:
+          - listitem [ref=e192]:
+            - link "Lesson 01 — Game Loop & Timestep (vòng lặp game & bước thời gian)" [ref=e193] [cursor=pointer]:
+              - /url: "#lesson-01-game-loop-timestep-vong-lap-game-buoc-thoi-gian"
+          - listitem [ref=e194]:
+            - link "Mục tiêu học tập" [ref=e195] [cursor=pointer]:
+              - /url: "#muc-tieu-hoc-tap"
+          - listitem [ref=e196]:
+            - link "Kiến thức tiền đề" [ref=e197] [cursor=pointer]:
+              - /url: "#kien-thuc-tien-de"
+          - listitem [ref=e198]:
+            - link "1. Vì sao cần game loop & timestep? — câu hỏi mở bài" [ref=e199] [cursor=pointer]:
+              - /url: "#1-vi-sao-can-game-loop-timestep-cau-hoi-mo-bai"
+          - listitem [ref=e200]:
+            - link "1.1. Vấn đề cụ thể với \"cộng hằng số mỗi frame\"" [ref=e201] [cursor=pointer]:
+              - /url: "#11-van-de-cu-the-voi-cong-hang-so-moi-frame"
+          - listitem [ref=e202]:
+            - 'link "1.2. Lời giải: cộng theo Δt" [ref=e203] [cursor=pointer]':
+              - /url: "#12-loi-giai-cong-theo-t"
+          - listitem [ref=e204]:
+            - link "2. Game loop là gì?" [ref=e205] [cursor=pointer]:
+              - /url: "#2-game-loop-la-gi"
+          - listitem [ref=e206]:
+            - link "2.1. (a) Là gì — vòng input → update → render" [ref=e207] [cursor=pointer]:
+              - /url: "#21-a-la-gi-vong-input-update-render"
+          - listitem [ref=e208]:
+            - link "2.2. (b) Vì sao tồn tại — vì sao không \"vẽ một lần là xong\"?" [ref=e209] [cursor=pointer]:
+              - /url: "#22-b-vi-sao-ton-tai-vi-sao-khong-ve-mot-lan-la-xong"
+          - listitem [ref=e210]:
+            - link "2.3. (c) Ví dụ số — 4 trạng thái qua các frame" [ref=e211] [cursor=pointer]:
+              - /url: "#23-c-vi-du-so-4-trang-thai-qua-cac-frame"
+          - listitem [ref=e212]:
+            - link "3. Δt (Delta Time) — trái tim của frame-rate independence" [ref=e213] [cursor=pointer]:
+              - /url: "#3-t-delta-time-trai-tim-cua-frame-rate-independence"
+          - listitem [ref=e214]:
+            - link "3.1. (a) Là gì" [ref=e215] [cursor=pointer]:
+              - /url: "#31-a-la-gi"
+          - listitem [ref=e216]:
+            - link "3.2. (b) Vì sao cần — vì sao không dùng \"số frame\"?" [ref=e217] [cursor=pointer]:
+              - /url: "#32-b-vi-sao-can-vi-sao-khong-dung-so-frame"
+          - listitem [ref=e218]:
+            - link "3.3. (c) Walk-through bằng số — cùng quãng đường ở mọi fps (≥4 ví dụ)" [ref=e219] [cursor=pointer]:
+              - /url: "#33-c-walk-through-bang-so-cung-quang-duong-o-moi-fps-4-vi-du"
+          - listitem [ref=e220]:
+            - link "4. Fixed vs Variable Timestep" [ref=e221] [cursor=pointer]:
+              - /url: "#4-fixed-vs-variable-timestep"
+          - listitem [ref=e222]:
+            - link "4.1. Variable timestep — dùng Δt thật mỗi frame" [ref=e223] [cursor=pointer]:
+              - /url: "#41-variable-timestep-dung-t-that-moi-frame"
+          - listitem [ref=e224]:
+            - link "4.2. Fixed timestep — bước cố định + accumulator" [ref=e225] [cursor=pointer]:
+              - /url: "#42-fixed-timestep-buoc-co-dinh-accumulator"
+          - listitem [ref=e226]:
+            - link "4.3. Spiral of death (vòng xoáy tử thần)" [ref=e227] [cursor=pointer]:
+              - /url: "#43-spiral-of-death-vong-xoay-tu-than"
+          - listitem [ref=e228]:
+            - link "4.4. So sánh nhanh" [ref=e229] [cursor=pointer]:
+              - /url: "#44-so-sanh-nhanh"
+          - listitem [ref=e230]:
+            - link "5. Tách update khỏi render + interpolation" [ref=e231] [cursor=pointer]:
+              - /url: "#5-tach-update-khoi-render-interpolation"
+          - listitem [ref=e232]:
+            - link "5.1. Vì sao tách" [ref=e233] [cursor=pointer]:
+              - /url: "#51-vi-sao-tach"
+          - listitem [ref=e234]:
+            - link "5.2. Interpolation (nội suy) — sơ lược" [ref=e235] [cursor=pointer]:
+              - /url: "#52-interpolation-noi-suy-so-luoc"
+          - listitem [ref=e236]:
+            - link "6. FPS, frame budget & vì sao tụt frame" [ref=e237] [cursor=pointer]:
+              - /url: "#6-fps-frame-budget-vi-sao-tut-frame"
+          - listitem [ref=e238]:
+            - link "6.1. (a) FPS là gì" [ref=e239] [cursor=pointer]:
+              - /url: "#61-a-fps-la-gi"
+          - listitem [ref=e240]:
+            - link "6.2. (b) Frame budget — ngân sách thời gian mỗi frame" [ref=e241] [cursor=pointer]:
+              - /url: "#62-b-frame-budget-ngan-sach-thoi-gian-moi-frame"
+          - listitem [ref=e242]:
+            - link "6.3. (c) Vì sao tụt frame — ví dụ số" [ref=e243] [cursor=pointer]:
+              - /url: "#63-c-vi-sao-tut-frame-vi-du-so"
+          - listitem [ref=e244]:
+            - link "7. Liên hệ tới các bài & lĩnh vực khác" [ref=e245] [cursor=pointer]:
+              - /url: "#7-lien-he-toi-cac-bai-linh-vuc-khac"
+          - listitem [ref=e246]:
+            - link "8. Bài tập" [ref=e247] [cursor=pointer]:
+              - /url: "#8-bai-tap"
+          - listitem [ref=e248]:
+            - link "Lời giải chi tiết" [ref=e249] [cursor=pointer]:
+              - /url: "#loi-giai-chi-tiet"
+          - listitem [ref=e250]:
+            - link "Bài 1" [ref=e251] [cursor=pointer]:
+              - /url: "#bai-1"
+          - listitem [ref=e252]:
+            - link "Bài 2" [ref=e253] [cursor=pointer]:
+              - /url: "#bai-2"
+          - listitem [ref=e254]:
+            - link "Bài 3" [ref=e255] [cursor=pointer]:
+              - /url: "#bai-3"
+          - listitem [ref=e256]:
+            - link "Bài 4" [ref=e257] [cursor=pointer]:
+              - /url: "#bai-4"
+          - listitem [ref=e258]:
+            - link "Bài 5" [ref=e259] [cursor=pointer]:
+              - /url: "#bai-5"
+          - listitem [ref=e260]:
+            - link "Bài 6" [ref=e261] [cursor=pointer]:
+              - /url: "#bai-6"
+          - listitem [ref=e262]:
+            - link "Bài 7" [ref=e263] [cursor=pointer]:
+              - /url: "#bai-7"
+          - listitem [ref=e264]:
+            - link "Tham khảo và bài tiếp theo" [ref=e265] [cursor=pointer]:
+              - /url: "#tham-khao-va-bai-tiep-theo"
+      - generic [ref=e179]:
+        - heading "Lesson 01 — Game Loop & Timestep (vòng lặp game & bước thời gian)" [level=1] [ref=e266]
+        - blockquote [ref=e267]:
+          - paragraph [ref=e268]:
+            - text: Bài
+            - strong [ref=e269]: mở đầu
+            - text: toàn lĩnh vực
+            - strong [ref=e270]: GameDev (Game & mô phỏng vật lý)
+            - text: ". Đây là khái niệm nền: mọi bài sau (chuyển động, lực, va chạm) đều quay vòng quanh ý tưởng \"cập nhật trạng thái theo thời gian, ~60 lần mỗi giây\"."
+        - heading "Mục tiêu học tập" [level=2] [ref=e271]
+        - paragraph [ref=e272]: "Sau bài này bạn sẽ:"
+        - list [ref=e273]:
+          - listitem [ref=e274]:
+            - text: Hiểu
+            - strong [ref=e275]: game loop
+            - text: "là gì: vòng"
+            - code [ref=e276]: input → update → render
+            - text: lặp mãi cho tới khi thoát.
+          - listitem [ref=e277]:
+            - text: Hiểu
+            - strong [ref=e278]: Δt (delta time)
+            - text: — thời gian giữa 2 frame — và
+            - strong [ref=e279]: vì sao cập nhật theo Δt mới giúp game chạy đúng tốc độ trên mọi máy
+            - text: (frame-rate independence).
+          - listitem [ref=e280]:
+            - text: Phân biệt
+            - strong [ref=e281]: variable timestep
+            - text: (đơn giản, dễ rung vật lý) và
+            - strong [ref=e282]: fixed timestep
+            - text: (vật lý tất định, dùng accumulator).
+          - listitem [ref=e283]:
+            - text: Biết
+            - strong [ref=e284]: spiral of death
+            - text: là gì và cách tránh.
+          - listitem [ref=e285]:
+            - text: Hiểu vì sao nên
+            - strong [ref=e286]:
+              - text: tách
+              - code [ref=e287]: update
+              - text: khỏi
+              - code [ref=e288]: render
+            - text: ", và ý tưởng"
+            - strong [ref=e289]: interpolation
+            - text: để hình ảnh mượt.
+          - listitem [ref=e290]:
+            - text: Đọc được
+            - strong [ref=e291]: FPS
+            - text: và
+            - strong [ref=e292]: frame budget
+            - text: (16.67 ms ở 60fps), hiểu vì sao "tụt frame".
+        - heading "Kiến thức tiền đề" [level=2] [ref=e293]
+        - list [ref=e294]:
+          - listitem [ref=e295]:
+            - link "Physics — Kinematics (động học)" [ref=e296] [cursor=pointer]:
+              - /url: ../../../Physics/01-Mechanics/lesson-01-kinematics/visualization.html
+            - text: "— chuyển động theo thời gian:"
+            - generic [ref=e298]:
+              - generic [ref=e299]: x =
+              - generic [ref=e300]:
+                - generic [ref=e301]:
+                  - text: x
+                  - generic [ref=e306]: "0"
+                - text: +
+              - generic [ref=e310]: v ⋅
+              - generic [ref=e311]: t
+            - text: . Game loop chính là cách máy tính "diễn" công thức này từng bước nhỏ.
+          - listitem [ref=e312]:
+            - link "Programming" [ref=e313] [cursor=pointer]:
+              - /url: ../../../Programming/index.html
+            - text: — vòng lặp, hàm, biến trạng thái (state). Game loop chỉ là một vòng
+            - code [ref=e314]: while
+            - text: đặc biệt.
+          - listitem [ref=e315]:
+            - link "Math — Tích phân xác định" [ref=e316] [cursor=pointer]:
+              - /url: ../../../Math/04-Calculus-1var/lesson-07-definite-integral/visualization.html
+            - text: — (tùy chọn) cộng dồn các bước nhỏ
+            - code [ref=e317]: v·Δt
+            - text: để ra quãng đường chính là
+            - strong [ref=e318]: tổng Riemann
+            - text: của vận tốc; cập nhật game = tích phân số (numerical integration). Sẽ đào sâu ở Lesson 03.
+        - heading "1. Vì sao cần game loop & timestep? — câu hỏi mở bài" [level=2] [ref=e319]
+        - paragraph [ref=e320]: "Hãy bắt đầu bằng hai câu hỏi thật mà mọi người làm game đều gặp:"
+        - blockquote [ref=e321]:
+          - paragraph [ref=e322]:
+            - strong [ref=e323]: (1) Vì sao nhiều game đời DOS chạy "nhanh gấp đôi" trên máy mạnh hơn?
+            - text: Game
+            - emphasis [ref=e324]: Wing Commander
+            - text: ", các bản DOS cũ có nút \"Turbo\" — bật lên máy chạy nhanh đến mức"
+            - strong [ref=e325]: không chơi nổi
+            - text: . Vì sao?
+          - paragraph [ref=e326]:
+            - strong [ref=e327]: (2) Làm sao để một viên đạn rơi đúng tốc độ trên MỌI máy
+            - text: — máy chạy 30 khung hình/giây (fps) lẫn máy chạy 144 fps đều thấy đạn rơi cùng tốc độ?
+        - paragraph [ref=e328]:
+          - text: "Câu trả lời của cả hai gói gọn trong một quy tắc:"
+          - strong [ref=e329]:
+            - text: đừng cộng một lượng cố định mỗi frame; hãy cộng theo
+            - emphasis [ref=e330]: thời gian thực đã trôi qua
+            - text: giữa hai frame.
+          - text: Lượng thời gian đó gọi là
+          - strong [ref=e331]: Δt (delta time)
+          - text: . Cả bài này là để hiểu rõ câu đó.
+        - heading "1.1. Vấn đề cụ thể với \"cộng hằng số mỗi frame\"" [level=3] [ref=e332]
+        - paragraph [ref=e333]:
+          - text: Giả sử ta muốn viên bi chạy ngang, mỗi frame dịch sang phải. Cách
+          - emphasis [ref=e334]: sai
+          - text: "mà người mới hay viết:"
+        - code [ref=e336]: "// SAI: cộng một lượng cố định MỖI FRAME, không quan tâm thời gian x = x + 2; // +2 pixel mỗi frame"
+        - list [ref=e337]:
+          - listitem [ref=e338]:
+            - text: Máy A chạy
+            - strong [ref=e339]: 30 fps
+            - text: → 30 frame/giây →
+            - code [ref=e340]: x
+            - text: tăng
+            - code [ref=e341]: 30 × 2 = 60
+            - text: px mỗi giây.
+          - listitem [ref=e342]:
+            - text: Máy B chạy
+            - strong [ref=e343]: 60 fps
+            - text: → 60 frame/giây →
+            - code [ref=e344]: x
+            - text: tăng
+            - code [ref=e345]: 60 × 2 = 120
+            - text: px mỗi giây.
+          - listitem [ref=e346]:
+            - text: Máy C chạy
+            - strong [ref=e347]: 144 fps
+            - text: →
+            - code [ref=e348]: 144 × 2 = 288
+            - text: px mỗi giây.
+        - paragraph [ref=e349]:
+          - text: Cùng một dòng code,
+          - strong [ref=e350]: ba tốc độ khác nhau
+          - text: "— máy mạnh, vật chạy nhanh hơn. Đây đúng là lý do game DOS \"Turbo\" chạy điên loạn: tốc độ vật buộc chặt vào tốc độ phần cứng."
+        - 'heading "1.2. Lời giải: cộng theo Δt" [level=3] [ref=e351]'
+        - paragraph [ref=e352]:
+          - text: Muốn "100 px mỗi
+          - strong [ref=e353]: giây
+          - text: "\" thật sự, ta đo thời gian trôi qua từ frame trước ("
+          - code [ref=e354]: Δt
+          - text: ", đơn vị giây) rồi cộng"
+          - code [ref=e355]: v · Δt
+          - text: ":"
+        - code [ref=e357]: "// ĐÚNG: tốc độ tính theo GIÂY, nhân với thời gian frame thực const v = 100; // 100 px / GIÂY (frame-rate independent) x = x + v * dt; // dt = thời gian frame này (giây)"
+        - list [ref=e358]:
+          - listitem [ref=e359]:
+            - text: "30 fps:"
+            - code [ref=e360]: dt ≈ 1/30 ≈ 0.0333
+            - text: s → mỗi frame
+            - code [ref=e361]: +100 × 0.0333 ≈ 3.33
+            - text: px, một giây có 30 frame →
+            - code [ref=e362]: 30 × 3.33 ≈ 100
+            - text: px. ✓
+          - listitem [ref=e363]:
+            - text: "60 fps:"
+            - code [ref=e364]: dt ≈ 1/60 ≈ 0.0167
+            - text: s → mỗi frame
+            - code [ref=e365]: +100 × 0.0167 ≈ 1.67
+            - text: px,
+            - code [ref=e366]: 60 × 1.67 ≈ 100
+            - text: px. ✓
+          - listitem [ref=e367]:
+            - text: "144 fps:"
+            - code [ref=e368]: dt ≈ 1/144 ≈ 0.00694
+            - text: s → mỗi frame
+            - code [ref=e369]: "+0.694"
+            - text: px,
+            - code [ref=e370]: 144 × 0.694 ≈ 100
+            - text: px. ✓
+        - paragraph [ref=e371]:
+          - strong [ref=e372]: Mọi máy đều thấy bi đi 100 px/giây.
+          - text: Frame nhiều thì mỗi bước nhỏ, frame ít thì mỗi bước to — bù trừ nhau ra cùng quãng đường. Đây là
+          - strong [ref=e373]: frame-rate independence
+          - text: (độc lập tốc độ khung hình).
+        - blockquote [ref=e374]:
+          - paragraph [ref=e375]:
+            - text: 💡
+            - strong [ref=e376]: Trực giác.
+            - text: Hãy nghĩ tới việc đổ đầy 1 lít nước trong 10 giây. Bạn có thể rót 100 lần, mỗi lần 10 ml (rót nhanh tay), hoặc rót 10 lần, mỗi lần 100 ml (rót chậm tay). Số lần rót = số frame; lượng mỗi lần =
+            - code [ref=e377]: v·Δt
+            - text: . Dù rót nhanh hay chậm,
+            - strong [ref=e378]: sau 10 giây vẫn đúng 1 lít
+            - text: . "Cộng hằng số mỗi frame" giống như rót cố định 50 ml/lần bất kể nhanh chậm — rót nhanh thì tràn, rót chậm thì thiếu.
+        - blockquote [ref=e379]:
+          - paragraph [ref=e380]:
+            - text: 📝
+            - strong [ref=e381]: Tóm tắt mục 1.
+          - list [ref=e382]:
+            - listitem [ref=e383]: Game/mô phỏng = một vòng lặp cập nhật trạng thái + vẽ lại, ~60 lần/giây.
+            - listitem [ref=e384]:
+              - strong [ref=e385]: Cộng hằng số mỗi frame
+              - text: → tốc độ buộc vào phần cứng → máy mạnh chạy nhanh hơn (bug game DOS).
+            - listitem [ref=e386]:
+              - strong [ref=e387]:
+                - text: Cộng
+                - code [ref=e388]: v·Δt
+              - text: → tốc độ tính theo giây → mọi máy cùng tốc độ. Đây là ý tưởng cốt lõi của cả bài.
+        - heading "2. Game loop là gì?" [level=2] [ref=e389]
+        - heading "2.1. (a) Là gì — vòng input → update → render" [level=3] [ref=e390]:
+          - text: 2.1. (a) Là gì — vòng
+          - code [ref=e391]: input → update → render
+        - paragraph [ref=e392]:
+          - strong [ref=e393]: Game loop (vòng lặp game)
+          - text: là một vòng lặp chạy không ngừng từ lúc game khởi động tới lúc thoát, mỗi vòng (mỗi
+          - strong [ref=e394]: frame
+          - text: ", mỗi"
+          - strong [ref=e395]: tick
+          - text: ") làm đúng 3 việc theo thứ tự:"
+        - list [ref=e396]:
+          - listitem [ref=e397]:
+            - strong [ref=e398]: input
+            - text: "— đọc bàn phím/chuột/tay cầm: người chơi vừa bấm gì?"
+          - listitem [ref=e399]:
+            - strong [ref=e400]: update(Δt)
+            - text: — cập nhật
+            - emphasis [ref=e401]: trạng thái thế giới
+            - text: "dựa trên input và thời gian Δt đã trôi: di chuyển nhân vật, áp trọng lực, kiểm tra va chạm, tính điểm."
+          - listitem [ref=e402]:
+            - strong [ref=e403]: render
+            - text: — vẽ trạng thái hiện tại lên màn hình.
+        - code [ref=e405]: "khởi tạo thế giới lặp mãi: input ← đọc thiết bị nhập update(Δt) ← thay đổi trạng thái theo thời gian render ← vẽ trạng thái lên màn hình"
+        - paragraph [ref=e406]: "Pseudo-code tối giản:"
+        - code [ref=e408]: "let last = now(); function frame() { const t = now(); const dt = (t - last) / 1000; // giây last = t; processInput(); // 1. input update(dt); // 2. update — di chuyển, vật lý render(); // 3. render — vẽ requestAnimationFrame(frame); // hẹn frame kế tiếp } requestAnimationFrame(frame);"
+        - heading "2.2. (b) Vì sao tồn tại — vì sao không \"vẽ một lần là xong\"?" [level=3] [ref=e409]
+        - paragraph [ref=e410]:
+          - text: Một trang web tĩnh vẽ một lần rồi đứng yên. Nhưng game có
+          - strong [ref=e411]: thế giới thay đổi liên tục
+          - text: ": nhân vật di chuyển, đạn bay, kẻ thù đuổi theo. Để mắt người thấy"
+          - emphasis [ref=e412]: chuyển động liên tục
+          - text: ", ta phải"
+          - strong [ref=e413]: vẽ lại nhiều lần mỗi giây
+          - text: "với trạng thái hơi khác nhau — đúng nguyên lý phim ảnh (24+ hình/giây thì mắt thấy mượt). Game loop là cơ chế \"máy chiếu phim\" đó: liên tục"
+          - code [ref=e414]: update → render
+          - text: để tạo ảo giác chuyển động.
+        - paragraph [ref=e415]:
+          - text: Vì sao
+          - strong [ref=e416]: không
+          - text: dùng
+          - code [ref=e417]: setInterval(fn, 16)
+          - text: (gọi mỗi 16 ms)? Vì
+          - code [ref=e418]: setInterval
+          - text: không đồng bộ với chu kỳ vẽ của màn hình → frame bị "xé hình" (tearing), trôi lệch (drift), và vẫn chạy khi tab ẩn (lãng phí pin).
+          - code [ref=e419]: requestAnimationFrame
+          - text: "(rAF) khắc phục:"
+        - list [ref=e420]:
+          - listitem [ref=e421]:
+            - text: Trình duyệt gọi callback
+            - strong [ref=e422]: ngay trước mỗi lần màn hình vẽ lại
+            - text: (thường 60 lần/giây, khớp tần số quét màn hình).
+          - listitem [ref=e423]:
+            - text: Tab ẩn → rAF
+            - strong [ref=e424]: tạm dừng
+            - text: → tiết kiệm pin/CPU.
+          - listitem [ref=e425]: Truyền sẵn timestamp (mili-giây) để bạn tính Δt chính xác.
+        - heading "2.3. (c) Ví dụ số — 4 trạng thái qua các frame" [level=3] [ref=e426]
+        - paragraph [ref=e427]:
+          - text: "Một viên bi: vị trí"
+          - code [ref=e428]: x
+          - text: ", vận tốc"
+          - code [ref=e429]: v = 200
+          - text: px/s, máy chạy 60 fps (
+          - code [ref=e430]: Δt = 1/60 ≈ 0.0167
+          - text: s). Theo dõi 4 frame đầu (
+          - code [ref=e431]: x
+          - text: "khởi đầu = 0):"
+        - table [ref=e433]:
+          - rowgroup [ref=e434]:
+            - 'row "Frame t (s) Δt (s) update: x += v·Δt x sau frame (px)" [ref=e435]':
+              - columnheader "Frame" [ref=e436]
+              - columnheader "t (s)" [ref=e437]
+              - columnheader "Δt (s)" [ref=e438]
+              - 'columnheader "update: x += v·Δt" [ref=e439]'
+              - columnheader "x sau frame (px)" [ref=e440]
+          - rowgroup [ref=e441]:
+            - row "1 0.0167 0.0167 0 + 200·0.0167 = 3.33 3.33" [ref=e442]:
+              - cell "1" [ref=e443]
+              - cell "0.0167" [ref=e444]
+              - cell "0.0167" [ref=e445]
+              - cell "0 + 200·0.0167 = 3.33" [ref=e446]
+              - cell "3.33" [ref=e447]
+            - row "2 0.0333 0.0167 3.33 + 3.33 6.67" [ref=e448]:
+              - cell "2" [ref=e449]
+              - cell "0.0333" [ref=e450]
+              - cell "0.0167" [ref=e451]
+              - cell "3.33 + 3.33" [ref=e452]
+              - cell "6.67" [ref=e453]
+            - row "3 0.0500 0.0167 6.67 + 3.33 10.00" [ref=e454]:
+              - cell "3" [ref=e455]
+              - cell "0.0500" [ref=e456]
+              - cell "0.0167" [ref=e457]
+              - cell "6.67 + 3.33" [ref=e458]
+              - cell "10.00" [ref=e459]
+            - row "4 0.0667 0.0167 10.00 + 3.33 13.33" [ref=e460]:
+              - cell "4" [ref=e461]
+              - cell "0.0667" [ref=e462]
+              - cell "0.0167" [ref=e463]
+              - cell "10.00 + 3.33" [ref=e464]
+              - cell "13.33" [ref=e465]
+        - paragraph [ref=e466]:
+          - text: "Sau 1 giây (60 frame):"
+          - code [ref=e467]: x ≈ 60 × 3.33 ≈ 200
+          - text: px ✓ — đúng
+          - code [ref=e468]: v · t = 200 × 1
+          - text: .
+        - blockquote [ref=e469]:
+          - paragraph [ref=e470]:
+            - text: ❓
+            - strong [ref=e471]: Câu hỏi tự nhiên của người đọc.
+          - list [ref=e472]:
+            - listitem [ref=e473]:
+              - strong [ref=e474]:
+                - text: "\""
+                - code [ref=e475]: input → update → render
+                - text: có bắt buộc đúng thứ tự đó không?"
+              - text: — Có, vì update cần biết input mới nhất, và render cần trạng thái
+              - emphasis [ref=e476]: sau
+              - text: update. Đảo thứ tự → người chơi thấy phản hồi trễ 1 frame.
+            - listitem [ref=e477]:
+              - strong [ref=e478]: "\"Δt lấy ở đâu ra?\""
+              - text: — Hiệu giữa timestamp frame này và frame trước. rAF đưa timestamp sẵn; nếu tự đo thì dùng
+              - code [ref=e479]: performance.now()
+              - text: .
+            - listitem [ref=e480]:
+              - strong [ref=e481]: "\"Một frame mất bao lâu?\""
+              - text: — Ở 60 fps, 1 giây / 60 ≈
+              - strong [ref=e482]: 16.67 ms
+              - text: . Đó là
+              - emphasis [ref=e483]: frame budget
+              - text: — cả input + update + render phải xong trong 16.67 ms, nếu không sẽ tụt frame (xem §6).
+        - blockquote [ref=e484]:
+          - paragraph [ref=e485]:
+            - text: 🔁
+            - strong [ref=e486]: Dừng lại tự kiểm tra.
+          - list [ref=e487]:
+            - listitem [ref=e488]:
+              - text: Trong game loop, vì sao
+              - code [ref=e489]: render
+              - text: phải đặt SAU
+              - code [ref=e490]: update
+              - text: "?"
+            - listitem [ref=e491]: Nếu máy chạy 50 fps, một frame kéo dài bao nhiêu ms?
+          - group [ref=e492]:
+            - generic "Đáp án" [ref=e493]
+        - blockquote [ref=e494]:
+          - paragraph [ref=e495]:
+            - text: 📝
+            - strong [ref=e496]: Tóm tắt mục 2.
+          - list [ref=e497]:
+            - listitem [ref=e498]:
+              - text: Game loop = vòng lặp mãi
+              - code [ref=e499]: input → update(Δt) → render
+              - text: ", mỗi vòng là 1 frame."
+            - listitem [ref=e500]: Cần loop vì thế giới thay đổi liên tục — phải vẽ lại nhiều lần/giây để mắt thấy mượt.
+            - listitem [ref=e501]:
+              - text: Trên web dùng
+              - code [ref=e502]: requestAnimationFrame
+              - text: ": khớp tần số quét màn hình, tự dừng khi tab ẩn, cấp timestamp để tính Δt."
+        - heading "3. Δt (Delta Time) — trái tim của frame-rate independence" [level=2] [ref=e503]
+        - heading "3.1. (a) Là gì" [level=3] [ref=e504]
+        - paragraph [ref=e505]:
+          - strong [ref=e506]: Δt (delta time, "bước thời gian")
+          - text: là
+          - strong [ref=e507]: thời gian thực đã trôi qua giữa frame trước và frame hiện tại
+          - text: ", đo bằng giây."
+        - generic [ref=e510]:
+          - generic [ref=e511]: Δt =
+          - generic [ref=e512]:
+            - generic [ref=e513]:
+              - text: t
+              - generic [ref=e520]: frame hiện tại
+            - text: −
+          - generic [ref=e525]:
+            - text: t
+            - generic [ref=e532]: frame trước
+        - paragraph [ref=e536]:
+          - text: Ký hiệu Δ (delta) trong toán/vật lý nghĩa là "sự thay đổi / hiệu".
+          - code [ref=e537]: Δt
+          - text: = hiệu thời gian. (Cùng ký hiệu bạn gặp trong
+          - link "động học" [ref=e538] [cursor=pointer]:
+            - /url: ../../../Physics/01-Mechanics/lesson-01-kinematics/visualization.html
+          - text: ": vận tốc trung bình"
+          - generic [ref=e540]:
+            - generic [ref=e541]: =
+            - generic [ref=e542]: Δx/Δt
+          - text: .)
+        - heading "3.2. (b) Vì sao cần — vì sao không dùng \"số frame\"?" [level=3] [ref=e543]
+        - paragraph [ref=e544]:
+          - text: Vì
+          - strong [ref=e545]: số frame mỗi giây không cố định
+          - text: giữa các máy (và thậm chí dao động trên
+          - emphasis [ref=e546]: cùng
+          - text: một máy khi tải nặng). Nếu đo chuyển động theo "số frame", tốc độ phụ thuộc phần cứng (đã thấy ở §1). Đo theo
+          - strong [ref=e547]: thời gian thật
+          - text: (Δt) thì tốc độ độc lập phần cứng — đó là toàn bộ lý do Δt tồn tại.
+        - paragraph [ref=e548]: "Quy tắc vàng:"
+        - generic [ref=e551]:
+          - generic [ref=e552]:
+            - generic [ref=e553]:
+              - text: lượng thay đổi m
+              - generic [ref=e557]:
+                - generic [ref=e561]:
+                  - generic [ref=e562]: o
+                  - text: ˆ
+                - text: ˜
+              - text: i frame
+            - text: =
+          - generic [ref=e563]:
+            - generic [ref=e564]:
+              - text: (t
+              - generic [ref=e568]:
+                - generic [ref=e572]:
+                  - generic [ref=e573]: o
+                  - text: ˆ
+                - text: ˊ
+              - text: c độ theo gi
+              - generic [ref=e577]:
+                - generic [ref=e578]: a
+                - text: ˆ
+              - text: y)
+            - text: ×
+          - generic [ref=e579]: Δt
+        - list [ref=e580]:
+          - listitem [ref=e581]:
+            - text: "Vị trí:"
+            - code [ref=e582]: x += v * dt
+            - text: (v tính px/
+            - strong [ref=e583]: giây
+            - text: ).
+          - listitem [ref=e584]:
+            - text: "Vận tốc dưới trọng lực:"
+            - code [ref=e585]: v += g * dt
+            - text: (g tính px/
+            - strong [ref=e586]: giây²
+            - text: ).
+          - listitem [ref=e587]:
+            - text: "Bộ đếm thời gian hồi chiêu (cooldown):"
+            - code [ref=e588]: cooldown -= dt
+            - text: .
+        - heading "3.3. (c) Walk-through bằng số — cùng quãng đường ở mọi fps (≥4 ví dụ)" [level=3] [ref=e589]
+        - paragraph [ref=e590]:
+          - text: Vật có
+          - code [ref=e591]: v = 100
+          - text: px/s. Ta theo dõi quãng đường đi trong
+          - strong [ref=e592]: đúng 1 giây
+          - text: ở các fps khác nhau. Mỗi frame cộng
+          - code [ref=e593]: v · Δt
+          - text: .
+        - paragraph [ref=e594]:
+          - strong [ref=e595]: Ví dụ 1 — 60 fps.
+          - code [ref=e596]: Δt = 1/60 ≈ 0.01667
+          - text: s.
+        - list [ref=e597]:
+          - listitem [ref=e598]:
+            - text: "Mỗi frame:"
+            - code [ref=e599]: 100 × 0.01667 = 1.667
+            - text: px.
+          - listitem [ref=e600]:
+            - text: "60 frame trong 1 giây:"
+            - code [ref=e601]: 60 × 1.667 = 100.0
+            - text: px. ✓
+        - paragraph [ref=e602]:
+          - strong [ref=e603]: Ví dụ 2 — 30 fps.
+          - code [ref=e604]: Δt = 1/30 ≈ 0.03333
+          - text: s.
+        - list [ref=e605]:
+          - listitem [ref=e606]:
+            - text: "Mỗi frame:"
+            - code [ref=e607]: 100 × 0.03333 = 3.333
+            - text: px (gấp đôi frame ở 60 fps, vì mỗi frame kéo dài gấp đôi).
+          - listitem [ref=e608]:
+            - text: "30 frame trong 1 giây:"
+            - code [ref=e609]: 30 × 3.333 = 100.0
+            - text: px. ✓
+        - paragraph [ref=e610]:
+          - strong [ref=e611]: Ví dụ 3 — 120 fps.
+          - code [ref=e612]: Δt = 1/120 ≈ 0.008333
+          - text: s.
+        - list [ref=e613]:
+          - listitem [ref=e614]:
+            - text: "Mỗi frame:"
+            - code [ref=e615]: 100 × 0.008333 = 0.8333
+            - text: px (nửa so với 60 fps).
+          - listitem [ref=e616]:
+            - text: "120 frame:"
+            - code [ref=e617]: 120 × 0.8333 = 100.0
+            - text: px. ✓
+        - paragraph [ref=e618]:
+          - strong [ref=e619]: Ví dụ 4 — 15 fps (máy yếu).
+          - code [ref=e620]: Δt = 1/15 ≈ 0.06667
+          - text: s.
+        - list [ref=e621]:
+          - listitem [ref=e622]:
+            - text: "Mỗi frame:"
+            - code [ref=e623]: 100 × 0.06667 = 6.667
+            - text: px (bước to vì frame thưa).
+          - listitem [ref=e624]:
+            - text: "15 frame:"
+            - code [ref=e625]: 15 × 6.667 = 100.0
+            - text: px. ✓
+        - paragraph [ref=e626]:
+          - strong [ref=e627]: Ví dụ 5 — fps dao động trong 1 giây.
+          - text: Giả sử 1 giây gồm 3 frame có Δt lần lượt
+          - code [ref=e628]: 0.5 s
+          - text: ","
+          - code [ref=e629]: 0.3 s
+          - text: ","
+          - code [ref=e630]: 0.2 s
+          - text: (tổng = 1 s).
+        - list [ref=e631]:
+          - listitem [ref=e632]:
+            - text: "Frame 1:"
+            - code [ref=e633]: 100 × 0.5 = 50
+            - text: px → tổng 50.
+          - listitem [ref=e634]:
+            - text: "Frame 2:"
+            - code [ref=e635]: 100 × 0.3 = 30
+            - text: px → tổng 80.
+          - listitem [ref=e636]:
+            - text: "Frame 3:"
+            - code [ref=e637]: 100 × 0.2 = 20
+            - text: px → tổng 100. ✓
+        - paragraph [ref=e638]:
+          - text: Dù fps lên xuống thất thường,
+          - strong [ref=e639]:
+            - text: tổng quãng đường vẫn =
+            - code [ref=e640]: v × (tổng Δt) = 100 × 1 = 100
+            - text: px
+          - text: . Đây chính là vì cộng
+          - code [ref=e641]: v·Δt
+          - text: thực chất đang
+          - strong [ref=e642]: cộng dồn (tích phân số)
+          - text: vận tốc theo thời gian.
+        - blockquote [ref=e643]:
+          - paragraph [ref=e644]:
+            - text: 💡
+            - strong [ref=e645]: Trực giác — liên hệ tích phân.
+            - text: Quãng đường = "diện tích dưới đường vận tốc". Mỗi
+            - code [ref=e646]: v·Δt
+            - text: là một
+            - strong [ref=e647]: cột chữ nhật
+            - text: rộng
+            - code [ref=e648]: Δt
+            - text: ", cao"
+            - code [ref=e649]: v
+            - text: . Cộng các cột lại = xấp xỉ diện tích = quãng đường. fps cao → nhiều cột mảnh; fps thấp → ít cột mập — nhưng tổng diện tích như nhau khi v hằng số. Đây đúng là
+            - strong [ref=e650]: tổng Riemann
+            - text: từ
+            - link "Math — Tích phân xác định" [ref=e651] [cursor=pointer]:
+              - /url: ../../../Math/04-Calculus-1var/lesson-07-definite-integral/visualization.html
+            - text: . Sẽ đào sâu (Euler vs Verlet) ở
+            - strong [ref=e652]: Lesson 03
+            - text: .
+        - blockquote [ref=e653]:
+          - paragraph [ref=e654]:
+            - text: ⚠
+            - strong [ref=e655]: Lỗi thường gặp — QUÊN nhân Δt.
+            - text: Viết
+            - code [ref=e656]: x += v
+            - text: (quên
+            - code [ref=e657]: "* dt"
+            - text: ) hoặc
+            - code [ref=e658]: x += 2
+            - text: "(số ma thuật mỗi frame) là lỗi #1 của người mới. Hậu quả:"
+            - strong [ref=e659]: tốc độ phụ thuộc fps
+            - text: — game chạy đúng trên máy bạn (60 fps) nhưng nhanh gấp đôi trên máy 120 fps của người chơi, hoặc chậm một nửa trên laptop 30 fps. Đây chính xác là bug "Turbo" của game DOS.
+            - strong [ref=e660]: Mọi đại lượng biến đổi theo thời gian (vị trí, vận tốc, cooldown, animation) PHẢI nhân Δt.
+          - paragraph [ref=e661]:
+            - text: "Một biến thể tinh vi: nhân Δt cho vị trí nhưng"
+            - strong [ref=e662]: quên
+            - text: cho vận tốc khi có gia tốc.
+            - code [ref=e663]: v += g
+            - text: (sai) thay vì
+            - code [ref=e664]: v += g * dt
+            - text: (đúng) → trọng lực mạnh yếu tùy fps.
+        - blockquote [ref=e665]:
+          - paragraph [ref=e666]:
+            - text: ❓
+            - strong [ref=e667]: Câu hỏi tự nhiên của người đọc.
+          - list [ref=e668]:
+            - listitem [ref=e669]:
+              - strong [ref=e670]: "\"Δt có bao giờ to bất thường không?\""
+              - text: — Có. Khi tab bị ẩn rồi quay lại, hoặc máy lag, Δt có thể nhảy lên cả giây. Một bước
+              - code [ref=e671]: v·Δt
+              - text: "khổng lồ → vật \"dịch chuyển tức thời\" xuyên tường. Cách chữa:"
+              - strong [ref=e672]: kẹp Δt
+              - text: (
+              - code [ref=e673]: dt = Math.min(dt, 0.1)
+              - text: ) hoặc dùng
+              - strong [ref=e674]: fixed timestep
+              - text: (§4).
+            - listitem [ref=e675]:
+              - strong [ref=e676]: "\"Δt nên tính bằng giây hay mili-giây?\""
+              - text: — Chọn một và nhất quán. Bài này dùng
+              - strong [ref=e677]: giây
+              - text: (chia timestamp ms cho 1000) vì khớp đơn vị vật lý (m/s, px/s).
+            - listitem [ref=e678]:
+              - strong [ref=e679]: "\"Frame đầu tiên thì Δt = ?\""
+              - text: "— Chưa có \"frame trước\" nên Δt chưa xác định. Thực tế: bỏ qua update frame đầu, hoặc khởi tạo"
+              - code [ref=e680]: last = now()
+              - text: trước vòng lặp để frame đầu có Δt ≈ 0.
+        - blockquote [ref=e681]:
+          - paragraph [ref=e682]:
+            - text: 🔁
+            - strong [ref=e683]: Dừng lại tự kiểm tra.
+          - list [ref=e684]:
+            - listitem [ref=e685]:
+              - text: Vật
+              - code [ref=e686]: v = 250
+              - text: px/s, ở 50 fps thì mỗi frame dịch bao nhiêu px? Một giây tổng cộng bao nhiêu?
+            - listitem [ref=e687]:
+              - text: Vì sao
+              - code [ref=e688]: x += v * dt
+              - text: cho ra cùng quãng đường ở 30 fps và 60 fps?
+          - group [ref=e689]:
+            - generic "Đáp án" [ref=e690]
+        - blockquote [ref=e691]:
+          - paragraph [ref=e692]:
+            - text: 📝
+            - strong [ref=e693]: Tóm tắt mục 3.
+          - list [ref=e694]:
+            - listitem [ref=e695]: Δt = thời gian thực giữa 2 frame (giây). Đo bằng hiệu timestamp.
+            - listitem [ref=e696]:
+              - text: Mọi thay đổi theo thời gian =
+              - code [ref=e697]: (tốc độ/giây) × Δt
+              - text: .
+            - listitem [ref=e698]:
+              - text: Cộng
+              - code [ref=e699]: v·Δt
+              - text: = tích phân số → tổng quãng đường độc lập fps.
+            - listitem [ref=e700]: Cẩn thận Δt nhảy vọt (tab ẩn) → kẹp Δt hoặc dùng fixed timestep.
+        - heading "4. Fixed vs Variable Timestep" [level=2] [ref=e701]
+        - paragraph [ref=e702]: Có hai cách trả lời câu "mỗi lần update dùng Δt bằng bao nhiêu?".
+        - heading "4.1. Variable timestep — dùng Δt thật mỗi frame" [level=3] [ref=e703]
+        - paragraph [ref=e704]:
+          - strong [ref=e705]: "(a) Là gì:"
+          - text: mỗi frame, gọi
+          - code [ref=e706]: update(dt)
+          - text: với
+          - code [ref=e707]: dt
+          - text: = Δt thật vừa đo. Đây là cách §2–§3 đã dùng.
+        - paragraph [ref=e708]:
+          - strong [ref=e709]: "(b) Vì sao dùng / vì sao có vấn đề:"
+          - text: Đơn giản, ít code, mượt với chuyển động tuyến tính (
+          - code [ref=e710]: x += v·dt
+          - text: ).
+          - strong [ref=e711]: Nhưng
+          - text: với vật lý phức tạp (lò xo, va chạm chồng chất, ma sát) thì
+          - strong [ref=e712]: không tất định và không ổn định
+          - text: ":"
+        - list [ref=e713]:
+          - listitem [ref=e714]:
+            - strong [ref=e715]: "Không tất định (non-deterministic):"
+            - text: Δt khác nhau mỗi lần chạy → cùng input cho kết quả khác nhau. Tệ cho game cần replay, netcode, hoặc kiểm thử.
+          - listitem [ref=e716]:
+            - strong [ref=e717]: "Không ổn định (instability):"
+            - text: "tích phân Euler với Δt to → sai số tích lũy, vật \"nổ tung\". Ví dụ lò xo cứng: Δt to làm vật vọt qua điểm cân bằng ngày càng xa thay vì dao động quanh nó."
+        - paragraph [ref=e718]:
+          - strong [ref=e719]: "(c) Ví dụ số — vì sao Δt to làm hỏng:"
+          - text: Lò xo kéo vật về gốc với gia tốc
+          - code [ref=e720]: a = -k·x
+          - text: (
+          - code [ref=e721]: k = 50
+          - text: ). Vật bắt đầu ở
+          - code [ref=e722]: x = 1
+          - text: ","
+          - code [ref=e723]: v = 0
+          - text: . Tích phân Euler
+          - code [ref=e724]: v += a·dt; x += v·dt
+          - text: .
+        - list [ref=e725]:
+          - listitem [ref=e726]:
+            - strong [ref=e727]: "Δt nhỏ = 0.01 s:"
+            - text: mỗi bước
+            - code [ref=e728]: x
+            - text: nhích nhẹ về 0, dao động đẹp quanh gốc (biên độ ổn định ≈ 1).
+          - listitem [ref=e729]:
+            - strong [ref=e730]: "Δt to = 0.1 s:"
+            - text: "bước 1:"
+            - code [ref=e731]: a = -50×1 = -50
+            - text: ","
+            - code [ref=e732]: v = 0 + (-50)(0.1) = -5
+            - text: ","
+            - code [ref=e733]: x = 1 + (-5)(0.1) = 0.5
+            - text: ". Bước 2:"
+            - code [ref=e734]: a = -50×0.5 = -25
+            - text: ","
+            - code [ref=e735]: v = -5 + (-25)(0.1) = -7.5
+            - text: ","
+            - code [ref=e736]: x = 0.5 + (-7.5)(0.1) = -0.25
+            - text: ". Bước 3:"
+            - code [ref=e737]: a = -50×(-0.25)=12.5
+            - text: ","
+            - code [ref=e738]: v = -7.5+1.25 = -6.25
+            - text: ","
+            - code [ref=e739]: x = -0.25 + (-0.625) = -0.875
+            - text: → đã vượt biên độ ban đầu! Biên độ
+            - strong [ref=e740]: phình to
+            - text: mỗi chu kỳ → vật "nổ tung". ✗
+        - paragraph [ref=e741]:
+          - text: → Δt to + vật lý cứng =
+          - strong [ref=e742]: bùng nổ số học
+          - text: . Đây là lý do cần fixed timestep.
+        - heading "4.2. Fixed timestep — bước cố định + accumulator" [level=3] [ref=e743]
+        - paragraph [ref=e744]:
+          - strong [ref=e745]: "(a) Là gì:"
+          - text: Vật lý luôn cập nhật với
+          - strong [ref=e746]: một Δt cố định
+          - text: (vd
+          - code [ref=e747]: FIXED = 1/60 ≈ 0.01667
+          - text: s) bất kể frame thật dài bao lâu. Để khớp với frame thật (dài/ngắn thất thường), dùng một
+          - strong [ref=e748]: accumulator (bộ tích lũy)
+          - text: ": dồn thời gian thật vào accumulator, rồi \"tiêu\" nó thành từng bước cố định."
+        - code [ref=e750]: "const FIXED = 1 / 60; // bước vật lý cố định (s) let acc = 0; function frame() { const dt = realDeltaTime(); // Δt thật (có thể kẹp: Math.min(dt, 0.25)) acc += dt; // dồn thời gian thật vào kho while (acc >= FIXED) { // tiêu kho thành các bước cố định update(FIXED); // vật lý LUÔN thấy Δt = FIXED acc -= FIXED; } render(acc / FIXED); // phần dư → dùng để interpolate (§5) requestAnimationFrame(frame); }"
+        - paragraph [ref=e751]:
+          - strong [ref=e752]: "(b) Vì sao dùng:"
+          - text: Vật lý luôn thấy cùng một Δt →
+          - strong [ref=e753]: tất định
+          - text: (replay/netcode/test ổn định) và
+          - strong [ref=e754]: ổn định
+          - text: (Δt nhỏ cố định không gây bùng nổ). Đây là cách hầu hết game engine nghiêm túc (vật lý Box2D, Unity
+          - code [ref=e755]: FixedUpdate
+          - text: ) làm.
+        - paragraph [ref=e756]:
+          - strong [ref=e757]: "(c) Walk-through accumulator bằng số:"
+          - code [ref=e758]: FIXED = 1/60 ≈ 0.01667
+          - text: "s. Theo dõi qua các frame có Δt thật khác nhau:"
+        - table [ref=e760]:
+          - rowgroup [ref=e761]:
+            - row "Frame Δt thật (s) acc trước acc sau khi += dt số bước fixed chạy acc còn dư" [ref=e762]:
+              - columnheader "Frame" [ref=e763]
+              - columnheader "Δt thật (s)" [ref=e764]
+              - columnheader "acc trước" [ref=e765]
+              - columnheader "acc sau khi += dt" [ref=e766]
+              - columnheader "số bước fixed chạy" [ref=e767]
+              - columnheader "acc còn dư" [ref=e768]
+          - rowgroup [ref=e769]:
+            - row "1 0.0167 0.0000 0.0167 1 (0.0167 ≥ 0.01667) 0.0000" [ref=e770]:
+              - cell "1" [ref=e771]
+              - cell "0.0167" [ref=e772]
+              - cell "0.0000" [ref=e773]
+              - cell "0.0167" [ref=e774]
+              - cell "1 (0.0167 ≥ 0.01667)" [ref=e775]
+              - cell "0.0000" [ref=e776]
+            - row "2 0.0334 0.0000 0.0334 2 (2×0.01667=0.0333) 0.0001" [ref=e777]:
+              - cell "2" [ref=e778]
+              - cell "0.0334" [ref=e779]
+              - cell "0.0000" [ref=e780]
+              - cell "0.0334" [ref=e781]
+              - cell "2 (2×0.01667=0.0333)" [ref=e782]
+              - cell "0.0001" [ref=e783]
+            - row "3 0.0100 0.0001 0.0101 0 (0.0101 < 0.01667) 0.0101" [ref=e784]:
+              - cell "3" [ref=e785]
+              - cell "0.0100" [ref=e786]
+              - cell "0.0001" [ref=e787]
+              - cell "0.0101" [ref=e788]
+              - cell "0 (0.0101 < 0.01667)" [ref=e789]
+              - cell "0.0101" [ref=e790]
+            - row "4 0.0100 0.0101 0.0201 1 0.0034" [ref=e791]:
+              - cell "4" [ref=e792]
+              - cell "0.0100" [ref=e793]
+              - cell "0.0101" [ref=e794]
+              - cell "0.0201" [ref=e795]
+              - cell "1" [ref=e796]
+              - cell "0.0034" [ref=e797]
+            - row "5 0.0500 0.0034 0.0534 3 (3×0.01667=0.0500) 0.0034" [ref=e798]:
+              - cell "5" [ref=e799]
+              - cell "0.0500" [ref=e800]
+              - cell "0.0034" [ref=e801]
+              - cell "0.0534" [ref=e802]
+              - cell "3 (3×0.01667=0.0500)" [ref=e803]
+              - cell "0.0034" [ref=e804]
+        - paragraph [ref=e805]: "Đọc bảng:"
+        - list [ref=e806]:
+          - listitem [ref=e807]:
+            - strong [ref=e808]: Frame 2
+            - text: dài gấp đôi (lag nhẹ) → chạy
+            - strong [ref=e809]: 2 bước
+            - text: vật lý cho "đuổi kịp" thời gian thật.
+          - listitem [ref=e810]:
+            - strong [ref=e811]: Frame 3
+            - text: quá ngắn (0.01 s < FIXED) → chưa đủ một bước → chạy
+            - strong [ref=e812]: 0 bước
+            - text: ", để dành 0.0101 s trong accumulator. Vật lý \"đứng yên\" frame này nhưng render vẫn vẽ."
+          - listitem [ref=e813]:
+            - strong [ref=e814]: Frame 4
+            - text: cộng phần dư từ frame 3 → đủ một bước → chạy 1.
+          - listitem [ref=e815]:
+            - strong [ref=e816]: Frame 5
+            - text: lag to (0.05 s) → chạy
+            - strong [ref=e817]: 3 bước
+            - text: để bắt kịp.
+        - paragraph [ref=e818]:
+          - text: → Tổng số bước fixed sau 5 frame =
+          - code [ref=e819]: 1+2+0+1+3 = 7
+          - text: bước × 0.01667 ≈ 0.1167 s, khớp tổng Δt thật
+          - code [ref=e820]: 0.0167+0.0334+0.01+0.01+0.05 = 0.1201
+          - text: s (chênh lệch nhỏ chính là phần dư còn trong accumulator). Vật lý chạy đúng "nhịp thời gian thật" nhưng mỗi bước luôn đều đặn.
+        - heading "4.3. Spiral of death (vòng xoáy tử thần)" [level=3] [ref=e821]
+        - blockquote [ref=e822]:
+          - paragraph [ref=e823]:
+            - text: ⚠
+            - strong [ref=e824]: Lỗi nguy hiểm — spiral of death.
+            - text: Giả sử mỗi bước
+            - code [ref=e825]: update(FIXED)
+            - text: mất
+            - strong [ref=e826]: 20 ms
+            - text: để tính (vật lý quá nặng), nhưng FIXED chỉ đại diện cho
+            - strong [ref=e827]: 16.67 ms
+            - text: "thời gian game. Mỗi frame:"
+          - list [ref=e828]:
+            - listitem [ref=e829]: Thời gian thật trôi qua (vd 50 ms) → accumulator nhận thêm → cần chạy ~3 bước.
+            - listitem [ref=e830]:
+              - text: Nhưng 3 bước × 20 ms = 60 ms tính toán > 50 ms thật → frame
+              - emphasis [ref=e831]: sau
+              - text: còn dài hơn → accumulator phình thêm → cần
+              - emphasis [ref=e832]: nhiều bước hơn
+              - text: → tính toán còn lâu hơn nữa...
+          - paragraph [ref=e833]:
+            - text: Accumulator phình
+            - strong [ref=e834]: mãi mãi không trả hết
+            - text: ", mỗi frame chạy ngày càng nhiều bước, game"
+            - strong [ref=e835]: đứng hình rồi treo
+            - text: . Đó là
+            - emphasis [ref=e836]: vòng xoáy tử thần
+            - text: .
+          - paragraph [ref=e837]:
+            - strong [ref=e838]: "Cách tránh:"
+            - text: "kẹp số bước tối đa mỗi frame, hoặc kẹp Δt thật trước khi cộng vào accumulator:"
+          - code [ref=e840]: "dt = Math.min(dt, 0.25); // không bao giờ nhận quá 0.25 s/frame // hoặc: chỉ cho chạy tối đa N bước/frame, phần dư bỏ (game \"chậm lại\" thay vì treo)"
+        - heading "4.4. So sánh nhanh" [level=3] [ref=e841]
+        - table [ref=e843]:
+          - rowgroup [ref=e844]:
+            - row "Variable timestep Fixed timestep" [ref=e845]:
+              - columnheader [ref=e846]
+              - columnheader "Variable timestep" [ref=e847]
+              - columnheader "Fixed timestep" [ref=e848]
+          - rowgroup [ref=e849]:
+            - row "Δt mỗi update thay đổi (Δt thật) cố định (FIXED)" [ref=e850]:
+              - cell "Δt mỗi update" [ref=e851]
+              - cell "thay đổi (Δt thật)" [ref=e852]
+              - cell "cố định (FIXED)" [ref=e853]
+            - row "Code đơn giản cần accumulator" [ref=e854]:
+              - cell "Code" [ref=e855]
+              - cell "đơn giản" [ref=e856]
+              - cell "cần accumulator" [ref=e857]
+            - row "Tất định? không có" [ref=e858]:
+              - cell "Tất định?" [ref=e859]
+              - cell "không" [ref=e860]
+              - cell "có" [ref=e861]:
+                - strong [ref=e862]: có
+            - row "Ổn định vật lý? kém với vật lý cứng tốt" [ref=e863]:
+              - cell "Ổn định vật lý?" [ref=e864]
+              - cell "kém với vật lý cứng" [ref=e865]
+              - cell "tốt" [ref=e866]:
+                - strong [ref=e867]: tốt
+            - row "Hợp cho prototype, chuyển động đơn giản vật lý, netcode, replay" [ref=e868]:
+              - cell "Hợp cho" [ref=e869]
+              - cell "prototype, chuyển động đơn giản" [ref=e870]
+              - cell "vật lý, netcode, replay" [ref=e871]
+            - row "Rủi ro dịch chuyển xuyên tường khi Δt vọt spiral of death (nếu không kẹp)" [ref=e872]:
+              - cell "Rủi ro" [ref=e873]
+              - cell "dịch chuyển xuyên tường khi Δt vọt" [ref=e874]
+              - cell "spiral of death (nếu không kẹp)" [ref=e875]
+        - blockquote [ref=e876]:
+          - paragraph [ref=e877]:
+            - text: ❓
+            - strong [ref=e878]: Câu hỏi tự nhiên của người đọc.
+          - list [ref=e879]:
+            - listitem [ref=e880]:
+              - strong [ref=e881]: "\"FIXED = 1/60 nghĩa là game khóa 60 fps?\""
+              - text: — Không. FIXED là nhịp
+              - emphasis [ref=e882]: vật lý
+              - text: ", không phải nhịp"
+              - emphasis [ref=e883]: render
+              - text: . Render vẫn chạy theo rAF (có thể 144 fps); chỉ vật lý bước đều 60 lần/giây. Một frame render có thể chạy 0, 1, hay nhiều bước vật lý.
+            - listitem [ref=e884]:
+              - strong [ref=e885]: "\"Nếu render nhanh hơn vật lý, hình có giật không?\""
+              - text: — Có thể, vì vài frame render thấy cùng một trạng thái vật lý. Sửa bằng
+              - strong [ref=e886]: interpolation
+              - text: (§5).
+        - blockquote [ref=e887]:
+          - paragraph [ref=e888]:
+            - text: 📝
+            - strong [ref=e889]: Tóm tắt mục 4.
+          - list [ref=e890]:
+            - listitem [ref=e891]:
+              - strong [ref=e892]: "Variable:"
+              - code [ref=e893]: update(Δt thật)
+              - text: — đơn giản nhưng vật lý không tất định, dễ nổ với Δt to.
+            - listitem [ref=e894]:
+              - strong [ref=e895]: "Fixed:"
+              - code [ref=e896]: update(FIXED)
+              - text: qua accumulator — tất định, ổn định; mỗi frame chạy 0..n bước để bám thời gian thật.
+            - listitem [ref=e897]:
+              - strong [ref=e898]: "Spiral of death:"
+              - text: bước tính lâu hơn thời gian nó đại diện → accumulator phình mãi → treo. Tránh bằng kẹp Δt / kẹp số bước.
+        - heading "5. Tách update khỏi render + interpolation" [level=2] [ref=e899]:
+          - text: 5. Tách
+          - code [ref=e1377]: update
+          - text: khỏi
+          - code [ref=e900]: render
+          - text: + interpolation
+        - heading "5.1. Vì sao tách" [level=3] [ref=e901]
+        - paragraph [ref=e902]:
+          - text: Với fixed timestep, vật lý nhảy theo từng nấc
+          - code [ref=e903]: FIXED
+          - text: ", còn render chạy theo rAF (có thể nhanh hơn). Nếu render thẳng vị trí vật lý, các frame render giữa hai bước vật lý sẽ thấy"
+          - strong [ref=e904]: cùng một vị trí
+          - text: "→ chuyển động giật nhẹ (stutter). Tách rời cho phép xử lý riêng:"
+        - list [ref=e905]:
+          - listitem [ref=e906]:
+            - strong [ref=e907]: update
+            - text: = lo
+            - emphasis [ref=e908]: logic & vật lý
+            - text: (đúng đắn, tất định, nhịp cố định).
+          - listitem [ref=e909]:
+            - strong [ref=e910]: render
+            - text: = lo
+            - emphasis [ref=e911]: hình ảnh
+            - text: (mượt, theo tốc độ màn hình).
+        - heading "5.2. Interpolation (nội suy) — sơ lược" [level=3] [ref=e912]
+        - paragraph [ref=e913]:
+          - text: Sau vòng
+          - code [ref=e914]: while
+          - text: ", accumulator còn dư"
+          - code [ref=e915]: acc
+          - text: (luôn
+          - code [ref=e916]: < FIXED
+          - text: ). Phần dư này nói "ta đang ở
+          - strong [ref=e917]: giữa
+          - text: "hai bước vật lý\". Tính tỉ lệ:"
+        - generic [ref=e920]:
+          - generic [ref=e921]: α =
+          - generic [ref=e922]:
+            - generic [ref=e927]:
+              - generic [ref=e928]: FIXED
+              - generic [ref=e930]: acc
+            - text: ∈
+          - generic [ref=e934]: "[0, 1)"
+        - paragraph [ref=e935]:
+          - text: rồi vẽ vật ở vị trí
+          - strong [ref=e936]: pha trộn
+          - text: "giữa trạng thái cũ và mới:"
+        - generic [ref=e939]:
+          - generic [ref=e940]:
+            - generic [ref=e941]:
+              - text: x
+              - generic [ref=e948]:
+                - text: v
+                - generic [ref=e952]:
+                  - generic [ref=e953]: e
+                  - text: ˜
+            - text: =
+          - generic [ref=e957]:
+            - generic [ref=e958]:
+              - text: x
+              - generic [ref=e965]:
+                - text: c
+                - generic [ref=e969]:
+                  - generic [ref=e970]: u
+                  - text: ˜
+            - text: +
+          - generic [ref=e974]:
+            - text: (
+            - generic [ref=e975]:
+              - text: x
+              - generic [ref=e982]: mới
+            - text: −
+          - generic [ref=e986]:
+            - generic [ref=e987]:
+              - text: x
+              - generic [ref=e994]:
+                - text: c
+                - generic [ref=e998]:
+                  - generic [ref=e999]: u
+                  - text: ˜
+            - text: ) ⋅
+          - generic [ref=e1003]: α
+        - paragraph [ref=e1004]:
+          - strong [ref=e1005]: "Ví dụ số:"
+          - text: vật bước từ
+          - code [ref=e1006]: x_cũ = 100
+          - text: tới
+          - code [ref=e1007]: x_mới = 110
+          - text: mỗi bước vật lý. Một frame render có
+          - code [ref=e1008]: acc = 0.5 × FIXED
+          - text: →
+          - code [ref=e1009]: α = 0.5
+          - text: → vẽ ở
+          - code [ref=e1010]: 100 + (110−100)×0.5 = 105
+          - text: . Frame khác
+          - code [ref=e1011]: α = 0.25
+          - text: → vẽ ở
+          - code [ref=e1012]: "102.5"
+          - text: . Hình di chuyển
+          - emphasis [ref=e1013]: liên tục
+          - text: dù vật lý chỉ nhảy nấc 100 → 110 → 120. (Cần lưu cả
+          - code [ref=e1014]: x_cũ
+          - text: và
+          - code [ref=e1015]: x_mới
+          - text: .) Đây là
+          - strong [ref=e1016]: linear interpolation (lerp)
+          - text: — sẽ gặp lại nhiều ở các bài chuyển động/animation sau.
+        - blockquote [ref=e1017]:
+          - paragraph [ref=e1018]:
+            - text: 📝
+            - strong [ref=e1019]: Tóm tắt mục 5.
+          - list [ref=e1020]:
+            - listitem [ref=e1021]: Tách update (logic/vật lý, nhịp cố định) khỏi render (hình ảnh, nhịp màn hình).
+            - listitem [ref=e1022]:
+              - text: Phần dư accumulator → tỉ lệ
+              - code [ref=e1023]: α = acc/FIXED
+              - text: → nội suy
+              - code [ref=e1024]: lerp(x_cũ, x_mới, α)
+              - text: cho hình mượt giữa hai bước vật lý.
+        - heading "6. FPS, frame budget & vì sao tụt frame" [level=2] [ref=e1025]
+        - heading "6.1. (a) FPS là gì" [level=3] [ref=e1026]
+        - paragraph [ref=e1027]:
+          - strong [ref=e1028]: FPS (frames per second — số khung hình mỗi giây)
+          - text: = số lần game hoàn thành một vòng
+          - code [ref=e1029]: input→update→render
+          - text: "trong 1 giây. Tính nhanh từ Δt:"
+        - generic [ref=e1032]:
+          - generic [ref=e1033]:
+            - generic [ref=e1034]: FPS
+            - text: =
+          - generic [ref=e1040]:
+            - generic [ref=e1041]: Δt
+            - generic [ref=e1043]: "1"
+        - paragraph [ref=e1047]:
+          - strong [ref=e1048]: "Ví dụ:"
+          - code [ref=e1049]: Δt = 0.0167
+          - text: s →
+          - code [ref=e1050]: 1/0.0167 ≈ 60
+          - text: fps.
+          - code [ref=e1051]: Δt = 0.0333
+          - text: → 30 fps.
+          - code [ref=e1052]: Δt = 0.00694
+          - text: → 144 fps.
+          - code [ref=e1053]: Δt = 0.05
+          - text: → 20 fps.
+        - heading "6.2. (b) Frame budget — ngân sách thời gian mỗi frame" [level=3] [ref=e1054]
+        - paragraph [ref=e1055]:
+          - text: Muốn giữ một fps mục tiêu, mỗi frame phải xong trong
+          - strong [ref=e1056]: frame budget = 1 / fps mục tiêu
+          - text: ":"
+        - table [ref=e1058]:
+          - rowgroup [ref=e1059]:
+            - row "FPS mục tiêu Frame budget" [ref=e1060]:
+              - columnheader "FPS mục tiêu" [ref=e1061]
+              - columnheader "Frame budget" [ref=e1062]
+          - rowgroup [ref=e1063]:
+            - row "30 fps 1/30 = 33.33 ms" [ref=e1064]:
+              - cell "30 fps" [ref=e1065]
+              - cell "1/30 = 33.33 ms" [ref=e1066]:
+                - text: 1/30 =
+                - strong [ref=e1067]: 33.33 ms
+            - row "60 fps 1/60 = 16.67 ms" [ref=e1068]:
+              - cell "60 fps" [ref=e1069]
+              - cell "1/60 = 16.67 ms" [ref=e1070]:
+                - text: 1/60 =
+                - strong [ref=e1071]: 16.67 ms
+            - row "120 fps 1/120 = 8.33 ms" [ref=e1072]:
+              - cell "120 fps" [ref=e1073]
+              - cell "1/120 = 8.33 ms" [ref=e1074]:
+                - text: 1/120 =
+                - strong [ref=e1075]: 8.33 ms
+            - row "144 fps 1/144 = 6.94 ms" [ref=e1076]:
+              - cell "144 fps" [ref=e1077]
+              - cell "1/144 = 6.94 ms" [ref=e1078]:
+                - text: 1/144 =
+                - strong [ref=e1079]: 6.94 ms
+        - paragraph [ref=e1080]:
+          - text: Ở 60 fps,
+          - strong [ref=e1081]: toàn bộ
+          - text: input + update (vật lý) + render phải gói gọn trong
+          - strong [ref=e1082]: 16.67 ms
+          - text: . Vượt budget → không kịp lần quét màn hình kế →
+          - strong [ref=e1083]: tụt frame
+          - text: .
+        - heading "6.3. (c) Vì sao tụt frame — ví dụ số" [level=3] [ref=e1084]
+        - paragraph [ref=e1085]: "Giả sử frame budget 60 fps = 16.67 ms. Một frame tốn:"
+        - list [ref=e1086]:
+          - listitem [ref=e1087]: "input: 1 ms"
+          - listitem [ref=e1088]: "update (vật lý 5000 vật va chạm): 14 ms"
+          - listitem [ref=e1089]: "render: 6 ms"
+          - listitem [ref=e1090]:
+            - strong [ref=e1091]: Tổng = 21 ms > 16.67 ms
+            - text: → lỡ nhịp quét → màn hình giữ lại frame cũ thêm 1 nhịp → fps tụt từ 60 xuống ~48. Người chơi thấy "khựng".
+        - blockquote [ref=e1092]:
+          - paragraph [ref=e1093]:
+            - text: ⚠
+            - strong [ref=e1094]: Lỗi thường gặp.
+            - text: Tin rằng "code chạy 60 fps trên máy mình thì máy nào cũng 60 fps". Máy yếu hơn có budget khó đạt hơn → tụt frame. Đây
+            - emphasis [ref=e1095]: lại
+            - text: "là lý do phải dùng Δt: nếu cập nhật theo Δt, máy tụt còn 30 fps vẫn thấy vật đi đúng tốc độ (chỉ kém mượt), thay vì chạy chậm một nửa."
+        - blockquote [ref=e1096]:
+          - paragraph [ref=e1097]:
+            - text: 🔁
+            - strong [ref=e1098]: Dừng lại tự kiểm tra.
+          - list [ref=e1099]:
+            - listitem [ref=e1100]: Game muốn 120 fps, một frame có budget bao nhiêu ms?
+            - listitem [ref=e1101]: Đo được Δt = 0.025 s — đang chạy bao nhiêu fps? Có đạt 60 fps không?
+          - group [ref=e1102]:
+            - generic "Đáp án" [ref=e1103]
+        - blockquote [ref=e1104]:
+          - paragraph [ref=e1105]:
+            - text: 📝
+            - strong [ref=e1106]: Tóm tắt mục 6.
+          - list [ref=e1107]:
+            - listitem [ref=e1108]: FPS = 1/Δt. Frame budget = 1/(fps mục tiêu); 60 fps → 16.67 ms.
+            - listitem [ref=e1109]: Input+update+render phải gọn trong budget; vượt → tụt frame.
+            - listitem [ref=e1110]: Dùng Δt thì máy yếu vẫn đúng tốc độ (kém mượt), không chậm hẳn.
+        - heading "7. Liên hệ tới các bài & lĩnh vực khác" [level=2] [ref=e1111]
+        - list [ref=e1112]:
+          - listitem [ref=e1113]:
+            - strong [ref=e1114]: Δt là hằng số xuyên suốt GameDev.
+            - text: Mọi cập nhật sau này đều dạng
+            - code [ref=e1115]: đại lượng += tốc độ * dt
+            - text: ":"
+            - list [ref=e1116]:
+              - listitem [ref=e1117]:
+                - strong [ref=e1118]:
+                  - text: Lesson 02 —
+                  - link "Vectors & Kinematics" [ref=e1119] [cursor=pointer]:
+                    - /url: ../lesson-02-vectors-kinematics/visualization.html
+                  - text: ":"
+                - text: vị trí/vận tốc thành
+                - strong [ref=e1120]: vector
+                - text: ;
+                - code [ref=e1121]: pos += vel * dt
+                - text: áp cho cả x và y cùng lúc.
+              - listitem [ref=e1122]:
+                - strong [ref=e1123]: "Lesson 03 — Tích phân số (Integration):"
+                - code [ref=e1124]: x += v·dt
+                - text: ","
+                - code [ref=e1125]: v += a·dt
+                - text: chính là
+                - strong [ref=e1126]: Euler integration
+                - text: "; sẽ so sánh với semi-implicit Euler và Verlet (ổn định hơn). Nền toán:"
+                - link "tổng Riemann / tích phân" [ref=e1127] [cursor=pointer]:
+                  - /url: ../../../Math/04-Calculus-1var/lesson-07-definite-integral/visualization.html
+                - text: .
+              - listitem [ref=e1128]:
+                - strong [ref=e1129]: "Lesson 04 — Lực & gia tốc (Forces):"
+                - text: Newton
+                - code [ref=e1130]: F = m·a
+                - text: →
+                - code [ref=e1131]: a = F/m
+                - text: →
+                - code [ref=e1132]: v += a·dt
+                - text: . Trọng lực, lò xo, ma sát đều cộng vào
+                - code [ref=e1133]: a
+                - text: rồi nhân Δt.
+          - listitem [ref=e1134]:
+            - strong [ref=e1135]:
+              - text: Liên hệ
+              - link "Physics — Kinematics" [ref=e1136] [cursor=pointer]:
+                - /url: ../../../Physics/01-Mechanics/lesson-01-kinematics/visualization.html
+              - text: ":"
+            - text: công thức vật lý (
+            - generic [ref=e1138]:
+              - generic [ref=e1139]: x =
+              - generic [ref=e1140]:
+                - generic [ref=e1141]:
+                  - text: x
+                  - generic [ref=e1146]: "0"
+                - text: +
+              - generic [ref=e1150]: vt
+            - text: ","
+            - generic [ref=e1152]:
+              - generic [ref=e1153]: v =
+              - generic [ref=e1154]:
+                - generic [ref=e1155]:
+                  - text: v
+                  - generic [ref=e1160]: "0"
+                - text: +
+              - generic [ref=e1164]: at
+            - text: ) là
+            - emphasis [ref=e1165]: nghiệm liên tục
+            - text: ; game loop là cách máy tính
+            - strong [ref=e1166]: rời rạc hóa
+            - text: chúng — chia thời gian thành các bước Δt rồi cộng dồn. Game = vật lý chạy bằng số.
+          - listitem [ref=e1167]:
+            - strong [ref=e1168]:
+              - text: Liên hệ
+              - link "Programming" [ref=e1169] [cursor=pointer]:
+                - /url: ../../../Programming/index.html
+              - text: ":"
+            - text: game loop chỉ là một vòng
+            - code [ref=e1170]: while
+            - text: /đệ quy với biến trạng thái — nhưng là vòng lặp
+            - emphasis [ref=e1171]: quan trọng nhất
+            - text: trong mọi game/mô phỏng.
+        - heading "8. Bài tập" [level=2] [ref=e1172]
+        - paragraph [ref=e1173]:
+          - strong [ref=e1174]: Bài 1.
+          - text: Một vật có
+          - code [ref=e1175]: v = 300
+          - text: px/s. Tính lượng dịch chuyển
+          - emphasis [ref=e1176]: mỗi frame
+          - text: và
+          - emphasis [ref=e1177]: tổng trong 1 giây
+          - text: "ở các fps: 20, 60, 75, 150. Xác nhận tổng luôn = 300 px."
+        - paragraph [ref=e1178]:
+          - strong [ref=e1179]: Bài 2.
+          - text: Một đoạn code viết
+          - code [ref=e1180]: x += 4
+          - text: mỗi frame (không nhân Δt). Trên máy 60 fps vật đi 240 px/s. Hỏi trên máy 144 fps vật đi bao nhiêu px/s? Viết lại dòng code cho frame-rate independent sao cho giữ đúng 240 px/s trên mọi máy.
+        - paragraph [ref=e1181]:
+          - strong [ref=e1182]: Bài 3.
+          - text: (Accumulator) Cho
+          - code [ref=e1183]: FIXED = 1/60 ≈ 0.01667
+          - text: "s, accumulator bắt đầu = 0. Các frame có Δt thật lần lượt:"
+          - code [ref=e1184]: 0.030, 0.005, 0.040, 0.010
+          - text: . Với mỗi frame, tính số bước fixed chạy và accumulator còn dư sau frame.
+        - paragraph [ref=e1185]:
+          - strong [ref=e1186]: Bài 4.
+          - text: (Spiral of death) Mỗi bước
+          - code [ref=e1187]: update(FIXED)
+          - text: (FIXED đại diện 16.67 ms) mất 25 ms để tính. Một frame thật kéo dài 50 ms. Giải thích bằng số vì sao accumulator sẽ phình mãi không trả hết, và đề xuất một cách kẹp để tránh treo.
+        - paragraph [ref=e1188]:
+          - strong [ref=e1189]: Bài 5.
+          - text: (FPS & budget) Đo được Δt = 0.0125 s. (a) FPS hiện tại? (b) Đang nhắm 60 fps thì còn dư bao nhiêu ms trong budget? (c) Nếu thêm một tính năng tốn 6 ms/frame nữa thì có còn đạt 60 fps không?
+        - paragraph [ref=e1190]:
+          - strong [ref=e1191]: Bài 6.
+          - text: (Interpolation) Vật lý bước từ
+          - code [ref=e1192]: x_cũ = 50
+          - text: tới
+          - code [ref=e1193]: x_mới = 62
+          - text: mỗi bước FIXED. Một frame render có accumulator dư
+          - code [ref=e1194]: acc = 0.012
+          - text: s (FIXED = 0.0167 s). Tính
+          - code [ref=e1195]: α
+          - text: và vị trí vẽ nội suy
+          - code [ref=e1196]: x_vẽ
+          - text: .
+        - paragraph [ref=e1197]:
+          - strong [ref=e1198]: Bài 7.
+          - text: (Khái niệm) Giải thích vì sao
+          - code [ref=e1199]: requestAnimationFrame
+          - text: tốt hơn
+          - code [ref=e1200]: setInterval(fn, 16)
+          - text: cho game loop — nêu ít nhất 2 lý do.
+        - heading "Lời giải chi tiết" [level=2] [ref=e1201]
+        - heading "Bài 1" [level=3] [ref=e1202]
+        - paragraph [ref=e1203]:
+          - code [ref=e1204]: v = 300
+          - text: px/s. Mỗi frame =
+          - code [ref=e1205]: v · Δt = 300/fps
+          - text: . Tổng/giây =
+          - code [ref=e1206]: fps × (300/fps) = 300
+          - text: px luôn.
+        - table [ref=e1208]:
+          - rowgroup [ref=e1209]:
+            - row "fps Δt = 1/fps (s) mỗi frame = 300·Δt (px) tổng = fps × mỗi frame" [ref=e1210]:
+              - columnheader "fps" [ref=e1211]
+              - columnheader "Δt = 1/fps (s)" [ref=e1212]
+              - columnheader "mỗi frame = 300·Δt (px)" [ref=e1213]
+              - columnheader "tổng = fps × mỗi frame" [ref=e1214]
+          - rowgroup [ref=e1215]:
+            - row "20 0.05 300 × 0.05 = 15 20 × 15 = 300 ✓" [ref=e1216]:
+              - cell "20" [ref=e1217]
+              - cell "0.05" [ref=e1218]
+              - cell "300 × 0.05 = 15" [ref=e1219]
+              - cell "20 × 15 = 300 ✓" [ref=e1220]:
+                - text: 20 × 15 =
+                - strong [ref=e1221]: "300"
+                - text: ✓
+            - row "60 0.01667 300 × 0.01667 = 5.0 60 × 5 = 300 ✓" [ref=e1222]:
+              - cell "60" [ref=e1223]
+              - cell "0.01667" [ref=e1224]
+              - cell "300 × 0.01667 = 5.0" [ref=e1225]
+              - cell "60 × 5 = 300 ✓" [ref=e1226]:
+                - text: 60 × 5 =
+                - strong [ref=e1227]: "300"
+                - text: ✓
+            - row "75 0.01333 300 × 0.01333 = 4.0 75 × 4 = 300 ✓" [ref=e1228]:
+              - cell "75" [ref=e1229]
+              - cell "0.01333" [ref=e1230]
+              - cell "300 × 0.01333 = 4.0" [ref=e1231]
+              - cell "75 × 4 = 300 ✓" [ref=e1232]:
+                - text: 75 × 4 =
+                - strong [ref=e1233]: "300"
+                - text: ✓
+            - row "150 0.006667 300 × 0.006667 = 2.0 150 × 2 = 300 ✓" [ref=e1234]:
+              - cell "150" [ref=e1235]
+              - cell "0.006667" [ref=e1236]
+              - cell "300 × 0.006667 = 2.0" [ref=e1237]
+              - cell "150 × 2 = 300 ✓" [ref=e1238]:
+                - text: 150 × 2 =
+                - strong [ref=e1239]: "300"
+                - text: ✓
+        - paragraph [ref=e1240]:
+          - text: "Bài học: fps đổi chỉ làm"
+          - emphasis [ref=e1241]: kích thước bước
+          - text: đổi tỉ lệ nghịch, tổng giữ nguyên.
+        - heading "Bài 2" [level=3] [ref=e1242]
+        - paragraph [ref=e1243]:
+          - code [ref=e1244]: x += 4
+          - text: mỗi frame → tốc độ =
+          - code [ref=e1245]: 4 × fps
+          - text: px/s.
+        - list [ref=e1246]:
+          - listitem [ref=e1247]:
+            - text: "60 fps:"
+            - code [ref=e1248]: 4 × 60 = 240
+            - text: px/s (đề bài).
+          - listitem [ref=e1249]:
+            - text: "144 fps:"
+            - code [ref=e1250]: 4 × 144 = **576** px/s
+            - text: — nhanh gấp 2.4 lần. Đây là bug frame-rate dependence.
+        - paragraph [ref=e1251]:
+          - text: "Sửa: muốn cố định 240 px/s, đặt"
+          - code [ref=e1252]: v = 240
+          - text: "rồi nhân Δt:"
+        - code [ref=e1254]: const v = 240; // px / giây x += v * dt; // dt = thời gian frame (giây)
+        - paragraph [ref=e1255]:
+          - text: "Kiểm tra ở 144 fps:"
+          - code [ref=e1256]: dt = 1/144
+          - text: ", mỗi frame"
+          - code [ref=e1257]: 240/144 ≈ 1.667
+          - text: px,
+          - code [ref=e1258]: 144 × 1.667 = 240
+          - text: px/s ✓. Mọi máy giữ 240 px/s.
+        - heading "Bài 3" [level=3] [ref=e1259]
+        - paragraph [ref=e1260]:
+          - code [ref=e1261]: FIXED = 0.016667
+          - text: "s. Quy tắc:"
+          - code [ref=e1262]: acc += dt
+          - text: ", rồi"
+          - code [ref=e1263]: "while (acc >= FIXED) { bước++; acc -= FIXED; }"
+          - text: .
+        - table [ref=e1265]:
+          - rowgroup [ref=e1266]:
+            - row "Frame Δt acc trước acc += dt bước chạy acc còn dư" [ref=e1267]:
+              - columnheader "Frame" [ref=e1268]
+              - columnheader "Δt" [ref=e1269]
+              - columnheader "acc trước" [ref=e1270]
+              - columnheader "acc += dt" [ref=e1271]
+              - columnheader "bước chạy" [ref=e1272]
+              - columnheader "acc còn dư" [ref=e1273]
+          - rowgroup [ref=e1274]:
+            - row "1 0.030 0.000000 0.030000 1 (0.030 ≥ 0.01667; trừ 1 lần còn 0.013333 < FIXED) 0.013333" [ref=e1275]:
+              - cell "1" [ref=e1276]
+              - cell "0.030" [ref=e1277]
+              - cell "0.000000" [ref=e1278]
+              - cell "0.030000" [ref=e1279]
+              - cell "1 (0.030 ≥ 0.01667; trừ 1 lần còn 0.013333 < FIXED)" [ref=e1280]
+              - cell "0.013333" [ref=e1281]
+            - row "2 0.005 0.013333 0.018333 1 (≥ FIXED; còn 0.001667) 0.001667" [ref=e1282]:
+              - cell "2" [ref=e1283]
+              - cell "0.005" [ref=e1284]
+              - cell "0.013333" [ref=e1285]
+              - cell "0.018333" [ref=e1286]
+              - cell "1 (≥ FIXED; còn 0.001667)" [ref=e1287]
+              - cell "0.001667" [ref=e1288]
+            - 'row "3 0.040 0.001667 0.041667 2 (trừ 2 lần: 0.041667−0.033333=0.008333) 0.008333" [ref=e1289]':
+              - cell "3" [ref=e1290]
+              - cell "0.040" [ref=e1291]
+              - cell "0.001667" [ref=e1292]
+              - cell "0.041667" [ref=e1293]
+              - 'cell "2 (trừ 2 lần: 0.041667−0.033333=0.008333)" [ref=e1294]'
+              - cell "0.008333" [ref=e1295]
+            - row "4 0.010 0.008333 0.018333 1 (còn 0.001667) 0.001667" [ref=e1296]:
+              - cell "4" [ref=e1297]
+              - cell "0.010" [ref=e1298]
+              - cell "0.008333" [ref=e1299]
+              - cell "0.018333" [ref=e1300]
+              - cell "1 (còn 0.001667)" [ref=e1301]
+              - cell "0.001667" [ref=e1302]
+        - paragraph [ref=e1303]:
+          - text: Tổng bước =
+          - code [ref=e1304]: 1+1+2+1 = 5
+          - text: ;
+          - code [ref=e1305]: 5 × 0.016667 = 0.08333
+          - text: s ≈ tổng Δt
+          - code [ref=e1306]: 0.030+0.005+0.040+0.010 = 0.085
+          - text: s trừ phần dư cuối
+          - code [ref=e1307]: "0.001667"
+          - text: . ✓
+        - heading "Bài 4" [level=3] [ref=e1308]
+        - paragraph [ref=e1309]: "FIXED đại diện 16.67 ms thời-gian-game, nhưng tính một bước mất 25 ms thời-gian-thật. Một frame thật = 50 ms:"
+        - list [ref=e1310]:
+          - listitem [ref=e1311]: "50 ms thật → accumulator cần tiêu ~`50/16.67 ≈ 3` bước."
+          - listitem [ref=e1312]:
+            - text: 3 bước × 25 ms tính =
+            - strong [ref=e1313]: 75 ms
+            - text: thời gian thật để xử lý xong frame "lẽ ra 50 ms".
+          - listitem [ref=e1314]:
+            - text: Nhưng trong 75 ms đó, đồng hồ thật đã trôi 75 ms → frame
+            - emphasis [ref=e1315]: kế
+            - text: nhận
+            - code [ref=e1316]: 75/16.67 ≈ 4-5
+            - text: bước → cần 100–125 ms tính → frame kế nữa còn nhiều bước hơn...
+          - listitem [ref=e1317]:
+            - text: Mỗi frame số bước
+            - strong [ref=e1318]: tăng dần
+            - text: ", accumulator không bao giờ trả về gần 0 → game đứng hình rồi treo. Đó là spiral of death."
+        - paragraph [ref=e1319]:
+          - strong [ref=e1320]: "Cách kẹp:"
+          - text: "giới hạn Δt nhận vào, hoặc số bước tối đa:"
+        - code [ref=e1322]: "dt = Math.min(dt, 0.1); // không nhận quá 0.1 s/frame // hoặc kẹp số bước: let steps = 0; while (acc >= FIXED && steps < 5) { update(FIXED); acc -= FIXED; steps++; } if (acc > FIXED) acc = 0; // bỏ phần dư: game \"chậm lại\" chứ không treo"
+        - paragraph [ref=e1323]:
+          - text: "Hệ quả chấp nhận được: khi máy quá yếu, game"
+          - strong [ref=e1324]: chạy chậm (slow-motion)
+          - text: thay vì đông cứng — vẫn tương tác được.
+        - heading "Bài 5" [level=3] [ref=e1325]
+        - paragraph [ref=e1326]:
+          - code [ref=e1327]: Δt = 0.0125
+          - text: s.
+        - list [ref=e1328]:
+          - listitem [ref=e1329]:
+            - text: (a) FPS =
+            - code [ref=e1330]: 1/0.0125 = **80** fps
+            - text: .
+          - listitem [ref=e1331]:
+            - text: (b) Budget 60 fps = 16.67 ms. Frame hiện tại tốn 12.5 ms → còn dư
+            - code [ref=e1332]: 16.67 − 12.5 = **4.17 ms**
+            - text: .
+          - listitem [ref=e1333]:
+            - text: (c) Thêm 6 ms → tổng
+            - code [ref=e1334]: 12.5 + 6 = 18.5 ms > 16.67 ms
+            - text: →
+            - strong [ref=e1335]: không
+            - text: còn đạt 60 fps; fps mới ≈
+            - code [ref=e1336]: 1/0.0185 ≈ 54
+            - text: fps.
+        - heading "Bài 6" [level=3] [ref=e1337]
+        - paragraph [ref=e1338]:
+          - code [ref=e1339]: FIXED = 0.0167
+          - text: s,
+          - code [ref=e1340]: acc = 0.012
+          - text: s.
+        - list [ref=e1341]:
+          - listitem [ref=e1342]:
+            - code [ref=e1343]: α = acc / FIXED = 0.012 / 0.0167 ≈ **0.719**
+            - text: .
+          - listitem [ref=e1344]:
+            - code [ref=e1345]: x_vẽ = x_cũ + (x_mới − x_cũ)·α = 50 + (62 − 50) × 0.719 = 50 + 12 × 0.719 = 50 + 8.63 = **58.63**
+            - text: .
+        - paragraph [ref=e1346]: Vật vẽ ở 58.63 — nằm ~72% đường từ 50 tới 62, khớp việc accumulator đã đi 72% chặng tới bước kế. Hình mượt dù vật lý còn ở mốc 50.
+        - heading "Bài 7" [level=3] [ref=e1347]
+        - paragraph [ref=e1348]:
+          - code [ref=e1349]: requestAnimationFrame
+          - text: (rAF) hơn
+          - code [ref=e1350]: setInterval(fn, 16)
+          - text: "vì:"
+        - list [ref=e1351]:
+          - listitem [ref=e1352]:
+            - strong [ref=e1353]: "Đồng bộ với màn hình:"
+            - text: rAF gọi callback ngay trước mỗi lần màn hình quét (vsync) → không "xé hình" (tearing), không lệch nhịp.
+            - code [ref=e1354]: setInterval(16)
+            - text: chạy theo đồng hồ riêng, lệch dần khỏi nhịp 60 Hz → giật, drift.
+          - listitem [ref=e1355]:
+            - strong [ref=e1356]: "Tự dừng khi tab ẩn:"
+            - text: rAF tạm dừng khi tab không hiển thị → tiết kiệm CPU/pin.
+            - code [ref=e1357]: setInterval
+            - text: vẫn chạy nền vô ích.
+          - listitem [ref=e1358]:
+            - strong [ref=e1359]: "(thêm) Cấp timestamp chính xác:"
+            - text: rAF truyền timestamp high-resolution để tính Δt;
+            - code [ref=e1360]: setInterval
+            - text: không, và không đảm bảo đúng 16 ms (có thể bị dồn/trễ).
+        - heading "Tham khảo và bài tiếp theo" [level=2] [ref=e1361]
+        - list [ref=e1362]:
+          - listitem [ref=e1363]:
+            - text: "Bài tiếp theo:"
+            - link "Lesson 02 — Vectors & Kinematics" [ref=e1364] [cursor=pointer]:
+              - /url: ../lesson-02-vectors-kinematics/visualization.html
+            - text: — đưa vị trí/vận tốc thành
+            - strong [ref=e1365]: vector 2D
+            - text: ", áp"
+            - code [ref=e1366]: pos += vel * dt
+            - text: cho cả hai trục.
+          - listitem [ref=e1367]:
+            - text: "Tiền đề liên quan:"
+            - link "Physics — Kinematics" [ref=e1368] [cursor=pointer]:
+              - /url: ../../../Physics/01-Mechanics/lesson-01-kinematics/visualization.html
+            - text: ·
+            - link "Programming" [ref=e1369] [cursor=pointer]:
+              - /url: ../../../Programming/index.html
+            - text: ·
+            - link "Math — Tích phân xác định" [ref=e1370] [cursor=pointer]:
+              - /url: ../../../Math/04-Calculus-1var/lesson-07-definite-integral/visualization.html
+            - text: .
+          - listitem [ref=e1371]: "Tham khảo kinh điển: bài viết \"Fix Your Timestep!\" của Glenn Fiedler (gafferongames) và \"Game Programming Patterns — Game Loop\" của Robert Nystrom (mô hình accumulator + interpolation ở §4–§5 bài này)."
+          - listitem [ref=e1372]:
+            - text: "Minh họa tương tác:"
+            - link "visualization.html" [ref=e1373] [cursor=pointer]:
+              - /url: ./visualization.html
+            - text: "— 3 mô phỏng realtime: frame-rate độc lập (Δt vs hằng số), fixed vs variable timestep (accumulator), và FPS/frame-budget meter."
+  - button "📑 Mục lục" [ref=e180] [cursor=pointer]
+  - navigation "Mục lục":
+    - generic:
+      - text: 📑 Mục lục
+      - button "Đóng": ✕
+    - list:
+      - listitem:
+        - link "1. Frame-rate độc lập — Δt vs cộng hằng số":
+          - /url: "#1-frame-rate-doc-lap-t-vs-cong-hang-so"
+      - listitem:
+        - link "2. Fixed vs Variable timestep — accumulator":
+          - /url: "#2-fixed-vs-variable-timestep-accumulator"
+      - listitem:
+        - link "3. FPS & Frame budget meter":
+          - /url: "#3-fps-frame-budget-meter"
+      - listitem:
+        - link "4. Bảng so sánh nhanh":
+          - /url: "#4-bang-so-sanh-nhanh"

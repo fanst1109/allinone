@@ -86,7 +86,7 @@ Số ngày sinh nhật (1-31) của 100 người → histogram phẳng đều nh
 > - "Histogram vs Bar chart — khác nhau điểm nào?" → Histogram: biến continuous, cột liền nhau, trục X là giá trị số. Bar chart: biến categorical, cột có khoảng trống, trục X là nhãn. Đây là lỗi rất phổ biến trong presentation.
 > - "Tôi có thể thấy outlier từ histogram không?" → Có — cột đơn lẻ cách xa phần chính của histogram là dấu hiệu outlier. Nhưng boxplot chuyên về outlier hơn.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Histogram có đỉnh ở bên phải và đuôi dài bên trái — phân phối lệch trái hay phải?
 > <details><summary>Đáp án</summary>
 > Lệch TRÁI (left-skewed / negatively skewed). Đuôi dài bên trái kéo mean sang trái. Ví dụ: điểm thi dễ — hầu hết đạt cao, vài người trượt thấp.

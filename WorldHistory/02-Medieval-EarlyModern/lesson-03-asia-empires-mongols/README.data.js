@@ -67,7 +67,7 @@ Dưới Đường Thái Tông, lãnh thổ vươn tới Trung Á (vùng Tây V�
 
 - *"Đường Huyền Tông thụ động và bỏ bê triều chính vì Dương Quý Phi."* — Đây là quan niệm quá đơn giản. Đường Huyền Tông là người trị vì gần 45 năm, trong đó giai đoạn đầu (Khai Nguyên, 713–741) là thịnh trị nhất nhà Đường. Giai đoạn cuối (Thiên Bảo, 742–756) mới có dấu hiệu xa hoa và bỏ bê. Loạn An Lộc Sơn có nhiều nguyên nhân cấu trúc hơn là cá nhân Dương Quý Phi.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Nhà Đường kết thúc vào năm nào và vì lý do gì?*
 
@@ -129,7 +129,7 @@ Nhà Tống chứng kiến những thay đổi kinh tế căn bản mà các nh�
 
 - *"Người Trung Hoa phát minh ra thuốc súng nhưng không dùng trong chiến tranh."* — Sai. Nhà Tống (và sau đó nhà Minh) dùng thuốc súng rộng rãi: hỏa tiễn (fire arrows), bom ném (gunpowder bombs), pháo. Thực ra chính nhà Tống dùng vũ khí thuốc súng chống quân Mông Cổ nhưng vẫn thua — cho thấy vũ khí không quyết định tất cả nếu thiếu chiến thuật và quân số.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Điểm khác biệt lớn nhất giữa nhà Đường và nhà Tống là gì?*
 
@@ -189,7 +189,7 @@ Ba yếu tố chính:
 
 - *"Thành Cát Tư Hãn chỉ là người chinh phục man rợ."* — Bên cạnh chiến tranh, ông thiết lập hệ thống liên lạc (Yam — trạm ngựa) giúp thông tin truyền nhanh hơn bất kỳ hệ thống nào trước đó; ban hành luật Yasa; áp đặt tự do tôn giáo; mở tuyến thương mại. Nhiều nhà sử học coi ông là một trong những nhà cải cách thể chế lớn nhất thời trung đại.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *Kể 3 yếu tố quân sự–tổ chức giúp Mông Cổ chinh phục được diện tích lớn như vậy.*
 
@@ -254,7 +254,7 @@ Việt Nam là một trong số ít khu vực mà quân Mông Cổ xâm lược 
 
 - *"Hốt Tất Liệt cai trị Trung Hoa như một hoàng đế Trung Hoa bình thường."* — Không hoàn toàn. Người Mông Cổ không đồng hóa vào văn hóa Hán như các triều đại "ngoại tộc" sau (như nhà Thanh). Họ duy trì sự phân biệt: người Mông Cổ ở tầng cao nhất, người Mông Cổ–Tây Á (semu) ở tầng 2, người Hán miền Bắc ở tầng 3, người Nam Hán ở tầng thấp nhất. Khoa cử bị đình chỉ một thời gian dài. Điều này góp phần vào sự bất mãn dẫn đến lật đổ nhà Nguyên năm 1368.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Ôn tập:**
 
 *"Pax Mongolica" tạo ra điều kiện thuận lợi cho những gì và cũng dẫn đến hậu quả tiêu cực nào?*
 

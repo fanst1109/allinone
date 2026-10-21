@@ -87,7 +87,7 @@ cộng:       1  3  5  3   ✓
 
 Hai cách cho cùng $y = [1,3,5,3]$ → đúng.
 
-🔁 **Dừng lại tự kiểm tra.** Tính $y[2]$ cho $x = [2, 0, 1]$, $h = [1, 1]$.
+🔁 **Thực hành.** Tính $y[2]$ cho $x = [2, 0, 1]$, $h = [1, 1]$.
 <details><summary>Đáp án</summary>
 
 $y[2] = x[1]h[1] + x[2]h[0] = 0\\cdot1 + 1\\cdot1 = 1$. (Toàn bộ: $y = [2, 2, 1, 1]$.)
@@ -152,7 +152,7 @@ $$\\text{corr}: \\;\\sum_k x[k]\\,h[n+k] \\quad (\\text{KHÔNG lật}) \\qquad\\
 - *"Vì sao phải lật?"* — Lật đảm bảo tính chất nhân quả/giao hoán và khớp với cách hệ LTI thực sự cộng dồn các đáp ứng xung trễ (xem §5). Trực giác: mẫu input đến **sớm hơn** đóng góp vào output qua phần **đuôi** của $h$.
 - *"Tích chập có đắt không?"* — Trực tiếp tốn $O(L_x \\cdot L_h)$ phép nhân. Với $h$ ngắn (kernel 3–5 phần tử) thì rẻ. Với $h$ dài, dùng FFT đưa về $O(N \\log N)$ nhờ định lý tích chập (§7).
 
-🔁 **Dừng lại tự kiểm tra.** Tích chập $x = [1, 2]$ với $h = [3, 4]$ cho ra gì?
+🔁 **Thực hành.** Tích chập $x = [1, 2]$ với $h = [3, 4]$ cho ra gì?
 <details><summary>Đáp án</summary>
 
 $y[0] = 1\\cdot3 = 3$; $y[1] = 1\\cdot4 + 2\\cdot3 = 4 + 6 = 10$; $y[2] = 2\\cdot4 = 8$. → $y = [3, 10, 8]$.
@@ -248,7 +248,7 @@ $$y[n] = T\\{x\\}[n] = (x * h)[n] = \\sum_k x[k]\\,h[n-k]$$
 
 → Ý nghĩa: muốn biết hệ làm gì với **bất kỳ** input nào, chỉ cần đo $h$ (gõ một "tiếng tách" vào hệ và ghi lại phản ứng), rồi tích chập.
 
-🔁 **Dừng lại tự kiểm tra.** Hệ "khuếch đại gấp 3 rồi trễ 1 ô": $y[n] = 3x[n-1]$. Đáp ứng xung $h$ là gì?
+🔁 **Thực hành.** Hệ "khuếch đại gấp 3 rồi trễ 1 ô": $y[n] = 3x[n-1]$. Đáp ứng xung $h$ là gì?
 <details><summary>Đáp án</summary>
 
 Cho $x = \\delta = [1]$: $y[n] = 3\\delta[n-1]$ → $h = [0, 3]$ (giá trị 3 tại $n=1$). Kiểm tra: $x*[0,3]$ = nhân 3 và trễ 1 ô ✓.

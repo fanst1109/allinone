@@ -57,7 +57,7 @@ Vì không phải boot một kernel mới (như VM phải làm), container chỉ
 > - *"Trên macOS / Windows thì sao? Đâu có kernel Linux?"* — Docker Desktop chạy một VM Linux nhẹ ẩn bên dưới, container vẫn dùng kernel Linux trong VM đó. Vì vậy trên Mac/Windows, container *có* đi qua một lớp VM mỏng.
 > - *"Container và image khác gì nhau?"* — Xem mục 2 ngay dưới: image là khuôn (read-only), container là instance đang chạy (read-write).
 
-> 🔁 **Dừng lại tự kiểm tra**
+> 🔁 **Thực hành**
 > 1. Vì sao một container Go 10MB có thể start trong mili-giây còn VM mất vài chục giây?
 > 2. Cơ chế kernel nào *giới hạn RAM* của container?
 > <details><summary>Đáp án</summary>
@@ -131,7 +131,7 @@ Hai tính chất quan trọng của layer:
 
 > ❓ **Câu hỏi tự nhiên.** *"Image nặng vì có nhiều layer à?"* — Không hẳn. Image nặng vì *nội dung* các layer nặng (vd layer base \`golang\` chứa cả toolchain ~800MB). Số lượng layer ảnh hưởng nhỏ. Mục tiêu bài này là *bỏ những layer nặng không cần lúc runtime* — đó chính là multi-stage.
 
-> 🔁 **Dừng lại tự kiểm tra.** Chạy \`docker history myimage\` cho ra gì? <details><summary>Đáp án</summary>Danh sách các layer của image kèm kích thước và lệnh tạo ra nó. Dùng để soi layer nào "phình to". Cảnh báo: lệnh trong \`RUN\` *hiện đầy đủ* ở đây → nếu bạn lỡ \`RUN echo $SECRET\` thì secret lộ trong history.</details>
+> 🔁 **Thực hành.** Chạy \`docker history myimage\` cho ra gì? <details><summary>Đáp án</summary>Danh sách các layer của image kèm kích thước và lệnh tạo ra nó. Dùng để soi layer nào "phình to". Cảnh báo: lệnh trong \`RUN\` *hiện đầy đủ* ở đây → nếu bạn lỡ \`RUN echo $SECRET\` thì secret lộ trong history.</details>
 
 > 📝 **Tóm tắt mục 2**
 > - Dockerfile (công thức) → build → image (khuôn, read-only) → run → container (instance, có lớp ghi).
@@ -241,7 +241,7 @@ Image cuối ≈ 1/95 image cũ.
 > - *"Vì sao phải copy \`ca-certificates.crt\`?"* — \`scratch\` rỗng tuyệt đối, không có CA root. Nếu app gọi \`https://...\`, Go cần CA để verify TLS cert; thiếu → lỗi \`x509: certificate signed by unknown authority\`. Đây là pitfall hàng đầu (mục 15).
 > - *"Có copy thêm gì nữa không?"* — Tuỳ app: nếu cần timezone thì copy \`/usr/share/zoneinfo\`; nếu binary tham chiếu user thì copy \`/etc/passwd\`. \`scratch\` *không cho* gì miễn phí.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trong Dockerfile trên, nếu xoá dòng \`COPY --from=builder /etc/ssl/certs/...\`, app vẫn chạy bình thường nhưng request HTTPS thất bại. Đúng hay sai? <details><summary>Đáp án</summary>Đúng. App start được, route HTTP \`:8080\` nội bộ vẫn chạy; chỉ khi gọi ra một endpoint HTTPS bên ngoài mới chết với lỗi x509 vì thiếu CA. Đây là loại bug "chạy được lúc test cục bộ, chết trên production".</details>
+> 🔁 **Thực hành.** Trong Dockerfile trên, nếu xoá dòng \`COPY --from=builder /etc/ssl/certs/...\`, app vẫn chạy bình thường nhưng request HTTPS thất bại. Đúng hay sai? <details><summary>Đáp án</summary>Đúng. App start được, route HTTP \`:8080\` nội bộ vẫn chạy; chỉ khi gọi ra một endpoint HTTPS bên ngoài mới chết với lỗi x509 vì thiếu CA. Đây là loại bug "chạy được lúc test cục bộ, chết trên production".</details>
 
 > 📝 **Tóm tắt mục 4**
 > - Multi-stage = nhiều \`FROM\`; chỉ stage cuối thành image; \`COPY --from=\` bê artefact.
@@ -301,7 +301,7 @@ ENTRYPOINT ["/server"]
 
 > ❓ **Câu hỏi tự nhiên.** *"alpine 5MB còn distroless 2MB, sao không luôn dùng distroless?"* — distroless không có shell → khó debug khi sự cố trên production (không exec vào được). Một số team chấp nhận đánh đổi vài MB để giữ shell. Lựa chọn là *trade-off security vs debuggability*, không có đáp án tuyệt đối.
 
-> 🔁 **Dừng lại tự kiểm tra.** App cần đọc timezone "Asia/Ho_Chi_Minh" và bạn dùng base \`scratch\`. Cần làm gì? <details><summary>Đáp án</summary>Copy tzdata: \`COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo\`. Hoặc import \`_ "time/tzdata"\` trong code Go (Go 1.15+) để nhúng tzdata vào binary, khỏi copy.</details>
+> 🔁 **Thực hành.** App cần đọc timezone "Asia/Ho_Chi_Minh" và bạn dùng base \`scratch\`. Cần làm gì? <details><summary>Đáp án</summary>Copy tzdata: \`COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo\`. Hoặc import \`_ "time/tzdata"\` trong code Go (Go 1.15+) để nhúng tzdata vào binary, khỏi copy.</details>
 
 > 📝 **Tóm tắt mục 5**
 > - \`scratch\`: nhỏ nhất, an toàn nhất, nhưng tự lo CA/tzdata, không debug được, cần binary tĩnh.
@@ -354,7 +354,7 @@ Quy tắc vàng: **xếp instruction theo tần suất thay đổi tăng dần t
 
 > ⚠ **Lỗi thường gặp.** \`COPY . .\` rồi mới \`RUN go mod download\` → mọi thay đổi code đều invalidate dep cache. Đây là pitfall #2 ở mục 15.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn đổi \`go.sum\` (thêm một dependency). Layer \`RUN go mod download\` cache hit hay miss? <details><summary>Đáp án</summary>Miss — vì \`COPY go.mod go.sum ./\` thay đổi → invalidate layer download và mọi thứ phía dưới. Đây đúng là điều ta muốn: chỉ tải lại dep *khi danh sách dep thực sự đổi*.</details>
+> 🔁 **Thực hành.** Bạn đổi \`go.sum\` (thêm một dependency). Layer \`RUN go mod download\` cache hit hay miss? <details><summary>Đáp án</summary>Miss — vì \`COPY go.mod go.sum ./\` thay đổi → invalidate layer download và mọi thứ phía dưới. Đây đúng là điều ta muốn: chỉ tải lại dep *khi danh sách dep thực sự đổi*.</details>
 
 > 📝 **Tóm tắt mục 6**
 > - Cache invalidate dây chuyền: một layer đổi → mọi layer dưới rebuild.
@@ -409,7 +409,7 @@ Một số package std dùng cgo mặc định (vd \`net\` dùng cgo resolver, \
 
 > ⚠ **Lỗi thường gặp.** Quên \`CGO_ENABLED=0\`, dùng base \`scratch\` → container khởi động ngay lập tức chết với \`exec /server: no such file or directory\` (thực ra là thiếu dynamic linker, không phải thiếu file). Pitfall #6 mục 15.
 
-> 🔁 **Dừng lại tự kiểm tra.** Code có \`import "C"\` (cgo), bạn vẫn muốn image scratch nhỏ. Làm được không? <details><summary>Đáp án</summary>Khó. \`import "C"\` ép cgo, không thể \`CGO_ENABLED=0\`. Lựa chọn: (a) bỏ dependency cgo nếu được; (b) build tĩnh với musl/static glibc + dùng distroless \`base\`/\`cc\` thay scratch; (c) chấp nhận base có glibc. Không có cách "scratch + cgo" đơn giản.</details>
+> 🔁 **Thực hành.** Code có \`import "C"\` (cgo), bạn vẫn muốn image scratch nhỏ. Làm được không? <details><summary>Đáp án</summary>Khó. \`import "C"\` ép cgo, không thể \`CGO_ENABLED=0\`. Lựa chọn: (a) bỏ dependency cgo nếu được; (b) build tĩnh với musl/static glibc + dùng distroless \`base\`/\`cc\` thay scratch; (c) chấp nhận base có glibc. Không có cách "scratch + cgo" đơn giản.</details>
 
 ---
 
@@ -555,7 +555,7 @@ RUN --mount=type=secret,id=gh_token \\
 docker build --secret id=gh_token,src=./gh_token.txt .
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn \`ENV DB_PASSWORD=x\` ở stage builder rồi build multi-stage; stage final không có nó. Secret có an toàn không? <details><summary>Đáp án</summary>An toàn *trong image cuối* (vì builder bị vứt, không vào image final). NHƯNG nếu bạn push *cả intermediate stage* (vd cache export) thì vẫn lộ. An toàn nhất: không \`ENV\` secret ở bất kỳ stage nào, dùng BuildKit \`--mount=type=secret\`.</details>
+> 🔁 **Thực hành.** Bạn \`ENV DB_PASSWORD=x\` ở stage builder rồi build multi-stage; stage final không có nó. Secret có an toàn không? <details><summary>Đáp án</summary>An toàn *trong image cuối* (vì builder bị vứt, không vào image final). NHƯNG nếu bạn push *cả intermediate stage* (vd cache export) thì vẫn lộ. An toàn nhất: không \`ENV\` secret ở bất kỳ stage nào, dùng BuildKit \`--mount=type=secret\`.</details>
 
 > 📝 **Tóm tắt mục 11**
 > - Chạy \`USER 1000\` / distroless \`nonroot\`, đừng chạy root.

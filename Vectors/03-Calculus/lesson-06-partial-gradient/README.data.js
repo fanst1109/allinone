@@ -315,7 +315,7 @@ Hàm hợp $e^u$ với $u = x + y^2$.
 
 **Tại $(1, 1, 1)$**: $u = 1 + 2 + 3 = 6$, $f = 36$. Đạo hàm: $(12, 24, 36)$. Trọng số nào lớn hơn → đạo hàm riêng theo biến đó cũng lớn hơn — điều này QUAN TRỌNG trong backprop: đầu vào nào "nặng ký" hơn thì tham số đó cập nhật mạnh hơn.
 
-> **🔁 Dừng lại tự kiểm tra 4:**
+> **🔁 Thực hành 4:**
 > 1. Tính $\\frac{\\partial f}{\\partial x}$ của $f(x, y) = x^3 + 2xy + y^3$.
 > 2. Tính $\\frac{\\partial f}{\\partial y}$ của $f(x, y) = \\ln(x^2 + y^2)$.
 > 3. Tính cả 2 đạo hàm riêng của $f(x, y) = x \\, e^y + y \\, e^x$.
@@ -629,7 +629,7 @@ Tính đạo hàm hướng theo các hướng khác nhau:
 - **Hướng gradient chuẩn hóa $\\hat{u} = (2/\\sqrt{20}, 4/\\sqrt{20}) = (1/\\sqrt{5}, 2/\\sqrt{5})$**: $D_{\\hat{u}} f = 2/\\sqrt{5} + 8/\\sqrt{5} = 10/\\sqrt{5} = \\sqrt{20} \\approx 4.47$. → đúng $|\\nabla f|$ ✓.
 - **Hướng vuông góc gradient $\\hat{u} = (-4/\\sqrt{20}, 2/\\sqrt{20})$**: $D_{\\hat{u}} f = -8/\\sqrt{20} + 8/\\sqrt{20} = 0$ → đúng (tiếp tuyến đường mức) ✓.
 
-> **🔁 Dừng lại tự kiểm tra 9:**
+> **🔁 Thực hành 9:**
 > 1. Cho $f(x, y) = 3x + 4y$. Gradient là gì? $|\\nabla f|$ bằng bao nhiêu? Đạo hàm hướng theo $\\hat{u} = (1, 0)$ bằng bao nhiêu?
 > 2. Tại sao theo hướng vuông góc với gradient, hàm không thay đổi?
 >

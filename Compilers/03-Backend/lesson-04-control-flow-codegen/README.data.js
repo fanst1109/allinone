@@ -146,7 +146,7 @@ Trace: n=1 (1<2 đúng → về 1) → n=2 (2<2 sai → không nhảy) → PRINT
 >
 > \`JMP 4\` nhảy tới lệnh **số 4**, không phải "lệnh thứ 4" (lệnh thứ 4 là số 3 vì đếm từ 0). Sai một đơn vị → nhảy trúng giữa một lệnh khác hoặc lệch một dòng → chạy sai hoàn toàn. Luôn đánh số địa chỉ từ **0** và kiểm tra đích trỏ đúng dòng bạn muốn.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Trong Ví dụ 2, nếu đổi \`PUSH false\` thành \`PUSH true\` thì in ra gì?
 > 2. \`JMPF\` có thay đổi stack không?
 >
@@ -275,7 +275,7 @@ Hai lần chạy, cùng **một** bytecode bất biến, chỉ khác giá trị 
 > - **"\`if a {..} else if b {..} else {..}\` thì sao?"** → \`else if\` chỉ là một \`if\` lồng nằm trong nhánh else của \`if\` ngoài. Sinh đệ quy theo đúng khuôn §3.1, lồng nhau. Mỗi tầng có một cặp \`JMPF/JMP\` riêng.
 > - **"\`Lend\` của then và \`Lelse\` có thể trùng địa chỉ không?"** → Khi không có else, \`JMPF\` và điểm kết thúc then đều trỏ về cùng một \`Lend\` — hoàn toàn hợp lệ, hai nhãn cùng trỏ một địa chỉ.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Trong walk-through 3b (\`x=20\`), lệnh \`PUSH 1\` (địa chỉ 4) có chạy không?
 > 2. Nếu compiler **quên** sinh \`JMP 9\` ở địa chỉ 6, chạy \`x=4\` sẽ in ra gì?
 >
@@ -395,7 +395,7 @@ Sau lệnh 12, PC = 2 → bắt đầu vòng 2 với i = 1. Vòng tiếp tục c
 > - **"\`do { } while\` (kiểm tra sau) thì sao?"** → Đảo thứ tự: thân trước, điều kiện sau, dùng \`JMPT Lstart\` quay lại khi điều kiện đúng. Thân chạy **ít nhất một lần**.
 > - **"\`break\` / \`continue\` biên dịch thế nào?"** → \`break\` = \`JMP Lend\` (nhảy ra ngoài vòng). \`continue\` = \`JMP Lstart\` (hoặc nhảy tới đoạn cập nhật trong \`for\`). Cả hai chỉ là một lệnh \`JMP\` tới nhãn đã có.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Nếu khởi tạo \`i = 5\` thay vì 0, vòng thân chạy mấy lần, in ra gì?
 > 2. Lệnh nào tạo ra "vòng" (nhảy lùi)? Nếu xóa nó, chuyện gì xảy ra?
 >
@@ -475,7 +475,7 @@ Với \`while\`, nhãn \`Lstart\` là **nhảy lùi** (backward jump) — lúc s
 > - **"Sao không sinh 2 lượt: lượt 1 thu thập nhãn, lượt 2 sinh mã?"** → Được, đó là cách khác (two-pass). Backpatching là kỹ thuật **một lượt (single-pass)** — nhanh hơn, kinh điển trong sách Dragon Book. Cả hai đều đúng.
 > - **"Nếu có nhiều \`break\` cùng nhảy tới một \`Lend\`?"** → Gom tất cả vào **một danh sách**, khi biết \`Lend\` thì vá hết một lượt. Đây là lý do "danh sách cần vá" chứ không phải một biến đơn.
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Nhảy nào trong \`while\` cần backpatch, nhảy nào không?
 > 2. \`here()\` trả về gì ngay sau khi emit \`<A>\` (2 lệnh) ở §5.3?
 >
@@ -587,7 +587,7 @@ Bốn block:
 > - **"Vì sao phải gom thành block mà không xét từng lệnh?"** → Vì trong một block, mọi lệnh chạy cùng số lần, cùng điều kiện — tối ưu hóa xét cả block một lần thay vì từng lệnh, gọn và đúng hơn.
 > - **"CFG có chu trình ⇔ có vòng lặp?"** → Gần đúng: back edge (cạnh trỏ về block tổ tiên) tạo chu trình, và đó chính là vòng lặp. \`if\` không có back edge → CFG của \`if\` là **DAG** (đồ thị không chu trình).
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Trong CFG \`if\`, block nào có **hai cạnh vào**? Vì sao?
 > 2. Đặc điểm nào của CFG phân biệt \`while\` với \`if\`?
 >
@@ -645,7 +645,7 @@ So với \`while\` ở §4.1: chỉ thêm \`<init>\` trước vòng và \`<updat
 > - **"\`switch\` thì sao?"** → Mỗi \`case\` thành một so sánh + \`JMPF\` tới case kế (như chuỗi \`if/else if\`), hoặc với case dày đặc, dùng **jump table** (một mảng địa chỉ, nhảy gián tiếp theo chỉ số) — nhanh hơn O(1).
 > - **"Sao compiler không tính trước hết rồi mới nhảy?"** → Vì short-circuit là **ngữ nghĩa bắt buộc** của ngôn ngữ (C, Go, Java...), không phải tối ưu tùy chọn. Tính cả hai vế sẽ sai ngữ nghĩa và có thể crash (vd nil dereference).
 
-> **🔁 Dừng lại tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Trong \`if x != nil && x.f() { ... }\`, khi \`x\` là nil, \`x.f()\` có được gọi không?
 > 2. \`for\` khác \`while\` ở bytecode chỗ nào?
 >

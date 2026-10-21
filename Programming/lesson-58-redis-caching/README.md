@@ -176,7 +176,7 @@ XREADGROUP GROUP g1 c1 COUNT 10 STREAMS events >
 
 - **Use case:** event sourcing, message queue cần lưu lại và replay được (khác Pub/Sub ở mục 12 — Pub/Sub không lưu).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Muốn làm bảng xếp hạng game top-100 theo điểm, dùng structure nào?
 > 2. Muốn đếm số IP duy nhất truy cập trang hôm nay, chấp nhận sai số nhỏ, tiết kiệm RAM?
 >

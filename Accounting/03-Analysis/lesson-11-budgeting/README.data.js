@@ -149,7 +149,7 @@ $$\\text{Thay đổi tiền} = \\text{Lợi nhuận} - \\Delta\\text{Phải thu}
 
 > ⚠ **Lỗi thường gặp.** *"Có lãi thì ắt có tiền."* **Sai** — đây là cách nhiều doanh nghiệp nhỏ chết dù sổ sách báo lãi: bán chịu nhiều, tiền không kịp về, đến hạn trả lương/nhà cung cấp thì cạn quỹ. Lãi và tiền là **hai đại lượng khác nhau**.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Số dư đầu tháng 5 bằng bao nhiêu? Nếu tháng 5 thu 110, chi 95 thì số dư cuối tháng 5 là bao nhiêu?
 > 2. Nếu số dư đầu tháng 1 chỉ là 5 (thay vì 20), tháng nào bắt đầu âm và âm sâu nhất bao nhiêu?
 >

@@ -60,7 +60,7 @@ $$I = \\frac{Q}{t}$$
 - Ví dụ 3: Máy sạc điện thoại 2 A trong 1.5 giờ. $Q = 2 \\times 5400 =$ **10,800 C ≈ 3 Ah**.
 - Ví dụ 4: Lò vi sóng 5 A, hoạt động 3 phút. $Q = 5 \\times 180 =$ **900 C**.
 
-🔁 **Dừng lại tự kiểm tra**: Một mạch đèn nhấp nháy hoạt động 24 giờ với dòng trung bình 15 mA. Tính tổng điện tích đi qua.
+🔁 **Thực hành**: Một mạch đèn nhấp nháy hoạt động 24 giờ với dòng trung bình 15 mA. Tính tổng điện tích đi qua.
 
 <details>
 <summary>Xem đáp án</summary>
@@ -124,7 +124,7 @@ $$V = \\frac{W}{Q}$$
 **Hỏi: Tại sao pin 9 V vẫn nối vào người không chết?**
 Đáp: Vì da khô có điện trở rất cao (~100 kΩ), dòng qua người $= 9/100{,}000 = 0.09$ mA — quá nhỏ để gây nguy hiểm. Nguy hiểm bắt đầu từ ~10 mA qua tim. Điện 220V AC nguy hiểm vì ngay cả với da khô vẫn tạo ra dòng đủ lớn.
 
-🔁 **Dừng lại tự kiểm tra**: Pin 9V cấp năng lượng $W = 2$ J để đẩy một lượng điện tích. Hỏi lượng điện tích $Q$ đó là bao nhiêu?
+🔁 **Thực hành**: Pin 9V cấp năng lượng $W = 2$ J để đẩy một lượng điện tích. Hỏi lượng điện tích $Q$ đó là bao nhiêu?
 
 <details>
 <summary>Xem đáp án</summary>
@@ -199,7 +199,7 @@ $$R = \\frac{\\rho \\, L}{A}$$
 
 ⚠ **Lỗi thường gặp**: Nhầm lẫn giữa điện trở suất $\\rho$ (thuộc tính vật liệu) và điện trở $R$ (thuộc tính của một linh kiện cụ thể). Cùng vật liệu ($\\rho$ như nhau) nhưng dây dài và ngắn có $R$ khác nhau.
 
-🔁 **Dừng lại tự kiểm tra**: Dây đồng dài 5 m, tiết diện 2 mm². Tính điện trở của đoạn dây này.
+🔁 **Thực hành**: Dây đồng dài 5 m, tiết diện 2 mm². Tính điện trở của đoạn dây này.
 
 <details>
 <summary>Xem đáp án</summary>
@@ -303,7 +303,7 @@ $I = 5/2200 =$ **2.27 mA**. Kiểm tra: $V = I \\times R = 0.00227 \\times 2200 
 
 ⚠ **Lỗi thường gặp**: Quên đổi đơn vị trước khi tính. Ví dụ sai: $V = 5$ V, $R = 10$ kΩ → $I = 5/10 = 0.5$ A (SAI — vì 10 kΩ ≠ 10 Ω). Đúng: $I = 5/10{,}000 = 0.5$ mA.
 
-🔁 **Dừng lại tự kiểm tra**: Vi điều khiển xuất tín hiệu 3.3 V qua điện trở 4.7 kΩ. Tính dòng qua điện trở (đơn vị mA).
+🔁 **Thực hành**: Vi điều khiển xuất tín hiệu 3.3 V qua điện trở 4.7 kΩ. Tính dòng qua điện trở (đơn vị mA).
 
 <details>
 <summary>Xem đáp án</summary>
@@ -374,7 +374,7 @@ $$P = V \\times I = 11 \\times 0.05 = \\textbf{0.55 W} \\;\\checkmark$$
 **Hỏi: LED cháy khi nối thẳng vào pin mà không cần điện trở không?**
 Đáp: Đúng — LED là linh kiện phi tuyến, điện trở của nó thay đổi theo dòng. Khi nối thẳng, dòng tăng rất nhanh không kiểm soát → LED cháy ngay lập tức. Điện trở giới hạn dòng là bắt buộc trong mọi mạch LED.
 
-🔁 **Dừng lại tự kiểm tra**: Nguồn 9 V, điện trở 470 Ω. Tính công suất tiêu thụ và kiểm tra xem điện trở 1/4 W có đủ không.
+🔁 **Thực hành**: Nguồn 9 V, điện trở 470 Ω. Tính công suất tiêu thụ và kiểm tra xem điện trở 1/4 W có đủ không.
 
 <details>
 <summary>Xem đáp án</summary>

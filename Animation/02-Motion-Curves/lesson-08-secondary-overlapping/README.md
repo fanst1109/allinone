@@ -100,7 +100,7 @@ Càng xa "gốc" và càng nhẹ/lỏng thì offset càng lớn → ngọn tóc 
 
 > ⚠ **Lỗi thường gặp.** *"Cho tất cả tóc cùng một offset."* → toàn bộ mái tóc dịch chuyển như **một tấm ván cứng**. Đúng ra offset phải **tăng dần từ gốc ra ngọn** (ở đây 4 → 7), để có sóng mềm chứ không phải cả khối trễ đều.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Đầu đảo chiều ở frame 8. Đuôi có offset +6 frame. Cảnh chạy 24 fps.
 > 1. Đuôi đảo chiều ở frame nào?
 > 2. Độ trễ theo giây là bao nhiêu?
@@ -210,7 +210,7 @@ $$\zeta = \frac{c}{2\sqrt{s}}$$
 
 > ⚠ **Lỗi thường gặp.** *"Muốn tóc bay đẹp thì cứ để độ cứng thật lớn."* → độ cứng lớn kèm cản nhỏ ($\zeta$ rất bé) khiến chuỗi **rung giật, run rẩy** không tự nhiên, thậm chí trông như lỗi kỹ thuật. Đẹp nhất thường là $\zeta$ quanh $0.2\text{–}0.5$: đu đưa vài nhịp có kiểm soát.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Cho $s = 0.25$, $c = 0.5$.
 > 1. Tính $\zeta$. Chuỗi thuộc loại nào (dưới / tới hạn / trên)?
 > 2. Muốn *ít* đu đưa hơn thì tăng hay giảm $c$?

@@ -93,7 +93,7 @@ ping: cannot resolve google.com: Name or service not known
 
 ⚠ **Lỗi thường gặp**: Kết luận "mạng hỏng" chỉ vì ping không được. Nhiều firewall/router (kể cả của Google, Amazon) chặn ICMP hoàn toàn — ping thất bại nhưng web vẫn vào được bình thường.
 
-🔁 **Tự kiểm tra**: Ping tới 8.8.8.8 trả về `ttl=55`, biết đây là máy Linux (TTL gốc 64). Đã đi qua bao nhiêu hop?
+🔁 **Thực hành**: Ping tới 8.8.8.8 trả về `ttl=55`, biết đây là máy Linux (TTL gốc 64). Đã đi qua bao nhiêu hop?
 <details><summary>Đáp án</summary>64 − 55 = <strong>9 hop</strong>.</details>
 
 📝 **Tóm tắt mục 1**:

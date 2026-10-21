@@ -86,7 +86,7 @@ Nhiều nhân tố hội tụ: báo chí phổ cập giúp ý thức chung hình
 
 ⚠ **Hiểu lầm thường gặp:** Thống nhất nước Ý không phải là cuộc cách mạng của toàn dân. Nông dân miền Nam thường không quan tâm đến "Ý" mà trung thành với địa phương, làng xã. Nhiều người miền Nam sau 1861 coi chính phủ Ý miền Bắc là một thứ "chiếm đóng" mới. Vấn đề chênh lệch phát triển giữa Bắc và Nam Ý (Questione Meridionale) bắt nguồn từ giai đoạn này.
 
-🔁 **Dừng lại tự kiểm tra:** Ba nhân vật nào đại diện cho ba phương pháp thống nhất nước Ý, và phương pháp của mỗi người là gì?
+🔁 **Ôn tập:** Ba nhân vật nào đại diện cho ba phương pháp thống nhất nước Ý, và phương pháp của mỗi người là gì?
 
 <details>
 <summary>Đáp án</summary>
@@ -246,7 +246,7 @@ Cách mạng công nghiệp tạo ra khoảng cách sức mạnh quân sự chư
 - **Hà Lan:** Đông Ấn Hà Lan (Indonesia).
 - **Nhật Bản:** Đài Loan (1895), Triều Tiên (1910) — trường hợp đặc biệt của đế quốc chủ nghĩa không phải châu Âu.
 
-🔁 **Dừng lại tự kiểm tra:** Hội nghị Berlin (1884–1885) quyết định điều gì và không quyết định điều gì?
+🔁 **Ôn tập:** Hội nghị Berlin (1884–1885) quyết định điều gì và không quyết định điều gì?
 
 <details>
 <summary>Đáp án</summary>
@@ -306,7 +306,7 @@ Hệ thống giáo dục thuộc địa, dù mục đích là tạo ra tầng l�
 - Chi phí duy trì quân đội thuộc địa và hành chính cai trị lớn — một số nghiên cứu lịch sử kinh tế cho rằng tổng thể thuộc địa không phải lúc nào cũng có lợi về mặt tài chính thuần túy cho quốc gia, nhưng có lợi cho các nhóm lợi ích cụ thể.
 - Cạnh tranh thuộc địa gia tăng căng thẳng giữa các cường quốc, tích lũy thành các khủng hoảng (Morocco 1905, 1911) — tạo thêm chất liệu cho Thế chiến thứ nhất.
 
-🔁 **Dừng lại tự kiểm tra:** Nêu ít nhất hai hình thức phản kháng chủ nghĩa thực dân ở các khu vực khác nhau và kết quả của chúng.
+🔁 **Ôn tập:** Nêu ít nhất hai hình thức phản kháng chủ nghĩa thực dân ở các khu vực khác nhau và kết quả của chúng.
 
 <details>
 <summary>Đáp án gợi ý</summary>

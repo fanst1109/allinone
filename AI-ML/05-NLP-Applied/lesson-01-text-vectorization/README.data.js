@@ -304,7 +304,7 @@ $d_2 \\cdot d_3 = 0+0+0+1+0+0+0+0+0+0 = 1$ (chỉ chung từ \`dog\`).
 
 > ⚠ **Lỗi thường gặp**. Quên rằng BoW lưu **count** chứ không phải **có/không**. Một số tài liệu gọi "binary BoW" (chỉ 0/1 dù từ xuất hiện 5 lần) là biến thể, không phải mặc định.
 
-> 🔁 **Dừng lại tự kiểm tra**.
+> 🔁 **Thực hành**.
 >
 > Cho vocab \`[a, b, c]\` và doc \`"a c a a b"\`. BoW = ?
 >
@@ -464,7 +464,7 @@ TFIDF(d4) ≈ [0.025, 0.025, 0.000, 0.000, 0.000, 0.361]
 > 3. Không normalize TF → doc dài có TF lớn bất công.
 > 4. Tự "thêm 1" vào DF mà không nói (smoothing) → kết quả số khác sách.
 
-> 🔁 **Dừng lại tự kiểm tra**.
+> 🔁 **Thực hành**.
 >
 > Với corpus trên, nếu thêm \`d5 = "cat dog the"\` (3 token), $\\text{DF}(\\text{the})$ bằng bao nhiêu? IDF(the) đổi thế nào?
 >

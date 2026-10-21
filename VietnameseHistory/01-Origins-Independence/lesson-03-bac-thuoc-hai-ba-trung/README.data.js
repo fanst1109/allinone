@@ -81,7 +81,7 @@ Có, nhưng quy mô hạn chế ở giai đoạn đầu. Di dân chủ yếu là
 
 Thái thú (Prefect) là quan cai trị cấp cao nhất một quận. Cuối những năm 30 Công nguyên, **Tô Định** (Su Ding) được bổ nhiệm làm Thái thú Giao Chỉ. Theo Hậu Hán thư (Hou Hanshu — bộ sử chính thống của nhà Hán ghi chép về thời Đông Hán), Tô Định nổi tiếng tham lam, tàn bạo, vơ vét của cải và bóc lột dân chúng không kiêng nể. Chính sự hà khắc của Tô Định đã trở thành ngòi nổ trực tiếp cho cuộc khởi nghĩa lớn nhất từ trước tới lúc bấy giờ.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 <details>
 <summary>Ba quận nhà Hán lập trên đất Việt là những quận nào? Vị trí địa lý của từng quận?</summary>
@@ -164,7 +164,7 @@ Con số này xuất phát từ Hậu Hán thư (bộ sử chính thống của 
 
 Theo sử liệu, ngoài hai chị em Trưng Trắc, Trưng Nhị, còn có nhiều nữ tướng nổi bật như Lê Chân (Hải Phòng), Bát Nàn (Thái Bình), Thiều Hoa (Phú Thọ). Điều này phản ánh vai trò cao của phụ nữ trong xã hội Lạc Việt — khác biệt rõ rệt so với mô hình Nho giáo Trung Hoa cùng thời.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 <details>
 <summary>Liệt kê ít nhất 3 nguyên nhân dẫn đến khởi nghĩa Hai Bà Trưng, phân biệt nguyên nhân sâu xa và trực tiếp.</summary>
@@ -224,7 +224,7 @@ Nhiều yếu tố kết hợp: (1) Quân Hán chính quy, được huấn luy�
 
 Mã Viện tiến hành cải tổ hành chính sâu rộng hơn, xóa bỏ nhiều tục lệ của người Việt, tăng cường đồng hóa. Ông cho dựng cột đồng ở biên giới phía Nam với dòng chữ (theo truyền thuyết): "Đồng trụ chiết, Giao Chỉ diệt" (Cột đồng gãy, Giao Chỉ mất). Người Việt đi qua đó ném đá vào gốc cột, theo thời gian thành đống — một biểu tượng kháng cự âm thầm.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Ôn tập**:
 
 <details>
 <summary>Mã Viện là ai và vì sao ông được nhà Hán chọn để đàn áp khởi nghĩa Hai Bà Trưng?</summary>

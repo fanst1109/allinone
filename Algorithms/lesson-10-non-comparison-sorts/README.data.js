@@ -120,7 +120,7 @@ log₂(n!)  ≥  (n/2) · log₂(n/2)  =  (n/2)(log₂ n − 1)  =  Ω(n log n)
 
 > ⚠ **Lỗi thường gặp.** "Lower bound này nói sort luôn cần $n \\log n$" — **SAI**. Nó chỉ áp dụng cho **comparison sort** (sort bằng so sánh). Counting/radix/bucket KHÔNG dựa trên so sánh nên KHÔNG bị rào này chặn → có thể $O(n)$. Rào $\\Omega(n \\log n)$ là rào của **một mô hình tính toán cụ thể**, không phải của "bài toán sort" nói chung.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Vì sao cây quyết định phải có ít nhất $n!$ lá?
 > 2. Với $n = 8$, số so sánh tối thiểu là bao nhiêu?
 >
@@ -245,7 +245,7 @@ func main() {
 }
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.** Sort \`[2, 5, 3, 0, 2, 3, 0, 3]\` với \`k = 6\` bằng counting sort, viết bảng count sau prefix sum.
+> 🔁 **Thực hành.** Sort \`[2, 5, 3, 0, 2, 3, 0, 3]\` với \`k = 6\` bằng counting sort, viết bảng count sau prefix sum.
 > <details><summary>Đáp án</summary>
 >
 > Đếm: \`count = [2,0,2,3,0,1]\` (hai số 0, hai số 2, ba số 3, một số 5).
@@ -378,7 +378,7 @@ func main() {
 
 LSD đơn giản và phổ biến cho số nguyên; MSD tốt cho chuỗi (sort như từ điển, không cần đọc hết khóa).
 
-> 🔁 **Dừng lại tự kiểm tra.** Radix LSD base 10 trên \`[53, 3, 542, 9]\`. Liệt kê mảng sau mỗi pass.
+> 🔁 **Thực hành.** Radix LSD base 10 trên \`[53, 3, 542, 9]\`. Liệt kê mảng sau mỗi pass.
 > <details><summary>Đáp án</summary>
 >
 > Max=542 → 3 pass.
@@ -478,7 +478,7 @@ func main() {
 
 > ⚠ **Lỗi thường gặp.** Bucket sort nhanh **chỉ khi phân phối đều**. Với dữ liệu lệch (vd 1000 số đều quanh 0.5), gần như mọi phần tử rơi vào 1–2 bucket → quay về $O(n^2)$. Phải chọn hàm phân bucket khớp với phân phối thực tế của dữ liệu.
 
-> 🔁 **Dừng lại tự kiểm tra.** Với $m = 5$, phần tử \`0.62\` rơi vào bucket nào?
+> 🔁 **Thực hành.** Với $m = 5$, phần tử \`0.62\` rơi vào bucket nào?
 > <details><summary>Đáp án</summary>
 >
 > $\\lfloor 5 \\cdot 0.62 \\rfloor = \\lfloor 3.1 \\rfloor = 3$ → bucket 3.

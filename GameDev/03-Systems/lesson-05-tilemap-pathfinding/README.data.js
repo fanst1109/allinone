@@ -112,7 +112,7 @@ Chiều ngược lại (ô → pixel góc trên-trái), $size = 32$:
 
 ⚠ **Lỗi thường gặp.** Nhầm thứ tự \`[row][col]\` với \`[col][row]\`. Quy ước phổ biến: \`tileX\` = **cột** (col, trục ngang), \`tileY\` = **hàng** (row, trục dọc). Khi tra mảng thì \`grid[tileY][tileX]\` (hàng trước, cột sau). Lẫn lộn hai cái này → bản đồ "bị xoay 90°" hoặc index out of range. Trong bài này, để tránh nhầm, viz hiển thị cả \`(x, y)\` rõ ràng.
 
-🔁 **Dừng lại tự kiểm tra.** Nhân vật đang ở pixel \`(70, 130)\`, \`size = 32\`. Nó đang đứng trên ô nào, và ô đó là loại gì theo \`grid\` ở §2.1?
+🔁 **Thực hành.** Nhân vật đang ở pixel \`(70, 130)\`, \`size = 32\`. Nó đang đứng trên ô nào, và ô đó là loại gì theo \`grid\` ở §2.1?
 
 <details><summary>Đáp án</summary>
 
@@ -367,7 +367,7 @@ Open = \`{ (0,1):8, (4,4):8 }\`.
 
 **Số ô A* đã đóng**: 8 ô (\`(0,0),(1,0),(2,0),(3,0),(4,0),(4,1),(4,2),(4,3)\`) + goal. Nó **không hề** mở \`(0,1)\` và toàn bộ nửa dưới-trái bản đồ. So sánh: **Dijkstra** (h=0) sẽ loang đều và đóng **nhiều ô hơn hẳn** trước khi chạm goal (xem module "So thuật toán" trong viz để đếm cụ thể).
 
-🔁 **Dừng lại tự kiểm tra.** Tại vòng 5, vì sao A* chọn pop \`(4,0)\` (f=8, h=4) chứ không phải \`(0,1)\` (f=8, h=7), dù cả hai cùng f?
+🔁 **Thực hành.** Tại vòng 5, vì sao A* chọn pop \`(4,0)\` (f=8, h=4) chứ không phải \`(0,1)\` (f=8, h=7), dù cả hai cùng f?
 
 <details><summary>Đáp án</summary>
 

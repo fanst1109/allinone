@@ -166,7 +166,7 @@ func parseURL(s string) (scheme, host string, err error) { ... }
 
 Nhưng ≥ 4 giá trị thường là dấu hiệu nên đóng gói thành **struct** (sẽ học ở L15).
 
-> 🔁 **Dừng lại tự kiểm tra 2**
+> 🔁 **Thực hành 2**
 >
 > Câu hỏi: hàm \`strings.Cut(s, sep string) (before, after string, found bool)\` trả về 3 giá trị. Vì sao \`found\` không thể suy ra từ \`before\`/\`after\`?
 >
@@ -511,7 +511,7 @@ for _, f := range funcs {
 > \`\`\`
 > Từ Go 1.22+ behavior đã đúng theo trực giác. Nhưng code cũ vẫn còn nhiều, cần nhận biết.
 
-> 🔁 **Dừng lại tự kiểm tra 6**
+> 🔁 **Thực hành 6**
 >
 > Hãy đoán output:
 > \`\`\`go

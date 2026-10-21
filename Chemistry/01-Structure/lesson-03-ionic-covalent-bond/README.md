@@ -345,7 +345,7 @@ Số lone pair ảnh hưởng **hình học phân tử** — sẽ học chi ti�
 - **Đặt H làm trung tâm**: H chỉ tạo 1 liên kết (vì cần đúng 2 e ngoài). Không bao giờ là trung tâm trừ trường hợp đặc biệt.
 - **Quên kiểm tra octet**: sau khi vẽ xong, kiểm tra mỗi nguyên tử (trừ H) có đúng 8 e không.
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Vẽ công thức Lewis của HCN (hydrogen cyanide).
 2. CO có liên kết gì? Đơn, đôi, hay ba?

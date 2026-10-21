@@ -73,7 +73,7 @@ Sau bài này, bạn có thể:
 > - *"Figured bass \`6\` nghĩa là gì?"* — Ở thế đảo 1, khoảng cách từ bass lên nốt gốc là quãng 6. Figured bass ghi các quãng tính từ bass. Thế gốc có quãng 5 và 3 (viết tắt bỏ qua); thế đảo 1 có quãng 6 và 3 (ghi tắt là \`6\`); thế đảo 2 có quãng 6 và 4 (ghi \`6/4\`).
 > - *"Slash chord như \`C/E\` — dùng ở đâu?"* — Trong nhạc pop/jazz hiện đại, ký hiệu này gặp rất nhiều. \`C/E\` nghĩa đơn giản là "hợp âm C với nốt E ở bass". Dùng khi viết lead sheet (bản nhạc dạng tốc ký).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > 1. Hợp âm D trưởng gồm D–F♯–A. Nếu bass là F♯, đây là thế nào? Ký hiệu slash chord là gì?
 > 2. Slash chord \`Em/B\` — bè bass là nốt gì? Thế đảo thứ mấy?
 >
@@ -232,7 +232,7 @@ Ba bè đi quãng 2, một bè đứng yên → voice leading tốt, nghe rất 
 > - *"Có phải lúc nào cũng cần giữ nốt chung không?"* — Không bắt buộc, nhưng khi có thể giữ thì nên giữ. Một số tiến trình cố tình bỏ qua common tone để tạo chuyển động nhiều hơn (ví dụ tiến trình bình hành trong impressionism).
 > - *"Parallel fifths có bị cấm hoàn toàn không?"* — Trong hòa âm 4 bè kiểu Bach thì bị cấm. Trong nhạc pop, rock, modal jazz thì không cấm — thậm chí là hiệu ứng màu sắc (power chords guitar điện dùng parallel fifths liên tục).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Ôn tập.**
 > Nối hợp âm F trưởng (F–A–C) sang C trưởng (C–E–G). Nốt chung giữa hai hợp âm là gì? Bè nào nên giữ nguyên?
 >
 > <details><summary>Đáp án</summary>

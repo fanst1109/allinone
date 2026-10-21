@@ -42,7 +42,7 @@ Khi ánh sáng gặp bề mặt phản xạ (gương phẳng), tia tới và tia
 - **Đo góc từ mặt phẳng thay vì từ pháp tuyến.** Một tia tới tạo $20^\circ$ với MẶT gương thì góc tới (so pháp tuyến) là $90^\circ - 20^\circ = 70^\circ$, và góc phản xạ cũng là $70^\circ$ — KHÔNG phải $20^\circ$.
 - **Tưởng "góc tới = góc phản xạ" áp dụng cho khúc xạ.** Sai — đó là định luật phản xạ. Khúc xạ tuân theo Snell ($n_1 \sin\theta_1 = n_2 \sin\theta_2$), góc tới và góc khúc xạ thường KHÁC nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Một tia sáng đập vào gương phẳng, tạo góc $25^\circ$ với MẶT gương. Góc phản xạ (so pháp tuyến) bằng bao nhiêu?
 2. Vì sao trong phòng tối hoàn toàn ta không thấy gì, dù vật vẫn ở đó?
@@ -115,7 +115,7 @@ Vì tốc độ ánh sáng khác nhau trong các môi trường. Khi sóng EM g�
 - **Tưởng ánh sáng "nhanh hơn" trong nước/thủy tinh.** Sai — môi trường đậm (n lớn) làm ánh sáng **CHẬM** lại ($v = c/n$). Chỉ trong chân không ánh sáng mới đạt c.
 - **Nhầm khúc xạ với phản xạ.** Khúc xạ = tia ĐI XUYÊN sang môi trường mới (đổi hướng do đổi tốc độ). Phản xạ = tia BẬT NGƯỢC lại. Tại mặt phân cách thường có cả hai cùng lúc.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ánh sáng đi từ thủy tinh ($n=1{,}5$) ra không khí ($n=1$) với góc tới $20^\circ$. Góc khúc xạ lớn hơn hay nhỏ hơn $20^\circ$?
 2. Bước sóng ánh sáng đỏ trong chân không là 700 nm. Trong thủy tinh ($n=1{,}5$) bước sóng bằng bao nhiêu?
@@ -165,7 +165,7 @@ Cáp quang = sợi thủy tinh mỏng. Ánh sáng đi vào 1 đầu, do **phản
 - **Áp dụng công thức $\sin\theta_c = n_2/n_1$ khi đi từ loãng sang đậm.** Vô nghĩa: khi đó $n_2 > n_1$ → $\sin\theta_c > 1$ (không tồn tại góc). Phản xạ toàn phần CHỈ xảy ra theo chiều đậm → loãng.
 - **Lẫn $\theta_c$ với góc Brewster.** $\theta_c$ là ngưỡng phản xạ TOÀN PHẦN; góc Brewster là góc cho ánh sáng phản xạ phân cực hoàn toàn — hai khái niệm khác nhau.
 
-🔁 **Dừng lại tự kiểm tra**
+🔁 **Thực hành**
 
 1. Ánh sáng đi từ kim cương ($n = 2{,}42$) ra không khí. Tính góc tới hạn $\theta_c$.
 2. Một thợ lặn dưới nước ($n = 1{,}33$) chiếu đèn lên với góc $50^\circ$ so pháp tuyến. Ánh sáng có thoát ra không khí được không? ($\theta_c$ của nước $\approx 48{,}6^\circ$.)

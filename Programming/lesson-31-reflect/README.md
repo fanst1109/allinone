@@ -120,7 +120,7 @@ fmt.Println(x)             // 7.1
 
 > ⚠ **Lỗi thường gặp #1**: Quên `&` khi muốn sửa → panic. Quy luật: **muốn `Set`, phải bắt đầu từ pointer + `.Elem()`**.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Vì sao `reflect.ValueOf(x).SetFloat(...)` panic mà `reflect.ValueOf(&x).Elem().SetFloat(...)` thì OK?
 > 2. `v.Interface()` trả về kiểu gì?
 > <details><summary>Đáp án</summary>
@@ -484,7 +484,7 @@ func encode(u User) []byte { /* dùng userType, userFields */ }
 
 Đây chính xác là pattern `encoding/json` dùng — có một `sync.Map` cache field info theo `reflect.Type`.
 
-> 🔁 **Dừng lại tự kiểm tra**:
+> 🔁 **Thực hành**:
 > 1. Vì sao reflect chậm hơn direct call ~40-90 lần?
 > 2. Khi nào KHÔNG nên dùng reflect?
 > <details><summary>Đáp án</summary>

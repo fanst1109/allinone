@@ -90,7 +90,7 @@ $$V_{\text{tổng}} = V_1 + V_2 + \dots + V_n$$
 
 ⚠ **Lỗi thường gặp**: Tính tổng $R$ nối tiếp rồi quên nhân với $I$ đúng. Nhớ: $I = V_{\text{nguồn}} / R_{\text{tđ}}$ (không phải $V$ của từng $R$ chia từng $R$).
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 Ba điện trở $R_1 = 10$ Ω, $R_2 = 20$ Ω, $R_3 = 30$ Ω nối tiếp với nguồn 12 V. Tính $I$ và $V$ trên mỗi $R$.
 
 <details>
@@ -160,7 +160,7 @@ $$R_{\text{tđ}} = \frac{R_1 \cdot R_2}{R_1 + R_2}$$
 
 ⚠ **Lỗi thường gặp**: Quên đảo ngược sau khi cộng $1/R$. Bước: tính $1/R_{\text{tđ}}$ trước → rồi mới lấy nghịch đảo để ra $R_{\text{tđ}}$.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 $R_1 = 30$ Ω và $R_2 = ?$ mắc song song để $R_{\text{tđ}} = 20$ Ω. Tìm $R_2$.
 
 <details>
@@ -264,7 +264,7 @@ Nếu 2 nguồn ngược chiều: $+V_1 - V_2 - I \cdot R = 0$ → $12 - 4 = 40I
 
 ⚠ **Lỗi thường gặp**: Nhầm dấu khi qua nguồn. Nhớ: qua nguồn từ (+) → (−) khi đi vòng → $-V$ (điện áp giảm, như đi lên điện thế thấp đến cao là sai chiều). Cách nhớ: luôn đi theo chiều từ "(−) vào (+) ra" để cộng dương.
 
-🔁 **Dừng lại tự kiểm tra**:
+🔁 **Thực hành**:
 Vòng kín: nguồn 9 V, $R_1 = 30$ Ω, $R_2 = 60$ Ω. Tính $I$ và $V_{R_1}$, $V_{R_2}$.
 
 <details>

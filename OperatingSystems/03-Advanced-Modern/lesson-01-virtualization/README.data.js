@@ -140,7 +140,7 @@ Ba nhiệm vụ chính của hypervisor:
 
 ⚠ **Lỗi thường gặp:** Nhiều người nghĩ "KVM là type 2 vì cài trên Linux". Sai. Khi cài KVM module, Linux kernel trở thành hypervisor type 1 — kernel Linux không còn là OS host thông thường nữa mà hoạt động như VMM trực tiếp điều phối phần cứng. Đây là lý do KVM dùng được trong production với hiệu năng rất cao.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Bạn là developer muốn test ứng dụng trên Ubuntu trong khi máy đang chạy macOS. Bạn nên dùng type 1 hay type 2? Tại sao?
 
@@ -271,7 +271,7 @@ Lệnh quan trọng: \`VMLAUNCH\` (bắt đầu chạy VM), \`VMRESUME\` (tiếp
 
 ⚠ **Lỗi thường gặp:** Nhiều người bật máy ảo thấy lỗi "VT-x is disabled" → cần vào BIOS/UEFI bật tính năng \`Intel Virtualization Technology\` hoặc \`AMD-V\`. Đây là lý do không thể chạy VirtualBox/VMware mà không bật VT-x.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Guest OS trong VM dùng lệnh \`WRMSR\` để ghi vào MSR (Model-Specific Register) — một lệnh đặc quyền của x86. Với VT-x, chuyện gì xảy ra?
 

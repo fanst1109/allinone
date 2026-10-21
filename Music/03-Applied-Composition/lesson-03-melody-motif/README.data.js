@@ -81,7 +81,7 @@ Thiếu một trong hai là chưa đủ: một chuỗi cao độ không có ti�
 > - *"Đường nét có quyết định cảm xúc nhạc không?"* — Đường nét đóng góp lớn nhưng không phải tất cả. Cùng một đường nét đi xuống có thể buồn bã (nếu tempo chậm, thứ âm) hoặc tự tin (nếu tempo vừa, trưởng). Hòa âm, tiết tấu, nhạc khí đều ảnh hưởng cùng lúc.
 > - *"Giai điệu phải có đường nét rõ ràng không?"* — Không bắt buộc. Giai điệu nói (recitative) trong opera đôi khi gần như phẳng — mô phỏng cách nói chuyện tự nhiên.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nhìn chuỗi nốt: E4–G4–B4–D5–B4–G4–E4. Đường nét kiểu gì?
+> 🔁 **Ôn tập.** Nhìn chuỗi nốt: E4–G4–B4–D5–B4–G4–E4. Đường nét kiểu gì?
 > <details><summary>Đáp án</summary>
 >
 > Đi từ E4 lên D5 (lên), rồi xuống về E4 (xuống) — đây là đường nét **vòm (arch)**. Đỉnh tại D5, điểm bắt đầu và kết thúc cùng nốt E.
@@ -116,7 +116,7 @@ Sau một nhảy lớn, giai điệu hay di chuyển **ngược chiều và theo
 
 > ⚠ **Lỗi thường gặp: quá nhiều nhảy liên tiếp.** Nếu giai điệu nhảy quãng 5 rồi quãng 6 rồi quãng 4 không có bước xen kẽ, người hát sẽ rất khó và người nghe khó nhớ. Giai điệu truyền miệng (folk song, nursery rhyme) thường đi bước là chính, nhảy nhỏ thỉnh thoảng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Chuỗi: D4–F4–E4–D4–G4–F4. Nốt nào là bước, nốt nào là nhảy?
+> 🔁 **Ôn tập.** Chuỗi: D4–F4–E4–D4–G4–F4. Nốt nào là bước, nốt nào là nhảy?
 > <details><summary>Đáp án</summary>
 >
 > - D4→F4: quãng 3 thứ (+3 nửa cung) → **nhảy**
@@ -284,7 +284,7 @@ Diminution:    C4(móc)–E4(móc)–G4(đen)            ← ÷2 trường độ
 > - *"Năm kỹ thuật này có thể kết hợp không?"* — Hoàn toàn được. Retrograde inversion (đảo ngược + đảo ảnh đồng thời) là kỹ thuật quan trọng trong âm nhạc serial. Mô tiến + augmentation cũng thường gặp.
 > - *"Làm sao người nghe nhận ra motif đã bị biến đổi?"* — Tai người giỏi nhận ra **tiết tấu** hơn là **cao độ chính xác**. Mô tiến dịch nốt nhưng giữ tiết tấu nên dễ nhận nhất. Retrograde đảo tiết tấu nên khó nhận nhất.
 
-> 🔁 **Dừng lại tự kiểm tra.** Motif M = E4–G4–F4 (lên quãng 3 thứ, xuống quãng 2 thứ). Hãy viết ra:
+> 🔁 **Ôn tập.** Motif M = E4–G4–F4 (lên quãng 3 thứ, xuống quãng 2 thứ). Hãy viết ra:
 > (a) Mô tiến lên 1 bậc trong C trưởng.
 > (b) Đảo ngược (retrograde).
 > <details><summary>Đáp án</summary>
@@ -338,7 +338,7 @@ Bậc V (G) = nửa cadence → tai chờ đợi. Bậc I (C) = cadence trọn �
 > - *"Vì sao V nghe 'lửng' còn I nghe 'xong'?"* — Đây là vấn đề hòa âm chức năng, sẽ học kỹ ở Lesson 05. Tóm tắt ngắn: bậc V chứa âm dẫn (leading tone) có xu hướng mạnh kéo về bậc I; tai người đã được "lập trình" bởi nhiều thế kỷ âm nhạc phương Tây để cảm nhận V→I là "giải quyết".
 > - *"Period có bắt buộc là 8 ô nhịp không?"* — Không. 8 ô nhịp là phổ biến nhất trong nhạc cổ điển thế kỷ 18–19, nhưng có thể là 6, 12, hay bất kỳ số nào. Quan trọng là cấu trúc hỏi–đáp, không phải số ô nhịp chính xác.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một đoạn nhạc có 2 câu. Câu đầu kết ở nốt A (bậc V trong D trưởng). Câu sau kết ở nốt D (bậc I). Đây là cấu trúc gì? Câu nào là "hỏi", câu nào là "đáp"?
+> 🔁 **Ôn tập.** Một đoạn nhạc có 2 câu. Câu đầu kết ở nốt A (bậc V trong D trưởng). Câu sau kết ở nốt D (bậc I). Đây là cấu trúc gì? Câu nào là "hỏi", câu nào là "đáp"?
 > <details><summary>Đáp án</summary>
 >
 > Đây là cấu trúc **period (câu hỏi–đáp)**. Câu đầu kết ở A (bậc V → nửa cadence) là **câu hỏi (antecedent)** — cảm giác lửng. Câu sau kết ở D (bậc I → cadence trọn) là **câu đáp (consequent)** — cảm giác trọn vẹn.

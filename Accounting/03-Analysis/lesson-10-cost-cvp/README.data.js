@@ -71,7 +71,7 @@ Tổng biến phí **thay đổi theo $Q$**: bán 100 ly → $24 \\times 100 = 2
 | Trên mỗi đơn vị | **Giảm** | **Không đổi** ($= v$) |
 | Ví dụ | thuê nhà, khấu hao | nguyên liệu, hoa hồng |
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Quán bán 2000 ly. Tổng biến phí bằng bao nhiêu? Định phí phân bổ mỗi ly bằng bao nhiêu?
 > 2. Nếu bán gấp đôi (4000 ly), khoản nào trên-mỗi-ly thay đổi, khoản nào không?
 >
@@ -134,7 +134,7 @@ Với ly trà sữa: tỷ lệ CM $= 16/40 = 0{,}4 = 40\\%$ → cứ 100 đồng
 
 Nhìn cột cuối: lợi nhuận tăng đúng **16 nghìn mỗi ly** bán thêm (đúng bằng CM). Đó là ý nghĩa "mỗi ly đóng góp 16".
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. Một sản phẩm giá 50, biến phí 35. CM và tỷ lệ CM bằng bao nhiêu?
 > 2. Nếu định phí là 30,000 và bán 3000 sản phẩm, lãi/lỗ bao nhiêu?
 >
@@ -196,7 +196,7 @@ Doanh thu **bằng đúng** tổng chi phí → lợi nhuận = 0. **Đây chín
 > - *"Tăng định phí (thuê mặt bằng to hơn) thì sao?"* → $F$ tăng → hố sâu hơn → $Q^*$ tăng.
 > - *"CM bằng 0 hoặc âm thì sao?"* → Nếu $p \\le v$, mỗi ly *không đóng góp* gì (thậm chí lỗ thêm) → **không bao giờ hòa vốn**, bán càng nhiều lỗ càng nặng.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > 1. $p=60,\\ v=36,\\ F=24{,}000$. Sản lượng và doanh thu hòa vốn?
 > 2. Kiểm chứng lợi nhuận = 0 tại điểm đó.
 >
@@ -254,7 +254,7 @@ $$\\begin{aligned}
 
 > ⚠ **Lỗi thường gặp.** Lấy % biên an toàn chia cho $Q^*$ thay vì $Q_{\\text{thực}}$. Đúng là chia cho **doanh số thực tế** (mẫu số là cái ta đang đứng, không phải điểm hòa vốn).
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Quán dự kiến bán 3200 ly ($Q^* = 2000$, $p=40$). Biên an toàn theo sản lượng, doanh thu và %?
 >
 > <details><summary>Đáp án</summary>

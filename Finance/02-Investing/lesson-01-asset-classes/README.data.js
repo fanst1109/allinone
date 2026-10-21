@@ -52,7 +52,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Coi vàng/hàng hóa là "đầu tư sinh lời kép như cổ phiếu". Hàng hóa **không tạo ra dòng tiền** (không cổ tức, không lãi) — giá chỉ lên xuống theo cung cầu. Nó hữu ích để **chống lạm phát / đa dạng hóa**, không phải cỗ máy lãi kép.
 
-> 🔁 **Dừng lại tự kiểm tra.** Công ty phá sản, ai được trả trước: cổ đông hay người giữ trái phiếu? Điều này giải thích gì về lợi nhuận kỳ vọng?
+> 🔁 **Thực hành.** Công ty phá sản, ai được trả trước: cổ đông hay người giữ trái phiếu? Điều này giải thích gì về lợi nhuận kỳ vọng?
 > <details><summary>Đáp án</summary>Người giữ trái phiếu (chủ nợ) được trả trước; cổ đông nhận phần còn lại. Vì cổ đông rủi ro hơn nên đòi hỏi lợi nhuận kỳ vọng cao hơn (equity risk premium).</details>
 
 ---
@@ -69,7 +69,7 @@ Sau bài này bạn sẽ:
 
 > ❓ **Câu hỏi tự nhiên.** *"Rủi ro đo bằng gì?"* — Thường bằng **độ lệch chuẩn (standard deviation)** của lợi nhuận — mức dao động quanh trung bình. Sẽ học định lượng kỹ ở [Lesson 04](../lesson-04-risk-return/). Tạm hiểu: rủi ro = "kết quả nhảy lung tung tới mức nào".
 
-> 🔁 **Dừng lại tự kiểm tra.** Có người chào "trái phiếu an toàn tuyệt đối, lãi 20%/năm". Vì sao nên nghi ngờ?
+> 🔁 **Thực hành.** Có người chào "trái phiếu an toàn tuyệt đối, lãi 20%/năm". Vì sao nên nghi ngờ?
 > <details><summary>Đáp án</summary>Vì vi phạm đánh đổi rủi ro–lợi nhuận: lợi nhuận 20% cao bất thường so với trái phiếu an toàn (~4%). "An toàn + lợi nhuận cao" thường là dấu hiệu lừa đảo hoặc rủi ro bị giấu.</details>
 
 ---

@@ -187,7 +187,7 @@ Tất cả deadline được đáp ứng! Dù $\sum U_i >$ bound, hệ thống n
 - Nhầm RMS với "lập lịch theo tốc độ" — RMS ưu tiên theo period, không phải tốc độ thực thi.
 - Quên rằng bound Liu & Layland là điều kiện **đủ** không phải **cần** — khi $\sum U_i >$ bound, task vẫn có thể khả thi.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Hệ 2 task: τ₁ (T=5, C=2), τ₂ (T=10, C=4). Điều kiện Liu & Layland có thỏa không?
 
@@ -338,7 +338,7 @@ Tưởng tượng bạn (ưu tiên cao) cần mượn sách từ thư viện. Th
 - Nhầm priority inheritance với priority ceiling — ceiling là giao thức khác, nâng ưu tiên ngay khi lock (không cần chờ task cao hơn bị block).
 - Nghĩ PIP giải quyết mọi vấn đề: PIP vẫn có thể có **deadlock** nếu task lock nhiều mutex theo thứ tự khác nhau.
 
-🔁 **Dừng lại tự kiểm tra:**
+🔁 **Thực hành:**
 
 Tại sao priority inversion đặc biệt nguy hiểm với hệ hard real-time?
 

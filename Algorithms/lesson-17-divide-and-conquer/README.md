@@ -68,7 +68,7 @@ solve(P):
 - **"Phải chia làm đúng 2 nửa không?"** — Không. Chia làm `a` phần tuỳ ý: binary search chia 2 nhưng chỉ giải 1; Karatsuba giải 3; Strassen giải 7. Số bài con `a` và kích thước `n/b` là tham số tự do.
 - **"Bài con có cần bằng nhau không?"** — Lý tưởng là cân bằng (`n/b` đều) để được cây đệ quy nông. Quicksort chia *không* cân bằng → đó là lý do worst case O(n²) (xem [L08](../lesson-08-quicksort/)).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 1. Trong merge sort, bước nào là "đắt" nhất — Divide hay Combine? Vì sao?
 2. Binary search có `a` (số bài con thực sự giải) bằng mấy?
@@ -160,7 +160,7 @@ So sánh $f(n)$ với $n^{\log_b a}$. Đặt $c = \log_b a$:
 - **"Vì sao giảm số bài con từ 4→3 (Karatsuba) lại quan trọng thế?"** — Vì $a$ nằm trong **số mũ** $\log_b a$. Với $b=2$: $a=4 \to c=2$ (giống $n^2$, vô ích), $a=3 \to c \approx 1{,}585$ (ăn tiền). Mỗi bài con cắt bớt là mỗi lần tụt số mũ — hiệu ứng cấp số nhân khi $n$ lớn.
 - **"f(n) là divide hay combine?"** — Là **tổng** chi phí của divide + combine ở MỘT mức, *không* tính thời gian gọi đệ quy (cái đó là $a \cdot T(n/b)$).
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Một thuật toán có $T(n) = 2T(n/2) + n^2$. Big-O là gì?
 
@@ -605,7 +605,7 @@ Dùng D&C khi: bài con **cùng dạng** + **độc lập** + **combine rẻ**. 
 | **Đệ quy quá sâu** | Stack overflow với n lớn | Tăng ngưỡng base case, hoặc chuyển bottom-up/iterative |
 | **Goroutine vô hạn (song song)** | Overhead nuốt lợi ích | Giới hạn depth song song |
 
-### 🔁 Dừng lại tự kiểm tra
+### 🔁 Thực hành
 
 Bạn viết hàm `solve([lo, hi])` chia thành `solve([lo, mid])` và `solve([mid, hi])`. Có bug gì?
 

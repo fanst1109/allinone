@@ -56,7 +56,7 @@ Hai hàm **giống hệt nhau về hành vi**. Khác biệt duy nhất là cái 
 
 > ⚠ **Lỗi thường gặp.** "Code này chỉ mình tao đọc nên viết sao cũng được." Sai — *bạn của 6 tháng sau* cũng là người khác. Và phần lớn code "tạm" lại sống rất lâu trong production.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao tối ưu cho người đọc thường thắng tối ưu cho người viết?
+> 🔁 **Thực hành.** Vì sao tối ưu cho người đọc thường thắng tối ưu cho người viết?
 > <details><summary>Đáp án</summary>Vì code được đọc nhiều lần hơn viết (cỡ 10:1+). Tiết kiệm 5 phút lúc viết bằng cách viết khó hiểu sẽ khiến mỗi lần đọc về sau tốn thêm thời gian — nhân lên hàng chục lần thành lỗ to. Tổng chi phí vòng đời mới là thứ cần tối ưu.</details>
 
 📝 **Tóm tắt mục 1.** Clean code = code mà người đọc hiểu ngay, không phải code chạy được hay ngắn nhất. Vì code được đọc nhiều hơn viết, đầu tư cho sự rõ ràng giảm chi phí bảo trì dài hạn.
@@ -110,7 +110,7 @@ Sau khi đặt tên tốt, lời gọi hàm tự đọc được như tiếng An
 
 > ⚠ **Lỗi thường gặp.** Tên gây hiểu nhầm: biến tên `userList` nhưng thực ra là một `map`, hay `accounts` nhưng chỉ chứa *một* account. Tên phải khớp với thứ nó thật sự là.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tên nào tốt hơn cho biến đếm số lần thử lại đăng nhập thất bại: `n`, `cnt`, `failedLoginAttempts`? Vì sao?
+> 🔁 **Thực hành.** Tên nào tốt hơn cho biến đếm số lần thử lại đăng nhập thất bại: `n`, `cnt`, `failedLoginAttempts`? Vì sao?
 > <details><summary>Đáp án</summary><code>failedLoginAttempts</code>. Nó tiết lộ <i>ý định</i> (đếm cái gì, trong ngữ cảnh nào) mà không cần comment. <code>n</code>/<code>cnt</code> buộc người đọc đi tìm ngữ cảnh ở chỗ khác — tốn thời gian và dễ hiểu sai.</details>
 
 📝 **Tóm tắt mục 2.** Tên tốt tiết lộ ý định, phát âm được, không viết tắt tối nghĩa, không nhồi kiểu dữ liệu. Hàm là động từ, biến là danh từ, boolean là câu hỏi (`is/has`). Tên là tài liệu rẻ nhất.
@@ -169,7 +169,7 @@ func notifyCustomer(o Order) error { /* ... */ }
 
 > ⚠ **Lỗi thường gặp.** Tách hàm vô tội vạ tới mức mỗi hàm 1 dòng, gọi lòng vòng — đó là over-engineering. Tách theo *ý nghĩa* (một việc rõ ràng), không theo số dòng máy móc.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hàm `func saveAndEmail(u User)` có mùi gì?
+> 🔁 **Thực hành.** Hàm `func saveAndEmail(u User)` có mùi gì?
 > <details><summary>Đáp án</summary>Tên có chữ "And" → hàm làm <b>hai việc</b> (lưu + gửi mail). Vi phạm "làm một việc". Tách thành <code>save(u)</code> và <code>sendWelcomeEmail(u)</code>, để người gọi tự quyết định gọi cái nào — linh hoạt hơn và tên không nói dối.</details>
 
 📝 **Tóm tắt mục 3.** Hàm tốt: làm một việc, ngắn, ít tham số (0–2 lý tưởng), không có side effect ẩn. Tên có chữ "and" hoặc tham số boolean đổi chế độ là dấu hiệu hàm làm quá nhiều.
@@ -268,7 +268,7 @@ priceB := withVAT(b.Base)
 
 > ⚠ **Lỗi thường gặp.** Để **dead code** lại "để dành phòng khi cần" và comment nó ra. Đừng — git lưu lại lịch sử rồi. Code comment-out làm rối, gây nhiễu khi đọc và tìm kiếm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đoạn `if user.Role == 2 { grantAdmin() }` có smell gì, sửa thế nào?
+> 🔁 **Thực hành.** Đoạn `if user.Role == 2 { grantAdmin() }` có smell gì, sửa thế nào?
 > <details><summary>Đáp án</summary><b>Magic number</b> — <code>2</code> nghĩa là gì? Đặt hằng có tên: <code>const RoleAdmin = 2</code> rồi viết <code>if user.Role == RoleAdmin</code>. Người đọc hiểu ngay không phải đi tra bảng mã vai trò.</details>
 
 📝 **Tóm tắt mục 4.** Smell = dấu hiệu bề mặt của vấn đề sâu hơn (không phải bug). 7 smell hay gặp: long function, large class, duplicated code, magic number, deep nesting, long parameter list, dead code. Mỗi smell có cách khử chuẩn — nhận diện được là bước đầu để refactor.
@@ -313,7 +313,7 @@ client.Timeout = 3 * time.Second
 
 > ⚠ **Lỗi thường gặp.** Comment lỗi thời còn *tệ hơn không có*: code đã đổi nhưng comment vẫn nói cũ → đánh lừa người đọc. Code không nói dối, comment thì có thể. Vì vậy ưu tiên để *code tự giải thích*.
 
-> 🔁 **Dừng lại tự kiểm tra.** Comment nào đáng giữ: (a) `// loop qua danh sách user`, (b) `// retry tối đa 5 lần vì payment gateway thỉnh thoảng trả 503 tạm thời`?
+> 🔁 **Thực hành.** Comment nào đáng giữ: (a) `// loop qua danh sách user`, (b) `// retry tối đa 5 lần vì payment gateway thỉnh thoảng trả 503 tạm thời`?
 > <details><summary>Đáp án</summary>(b). Nó giải thích <i>vì sao</i> chọn con số 5 và bối cảnh nghiệp vụ (gateway trả 503) — thông tin không có trong code. (a) chỉ lặp lại điều vòng <code>for</code> đã nói rõ → thừa, nên xóa.</details>
 
 📝 **Tóm tắt mục 5.** Comment tốt giải thích *vì sao* (quyết định, bối cảnh, cảnh báo), không lặp lại *cái gì*. Đừng dùng comment để chữa tên dở hay giữ code chết — sửa/xóa code. Comment lỗi thời tệ hơn không có.
@@ -337,7 +337,7 @@ Khi việc dọn dẹp lớn hơn "đi qua dọn tí" — ví dụ tách một c
 
 > ⚠ **Lỗi thường gặp.** Lấy boy-scout làm cớ để refactor *toàn bộ* file trong một PR fix bug nhỏ → PR phình to, khó review, dễ lọt lỗi. Boy-scout là *cải thiện nhỏ*, không phải đại tu trá hình.
 
-> 🔁 **Dừng lại tự kiểm tra.** Bạn vào sửa một bug trong hàm 200 dòng và thấy một magic number `0.1` gần đó. Theo boy-scout rule nên làm gì?
+> 🔁 **Thực hành.** Bạn vào sửa một bug trong hàm 200 dòng và thấy một magic number `0.1` gần đó. Theo boy-scout rule nên làm gì?
 > <details><summary>Đáp án</summary>Đặt nó thành hằng có tên (vd <code>const vatRate = 0.1</code>) — một cải thiện nhỏ, an toàn, ngay tại chỗ. Nhưng <i>không</i> ôm việc tách cả hàm 200 dòng trong PR fix bug này — việc lớn đó để một refactoring riêng.</details>
 
 📝 **Tóm tắt mục 6.** Boy-scout rule = mỗi lần đi qua, để code sạch hơn một chút. Chống code mục tích tụ bằng cải thiện nhỏ liên tục. Việc dọn lớn hơn = refactoring có chủ đích (Lesson 05). Tách cleanup khỏi fix bug để review dễ.

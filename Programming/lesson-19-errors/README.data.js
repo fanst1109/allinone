@@ -177,7 +177,7 @@ if err := json.Unmarshal(data, &cfg); err != nil {
 }
 \`\`\`
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Nếu hàm \`doX()\` trả \`(int, error)\` và bạn viết \`n := doX()\` (chỉ lấy 1 giá trị), điều gì xảy ra?
 >
 > <details><summary>Đáp án</summary>
@@ -387,7 +387,7 @@ Cây wrap chain:
 
 > ⚠ **Lỗi thường gặp.** Dùng \`%v\` thay \`%w\` → mất chain. Chuỗi vẫn có, nhưng \`errors.Is\`/\`As\` không xuyên qua được. Quy tắc: wrap thì PHẢI dùng \`%w\`.
 
-> 🔁 **Dừng lại tự kiểm tra.**
+> 🔁 **Thực hành.**
 > Tôi viết: \`err := fmt.Errorf("step: %v", io.EOF)\`. Sau đó \`errors.Is(err, io.EOF)\` trả về gì?
 >
 > <details><summary>Đáp án</summary>

@@ -59,7 +59,7 @@ Khớp với số liệu ở Lesson 02 (vì sao mùa không do khoảng cách) �
 
 > ⚠ **Lỗi thường gặp.** Vẽ Mặt Trời ở **tâm** elip. Sai — Mặt Trời ở một **tiêu điểm**, lệch khỏi tâm một đoạn $c = a \\cdot e$. Tâm hình học không có vật gì. Tiêu điểm còn lại trống.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một quỹ đạo có $e = 0$. Hình dạng là gì? Hai tiêu điểm ở đâu?
+> 🔁 **Thực hành.** Một quỹ đạo có $e = 0$. Hình dạng là gì? Hai tiêu điểm ở đâu?
 > <details><summary>Đáp án</summary>Đường tròn. Khi $e = 0$ thì $c = a \\cdot e = 0$ → hai tiêu điểm trùng nhau tại tâm. Quỹ đạo tròn là elip đặc biệt.</details>
 
 ---
@@ -97,7 +97,7 @@ $$\\frac{v_{cận}}{v_{viễn}} = \\frac{r_{viễn}}{r_{cận}} = \\frac{1+e}{1-
 
 > ⚠ **Lỗi thường gặp.** Nghĩ hành tinh đi **đều** trên quỹ đạo. Sai — tốc độ thay đổi liên tục, nhanh nhất ở cận điểm, chậm nhất ở viễn điểm. Chỉ quỹ đạo tròn ($e = 0$) mới đi đều.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao chổi Halley dành phần lớn thời gian ở gần hay xa Mặt Trời?
+> 🔁 **Thực hành.** Sao chổi Halley dành phần lớn thời gian ở gần hay xa Mặt Trời?
 > <details><summary>Đáp án</summary>Ở xa. Vì xa thì đi chậm (định luật 2), nên dành nhiều thời gian ở vùng viễn điểm. Halley chỉ "lướt" qua vùng gần Mặt Trời trong vài tháng mỗi 76 năm.</details>
 
 ---
@@ -147,7 +147,7 @@ $$T = \\sqrt{5{,}2^3} = \\sqrt{140{,}6} = 11{,}86 \\ \\text{năm}$$
 
 > ⚠ **Lỗi thường gặp.** Quên đổi đơn vị: dùng $T$ bằng ngày hoặc $a$ bằng km thì $T^2 = a^3$ KHÔNG còn đúng (hằng số $\\neq 1$). Phải dùng năm + AU.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một hành tinh giả định có $a = 4 \\ \\text{AU}$. Chu kỳ?
+> 🔁 **Thực hành.** Một hành tinh giả định có $a = 4 \\ \\text{AU}$. Chu kỳ?
 > <details><summary>Đáp án</summary>$T = \\sqrt{4^3} = \\sqrt{64} = 8 \\ \\text{năm}$.</details>
 
 > 📝 **Tóm tắt toàn bài.**

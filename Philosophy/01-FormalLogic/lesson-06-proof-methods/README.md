@@ -102,7 +102,7 @@ Sau bài này, bạn có thể:
 > - *"Khi nào thì chứng minh trực tiếp không hoạt động?"* — Khi kết luận liên quan đến phủ định (dạng "... không tồn tại", "... không có nghiệm"), việc giả sử p đúng và tìm đường thẳng đến ¬q thường rất khó. Lúc đó dùng phản chứng hiệu quả hơn.
 > - *"Chứng minh trực tiếp có áp dụng cho lập trình không?"* — Có. Khi chứng minh tính đúng đắn (correctness) của thuật toán: giả sử input thỏa điều kiện đầu vào (precondition), suy từng bước biến đổi, chứng minh điều kiện đầu ra (postcondition) đúng.
 
-> 🔁 **Dừng lại tự kiểm tra.** Chứng minh trực tiếp: "Nếu n lẻ thì n² lẻ."
+> 🔁 **Thực hành.** Chứng minh trực tiếp: "Nếu n lẻ thì n² lẻ."
 >
 > <details><summary>Đáp án</summary>
 >
@@ -191,7 +191,7 @@ Giả sử a chẵn (trường hợp b chẵn hoàn toàn đối xứng):
 > - *"Làm sao biết khi nào nên dùng phản đảo thay vì trực tiếp?"* — Dấu hiệu: kết luận dạng "n chẵn", "n chia hết cho k", hoặc "n có tính chất X" mà biết phủ định của X (X không có) lại dễ làm việc hơn. Nếu bạn viết "Giả sử n² chẵn" và bị mắc kẹt không biết suy gì tiếp — thử lật ngược.
 > - *"Phản đảo có thể lồng nhau không?"* — Về mặt logic, p → q chỉ có một phản đảo chuẩn ¬q → ¬p. Nếu q bản thân là phép hàm ý (q = r → s), thì ¬q = r ∧ ¬s, cần xử lý cẩn thận hơn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dùng phản đảo để chứng minh: "Nếu 3n + 1 chẵn thì n lẻ."
+> 🔁 **Thực hành.** Dùng phản đảo để chứng minh: "Nếu 3n + 1 chẵn thì n lẻ."
 >
 > <details><summary>Đáp án</summary>
 >
@@ -297,7 +297,7 @@ Giả sử log₂(3) = p/q với p, q ∈ ℤ, q > 0, phân số tối giản.
 > - *"Phản chứng dùng logic 'giả sử A đúng' rồi suy A sai — có vẻ luẩn quẩn không?"* — Không. Chúng ta không giả sử điều cần chứng minh (đó là lỗi circular reasoning). Ta giả sử **phủ định** của điều cần chứng minh, rồi dẫn đến mâu thuẫn với các chân lý đã biết — điều đó loại bỏ giả thiết ban đầu.
 > - *"Mâu thuẫn phải là dạng S ∧ ¬S nghiêm ngặt không?"* — Không nhất thiết phải viết đúng dạng đó. Bất kỳ điều gì không thể đúng cùng lúc là đủ: hai số không thể vừa bằng nhau vừa khác nhau; một số không thể vừa ≥ 2 vừa ≤ 1.
 
-> 🔁 **Dừng lại tự kiểm tra.** Dùng phản chứng để chứng minh: "Không tồn tại số hữu tỉ r sao cho r² = 2." (Đây là cách diễn đạt khác của "√2 vô tỉ".)
+> 🔁 **Thực hành.** Dùng phản chứng để chứng minh: "Không tồn tại số hữu tỉ r sao cho r² = 2." (Đây là cách diễn đạt khác của "√2 vô tỉ".)
 >
 > <details><summary>Đáp án</summary>
 >
@@ -375,7 +375,7 @@ Giả sử log₂(3) = p/q với p, q ∈ ℤ, q > 0, phân số tối giản.
 > - *"Nếu tôi không tìm ra phản ví dụ, mệnh đề có đúng không?"* — Không thể kết luận. Có thể mệnh đề đúng (và cần chứng minh), hoặc phản ví dụ tồn tại nhưng bạn chưa tìm ra. Không tìm thấy ≠ không tồn tại.
 > - *"Phản ví dụ phải là số nguyên không?"* — Không. Phản ví dụ là bất kỳ phần tử x₀ nào trong miền D làm P(x₀) sai. Ví dụ 2 và 3 ở trên dùng số thực và hàm số.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tìm phản ví dụ cho: "Với mọi số thực a, b: nếu a² = b² thì a = b."
+> 🔁 **Thực hành.** Tìm phản ví dụ cho: "Với mọi số thực a, b: nếu a² = b² thì a = b."
 >
 > <details><summary>Đáp án</summary>
 >

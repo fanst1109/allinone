@@ -59,6 +59,8 @@ Câu hỏi trung tâm của cả bài: **greedy (nhanh, đơn giản) hay DP (ch
 > 2. Vì sao không dùng DP cho mọi bài cho chắc?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: so chi phí: greedy thường 1 lượt sort, DP điền bảng.
 >
 > 1. Greedy thường $O(n \\log n)$; DP thường $O(nW)$ hoặc $O(n^2)$ — chậm hơn và tốn bộ nhớ.
 > 2. Vì khi greedy đúng, nó nhanh hơn và ít tốn bộ nhớ hơn; dùng DP là phí tài nguyên (over-engineering).
@@ -119,6 +121,8 @@ Cả greedy và DP đều cần optimal substructure. Điểm **phân biệt** n
 > 2. "Overlapping subproblems" liên quan tới greedy hay DP?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: greedy cần greedy-choice property; chồng lấp bài con là đặc sản của DP.
 >
 > 1. Greedy-choice property.
 > 2. DP — DP memo lại các subproblem chồng lấn để khỏi tính lại. Greedy chỉ giải 1 subproblem mỗi bước nên không có chuyện chồng lấn.
@@ -280,6 +284,8 @@ func main() {
 > 2. Vì sao greedy đúng với \`{1,5,10,25}\` mà sai với \`{1,3,4}\`?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chạy cả hai trên cùng hệ xu — lệch nhau là hệ không canonical.
 >
 > 1. Greedy: \`10 + 1 + 1 + 1 + 1\` = **5 đồng**. DP: \`7 + 7\` = **2 đồng**. Greedy sai!
 > 2. Vì \`{1,5,10,25}\` là hệ canonical thỏa greedy-choice property; \`{1,3,4}\` thì không — lựa chọn đồng lớn nhất không luôn nằm trong lời giải tối ưu.
@@ -490,6 +496,8 @@ func main() {
 > 2. Tính chất nào của fractional khiến greedy đúng?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: fractional được cắt món nên dồn theo ratio là tối ưu; 0/1 thì không.
 >
 > 1. Fractional cắt được 2/3 món C để đổ đầy chính xác tới W=50; 0/1 phải lấy nguyên cả món nên không nhét khít được, "phí" sức chứa.
 > 2. Vì cắt được, ta luôn đổ đầy balo và ưu tiên v/w cao nhất → exchange argument chứng minh greedy-choice property đúng.

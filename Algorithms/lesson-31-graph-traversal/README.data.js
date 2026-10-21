@@ -156,6 +156,8 @@ edges := []Edge{{0, 1, 0}, {0, 2, 0}, {1, 3, 0}, {2, 4, 0}}
 
 > 🔁 **Thực hành.** Đồ thị **có hướng** 3 đỉnh với cạnh \`0→1, 1→2, 0→2\`. Viết adjacency list.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: mỗi đỉnh một danh sách đỉnh kề — đồ thị có hướng chỉ ghi chiều đi.
 >
 > \`adj[0]=[1,2]\`, \`adj[1]=[2]\`, \`adj[2]=[]\`. Đỉnh 2 không có cạnh đi ra → list rỗng. Tổng độ dài list = 3 = E (vì có hướng, không nhân đôi).
 > </details>
@@ -267,6 +269,8 @@ Với đồ thị mục 2.1: \`dist = [0,1,1,2,2,3]\`. Đường đi 0→5: truy
 
 > 🔁 **Thực hành.** Trên đồ thị mục 2.1, BFS từ đỉnh **3**, \`dist[2]\` = ?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: BFS loang theo lớp — dist = số lớp từ nguồn.
 >
 > Từ 3: \`dist[3]=0\`; hàng xóm 1,5 → \`dist=1\`; từ 1: 0,4 → \`dist=2\`; từ 5: 4 đã có; từ 0: 2 → \`dist[2]=3\`; từ 4: 2 đã chờ. Vậy \`dist[2]=3\`. (Đường 3→1→0→2.)
 > </details>
@@ -341,6 +345,8 @@ Walk-through DFS từ đỉnh \`0\` trên đồ thị mục 2.1 (hàng xóm xét
 
 > 🔁 **Thực hành.** Đồ thị có hướng \`0→1, 0→2, 1→3, 2→3\`. DFS pre-order từ 0 (hàng xóm theo thứ tự)?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: DFS pre-order: ghi đỉnh TRƯỚC khi đệ quy vào hàng xóm theo thứ tự.
 >
 > Vào 0 → vào 1 → vào 3 (cụt) → RỜI 3, RỜI 1 → quay lại 0, vào 2 → 3 đã thăm → RỜI 2, RỜI 0. Pre-order = \`[0, 1, 3, 2]\`.
 > </details>
@@ -578,6 +584,8 @@ Từ ô start tới ô đích, mỗi bước đi 1 ô (4 hướng), tránh tư�
 
 > 🔁 **Thực hành.** Grid đảo trên nhưng tính **8 hướng**, số đảo = ?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: 8 hướng nối thêm chéo — các đảo chéo nhau dính thành một.
 >
 > Với 8 hướng, \`(1,1)\` chéo tới \`(2,2)\` → tất cả đất nối thành 1 cụm → **1 đảo**. (Hướng kết nối thay đổi kết quả!)
 > </details>
@@ -704,6 +712,8 @@ Walk-through grid:
 
 > 🔁 **Thực hành.** Grid \`[[2,1,1],[1,1,1],[0,1,2]]\` — sau bao nhiêu phút?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: multi-source BFS: nạp mọi nguồn thối vào queue từ phút 0.
 >
 > 2 nguồn \`(0,0)\` và \`(2,2)\` loang đồng thời. Ô xa nguồn nhất là \`(0,2)\`/\`(2,0)\`... thực ra mọi ô tươi cách ≤2 từ một nguồn → **2 phút**. (Nhờ 2 nguồn, nhanh hơn 1 nguồn.)
 > </details>

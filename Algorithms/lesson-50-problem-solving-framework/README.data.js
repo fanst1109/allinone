@@ -193,6 +193,8 @@ Toàn bộ "suy nghĩ" trên mất ~2 phút và đảm bảo không lao vào $O(
 
 > 🔁 **Thực hành.** Vì sao nên viết brute-force *trước* khi nghĩ cách tối ưu, thay vì nhảy thẳng vào cách hay?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: brute-force là lưới an toàn: xác nhận hiểu đề + làm baseline đối chiếu.
 > Vì brute-force (1) xác nhận bạn hiểu đúng đề, (2) cho một baseline đúng để đối chiếu, (3) lộ ra chỗ tính toán lãng phí — chính chỗ đó gợi ý hướng tối ưu. Nhảy thẳng vào cách hay mà chưa chắc hiểu đề → dễ giải đúng một bài toán *khác*.
 > </details>
 
@@ -248,6 +250,8 @@ Riêng dòng cuối minh hoạ vì sao $n \\leq 20\\text{–}25$ là ranh giới
 
 > 🔁 **Thực hành.** Đề cho $n \\leq 5 \\cdot 10^5$, brute-force của bạn là $O(n^2)$. Có cần tối ưu không, và mục tiêu là gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nhân con số ra: $n^2$ với $n = 5\\cdot10^5$ vượt ngân sách $10^8$ bao xa?
 > $(5 \\cdot 10^5)^2 = 2,5 \\cdot 10^{11} \\gg 10^8$ → chắc chắn TLE, **phải** tối ưu. Mục tiêu: $O(n \\log n)$ (~$5 \\cdot 10^5 \\cdot 19 \\approx 10^7$, kịp). Nghĩ tới sort + two pointers, hoặc binary search, hoặc heap.
 > </details>
 
@@ -294,6 +298,8 @@ Riêng dòng cuối minh hoạ vì sao $n \\leq 20\\text{–}25$ là ranh giới
 
 > 🔁 **Thực hành.** Đề: "Cho mảng số nguyên (có thể âm), tìm độ dài subarray liên tục dài nhất có tổng = k." Dấu hiệu nào? Kỹ thuật nào?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: soi dấu hiệu đề: 'liên tục' + 'tổng = k' + CÓ SỐ ÂM loại sliding window.
 > Dấu hiệu: "subarray liên tục" + "tổng = k". Vì *có số âm*, sliding window không dùng được (mở rộng window không đảm bảo tổng tăng). Đúng: **prefix sum + hash map** lưu prefix sum đầu tiên xuất hiện ở mỗi giá trị, tìm \`prefix[j] - prefix[i] = k\`. $O(n)$.
 > </details>
 
@@ -344,6 +350,8 @@ Riêng dòng cuối minh hoạ vì sao $n \\leq 20\\text{–}25$ là ranh giới
 
 > 🔁 **Thực hành.** Hàm tính trung bình \`sum/n\`. Hai edge case nguy hiểm nào?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nghĩ hai biên: mẫu bằng 0 và tràn số.
 > (1) $n = 0$ → chia cho 0 (panic/lỗi). (2) \`sum\` overflow khi cộng nhiều giá trị lớn. Sửa: kiểm tra \`n == 0\`, và dùng kiểu đủ rộng cho \`sum\` (hoặc cộng dồn cẩn thận).
 > </details>
 
@@ -639,6 +647,8 @@ func main() {
 
 > 🔁 **Thực hành.** Ở 7.3, vì sao greedy "luôn lấy xu lớn nhất ≤ số còn lại" sai?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tìm phản ví dụ hệ xu không canonical.
 > Vì lựa chọn cục bộ tốt (lấy xu to) không dẫn tới tối ưu toàn cục. \`coins=[1,3,4], amount=6\`: greedy lấy \`4\` → còn \`2\` → $1+1$ → tổng \`3\` xu. Nhưng $3+3 = 2$ xu mới tối ưu. Greedy chỉ đúng với hệ tiền "canonical" (vd VND, USD chuẩn); đề tổng quát phải DP.
 > </details>
 

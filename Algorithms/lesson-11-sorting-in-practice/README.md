@@ -62,7 +62,11 @@ Vì không thuật toán nào tối ưu *mọi* tiêu chí cùng lúc. Định l
 >
 > <details><summary>Đáp án</summary>
 >
-> 1. **Merge sort**. (Heap sort guaranteed nhưng không stable; quicksort không guaranteed.)
+> **Hướng dẫn**: tra bảng 3 tiêu chí: stable? guaranteed? space? Câu 2 để ý dải giá trị k bé.
+>
+> 1. **Merge sort**.>
+> **Hướng dẫn**: 
+ (Heap sort guaranteed nhưng không stable; quicksort không guaranteed.)
 > 2. **Counting sort** — $k = 101$ rất nhỏ so với $n = 10^6$, nên O(n+k) ≈ O(n), nhanh hơn O(n log n) nhiều.
 > </details>
 
@@ -129,7 +133,12 @@ Mỗi thuật toán thuần có "gót chân Achilles". Hybrid lắp ghép để 
 > - *"Sao Java dùng Timsort cho `Object[]` nhưng quicksort (dual-pivot) cho `int[]`?"* — Vì `Object[]` cần **stable** (giữ thứ tự phần tử bằng nhau, quan trọng khi sort theo nhiều khóa); `int[]` thì hai số `5` không phân biệt được → stable vô nghĩa, ưu tiên tốc độ in-place của quicksort.
 
 > 🔁 **Thực hành.** Introsort chuyển sang heapsort lúc nào, và để giải quyết vấn đề gì?
-> <details><summary>Đáp án</summary>Khi độ sâu đệ quy vượt $\approx 2 \cdot \log_2 n$ (dấu hiệu pivot tệ liên tục → nguy cơ O(n²)). Heapsort guaranteed O(n log n) nên chặn worst case lại.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: introsort đo độ sâu đệ quy — vượt ngưỡng là pivot đang tệ.
+>
+> Khi độ sâu đệ quy vượt $\approx 2 \cdot \log_2 n$ (dấu hiệu pivot tệ liên tục → nguy cơ O(n²)). Heapsort guaranteed O(n log n) nên chặn worst case lại.
+> </details>
 
 > 📝 **Tóm tắt mục 2.**
 > - **Introsort** (C++): quicksort + heapsort (khi đệ quy sâu) + insertion (mẩu nhỏ).
@@ -373,7 +382,12 @@ Tóm lại pdqsort = introsort + nhận diện pattern (gần sorted, nhiều tr
 > ❓ *"Sao decision tree để 'n nhỏ → insertion' lên đầu, dù sau đó vẫn có thể là integer dải nhỏ?"* — Vì với n nhỏ (vd 10 phần tử), overhead của counting sort (cấp phát mảng đếm kích thước k) hay đệ quy quicksort không đáng → insertion thắng bất kể tính chất khác. Câu hỏi rẻ nhất hỏi trước.
 
 > 🔁 **Thực hành.** Bạn sort một slice 50 triệu `float64` ngẫu nhiên, không cần ổn định, RAM dư dả. Chọn gì?
-> <details><summary>Đáp án</summary>**Quicksort/introsort** (`slices.Sort` trong Go). Float không phải integer dải nhỏ → loại counting/radix. Không cần stable → không cần merge. RAM dư → không bắt buộc O(1) space → không cần ép heap. General-purpose thắng.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: ưu tiên theo nhu cầu: không cần stable, RAM thoải mái thì chọn gì?
+>
+> **Quicksort/introsort** (`slices.Sort` trong Go). Float không phải integer dải nhỏ → loại counting/radix. Không cần stable → không cần merge. RAM dư → không bắt buộc O(1) space → không cần ép heap. General-purpose thắng.
+> </details>
 
 > 📝 **Tóm tắt mục 5.** Hỏi theo thứ tự: n nhỏ? gần sorted? integer dải nhỏ? cần stable? cần O(1) space guaranteed? → còn lại là general (quicksort/introsort). Trong Go: mặc định `slices.Sort`, cần stable thì `sort.SliceStable`.
 
@@ -484,7 +498,12 @@ Tính chất bắt buộc:
 > ❓ *"Vì sao `<=` lại nguy hiểm đến mức panic chứ không chỉ sai thứ tự?"* — Thuật toán sort *giả định* các tính chất trên để quyết định vùng partition/biên đệ quy. Comparator hỏng làm thuật toán tin rằng "đã đi hết vùng" sai chỗ → có thể truy cập index ngoài biên (Go runtime sẽ panic) hoặc lặp vô hạn ở cài đặt khác.
 
 > 🔁 **Thực hành.** Comparator `func(i, j) bool { return abs(s[i]) < abs(s[j]) || s[i] < s[j] }` có hợp lệ không?
-> <details><summary>Đáp án</summary>**Không** đảm bảo bắc cầu/đối xứng nếu logic mâu thuẫn (vd `abs` bằng nhau nhưng nhánh sau lại quyết định khác → có thể cho cả `less(a,b)` và `less(b,a)` true ở các cặp khác nhau → vi phạm). Comparator phải định nghĩa MỘT thứ tự nhất quán. Sửa: chỉ so theo `abs`, ties để nguyên (`return abs(s[i]) < abs(s[j])`).</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: comparator hợp lệ phải có thứ tự toàn phần: bắc cầu + nhất quán.
+>
+> **Không** đảm bảo bắc cầu/đối xứng nếu logic mâu thuẫn (vd `abs` bằng nhau nhưng nhánh sau lại quyết định khác → có thể cho cả `less(a,b)` và `less(b,a)` true ở các cặp khác nhau → vi phạm). Comparator phải định nghĩa MỘT thứ tự nhất quán. Sửa: chỉ so theo `abs`, ties để nguyên (`return abs(s[i]) < abs(s[j])`).
+> </details>
 
 > 📝 **Tóm tắt mục 7.** Comparator phải là strict weak ordering: dùng `<` không dùng `≤`; bất phản xạ + bất đối xứng + bắc cầu. Comparator hỏng → undefined behavior, có thể panic.
 

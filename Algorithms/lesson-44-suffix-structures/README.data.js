@@ -95,6 +95,8 @@ Với "banana": \`sa = [5,3,1,0,4,2]\` → \`rank = [3,2,5,1,4,0]\` (vì sa[0]=5
 
 > 🔁 **Thực hành.** Cho \`T = "abab"\`. Liệt kê 4 hậu tố, sắp xếp, viết \`sa\` và \`rank\`.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: liệt kê hậu tố, sort từ điển, sa là chỉ số bắt đầu; rank là nghịch của sa.
 >
 > Hậu tố: suf(0)=\`abab\`, suf(1)=\`bab\`, suf(2)=\`ab\`, suf(3)=\`b\`.
 > Sắp xếp: \`ab\`(2) < \`abab\`(0) < \`b\`(3) < \`bab\`(1).
@@ -324,6 +326,8 @@ Kết quả \`lcp = [0, 1, 3, 0, 0, 2]\` — **khớp** bảng 3.1. ✓ Để ý
 
 > 🔁 **Thực hành.** Cho \`T = "abab"\`, \`sa = [2,0,3,1]\`. Tính \`lcp\`.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: lcp[i] = độ dài prefix chung của hai hậu tố kề nhau trong sa.
 >
 > Sắp: \`ab\`(2), \`abab\`(0), \`b\`(3), \`bab\`(1).
 > - lcp[0]=0.
@@ -469,6 +473,8 @@ func longestCommonSubstring(a, b string) string {
 
 > 🔁 **Thực hành.** "abcabc" — longest repeated substring là gì, dài bao nhiêu?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: longest repeated substring = max của mảng lcp.
 >
 > "abc" lặp tại chỉ số 0 và 3 → longest repeated substring = "abc", dài 3. Max LCP của SA chuỗi này = 3.
 > </details>

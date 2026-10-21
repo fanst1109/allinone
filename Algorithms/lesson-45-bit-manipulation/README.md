@@ -90,6 +90,8 @@ func main() {
 > **🔁 Thực hành**
 > `13 &^ 6 = ?` (13 = `1101`, 6 = `0110`).
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: &^ là AND-NOT: giữ bit của trái nơi phải bằng 0.
 >
 > Giữ bit của 13, xoá các bit mà 6 bật (vị trí 1 và 2): `1101 &^ 0110 = 1001 = 9`.
 > Kiểm tra từng bit: bit0 (13 có, 6 không) → giữ → 1; bit1 (13 có, 6 có) → xoá → 0;
@@ -195,6 +197,8 @@ Walk-through (4 ví dụ):
 > **🔁 Thực hành**
 > `clearLowest(0b11010) = ?` và `lowestSetBit(0b11010) = ?` (26).
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: n & (n−1) xoá bit 1 thấp nhất; n & (−n) tách riêng bit đó.
 >
 > Bit thấp nhất của `11010` là bit 1 (`00010 = 2`). `lowestSetBit = 2`.
 > `clearLowest`: `n-1 = 11001`, `11010 & 11001 = 11000 = 24`. ✓

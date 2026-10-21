@@ -75,6 +75,8 @@ Trong Go, \`1<<i\` tạo số chỉ có **bit thứ \`i\`** bật. Đây là "vi
 > Tập \`{1, 3}\` với \`n = 4\` ứng với mask thập phân nào?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: bit thứ i bật = phần tử i có mặt; đổi tập ↔ số thập phân bằng cộng lũy thừa 2.
 >
 > Bit 1 và bit 3 bật: \`1<<1 | 1<<3 = 2 + 8 = 10\`. Nhị phân \`1010₂ = 10\`. ✓
 > </details>
@@ -172,6 +174,8 @@ func main() {
 > \`mask = 22 = 10110₂\` (tập \`{1,2,4}\`). Sau \`clr(mask, 2)\` được tập nào?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: clr tắt bit — viết nhị phân ra là thấy tập mới.
 >
 > \`22 &^ (1<<2) = 10110 &^ 00100 = 10010 = 18\` → tập \`{1, 4}\`. ✓
 > </details>
@@ -372,6 +376,8 @@ func main() {
 > Với ma trận trên, \`dp[1111][2] = 65\` đến từ đường nào?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: dp[mask][i] đến từ dp[mask bỏ i][j] + cost(j→i) — dò ngược j.
 >
 > \`0→1→3→2\`: \`dist[0][1]+dist[1][3]+dist[3][2] = 10+25+30 = 65\`. ✓ (đứng ở 2, chưa cộng về 0)
 > </details>

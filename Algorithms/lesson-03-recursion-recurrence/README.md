@@ -137,6 +137,8 @@ Bỏ sót câu 1 → vô hạn; sai câu 2 → vô hạn hoặc sai; sai câu 3 
 > 🔁 **Thực hành.** `factorial(4)` khai triển ra sao và bằng bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: khai triển từng cấp tới base case rồi nhân ngược lên.
 >
 > `factorial(4) = 4 * factorial(3) = 4 * 3 * factorial(2) = 4 * 3 * 2 * factorial(1) = 4 * 3 * 2 * 1 = 24`.
 > </details>
@@ -187,6 +189,8 @@ Stack có giới hạn dung lượng. Đệ quy sâu (hoặc vô hạn vì quên
 > 🔁 **Thực hành.** Độ sâu stack tối đa khi chạy `fib(5)` là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: độ sâu stack = nhánh dài nhất của cây gọi, không phải tổng số node.
 >
 > Độ sâu = chiều cao cây gọi $= n = 5$ (đường dài nhất `fib(5)→fib(4)→fib(3)→fib(2)→fib(1)`). Dù tổng số lời gọi là 15, stack tại một thời điểm chỉ chứa tối đa 5 frame.
 > </details>
@@ -316,6 +320,8 @@ Công thức "tra bảng" cho recurrence dạng chia-để-trị. Chi tiết ở
 > 🔁 **Thực hành.** Recursion tree cho $T(n) = T(n/2) + 1$ (binary search): mỗi level tốn bao nhiêu, có bao nhiêu level, tổng là gì?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: cây một nhánh (mỗi cấp 1 bài con) — cộng chi phí theo số tầng.
 >
 > Mỗi level chỉ có **1 node** (1 nhánh), chi phí mỗi node $= 1$. Số level $= \log_2 n + 1$ (kích thước ÷2 tới 1). Tổng $= 1 \times (\log_2 n + 1) = \Theta(\log n)$.
 > </details>

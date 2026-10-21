@@ -134,6 +134,8 @@ func verify() {
 > Bạn viết bản tối ưu một bài, chạy thử 3 ví dụ trong đề thấy đúng. Có nên dừng không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nghĩ về edge case: mảng rỗng, toàn âm, trùng lặp, một phần tử.
 > Không. 3 ví dụ trong đề thường là case "đẹp". Bug hay nấp ở edge case: mảng rỗng, 1 phần tử, mọi phần tử bằng nhau, số âm, target = 0. Random test với brute-force oracle phủ những chỗ này. Chạy 5000 case ngẫu nhiên rồi mới tin.
 > </details>
 
@@ -358,6 +360,8 @@ Kết quả \`6\` — khớp đoạn \`[4,-1,2,1]\`. ✓
 
 > 🔁 **Thực hành** — Vì sao Kadane vẫn đúng khi **mọi** phần tử đều âm?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: soi khởi tạo — \`best = a[0]\` chứ không phải 0 là chìa khóa.
 > Khởi tạo \`best = a[0]\` (không phải 0). Mỗi bước \`cur\` luôn ≥ phần tử hiện tại, và \`best\` luôn cập nhật theo \`cur\`. Với mảng toàn âm, đoạn tốt nhất là **một phần tử lớn nhất (gần 0 nhất)** — và best sẽ giữ đúng nó. Nếu lỡ khởi tạo \`best=0\` thì sai (trả 0 dù không có đoạn rỗng được phép).
 > </details>
 
@@ -514,6 +518,8 @@ func twoSumSmall(nums []int, target int) []int {
 
 > 🔁 **Thực hành** — Bài có $n \\leq 100$, gọi đúng 1 lần. Nên viết brute $O(n^2)$ hay hash $O(n)$?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: ước số phép tính thật với $n$ nhỏ rồi so với chi phí viết code.
 > Brute $O(n^2)$: $100^2=10000$ phép — vài micro giây. Hash không cải thiện gì cảm nhận được, lại tốn thời gian viết + space. Đây là chỗ KHÔNG nên tối ưu. Để dành công sức cho chỗ $n$ lớn.
 > </details>
 

@@ -150,6 +150,8 @@ Kiểm chứng `lps[4]=3`: `"ABABA"` có prefix `"ABA"` và suffix `"ABA"` (ký 
 
 > 🔁 **Thực hành.** Tính `lps` cho `P = "AABA"`.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: lps[i] = độ dài prefix đồng thời là suffix của đoạn đầu i+1 ký tự.
 > i=0 "A"→0; i=1 "AA"→1; i=2 "AAB"→0; i=3 "AABA"→ prefix "A"=suffix "A" → 1. Vậy <code>lps = [0,1,0,1]</code>.
 > </details>
 
@@ -232,6 +234,8 @@ func computeLPS(p string) []int {
 
 > 🔁 **Thực hành.** Áp dụng `computeLPS("AABAACAABAA")` cho ra mảng gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chạy thuật toán hai con trỏ len/i như walk-through mẫu.
 > <code>[0,1,0,1,2,0,1,2,3,4,5]</code> — khớp Ví dụ 4 mục 2.2.
 > </details>
 
@@ -331,6 +335,8 @@ func kmpSearch(t, p string) []int {
 
 > 🔁 **Thực hành.** Tìm `P="AA"` trong `T="AAAA"` cho ra các vị trí nào?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: match xong nhảy j về lps[m−1] để bắt match chồng lấn.
 > <code>[0,1,2]</code>. lps=[0,1]. Match tại 0 → j=lps[1]=1, tiếp tục match tại 1, 2 (overlap). Nhờ <code>j=lps[j-1]</code> giữ overlap đúng.
 > </details>
 
@@ -379,6 +385,8 @@ Nói cách khác: `lps[j-1]` cho biết **phần nào của pattern đã chắc 
 
 > 🔁 **Thực hành.** Với `P="AAACAAAA"`, mismatch ở `j=3` (`P[3]='C'`). Nhảy `j` về đâu?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: mismatch tại j: nhảy j về lps[j−1], không lùi con trỏ text.
 > Đã khớp "AAA". lps[2]=2 (cho "AAA": "AA"="AA"). Nhảy j=2. (Đoạn "AA" cuối đã chắc chắn khớp.)
 > </details>
 

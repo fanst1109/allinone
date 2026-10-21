@@ -93,6 +93,8 @@ Mục 10 đi sâu vào cạm bẫy "quá mạnh / quá yếu" này.
 > 2. Phần nào của "3 phần" tương ứng với base case của quy nạp?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: invariant phát biểu đúng tại thời điểm kiểm tra điều kiện vòng.
 >
 > 1. **Ngay trước** khi vào thân vòng lặp mỗi lần (trước khi kiểm tra điều kiện cũng được, miễn nhất quán). Không phải "giữa thân vòng".
 > 2. **Initialization** ↔ base case. **Maintenance** ↔ inductive step.
@@ -181,6 +183,8 @@ Tại mỗi dòng, vùng đậm **luôn** đã sắp xếp — đó là invarian
 
 > 🔁 **Thực hành.** Ở dòng `i=4, key=1`: vì sao `1` nhảy lên đầu mà `[2,4,5,6]` đều dời phải?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chạy tay vòng while dịch phần tử — điều kiện so sánh quyết định ai dời.
 > Vòng trong chạy `while a[j] > key`: `6>1, 5>1, 4>1, 2>1` đều đúng → cả 4 phần tử dời phải một ô, `j` về `-1`, đặt `key` vào `a[0]`. Invariant `a[0..4]=[1,2,4,5,6]` đã sắp xếp.
 > </details>
 
@@ -317,6 +321,8 @@ Tìm `target = 8` (không có): [0..6]→ a[3]=7<8 → [4..6]→ a[5]=11>8 → [
 
 > 🔁 **Thực hành.** Với `a=[2,4,6]`, tìm `5`. Đoạn co thế nào, kết quả?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: lăn từng bước: tính mid, so, co nửa đoạn; dừng khi lo > hi.
 > [0..2] mid=1 a[1]=4<5 → lo=2; [2..2] mid=2 a[2]=6>5 → hi=1; `lo=2>hi=1` thoát → −1. Đoạn: 3→1→0. ✓
 > </details>
 
@@ -415,6 +421,8 @@ Nhìn lại insertion sort (mục 3): "Init" chứng minh $I(1)$, "Maintenance" 
 
 > 🔁 **Thực hành.** Trong maintenance của Max (mục 4.2), đâu là "giả thiết quy nạp"?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: giả thiết quy nạp = invariant đúng ở vòng trước.
 > "Giả sử `max` = max(`a[0..i-1]`)" — đó là `I(i)`, đóng vai trò `P(k)`. Từ đó suy ra `I(i+1)`.
 > </details>
 
@@ -480,6 +488,8 @@ $b$: 18 → 12 → 6 → 0 (giảm chặt). Trả $a = 6 = \gcd(48,18)$. ✓ Ver
 
 > 🔁 **Thực hành.** Variant của vòng `for i := 0; i < n; i++` là gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: variant là đại lượng nguyên giảm dần có chặn dưới — tìm biểu thức theo $i, n$.
 > $V = n - i$, giảm 1 mỗi vòng (do `i++`), chặn dưới 0 (thoát khi $i=n$ → $V=0$).
 > </details>
 
@@ -536,6 +546,8 @@ Vậy $P(n)$ đúng. Theo quy nạp mạnh, `Power` đúng $\forall n \geq 0$. �
 
 > 🔁 **Thực hành.** Base case của đệ quy tương ứng phần nào của loop invariant?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: ghép cặp khái niệm đệ quy ↔ vòng lặp ↔ quy nạp.
 > Base case (đệ quy) ↔ Initialization (loop) ↔ base case (quy nạp). Cả ba là "điểm neo" để quy nạp khởi động.
 > </details>
 

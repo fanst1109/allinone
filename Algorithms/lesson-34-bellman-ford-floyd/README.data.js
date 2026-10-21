@@ -81,6 +81,8 @@ Dijkstra lấy đỉnh nhỏ nhất trước, có thể chốt B = 2 trước kh
 <details>
 <summary>Vì sao không thể "cộng hằng số khử âm rồi Dijkstra"?</summary>
 
+**Hướng dẫn**: nghĩ xem hằng số cộng vào MỖI cạnh thì đường nhiều cạnh bị phạt thế nào so với đường ít cạnh.
+
 Vì hằng số cộng vào *mỗi cạnh*, nên một đường đi $k$ cạnh bị cộng tổng cộng $k \\cdot c$. Hai đường cùng nối \`s→t\` nhưng số cạnh khác nhau sẽ bị phạt khác nhau → so sánh không còn công bằng → đường ngắn nhất có thể đổi. Ví dụ \`A→B→C\` (2 cạnh) và \`A→C\` (1 cạnh): cộng $c$ làm đường đầu $+2c$, đường sau $+c$.
 </details>
 
@@ -296,6 +298,8 @@ func main() {
 
 <details>
 <summary>Với V=5, E=10, tối đa bao nhiêu phép relax?</summary>
+
+**Hướng dẫn**: Bellman-Ford relax đủ E cạnh trong mỗi vòng, chạy V−1 vòng — nhân lên.
 
 (V−1)·E = 4·10 = **40 phép relax** (cộng vòng thứ V để kiểm tra chu trình âm = thêm 10). Thực tế với tối ưu \`changed\` có thể ít hơn nhiều.
 </details>
@@ -627,6 +631,8 @@ func main() {
 
 <details>
 <summary>Với V=4, Floyd-Warshall chạy bao nhiêu phép cập nhật ô?</summary>
+
+**Hướng dẫn**: ba vòng lặp lồng k, i, j — mỗi vòng chạy đủ V giá trị.
 
 V³ = 4³ = **64** lần xét bộ \`(k, i, j)\`. (Mỗi lần là một phép so sánh + có thể cập nhật.)
 </details>

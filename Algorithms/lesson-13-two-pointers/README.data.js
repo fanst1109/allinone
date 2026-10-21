@@ -198,6 +198,8 @@ Kết quả **best = 49** (giữa thanh chỉ số 1 cao 8 và chỉ số 8 cao 
 > 2. Trong container water, nếu \`height[l] == height[r]\` thì dịch con trỏ nào? Có ảnh hưởng kết quả không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: sum nhỏ thì cần tăng — dịch con trỏ nào làm tổng tăng?
 >
 > 1. Dịch \`l\` (\`l++\`): tổng quá nhỏ → cần phần tử lớn hơn → tiến từ phía nhỏ.
 > 2. Dịch con nào cũng được (code trên dịch \`r\`). Vì cả hai thanh bằng nhau, mọi cặp mới đều có \`min\` ≤ giá trị hiện tại và khoảng cách nhỏ hơn → không thể tốt hơn cặp hiện tại; ta chỉ cần loại một thanh để đi tiếp. Kết quả cuối không đổi.
@@ -403,6 +405,8 @@ Vd list \`1→2→3→4→5\` (lẻ): khi \`fast\` đi 1→3→5 (chạm cuối)
 > 2. Sau khi gặp nhau ở pha 1, ta đặt con trỏ thứ hai ở đâu để tìm điểm bắt đầu cycle?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: điều kiện phải bảo vệ cả \`fast\` lẫn \`fast.Next\` trước khi nhảy hai bước.
 >
 > 1. Vì \`fast\` nhảy 2 bước (\`fast.Next.Next\`). Nếu \`fast.Next == nil\` mà ta vẫn truy cập \`fast.Next.Next\` → nil panic. Cần đảm bảo cả \`fast\` lẫn \`fast.Next\` không nil trước khi nhảy.
 > 2. Đặt một con trỏ về \`head\`, giữ con trỏ kia ở **điểm gặp**, cùng đi 1 bước/lần — chúng gặp tại điểm bắt đầu cycle (vì $a = (k-1) \\cdot C + c$).

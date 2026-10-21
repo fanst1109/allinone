@@ -50,6 +50,8 @@ Sau bài này bạn sẽ:
 
 > 🔁 **Thực hành.** Đồ thị \`A → B, B → C, C → A, C → D\`. Có mấy SCC?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: SCC = tập đỉnh đi được VÒNG QUANH lẫn nhau — tìm chu trình.
 > \`{A, B, C}\` là 1 SCC (chu trình \`A→B→C→A\`). \`D\` chỉ nhận cạnh từ \`C\`, không có đường về \`C\` → \`{D}\` là SCC riêng. Tổng cộng **2 SCC**.
 > </details>
 
@@ -404,6 +406,8 @@ func main() {
 
 > 🔁 **Thực hành.** Trong Tarjan, nếu một đỉnh \`u\` có \`low[u] < disc[u]\` thì \`u\` là gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: low < disc nghĩa là trèo được lên tổ tiên — chưa phải gốc SCC.
 > \`u\` **không** phải gốc SCC — nó "trèo" được lên một đỉnh tổ tiên còn trên stack, nên thuộc cùng SCC với tổ tiên đó. Chỉ khi \`low[u]==disc[u]\` thì \`u\` mới là gốc (đại diện) của SCC.
 > </details>
 
@@ -860,6 +864,8 @@ func longestPathCondensation(n int, adj [][]int) int {
 
 > 🔁 **Thực hành.** Vì sao longest path trên đồ thị gốc (có chu trình) là vô nghĩa, nhưng trên condensation lại tính được?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chu trình cho đường vô hạn; condensation là DAG nên longest path hữu hạn.
 > Trên đồ thị có chu trình, "đường dài nhất" có thể vô hạn (đi vòng mãi). Condensation là **DAG** (không chu trình) → đường đi hữu hạn, longest path trên DAG luôn xác định bằng topo + DP.
 > </details>
 

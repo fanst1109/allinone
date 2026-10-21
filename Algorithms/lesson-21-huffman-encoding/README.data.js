@@ -75,6 +75,8 @@ So với fixed-length 2-bit: $(5+2+1+1) \\times 2 = 9 \\times 2 = 18$ bit. **Ti�
 > 2. Cùng chuỗi đó fixed-length 2-bit tốn bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nhân tần suất với độ dài mã từng ký tự rồi cộng.
 >
 > 1. \`a a a b\` → \`0 0 0 10\` = $5$ bit.
 > 2. $4 \\times 2 = 8$ bit. Variable-length tiết kiệm 3 bit.
@@ -139,6 +141,8 @@ a=0   b=10   c=110   d=111
 > 🔁 **Thực hành.** Bảng \`{a:0, b:11, c:10}\` có phải prefix code không? Vẽ cây.
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: prefix code: không mã nào là tiền tố của mã khác — vẽ cây, ký tự phải ở LÁ.
 >
 > Có. \`0\` không là tiền tố của \`11\` hay \`10\`; \`11\` và \`10\` không là tiền tố của nhau. Cây: gốc → trái \`[a]\`, phải → (trái \`[c]=10\`, phải \`[b]=11\`).
 > </details>
@@ -312,6 +316,8 @@ Bit stream: \`0 110 111 0 100 0 101 0 110 111 0\` = \`01101110100010101101110\` 
 > 🔁 **Thực hành.** Giải mã \`01101110...\` bằng cây trên — ký tự đầu tiên là gì?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đi cây theo từng bit từ gốc, chạm lá là ra ký tự, quay về gốc.
 >
 > Bit \`0\` → đi trái → tới lá \`[a]\` ngay. Ký tự đầu = \`a\`. Tiếp \`110\` → phải, phải, trái → \`[b]\`. Khớp với chuỗi gốc \`ab...\`. ✓
 > </details>
@@ -665,6 +671,8 @@ Chuỗi rỗng \`""\` → không có ký tự → không có cây. Code cần ki
 > 🔁 **Thực hành.** Nén chuỗi \`"ab"\` (mỗi chữ 1 lần). Thân nén tốn mấy bit? Lưu kèm gì để decode?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đừng quên phải lưu kèm bảng mã/cây — nén chuỗi ngắn có khi lỗ.
 >
 > \`a\` và \`b\` cùng weight 1 → ghép thành gốc → \`a=0, b=1\`. Thân = \`01\` (2 bit). Nhưng phải lưu kèm bảng (\`a↔0, b↔1\`) tốn nhiều bit hơn cả thân → với data tí hon này nén **lỗ vốn**.
 > </details>

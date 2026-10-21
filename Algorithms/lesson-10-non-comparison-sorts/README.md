@@ -122,6 +122,8 @@ log₂(n!)  ≥  (n/2) · log₂(n/2)  =  (n/2)(log₂ n − 1)  =  Ω(n log n)
 > 2. Với $n = 8$, số so sánh tối thiểu là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: mỗi hoán vị cần một lá riêng; $\log_2(n!)$ cho chặn dưới số so sánh.
 >
 > 1. Vì thuật toán phải sort đúng **mọi** trong $n!$ thứ tự đầu vào khả dĩ; mỗi đầu vào dẫn tới một lá khác nhau (đường so sánh khác nhau), nên cần đủ $n!$ lá. Thiếu lá nào → có đầu vào sort sai.
 > 2. $8! = 40320$, $\log_2(40320) \approx 15{,}3$ → tối thiểu **16** so sánh ($\lceil 15{,}3 \rceil$).
@@ -244,6 +246,8 @@ func main() {
 
 > 🔁 **Thực hành.** Sort `[2, 5, 3, 0, 2, 3, 0, 3]` với `k = 6` bằng counting sort, viết bảng count sau prefix sum.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đếm tần suất từng giá trị rồi trải prefix-sum ra vị trí.
 >
 > Đếm: `count = [2,0,2,3,0,1]` (hai số 0, hai số 2, ba số 3, một số 5).
 > Prefix: `[2,2,4,7,7,8]`. Output: `[0,0,2,2,3,3,3,5]`. ✓
@@ -377,6 +381,8 @@ LSD đơn giản và phổ biến cho số nguyên; MSD tốt cho chuỗi (sort 
 
 > 🔁 **Thực hành.** Radix LSD base 10 trên `[53, 3, 542, 9]`. Liệt kê mảng sau mỗi pass.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: LSD: sort ổn định theo từng chữ số từ phải sang trái.
 >
 > Max=542 → 3 pass.
 > Pass 1 (1s): digit 3,3,2,9 → `[542, 53, 3, 9]` (2,3,3,9).
@@ -477,6 +483,8 @@ func main() {
 
 > 🔁 **Thực hành.** Với $m = 5$, phần tử `0.62` rơi vào bucket nào?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: bucket index = $\lfloor m\cdot x\rfloor$ cho $x \in [0,1)$.
 >
 > $\lfloor 5 \cdot 0.62 \rfloor = \lfloor 3.1 \rfloor = 3$ → bucket 3.
 > </details>

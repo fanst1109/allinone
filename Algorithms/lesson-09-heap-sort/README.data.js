@@ -93,6 +93,8 @@ Với phần tử ở index \`i\` (mảng 0-based):
 > 2. Cho mảng \`[8, 4, 7, 1, 3]\`, con của index 1 là những index nào, giá trị bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tính chất heap chỉ ép cha ≥ con — min nằm đâu đó ở tầng lá.
 >
 > 1. Ở một trong các **lá** (index $\\lfloor n/2 \\rfloor..n-1$). Heap KHÔNG đảm bảo lá ngoài cùng bên phải là nhỏ nhất — chỉ chắc chắn nhỏ nhất là một lá nào đó, vì mọi nút không-lá đều ≥ con của nó nên không thể nhỏ nhất.
 > 2. Con của index 1: trái = \`2*1+1 = 3\` (giá trị 1), phải = \`2*1+2 = 4\` (giá trị 3).
@@ -217,6 +219,8 @@ Kết quả: [9, 4, 8, 2, 3, 1, 6]  (max-heap hợp lệ, 8 đã vào tầng đ�
 > Heap \`[10, 7, 9, 3, 4]\`, push \`8\`. Trace sift-up.
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: sift-up: so với cha, swap khi lớn hơn, lặp tới gốc.
 >
 > append → \`[10, 7, 9, 3, 4, 8]\`, i=5. parent=(5-1)/2=2 (giá trị 9). 8 ≤ 9 → dừng ngay. Kết quả \`[10, 7, 9, 3, 4, 8]\`. (8 đứng yên vì cha 9 đã lớn hơn.)
 > </details>
@@ -313,6 +317,8 @@ Kết quả build: [5, 3, 4, 1, 2]  (max-heap hợp lệ).
 > Build max-heap từ \`[1, 5, 3]\`. Trace.
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: build từ giữa mảng về đầu, sift-down từng node.
 >
 > n=3, node không-lá cuối = 3/2-1 = 0. Chỉ lặp i=0. siftDown(a,0,3): left=1(5), right=2(3). largest: 5>1 → largest=1; 3<5 giữ → largest=1. swap a[0]↔a[1] → \`[5,1,3]\`. i=1 lá, dừng. Kết quả \`[5, 1, 3]\`.
 > </details>
@@ -413,6 +419,8 @@ Kết quả: [1, 2, 3, 4, 5]  ✓ tăng dần.
 > Sau khi build max-heap, vì sao swap gốc với **cuối** rồi \`siftDown(a,0,end)\` lại không làm hỏng phần đã sắp ở các index ≥ end?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: swap gốc–cuối đưa max về đúng chỗ; sift-down phục hồi heap phần còn lại.
 >
 > Vì sift-down chỉ thao tác trên \`a[0..end-1]\` (tham số n=end giới hạn \`left < n\`, \`right < n\`). Các index ≥ end không bao giờ bị đọc/ghi → phần đã sắp được "khóa".
 > </details>
@@ -683,6 +691,8 @@ Tổng công = **11 bước** cho n=15. So sánh: nếu là O(n log n) thì ≈ 
 > Heap đầy n=7 (3 tầng). Tính tổng công build heap theo bảng chiều cao.
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: cộng theo tầng: node thấp nhiều nhưng đường sift ngắn.
 >
 > | k | số node | công/node | tổng |
 > |---|---------|-----------|------|

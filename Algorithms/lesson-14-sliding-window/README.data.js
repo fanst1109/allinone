@@ -93,6 +93,8 @@ Ba câu hỏi cần trả lời trước khi code mọi bài:
 
 > 🔁 **Thực hành.** Với \`nums=[4,2,1,7,8,1,2,8,1,0]\`, \`k=2\`, sum max bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tính tổng cửa sổ đầu rồi trượt: cộng phần tử vào, trừ phần tử ra.
 > Các tổng: \`6,3,8,15,9,3,10,9,1\`. Max = **15** (cặp \`[7,8]\`). Trượt: khởi tạo $4+2=6$; rồi $6-4+1=3$; $3-2+7=8$; $8-1+8=15$; ... mỗi bước $O(1)$.
 > </details>
 
@@ -191,6 +193,8 @@ for r := 0; r < n; r++ {
 
 > 🔁 **Thực hành.** Nếu thay \`l++\` bằng \`l = 0\` (reset về đầu mỗi lần shrink), độ phức tạp đổi thành gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đếm tổng số lần mỗi phần tử được thăm khi l bị reset.
 > Thành $O(n^2)$ (tệ hơn). Reset \`l\` phá vỡ tính chất "mỗi phần tử ra khỏi window ≤ 1 lần". Đây là lỗi phổ biến biến sliding window thành brute-force.
 > </details>
 
@@ -533,6 +537,8 @@ Output \`[3,3,5,5,6,7]\` ✓.
 
 > 🔁 **Thực hành.** Trong bài "longest no-repeat", nên cập nhật \`best\` ở đâu — trước hay sau khi nhảy \`l\`?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chỉ đo \`best\` trên cửa sổ HỢP LỆ — tức sau khi co xong.
 > **Sau** khi đã điều chỉnh \`l\` (cập nhật trên window đã hợp lệ \`[l..r]\`). Nếu cập nhật trước, độ dài tính trên window còn chứa ký tự lặp → sai.
 > </details>
 

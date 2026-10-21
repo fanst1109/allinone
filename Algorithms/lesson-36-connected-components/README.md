@@ -62,6 +62,8 @@ Xét đồ thị 7 đỉnh `{0,1,2,3,4,5,6}` với các cạnh:
 
 > 🔁 **Thực hành.** Đồ thị 8 đỉnh, cạnh `0-1, 1-2, 3-4, 4-5, 5-3, 6-7`. Bao nhiêu component?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đếm số lần phải khởi động DFS/BFS mới = số component.
 >
 > `{0,1,2}`, `{3,4,5}` (tam giác), `{6,7}` → **3 thành phần**. (Không có đỉnh cô lập vì cả 8 đỉnh đều có cạnh.)
 > </details>

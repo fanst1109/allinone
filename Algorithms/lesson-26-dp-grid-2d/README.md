@@ -56,6 +56,8 @@ Mỗi đáp số được định vị bởi **hai chỉ số** — đó là d�
 > 2. State của LCS dùng "prefix độ dài `i`" hay "ký tự thứ `i`"?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: phân biệt: 2D của knapsack là (món, trọng lượng); grid DP là tọa độ thật.
 >
 > 1. Vì state là `dp[i][w]` = "xét `i` item đầu, sức chứa còn `w`" — hai tham số (item index + capacity). Capacity chính là chiều thứ hai.
 > 2. **Prefix độ dài `i`**: `dp[i][j]` = LCS của `A[0..i-1]` và `B[0..j-1]`. Khi cần ký tự, dùng `A[i-1]` (lệch 1). Đây là nguồn off-by-one phổ biến nhất.
@@ -172,6 +174,8 @@ func main() {
 > 🔁 **Thực hành.** Lưới `2×3` (2 hàng, 3 cột) có bao nhiêu đường?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: số đường = tổ hợp bước: dp[i][j] = dp trên + dp trái.
 >
 > ```
 > 1 1 1
@@ -513,6 +517,8 @@ func main() {
 > 🔁 **Thực hành.** LCS của `"aab"` và `"azb"` là gì?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: LCS khớp ký tự thì đi chéo +1; không khớp lấy max hai ô kề.
 > `"ab"`, độ dài 2. (`a` đầu khớp, `b` cuối khớp; `a` thứ hai của A không có cặp.)
 > </details>
 
@@ -931,6 +937,8 @@ func tracePath(dp [][]int) [][2]int {
 > 🔁 **Thực hành.** Truy vết LCS (mục 5.4) đi theo hướng nào khi `A[i-1]==B[j-1]`?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: truy vết đọc ngược: chéo = có ký tự chung.
 > Đi **đường chéo** `(i-1, j-1)` và ghi nhận ký tự đó vào kết quả. Khi khác nhau thì đi về ô lớn hơn (`dp[i-1][j]` hoặc `dp[i][j-1]`), không ghi gì.
 > </details>
 

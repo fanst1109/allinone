@@ -75,6 +75,8 @@ solve(P):
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: so công của bước chia với bước gộp; master theorem so $f(n)$ với $n^{\log_b a}$.
+
 1. **Combine** (merge 2 mảng đã sort tốn O(n)). Divide chỉ là tính `mid = (lo+hi)/2`, O(1).
 2. `a = 1`. Ta cắt làm 2 nửa nhưng chỉ *đệ quy vào 1 nửa* (nửa kia bị loại). Đây là điểm khiến binary search chỉ O(log n) chứ không O(n).
 
@@ -165,6 +167,8 @@ So sánh $f(n)$ với $n^{\log_b a}$. Đặt $c = \log_b a$:
 Một thuật toán có $T(n) = 2T(n/2) + n^2$. Big-O là gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: xác định $a, b$, tính $n^{\log_b a}$ rồi so với $f(n)$.
 
 $a=2, b=2 \to c=\log_2 2 = 1$. $f(n)=n^2 = \Omega(n^{1+\varepsilon})$ (với $\varepsilon=1$) → **Case 3** → $T(n)=\Theta(f(n))=\Theta(n^2)$. Combine đắt quá → toàn bộ chi phí dồn ở gốc.
 
@@ -610,6 +614,8 @@ Dùng D&C khi: bài con **cùng dạng** + **độc lập** + **combine rẻ**. 
 Bạn viết hàm `solve([lo, hi])` chia thành `solve([lo, mid])` và `solve([mid, hi])`. Có bug gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: soi hai bài con có giao nhau phần tử nào không — chồng lấp là sai D&C.
 
 Bài con thứ 2 là `[mid, hi]` — chứa `mid` trùng với bài con thứ 1, và khi `hi = lo+1` thì `mid = lo`, bài con `[mid, hi] = [lo, hi]` **bằng bài gốc** → đệ quy vô hạn. Phải là `[mid+1, hi]` (loại trùng và đảm bảo nhỏ thực sự).
 

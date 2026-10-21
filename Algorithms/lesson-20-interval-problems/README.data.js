@@ -158,6 +158,8 @@ Sau khi cố định $g$, mọi hoạt động chồng $g$ bị loại; bài to�
 > 2. Trong chứng minh, vì sao ta cần \`g\` có *end* nhỏ nhất chứ không phải *start* nhỏ nhất?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: sort theo END rồi quét chọn; kiểm tương thích bằng start ≥ end đã chọn.
 >
 > 1. Sau khi chọn {A(1,4), D(5,7)} có \`lastEnd = 7\`; \`G(7,8)\` có $7 \\geq 7$ ✓ (biên nửa mở) → chọn → **{A, D, G}**, 3 hoạt động.
 > 2. Vì lập luận "thay $o$ bằng $g$ mà vẫn hợp lệ" dựa vào $e_g \\leq e_o$ (g xong sớm hơn nên không đụng những cái sau $o$). Nếu chọn theo start nhỏ nhất, cái đó có thể end rất muộn (vd \`C(0,6)\`) và chặn mất nhiều cái khác — phản ví dụ ở mục 3.
@@ -537,6 +539,8 @@ func minMeetingRoomsHeap(meetings []Interval) int {
 
 > 🔁 **Thực hành.** Với \`[[1,5],[2,6],[3,7]]\` cần mấy phòng?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: max số cuộc họp chồng nhau tại một thời điểm = số phòng tối thiểu.
 > 3 cuộc cùng chạy trong khoảng \`[3,5)\` → max concurrency = 3 → **3 phòng**. Heap: push 5 → push 6 (không pop, 5>2) → push 7 (không pop, 5>3) → heap {5,6,7}, rooms=3.
 > </details>
 

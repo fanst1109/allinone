@@ -110,6 +110,8 @@ Bốn ví dụ nữa, đa dạng:
 
 > 🔁 **Thực hành.** $f(n) = 6n + 4$. Chứng minh $f(n) = O(n)$ bằng cách chỉ ra $c$ và $n_0$ cụ thể.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chọn $c$ lớn hơn hệ số đầu một chút rồi giải bất phương trình tìm $n_0$.
 >
 > Chọn $c = 7$. Cần $6n + 4 \leq 7n$ ⟺ $4 \leq n$. Vậy $n_0 = 4$. Kiểm $n=4$: $28 \leq 28$ ✓; $n=10$: $64 \leq 70$ ✓. (Nhiều cặp $(c, n_0)$ khác cũng đúng, ví dụ $c=10, n_0=1$.)
 > </details>
@@ -154,6 +156,8 @@ Bốn ví dụ phân biệt O / Ω / Θ:
 
 > 🔁 **Thực hành.** $f(n) = 4n^3 + 10n$. Cho biết Θ của nó và một O **không chặt** cũng đúng.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: Θ lấy bậc cao nhất; O không chặt là bất kỳ bậc cao hơn.
 >
 > $\boldsymbol{\Theta(n^3)}$ (chặt). Một O không chặt đúng: $\boldsymbol{O(n^4)}$ (hoặc $O(2^n)$...) — vẫn là chặn trên hợp lệ nhưng lỏng.
 > </details>
@@ -273,6 +277,8 @@ Tuy vậy, average-case vẫn quan trọng khi worst hiếm gặp (quicksort dù
 
 > 🔁 **Thực hành.** Linear search trên `a=[5,3,8,1,9,2]` (n=6), target=2. Đây là case nào? Bao nhiêu so sánh?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: target nằm cuối mảng — đếm số phần tử phải xem.
 >
 > target=2 ở vị trí cuối (index 5) → **worst case**, **6 so sánh** (phải duyệt hết).
 > </details>
@@ -343,6 +349,8 @@ Ví dụ so sánh độ sâu stack:
 
 > 🔁 **Thực hành.** Hàm tính giai thừa đệ quy `fact(n) = n*fact(n-1)`. Time và space?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đệ quy tuyến tính: mỗi cấp 1 lời gọi, sâu $n$ cấp — stack cũng ăn theo.
 >
 > **Time $O(n)$** ($n$ lời gọi, mỗi lời $O(1)$). **Space $O(n)$** (stack sâu $n$). Viết lại bằng vòng lặp → space $O(1)$.
 > </details>
@@ -394,6 +402,8 @@ for i := 0; i < n*n; i++ { ... }    // O(n²)
 
 > 🔁 **Thực hành.** Rút gọn: $O(3n^2 + 2n \log n + 10n + 50)$.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: vứt hằng số và mọi số hạng bậc thấp, giữ bậc lớn nhất.
 >
 > Giữ bậc cao nhất + bỏ hằng số → $\boldsymbol{O(n^2)}$ (vì $n^2 > n \log n > n > 1$).
 > </details>
@@ -620,6 +630,8 @@ Average-case phụ thuộc **giả định về phân phối input**. Quicksort 
 
 > 🔁 **Thực hành.** Thuật toán A: $O(n^2)$ với hằng số 1 ($f=n^2$). Thuật toán B: $O(n \log n)$ với hằng số 1000 ($f=1000 \cdot n \log n$). Với $n=10$, ai nhanh hơn?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tìm điểm giao: giải $n^2 = c\cdot n\log n$ bằng thử vài giá trị $n$.
 >
 > A: $10^2 = 100$. B: $1000 \cdot 10 \cdot \log_2 10 \approx 1000 \cdot 10 \cdot 3{,}32 = 33\,200$. **A nhanh hơn** dù lớp tệ hơn — hằng số B quá lớn, và $n=10$ còn nhỏ. Điểm cắt ở $n$ lớn hơn nhiều.
 > </details>

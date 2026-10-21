@@ -158,6 +158,8 @@ Kết quả: \`[3, 2, 4, 1, 5]\`. Chia: \`A[0..3] = [3,2,4,1]\` (đều ≤ 5), 
 > 2. Sơ đồ nào swap nhiều hơn trên dữ liệu ngẫu nhiên?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nhớ khác biệt hợp đồng trả về của hai sơ đồ partition.
 >
 > 1. Hoare trả về **điểm chia** \`j\` (không phải vị trí pivot). Pivot có thể chưa ở đúng chỗ. Đệ quy: \`[lo, j]\` và \`[j+1, hi]\`.
 > 2. **Lomuto** swap nhiều hơn (nó swap cả khi phần tử đã ở đúng phía). Hoare chỉ swap cặp đảo chỗ thật sự.
@@ -353,6 +355,8 @@ Kiểm tra: sort \`[7,2,5,1,9,3]\` = \`[1,2,3,5,7,9]\`, phần tử index 2 = \`
 
 > 🔁 **Thực hành.** Vì sao quickselect $O(n)$ còn quicksort $O(n \\log n)$?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: quickselect chỉ đệ quy MỘT phía — tổng thành chuỗi hình học $n + n/2 + \\dots$.
 > Quicksort đệ quy **cả 2 phía** → tổng công $n \\cdot \\log n$. Quickselect chỉ đệ quy **1 phía** → tổng $n + n/2 + n/4 + \\cdots = 2n = O(n)$. Bỏ được nửa kia mỗi bước là chìa khóa.
 > </details>
 

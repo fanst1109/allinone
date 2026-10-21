@@ -80,6 +80,8 @@ Vài cây khung khả dĩ (mỗi cây 3 cạnh = \`V-1 = 4-1\`):
 > 2. MST có thể chứa chu trình không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: cây bao trùm n đỉnh luôn có n−1 cạnh, không chu trình.
 >
 > 1. \`7 - 1 = 6\` cạnh.
 > 2. Không bao giờ — MST là một cây, theo định nghĩa không có chu trình.
@@ -124,6 +126,8 @@ Giả sử $e = (u, v)$ là cạnh nhẹ nhất qua cut $(S, V \\setminus S)$, v
 > **🔁 Thực hành.** Cho cut $S = \\{A, B\\}$, $V \\setminus S = \\{C, D\\}$ trong ví dụ mục 1.2. Các cạnh nào vắt qua cut? Cạnh nào nhẹ nhất?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: cut property: cạnh nhẹ nhất vắt qua lát cắt thuộc MST.
 > Cạnh vắt qua: A-C(3), B-C(1), B-D(4). Nhẹ nhất = B-C(1) → thuộc MST. Đúng vậy, MST mục 1.2 có chứa B-C.
 > </details>
 
@@ -313,6 +317,8 @@ func (uf *UnionFind) Union(x, y int) bool {
 > **🔁 Thực hành.** Với 5 phần tử mới khởi tạo, gọi \`Union(0,1)\`, \`Union(2,3)\`, \`Union(1,3)\`. Sau cùng \`Find(0)\` và \`Find(2)\` có bằng nhau không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: lần theo find các root; hai phần tử chung root là cùng tập.
 > Có. \`Union(0,1)\`→{0,1}; \`Union(2,3)\`→{2,3}; \`Union(1,3)\` gộp {0,1} với {2,3} → {0,1,2,3}. Nên \`Find(0) == Find(2)\`.
 > </details>
 
@@ -422,6 +428,8 @@ func Prim(V int, adj [][]pqItem, start int) int {
 > **🔁 Thực hành.** Nếu Prim bắt đầu từ đỉnh \`2\` thay vì \`0\` (đồ thị mục 5.2), MST weight có đổi không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: MST weight là tính chất của ĐỒ THỊ, không phụ thuộc điểm xuất phát.
 > Không. MST weight luôn = 16 bất kể đỉnh khởi đầu (MST weight là bất biến của đồ thị). Tập cạnh cũng giống vì đồ thị này MST duy nhất.
 > </details>
 

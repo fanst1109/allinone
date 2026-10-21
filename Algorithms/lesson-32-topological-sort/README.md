@@ -99,6 +99,8 @@ Một thứ tự topo hợp lệ: `4, 5, 2, 3, 1, 0`. Một thứ tự khác cũ
 
 > 🔁 **Thực hành 1.** Dãy `0, 5, 2, 3, 1, 4` có phải topo order hợp lệ cho ví dụ 4 không?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: kiểm từng cạnh u→v: u phải đứng trước v trong dãy.
 > KHÔNG. Cạnh `4 → 0` đòi `4` trước `0`, nhưng trong dãy `4` đứng SAU `0` (vị trí cuối). Cũng vi phạm `4 → 1` (4 sau 1). Vậy dãy này không hợp lệ.
 > </details>
 
@@ -248,6 +250,8 @@ func main() {
 
 > 🔁 **Thực hành 2.** Nếu queue khởi tạo RỖNG ngay từ đầu (không đỉnh nào in-degree 0) thì kết luận gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: không có đỉnh in-degree 0 nghĩa là ai cũng có cha — chỉ xảy ra khi có vòng.
 > Đồ thị chắc chắn có chu trình (mọi đỉnh đều có cha). `order` rỗng, `len(order) != n` ⟹ trả về `false`. Đây là trường hợp đặc biệt của bước 5.
 > </details>
 
@@ -399,6 +403,8 @@ Quá trình một đỉnh: `white → gray (khi bắt đầu dfs) → black (khi
 
 > 🔁 **Thực hành 3.** Đồ thị `a→b, b→c, a→c`. Khi DFS từ `a` tới `c` (sau khi đã xong `b→c`), `color[c]` là gì? Có phải chu trình không?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: màu black = đã hoàn thành — gặp black là cross/forward edge, không phải chu trình.
 > `color[c] = black` (vì `c` đã hoàn thành qua đường `a→b→c`). Cạnh `a→c` là **forward edge**, KHÔNG phải chu trình. Nếu dùng "visited" 2 trạng thái sẽ báo nhầm. Đây là lý do PHẢI dùng 3 màu.
 > </details>
 

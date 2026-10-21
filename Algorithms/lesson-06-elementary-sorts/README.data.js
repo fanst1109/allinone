@@ -206,6 +206,8 @@ Ví dụ worst case \`[5,4,3,2,1]\` với $n=5$: comparison $= 10$, swap $= 10$ 
 > 2. Vì sao early-exit giúp best case là $O(n)$ chứ không phải $O(n^2)$?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: bubble mỗi pass đẩy phần tử lớn nhất còn lại về cuối.
 >
 > 1. Phần tử **lớn nhất** (\`5\`) chắc chắn nằm ở cuối mảng sau pass 1. Mảng \`[3,1,1,4,5]\` sau pass 1 — \`5\` đã ở cuối.
 > 2. Mảng đã sorted → pass đầu không có swap nào → cờ \`swapped\` còn \`false\` → \`break\` ngay sau 1 pass = $n-1$ comparison = $O(n)$. Không cần chạy $n-1$ pass.
@@ -380,6 +382,8 @@ Worst case \`[5,4,3,2,1]\` với $n=5$: mỗi key phải dịch qua toàn bộ p
 > 2. Mảng nào là best case của insertion sort? Worst case?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nghĩ về tính stable — dấu \`>\` giữ nguyên thứ tự phần tử bằng nhau.
 >
 > 1. Dùng \`>\` để **giữ tính ổn định**: phần tử **bằng** key không bị dịch, nên key được chèn **ngay sau** phần tử bằng nó → giữ nguyên thứ tự tương đối của các phần tử bằng nhau. Nếu dùng \`>=\` thì sẽ dịch luôn cả phần tử bằng → đảo thứ tự → mất ổn định.
 > 2. Best: mảng **đã sorted** ($O(n)$). Worst: mảng **sorted ngược** ($O(n^2)$, mỗi key dịch hết).

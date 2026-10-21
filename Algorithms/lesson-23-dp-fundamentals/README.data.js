@@ -96,6 +96,8 @@ Ví dụ leo cầu thang: $\\text{cách}(n) = \\text{cách}(n-1) + \\text{cách}
 > 2. Bài "đếm số cách viết \`n\` thành tổng các số 1 và 2" — có cả hai điều kiện không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: hỏi hai câu DP: có bài con chồng lấp không? có optimal substructure không?
 >
 > 1. Có optimal substructure (\`max(arr[0..n]) = max(max(arr[0..n-1]), arr[n])\`) nhưng **không overlap** — mỗi phần tử xét đúng 1 lần. Nên đây chỉ là duyệt tuyến tính $O(n)$, không cần memo. DP "thừa".
 > 2. Có cả hai: $f(n) = f(n-1) + f(n-2)$ (substructure), và $f(n-2)$ bị tính lại từ nhiều nhánh (overlap). Đây chính là Fibonacci trá hình → DP hoàn hảo.
@@ -290,7 +292,12 @@ So sánh 4 cách (verify bằng \`fib(40) = 102334155\`):
 > Chỉ khác cách duyệt state. Trong thi đấu/phỏng vấn, viết cách nào bạn ít sai hơn.
 
 > 🔁 **Thực hành.** Hàm \`fibMemo\` ở mục 3.2 là top-down hay bottom-up? Còn \`fibTab\`?
-> <details><summary>Đáp án</summary>\`fibMemo\` đệ quy + cache → top-down. \`fibTab\` lặp điền bảng từ base case → bottom-up.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: top-down = đệ quy + cache; bottom-up = điền bảng từ nhỏ lên.
+> 
+> \`fibMemo\` đệ quy + cache → top-down. \`fibTab\` lặp điền bảng từ base case → bottom-up.
+> </details>
 
 ---
 
@@ -449,7 +456,12 @@ func fibMap(n int, memo map[int]int) int {
 Xem sâu hơn ở [Lesson 22 — Greedy vs DP](../lesson-22-greedy-vs-dp/).
 
 > 🔁 **Thực hành.** Binary search là D&C, Greedy hay DP?
-> <details><summary>Đáp án</summary>D&C: chia đôi mảng, chỉ đi 1 nửa, các bài con không chồng lấp. Không phải DP (không có overlap, không cần memo).</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: binary search đi MỘT nhánh, không chồng lấp — xếp loại theo tiêu chí đó.
+> 
+> D&C: chia đôi mảng, chỉ đi 1 nửa, các bài con không chồng lấp. Không phải DP (không có overlap, không cần memo).
+> </details>
 
 ---
 

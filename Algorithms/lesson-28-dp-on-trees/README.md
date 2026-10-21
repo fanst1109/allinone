@@ -96,6 +96,8 @@ Ba chỗ phải điền cho từng bài:
 
 > 🔁 **Thực hành.** Với cây 3 node `0—1`, `0—2`, gốc 0, nếu `baseCase = 1` (đếm size) và `combine = res + childRes`, thì `dfs(0,-1)` trả về bao nhiêu?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: DFS post-order: tính con xong mới gộp vào cha.
 > `dfs(1,0)=1`, `dfs(2,0)=1`. Tại node 0: `res=1`, gộp con 1 → `2`, gộp con 2 → `3`. Trả về **3** = số node. Đúng (size subtree gốc 0 = cả cây).
 > </details>
 
@@ -198,6 +200,8 @@ func max(a, b int) int { if a > b { return a }; return b }
 
 > 🔁 **Thực hành.** Với cùng cây trên nhưng `val = [1, 5, 1, 1, 1]`, đáp án là bao nhiêu?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: trọng số lệch lớn đổi quyết định chọn/bỏ node — tính cả hai nhánh.
 > Node 1 trọng số 5 rất lớn. Chọn `{1}` đơn lẻ? `{1, 2}` = 5+1=6 (1,2 là anh em, không kề) ✓. Hay `{3,4,2}` = 1+1+1=3. Hay `{0,3,4}` = 1+1+1=3. Tối ưu là `{1,2}=6`. Chạy công thức: lá 3,4,2 → dp[c][1]=1 mỗi cái. dp[1][0]=max(0,1)+max(0,1)=2, dp[1][1]=5+0+0=5. dp[0][0]=max(2,5)+max(0,1)=5+1=6, dp[0][1]=1+dp[1][0]+dp[2][0]=1+2+0=3. Đáp án `max(6,3)=`**6** ✓.
 > </details>
 
@@ -289,6 +293,8 @@ func (t *Tree) treeDiameter() int {
 
 > 🔁 **Thực hành.** Cây hình sao: node 0 nối với 1,2,3,4 (4 lá). Đường kính?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đường kính qua node = 2 nhánh sâu nhất cộng lại.
 > Tại node 0: mọi `down(con)+1 = 1`. 2 lớn nhất = `1, 1` → diameter = `2`. Đường vd `1—0—2` = 2 cạnh ✓.
 > </details>
 
@@ -539,6 +545,8 @@ func (t *Tree) sumOfDistances() []int {
 
 > 🔁 **Thực hành.** Cây hình sao: 0 nối 1,2,3. `size = ?`, `ans = ?`
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: reroot: đáp án của con suy từ đáp án của cha bằng công thức dịch gốc.
 > `size=[4,1,1,1]`. DFS1: depth của 1,2,3 = 1 → `ans[0]=3`. Reroot: `ans[1]=3 - size[1] + (4-size[1]) = 3-1+3 = 5`. Kiểm: 1→0=1, 1→2=2, 1→3=2 → 5 ✓. Tương tự `ans[2]=ans[3]=5`. → `ans=[3,5,5,5]`.
 > </details>
 
@@ -646,6 +654,8 @@ func (t *Tree) subtreeSizeIterative(root int) []int {
 
 > 🔁 **Thực hành.** Vì sao không thể dùng `pre-order` cho House Robber III (mục 3)?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: post-order vì dp[cha] cần dp[con] tính xong trước.
 > Vì `dp[node]` cần `dp[con]` đã tính xong. Pre-order xử lý cha trước con → lúc tính `dp[node]` chưa có `dp[con]`. Bắt buộc post-order (con xong mới tới cha). Rerooting (mục 7) là ngoại lệ vì DFS 2 cố ý đẩy từ cha (đã có size từ DFS 1).
 > </details>
 

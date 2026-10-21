@@ -138,6 +138,8 @@ func rangeSum(P []int, l, r int) int {
 
 > **🔁 Thực hành.** Với `a = [2, 0, 6, 4]`, tính `P` rồi cho biết `sum(1, 3)`.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: P[i] = tổng i phần tử đầu; sum(l, r) = P[r+1] − P[l].
 >
 > `P = [0, 2, 2, 8, 12]`. `sum(1,3) = P[4] − P[1] = 12 − 2 = 10` (= `0+6+4`). ✓
 > </details>
@@ -248,6 +250,8 @@ func rangeUpdate(n int, ops [][3]int) []int {
 
 > **🔁 Thực hành.** `n=4`, update `(0,1,+3)` và `(1,3,+2)`. Mảng `a` cuối?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: ghi +v tại l và −v tại r+1, prefix lại để trải hiệu ứng.
 >
 > `d`: `(0,1,3)` → `d[0]+=3, d[2]-=3`; `(1,3,2)` → `d[1]+=2, d[4]-=2`. `d = [3, 2, -3, 0, -2]`. Prefix (lấy 4 phần tử): `a = [3, 5, 2, 2]`. Kiểm tra: `a[0]=3, a[1]=3+2=5, a[2]=2, a[3]=2` ✓
 > </details>
@@ -348,6 +352,8 @@ func regionSum(P [][]int, r1, c1, r2, c2 int) int {
 
 > **🔁 Thực hành.** Với `P` ở bảng trên, tính tổng cột cuối `(0,2)→(2,2)`.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: cột trong bảng 2D: lấy prefix theo chiều dọc hoặc dùng công thức bao hàm–loại trừ.
 >
 > `P[3][3] − P[0][3] − P[3][2] + P[0][2] = 45 − 0 − 27 + 0 = 18` (= `3+6+9`). ✓
 > </details>

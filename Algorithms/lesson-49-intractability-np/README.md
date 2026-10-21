@@ -62,6 +62,8 @@ Walk-through con số $n = 50$:
 
 > 🔁 **Thực hành.** Với $n = 30$, ước lượng $2^n$ và $n^2$.
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: ước $2^{30}$ ra số phép thật để cảm quy mô.
 > $2^{30} \approx 1,07 \cdot 10^9$ (khoảng 1 giây), $n^2 = 900$. Khoảng cách hơn 1 triệu lần — và mới chỉ n=30.
 > </details>
 
@@ -158,6 +160,8 @@ Câu hỏi lớn: **liệu NP có lớn hơn P không, hay P = NP?**
 
 > 🔁 **Thực hành.** P ⊆ NP hay NP ⊆ P được chứng minh chắc chắn?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: verify nhanh là định nghĩa của NP — chiều nào hiển nhiên?
 > P ⊆ NP **đã chứng minh** (solve nhanh ⟹ verify nhanh). NP ⊆ P là điều **chưa biết** — chính là câu hỏi P = NP. Nếu chứng minh được NP ⊆ P thì P = NP.
 > </details>
 
@@ -200,6 +204,8 @@ So sánh gọn:
 
 > 🔁 **Thực hành.** Halting problem là NP-complete hay NP-hard?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: NP-complete = NP-hard VÀ thuộc NP; halting còn không verify nổi.
 > NP-hard nhưng **KHÔNG** NP-complete, vì NP-complete đòi hỏi thuộc NP, mà halting problem không thuộc NP (không decidable). Nó nằm ngoài NP.
 > </details>
 
@@ -278,6 +284,9 @@ Walk-through số: đường thẳng 0-1-2-3 (cạnh (0,1),(1,2),(2,3)), n=4. Ve
 
 > 🔁 **Thực hành.** Subset Sum và Partition khác nhau thế nào?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: so dạng đề: một bài hỏi tổng đích tùy ý, bài kia hỏi chia đôi — quy về nhau được.
+>
 > Partition là trường hợp đặc biệt của Subset Sum với T = (tổng cả tập)/2. Nếu tổng lẻ thì "No" ngay. Partition ≤ₚ Subset Sum hiển nhiên.
 > </details>
 
@@ -345,6 +354,9 @@ So sánh: nếu thật sự đa thức theo *kích thước input* (số bit), t
 
 > 🔁 **Thực hành.** Tại sao O(n²) là poly thật mà O(nW) chỉ pseudo-poly?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: poly phải tính theo ĐỘ DÀI INPUT (số bit); W chiếm log W bit nên O(nW) là mũ theo bit.
+>
 > n là số phần tử = kích thước input thật. W là một *giá trị* viết bằng log W bit; O(nW) = O(n·2^(log W)) mũ theo số bit log W. n² đa thức theo n (kích thước), nW mũ theo bit của W.
 > </details>
 

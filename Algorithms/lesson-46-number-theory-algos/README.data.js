@@ -512,7 +512,12 @@ func nCk(n, k int, fact, invFact []int64) int64 {
 - **GCD trong phân số & chu kỳ.** Rút gọn phân số $a/b$ chia cả hai cho $\\gcd(a,b)$. Tìm chu kỳ chung của hai sự kiện lặp = $\\text{lcm}$. Khi nào hai bánh răng $m, n$ răng trở lại vị trí đầu = $\\text{lcm}(m,n)$ vòng.
 
 > 🔁 **Thực hành.** Hai đèn nhấp nháy mỗi 6s và 8s, cùng sáng lúc t=0. Bao lâu lại cùng sáng?
-> <details><summary>Đáp án</summary>$\\text{lcm}(6,8) = 6/\\gcd(6,8)\\cdot 8 = 6/2\\cdot 8 = 24$ giây.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chu kỳ gặp lại = lcm của hai chu kỳ.
+> 
+> $\\text{lcm}(6,8) = 6/\\gcd(6,8)\\cdot 8 = 6/2\\cdot 8 = 24$ giây.
+> </details>
 
 ---
 

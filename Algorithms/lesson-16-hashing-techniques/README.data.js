@@ -158,6 +158,8 @@ func MajorityElement(nums []int) int {
 
 > 🔁 **Thực hành.** Cho \`nums = [1,1,2,1,3]\`, \`IsAnagram("rat","car")\` trả về gì? Tần suất \`1\`?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đếm bằng map tần suất; anagram so hai map.
 > \`freq = {1:3, 2:1, 3:1}\`, tần suất của \`1\` là 3. \`IsAnagram("rat","car")\` → đếm \`rat\`={r:1,a:1,t:1},
 > trừ \`car\`: \`'c'\` chưa có → \`{...,c:-1}\` < 0 → **false**.
 > </details>
@@ -463,6 +465,8 @@ Kết quả \`2\`: hai subarray \`[1,1]\` (vị trí 0–1) và \`[1,1]\` (vị 
 > 🔁 **Thực hành.** Với \`nums=[3,4,7,2,-3,1,4,2]\`, \`k=7\`: phương pháp này có đếm đúng cả
 > subarray chứa số âm không?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: prefix+hash đếm số prefix cũ có giá trị prefix−k.
 > Có. Prefix+hash **không yêu cầu mảng dương** (khác với sliding window — chỉ chạy đúng khi tất cả
 > dương). Đây là lý do dùng prefix+hash thay vì window cho bài "sum = k" có số âm.
 > </details>

@@ -149,6 +149,8 @@ func merge(a, b []int) []int {
 > 2. Vì sao \`out = make([]int, 0, len(a)+len(b))\` dùng cap nhưng len = 0?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chạy merge bằng tay với hai con trỏ; nghĩ vì sao cần mảng phụ.
 >
 > 1. So \`2 > 1\` → lấy \`1\`, phải hết, đổ nốt trái \`2\`. Kết quả \`[1,2]\`, **1** lần so sánh.
 > 2. \`append\` không cần cấp phát lại vì cap đã đủ; len bắt đầu 0 để \`append\` thêm dần đúng thứ tự. Nếu set len = tổng thì \`out\` sẽ có sẵn các số 0 ở đầu, \`append\` lại nối tiếp sau → sai.
@@ -236,6 +238,8 @@ Kết quả cuối: [1,2,3,4,5] ✓
 > 🔁 **Thực hành.** Trace \`mergeSort([3,1,2])\`. Cây chia và thứ tự merge?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: vẽ cây chia đôi rồi merge từ lá lên.
 >
 > \`mid=1\` → trái \`[3]\`, phải \`[1,2]\`. Phải: \`mid=1\` → \`[1]\`,\`[2]\` → merge \`[1,2]\`. Rồi merge \`[3]\` với \`[1,2]\`: \`3>1\`→1; \`3>2\`→2; đổ 3 → \`[1,2,3]\`. ✓
 > </details>
@@ -500,6 +504,8 @@ func mergeSortBottomUp(a []int) {
 > 🔁 **Thực hành.** Với $n = 5$, bottom-up chạy mấy pass và size là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: bottom-up: size đi 1, 2, 4…; đếm số pass tới khi phủ cả mảng.
 >
 > \`size = 1, 2, 4\` (dừng khi \`size ≥ 5\`). 3 pass. Pass cỡ 4 sẽ merge mảnh \`[0..3]\` với mảnh \`[4..4]\` (chỉ 1 phần tử). ✓
 > </details>
@@ -623,6 +629,8 @@ func countMerge(a, tmp []int, lo, mid, hi int) int64 {
 > 🔁 **Thực hành.** Mảng \`[5,4,3,2,1]\` có bao nhiêu nghịch thế?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: mỗi cặp i < j mà a[i] > a[j] là một nghịch thế — mảng giảm hẳn thì mọi cặp đều tính.
 >
 > Mọi cặp đều nghịch thế → $\\dfrac{n(n-1)}{2} = 5 \\cdot 4/2 = 10$. Đây là tối đa (mảng sort giảm hoàn toàn).
 > </details>

@@ -69,6 +69,8 @@ Sau bài này bạn sẽ:
 > 2. Transition tách \`[i..j]\` thành mấy phần, tại đâu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: state là đoạn [i, j]; transition thử mọi điểm cắt k ở giữa.
 >
 > 1. Lời giải tối ưu cho **khoảng con liên tục** \`[i..j]\`.
 > 2. Tách thành **hai** khoảng con \`[i..k]\` và \`[k+1..j]\` tại điểm chia \`k\`, rồi cộng chi phí ghép.
@@ -243,6 +245,8 @@ func main() {
 > Với \`dims = [10, 20, 30]\` (2 ma trận \`A1(10×20)\`, \`A2(20×30)\`), chi phí là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: 2 ma trận chỉ có một cách nhân — chi phí = tích 3 kích thước.
 >
 > Chỉ một cách: \`A1·A2\` = \`10·20·30 = 6000\`. Không có lựa chọn ngoặc nào khác.
 > </details>
@@ -637,6 +641,8 @@ Người đi trước thắng/hòa khi \`dp[0][n-1] >= 0\`.
 > Vì sao Matrix Chain dùng \`dp[k+1][j]\` còn Burst Balloons dùng \`dp[k][j]\`?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: so phần tử biên: Matrix Chain cắt GIỮA hai nửa kín, Burst Balloons giữ k làm phần tử cuối.
 >
 > Matrix Chain dùng khoảng **đóng** \`[i..j]\`: hai nửa \`[i..k]\` và \`[k+1..j]\` không chồng phần tử \`k\`. Burst Balloons dùng khoảng **mở** \`(i, j)\` và \`k\` là biên chung của hai nửa con \`(i,k)\`, \`(k,j)\` → \`k\` xuất hiện ở cả hai nên là \`dp[k][j]\`, không phải \`dp[k+1][j]\`.
 > </details>

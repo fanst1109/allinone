@@ -168,6 +168,8 @@ Kiểm tra: tam giác vuông cạnh 4 và 3 → diện tích $= \frac{1}{2}\cdot
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: dấu của cross product cho biết rẽ trái/phải/thẳng hàng.
+
 $\text{cross} = (3-1)\cdot(5-1) - (1-1)\cdot(2-1) = 2\cdot 4 - 0\cdot 1 = 8 > 0$ → CCW, `c` ở bên **trái** (đúng vì `b` đi sang phải, `c` ở trên).
 </details>
 
@@ -307,6 +309,8 @@ o4 = orientation((4,0),(4,4),(4,0)) = Collinear, onSegment((4,0),(4,0),(4,4)) �
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: collinear phải kiểm thêm onSegment — thẳng hàng chưa chắc chạm.
+
 Mọi cross = 0 (thẳng hàng). `onSegment((0,0),(3,0),(2,0))`: $3 \in [0,2]$? Không ($3 > 2$). Các on-segment khác cũng false. → **Không giao** ✓.
 </details>
 
@@ -391,6 +395,8 @@ Kiểm tra hình học: chữ L = hình vuông 4×4 (=16) bỏ góc 2×2 (=4) �
 🔁 **Thực hành.** Tam giác `(1,1),(5,1),(3,4)`. Diện tích?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: diện tích đa giác = |shoelace|/2.
 
 $\Sigma = (1\cdot 1-5\cdot 1) + (5\cdot 4-3\cdot 1) + (3\cdot 1-1\cdot 4) = (1-5)+(20-3)+(3-4) = -4+17-1 = 12$. Diện tích $= 12/2 = 6$. (Đáy 4, cao 3 → $\frac{1}{2}\cdot 4\cdot 3 = 6$ ✓.)
 </details>
@@ -539,6 +545,8 @@ Tổng cắt bên phải = 1 (lẻ) → **bên trong** ✓.
 🔁 **Thực hành.** Với hình vuông `(0,0),(4,0),(4,4),(0,4)`, điểm `(0,2)` (nằm trên cạnh trái) — ray casting trả gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: điểm nằm đúng trên cạnh là ca biên — quy ước ray casting phải nói rõ.
 
 `(0,2)` nằm đúng trên cạnh trái `x=0`. Cạnh trái `xCross=0`; `p.X=0 < 0`? Không. Cạnh phải `xCross=4`; `0<4`? Có → lật 1 lần → "trong". Nhưng điểm thực ra ở **biên** → đây là vùng xám, cần kiểm tra on-segment riêng nếu muốn chắc.
 </details>

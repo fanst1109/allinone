@@ -52,7 +52,12 @@ Sau bài học này bạn sẽ:
 
 🔁 **Thực hành.** Greedy có quay lại sửa lựa chọn đã làm không?
 
-<details><summary>Đáp án</summary>Không. Greedy "cam kết một chiều" — mỗi lựa chọn là vĩnh viễn. Đó là lý do nó nhanh, cũng là lý do nó có thể sai nếu lựa chọn cục bộ phá hỏng cơ hội toàn cục.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhớ tính chất cam-kết-một-chiều của greedy.
+
+Không. Greedy "cam kết một chiều" — mỗi lựa chọn là vĩnh viễn. Đó là lý do nó nhanh, cũng là lý do nó có thể sai nếu lựa chọn cục bộ phá hỏng cơ hội toàn cục.
+</details>
 
 📝 **Tóm tắt mục 1.**
 - Greedy = chuỗi lựa chọn tối ưu cục bộ, không quay lui, không nhìn xa.
@@ -87,7 +92,12 @@ Một bài toán tối ưu giải được bằng greedy khi (và thường là 
 
 🔁 **Thực hành.** Bài toán có optimal substructure nhưng KHÔNG có greedy-choice property thì dùng gì?
 
-<details><summary>Đáp án</summary>Dùng DP (Tier 4). Ví dụ điển hình: 0/1 knapsack và coin change hệ {1,3,4} đều có optimal substructure nhưng greedy-choice property sai → greedy hỏng, DP đúng.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: thiếu greedy-choice property thì rơi về công cụ nào xét mọi tổ hợp?
+
+Dùng DP (Tier 4). Ví dụ điển hình: 0/1 knapsack và coin change hệ {1,3,4} đều có optimal substructure nhưng greedy-choice property sai → greedy hỏng, DP đúng.
+</details>
 
 📝 **Tóm tắt mục 2.**
 - **Greedy-choice property**: tồn tại lời giải tối ưu chứa lựa chọn tham lam đầu tiên.
@@ -414,7 +424,12 @@ Trong đồ thị tổng quát, greedy "luôn đi cạnh nặng nhất / tới �
 
 > 🔁 **Thực hành.** Bạn đoán "sort theo độ dài hoạt động tăng dần" cho activity selection. Hãy tìm phản ví dụ.
 
-<details><summary>Đáp án</summary>3 hoạt động: X=[1,4), Y=[3,5), Z=[5,8) không, dùng đúng phản ví dụ độ-dài: A=[1,10) dài; B=[2,3) ngắn nằm trong; C=[3,4)... thực ra phản ví dụ chuẩn: hoạt động ngắn [4,6) chồng lên cả hai hoạt động dài [1,5) và [5,9). Sort theo độ dài chọn [4,6) trước (ngắn nhất) → loại cả 2 hoạt động dài → chỉ được 1. Tối ưu chọn [1,5) và [5,9) → được 2. Vậy sort theo độ dài SAI; phải sort theo thời gian kết thúc.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tìm phản ví dụ: dựng một hoạt động ngắn chặn hai hoạt động dài hơn.
+
+3 hoạt động: X=[1,4), Y=[3,5), Z=[5,8) không, dùng đúng phản ví dụ độ-dài: A=[1,10) dài; B=[2,3) ngắn nằm trong; C=[3,4)... thực ra phản ví dụ chuẩn: hoạt động ngắn [4,6) chồng lên cả hai hoạt động dài [1,5) và [5,9). Sort theo độ dài chọn [4,6) trước (ngắn nhất) → loại cả 2 hoạt động dài → chỉ được 1. Tối ưu chọn [1,5) và [5,9) → được 2. Vậy sort theo độ dài SAI; phải sort theo thời gian kết thúc.
+</details>
 
 📝 **Tóm tắt mục 6.**
 - Đoán → tìm phản ví dụ → chứng minh (exchange) → nếu sai, chuyển DP.
@@ -484,7 +499,12 @@ Trong đồ thị tổng quát, greedy "luôn đi cạnh nặng nhất / tới �
 
 🔁 **Thực hành.** Cho 0/1 knapsack `W=4`, món P(v=5,w=1), Q(v=6,w=2), R(v=7,w=3). Greedy ratio cho gì? Tối ưu là gì?
 
-<details><summary>Đáp án</summary>ratio: P=5, Q=3, R≈2.33. Greedy lấy P(w=1) rồi Q(w=2) → còn chỗ 1, không lấy được R(w=3) → giá trị 5+6=11. Tối ưu: P(w=1)+R(w=3)=w 4, v=5+7=12 > 11. Greedy SAI → cần DP.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tính tay greedy theo ratio rồi so với phương án vét — chênh là greedy sai.
+
+ratio: P=5, Q=3, R≈2.33. Greedy lấy P(w=1) rồi Q(w=2) → còn chỗ 1, không lấy được R(w=3) → giá trị 5+6=11. Tối ưu: P(w=1)+R(w=3)=w 4, v=5+7=12 > 11. Greedy SAI → cần DP.
+</details>
 
 📝 **Tóm tắt mục 9.**
 - 6 cạm bẫy: tin greedy không chứng minh; sort sai tiêu chí; kẹt local; nhầm 0/1↔fractional; tổng quát coin change; quên edge case.

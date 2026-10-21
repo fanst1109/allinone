@@ -75,6 +75,8 @@ Sau bài này bạn sẽ:
 
 > 🔁 **Thực hành.** Với trie chứa {cat, car, card}, \`startsWith("ca")\` trả về gì? \`search("ca")\` trả về gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: startsWith chỉ cần tới được node; search đòi node có cờ kết thúc từ.
 > <code>startsWith("ca")</code> = <strong>true</strong> (có node tại đường c→a, là prefix của cat/car/card). <code>search("ca")</code> = <strong>false</strong> ("ca" không phải từ đã chèn — node a không terminal).
 > </details>
 
@@ -300,6 +302,8 @@ Với mỗi v (cha p, cạnh ký tự c), duyệt BFS:
 
 > 🔁 **Thực hành.** \`fail\` của node "she" (node 9) là node nào, và output của nó gồm những pattern gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: fail = suffix dài nhất của chuỗi node mà cũng là prefix trong trie.
 > <code>fail[9] = 2</code> (node "he"), vì suffix dài nhất của "she" là prefix của pattern là "he". <code>output[9] = {she, he}</code>.
 > </details>
 

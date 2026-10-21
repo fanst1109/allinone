@@ -145,6 +145,8 @@ func knapsack01(wt, val []int, W int) int {
 > Với cùng input nhưng `W = 7`, `dp[4][7]` bằng bao nhiêu? Món nào được chọn?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: điền lại bảng với W mới; truy vết từ ô cuối ngược lên.
 >
 > Với `W=7`: cặp `{1,2}` dùng 5kg cho 7; còn 2kg trống nhưng món 3,4 đều nặng hơn. Thử `{2,3}`: cân `3+4=7`, val `4+5=9`. Thử `{1,3}`: cân `2+4=6 ≤ 7`, val `3+5=8`. Thử `{2,4}`: cân `3+5=8 > 7` loại. Tốt nhất là `{2,3}` → **`dp[4][7]=9`**, lấy món 2 và món 3.
 > </details>
@@ -389,6 +391,8 @@ func canPartition(nums []int) bool {
 > `nums = [2, 2, 3, 5]` chia đôi được không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: chia đôi được ⟺ tồn tại tập con tổng bằng nửa tổng — subset-sum DP.
 >
 > Tổng = 12, chẵn, target = 6. Tập con tổng 6? `{2,2,?}`=4 cần thêm 2 nữa nhưng hết số 2... `{3,?}` cần 3, không có. `{2,2,3}=7`, `{2,3}=5`, `{5,?}` cần 1. Không có tập nào tổng đúng 6 → **`false`**. (Dù tổng chẵn, vẫn có thể không chia được.)
 > </details>

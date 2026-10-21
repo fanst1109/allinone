@@ -248,6 +248,8 @@ Truy vết: $4 \\leftarrow 3 \\leftarrow 2 \\leftarrow 1 \\leftarrow 0$, đảo 
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: BFS coi mọi cạnh giá 1 — ô bùn giá 5 phá giả định; queue đổi stack là đổi BFS thành DFS.
+>
 > 1. **Không.** BFS đếm số bước, bỏ qua cost. Cần Dijkstra/A\\*.
 > 2. Thành **DFS** — không còn đảm bảo đường ngắn nhất, có thể đi vòng vèo rất xa.
 > </details>
@@ -394,7 +396,11 @@ func greedy(g *Grid, start, goal Cell, h func(a, b Cell) int) ([]Cell, int) {
 > ⚠ **Lỗi thường gặp.** Tưởng "nhanh = tốt". Greedy duyệt ít ô và chạy nhanh, nhưng **đường nó cho có thể dài hơn tối ưu**. Nếu bạn cần đường **đúng ngắn nhất**, đừng dùng Greedy thuần — dùng A\\*.
 
 > 🔁 **Thực hành.** Greedy và A\\* đều dùng heuristic \`h\`. Khác nhau chỗ nào?
-> <details><summary>Đáp án</summary> Greedy dùng priority = \`h\` (chỉ ước lượng còn lại). A\\* dùng \`f = g + h\` (cộng cả cost đã đi). Nhờ cộng \`g\`, A\\* không bị "quên" chi phí đã bỏ ra → vừa nhanh vừa tối ưu.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: so priority hai thuật toán: h đơn độc vs g + h.
+>
+> Greedy dùng priority = \`h\` (chỉ ước lượng còn lại). A\\* dùng \`f = g + h\` (cộng cả cost đã đi). Nhờ cộng \`g\`, A\\* không bị "quên" chi phí đã bỏ ra → vừa nhanh vừa tối ưu.</details>
 
 ---
 
@@ -524,7 +530,11 @@ func euclidean(a, b Cell) float64 {
 > ⚠ **Lỗi thường gặp — dùng sai heuristic cho số hướng di chuyển.** Nếu cho phép **đi chéo** (8 hướng, mỗi bước chéo vẫn tốn 1) mà dùng **Manhattan**, thì Manhattan **over-estimate**: từ \`(0,0)\` tới \`(1,1)\` thực ra 1 bước chéo, nhưng Manhattan = 2. → Mất tối ưu. Đi chéo phải dùng **Chebyshev**.
 
 > 🔁 **Thực hành.** Heuristic nào duyệt ít ô nhất trong các heuristic admissible?
-> <details><summary>Đáp án</summary> Heuristic **càng gần chi phí thực** (mà vẫn không vượt) thì càng định hướng tốt → duyệt ít ô nhất. Trên lưới 4-hướng, Manhattan thường tốt hơn Euclidean vì sát chi phí thực hơn. \`h=0\` (Dijkstra) tệ nhất về số ô duyệt.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: admissible mà càng sát chi phí thực thì cắt càng mạnh.
+>
+> Heuristic **càng gần chi phí thực** (mà vẫn không vượt) thì càng định hướng tốt → duyệt ít ô nhất. Trên lưới 4-hướng, Manhattan thường tốt hơn Euclidean vì sát chi phí thực hơn. \`h=0\` (Dijkstra) tệ nhất về số ô duyệt.</details>
 
 ---
 
@@ -579,7 +589,11 @@ func reconstruct(cameFrom map[Cell]Cell, start, goal Cell) []Cell {
 > ⚠ **Lỗi thường gặp.** Quên đặt \`cameFrom[start] = start\` (hoặc một sentinel). Vòng \`for cur != start\` sẽ chạy vô tận hoặc panic khi \`cameFrom[start]\` không tồn tại. Luôn khởi tạo start trong \`cameFrom\`.
 
 > 🔁 **Thực hành.** Vì sao path cần đảo ngược?
-> <details><summary>Đáp án</summary> Vì ta backtrack **từ goal về start** (theo \`cameFrom\`), nên slice ban đầu là \`goal → ... → start\`. Người đọc/người chơi muốn đi **từ start → goal**, nên đảo lại.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: cameFrom lần từ goal về start — chuỗi thu được ngược chiều.
+>
+> Vì ta backtrack **từ goal về start** (theo \`cameFrom\`), nên slice ban đầu là \`goal → ... → start\`. Người đọc/người chơi muốn đi **từ start → goal**, nên đảo lại.</details>
 
 ---
 

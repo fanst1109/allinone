@@ -150,6 +150,8 @@ func main() {
 
 > 🔁 **Thực hành.** Đồ thị \`0–1, 1–2, 2–3, 3–4, 4–0\` (ngũ giác) có 2 phía không?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: 2 phía ⟺ không có chu trình LẺ — thử tô 2 màu.
 > KHÔNG. Đây là chu trình dài 5 (lẻ). Tô màu: 0=X, 1=Đ, 2=X, 3=Đ, 4=X, rồi 4–0 nối X–X → mâu thuẫn.
 > </details>
 
@@ -260,6 +262,8 @@ hiện tại là maximum. Đây là khung sườn của Kuhn, Hopcroft-Karp, và
 
 > 🔁 **Thực hành.** \`M = {a-y}\` trong đồ thị \`a-x, a-y, b-x\`. Có đường tăng không?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đường tăng: đỉnh tự do, xen kẽ cạnh ngoài/trong M, kết thúc ở đỉnh tự do.
 > Có. \`b\` tự do → cạnh \`b-x\` (ngoài M) → \`x\` tự do → kết thúc. Đường tăng \`b - x\` (1 cạnh).
 > Flip: thêm \`b-x\`. \`M' = {a-y, b-x}\` size 2.
 > </details>
@@ -623,6 +627,8 @@ func main() {
 
 > 🔁 **Thực hành.** Đồ thị 2 phía có 6 đỉnh, max matching = 2. Max independent set = ?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: định lý König nối matching với vertex cover và independent set.
 > Max independent set = V − max matching = 6 − 2 = **4**. (Và min vertex cover = 2.)
 > </details>
 

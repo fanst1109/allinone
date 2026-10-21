@@ -69,6 +69,8 @@ Mỗi bước đệ quy gồm đúng ba việc:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: nghĩ thứ tự duyệt cây trạng thái và thao tác hoàn tác (undo) sau mỗi nhánh.
+
 1. **DFS** (đi sâu hết một nhánh rồi mới quay lui). Backtracking về bản chất là DFS có thao tác undo.
 2. **Undo (quay lui)** — gỡ lựa chọn vừa thêm ra để khôi phục trạng thái về đúng điểm trước khi gọi đệ quy.
 </details>
@@ -238,6 +240,8 @@ Thứ tự ghi: \`[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]\` — đủ 8 
 🔁 **Thực hành.** Vì sao subsets cách 2 ghi nhận lời giải ở **mọi node** chứ không chỉ ở lá như permutations?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hỏi: lời giải hợp lệ xuất hiện ở node hay chỉ ở lá với bài này?
 Vì mỗi prefix \`path\` đang xây *đã là* một tập con hợp lệ rồi (tập con không cần dùng hết phần tử). \`[1]\` là tập con, \`[1,2]\` cũng là tập con. Ngược lại một hoán vị phải dùng *hết* các phần tử nên chỉ lá mới hợp lệ.
 </details>
 
@@ -389,6 +393,8 @@ Không pruning, gốc thử cả \`i=4\` → vào \`dfs(5,[4])\` → \`need=1\` 
 🔁 **Thực hành.** Với \`n=5, k=3\`, tại gốc \`path=[]\` pruning cho phép \`i\` chạy tới mức nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: pruning: còn cần \`need\` phần tử thì i không được vượt n − need + 1.
 \`need = 3 - 0 = 3\`, chặn trên \`i <= 5 - 3 + 1 = 3\`. Tức chỉ thử \`i = 1,2,3\` làm phần tử đầu. Bỏ \`i=4,5\` vì chọn 4 hoặc 5 đầu thì không còn đủ 2 phần tử lớn hơn để lấp đầy.
 </details>
 
@@ -618,6 +624,8 @@ So sánh số node duyệt **với** và **không** pruning (đo bằng đếm s
 🔁 **Thực hành.** Vì sao \`break\` (không phải \`continue\`) là đúng trong combination sum sau khi đã \`sort\`?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: mảng đã sort — phần tử sau chỉ lớn hơn, nên break thay vì thử tiếp.
 Vì mảng đã sort tăng dần. Nếu \`cands[i] > remain\` thì mọi \`cands[j]\` với \`j > i\` cũng \`> remain\` (do đã sort). Không chỉ \`i\` này vô vọng mà *cả phần đuôi* cũng vô vọng → \`break\` cắt luôn, \`continue\` chỉ bỏ một phần tử (lãng phí kiểm tra phần còn lại).
 </details>
 

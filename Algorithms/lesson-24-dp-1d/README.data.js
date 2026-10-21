@@ -112,7 +112,12 @@ func climbStairs(n int) int {
 > **⚠ Lỗi thường gặp.** Đặt \`dp[0] = 0\` thay vì \`1\`. Nếu coi "đứng tại bậc 0 là đã có 1 cách (chưa làm gì)" thì \`dp[0] = 1\`. Nếu base sai, mọi giá trị sau lệch theo. Luôn kiểm tra bằng tay \`dp[2]\` phải bằng \`2\`.
 
 > **🔁 Thực hành.** Với \`n=4\`, có bao nhiêu cách?
-> <details><summary>Đáp án</summary>5 cách: 1+1+1+1, 1+1+2, 1+2+1, 2+1+1, 2+2. Khớp \`dp[4]=5\`.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: dp[i] = dp[i−1] + dp[i−2] — đếm tay để đối chiếu.
+> 
+> 5 cách: 1+1+1+1, 1+1+2, 1+2+1, 2+1+1, 2+2. Khớp \`dp[4]=5\`.
+> </details>
 
 > **📝 Tóm tắt mục 2.** Climbing stairs = Fibonacci. \`dp[i]=dp[i-1]+dp[i-2]\`. Tối ưu xuống $O(1)$ bằng 2 biến rolling.
 
@@ -176,7 +181,12 @@ func max(a, b int) int {
 > - *"Greedy lấy nhà lớn nhất trước có được không?"* — Không, greedy sai. Vd \`[2,7,9,3,1]\`: greedy chọn 9 rồi 7 (kề) cấm, → kẹt. DP mới đúng. (So sánh kỹ ở [L22](../lesson-22-greedy-vs-dp/).)
 
 > **🔁 Thực hành.** \`nums=[2,1,1,2]\` cho ra bao nhiêu?
-> <details><summary>Đáp án</summary>4. dp: 2, max(2,1)=2, max(2,2+1=3)=3, max(3,2+2=4)=4 → 4 (trộm nhà 0 và 3).</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: mỗi nhà: lấy (cộng dp cách 2) hoặc bỏ (giữ dp liền trước), lấy max.
+> 
+> 4. dp: 2, max(2,1)=2, max(2,2+1=3)=3, max(3,2+2=4)=4 → 4 (trộm nhà 0 và 3).
+> </details>
 
 > **📝 Tóm tắt mục 3.** House robber: \`dp[i]=max(dp[i-1], dp[i-2]+nums[i])\` — bỏ qua hay trộm. $O(1)$ không gian.
 
@@ -276,7 +286,12 @@ func maxSubArray(nums []int) int {
 > **❓ Câu hỏi tự nhiên.** *"Khi nào reset, khi nào continue?"* — Reset (\`cur = nums[i]\`) khi \`cur + nums[i] < nums[i]\`, tức \`cur < 0\`. Hễ tổng đang âm thì kéo theo chỉ kéo xuống → vứt đi, bắt đầu lại.
 
 > **🔁 Thực hành.** \`[5, 4, -1, 7, 8]\` cho ra bao nhiêu?
-> <details><summary>Đáp án</summary>23 (cả mảng: 5+4-1+7+8). Không reset lần nào vì cur luôn dương.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: Kadane: cur âm thì reset; toàn dương thì không bao giờ reset.
+> 
+> 23 (cả mảng: 5+4-1+7+8). Không reset lần nào vì cur luôn dương.
+> </details>
 
 > **📝 Tóm tắt mục 5.** Kadane: \`dp[i]=max(nums[i], dp[i-1]+nums[i])\`, đáp án = \`max(dp[i])\`. Khởi tạo \`best=nums[0]\`.
 
@@ -334,7 +349,12 @@ func numDecodings(s string) int {
 > **⚠ Lỗi thường gặp với \`'0'\`.** Số \`0\` **không có chữ cái** tương ứng (A bắt đầu từ 1). \`'0'\` chỉ hợp lệ khi đi **sau** \`'1'\` hoặc \`'2'\` (thành "10" hoặc "20"). Vd \`"30"\` → 0 cách (3 đứng riêng ổn, nhưng "30" không trong [10,26] và "0" riêng không hợp lệ → kẹt). Nếu gặp \`'0'\` mà không tạo được cặp hợp lệ, \`cur=0\` → toàn bộ chuỗi về sau cũng 0.
 
 > **🔁 Thực hành.** \`"27"\` cho ra mấy cách?
-> <details><summary>Đáp án</summary>1 cách (chỉ "BG"). "27" = 27 > 26 nên không đọc cặp được, chỉ tách 2,7.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: cặp số > 26 không decode được — đếm nhánh hợp lệ.
+> 
+> 1 cách (chỉ "BG"). "27" = 27 > 26 nên không đọc cặp được, chỉ tách 2,7.
+> </details>
 
 > **📝 Tóm tắt mục 6.** Decode ways: \`dp[i] = (1 ký tự hợp lệ ? dp[i-1]) + (2 ký tự ∈[10,26] ? dp[i-2])\`. Cẩn thận \`'0'\`.
 
@@ -438,7 +458,12 @@ func wordBreak(s string, wordDict []string) bool {
 > **⚠ Lỗi thường gặp.** Quên \`dp[0]=true\` → mọi \`dp[i]\` đều \`false\` vì không có điểm khởi đầu. Hoặc dùng greedy (cắt từ dài nhất trước) → sai với \`"catsandog"\` (cắt "cats" rồi kẹt "andog", trong khi đáp án thật là false nhưng greedy có thể cho false sai lý do, hoặc bỏ lỡ nhánh "cat"+"sand"...).
 
 > **🔁 Thực hành.** \`"catsandog"\`, dict \`{cats,dog,sand,and,cat}\` — tách được không?
-> <details><summary>Đáp án</summary>Không (false). "cat"+"sand"+"og"? "og" không có. "cats"+"and"+"og"? "og" không có. Mọi nhánh đều kẹt ở "og".</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: thử mọi cách tách prefix nằm trong dict; một chữ kẹt là false.
+> 
+> Không (false). "cat"+"sand"+"og"? "og" không có. "cats"+"and"+"og"? "og" không có. Mọi nhánh đều kẹt ở "og".
+> </details>
 
 > **📝 Tóm tắt mục 8.** Word break: \`dp[i]=∃j: dp[j] ∧ s[j..i-1]∈dict\`. \`dp[0]=true\`. $O(n^2)$.
 
@@ -546,7 +571,12 @@ func lengthOfLIS_nlogn(nums []int) int {
 > **⚠ Cạm bẫy: hai phiên bản LIS.** $O(n^2)$ dễ viết và cho cả việc **dựng lại dãy**; $O(n \\log n)$ nhanh hơn nhiều nhưng \`tails\` **không phải** dãy thật. Khi đề chỉ hỏi **độ dài** → dùng $O(n \\log n)$. Khi cần **dãy cụ thể** → dùng $O(n^2)$ (hoặc $O(n \\log n)$ có lưu thêm con trỏ cha).
 
 > **🔁 Thực hành.** \`[7,7,7,7]\` LIS dài bao nhiêu (tăng nghiêm ngặt)?
-> <details><summary>Đáp án</summary>1. Các số bằng nhau không tạo dãy tăng nghiêm ngặt. (Nếu là "không giảm" thì là 4.)</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tăng NGHIÊM NGẶT — phần tử bằng nhau không nối được nhau.
+> 
+> 1. Các số bằng nhau không tạo dãy tăng nghiêm ngặt. (Nếu là "không giảm" thì là 4.)
+> </details>
 
 > **📝 Tóm tắt mục 9.** LIS $O(n^2)$: \`dp[i]=1+max{dp[j]:nums[j]<nums[i]}\`. $O(n \\log n)$: patience + binary search trên \`tails\`.
 
@@ -605,7 +635,12 @@ func maxProduct(nums []int) int {
 > **⚠ Cạm bẫy: quên track \`min\`.** Nếu chỉ giữ \`maxEnd\`, gặp \`[-2,3,-4]\` sẽ ra \`3\` (sai) thay vì \`24\`, vì bạn vứt mất cái \`min=-6\` mà lẽ ra sẽ lật dấu thành dương lớn. **Luôn** giữ cả hai. Số \`0\` cũng reset cả hai về 0 tự nhiên (qua ứng viên \`nums[i]\`).
 
 > **🔁 Thực hành.** \`[2, -5, -2, -4, 3]\` tích lớn nhất?
-> <details><summary>Đáp án</summary>24. Đoạn \`[-5,-2,-4]\`=-40? không. \`[-2,-4,3]\`=24. Hoặc \`[-5,-2,-4]\`=-40, \`[2,-5,-2]\`=20. Lớn nhất là 24 (\`-2·-4·3\`).</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tích cần theo dõi cả max lẫn MIN (âm × âm thành dương).
+> 
+> 24. Đoạn \`[-5,-2,-4]\`=-40? không. \`[-2,-4,3]\`=24. Hoặc \`[-5,-2,-4]\`=-40, \`[2,-5,-2]\`=20. Lớn nhất là 24 (\`-2·-4·3\`).
+> </details>
 
 > **📝 Tóm tắt mục 10.** Max product: track cả \`maxEnd\` và \`minEnd\` (vì âm×âm). 3 ứng viên mỗi bước.
 

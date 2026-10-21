@@ -114,6 +114,8 @@ Quy ước về \`z[0]\`: thường đặt \`z[0] = 0\` (vì so sánh \`S\` vớ
 > 2. Vì sao \`z[i] ≤ n - i\`?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: z[i] = độ dài khớp dài nhất giữa S và S[i:]; không vượt phần còn lại.
 >
 > 1. \`z = [0, 1, 0, 1]\`. i=1: "aba" vs "aaba" → 'a' khớp, 'b'≠'a' → 1. i=2: 'b'≠'a' → 0. i=3: "a" khớp hết → 1.
 > 2. Suffix \`S[i:]\` chỉ có \`n-i\` ký tự, không thể khớp nhiều hơn số ký tự nó có.
@@ -157,6 +159,8 @@ Không có thông tin tái dùng. Ta so sánh trực tiếp \`S[0..]\` với \`S
 > 🔁 **Thực hành.** Box \`[l, r] = [4, 7]\`, đang xét \`i = 6\`, biết \`z[2] = 5\`. Khởi tạo \`z[6]\` bằng bao nhiêu, có cần so tiếp không?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: trong Z-box, mượn z[i−l] của vị trí gương rồi cắt theo r−i+1.
 >
 > \`k = i - l = 6 - 4 = 2\`. Phần còn lại box: \`r - i + 1 = 7 - 6 + 1 = 2\`. \`z[k] = 5 ≥ 2\` → trường hợp B2. Khởi tạo \`z[6] = min(2, 5) = 2\`, rồi **so tiếp** từ vị trí \`r+1 = 8\`.
 > </details>
@@ -251,6 +255,8 @@ z :  0  1  0  0  4  1  0  0  0  8  1  0  0  5  1  0  0  1  0
 > 🔁 **Thực hành.** Trong walk-through trên, bước nào là B2 (extend)? Có bao nhiêu lần \`r\` được cập nhật?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: extend chỉ xảy ra khi còn khớp vượt ra ngoài r — đếm các lần r nhảy.
 >
 > B2 ở \`i=13\` (so thêm tới 5) và \`i=17\` (so thêm 1 ký tự nhưng fail ngay). \`r\` cập nhật tại \`i=1, 4, 9, 13\` → 4 lần (giá trị \`r\`: 1→7→16→17).
 > </details>
@@ -394,6 +400,8 @@ func main() {
 > 🔁 **Thực hành.** Với \`P="aa"\`, \`T="aaa"\`, tìm các match. (Tự ghép \`W\` và đếm \`z[i]==2\`.)
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: ghép P+'$'+T, các vị trí z = |P| là match.
 >
 > \`W = "aa\\x00aaa"\`, |P|=2. z: i=1→1, i=2(sep)→0, i=3→2, i=4→2, i=5→1. \`z[i]==2\` tại i=3,4 → T pos 3-3=0, 4-3=1. Match tại T[0] và T[1]. Đúng: "aaa" chứa "aa" ở vị trí 0 và 1.
 > </details>

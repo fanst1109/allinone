@@ -72,6 +72,8 @@ Nếu chỉ dựa vào worst-case của một thao tác \`append\`, ta sẽ nói
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: phân biệt chặn cho MỘT thao tác với chặn trung bình cả dãy thao tác.
+
 1. **Một thao tác đơn lẻ** có thể chậm hơn $O(1)$ (vd lần grow), nhưng **tổng chuỗi $n$ thao tác luôn $\\leq O(n)$** — không có chuỗi nào phá vỡ chặn này. Amortized là chặn chắc chắn trên tổng.
 2. **Có.** Average dựa trên phân phối; tồn tại input cụ thể (vd adversary) khiến chạy chậm hơn nhiều. Chặn average không bảo vệ trước input xấu nhất.
 
@@ -368,6 +370,8 @@ Số liệu khớp chính xác bảng walk-through Mục 4.2: tổng copy 15, t�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: capacity nhân đôi tại các mốc lũy thừa 2 — đếm các mốc vượt qua.
+
 1. Capacity đi 1→2→4→...→2048. Grow tại append thứ 2, 3, 5, 9, ..., 1025 (khi vừa đầy $2^k$). Số lần grow = số lũy thừa của 2 từ 1 đến 1024 = **11 lần** (capacity cuối 2048 $\\geq 1025$).
 2. Tổng copy = $1 + 2 + 4 + ... + 1024 = 2^{11} - 1 = 2047 < 2 \\cdot 1025$. Vẫn $\\sim 2n$. Amortized vẫn $O(1)$. ✓
 
@@ -656,6 +660,8 @@ Khớp chính xác bảng 6.2: tổng flip 31, amortized $\\approx 1{,}94$. ✓
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: increment lật chuỗi bit 1 ở đuôi; tổng amortized nhìn qua số lần mỗi bit lật.
+
 1. \`01111 → 10000\`: lật 4 bit 1 đuôi thành 0, lật 1 bit thành 1 = **5 flip** (worst-case của bộ đếm này — đắt nhất).
 2. Tổng $= 32 + 16 + 8 + 4 + 2 + 1 = 63 = 2 \\cdot 32 - 1 < 64$. Amortized $63/32 \\approx 1{,}97 < 2$. ✓ (Tổng flip cho $n$ increment luôn là $2n - $ (số bit 1 trong $n$), ở đây $2 \\cdot 32 - 1 = 63$ vì 32 = \`100000\` có 1 bit.)
 
@@ -752,6 +758,8 @@ Hệ quả thực tế quan trọng:
 🔁 **Thực hành.** Một game engine 60 FPS (mỗi frame ≤ 16.6ms) append vào một slice mỗi frame. Slice đã có 1 triệu phần tử và sắp grow. Vấn đề gì xảy ra, sửa thế nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nghĩ worst-case đơn lẻ giữa chuỗi amortized — frame nào dính grow?
 
 Frame trigger grow phải copy 1 triệu phần tử — có thể vượt 16.6ms ⟹ **frame drop / giật hình**, dù amortized vẫn O(1). Sửa: pre-allocate \`make([]T, 0, maxExpected)\` ngay từ đầu (tránh grow runtime), hoặc grow ở thread nền, hoặc dùng cấu trúc deque/chunked tránh copy lớn một lần.
 

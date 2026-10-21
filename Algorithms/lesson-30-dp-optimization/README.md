@@ -171,7 +171,12 @@ func lcs(a, b string) int {
 Quan sát: bộ nhớ bảng đầy đủ tăng theo **tích** n×W (hoặc m×n), trong khi rolling chỉ theo **một chiều** → tỉ lệ giảm = số hàng. Với hai chuỗi dài, đây là khác biệt giữa "chạy được" và "MLE chắc chắn".
 
 > 🔁 **Thực hành.** Với knapsack 0/1 đã nén 1 chiều, vì sao phải duyệt `w` giảm dần?
-> <details><summary>Đáp án</summary>Để `dp[w-wt[i]]` còn là giá trị của hàng cũ (i-1) — tức trạng thái "chưa lấy vật i". Duyệt tăng → ô đó đã được cập nhật cho vật i → lấy vật i nhiều lần (sai cho 0/1).</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: duyệt ngược giữ hàng cũ nguyên vẹn — xuôi là món bị dùng hai lần.
+> 
+> Để `dp[w-wt[i]]` còn là giá trị của hàng cũ (i-1) — tức trạng thái "chưa lấy vật i". Duyệt tăng → ô đó đã được cập nhật cho vật i → lấy vật i nhiều lần (sai cho 0/1).
+> </details>
 
 > 📝 **Tóm tắt mục 2.** Nếu `dp[i]` chỉ phụ thuộc vài hàng trước, giữ rolling array: knapsack 2D→1D (duyệt w giảm), LCS giữ 2 hàng, fib O(1). KHÔNG dùng được khi cần truy vết lời giải.
 
@@ -274,7 +279,12 @@ func constrainedSubsetSum(a []int, k int) int {
 > ⚠ **Lỗi thường gặp.** Quên bước "bỏ front rời cửa sổ" → dùng giá trị ngoài cửa sổ → sai. Hoặc dùng dấu so sánh sai chiều (`<` thay `<=`) khi pop back — thường vẫn đúng kết quả nhưng làm deque dài hơn cần thiết.
 
 > 🔁 **Thực hành.** Vì sao deque cho O(n) chứ không O(nk) dù có 2 vòng `for` lồng nhau?
-> <details><summary>Đáp án</summary>Phân tích khấu hao (amortized, [L02](../lesson-02-amortized-analysis/)): mỗi chỉ số được `append` đúng 1 lần và bị pop tối đa 1 lần trong toàn bộ chương trình → tổng số thao tác pop ≤ n. Vòng trong chạy tổng cộng ≤ 2n lần, không phải n×k.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: đếm tổng số lần mỗi phần tử vào/ra deque trên cả vòng đời.
+> 
+> Phân tích khấu hao (amortized, [L02](../lesson-02-amortized-analysis/)): mỗi chỉ số được `append` đúng 1 lần và bị pop tối đa 1 lần trong toàn bộ chương trình → tổng số thao tác pop ≤ n. Vòng trong chạy tổng cộng ≤ 2n lần, không phải n×k.
+> </details>
 
 > 📝 **Tóm tắt mục 3.** Transition `dp[i] = a[i] + min/max(dp[j])` với j trong cửa sổ trượt → deque đơn điệu, O(nk)→O(n). Front = giá trị tối ưu trong cửa sổ; pop front khi rời cửa sổ, pop back các ứng viên vô dụng.
 
@@ -349,7 +359,12 @@ Naïve O(n·m): với n=10⁶, m=10⁶ → 10¹² thao tác (TLE). Prefix sum O(
 > ⚠ **Khác biệt với deque (mục 3).** Prefix dùng khi cửa sổ là **toàn bộ tiền tố** (không giới hạn độ rộng). Nếu cửa sổ **trượt cố định độ rộng k**, prefix max KHÔNG dùng được (vì max cần "rút lui" khi phần tử cũ rời cửa sổ — biến chạy không làm được điều đó) → phải dùng deque. Nhưng prefix **sum** trên cửa sổ độ rộng k vẫn ổn (mục 4.1) vì tổng có phép trừ để rút lui.
 
 > 🔁 **Thực hành.** Vì sao prefix *sum* dùng được cho cửa sổ trượt độ rộng k, còn prefix *max* thì không?
-> <details><summary>Đáp án</summary>Tổng có nghịch đảo (phép trừ): `sum[lo..i-1] = pre[i]-pre[lo]`. Max không có nghịch đảo — không thể "trừ ra" phần tử rời cửa sổ. Khi phần tử lớn nhất rời cửa sổ, ta không biết max kế tiếp là bao nhiêu nếu chỉ giữ một biến → phải dùng deque.</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: phép nào có nghịch đảo thì trừ prefix được; max không có phép trừ.
+> 
+> Tổng có nghịch đảo (phép trừ): `sum[lo..i-1] = pre[i]-pre[lo]`. Max không có nghịch đảo — không thể "trừ ra" phần tử rời cửa sổ. Khi phần tử lớn nhất rời cửa sổ, ta không biết max kế tiếp là bao nhiêu nếu chỉ giữ một biến → phải dùng deque.
+> </details>
 
 > 📝 **Tóm tắt mục 4.** Transition tổng/max trên toàn tiền tố → giữ biến cộng dồn / max chạy, O(1) mỗi bước. Prefix sum còn dùng được cho cửa sổ trượt (có phép trừ); prefix max thì không (phải dùng deque).
 
@@ -506,7 +521,12 @@ Bốn ví dụ cụ thể về số bước (mỗi "bước log" = 1 vòng lặp
 Với n=10¹⁸, DP tuyến tính cần 10¹⁸ phép cộng — ở tốc độ 10⁹ phép/giây mất ~30 năm. Matrix expo: 60 vòng, mỗi vòng vài phép nhân int64 → dưới 1 micro-giây. Đây là lý do mọi bài "tính số hạng thứ n cực lớn của recurrence tuyến tính" đều đáp bằng matrix expo.
 
 > 🔁 **Thực hành.** Vì sao matrix expo cho fib chỉ O(log n) dù phải nhân ma trận?
-> <details><summary>Đáp án</summary>Mỗi phép nhân ma trận 2×2 là O(1) (số phép cố định = 8 phép nhân). Lũy thừa nhanh dùng O(log n) phép nhân (bình phương liên tiếp + nhân theo bit của n). → O(log n) tổng. Với ma trận d×d thì mỗi phép nhân là O(d³).</details>
+> <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: ma trận 2×2 nhân nhau O(1); lũy thừa nhanh chia đôi số mũ.
+> 
+> Mỗi phép nhân ma trận 2×2 là O(1) (số phép cố định = 8 phép nhân). Lũy thừa nhanh dùng O(log n) phép nhân (bình phương liên tiếp + nhân theo bit của n). → O(log n) tổng. Với ma trận d×d thì mỗi phép nhân là O(d³).
+> </details>
 
 > 📝 **Tóm tắt mục 8.** Recurrence tuyến tính hệ số hằng → ma trận chuyển T, tính T^n bằng fast power → O(d³ log n). Fib bằng T=[[1,1],[1,0]]. Đếm path độ dài L bằng A^L. Nhớ modulo, kiểm T trên số hạng đầu.
 

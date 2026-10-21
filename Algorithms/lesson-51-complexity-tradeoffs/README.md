@@ -243,6 +243,8 @@ func twoSumTwoPointer(a []int, target int) (int, int) {
 > 2. Mảng chưa sort, chạy 1 query. Chọn cách nào?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: so chi phí build với chi phí mỗi query nhân số query.
 >
 > 1. Two-pointer — mảng đã sort nên bỏ qua chi phí O(n log n), còn O(n) time + O(1) space, thắng hash về cả time lẫn space.
 > 2. Hash — sort sẽ tốn O(n log n) vô ích cho 1 query; hash cho O(n) ngay.
@@ -325,6 +327,8 @@ Prefix thắng khi $n + q < q \cdot n$, tức gần như **luôn thắng ngay kh
 
 > 🔁 **Thực hành.** Bạn cần trả lời 50 range-sum query trên mảng tĩnh n=10⁵. Dùng gì?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: tính tổng phép: build một lần + 50 query rẻ, so với naive 50 lần quét.
 > Prefix sum. Build 10⁵ + query 50 ≈ 100,050 vs naive 50·10⁵ = 5·10⁶. Prefix nhanh hơn ~50×.
 > Mảng tĩnh nên không cần segment tree.
 > </details>
@@ -448,6 +452,8 @@ deadline cố định (vd audio 48kHz: mỗi mẫu < ~20µs). Một lần resize
 > 🔁 **Thực hành.** Game vật lý 60 FPS (mỗi frame 16.6ms) thêm/xoá object liên tục. Slice
 > append amortized O(1) có an toàn không?
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: nghĩ worst-case đơn lẻ trong frame — append trúng resize.
 > Rủi ro: nếu nhiều object append cùng một frame trúng lần resize O(n), frame đó có thể vượt 16.6ms →
 > tụt frame ("hitch"). Giải pháp: pre-allocate capacity (`make([]T, 0, expectedMax)`) để resize không
 > xảy ra trong vòng đời nóng. Đây là đổi space (cấp dư) lấy per-op bound ổn định.

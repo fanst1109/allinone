@@ -79,6 +79,8 @@ func binarySearch(a []int, target int) int {
 > 🔁 **Thực hành.** Với mảng `[2,4,6,8]`, `binarySearch` tìm `5` chạy bao nhiêu bước rồi trả gì?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: lăn từng bước lo/mid/hi; không thấy thì trả vị trí chèn.
 >
 > lo=0,hi=3,mid=1,a[1]=4<5→lo=2. lo=2,hi=3,mid=2,a[2]=6>5→hi=1. Giờ lo=2>hi=1→rỗng→trả **-1**. 2 lần so sánh rồi dừng.
 > </details>
@@ -261,6 +263,8 @@ func lastOccurrence(a []int, target int) int {
 > 🔁 **Thực hành.** Với `a = [5,5,5,5]`, `firstOccurrence(5)` và `lastOccurrence(5)` trả gì?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: first/last occurrence là binary search có điều kiện lệch trái/phải.
 >
 > `lowerBound(5) = 0` (a[0]=5≥5, biên trái nhất). `upperBound(5) = 4` (không phần tử nào > 5 → vị trí chèn cuối = len = 4). first = 0, last = 4−1 = 3. Đúng: số 5 trải từ index 0 đến 3.
 > </details>
@@ -585,6 +589,8 @@ func shipWithinDaysT(w []int, D int) int {
 > 🔁 **Thực hành.** Viết "tìm last occurrence" qua `firstTrue`?
 >
 > <details><summary>Đáp án</summary>
+> 
+> **Hướng dẫn**: last = (first của phần tử LỚN HƠN) trừ 1 — đổi predicate.
 >
 > last occurrence = `upperBoundT(a, target) - 1` rồi kiểm tra `a[idx]==target`. Hoặc trực tiếp: `firstTrue(0, len(a), func(i int) bool { return a[i] > target }) - 1`. Cùng ý tưởng.
 > </details>

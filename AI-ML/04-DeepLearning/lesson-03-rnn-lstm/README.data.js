@@ -211,7 +211,7 @@ h_t = o_t ⊙ tanh(c_t)
     = [0.270, 0.095]
 \`\`\`
 
-> **🔁 Kiểm tra gradient flow**
+> **🔁 Thực hành — gradient flow**
 > $\\partial c_t / \\partial c_{t-1} = f_t = [0,731,\\ 0,690]$. Vì gần 1, gradient truyền ngược qua cell state gần như không mất. So với RNN thông thường: mỗi bước nhân thêm 1 ma trận $\\times \\tanh'$ → nhanh chóng về 0.
 >
 > <details><summary>Tại sao cell state gradient không vanish?</summary>

@@ -375,7 +375,7 @@ Trong đó **chỉ 20 byte chứa dữ liệu thật (`value`)**. 100 byte còn 
 | Tự tham chiếu (`node.left = node`) khi build cây | Vòng lặp vô tận khi duyệt; cấu trúc đó là graph, không phải tree |
 | Đếm `sizeof` mà quên padding | Sai dung lượng thực ~30-50% |
 
-### 8.7. 🔁 Tự kiểm tra
+### 8.7. 🔁 Thực hành
 
 1. Một cây có 1 triệu node, pointer-based trên máy 64-bit, dữ liệu là `int32`. Tốn bao nhiêu MB chỉ để LƯU?
    <details><summary>Đáp án</summary>$10^6 \times 24$ byte $= 24$ MB. Chỉ 4 MB là `value`, 20 MB là metadata.</details>
@@ -639,7 +639,7 @@ Nhắc lại [mục 6](#6-cây-tổng-quát-n-ary-tree) — khi mỗi node có *
 - **BST**: cây "trái nhỏ phải lớn" cho tìm kiếm $O(\log n)$ (Lesson 02).
 - **n-ary tree**: file system, DOM, AST — bất cứ đâu có quan hệ "chứa / cha–con".
 
-### 9.7. 🔁 Tự kiểm tra
+### 9.7. 🔁 Thực hành
 
 1. Dựng cây biểu thức cho `2 * (3 + 5)` rồi tính bằng postorder. Kết quả là bao nhiêu?
    <details><summary>Đáp án</summary>Cây: gốc `*`, con trái `2`, con phải `+` (với con `3`, `5`). Postorder: thăm `2`, `3`, `5`, rồi `+` → `3+5=8`, rồi `*` → `2*8=16`. Kết quả **16**.</details>

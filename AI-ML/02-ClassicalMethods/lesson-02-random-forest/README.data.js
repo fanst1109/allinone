@@ -183,7 +183,7 @@ Petal features quan trọng hơn sepal → phù hợp với domain knowledge (nh
 - Shuffle sepal_length → accuracy giảm 5%.
 - Shuffle sepal_width → accuracy giảm 2%.
 
-> 🔁 **Kiểm tra**: Random Forest có 3 trees trên bootstrap samples. Tree 1 predict class A, Tree 2 predict class B, Tree 3 predict class A. Output cuối là gì?
+> 🔁 **Thực hành**: Random Forest có 3 trees trên bootstrap samples. Tree 1 predict class A, Tree 2 predict class B, Tree 3 predict class A. Output cuối là gì?
 
 <details><summary>Đáp án</summary>
 

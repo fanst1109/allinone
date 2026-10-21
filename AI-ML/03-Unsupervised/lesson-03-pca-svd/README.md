@@ -152,7 +152,7 @@ CVE(m) = Σⱼ₌₁ᵐ λⱼ / Σₖ λₖ
 
 → **2 components** giữ 95.81% variance — đủ tốt! Scree plot cho thấy elbow sau PC2.
 
-> 🔁 **Kiểm tra nhanh**: Nếu iris có eigenvalues [3.5, 0.3, 0.1, 0.1], cần bao nhiêu components để đạt 90% variance?
+> 🔁 **Thực hành**: Nếu iris có eigenvalues [3.5, 0.3, 0.1, 0.1], cần bao nhiêu components để đạt 90% variance?
 > <details><summary>Đáp án</summary>
 >
 > Tổng = 4.0. PC1 = 3.5/4.0 = 87.5%. PC1+PC2 = (3.5+0.3)/4.0 = 95% ≥ 90%. → Cần **2 components** (CVE 95%).

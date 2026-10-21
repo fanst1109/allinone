@@ -265,7 +265,7 @@ $\\alpha = 0$ → cây đầy đủ (overfit). $\\alpha$ lớn → cây nhỏ h�
 
 > ❓ **Câu hỏi**: Khi nào dùng Decision Tree thay vì KNN? — Decision Tree: interpretable (giải thích được từng nhánh), xử lý categorical tự nhiên, nhanh hơn lúc predict ($O(\\log n)$ vs $O(n)$ của KNN). KNN: không cần training, tốt với small dataset, sensitive với local structure.
 
-> 🔁 **Kiểm tra**: Tập S có 8 Yes và 2 No. Tính Entropy và Gini.
+> 🔁 **Thực hành**: Tập S có 8 Yes và 2 No. Tính Entropy và Gini.
 
 <details><summary>Đáp án</summary>
 

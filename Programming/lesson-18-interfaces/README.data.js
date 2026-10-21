@@ -247,7 +247,7 @@ fmt.Println(c.n)        // 7 — vẫn mutate c qua pointer trong interface
 > var w io.Writer = &bytes.Buffer{}  // ĐÚNG
 > \`\`\`
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > Tại sao \`fmt.Println\` chấp nhận cả \`time.Time{}\` (value) lẫn \`&time.Time{}\` (pointer)?
 > <details><summary>Đáp án</summary>
 > Method \`String() string\` của \`time.Time\` có **value receiver**: \`func (t Time) String() string\`. Nên cả \`Time\` lẫn \`*Time\` đều satisfy \`fmt.Stringer\`.
@@ -410,7 +410,7 @@ func find(id int) error {
 > \`\`\`
 > Sửa: dùng \`var err error\` (interface type), không phải \`*MyError\` (concrete type).
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > Đoạn nào in \`nil\`, đoạn nào in \`not nil\`?
 > \`\`\`go
 > // a)

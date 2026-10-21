@@ -150,7 +150,7 @@ S(k=2) = (0.857 + 0.833 + 1.0)/3 ≈ 0.897  → Rất tốt!
 
 > 💡 **Khi nào Silhouette tốt hơn Elbow?** Silhouette tính cả "cohesion" lẫn "separation" — có thể tìm k=2 có score cao hơn k=3 dù k=3 thật sự tồn tại nếu 3 cluster overlap nhiều. Dùng cả hai và lấy đồng thuận.
 
-> 🔁 **Kiểm tra nhanh**: Data gồm 5 điểm: {0, 0.1, 0.2, 10, 10.3}. K-means với k=2. Tính inertia và mean silhouette.
+> 🔁 **Thực hành**: Data gồm 5 điểm: {0, 0.1, 0.2, 10, 10.3}. K-means với k=2. Tính inertia và mean silhouette.
 > <details><summary>Đáp án</summary>
 >
 > C1={0, 0.1, 0.2} ($\mu_1=0{,}1$), C2={10, 10.3} ($\mu_2=10{,}15$).
@@ -294,7 +294,7 @@ Height
 
 > ❓ **Ward linkage vs single linkage**: Ward tốt hơn trong hầu hết trường hợp. Single linkage tạo ra hiệu ứng "chaining" — chain các điểm biên thành 1 cluster dài → cluster không compact. Ward minimize variance → cluster gọn và cân bằng.
 
-> 🔁 **Kiểm tra nhanh**: Trên ví dụ 5 điểm $A=1, B=2, C=4, D=8, E=9$ với single linkage — nếu tôi cắt dendrogram ở height h=3.5, tôi ra mấy cluster và gồm những điểm nào?
+> 🔁 **Thực hành**: Trên ví dụ 5 điểm $A=1, B=2, C=4, D=8, E=9$ với single linkage — nếu tôi cắt dendrogram ở height h=3.5, tôi ra mấy cluster và gồm những điểm nào?
 > <details><summary>Đáp án</summary>
 >
 > Tại h=3.5: merge đã xảy ra tại h=1 ({A,B}), h=1 ({D,E}), h=2 ({A,B,C}). Merge h=4 ({A,B,C,D,E}) chưa xảy ra.

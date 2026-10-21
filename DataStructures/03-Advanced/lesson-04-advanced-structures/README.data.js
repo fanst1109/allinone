@@ -189,7 +189,7 @@ Số lần đọc node: 2 (= chiều cao). Với $m = 256$ và $10^9$ khóa, chi
 - Dùng cho **disk-backed structure**: DB index, file system.
 - B+ Tree tối ưu hơn cho range query (lá nối linked list).
 
-### 1.12. 🔁 Tự kiểm tra
+### 1.12. 🔁 Thực hành
 
 1. B-Tree bậc $m = 5$. Mỗi node chứa tối đa và tối thiểu bao nhiêu khóa (node không phải root)? Khi node thứ mấy thì phải split?
    <details><summary>Đáp án</summary>Tối đa $m - 1 = 4$ khóa; tối thiểu $\\lceil m/2 \\rceil - 1 = \\lceil 2{,}5 \\rceil - 1 = 2$ khóa. Khi insert làm node có **5 khóa** (vượt 4) → split: đẩy median (khóa thứ 3) lên cha, chia còn lại thành 2 node 2 khóa.</details>
@@ -499,7 +499,7 @@ Insert \`12\` vào skip list trên:
 - Cài đặt **đơn giản hơn nhiều** so với balanced tree.
 - Dùng cho **concurrent**, **range query**, **Redis ZSET**, **LevelDB memtable**.
 
-### 2.12. 🔁 Tự kiểm tra
+### 2.12. 🔁 Thực hành
 
 1. Skip list với $p = 1/2$ chứa $n = 10^6$ phần tử. Số tầng kỳ vọng khoảng bao nhiêu? Tầng cao nhất trung bình chứa mấy phần tử?
    <details><summary>Đáp án</summary>Số tầng $\\approx \\log_2(10^6) \\approx 20$. Tầng $k$ kỳ vọng $n/2^k$ phần tử → tầng cao nhất (~20) còn $10^6/2^{20} \\approx 1$ phần tử. Đó là lý do số tầng dừng quanh $\\log_2 n$.</details>
@@ -617,7 +617,7 @@ SSTables: [SSTable-3, SSTable-2, SSTable-1]   (mới đến cũ)
 - Bloom filter bắt buộc để tránh tra SSTable thừa.
 - Dùng cho **write-heavy**: time-series, log, NoSQL (Cassandra, HBase, RocksDB).
 
-### 3.10. 🔁 Tự kiểm tra
+### 3.10. 🔁 Thực hành
 
 1. \`GET key\` trong LSM-Tree tra theo thứ tự nào, và vì sao thứ tự đó quan trọng?
    <details><summary>Đáp án</summary>Tra **memtable trước**, rồi các SSTable từ **mới nhất → cũ nhất**. Quan trọng vì giá trị mới hơn (ghi đè) phải che giá trị cũ. Nếu tra nhầm thứ tự (cũ trước) → trả về giá trị stale đã bị ghi đè.</details>
@@ -730,7 +730,7 @@ Bloom filter = "chữ ký phân bố": mỗi item bật vài bit ngẫu nhiên t
 - Saturation khi $n$ vượt thiết kế → cần SBF hoặc Cuckoo Filter để mở rộng.
 - Use cases: pre-filter DB, web crawler, LSM SSTable lookup.
 
-### 4.9. 🔁 Tự kiểm tra
+### 4.9. 🔁 Thực hành
 
 1. Bloom filter trả về "**không có**" cho key \`x\`. Có thể tin chắc \`x\` không trong tập không? Còn khi trả "**có thể có**"?
    <details><summary>Đáp án</summary>"Không có" → **chắc chắn đúng** (no false negative): nếu \`x\` từng được add thì cả $k$ bit của nó đã bật, không thể có bit tắt. "Có thể có" → **phải verify thật** (có thể false positive: $k$ bit đó bị các key khác bật trùng).</details>
@@ -824,7 +824,7 @@ Luồng dùng thật: \`if !bloom.MightContain(key) { return "không có" }\` �
 
 Hiểu cấu trúc bên trong (bài này dạy) = biết **chọn đúng** DB/lib cho workload: ghi nhiều → LSM (Cassandra/RocksDB); đọc-range nhiều → B+ tree (Postgres); ranking → skip list (Redis ZSet); lọc tồn tại → Bloom.
 
-### 6.3. 🔁 Tự kiểm tra
+### 6.3. 🔁 Thực hành
 
 > 1. Bloom \`MightContain\` trả \`false\` — có chắc key chưa từng thêm không? Trả \`true\` thì sao?
 >    <details><summary>Đáp án</summary><b>false = chắc chắn chưa thêm</b> (vì nếu đã thêm thì mọi bit đã bật, không thể có bit 0). <b>true = có thể đã thêm</b>, nhưng có thể là false positive (các bit tình cờ bị key khác bật). Bloom sai một chiều.</details>

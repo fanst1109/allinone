@@ -409,7 +409,7 @@ Trả về `["cat", "car", "card", "care"]`. Để ý nhánh `d → o → g` ("d
 | Tạo node mới mà quên init `children` (ngôn ngữ thủ công) | NPE khi đi xuống lần sau |
 | Tính memory mà chỉ đếm `len(word)` | Quên 26 pointer/node = ~200 byte ẩn |
 
-### 7.3. 🔁 Tự kiểm tra
+### 7.3. 🔁 Thực hành
 
 1. Vẽ trie sau khi insert `"to", "tea", "ted", "ten", "i", "in", "inn"` (ví dụ kinh điển). Có bao nhiêu node? Bao nhiêu node có `isEnd=true`?
    <details><summary>Đáp án</summary>11 node (root + t, o, e, a, d, n, i, n, n) + isEnd ở 7 vị trí (to, tea, ted, ten, i, in, inn). Lưu ý node 'i' và 'in' và 'inn' đều có isEnd.</details>

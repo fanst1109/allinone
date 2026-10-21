@@ -350,7 +350,7 @@ Cùng tập `{1, 2, 3, 4, 5}`, 4 thứ tự khác nhau:
 - **"Khi nào tôi BẮT BUỘC phải dùng balanced BST thay vì BST thường?"** — Khi không kiểm soát thứ tự insert và cần đảm bảo worst-case $O(\log n)$: database index, scheduler theo deadline, interval tree, ... Khi chỉ cần lookup không cần thứ tự → HashMap đơn giản hơn và nhanh hơn ($O(1)$).
 - **"Trộn ngẫu nhiên trước khi insert có giải quyết hẳn không?"** — Cho 1 lần build từ tập biết trước thì có. Nhưng dữ liệu đến online, không trộn được — vẫn cần cây cân bằng (AVL, RB-tree, Treap).
 
-### 5.3. 🔁 Tự kiểm tra
+### 5.3. 🔁 Thực hành
 
 1. Cho cây BST: root=10, trái=5 (con trái=2, con phải=7), phải=15. Inorder traversal cho ra dãy nào?
    <details><summary>Đáp án</summary>`2, 5, 7, 10, 15`. Áp dụng "trái-gốc-phải" đệ quy.</details>

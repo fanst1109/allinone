@@ -428,7 +428,7 @@ Vd $n = 8$:
 - **Persistent segment tree**: giữ lịch sử mọi phiên bản.
 - **Implicit segment tree**: cho phạm vi giá trị lớn nhưng thưa.
 
-### 7.1. 🔁 Tự kiểm tra tổng hợp
+### 7.1. 🔁 Thực hành tổng hợp
 
 1. Trên mảng \`[1, 3, 5, 7, 9, 11]\` (segtree build sẵn ở mục 2.5), tính \`query(0, 3)\`.
    <details><summary>Đáp án</summary>\`a[0]+a[1]+a[2]+a[3] = 1+3+5+7 = 16\`. Đi node 1[0,5]→node 2[0,2] nằm trọn (=9)→node 3[3,5]→node 6[3,4]→node 12[3,3] nằm trọn (=7), node 13[4,4] không giao. Tổng \`9 + 7 = 16\` ✓.</details>
@@ -538,7 +538,7 @@ Dùng nhiều cho: **đếm nghịch thế** (Bài 4), rank động trong leader
 
 > ⚠ **Bẫy — cấp \`4n\` cho mảng \`tree\`, không phải \`n\` hay \`2n\`.** Segment tree trên $n$ phần tử có thể cần tới $4n$ node ở dạng đệ quy (cây không phải lúc nào cũng đầy hoàn hảo). Cấp thiếu → ghi out-of-bounds, sai âm thầm. BIT thì đúng $n+1$.
 
-### 8.4. 🔁 Tự kiểm tra
+### 8.4. 🔁 Thực hành
 
 > 1. Mảng giá tĩnh, chỉ hỏi "tổng [l,r]" nhiều lần, không bao giờ sửa. Dùng gì?
 >    <details><summary>Đáp án</summary><b>Prefix-sum array</b>: <code>pre[i]=a[0]+...+a[i-1]</code>, query <code>pre[r+1]-pre[l]</code> = $O(1)$. Segment tree thừa vì không có update.</details>

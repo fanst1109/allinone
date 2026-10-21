@@ -198,7 +198,7 @@ $ which python
 
 Quan trọng khi gặp lỗi version: máy cài 2 bản Go, gõ `go version` không khớp dự kiến → `which go` để tìm cái nào đang được PATH ưu tiên.
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Khác nhau giữa `mv a.txt b.txt` và `cp a.txt b.txt`?
 > 2. Sau `cd /tmp; cd /var/log; cd -`, đang ở đâu?
 > 3. `rm -rf` khác `rm -r` chỗ nào?
@@ -837,7 +837,7 @@ $ git cherry-pick 8f3a2c1
 [hotfix abc123] fix: ...
 ```
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > 1. Bạn commit cuối có message sai, code đúng. Lệnh nào sửa?
 > 2. Vừa `git reset --hard HEAD~5` nhầm, 5 commit "biến mất". Cứu thế nào?
 > 3. Khác nhau giữa `git checkout -- file.go` và `git checkout file.go`?

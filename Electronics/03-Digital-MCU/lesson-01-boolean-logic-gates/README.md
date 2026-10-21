@@ -135,7 +135,7 @@ Kết quả 0 **chỉ** khi cả A = 0 và B = 0.
 - $A + B \cdot C = A + (B \cdot C)$, KHÔNG phải $(A + B) \cdot C$.
 - Ví dụ: A=0, B=1, C=1. Đúng: $0 + (1 \cdot 1) = 0 + 1 = \mathbf{1}$. Sai: $(0+1) \cdot 1 = 1 \cdot 1 = 1$. (Trùng hợp ở đây, nhưng thay C=0 thì khác nhau: đúng $0+(1 \cdot 0)=0$, sai $(0+1) \cdot 0=0$ — vẫn đúng. Thay A=1,B=0,C=1: đúng $1+(0 \cdot 1)=1$, sai $(1+0) \cdot 1=1$. Thay A=0,B=0,C=1: đúng $0+(0 \cdot 1)=0$, sai $(0+0) \cdot 1=0$. Thay A=1,B=1,C=0: đúng $1+(1 \cdot 0)=1$, sai $(1+1) \cdot 0=0$ — **KHÁC NHAU!**)
 
-🔁 **Kiểm tra nhanh:**
+🔁 **Thực hành:**
 Tính $\overline{A} \cdot B + C$ với A=0, B=1, C=0:
 <details><summary>Đáp án</summary>
 
@@ -230,7 +230,7 @@ Bước 3: $1 + 0 = \mathbf{1}$.
   - AND: 1 chỉ ở 11. NAND: 0 chỉ ở 11.
   - OR: 0 chỉ ở 00. NOR: 1 chỉ ở 00.
 
-🔁 **Kiểm tra nhanh:**
+🔁 **Thực hành:**
 Cổng nào cho Y=1 khi A=0, B=0?
 <details><summary>Đáp án</summary>
 
@@ -384,7 +384,7 @@ Kiểm tra:
 - ĐÚNG: $\overline{A + B + C} = \overline{A} \cdot \overline{B} \cdot \overline{C}$ (De Morgan mở rộng: phủ định OR → AND của các phủ định).
 - SAI: $\overline{A} + \overline{B} \neq \overline{A + B}$ — vế phải là $\overline{A} \cdot \overline{B}$, không phải $\overline{A} + \overline{B}$!
 
-🔁 **Kiểm tra nhanh:**
+🔁 **Thực hành:**
 Rút gọn: $A \cdot B + A \cdot \overline{B}$
 <details><summary>Đáp án</summary>
 

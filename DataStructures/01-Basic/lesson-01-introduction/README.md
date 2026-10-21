@@ -265,7 +265,7 @@ Tổng: $1 + n + n^2 + 1 = n^2 + n + 2$ → **$O(n^2)$**.
 | Áp $O(1)$ cho thao tác có hash collision tệ nhất | Nhầm "trung bình" với "xấu nhất" | Ghi rõ "amortized" / "trung bình" khi cần |
 | Bỏ qua chi phí ẩn (vd copy chuỗi trong vòng lặp) | Tưởng $O(n)$ mà thực ra là $O(n^2)$ | Đọc kỹ thao tác bên trong vòng lặp |
 
-### 5.12. 🔁 Tự kiểm tra
+### 5.12. 🔁 Thực hành
 
 1. Đoạn `for i := 1; i < n; i *= 2 { ... }` chạy bao nhiêu lần?
    <details><summary>Đáp án</summary>$i$ đi qua dãy $1, 2, 4, 8, \ldots, n$ → khoảng $\log_2 n$ lần → $O(\log n)$.</details>

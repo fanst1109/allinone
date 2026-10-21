@@ -59,7 +59,7 @@ Go là **"sweet spot"** cho người muốn vừa hiểu sâu, vừa có thể x
 
 Theo chuẩn của repo này (xem `CLAUDE.md` ở root):
 
-- `README.md` — lý thuyết + ví dụ số cụ thể (≥4 ví dụ/định nghĩa) + callouts (💡 Trực giác, ❓ Câu hỏi, ⚠ Lỗi thường gặp, 🔁 Tự kiểm tra, 📝 Tóm tắt) + bài tập **có lời giải chi tiết**.
+- `README.md` — lý thuyết + ví dụ số cụ thể (≥4 ví dụ/định nghĩa) + callouts (💡 Trực giác, ❓ Câu hỏi, ⚠ Lỗi thường gặp, 🔁 Thực hành, 📝 Tóm tắt) + bài tập **có lời giải chi tiết**.
 - `solutions.go` — code Go biên dịch được, có hàm `main` minh họa, comment tiếng Việt giải thích.
 - `visualization.html` — minh họa tương tác standalone, mở trong browser là chạy, có readme-modal + TOC.
 

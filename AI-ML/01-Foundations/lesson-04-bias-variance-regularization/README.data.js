@@ -115,7 +115,7 @@ MSE
 | 7 | 0.02 | 1.10 | Overfit rõ |
 | 10 | 0.001 | 8.70 | Overfit nghiêm trọng |
 
-> 🔁 **Kiểm tra**: Nếu train MSE = 0.1 và val MSE = 0.12 → model đang bị gì?
+> 🔁 **Thực hành**: Nếu train MSE = 0.1 và val MSE = 0.12 → model đang bị gì?
 
 <details><summary>Đáp án</summary>
 
@@ -234,7 +234,7 @@ L_en(w) = MSE + λ₁·‖w‖₁ + λ₂·‖w‖²
 
 Restore weights từ epoch 30.
 
-> 🔁 **Kiểm tra**: Tại epoch 30 train=0.21, val=0.35. Tại epoch 60 train=0.07, val=0.47. Tính generalization gap và kết luận.
+> 🔁 **Thực hành**: Tại epoch 30 train=0.21, val=0.35. Tại epoch 60 train=0.07, val=0.47. Tính generalization gap và kết luận.
 
 <details><summary>Đáp án</summary>
 
@@ -307,7 +307,7 @@ Outer loop (5-fold): estimate generalization error
 
 > ⚠ **Lỗi thường gặp**: tune hyperparameter trên val set rồi dùng cùng val set để báo cáo accuracy. Kết quả bị lạc quan (optimistic bias). Đúng: **dùng test set hoàn toàn riêng**, không đụng tới cho đến cuối.
 
-> 🔁 **Kiểm tra**: Bạn có 1000 samples, muốn tune λ ∈ {0.01, 0.1, 1, 10} bằng 5-fold CV, rồi báo cáo test accuracy. Phác thảo quy trình đúng.
+> 🔁 **Thực hành**: Bạn có 1000 samples, muốn tune λ ∈ {0.01, 0.1, 1, 10} bằng 5-fold CV, rồi báo cáo test accuracy. Phác thảo quy trình đúng.
 
 <details><summary>Đáp án</summary>
 

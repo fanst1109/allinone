@@ -126,7 +126,7 @@ Lý thuyết: 1 hidden layer đủ rộng có thể xấp xỉ mọi hàm liên 
 > - Cứ tưởng "phi tuyến" = phải dùng tanh hay sigmoid. **ReLU** ($\\max(0, z)$) — một hàm gãy đơn giản — cũng đủ phi tuyến.
 > - Đặt $\\sigma$ là identity rồi thắc mắc sao model không học gì hơn linear regression. Linear stack vẫn linear.
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > Câu hỏi: Tại sao bài AND ($y = x_1$ AND $x_2$) **giải được** bằng logistic regression, còn XOR thì không?
 >
 > <details>
@@ -359,7 +359,7 @@ Không "đúng" — đây là khởi tạo. Trong thực tế dùng **random** (
 
 Tệ. Vì $\\hat{y} = 0{,}149$ còn rất xa $y = 1$. Sau khi backprop và update, loss giảm dần. Bài này train xong cho XOR đến mục 7.
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > Bây giờ tự tính forward pass với $x = [0, 1]$ (cùng weights). Đáp số $\\hat{y} \\approx ?$
 >
 > <details>
@@ -546,7 +546,7 @@ Vì $\\partial z/\\partial b = 1$ (bias xuất hiện cộng thẳng, không nh�
 > - Áp $\\sigma'$ lên $h$ thay vì $z_1$ mà không nhớ rằng $\\sigma'(z_1) = h \\cdot (1-h)$ (đẳng thức đặc biệt của sigmoid). Với activation khác (tanh, ReLU) phải dùng đúng công thức.
 > - Nhầm $\\partial L/\\partial W$ shape — quên transpose. Verify shape là cách phát hiện ngay.
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > Câu hỏi: Tính lại $\\partial L/\\partial h[1]$ mà không nhìn lời giải. Bước đầu: viết công thức $\\partial L/\\partial h[1] = ?$ theo $\\delta_2$ và $W_2$.
 >
 > <details>

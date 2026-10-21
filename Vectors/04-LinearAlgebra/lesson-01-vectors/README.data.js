@@ -239,7 +239,7 @@ $$\\mathbb{R}^n = \\{ (x_1, x_2, \\ldots, x_n) \\mid x_i \\in \\mathbb{R} \\text
 
 > **⚠ Lỗi thường gặp:** Nhầm **giá trị** của thành phần với **chiều**. Vector $(1000, 0.001)$ vẫn là vector 2 chiều (vì có 2 thành phần), không phải vector "lớn" hay "nhỏ". Giá trị từng thành phần thì có thể bất kỳ; chiều thì luôn là số đếm thành phần.
 
-> **🔁 Tự kiểm tra:**
+> **🔁 Thực hành:**
 > 1. Vector $\\mathbf{v} = (1, 2, 3, 4)$ thuộc $\\mathbb{R}^n$ với n bằng bao nhiêu?
 > 2. Có bao nhiêu thành phần trong vector $(0, 0)$ và nó thuộc $\\mathbb{R}$?
 > 3. Vector $(7, 7, 7, 7, 7, 7, 7)$ thuộc $\\mathbb{R}$?
@@ -389,7 +389,7 @@ $$\\mathbf{u} + \\mathbf{v} = (1, 1, 1, 1, 1)$$
 > - "Nếu cộng $\\mathbf{u} + \\mathbf{0}$ thì sao?"
 >   Bằng $\\mathbf{u}$ — vì $\\mathbf{0}$ là vector trung hòa. Mục 7 sẽ định nghĩa vector 0.
 
-> **🔁 Tự kiểm tra:** Tính $(3, -2, 5) + (-1, 4, -5)$.
+> **🔁 Thực hành:** Tính $(3, -2, 5) + (-1, 4, -5)$.
 > <details><summary>Đáp án</summary>
 > $(3 + (-1), -2 + 4, 5 + (-5)) = (2, 2, 0)$.
 > </details>
@@ -532,7 +532,7 @@ Tức **scalar multiplication với số nguyên dương = cộng nhiều lần*
 > - "Tại sao gọi là 'scalar' multiplication mà không phải 'number' multiplication?"
 >   Vì trong các không gian vector tổng quát, "số" có thể là số phức, số nguyên modulo, v.v. — "scalar" là từ gọi chung cho phần tử của **trường (field)** mà không gian vector được định nghĩa trên đó. Bài này luôn dùng $\\mathbb{R}$ nên scalar = số thực.
 
-> **🔁 Tự kiểm tra:** Tính $(-2) \\cdot (3, -4, 0, 5)$.
+> **🔁 Thực hành:** Tính $(-2) \\cdot (3, -4, 0, 5)$.
 > <details><summary>Đáp án</summary>
 > $(-2 \\cdot 3, -2 \\cdot (-4), -2 \\cdot 0, -2 \\cdot 5) = (-6, 8, 0, -10)$.
 > </details>
@@ -654,7 +654,7 @@ $$-\\mathbf{v} = (-v_1, \\ -v_2, \\ \\ldots, \\ -v_n)$$
 - $\\mathbf{v} = (0, 7, 0)$ → $-\\mathbf{v} = (0, -7, 0)$.
 - $\\mathbf{v} = \\mathbf{0} = (0, 0)$ → $-\\mathbf{v} = (0, 0) = \\mathbf{0}$ (vector 0 là đối của chính nó).
 
-> **🔁 Tự kiểm tra:** Cho $\\mathbf{v} = (5, -3, 0, 2)$. Tính $-\\mathbf{v}$ và $\\mathbf{v} + (-\\mathbf{v})$.
+> **🔁 Thực hành:** Cho $\\mathbf{v} = (5, -3, 0, 2)$. Tính $-\\mathbf{v}$ và $\\mathbf{v} + (-\\mathbf{v})$.
 > <details><summary>Đáp án</summary>
 >
 > - $-\\mathbf{v} = (-5, 3, 0, -2)$.
@@ -749,7 +749,7 @@ Trong hình bình hành với cạnh $\\mathbf{u}$, $\\mathbf{v}$ đặt tại g
 
 > **⚠ Lỗi thường gặp:** Phép trừ vector **không giao hoán**: $\\mathbf{u} - \\mathbf{v} \\neq \\mathbf{v} - \\mathbf{u}$ (trừ trường hợp $\\mathbf{u} = \\mathbf{v}$). Đừng nhầm với cộng. Cụ thể: $\\mathbf{u} - \\mathbf{v} = -(\\mathbf{v} - \\mathbf{u})$.
 
-> **🔁 Tự kiểm tra:** Cho $A = (3, 4)$ và $B = (7, 1)$ là 2 điểm. Tính vector tịnh tiến từ A sang B.
+> **🔁 Thực hành:** Cho $A = (3, 4)$ và $B = (7, 1)$ là 2 điểm. Tính vector tịnh tiến từ A sang B.
 > <details><summary>Đáp án</summary>
 >
 > $B - A = (7-3, 1-4) = (4, -3)$. Tức "đi 4 đơn vị sang phải, 3 đơn vị xuống" từ A sẽ tới B. ✓
@@ -796,7 +796,7 @@ Với mọi $(a, b, c) \\in \\mathbb{R}^3$ ta có $(a, b, c) = a \\cdot \\mathbf
 >
 > Trả lời: Đúng. Vì phép cộng và scalar multiplication đều "đóng" trong $\\mathbb{R}^n$ (kết quả vẫn là vector trong $\\mathbb{R}^n$). Đây là tính chất **đóng (closure)** — bắt nguồn từ 8 tiên đề. Tổng quát hơn: tập tất cả tổ hợp tuyến tính của một số vector cho trước được gọi là **span** của tập đó — Lesson 04.
 
-> **🔁 Tự kiểm tra:** Cho $\\mathbf{v}_1 = (1, 1)$, $\\mathbf{v}_2 = (1, -1)$. Tính $2 \\cdot \\mathbf{v}_1 + 3 \\cdot \\mathbf{v}_2$.
+> **🔁 Thực hành:** Cho $\\mathbf{v}_1 = (1, 1)$, $\\mathbf{v}_2 = (1, -1)$. Tính $2 \\cdot \\mathbf{v}_1 + 3 \\cdot \\mathbf{v}_2$.
 > <details><summary>Đáp án</summary>
 >
 > $2 \\cdot (1,1) + 3 \\cdot (1,-1) = (2,2) + (3,-3) = (5, -1)$.

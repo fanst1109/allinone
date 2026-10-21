@@ -241,7 +241,7 @@ Wait — để node `1` ở idx 0, con phải ở idx 2, con phải tiếp ở i
 | Áp array-based cho cây thưa | Mảng phình theo $2^h$ slot trống | Dùng pointer-based |
 | Resize mảng nhưng quên copy hết | Heap rỗng ngẫu nhiên | Dùng slice/`vector` thay vì mảng cố định |
 
-### 2.6. 🔁 Tự kiểm tra
+### 2.6. 🔁 Thực hành
 
 1. Heap `[10, 20, 15, 30, 40, 25, 50]` (0-based). Cha của idx 5 là ai? Con trái của idx 2 là ai?
    <details><summary>Đáp án</summary>Cha của idx 5: $(5-1)/2 = 2$ → giá trị `15`. Con trái của idx 2: $2\cdot 2+1 = 5$ → giá trị `25`.</details>

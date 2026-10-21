@@ -230,7 +230,7 @@ Dùng 3 con trỏ: \`prev\` (đã đảo), \`cur\` (đang xét), \`nxt\` (lưu t
 - **"Doubly nặng gấp đôi memory, có đáng không?"** — Tốn ~1 con trỏ thêm mỗi node (~8 byte trên 64-bit). Đổi lại: xóa node biết trước trong $O(1)$, đi ngược được. Cấu trúc LRU cache, hệ thống undo/redo phức tạp dùng doubly là chuẩn.
 - **"Khi nào dùng linked list thay vì slice/\`ArrayList\`?"** — Hiếm hơn bạn nghĩ. Thực tế, dynamic array thắng linked list trong hầu hết trường hợp nhờ **cache locality**. Linked list shine khi: (1) chèn/xóa **đầu** rất nhiều, (2) cần $O(1)$ splice (nối/cắt list), (3) embed vào struct khác (intrusive list trong Linux kernel).
 
-### 7.3. 🔁 Tự kiểm tra
+### 7.3. 🔁 Thực hành
 
 1. Cho list \`A → B → C → D\`. Muốn xóa node \`C\` (biết trước con trỏ tới \`C\`), trong **singly** list cần làm gì?
    <details><summary>Đáp án</summary>Phải tìm node trước (\`B\`) bằng cách duyệt từ \`head\` → tốn $O(n)$. Rồi \`B.next = C.next\` (tức \`D\`). Mẹo: nếu C **không phải node cuối**, có thể "copy-then-skip" — gán \`C.value = D.value; C.next = D.next\`, hiệu quả $O(1)$ nhưng làm thay đổi node nội dung.</details>
@@ -336,7 +336,7 @@ l.Remove(l.Back())     // xóa cuối O(1)
 
 Nhưng cho LRU production, đa số tự cài struct như §8.1 (kiểm soát tốt hơn) hoặc dùng thư viện \`hashicorp/golang-lru\`.
 
-### 8.3. 🔁 Tự kiểm tra
+### 8.3. 🔁 Thực hành
 
 > 1. Vì sao LRU cache cần **doubly**-linked, singly không đủ?
 >    <details><summary>Đáp án</summary>Evict node cuối + move node giữa lên đầu cần xóa node trong $O(1)$ — phải biết node <b>trước</b> nó. Singly không có \`prev\` → muốn xóa phải duyệt tìm node trước = $O(n)$. Doubly có \`prev\` → $O(1)$.</details>

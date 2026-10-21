@@ -192,7 +192,7 @@ property vẫn phải đúng. Random generator tự cover các edge này.
 Trong thực tế, property-based viết bằng `f.Fuzz` của Go cũng được — chỉ là
 ta dùng fuzzer như "random generator".
 
-> 🔁 **Dừng lại tự kiểm**: Property nào sau đây ĐÚNG cho hàm `strings.ToUpper`?
+> 🔁 **Thực hành**: Property nào sau đây ĐÚNG cho hàm `strings.ToUpper`?
 > <details><summary>Đáp án</summary>
 >
 > - `ToUpper(ToUpper(s)) == ToUpper(s)` (idempotent) ✓
@@ -299,7 +299,7 @@ go build -race main.go       # debug-only binary cho staging
 CI nên có 2 job: `go test ./...` (fast, mọi PR) + `go test -race ./...`
 (slower, mọi PR hoặc nightly).
 
-> 🔁 **Dừng lại tự kiểm**: Có code `var x int; go func(){ x = 1 }(); fmt.Println(x)`.
+> 🔁 **Thực hành**: Có code `var x int; go func(){ x = 1 }(); fmt.Println(x)`.
 > Race không?
 > <details><summary>Đáp án</summary> Có. Goroutine ghi `x`, main goroutine đọc `x`,
 > không có sync → race. Fix bằng channel: `done := make(chan int); go func(){ done <- 1 }(); fmt.Println(<-done)`. </details>

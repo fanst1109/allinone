@@ -157,7 +157,7 @@ Quy tắc thực hành: nếu $E \ll V^2/2$ (đa số trường hợp thực t�
 - **"List có hỗ trợ kiểm tra cạnh $O(1)$ không?"** — Nếu thay `[]int` bằng `[]map[int]bool`, kiểm tra cạnh là $O(1)$ trung bình nhưng tốn thêm bộ nhớ hash. Một biến thể "hybrid".
 - **"Đồ thị có trọng số biểu diễn thế nào?"** — Matrix: `M[i][j] = w` (hoặc `+∞` nếu không có cạnh). List: lưu `(neighbor, weight)` cặp, thường là `[]struct{V, W int}`.
 
-### 3.5. 🔁 Tự kiểm tra
+### 3.5. 🔁 Thực hành
 
 1. Mạng xã hội có $V = 10^6$ người, trung bình mỗi người 200 bạn ($E \approx 10^8$). Chọn matrix hay list? Tính bộ nhớ.
    <details><summary>Đáp án</summary>**List**. Matrix cần $V^2 = 10^{12}$ ô × 4B = **4 TB** — bất khả thi. List cần $V + 2E = 10^6 + 2\times 10^8 \approx 2\times 10^8$ ô × 4B = **~800 MB** — chứa được. Đồ thị thực tế gần như luôn thưa ($E \ll V^2$) → list.</details>
@@ -289,7 +289,7 @@ Thứ tự DFS: **0, 1, 2, 3, 5, 6, 4** — đi sâu xuống cuối nhánh rồi
 | Dùng `list.pop(0)` ở Python cho queue trong BFS | $O(n)$ mỗi lần → BFS thành $O(V \cdot (V+E))$ | Dùng `collections.deque` |
 | Trên đồ thị vô hướng, DFS lại quay lại bố mẹ → tưởng là chu trình | Detect nhầm chu trình | Truyền `parent` xuống đệ quy, skip `v == parent` |
 
-### 4.6. 🔁 Tự kiểm tra
+### 4.6. 🔁 Thực hành
 
 1. Với đồ thị mục 4.3, BFS từ `4` cho thứ tự thăm nào?
    <details><summary>Đáp án</summary>`4, 2, 1, 3, 0, 5, 6`. Từ 4 → hàng xóm {2} → từ 2 thêm {1,3} → từ 1 thêm {0} → từ 3 thêm {5,6}.</details>

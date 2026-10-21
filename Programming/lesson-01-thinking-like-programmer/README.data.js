@@ -63,7 +63,7 @@ Trong 8 tiếng, **chỉ ~2 tiếng gõ code mới**. Còn lại là **suy nghĩ
 
 > **⚠ Lỗi thường gặp** — Người mới hay nghĩ "tôi cần học cho thật nhanh ngôn ngữ X để xin việc". Sai. Cần học **giải vấn đề**, và dùng ngôn ngữ X làm công cụ. Người chỉ biết syntax mà không biết suy nghĩ sẽ bị mắc kẹt ở mọi bài toán không-có-trên-StackOverflow.
 
-> **🔁 Tự kiểm tra mục 1**
+> **🔁 Thực hành mục 1**
 > <details><summary>Câu 1: Trong 8 tiếng của một dev, khoảng bao nhiêu tiếng dành để gõ code mới?</summary>
 >
 > Khoảng 2 tiếng. Phần lớn còn lại là đọc code/tài liệu, debug, giao tiếp, review. Đây là tỷ lệ thật, không phải bị cường điệu.
@@ -312,7 +312,7 @@ Nhưng chạy thật ra 6. Tại sao?
 
 > **⚠ Lỗi thường gặp** — *"Tôi đọc lại code rồi, không thấy chỗ sai"*. Đọc code không đủ — phải **trace bằng tay với input cụ thể** hoặc **in giá trị ra**. Đọc bằng mắt rất dễ "đọc cái mình tưởng" thay vì "đọc cái thật sự ở đó".
 
-> **🔁 Tự kiểm tra mục 2**
+> **🔁 Thực hành mục 2**
 > <details><summary>Câu 1: Trong 4 pattern ở mục 2.2, "đếm số phần tử thỏa điều kiện" thuộc pattern nào?</summary>
 >
 > Thuộc **Aggregate** — gom list thành 1 giá trị (con số đếm). Có thể coi là biến thể của reduce: bắt đầu count = 0, mỗi phần tử thỏa điều kiện thì +1.
@@ -470,7 +470,7 @@ func matKhauManh(mk string) bool {
 
 > **⚠ Lỗi thường gặp** — Viết pseudocode **gần giống ngôn ngữ thật** đến mức tốn thời gian như viết code luôn. Pseudocode nên ở mức "concept" — bỏ qua dấu chấm phẩy, kiểu dữ liệu, import, format chuỗi.
 
-> **🔁 Tự kiểm tra mục 3**
+> **🔁 Thực hành mục 3**
 > <details><summary>Câu 1: Vì sao tách suy nghĩ logic ra khỏi syntax giúp code nhanh hơn?</summary>
 >
 > Vì khi nghĩ logic và nghĩ syntax cùng lúc, não phải "context switch" liên tục. Mỗi lỗi syntax (thiếu dấu \`;\`, sai tên biến) làm bạn quên mạch logic đang chạy trong đầu. Pseudocode khoá mạch logic xong rồi mới chuyển sang lo syntax.
@@ -571,7 +571,7 @@ Cả 6 đều pass. **Xong.**
 
 > **⚠ Lỗi thường gặp** — Bỏ bước 2 (ví dụ cụ thể) và bước 6 (test edge case). Đây là 2 bước người mới hay skip vì "nghĩ trong đầu là đủ". Sai — nghĩ trong đầu rất dễ bỏ sót case (vd quên empty string), và bug edge case là loại bug khó tìm nhất sau khi đã code xong.
 
-> **🔁 Tự kiểm tra mục 4**
+> **🔁 Thực hành mục 4**
 > <details><summary>Câu hỏi: Trong 6 bước, bước nào quan trọng nhất với bài toán bạn chưa từng gặp?</summary>
 >
 > **Bước 1 (hiểu đề) và Bước 2 (ví dụ cụ thể)**. Nếu hiểu sai đề thì 4 bước sau dù đẹp đến đâu cũng sai. Ví dụ cụ thể là cách kiểm tra "tôi có hiểu đề không" — nếu nghĩ không ra ví dụ, có nghĩa chưa hiểu.
@@ -660,7 +660,7 @@ Khi đã trả lời 3 câu, bug thường tự lộ ra. Đây là **debug có h
 
 > **⚠ Lỗi thường gặp** — Người mới thường **chỉ bị 1 trong 4** antipattern và nghĩ "tôi không bị". Thực tế thường bị ≥ 2. Đọc lại 4 cái này sau mỗi tháng để tự đánh giá.
 
-> **🔁 Tự kiểm tra mục 5**
+> **🔁 Thực hành mục 5**
 > <details><summary>Câu hỏi: Antipattern nào gây hậu quả nặng nhất về dài hạn?</summary>
 >
 > **#3 (copy không hiểu)** — vì nó tích lũy nợ kỹ thuật âm thầm. Mỗi lần copy không hiểu là một "vùng đen" trong codebase mà bạn không thể debug. Khi bug xảy ra ở đó (chắc chắn sẽ có), bạn không có vũ khí gì.

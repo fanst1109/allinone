@@ -909,7 +909,7 @@ $765^\circ = 720^\circ + 45^\circ = 2 \times 360^\circ + 45^\circ$. Quy chu kỳ
 
 $$\cos 765^\circ = \cos 45^\circ = \frac{\sqrt{2}}{2}$$
 
-#### 🔁 Tự kiểm tra: tính `sin 150°` bằng 2 cách
+#### 🔁 Thực hành: tính `sin 150°` bằng 2 cách
 
 **Cách 1 (quy gọn)**: $\sin 150^\circ = \sin(180^\circ - 30^\circ) = \sin 30^\circ = \frac{1}{2}$.
 
@@ -1036,7 +1036,7 @@ Khi quen, bạn sẽ làm 3 bước trong đầu trong 2 giây.
 - **Quên áp dấu**, đặc biệt với $\cos$ ở QII/QIII. Ví dụ $\cos 150^\circ = +\frac{\sqrt{3}}{2}$ (sai) thay vì $-\frac{\sqrt{3}}{2}$. Áp dấu là bước **bắt buộc** sau khi tra bảng — không bao giờ bỏ qua.
 - **Tính $\alpha$ cho góc âm hoặc $> 360^\circ$** trước khi quy về $[0^\circ, 360^\circ)$. Cần làm $\theta \bmod 360^\circ$ trước, rồi mới xét quadrant.
 
-#### 🔁 Tự kiểm tra (mục 7)
+#### 🔁 Thực hành (mục 7)
 
 Tính bằng quy trình 3 bước:
 
@@ -1128,7 +1128,7 @@ Vì góc đồng kết → cùng $P$ → cùng $\sin, \cos, \tan$. Ta luôn có 
 
 Hai điểm khác nhau, cùng $\tan$. Đây là vì sao $\tan$ có **chu kỳ ngắn hơn** $\sin/\cos$.
 
-#### 🔁 Tự kiểm tra (mục 8)
+#### 🔁 Thực hành (mục 8)
 
 1. Một góc đồng kết với $45^\circ$ trong khoảng $(360^\circ, 720^\circ)$?
 2. $\cos 1110^\circ$ = ?

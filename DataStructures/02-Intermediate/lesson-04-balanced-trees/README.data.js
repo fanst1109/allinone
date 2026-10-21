@@ -657,7 +657,7 @@ BF tất cả node đều trong $[-1, 1]$ → không rotation cần thiết. ✓
 | Áp dụng LL khi cháu lệch ngược | Cây vẫn mất cân bằng sau rotation, cần check kỹ \`balance(z.child)\` |
 | Xử lý parent pointer (nếu có) sai | Cây bị "rách", duyệt theo parent sai chiều |
 
-### 2.11. 🔁 Tự kiểm tra
+### 2.11. 🔁 Thực hành
 
 1. Cho cây AVL chỉ chứa \`50, 30, 70, 20, 40, 10\`. Sau khi insert \`5\`, có rotation nào xảy ra không? Tại node nào?
    <details><summary>Đáp án</summary>Sau insert 5: 5 là con trái của 10. BF(10)=1, BF(20)=2 → mất cân bằng tại 20. Con trái của 20 là 10 (BF=1) → cùng dấu → LL → rotate right tại 20. Kết quả: 10 lên thay vị trí 20, con trái = 5, con phải = 20.</details>
@@ -773,7 +773,7 @@ Tất cả cho phép **floor/ceiling, range, duyệt theo thứ tự khóa** tro
 - \`TreeMap\`/\`std::map\`/\`SortedSet\` đều là Red-Black tree — cho thứ tự + range + floor/ceiling $O(\\log n)$.
 - Quy luật chọn: cần **thứ tự/range** → cây cân bằng; chỉ cần tra **một khóa thật nhanh** → hash table.
 
-### 7.5. 🔁 Tự kiểm tra
+### 7.5. 🔁 Thực hành
 
 1. Một index B-tree mỗi node chứa ~256 khóa. Với 1 tỉ ($10^9$) dòng, cây cao khoảng mấy tầng? So với cây nhị phân cân bằng thì sao?
    <details><summary>Đáp án</summary>B-tree: $\\log_{256}(10^9) = \\frac{\\ln 10^9}{\\ln 256} \\approx \\frac{20{,}7}{5{,}5} \\approx 3{,}7$ → **~4 tầng** (4 lần đọc đĩa). Cây nhị phân: $\\log_2(10^9) \\approx 30$ tầng → 30 lần đọc đĩa. B-tree nhanh hơn ~8 lần về số lần truy cập đĩa.</details>

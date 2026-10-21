@@ -41,7 +41,7 @@ Tổng: **~52 lesson**.
 
 ## Mỗi lesson có gì?
 
-- `README.md` — lý thuyết + **code Go inline chạy được** + walk-through từng bước bằng số cụ thể + callouts (💡 Trực giác, ❓ Câu hỏi, ⚠ Lỗi thường gặp, 🔁 Tự kiểm tra, 📝 Tóm tắt) + bài tập **có lời giải chi tiết** + phân tích độ phức tạp.
+- `README.md` — lý thuyết + **code Go inline chạy được** + walk-through từng bước bằng số cụ thể + callouts (💡 Trực giác, ❓ Câu hỏi, ⚠ Lỗi thường gặp, 🔁 Thực hành, 📝 Tóm tắt) + bài tập **có lời giải chi tiết** + phân tích độ phức tạp.
 - `visualization.html` — minh họa tương tác standalone, animate thuật toán từng bước, mở trong browser là chạy.
 
 > Lưu ý: lĩnh vực này để code Go **inline trong README** (không tách file `solutions.go` riêng).

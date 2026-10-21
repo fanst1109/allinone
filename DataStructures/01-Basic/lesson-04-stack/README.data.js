@@ -193,7 +193,7 @@ Ngược lại, với \`"([)]"\`:
 | Trong kiểm tra ngoặc: kết thúc mà quên check stack có rỗng không | Chuỗi \`"((("\` bị coi là hợp lệ ❌ | Cuối hàm: \`return stack.isEmpty()\`, không phải \`return true\` |
 | Dùng \`slice[:len-1]\` trong Go để "pop" nhưng giữ tham chiếu tới phần tử cuối | Phần tử bị giữ trong bộ nhớ (memory leak nhẹ với object lớn) | Gán \`slice[len-1] = zeroValue\` trước khi \`slice = slice[:len-1]\` |
 
-### 5.2. 🔁 Tự kiểm tra
+### 5.2. 🔁 Thực hành
 
 1. Dãy thao tác \`push(1), push(2), pop, push(3), pop, pop\`. Stack cuối cùng có gì? Pop ra lần lượt giá trị nào?
    <details><summary>Đáp án</summary>Trace: \`[]\` → \`[1]\` → \`[1,2]\` → \`[1]\` (pop=2) → \`[1,3]\` → \`[1]\` (pop=3) → \`[]\` (pop=1). Stack cuối rỗng. Thứ tự pop: **2, 3, 1**.</details>
@@ -301,7 +301,7 @@ func dfsIterative(adj map[int][]int, start int) []int {
 
 Lợi: không giới hạn bởi stack đệ quy của runtime (Go goroutine stack lớn nhưng vẫn hữu hạn) → xử lý được đồ thị/cây cực sâu mà không crash. Đây là lý do bài "cây 1 triệu tầng" phải dùng stack lặp ([nối Tree §10.4](../../02-Intermediate/lesson-01-tree/)).
 
-### 6.4. 🔁 Tự kiểm tra
+### 6.4. 🔁 Thực hành
 
 > 1. \`validBrackets("([)]")\` trả \`false\` ở bước nào?
 >    <details><summary>Đáp án</summary>Khi gặp \`)\`: đỉnh stack là \`[\` (mở gần nhất), nhưng \`)\` cần khớp \`(\`. \`st[top] != pairs[')']\` → \`false\`. Stack bắt đúng lỗi lồng chéo.</details>

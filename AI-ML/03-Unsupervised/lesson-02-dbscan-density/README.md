@@ -135,7 +135,7 @@ N(P8) = {P8}            → |1| < 3 → Noise
 
 **Kết quả**: Cluster 1={P1,P2,P3,P4}, Cluster 2={P5,P6,P7}, Noise={P8}.
 
-> 🔁 **Kiểm tra nhanh**: Với cùng data nhưng eps=3.5, minPts=3, tính lại N(P4), N(P5):
+> 🔁 **Thực hành**: Với cùng data nhưng eps=3.5, minPts=3, tính lại N(P4), N(P5):
 > <details><summary>Đáp án</summary>
 >
 > d(P4,P5)=√(12.25+16)=√28.25≈5.3 > 3.5. Vẫn 2 cluster riêng biệt.

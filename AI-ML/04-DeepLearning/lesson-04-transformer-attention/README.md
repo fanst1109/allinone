@@ -144,7 +144,7 @@ Giả sử V = Q (để đơn giản). Output[0] = 0.274×Q[0] + 0.274×Q[1] + 0
 = [0.726, 0.726, 0.274, 0.274]
 ```
 
-> **🔁 Tự kiểm tra**
+> **🔁 Thực hành**
 > Output có shape gì? n×d_v = 3×4. Kiểm tra A có shape 3×3 ✓, V có shape 3×4 ✓, A·V = 3×4 ✓.
 > <details><summary>Tại sao softmax theo hàng (không phải theo cột)?</summary>
 > Mỗi hàng i của A = "token i phân bổ bao nhiêu chú ý cho mỗi token j". Tổng attention trên mọi j = 1 → phân phối xác suất. Softmax theo cột sẽ không có ý nghĩa.

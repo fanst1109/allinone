@@ -197,7 +197,7 @@ Tune cả C và γ bằng 5-fold CV:
 
 Optimal: C=1.0, γ=1.0. Grid search: 16 configurations × 5 folds = 80 fits.
 
-> 🔁 **Kiểm tra**: Tính K_RBF(x, x') với γ=0.5, x=(0,1), x'=(2,3). Kết quả bao nhiêu?
+> 🔁 **Thực hành**: Tính K_RBF(x, x') với γ=0.5, x=(0,1), x'=(2,3). Kết quả bao nhiêu?
 
 <details><summary>Đáp án</summary>
 

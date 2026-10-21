@@ -83,7 +83,7 @@ Content-Type: application/json
 }
 ```
 
-> 🔁 **Dừng kiểm tra**: Nếu client thêm field `posts { title }` vào query, server phản hồi thế nào?
+> 🔁 **Thực hành**: Nếu client thêm field `posts { title }` vào query, server phản hồi thế nào?
 >
 > <details><summary>Đáp án</summary>
 >

@@ -376,7 +376,7 @@ MST = `{(0,1,1), (1,2,2), (1,3,4), (3,4,5)}`, tổng trọng số $= 1+2+4+5 = 1
 - **"Có thể dùng UF để tách (split) tập không?"** — Không trực tiếp. Bạn phải xây lại UF, hoặc dùng **offline**: xử lý ngược các thao tác `split` thành `union` từ trạng thái cuối.
 - **"Kruskal vs Prim — khi nào dùng cái nào?"** — Kruskal (UF) tốt khi cạnh thưa, có thể sort cạnh dễ. Prim (heap) tốt khi đồ thị dày, phù hợp adjacency list/matrix sẵn. Cùng $O(E \log V)$.
 
-### 7.2. 🔁 Tự kiểm tra
+### 7.2. 🔁 Thực hành
 
 1. Sau chuỗi `union(0,1), union(2,3), union(1,2)` với union by rank trên 5 phần tử, `find(3)` ra gì?
    <details><summary>Đáp án</summary>Sau `union(0,1)`: rank `[1,0,0,0,0]`, `parent[1]=0`. Sau `union(2,3)`: rank `[1,0,1,0,0]`, `parent[3]=2`. `union(1,2)`: `find(1)=0`, `find(2)=2`, `rank[0]==rank[2]==1` → `parent[2]=0`, `rank[0]=2`. Vậy `find(3)`: `3 → 2 → 0`, trả về `0`.</details>

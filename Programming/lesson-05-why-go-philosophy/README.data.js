@@ -800,7 +800,7 @@ Sau 5 lesson Tier 0:
 
 **Bước tiếp theo**: [Tier 1 — Go Basic](../tier-1-basic/index.html) → bắt đầu với [L01 — Hello World & Go Modules](../tier-1-basic/lesson-01-hello-world-modules/) (sẽ thực sự setup \`go mod\`, tổ chức project, viết test đầu tiên).
 
-🔁 **Trước khi sang Tier 1, tự kiểm tra**:
+🔁 **Trước khi sang Tier 1, thực hành nhanh — tự kiểm tra**:
 
 1. Bạn có giải thích được trong 2 phút "vì sao Google làm Go" cho 1 người không học IT không?
    <details><summary>Đáp án</summary>

@@ -58,7 +58,7 @@ Một goroutine có 3 đặc trưng:
 - *"Vậy nếu 1 goroutine block thì sao?"* Nếu block ở **system call** (đọc file, network), runtime parking goroutine đó, kéo 1 OS thread khác lên chạy goroutine khác — gọi là **handoff**. Nếu block ở **channel/mutex/timer** thì runtime đơn giản đặt goroutine vào hàng đợi, không cần OS thread nào cả.
 - *"Goroutine có thể chạy mãi mãi (background) không?"* Có. Nhưng coi chừng goroutine leak (xem §13).
 
-### 🔁 Tự kiểm tra
+### 🔁 Thực hành
 
 Vì sao mở 100 000 goroutine không sập máy, nhưng 100 000 OS thread thì sập?
 

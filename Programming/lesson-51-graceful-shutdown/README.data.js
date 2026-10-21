@@ -347,7 +347,7 @@ Cả HTTP handler lẫn worker đều dùng DB.
 > **Q: Nếu chỉ có HTTP, không có worker, không có DB?**
 > A: Sequence chỉ còn bước 1 + flush log.
 
-### 5.5 🔁 Tự kiểm tra
+### 5.5 🔁 Thực hành
 
 Có service: HTTP server + Kafka consumer + Redis cache + PostgreSQL. Sắp xếp shutdown order.
 

@@ -273,7 +273,7 @@ $O(L)$ với $L$ = độ dài chuỗi (~20 ký tự cho username) → vài chụ
 
 → Hash nhanh hơn **~16.000 lần** thực đo. Build set ban đầu mất ~400 ms (một lần duy nhất).
 
-### 6.1. 🔁 Tự kiểm tra
+### 6.1. 🔁 Thực hành
 
 1. Hash function trả về cùng kết quả cho 2 key khác nhau gọi là gì? Có làm hash table sai không?
    <details><summary>Đáp án</summary>**Collision (xung đột)**. Không làm sai — bảng vẫn lưu cả hai (chaining cho vào cùng list, open addressing tìm ô kế). Chỉ chậm hơn nếu collision nhiều.</details>
@@ -329,7 +329,7 @@ Một lần insert đó tốn $O(n)$. Nhưng giữa các lần resize, có **~n 
 
 **Vì sao gấp đôi, không thêm hằng số?** Nếu thêm $+10$ mỗi lần, sau $n$ insert phải resize $n/10$ lần, tổng $O(n^2)$. Gấp đôi → tổng resize $O(n)$ (chuỗi hình học: $1+2+4+...+n \\approx 2n$).
 
-### 9.2. 🔁 Tự kiểm tra
+### 9.2. 🔁 Thực hành
 
 1. Cho $n = 100, m = 128$. Tính $\\alpha$.
    <details><summary>Đáp án</summary>$\\alpha = 100/128 \\approx 0,78$. Vượt 0,75 → resize ở insert tiếp theo.</details>
@@ -433,7 +433,7 @@ func groupAnagrams(words []string) map[string][]string {
 
 Mẹo: **chọn khóa chuẩn hóa** sao cho các phần tử "cùng nhóm" ra cùng khóa. Đây là DNA của dedup, gom nhóm, đếm tần suất (Bài 2).
 
-### 11.4. 🔁 Tự kiểm tra
+### 11.4. 🔁 Thực hành
 
 > 1. Vì sao \`server = hash(key) % N\` hỏng khi thêm/bớt server?
 >    <details><summary>Đáp án</summary>$N$ đổi → số dư \`% N\` đổi cho gần như mọi key → đa số key ánh xạ sang server khác → cache miss hàng loạt, phải di chuyển dữ liệu ồ ạt. Consistent hashing chỉ remap các key lân cận server thay đổi.</details>

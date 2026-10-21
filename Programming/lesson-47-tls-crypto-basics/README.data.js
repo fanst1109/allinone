@@ -129,7 +129,7 @@ Tất cả là **AEAD** (Authenticated Encryption with Associated Data) — mã 
 - **TLS 1.0, 1.1**: đã bị **deprecate** chính thức 2020. Browser từ chối. Production phải tắt.
 - **SSL 3.0**: bị POODLE 2014, **không bao giờ** bật lại.
 
-> 🔁 **Dừng lại tự kiểm.**
+> 🔁 **Thực hành.**
 > *Server bạn đang chạy hiện nay tối thiểu phải support TLS version nào?*
 > <details><summary>Đáp án</summary>
 > TLS 1.2 (bắt buộc) + TLS 1.3 (khuyến nghị). Phải **tắt 1.0/1.1**. Trong Go:
@@ -212,7 +212,7 @@ chắn server support), nếu server không thích thì có thể HelloRetryRequ
 > chia làm: handshake (chỉ trên connection đầu tiên) vs application encrypt overhead (vài %). Với
 > **connection reuse** (HTTP keep-alive, HTTP/2 single connection), handshake amortize gần bằng 0.
 
-> 🔁 **Dừng lại tự kiểm.**
+> 🔁 **Thực hành.**
 > *Trong TLS 1.3, traffic bị ghi lại 5 năm. Sau 5 năm private key của server bị lộ. Kẻ tấn công có
 > đọc được nội dung cũ không?*
 > <details><summary>Đáp án</summary>
@@ -367,7 +367,7 @@ log.Fatal(server.ListenAndServeTLS("", ""))       // empty = lấy từ autocert
 >    tự renew nên dùng được.
 > - HostPolicy không khai báo domain → autocert refuse cấp → log bí ẩn. Phải \`HostWhitelist(...)\`.
 
-> 🔁 **Dừng lại tự kiểm.**
+> 🔁 **Thực hành.**
 > *Self-signed cert + dùng cho production user-facing — vì sao là antipattern?*
 > <details><summary>Đáp án</summary>
 > 1) User thấy cảnh báo đỏ → mất niềm tin. 2) User học thói quen click "Proceed anyway" → ngày nào đó

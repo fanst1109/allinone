@@ -208,7 +208,7 @@ arr[i][j]  ↔  arr_phang[i * n + j]
 | Khai báo mảng tĩnh quá nhỏ so với input | Tràn, mất dữ liệu hoặc crash | Dùng dynamic array hoặc tính kích thước tối đa rồi cộng buffer |
 | Khai báo mảng tĩnh quá lớn "cho chắc" | Lãng phí RAM, tệ hơn là stack overflow nếu khai báo trên stack | Cấp phát trên heap (\`new\`/\`make\`) hoặc dùng dynamic array |
 
-### 7.2. 🔁 Tự kiểm tra
+### 7.2. 🔁 Thực hành
 
 1. Cho \`arr = [5, 2, 8, 1, 9]\`. Sau khi \`append(arr, 7)\`, capacity (giả sử ban đầu = 5) là bao nhiêu? Có copy không?
    <details><summary>Đáp án</summary>\`size = 5, capacity = 5\` → đã đầy → **resize lên 10** (nhân đôi) → copy 5 phần tử cũ + ghi \`7\` → mảng mới \`[5,2,8,1,9,7]\` với \`size=6, capacity=10\`. Lần này tốn $O(n)$.</details>
@@ -306,7 +306,7 @@ func maxSumWindow(a []int, k int) int {
 
 \`maxSumWindow([2,1,5,1,3,2], 3)\` → \`9\` (5+1+3). Dùng cho: rate limiting (đếm request trong cửa sổ thời gian), trung bình trượt (moving average) trên metrics, nén/streaming.
 
-### 8.4. 🔁 Tự kiểm tra
+### 8.4. 🔁 Thực hành
 
 > 1. \`b := a[:2]; b = append(b, 99)\` — vì sao \`a\` có thể bị đổi?
 >    <details><summary>Đáp án</summary>\`b\` chia sẻ mảng nền với \`a\` và còn \`cap\` dư. \`append\` ghi vào index 2 của mảng nền (đang là \`a[2]\`) thay vì cấp mảng mới → \`a[2]\` bị ghi đè. Tránh bằng copy hoặc full-slice \`a[:2:2]\`.</details>

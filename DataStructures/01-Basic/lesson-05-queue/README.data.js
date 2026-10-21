@@ -254,7 +254,7 @@ Mẹo: snapshot \`size\` **trước** khi xử lý tầng. Trong vòng \`for\`, 
 | BFS trên đồ thị có **trọng số khác nhau** rồi kết luận đường ngắn nhất | Sai kết quả — BFS chỉ đúng cho trọng số bằng nhau | Dùng Dijkstra (lesson 11) |
 | Trong level-by-level, đọc \`queue.size()\` **trong** vòng for thay vì snapshot trước | Sang nhầm tầng do queue phình | Chốt \`size = queue.size()\` trước \`for\` |
 
-### 6.7. 🔁 Tự kiểm tra
+### 6.7. 🔁 Thực hành
 
 1. BFS trên cây nhị phân từ root tương đương với cách duyệt nào đã học ở lesson 6?
    <details><summary>Đáp án</summary>**Level-order traversal**. Cây là đồ thị đặc biệt (không chu trình, mỗi node có 1 bố mẹ trừ root), nên không cần \`visited\`.</details>
@@ -358,7 +358,7 @@ func (r *RingBuffer) Push(x int) { // ghi đè cái cũ nhất khi đầy
 
 Bộ nhớ cố định $O(n)$ bất kể đẩy bao nhiêu — không cấp phát thêm. Dùng cho metrics, audio/video buffer, log gần đây.
 
-### 7.4. 🔁 Tự kiểm tra
+### 7.4. 🔁 Thực hành
 
 > 1. Rate limiter: vì sao phải dequeue timestamp cũ TRƯỚC khi đếm?
 >    <details><summary>Đáp án</summary>Các request cũ hơn \`now-window\` đã rời cửa sổ thời gian → không còn tính vào limit. Không bỏ chúng → đếm dư → chặn nhầm request hợp lệ.</details>

@@ -166,6 +166,8 @@ API blog hỗ trợ:
 > 🔁 **Thực hành.** Nếu yêu cầu thêm rule "bài viết phải có ít nhất 10 từ",
 > bạn sửa file nào?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Xác định layer chứa business rule: validate nghiệp vụ nằm ở service — handler chỉ parse, storage chỉ lưu.
 > Sửa <code>posts/service.go</code> (hàm <code>validate</code>). Handler và storage không
 > đổi — đó chính là lợi ích của tách lớp.</details>
 
@@ -290,6 +292,8 @@ Quy trình **verify** (trong `auth.Parse`):
 > 🔁 **Thực hành.** Hacker đổi `username` trong payload từ `alice` thành `admin`
 > rồi gửi lên. Chuyện gì xảy ra?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Lần theo chuỗi ký JWT: payload đổi thì chuỗi header.payload đổi — signature cũ còn khớp không khi server verify?
 > Payload đổi → chuỗi <code>header.payload</code> đổi → HMAC tính lại khác signature cũ.
 > Hacker không có secret nên không ký lại được. <code>hmac.Equal</code> trả false →
 > <code>401 unauthorized</code>.</details>
@@ -413,6 +417,8 @@ Nếu xây lại từ đầu, đây là thứ tự hợp lý (mỗi bước đ�
 
 > 🔁 **Thực hành.** Vì sao bước 2 (errors) đứng gần đầu?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ theo chiều dependency: package được NHIỀU package khác import thì phải dựng trước.
 > Vì gần như mọi package đều cần trả <code>AppError</code>. Làm trước → các package sau
 > import được ngay, không phải quay lại sửa.</details>
 

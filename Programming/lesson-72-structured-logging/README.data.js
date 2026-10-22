@@ -83,6 +83,8 @@ sum by (ip) (count_over_time({app="auth"} | json | msg="user login" [1h]))  # đ
 
 > 🔁 **Thực hành.** Một đồng nghiệp viết \`log.Printf("order %d total %.2f for %s", id, total, user)\`. Vì sao dòng này khó dùng ở production?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ về máy đọc log: chuỗi đã format phải regex mò lại, còn structured field thì query thẳng theo tên field.
 > Ba giá trị \`id\`, \`total\`, \`user\` bị "nung chảy" vào một chuỗi văn bản — không còn là field riêng. Không thể lọc \`total > 1000\`, không thể group theo \`user\`, không thể parse mà không viết regex riêng cho đúng câu này. Đúng phải là: <code>slog.Info("order created", "order_id", id, "total", total, "user_id", user)</code>.
 > </details>
 
@@ -186,6 +188,8 @@ logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: &l
 
 > 🔁 **Thực hành.** Service nhận request với JWT hết hạn nên từ chối (401). Log ở level nào?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân level theo "ai phải hành động": lỗi do client gây (4xx) là luồng bình thường với server, không phải sự cố.
 > <strong>Info</strong> (hoặc Warn nếu muốn theo dõi tần suất). Đây là luồng bình thường — token hết hạn là chuyện xảy ra hằng ngày, hệ thống xử lý đúng (trả 401). Để ở <code>Error</code> sẽ làm dashboard error đỏ lòm vì lý do vô nghĩa.
 > </details>
 
@@ -364,6 +368,8 @@ func RequestIDMiddleware(base *slog.Logger, next http.Handler) http.Handler {
 
 > 🔁 **Thực hành.** \`payment\` log lỗi nhưng không có \`request_id\`. Nguyên nhân khả dĩ nhất?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Lần theo đường truyền request_id giữa 2 service — nó đi qua header nào, và ai phải set nó khi gọi tiếp?
 > \`orders\` gọi \`payment\` mà <strong>quên set header</strong> <code>X-Request-ID</code> trên outgoing request. \`payment\` không nhận được ID nên (theo middleware) tự sinh ID mới — và ID đó không khớp với chuỗi. Sửa: ở client gọi sang \`payment\`, set header từ <code>request_id</code> trong context.
 > </details>
 
@@ -439,6 +445,8 @@ slog.Info("checkout", "password", Password("hunter2"), "card", Card("41111111111
 
 > 🔁 **Thực hành.** Đoạn \`slog.Info("req", "body", string(rawBody))\` với \`rawBody\` là JSON body của \`POST /login\`. Sai ở đâu?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Soát dữ liệu nhạy cảm trong body: log nguyên body của /login thì trường nào lọt vào log?
 > \`rawBody\` chứa <code>{"email":"...","password":"..."}</code> — password lọt thẳng vào log. Không bao giờ log raw request/response body cho endpoint có credential. Hãy log field đã chọn lọc và redact, hoặc parse rồi che trường nhạy cảm.
 > </details>
 

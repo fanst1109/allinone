@@ -66,6 +66,8 @@ K8s không phải "chạy lệnh này". Bạn mô tả **trạng thái mong mu�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách 2 khái niệm: giữ ĐÚNG số bản sao đã khai (chết thì bù) với tự ĐỔI số bản sao theo tải.
+
 1. **Self-healing** = giữ ĐÚNG số bản đã khai (bản chết thì tạo lại cho đủ). **Auto-scaling** = THAY ĐỔI số bản theo tải (CPU cao thì tăng). Self-healing giữ nguyên N; autoscaling thay đổi N.
 2. Bạn khai báo trạng thái MONG MUỐN (3 bản v2), K8s tự đưa hệ thống về đúng trạng thái đó và duy trì, thay vì bạn ra lệnh từng bước.
 </details>
@@ -282,6 +284,8 @@ Namespace chia cluster thành các "ngăn" logic: \`dev\`, \`staging\`, \`prod\`
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ Pod là ephemeral (IP đổi mỗi lần tạo lại); còn ConfigMap với Secret khác nhau ở loại dữ liệu chứa.
+
 1. Pod ephemeral, IP đổi mỗi lần tạo lại. Service cho IP/tên ổn định và load-balance qua các Pod ready.
 2. Mục đích: ConfigMap cho config thường, Secret cho dữ liệu nhạy cảm. Nhưng Secret chỉ base64, KHÔNG encrypt mặc định — khác biệt thật nằm ở RBAC/audit/encryption-at-rest, không phải ở "an toàn sẵn".
 </details>
@@ -407,6 +411,8 @@ startupProbe:
 2. App khởi động mất 90s. Không có startup probe, liveness \`initialDelaySeconds:5, period:10, threshold:3\` thì sao?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Phân vai probe: gỡ khỏi LB không restart là readiness; app khởi động 90s thì cần cơ chế nào để liveness khỏi giết oan?
 
 1. **readiness** probe; kiểm tra DB trong \`/readyz\`. Fail → gỡ khỏi endpoints, không restart. (Liveness KHÔNG được ping DB.)
 2. Liveness bắt đầu sau 5s, fail 3 lần (~35s) khi app còn đang khởi động → bị **restart oan** → CrashLoopBackOff. Cần **startup probe** với \`failureThreshold\` đủ lớn bao trùm 90s.

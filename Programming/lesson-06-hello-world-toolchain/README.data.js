@@ -112,6 +112,8 @@ $ tool                       # chạy luôn từ bất cứ đâu (nếu $GOBIN 
 > 🔁 **Thực hành**: Tôi đang viết một script đọc CSV → tính tổng → in. Đang sửa code 30 lần / phút. Nên dùng \`go run\`, \`go build\`, hay \`go install\`?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: So 3 lệnh theo sản phẩm để lại: go run (build tạm rồi chạy, không để lại file), go build (binary tại chỗ), go install (binary vào GOBIN).
 > \`go run\`. Đang ở vòng lặp dev nhanh, không cần binary cố định, không phân phối cho ai.
 > </details>
 
@@ -322,6 +324,8 @@ Không có blank import → \`sql.Open("postgres", ...)\` báo \`unknown driver\
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ cú pháp blank import _ "pkg" — import chỉ để chạy side effect init(), như register driver DB.
+>
 > \`\`\`go
 > import _ "github.com/lib/pq"
 > \`\`\`
@@ -462,6 +466,8 @@ RUN go build ...          # <-- code đổi không cần re-download dep
 > 🔁 **Thực hành**: Bạn vừa clone một repo Go từ git. Việc đầu tiên cần làm trước khi \`go build\`?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ xem go build tự làm gì với go.mod/go.sum trước khi kết luận có phải chạy thêm lệnh nào không.
 > Không cần làm gì — \`go build\` tự đọc \`go.mod\`/\`go.sum\`, tải dependency, rồi build. Một dòng là xong. (Khác hẳn \`npm install\` của Node).
 > </details>
 

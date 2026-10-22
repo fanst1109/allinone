@@ -76,6 +76,8 @@ Lý do: khi mới bắt đầu, **bạn chưa biết bounded context đúng nằ
 
 <details><summary>Microservices làm một HTTP request kết thúc nhanh hơn monolith — đúng hay sai?</summary>
 
+**Hướng dẫn**: Đếm network hop của một request trong 2 kiến trúc — lợi ích của microservices nằm ở trục khác (tổ chức, scale độc lập).
+
 **Sai.** Cùng một logic, microservices thường **chậm hơn** vì thêm network hop. Lợi ích là độc lập deploy/scale/team, không phải latency.
 </details>
 
@@ -134,6 +136,8 @@ Nguyên tắc: **tách dọc theo nghiệp vụ (vertical slice), không cắt n
 ### 🔁 Thực hành
 
 <details><summary>Một startup chia hệ thành frontend-service, api-service, db-service. Vấn đề gì?</summary>
+
+**Hướng dẫn**: Soát tiêu chí tách service: tách theo NGHIỆP VỤ (bounded context) hay theo tầng kỹ thuật — kiểu nào bắt mọi thay đổi lan qua cả 3?
 
 Đây là tách theo **technical layer**, dẫn tới distributed monolith: mọi thay đổi nghiệp vụ phải sửa và deploy cả 3, lại thêm network hop vô ích. Nên tách theo capability (Order, Catalog, ...).
 </details>
@@ -383,6 +387,8 @@ Nhờ ACL, **không một dòng code nghiệp vụ nào** của service mới ph
 
 <details><summary>ACL nên đặt ở đâu — trong core domain hay ở ranh giới?</summary>
 
+**Hướng dẫn**: Nhớ vai trò ACL: phiên dịch giữa 2 model khác nhau — đặt ở nơi 2 context gặp nhau để core khỏi biết model ngoài.
+
 Ở **ranh giới** (boundary) giữa hai context. Core domain chỉ làm việc với model sạch; ACL là lớp ngoài cùng, hứng và dịch dữ liệu ngoài trước khi nó chạm core.
 </details>
 
@@ -461,6 +467,8 @@ Tên lấy từ cây **đa bóp cổ (strangler fig)**: nó mọc quanh một c�
 ### 🔁 Thực hành
 
 <details><summary>Tại sao strangler fig an toàn hơn big-bang rewrite?</summary>
+
+**Hướng dẫn**: So rủi ro mỗi bước đi: bước nhỏ rollback được, còn một cú chuyển cả hệ thì lỗi lộ ra lúc nào?
 
 Vì mỗi bước nhỏ và có thể rollback. Hệ luôn ở trạng thái chạy được; rủi ro được chia nhỏ thay vì dồn vào một lần "go-live" khổng lồ.
 </details>
@@ -688,6 +696,8 @@ Tách quá nhỏ (mỗi service làm một việc tí xíu). Hậu quả: một 
 ### 🔁 Thực hành
 
 <details><summary>Thiết kế: OrderService và InventoryService dùng chung bảng `products`, và mỗi lần đổi schema phải deploy cả hai. Đây là gì?</summary>
+
+**Hướng dẫn**: Nhận diện cặp smell: chung bảng DB và deploy phải đi đôi — tổ hợp này có tên gọi gì?
 
 Distributed monolith + shared database. Coupling chặt qua bảng chung; mất hết lợi ích microservices nhưng vẫn gánh độ phức tạp phân tán. Phải tách DB và giao tiếp qua API/event.
 </details>

@@ -110,6 +110,8 @@ fsync).
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Map từng tình huống vào đúng chữ cái ACID: crash giữa chừng → Atomicity; ràng buộc giá trị hợp lệ → Consistency.
+>
 > 1. **Atomicity** — rollback nửa chừng. 2. **Consistency** — ràng buộc CHECK.
 > </details>
 
@@ -167,6 +169,8 @@ ngoài transaction, không được rollback chung.
 > app không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ hành vi sau Commit: transaction đã đóng, Rollback trả ErrTxDone và không làm gì.
 > Không. Nó trả về <code>sql.ErrTxDone</code> và là no-op. Vì vậy <code>defer tx.Rollback()</code>
 > luôn an toàn.</details>
 
@@ -315,6 +319,8 @@ ghi chú mục 4).
 > không? Đọc số row có thể khác không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tra bảng isolation level: Read Committed cho phép những anomaly nào (non-repeatable read, phantom)?
 > Cả hai đều CÓ THỂ khác (non-repeatable + phantom đều được phép ở Read Committed). Read
 > Committed chỉ đảm bảo không đọc dữ liệu chưa-commit (no dirty read).</details>
 

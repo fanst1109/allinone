@@ -351,6 +351,8 @@ Có service: HTTP server + Kafka consumer + Redis cache + PostgreSQL. Sắp xế
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Sắp theo chiều dòng chảy request: chặn NGUỒN vào trước (HTTP, consumer), xả hết việc đang dở, rồi mới đóng tài nguyên bên dưới (cache, DB).
+
 1. HTTP server shutdown (stop accept request mới).
 2. Kafka consumer stop fetch new message (nhưng ack pending).
 3. Chờ in-flight HTTP handler và Kafka message handler hoàn tất.

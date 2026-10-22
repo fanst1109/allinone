@@ -127,6 +127,8 @@ Root span (A) bao trùm toàn bộ request. Span con nằm trong khoảng thời
 > 🔁 **Thực hành.** Trong cây ở 2.2, span F có `parent_span_id` bằng bao nhiêu? Và `trace_id` của nó?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhìn cây span: parent_span_id của F là span trực tiếp gọi nó; trace_id thì chung cho cả cây.
+>
 > `parent_span_id = 05` (span E "reserve stock" là cha của F). `trace_id = 7be2...` — giống hệt mọi span khác trong trace này. F là con của E, không phải con của root A.
 > </details>
 
@@ -207,6 +209,8 @@ gRPC không dùng HTTP header thuần mà dùng **metadata** (key-value đính k
 > 🔁 **Thực hành.** Service A gửi `traceparent: 00-aaaa...aaaa-1111111111111111-01` sang B. B tạo span mới `span_id=2222...`. Span của B có `parent_span_id` và `trace_id` bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Tách traceparent thành 3 phần: trace-id giữ nguyên qua mọi service, span_id của A trở thành parent của span B.
+>
 > `parent_span_id = 1111111111111111` (lấy từ phần parent_id của header), `trace_id = aaaa...aaaa` (giữ nguyên từ header). `span_id` mới `2222...` chỉ là của riêng span B.
 > </details>
 
@@ -277,6 +281,8 @@ span "POST /bank-api":
 > 🔁 **Thực hành.** Một handler trả `503 Service Unavailable` vì DB sập. Span status nên là gì?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ quy ước span status: lỗi phía server (5xx) đặt Error — status mô tả kết quả của chính span đó.
+>
 > **Error** — `503` là `5xx`, lỗi phía server, request không hoàn thành được. Kèm event `exception` ghi "database connection refused".
 > </details>
 
@@ -310,6 +316,8 @@ Quyết định **sau khi trace hoàn thành**, dựa trên toàn bộ dữ li�
 
 > 🔁 **Thực hành.** Service 30k req/s, lỗi 0.05% (15 req/s lỗi). Bạn muốn thấy MỌI trace lỗi nhưng chỉ đủ ngân sách lưu ~1% tổng. Dùng sampling gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: So 2 chiến lược: head-based quyết định từ đầu (mù kết quả), tail-based quyết định sau khi đã biết trace lỗi hay không.
 >
 > **Tail-based**: luật "giữ 100% trace Error + 1% trace OK". Head-based 1% sẽ bỏ ~99% trong số 15 lỗi/s → mất gần hết. Tail-based đợi trace xong, thấy Error thì giữ chắc chắn.
 > </details>

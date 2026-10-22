@@ -185,6 +185,8 @@ XREADGROUP GROUP g1 c1 COUNT 10 STREAMS events >
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Map nhu cầu vào structure Redis: xếp hạng theo điểm cần sorted set; đếm xấp xỉ tiết kiệm RAM có HyperLogLog.
+>
 > 1. **Sorted Set** — \`ZADD\` để cập nhật điểm, \`ZREVRANGE 0 99\` lấy top 100. Tự sắp xếp.
 > 2. **HyperLogLog** — \`PFADD\` + \`PFCOUNT\`, sai số ~0.81%, chỉ ~12KB.
 > </details>

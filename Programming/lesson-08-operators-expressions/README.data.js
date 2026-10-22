@@ -98,6 +98,8 @@ i=3  → (3+1)%4 = 0   → A   ← quay về đầu
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ quy tắc Go: kết quả % lấy dấu theo số bị chia (dividend), còn / cắt về 0 (truncate).
+
 \`-7 % 2 = -1\` (dấu theo dividend \`-7\`).  
 \`-7 / 2 = -3\` (truncate về 0, không phải về \`-∞\`). Python sẽ cho \`-7 // 2 = -4\`; Go khác Python ở đây.
 </details>
@@ -304,6 +306,8 @@ perm = perm ^ PermExecute         // 4 (r-x → r--)
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Viết 13 và 6 ra nhị phân 4 bit rồi áp AND/OR/XOR từng cột bit.
+
 \`13 = 0b1101\`, \`6 = 0b0110\`.  
 - \`13 & 6 = 0b0100 = 4\`
 - \`13 | 6 = 0b1111 = 15\`
@@ -455,6 +459,8 @@ Nhưng trong C, \`<<\` thấp hơn \`+\`, ra \`1 << (2+3) = 1 << 5 = 32\`. **Kh�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Tra bảng độ ưu tiên: toán tử so sánh đứng trên &&/|| nên biểu thức tự nhóm đúng.
 
 \`==\` (mức 2) cao hơn \`||\` (mức 0) → Go eval đúng là \`(a == 0) || (b == 0)\`. Không cần ngoặc, nhưng nhiều người vẫn viết để rõ.
 </details>

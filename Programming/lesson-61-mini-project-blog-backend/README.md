@@ -495,6 +495,8 @@ panic). Edge case này được test ở `TestListPagination`.
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Tính phân trang: 5 bài chia trang 2 bài — trang 3 còn lại gì; còn cache chỉ hợp với đọc theo key ổn định, List thì tham số biến thiên.
+>
 > 1. `start = (3-1)*2 = 4`, `end = min(6, 5) = 5` → `all[4:5]` = **1 item**.
 > 2. Cache key dạng `post:id` cache *một* bài. List trả *tập* bài thay đổi liên
 >    tục (thêm/xoá/sửa bài nào cũng làm danh sách khác đi) → cache list rất khó
@@ -667,6 +669,8 @@ query. ES tự lo tokenize/analyzer/ranking (BM25 — bản nâng cấp của TF
 > khoảng thời gian nên khó tái hiện nhất khi debug?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ về loại bug phụ thuộc thời gian: thứ gì tự biến mất sau một khoảng (TTL hết hạn) thì khó bắt quả tang nhất.
 >
 > "Quên invalidate cache" — vì sau khi TTL (5 phút) hết, cache miss và nạp lại
 > bản đúng, nên lỗi biến mất. Lúc bạn ngồi debug thì nó đã hết hạn → "không tái
@@ -869,6 +873,8 @@ làm gì).
 > 2. Migration v3 chạy hai lần có làm `views` bị cộng đôi không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Xét tính chính xác của counter khi cache là bản sao cũ; còn migration muốn chạy 2 lần vô hại thì phải dựa vào schema version.
 >
 > 1. Vì ta cần bản gốc chính xác để `++` rồi ghi lại; đọc qua cache có thể lấy
 >    bản cũ → ghi đè sai. Đường **ghi** luôn dựa trên storage, không dựa cache.

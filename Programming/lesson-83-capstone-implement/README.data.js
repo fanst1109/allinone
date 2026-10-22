@@ -152,6 +152,8 @@ solutions/
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Áp dependency rule lên cây file capstone: chỉ tầng adapter được import driver DB/Redis — domain thì tuyệt đối sạch.
+>
 > 1. Chỉ \`adapter/memory\` (hoặc \`adapter/postgres\` sau này) và \`cmd/server\`. Usecase và domain **tuyệt đối không**.
 > 2. Vi phạm dependency rule — domain là tầng trong cùng, không được biết về tầng ngoài. Sẽ tạo import cycle và khiến domain phụ thuộc application logic.
 > </details>
@@ -430,7 +432,13 @@ Walk-through bằng số cụ thể với code \`abc1234\` → \`https://go.dev\
 
 > 🔁 **Thực hành:** sau lần redirect đầu tiên (cache miss), nếu DB sập, redirect lần 2 còn chạy được không?
 >
-> <details><summary>Đáp án</summary>Còn — vì lần 1 đã populate cache. Lần 2 hit cache, không chạm DB. Đây chính là giá trị của cache: che chắn cho nguồn sự thật khi traffic cao.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Lần theo trạng thái cache sau lần miss đầu tiên: dữ liệu đã được đặt vào đâu cho lần sau?
+>
+> Còn — vì lần 1 đã populate cache. Lần 2 hit cache, không chạm DB. Đây chính là giá trị của cache: che chắn cho nguồn sự thật khi traffic cao.
+>
+> </details>
 
 ### 4.1 Cache-aside vs các pattern khác
 
@@ -516,7 +524,13 @@ func (w *Worker) Run(ctx context.Context) {
 
 > 🔁 **Thực hành:** trong integration test, sau khi redirect 3 lần, nếu gọi stats *ngay lập tức* mà chưa flush queue, total_clicks có chắc bằng 3 không?
 >
-> <details><summary>Đáp án</summary>**Không chắc** — vì worker xử lý async, có thể chưa kịp apply hết 3 event. Đây là bản chất *eventual consistency*. Test phải **flush** (đóng queue + \`worker.Wait()\`) để đảm bảo worker đã drain xong rồi mới assert. Đó là lý do \`flush()\` tồn tại trong integration test.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ bản chất async qua queue: đọc NGAY sau khi ghi không được bảo đảm thấy đủ — worker có thể chưa kịp apply.
+>
+> **Không chắc** — vì worker xử lý async, có thể chưa kịp apply hết 3 event. Đây là bản chất *eventual consistency*. Test phải **flush** (đóng queue + \`worker.Wait()\`) để đảm bảo worker đã drain xong rồi mới assert. Đó là lý do \`flush()\` tồn tại trong integration test.
+>
+> </details>
 
 ---
 
@@ -821,7 +835,13 @@ worker.Wait()                            // (c) chờ worker xử lý hết rồ
 
 > 🔁 **Thực hành:** nếu bỏ \`worker.Wait()\` trong shutdown, hậu quả gì?
 >
-> <details><summary>Đáp án</summary>Các click event còn trong channel chưa được aggregate sẽ mất khi process thoát. \`worker.Wait()\` đảm bảo drain hết. Trong test, đây cũng chính là cơ chế \`flush()\` dùng để xác minh click đã được đếm trước khi assert.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ về số phận dữ liệu đang nằm trong channel khi process thoát mà không chờ worker xả hết.
+>
+> Các click event còn trong channel chưa được aggregate sẽ mất khi process thoát. \`worker.Wait()\` đảm bảo drain hết. Trong test, đây cũng chính là cơ chế \`flush()\` dùng để xác minh click đã được đếm trước khi assert.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 12:** Composition root wire tất cả; chỉ nó biết "in-memory hay Postgres". Graceful shutdown theo thứ tự server → queue → worker để không mất event và không panic. Observability hiện là stub, L84 thay bằng metrics/trace thật mà không đụng usecase.
 

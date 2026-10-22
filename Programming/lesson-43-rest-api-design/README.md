@@ -114,7 +114,13 @@ Pragmatic: chọn cách nào team đồng thuận, **giữ nhất quán** xuyên
 > 🔁 **Thực hành mục 2**
 >
 > 1. URL nào sai trong list sau: `/users/42`, `/users/42/getOrders`, `/orders/99`, `/posts/42/comments`?
-> <details><summary>Đáp án</summary>`/users/42/getOrders` — có động từ `getOrders` trong URL. Đúng là `/users/42/orders`. Method GET đã đảm nhiệm phần "get".</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Soát quy tắc đặt URL REST: URL chỉ chứa danh từ tài nguyên, hành động nằm ở HTTP method.
+>
+> `/users/42/getOrders` — có động từ `getOrders` trong URL. Đúng là `/users/42/orders`. Method GET đã đảm nhiệm phần "get".
+>
+> </details>
 >
 > 2. Bạn muốn API "kích hoạt user 42". URL nào hợp lý?
 > <details><summary>Đáp án</summary>Nhiều lựa chọn: (a) `POST /users/42/activations`, (b) `PUT /users/42/active` body `true`, (c) `PATCH /users/42` body `{"active": true}`. Cách (c) là REST-est. Cách (a) phù hợp khi việc kích hoạt sinh ra sự kiện audit riêng.</details>
@@ -295,7 +301,13 @@ Giải pháp: **`Idempotency-Key` header** (xem mục 16). Client sinh UUID, g�
 > 🔁 **Thực hành mục 5**
 >
 > User gọi `GET /users/42`. Server thấy user 42 đã bị xoá tháng trước. Trả status nào?
-> <details><summary>Đáp án</summary>**410 Gone** nếu muốn nói rõ "từng có, không còn nữa". **404 Not Found** cũng chấp nhận được. KHÔNG phải 204 (vì 204 nghĩa là thành công không body, dễ nhầm).</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt 404 (không biết gì về tài nguyên) với 410 (từng tồn tại, đã xoá vĩnh viễn).
+>
+> **410 Gone** nếu muốn nói rõ "từng có, không còn nữa". **404 Not Found** cũng chấp nhận được. KHÔNG phải 204 (vì 204 nghĩa là thành công không body, dễ nhầm).
+>
+> </details>
 
 ---
 

@@ -128,6 +128,8 @@ func (r *OrderReadStore) GetSummary(id string) (OrderSummary, error) {
 
 > 🔁 **Thực hành.** Cho 3 thao tác: (a) "tạo đơn hàng", (b) "lấy danh sách đơn của khách X", (c) "huỷ đơn". Cái nào là command, cái nào là query?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Hỏi từng thao tác: có THAY ĐỔI dữ liệu không — đổi là command (có thể bị từ chối), chỉ đọc là query.
 > (a) và (c) là **command** — thay đổi dữ liệu, có thể bị từ chối bởi business rule (đơn rỗng, đơn đã giao không huỷ được). (b) là **query** — chỉ đọc, trả read model. Mẹo nhận biết: command ở thể mệnh lệnh ("hãy..."), query ở thể câu hỏi ("cho biết...").
 > </details>
 
@@ -250,6 +252,8 @@ State cuối: \`{Balance: 100, Version: 4}\`. Đây chính là \`events.reduce(a
 
 > 🔁 **Thực hành.** Thêm event \`[4] Deposited{Amount: 30}\` vào stream trên, balance mới và version là bao nhiêu?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cộng dồn từ state đang có: balance cộng thêm amount, version tăng 1 — không cần replay lại từ đầu.
 > Balance = 100 + 30 = **130**, Version = **5**. Không cần tính lại từ đầu nếu đã có state cũ — chỉ cần \`apply\` thêm event mới lên state hiện tại.
 > </details>
 
@@ -361,6 +365,8 @@ Giảm từ 1 triệu phép \`apply\` xuống còn 100 — nhanh hơn ~10000 l�
 
 > 🔁 **Thực hành.** Aggregate có 5.234 event, snapshot mỗi 1.000 event. Snapshot gần nhất ở version nào, phải replay bao nhiêu event?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tìm bội của 1.000 lớn nhất không vượt 5.234 — đó là snapshot gần nhất; phần dư là số event phải replay.
 > Snapshot gần nhất ở version **5.000**. Phải replay 5.234 − 5.000 = **234** event. (Nếu không snapshot: 5.234.)
 > </details>
 
@@ -574,6 +580,8 @@ Nguyên tắc versioning event:
 
 > 🔁 **Thực hành.** Store có cả event \`Deposited\` v1 (chỉ Amount) lẫn v2 (Amount + Currency). Làm sao replay cả hai bằng cùng một \`apply\`?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ hướng nâng cấp event khi LOAD: upcaster chuyển v1 lên v2 (điền giá trị mặc định) để apply chỉ cần hiểu một version.
 > Chạy **upcaster lúc load**: mọi \`Deposited\` v1 được nâng lên v2 (gán \`Currency\` mặc định) **trước khi** vào \`apply\`. Nhờ vậy \`apply\` chỉ cần biết một schema duy nhất (v2). Store vẫn giữ nguyên event v1 gốc.
 > </details>
 

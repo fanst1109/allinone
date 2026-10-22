@@ -90,6 +90,8 @@ Nếu viết \`row.Scan(name, age)\` (không \`&\`): Scan nhận **copy** của 
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Chạy từng dòng theo thứ tự: z được tính TRƯỚC khi *y = 10, nên z giữ kết quả cũ; x thì bị đổi qua con trỏ.
+>
 > \`10 8\`. Giải thích:
 > - \`y := &x\` → \`y\` là pointer trỏ tới \`x\`.
 > - \`z := *y + 3\` → \`*y\` = giá trị tại địa chỉ y = 5. \`z = 5 + 3 = 8\`. Lưu ý \`z\` là int thường, không phải pointer.
@@ -240,6 +242,8 @@ Chênh ~13×. Với struct vài KB, dùng pointer là gần như bắt buộc. V
 > Output là gì? Đây có phải pass-by-reference không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ slice header bị copy (pass-by-value) nhưng ptr bên trong vẫn trỏ cùng mảng — sửa phần tử thấy từ ngoài, dù vẫn là pass-by-value.
 >
 > Output \`[99 2 3]\`. Đây **vẫn là pass-by-value** — Go copy slice header. Nhưng header chứa pointer tới underlying array → cả hai header trỏ tới cùng array → \`s[0] = 99\` ghi vào array đó → caller thấy. Không phải reference semantics, chỉ là hệ quả của việc share underlying array.
 > </details>

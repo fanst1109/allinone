@@ -178,7 +178,13 @@ func SplitN(s, sep string, n int) []string
 > 🔁 **Thực hành**
 >
 > Q1: Bạn vừa thấy gọi \`s.Charge(ctx, amount)\`. Để xem code thật của \`Charge\`, phím nào trong VS Code?
-> <details><summary>Đáp án</summary>\`F12\` — Go to Definition. Hoặc Ctrl+Click vào tên hàm.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ nhóm phím điều hướng code trong VS Code — "Go to Definition" là thao tác tra định nghĩa nhanh nhất.
+>
+> \`F12\` — Go to Definition. Hoặc Ctrl+Click vào tên hàm.
+>
+> </details>
 >
 > Q2: Muốn biết hàm \`UpdateUser\` được gọi ở bao nhiêu chỗ?
 > <details><summary>Đáp án</summary>\`Shift+F12\` — Find All References. Trên CLI: \`rg '\\.UpdateUser\\(' --type go\`.</details>
@@ -524,7 +530,13 @@ fatal error: concurrent map writes
 > main.main()
 >         /app/main.go:15 +0x50
 > \`\`\`
-> <details><summary>Đáp án</summary>Panic xảy ra ở <code>/app/main.go:27</code> trong hàm <code>findItem</code>. Có 1 slice <code>len=5</code> nhưng access index <code>10</code>. <code>main</code> ở dòng 15 chỉ là caller.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đọc stack trace từ trên xuống: frame đầu tiên thuộc code CỦA MÌNH (không phải runtime) là nơi lỗi; đối chiếu index với length trong message.
+>
+> Panic xảy ra ở <code>/app/main.go:27</code> trong hàm <code>findItem</code>. Có 1 slice <code>len=5</code> nhưng access index <code>10</code>. <code>main</code> ở dòng 15 chỉ là caller.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 7**
 > - Stack trace đọc từ trên xuống: dòng đầu sau goroutine = chỗ panic, dòng tiếp = caller chain.

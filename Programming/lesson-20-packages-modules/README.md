@@ -184,6 +184,8 @@ type Order struct {
 > Trong `package shop`, hàm `calcTax(price float64) float64` có thể được dùng từ `package main` không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ quy tắc exported của Go: chữ cái đầu viết hoa mới thấy được từ package khác.
 > Không. `calcTax` chữ `c` thường → unexported. Muốn dùng từ `package main` phải đổi thành `CalcTax`.
 > </details>
 
@@ -317,6 +319,8 @@ use of internal package github.com/mycompany/platform/shared/internal/auth not a
 > Bạn có module `github.com/me/lib` với package `lib/util/internal/strutil`. Người ngoài chạy `go get` rồi `import "github.com/me/lib/util/internal/strutil"`. Việc gì xảy ra?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ cơ chế thư mục internal/ — compiler chặn import từ ngoài cây thư mục cha của internal.
 > `go build` fail với error `use of internal package not allowed`. Họ buộc phải fork hoặc bạn phải mở interface ở `lib/util/public/strutil` (re-export).
 > </details>
 
@@ -571,6 +575,8 @@ Go bắt buộc dependency có **SemVer tag** dạng `vMAJOR.MINOR.PATCH`:
 > Bạn xoá hết `go.sum`, chạy `go build`. Việc gì xảy ra?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: go.sum chỉ là bảng checksum — nghĩ xem go build thiếu nó sẽ tự làm gì, và rủi ro bảo mật nằm ở đâu.
 > Go sẽ download dep, tính lại checksum, ghi lại `go.sum`. Build thành công. NHƯNG nếu attacker đổi nội dung dep từ lần này tới lần sau, bạn không biết. Vì vậy commit `go.sum` là quan trọng.
 > </details>
 
@@ -651,6 +657,8 @@ Build set cuối:
 > A require D v1.1.0. B require D v1.0.0. Root require A và B. MVS chọn D version nào?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp luật MVS: chọn version LỚN NHẤT trong các yêu cầu tối thiểu của mọi module.
 > v1.1.0 — max của 1.1.0 và 1.0.0.
 > </details>
 

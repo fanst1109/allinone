@@ -144,6 +144,8 @@ Image nhỏ → pull nhanh khi scale (HPA thêm pod), bề mặt tấn công nh�
 > 1. Vì sao \`CGO_ENABLED=0\` bắt buộc khi dùng \`scratch\`?
 > 2. \`-s -w\` trong ldflags làm gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ cặp điều kiện scratch: không có libc nên binary phải static (tắt CGO); còn -s -w là cờ strip bớt gì khỏi binary?
 > 1. \`scratch\` không có libc; CGO bật → binary link động vào libc → start fail. Tắt CGO → binary tĩnh, tự chứa.
 > 2. \`-s\` bỏ symbol table, \`-w\` bỏ DWARF debug info → binary nhỏ hơn ~30%, đổi lại không debug bằng gdb được (chấp nhận được ở production).
 > </details>
@@ -267,6 +269,8 @@ Kết quả: trên Jaeger/Tempo bạn thấy 1 trace \`redirect\` → có span c
 > 1. Khi nào dùng log, khi nào dùng metric để điều tra "tại sao p99 tăng"?
 > 2. Vì sao latency phải xem p99 chứ không xem average?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân vai 3 trụ observability: metric trả lời "khi nào, bao nhiêu", log trả lời "chi tiết gì"; còn average thì che mất phần đuôi phân phối.
 > 1. **Metric** trước: dashboard cho thấy *khi nào* p99 tăng + tương quan (cache_hit_ratio giảm? queue_depth tăng?). **Trace** để thấy *chặng nào* chậm. **Log** để xem chi tiết request lỗi cụ thể. Đi từ tổng quan (metric) → khoanh vùng (trace) → chi tiết (log).
 > 2. Average bị kéo bởi số đông request nhanh, che mất đuôi chậm. p99 = "request chậm thứ 1% từ dưới lên" — phản ánh trải nghiệm tệ nhất của 1% user, thứ làm họ bỏ đi.
 > </details>
@@ -678,6 +682,8 @@ Bạn vừa hoàn thành **lesson cuối cùng** của lộ trình Programming. 
 > 2. Khi p99 tăng, bạn dùng 3 trụ observability theo thứ tự nào để điều tra?
 > 3. Vì sao liveness probe không nên check Redis?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Lần lại 2 quyết định thiết kế: async giữ đường nóng không phải đợi DB write; chuỗi điều tra chuẩn là metric → trace → log.
 > 1. Ghi DB đồng bộ sẽ cộng latency DB write vào mọi redirect → chậm đường nóng. Async queue tách việc ghi click khỏi latency redirect; redirect trả về ngay, click ghi sau.
 > 2. **Metric** (dashboard khoanh vùng *khi nào* + tương quan) → **Trace** (chặng nào chậm) → **Log** (chi tiết request lỗi cụ thể, lọc theo request_id).
 > 3. Redis chập chờn → liveness fail → mọi pod restart đồng loạt → cascading failure dù vấn đề chỉ là dependency tạm. Liveness chỉ check "process còn sống"; dependency check để cho readiness.

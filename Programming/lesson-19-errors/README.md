@@ -179,6 +179,8 @@ if err := json.Unmarshal(data, &cfg); err != nil {
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Go bắt nhận đủ số giá trị trả về — nghĩ xem compiler phản ứng gì với n := doX() khi doX trả 2 giá trị.
+>
 > **Compile error**. Go bắt bạn nhận đủ số giá trị trả về. Nếu thực sự muốn bỏ err (KHÔNG khuyến khích), phải dùng `n, _ := doX()`. Việc gõ `_` là dấu hiệu rõ ràng cho code reviewer: "tôi cố tình bỏ qua".
 > </details>
 
@@ -388,6 +390,8 @@ Cây wrap chain:
 > Tôi viết: `err := fmt.Errorf("step: %v", io.EOF)`. Sau đó `errors.Is(err, io.EOF)` trả về gì?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt %v (chỉ in chuỗi, cắt đứt chain) và %w (wrap, giữ chain cho errors.Is lần theo).
 >
 > `false`. `%v` chỉ in chuỗi, không wrap. Phải dùng `%w` để giữ chain.
 > </details>

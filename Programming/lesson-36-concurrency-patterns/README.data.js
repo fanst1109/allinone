@@ -164,6 +164,8 @@ func runPool(ctx context.Context, numWorkers int, jobs []Job) []Result {
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Chia đều việc: tổng thời gian xấp xỉ bằng (số job × thời gian mỗi job) chia số worker chạy song song.
+
 \`1000 × 100ms / 4 worker = 25s\` (lý tưởng). Thực tế lâu hơn chút do context switch, channel overhead.
 
 </details>

@@ -153,6 +153,8 @@ Hai kịch bản:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ bản chất saga: chuỗi transaction cục bộ, không có khóa chung — giữa chừng người ngoài THẤY trạng thái dở dang.
+>
 > 1. Không. Saga chỉ cho **eventual consistency**: sau khi xong (hoặc xong compensation), hệ thống về trạng thái nhất quán, nhưng trong lúc chạy thì có trạng thái trung gian.
 > 2. Ngược chiều: \`C₂\` (bù \`T₂\`) rồi \`C₁\` (bù \`T₁\`). Không bù \`T₃\` vì nó fail (thường tự rollback local).
 > </details>
@@ -410,6 +412,8 @@ return OK
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Compensation chạy ngược thứ tự trên các bước ĐÃ hoàn thành; rồi xét ai ra lệnh trong từng kiểu điều phối.
+>
 > 1. **Orchestrator** chủ động gọi compensation của từng service đã hoàn thành, theo thứ tự ngược.
 > 2. **Không ai trung tâm** — service tự nghe event fail và tự chạy compensation của mình rồi emit event đảo tiếp.
 > </details>
@@ -505,6 +509,8 @@ Trong hệ phân tán, message bus thường là **at-least-once** ([L64](../les
 > 🔁 **Thực hành.** \`ReserveInventory\` làm \`qty = qty - 1\`. Nếu retry 3 lần, kho bị trừ mấy lần? Làm sao sửa?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đếm hiệu ứng khi retry lệnh trừ kho không idempotent 3 lần; sửa bằng cách ghi nhận "đã xử lý orderID này chưa".
 >
 > Bị trừ **3 lần** (−3) — sai. Sửa: gắn idempotency key theo \`sagaId\`; trước khi trừ, kiểm tra "saga này đã reserve chưa". Đã reserve → no-op. Hoặc dùng bảng reservation \`(sagaId, sku) UNIQUE\` để insert lần đầu thành công, lần sau insert đụng UNIQUE → bỏ qua.
 > </details>
@@ -611,6 +617,8 @@ Diễn giải: một khi đã \`ReserveInventory\` thành công (hàng đã gi�
 > 🔁 **Thực hành.** Orchestrator gọi \`RefundPayment\`, Payment refund thành công nhưng **reply bị mất** (timeout). Orchestrator retry \`RefundPayment\`. Điều gì xảy ra nếu refund **không** idempotent?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt "reply bị mất" với "lệnh chưa chạy": refund đã chạy xong rồi — retry sẽ an toàn khi nào?
 >
 > Khách được hoàn tiền **2 lần** — công ty mất tiền. Đây là pitfall #1. Sửa: Payment lưu "đã refund cho saga 42 chưa"; lần gọi thứ 2 thấy đã refund → no-op trả OK (không hoàn thêm).
 > </details>

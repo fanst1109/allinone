@@ -201,6 +201,8 @@ Không phải error nào cũng giống nhau. Trộn lẫn là sai. Có **3 nhóm
 > "Hết tiền trong tài khoản khi rút" thuộc nhóm nào?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân nhóm theo nguồn lỗi: input sai cú pháp, vi phạm luật nghiệp vụ, hay hạ tầng hỏng — dữ liệu ở đây hợp lệ về cú pháp.
 > Domain error. Nguyên nhân là **dữ liệu hợp lệ về cú pháp nhưng vi phạm luật nghiệp vụ** (số dư < số tiền rút). Trả về `*AppError{Code: "INSUFFICIENT_FUNDS"}` với HTTP 422. KHÔNG retry. KHÔNG alert.
 > </details>
 
@@ -856,6 +858,8 @@ Lộ IP DB, lộ port, lộ driver. Dùng `httpError(err)` middleware tách inte
 > ```
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Soát từng nhánh return: lỗi bị nuốt mất, bị wrap hai lần, hay thiếu context khi chuyển lên trên?
 >
 > 3 vi phạm:
 > 1. `errors.New("invalid")` — generic, không nói gì sai (mục 14.1).

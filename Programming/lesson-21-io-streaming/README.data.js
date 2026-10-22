@@ -179,7 +179,13 @@ if err != nil { return err }
 fmt.Println(string(buf))
 \`\`\`
 
-<details><summary>Đáp án</summary>3 bug: (1) check \`err\` trước khi process \`p[:n]\` → mất data khi \`n>0 && EOF\`. (2) \`string(buf)\` thay vì \`string(buf[:n])\` → in rác. (3) chỉ gọi \`Read\` 1 lần, không lặp đến hết stream.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Soát hợp đồng io.Reader: phải xử lý n > 0 TRƯỚC khi xét err, và chỉ được dùng buf[:n] chứ không phải cả buf.
+
+3 bug: (1) check \`err\` trước khi process \`p[:n]\` → mất data khi \`n>0 && EOF\`. (2) \`string(buf)\` thay vì \`string(buf[:n])\` → in rác. (3) chỉ gọi \`Read\` 1 lần, không lặp đến hết stream.
+
+</details>
 
 ### 📝 Tóm tắt mục 2
 

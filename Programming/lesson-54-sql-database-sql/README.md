@@ -104,6 +104,8 @@ connection. Vì thế:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ sql.Open chỉ validate chuỗi kết nối, chưa chạm DB — lệnh nào mới thật sự mở kết nối thử?
+>
 > 1. Chưa chắc. `Open` lazy, chỉ kiểm tra DSN. Phải `Ping()` mới biết DB sống.
 > 2. Một (1) — dùng chung. `*sql.DB` quản lý pool nội bộ, an toàn cho goroutine.
 > </details>
@@ -150,7 +152,13 @@ hỏi → DB **từ chối kết nối / sập**. Đây là sự cố thật r�
 
 > **🔁 Thực hành.** Postgres `max_connections=100`, bạn deploy 8 instance, muốn
 > chừa 12 connection cho việc bảo trì. Mỗi instance nên đặt `MaxOpenConns` bao nhiêu?
-> <details><summary>Đáp án</summary> (100 − 12) / 8 = 11. Đặt khoảng 10–11 để có biên an toàn. </details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Lấy tổng connection cho app = max_connections trừ phần chừa bảo trì, rồi chia đều cho số instance.
+>
+> (100 − 12) / 8 = 11. Đặt khoảng 10–11 để có biên an toàn.
+>
+> </details>
 
 > **📝 Tóm tắt mục 1–3.**
 > - `database/sql` là abstraction; driver (blank import) làm phần dịch wire protocol.
@@ -235,7 +243,13 @@ id, _ := res.LastInsertId()  // (chỉ ý nghĩa với INSERT có AUTOINCREMENT;
 
 > **🔁 Thực hành.** Bạn cần biết "có đúng dòng nào bị UPDATE không". Dùng hàm
 > nào và đọc giá trị gì?
-> <details><summary>Đáp án</summary> `db.Exec(...)` → `res.RowsAffected()`. Nếu `== 0` nghĩa là điều kiện `WHERE` không khớp dòng nào. </details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tìm API trả metadata của lệnh ghi: Exec trả về Result — trong đó có hàm nào đếm dòng bị tác động?
+>
+> `db.Exec(...)` → `res.RowsAffected()`. Nếu `== 0` nghĩa là điều kiện `WHERE` không khớp dòng nào.
+>
+> </details>
 
 ---
 
@@ -328,7 +342,13 @@ db.Query(`SELECT * FROM users WHERE email = $1`, email)       // Postgres
 
 > **🔁 Thực hành.** Vì sao `db.Query("... WHERE name = ?", "O'Brien")` không bị
 > lỗi cú pháp dù tên có dấu nháy đơn?
-> <details><summary>Đáp án</summary> Vì `O'Brien` đi qua kênh dữ liệu tách biệt; DB không parse nó như SQL nên dấu `'` không "đóng" chuỗi. Nếu nối chuỗi thì `'O'Brien'` mới gây lỗi cú pháp. </details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ cơ chế placeholder: tham số đi kênh dữ liệu riêng, DB không parse nó như SQL nên dấu nháy vô hại.
+>
+> Vì `O'Brien` đi qua kênh dữ liệu tách biệt; DB không parse nó như SQL nên dấu `'` không "đóng" chuỗi. Nếu nối chuỗi thì `'O'Brien'` mới gây lỗi cú pháp.
+>
+> </details>
 
 > **📝 Tóm tắt mục 4–6.**
 > - `Query` (nhiều dòng, nhớ `Close` + `rows.Err`), `QueryRow` (1 dòng, bắt `ErrNoRows`), `Exec` (đổi dữ liệu, đọc `RowsAffected`).
@@ -461,7 +481,13 @@ func transfer(ctx context.Context, db *sql.DB, from, to, amount int64) (err erro
 
 > **🔁 Thực hành.** Sau `tx.Commit()` thành công, `defer tx.Rollback()` chạy có
 > phá hỏng dữ liệu vừa commit không?
-> <details><summary>Đáp án</summary> Không. Sau Commit, transaction đã đóng; Rollback trả về `sql.ErrTxDone` và không làm gì. Đó chính là lý do pattern này an toàn. </details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ hành vi Rollback sau Commit: transaction đã đóng thì Rollback thành no-op — đó là chủ đích của pattern defer.
+>
+> Không. Sau Commit, transaction đã đóng; Rollback trả về `sql.ErrTxDone` và không làm gì. Đó chính là lý do pattern này an toàn.
+>
+> </details>
 
 Chi tiết về isolation level, deadlock, `SELECT FOR UPDATE` sẽ học ở
 [Lesson 56 — Transaction & Isolation](../lesson-56-transactions-isolation/).
@@ -577,7 +603,13 @@ for each order {
 
 > **🔁 Thực hành.** Bạn thấy log DB có 1 query danh sách rồi 200 query gần như
 > giống nhau theo sau. Tên hiện tượng là gì và sửa ra sao?
-> <details><summary>Đáp án</summary> N+1 query. Sửa bằng JOIN hoặc `WHERE id IN (...)` để gộp về 1–2 query. </details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhận diện anti-pattern query trong vòng lặp: 1 query mẹ kéo theo N query con — tên gọi và cách gộp về 1–2 query?
+>
+> N+1 query. Sửa bằng JOIN hoặc `WHERE id IN (...)` để gộp về 1–2 query.
+>
+> </details>
 
 > **📝 Tóm tắt mục 11–12.** Scan thủ công khớp thứ tự cột, hoặc dùng sqlx/scany cho gọn.
 > Bảy bẫy: quên Close/Err, concat, pool sai cỡ, N+1, Open mỗi request, lẫn ErrNoRows với lỗi thật.

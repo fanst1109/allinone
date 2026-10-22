@@ -245,6 +245,8 @@ Cho `p := &Point{X: 5, Y: 6}` (`p` là `*Point`). Đoạn nào hợp lệ?
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ auto-deref p.X của Go; riêng deref qua nil pointer là panic lúc chạy.
+
 1. **OK** — auto deref.
 2. **OK** — deref tường minh.
 3. **PANIC** lúc runtime — `p` thành nil, deref nil panic.
@@ -387,6 +389,8 @@ type Cfg struct {
 ```
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Struct comparable khi MỌI field comparable — soát từng field: string, int, struct lồng bên trong.
 
 **Có**. `string`, `int` comparable, và inner struct `struct{URL string}` cũng chỉ có `string` → comparable. Tất cả comparable → `Cfg` comparable.
 
@@ -629,6 +633,8 @@ fmt.Println(x.Volume)
 ```
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Phân biệt value receiver (nhận bản sao) và pointer receiver (sửa bản gốc) — chỉ method nào sửa được Volume thật?
 
 **30**.
 
@@ -1186,6 +1192,8 @@ type S struct {
 ```
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Xếp field theo alignment: int32 (4) + bool (1) + padding cho int64 (align 8); tổng size phải là bội của alignment lớn nhất.
 
 **24 byte**.
 

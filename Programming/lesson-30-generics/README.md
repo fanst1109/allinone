@@ -440,7 +440,11 @@ Sum([]Money{1, 2})   // compile error
 ### 🔁 Thực hành
 
 1. Hàm `func Eq[T any](a, b T) bool { return a == b }` — có hợp lệ không?
-   <details><summary>Đáp án</summary>KHÔNG. `any` không có `==`. Phải đổi
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Xét constraint: any không bảo đảm có toán tử == — tìm constraint nào của Go bảo đảm điều đó.
+
+   KHÔNG. `any` không có `==`. Phải đổi
    constraint thành <code>comparable</code>.</details>
 2. `Sum[T int | float64]` có cho phép gọi `Sum([]Celsius{...})` không
    (`type Celsius float64`)?

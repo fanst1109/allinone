@@ -92,6 +92,8 @@ Trước khi chọn thuật toán, phải xác định **key** dùng để đế
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nghĩ theo mục tiêu tấn công: brute-force login nhắm vào MỘT tài khoản từ nhiều IP — key phải bám theo đối tượng bị tấn công.
+>
 > 1. **Per-IP và per-username gửi lên**, kết hợp. Per-IP để chống brute force IP cố định, per-username để chống bot rải qua nhiều IP. Không dùng per-user-id vì lúc login chưa biết user ID.
 > 2. NAT / proxy / CGNAT khiến nhiều user share IP. Per-IP công bằng giả tạo. Dùng per-user khi đã auth.
 > </details>
@@ -276,6 +278,8 @@ Giảm đều khi window cũ "trôi ra ngoài". **Mượt, không burst tại bo
 > 2. Vì sao sliding window counter là **xấp xỉ** chứ không chính xác tuyệt đối?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Mô phỏng từng thuật toán trên timeline t=0 và t=59: fixed window reset ở biên cửa sổ, token bucket cần thời gian refill token.
 >
 > 1. **Token bucket:** lúc t=0 dùng hết 10 token. Đến t=59, refill được 59 × 10/60 ≈ 9.83 token, cộng với 0 còn lại = 9.83 < 10 → req thứ 10 deny. **Fixed window:** 10 req lúc t=0 trong window [0..60), 10 req lúc t=59 vẫn cùng window → count = 20 > 10 → 10 req sau đều deny. Cả hai đều bảo vệ ở case này, nhưng token bucket bảo vệ "đều" hơn (chỉ deny đúng 1 req).
 > 2. Vì giả định request **phân bố đều** trong window cũ. Nếu thực tế tất cả 80 req của window cũ tập trung ở 1s đầu (xa boundary), việc nhân `× (1 - elapsed)` quá conservative (under-count). Ngược lại nếu tập trung ở cuối, dưới-ước. Sai số bounded ≈ ±20% trong worst case, đủ tốt cho hầu hết use case.

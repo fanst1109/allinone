@@ -198,6 +198,8 @@ ta dùng fuzzer như "random generator".
 > 🔁 **Thực hành**: Property nào sau đây ĐÚNG cho hàm \`strings.ToUpper\`?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Property phải đúng với MỌI input: thử các bất biến như độ dài không đổi, chạy 2 lần cho cùng kết quả như 1 lần (idempotent).
+>
 > - \`ToUpper(ToUpper(s)) == ToUpper(s)\` (idempotent) ✓
 > - \`len(ToUpper(s)) == len(s)\` ✗ Sai! \`'ß'\` → \`'SS'\` (1 byte → 2 byte). Đây là
 >   loại trap mà property-based hay tóm được. Lesson: property phải chọn cẩn thận.
@@ -304,7 +306,11 @@ CI nên có 2 job: \`go test ./...\` (fast, mọi PR) + \`go test -race ./...\`
 
 > 🔁 **Thực hành**: Có code \`var x int; go func(){ x = 1 }(); fmt.Println(x)\`.
 > Race không?
-> <details><summary>Đáp án</summary> Có. Goroutine ghi \`x\`, main goroutine đọc \`x\`,
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp định nghĩa data race: 2 goroutine cùng chạm 1 biến, ít nhất 1 bên ghi, không có đồng bộ hóa ở giữa.
+>
+> Có. Goroutine ghi \`x\`, main goroutine đọc \`x\`,
 > không có sync → race. Fix bằng channel: \`done := make(chan int); go func(){ done <- 1 }(); fmt.Println(<-done)\`. </details>
 
 ---

@@ -116,6 +116,8 @@ func BenchmarkParseHugeFile(b *testing.B) {
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Nghĩ về cách runner gọi LẠI hàm benchmark với nhiều giá trị b.N khác nhau — phần setup chạy lại mỗi lần gọi.
+
 Vì runner gọi function của bạn từ đầu mỗi lần thử `b.N` khác nhau — không phải gọi 1 lần duy nhất rồi tăng `b.N`. Lần thử với `b.N=1` cũng phải reset, vì nếu không, setup 200ms sẽ làm runner tưởng hàm chạy chậm khủng khiếp → giảm `b.N`. Kết quả cuối cùng sẽ thiếu chính xác.
 </details>
 

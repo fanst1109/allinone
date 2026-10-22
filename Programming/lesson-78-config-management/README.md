@@ -63,6 +63,8 @@ Lý do then chốt 12-factor đưa ra: phép thử *"liệu codebase có thể p
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nghĩ về niềm tin "test cái gì deploy đúng cái đó": binary khác nhau giữa môi trường thì mất gì; còn hệ số backoff có đổi theo môi trường không?
+>
 > 1. Vì binary chạy ở prod đúng là binary đã test ở staging — không có "biến lạ" do build lại. Build-once-run-anywhere giữ chuỗi kiểm thử nguyên vẹn.
 > 2. Thường là **code** — nó là tham số thuật toán, dev/staging/prod không cần khác nhau. Nếu một ngày bạn muốn tune backoff theo môi trường thì mới promote nó thành config.
 > </details>
@@ -276,6 +278,8 @@ Gọi `Validate()` ngay sau `Load()`, **trước** khi mở socket/DB. Sai → `
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: So thời điểm phát hiện: fail ngay lúc startup (rõ, một chỗ) với fail rải rác giữa đêm theo từng request.
+>
 > 1. Vì lỗi lộ ngay, deploy thất bại sạch sẽ (pod không vào trạng thái Ready), không có user nào bị ảnh hưởng. Nếu để runtime, lỗi xảy ra giữa lúc phục vụ → ảnh hưởng user thật.
 > 2. Ở `Validate()`: `70000 > 65535` → trả error → `log.Fatal` lúc startup.
 > </details>
@@ -389,6 +393,8 @@ go func() {
 > 2. Reload mà config mới validate fail thì nên làm gì?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhận diện torn read khi update nhiều field không atomic; còn config mới validate fail thì giữ cái gì chạy tiếp?
 >
 > 1. Vì giữa hai phép gán, reader có thể đọc port mới + level cũ — trạng thái lai không bao giờ tồn tại trong config hợp lệ nào. Phải swap nguyên con trỏ (atomic) để reader thấy "all-or-nothing".
 > 2. **Giữ nguyên config cũ** và log lỗi. Không bao giờ áp config hỏng — config cũ vẫn đang chạy ổn còn hơn nửa-mới-nửa-cũ.

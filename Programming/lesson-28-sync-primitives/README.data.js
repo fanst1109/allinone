@@ -1076,7 +1076,13 @@ Pool giảm allocation 100-300× → giảm GC pressure đáng kể.
 > **🔁 Thực hành**
 >
 > 1. Khi nào dùng \`RWMutex\` thay \`Mutex\`?
->    <details><summary>Đáp án</summary>Chỉ khi tỉ lệ read >> write (vd ≥10:1) và critical section đủ dài. Mặc định cứ Mutex.</details>
+>    <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cân chi phí RWMutex (phức tạp hơn, writer có thể bị đói) với lợi ích cho reader chạy song song — chỉ đáng khi read áp đảo write.
+>
+> Chỉ khi tỉ lệ read >> write (vd ≥10:1) và critical section đủ dài. Mặc định cứ Mutex.
+>
+> </details>
 > 2. \`wg.Add(1)\` phải đặt ở đâu — trong goroutine con hay goroutine cha?
 >    <details><summary>Đáp án</summary>Cha, TRƯỚC \`go func()\`. Đặt trong con có thể race với Wait().</details>
 > 3. \`n++\` thread-safe nếu chỉ có 1 goroutine ghi và nhiều goroutine đọc?

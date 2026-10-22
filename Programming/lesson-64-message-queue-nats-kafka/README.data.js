@@ -105,6 +105,8 @@ Broker production luôn chạy **cluster** (Kafka: nhiều broker + replication 
 <details>
 <summary>Chọn sync hay async: (a) lấy thông tin profile để render trang, (b) ghi audit log mỗi action?</summary>
 
+**Hướng dẫn**: Hỏi một câu: người gọi có cần kết quả NGAY để đi tiếp không — cần thì sync, không thì đẩy async.
+
 (a) **Sync** — cần data *ngay* để render, không có nó thì trang trống. (b) **Async** — audit log không cần xong trước khi trả response cho user; bỏ vào queue, consumer ghi sau.
 </details>
 
@@ -189,6 +191,8 @@ Mọi broker đều xoay quanh 2 pattern này (hoặc kết hợp).
 
 <details>
 <summary>Bạn cần: (a) chia 1 triệu job gửi SMS cho 20 worker, (b) thông báo "user đăng ký" cho 3 service. Chọn pattern nào?</summary>
+
+**Hướng dẫn**: Phân biệt 2 pattern: queue chia việc (mỗi message đúng 1 người xử), pub/sub phát tin (mỗi subscriber một bản).
 
 (a) **Queue** — mỗi SMS chỉ gửi 1 lần, chia cho 20 worker chạy song song. (b) **Pub/Sub** — cả 3 service đều cần biết, mỗi service 1 bản sao.
 </details>
@@ -441,6 +445,8 @@ Kết luận thực dụng: **đừng dựa vào "exactly-once" của broker cho
 <details>
 <summary>Consumer trừ tiền user rồi mới commit offset. Crash sau khi trừ tiền, trước khi commit. Chuyện gì xảy ra? Cách sửa?</summary>
 
+**Hướng dẫn**: Lần theo timeline crash: offset chưa commit thì message được giao LẠI — hiệu ứng phụ (trừ tiền) chạy mấy lần?
+
 Đây là **at-least-once**. Restart → đọc lại message → **trừ tiền lần 2** (duplicate effect, user mất tiền oan). Sửa: làm consumer **idempotent** — lưu \`transaction_id\` đã xử lý, lần 2 thấy đã có thì bỏ qua việc trừ tiền (mục 12).
 </details>
 
@@ -621,6 +627,8 @@ Mẹo: thiết kế thao tác thành "gán trạng thái cuối" thay vì "cộn
 
 <details>
 <summary>"INSERT order vào DB" có idempotent không? Làm sao cho idempotent?</summary>
+
+**Hướng dẫn**: Thử chạy thao tác 2 lần trong đầu: kết quả có khác chạy 1 lần không; muốn vô hại thì chốt bằng khóa duy nhất nào?
 
 Mặc định KHÔNG (chạy 2 lần → 2 row). Cho idempotent: dùng \`orderId\` làm primary/unique key + \`INSERT ... ON CONFLICT (orderId) DO NOTHING\`, hoặc check tồn tại trước. Lần 2 thấy đã có → không insert thêm.
 </details>

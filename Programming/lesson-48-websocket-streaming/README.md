@@ -189,7 +189,11 @@ func postMessage(m Message) {
 
 > 🔁 **Thực hành.** Nếu server có 1000 client đang long-poll và 1 sự kiện duy nhất xảy ra,
 > server sẽ trả về cho bao nhiêu client?
-> <details><summary>Đáp án</summary>Tất cả 1000 client cùng wake (close(notify) wake mọi receiver),
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ hành vi close(channel): đánh thức MỌI goroutine đang chờ nhận — đếm số client đang block trên đó.
+>
+> Tất cả 1000 client cùng wake (close(notify) wake mọi receiver),
 > mỗi client check `messagesAfter(since)` → tất cả đều thấy message mới → trả cho cả 1000.
 > Thunder herd: 1000 response cùng lúc, 1000 request mới ngay sau. Đây là lý do production dùng
 > SSE/WebSocket thay cho long polling.</details>

@@ -64,6 +64,8 @@ Cùng viết tắt "CD" nhưng hai nghĩa khác nhau. Cách phân biệt nhanh:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Phân biệt theo cú bấm nút cuối: Delivery dừng chờ người duyệt trước prod, Deployment auto tới cùng; pipeline thiếu lint/vet thì lọt gì?
+>
 > 1. **Continuous Delivery** — vì prod cần con người bấm nút.
 > 2. Chỉ **CI** — không có khâu deploy nào.
 > </details>
@@ -239,7 +241,13 @@ kubectl set image deployment/myapp myapp=myregistry.io/myapp:\${GIT_SHA}
 > ⚠ **Lỗi thường gặp.** Sắp xếp stage sai thứ tự: build image *trước* khi test. Hậu quả: build image tốn 2 phút rồi mới chạy test 30s và test fail → phí 2 phút build vô ích. **Đặt stage rẻ và hay-fail lên trước** (lint, test) để fail-fast. Build image/push (đắt) đặt sau cùng.
 
 > 🔁 **Thực hành.** Vì sao đặt \`lint\` trước \`test\`?
-> <details><summary>Đáp án</summary> Lint nhanh hơn nhiều và bắt được lỗi cú pháp/style mà không cần biên dịch toàn bộ + chạy test. Fail sớm ở lint tiết kiệm thời gian chạy test. (Một số team chạy lint + test song song để nhanh hơn nữa — đánh đổi: tốn 2 runner cùng lúc.)</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: So chi phí chạy từng bước: bước rẻ mà bắt được lỗi sớm thì đặt trước, fail nhanh đỡ tốn công chạy bước đắt.
+>
+> Lint nhanh hơn nhiều và bắt được lỗi cú pháp/style mà không cần biên dịch toàn bộ + chạy test. Fail sớm ở lint tiết kiệm thời gian chạy test. (Một số team chạy lint + test song song để nhanh hơn nữa — đánh đổi: tốn 2 runner cùng lúc.)
+>
+> </details>
 
 > 📝 **Tóm tắt mục 3.** Pipeline = chuỗi stage nối tiếp, fail-fast. Thứ tự tối ưu: stage rẻ + hay-fail (lint, test) trước; stage đắt (build image, push) sau. Tag image bằng git SHA để truy ngược. \`-race\` bắt buộc bật trong CI.
 

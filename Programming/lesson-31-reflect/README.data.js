@@ -127,6 +127,8 @@ fmt.Println(x)             // 7.1
 > 1. Vì sao \`reflect.ValueOf(x).SetFloat(...)\` panic mà \`reflect.ValueOf(&x).Elem().SetFloat(...)\` thì OK?
 > 2. \`v.Interface()\` trả về kiểu gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ quy tắc settable của reflect: muốn Set phải nắm được địa chỉ gốc — tức đi qua pointer rồi Elem().
 > 1. Vì truyền \`x\` là pass-by-copy; reflect không nắm được địa chỉ gốc. Truyền \`&x\` thì có địa chỉ → \`Elem()\` tới ô nhớ thật → set được.<br>
 > 2. \`interface{}\` (alias \`any\`). Phải type-assert mới về kiểu concrete.
 > </details>
@@ -491,6 +493,8 @@ func encode(u User) []byte { /* dùng userType, userFields */ }
 > 1. Vì sao reflect chậm hơn direct call ~40-90 lần?
 > 2. Khi nào KHÔNG nên dùng reflect?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Liệt kê các chi phí ẩn của reflect (tra kiểu lúc chạy, boxing, mất inline) rồi suy ra loại code nào không nên dùng.
 > 1. Type lookup runtime + interface boxing + heap allocation + không inline được.<br>
 > 2. (a) Hot path — request handler chạy triệu lần/giây. (b) Code đã biết rõ type — viết thẳng nhanh và rõ hơn. (c) Có generics thay thế được — Go 1.18+ ưu tiên generics.
 > </details>

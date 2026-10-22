@@ -155,6 +155,8 @@ func (s *Service) Stock(sku string) int
 > 🔁 **Thực hành.** Vì sao \`Reserve\` idempotent theo \`orderID\` mà không phải theo \`(sku, qty)\`?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Hỏi: hai lần gọi mang cùng key này có phải CÙNG một ý định nghiệp vụ không — hay là 2 lần giữ chỗ hợp lệ khác nhau?
 > Vì hai order khác nhau có thể cùng \`(sku, qty)\` nhưng là 2 lần giữ chỗ HỢP LỆ — phải trừ kho 2 lần. Chỉ khi CÙNG \`orderID\` mới là "cùng một yêu cầu bị lặp" → mới được bỏ qua. \`orderID\` là khóa tự nhiên của một lần đặt hàng.
 > </details>
 
@@ -272,6 +274,8 @@ Quy luật chung: fail ở bước thứ \`k\` (1-indexed) → đúng \`k-1\` b�
 > 🔁 **Thực hành.** Trong kịch bản 3.4, vì sao RefundPayment KHÔNG nằm trong danh sách bồi hoàn?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt bước FAIL (chưa từng xong, không cần bồi hoàn) với bước ĐÃ XONG (phải bồi hoàn khi saga đổ).
 > Vì ChargePayment **thất bại** — nó chưa bao giờ "xong" nên không được thêm vào danh sách \`done\`. Chỉ các bước ĐÃ thành công mới cần bồi hoàn. ChargePayment chính là bước gây fail, không phải bước đã xong. (Dù vậy, \`Refund\` được viết an toàn để gọi cả khi chưa charge — nguyên tắc bồi hoàn "best effort".)
 > </details>
 
@@ -441,6 +445,8 @@ Kết quả: side-effect chỉ xảy ra **1 lần** dù event tới 3 lần. (Đ
 > 🔁 **Thực hành.** Map \`seen\` cứ lớn mãi không xóa — production làm sao?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ về bộ nhớ tăng vô hạn theo event đến — cơ chế hết hạn nào phù hợp khi event cũ không bao giờ quay lại?
 > Production gắn **TTL** cho mỗi entry (vd 24h) hoặc lưu trong Redis với expiry, vì event quá cũ sẽ không bị replay nữa. Ngoài ra có thể dùng chính DB: insert với unique constraint trên event ID — trùng thì insert fail = đã xử lý. Bài này in-memory đơn giản nên giữ map vô hạn.
 > </details>
 
@@ -498,6 +504,8 @@ Nhìn cột "kho": nó tụt xuống 2 rồi **về lại 3** — đúng như "c
 > 🔁 **Thực hành.** Một order có thể từ CANCELLED quay lại CONFIRMED không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Soát state machine: từ CANCELLED có cạnh nào đi ra không, hay mọi trạng thái cuối đều là ngõ cụt một chiều?
 > Không, trong thiết kế này trạng thái là một chiều: PENDING → (CONFIRMED hoặc CANCELLED) và dừng. Đây là một **state machine** đơn giản. Nếu muốn cho retry đặt lại, ta tạo order MỚI (orderID mới) chứ không "phục sinh" order cũ — tránh mơ hồ về lịch sử.
 > </details>
 
@@ -636,6 +644,8 @@ Vì đây là bài cuối tier, đây là bảng tra cứu nhanh các thuật ng
 > 🔁 **Thực hành cuối tier.** Bạn có thể giải thích trong 1 câu: vì sao "at-least-once" lại BẮT BUỘC consumer phải idempotent?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nối định nghĩa at-least-once (cùng message tới ≥1 lần) với hệ quả: consumer không idempotent thì chuyện gì lặp lại?
 > Vì at-least-once cho phép cùng một message tới NHIỀU lần; nếu consumer không idempotent, mỗi lần lặp lại tạo thêm side-effect (trừ tiền/kho lần nữa) → sai dữ liệu. Idempotency biến "nhận lặp" thành vô hại.
 > </details>
 

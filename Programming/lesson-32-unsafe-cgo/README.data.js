@@ -203,6 +203,8 @@ type S2 struct {
 > Tính \`Sizeof(T)\`?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Tính offset từng field theo alignment (int32: 4, bool: 1, int64: 8) — đếm padding trước c và padding cuối struct.
+>
 > \`\`\`
 > offset 0: a (int32, 4 byte)
 > offset 4: b (bool, 1 byte)  → cần pad đến offset 8 cho c (int64 align 8)
@@ -373,6 +375,8 @@ Một số case "đáng tiền":
 > 🔁 **Thực hành.**
 > Bạn đang viết một service tính hash MD5 của tên user để dedup. Có nên dùng \`StringToBytes\` thay \`[]byte(s)\` không?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Soát 2 điều kiện an toàn của chuyển đổi unsafe: slice kết quả phải read-only, và phải đo thấy hash là bottleneck thật.
 > Có, **nếu** đã đo và confirm hash là bottleneck, **và** đoạn dùng slice là read-only (chỉ truyền vào \`md5.Sum\`), **và** code không bị truyền slice ra ngoài hàm. Nếu chỉ chạy 100 req/s thì copy 12 byte mỗi lần không là gì — không cần \`unsafe\`. **Đo trước, tối ưu sau.**
 > </details>
 

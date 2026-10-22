@@ -84,6 +84,8 @@ Một design doc tốt **luôn bắt đầu từ requirements** — chia làm 2 
 > 1. Vì sao N5 (analytics eventual) lại quan trọng cho thiết kế?
 > 2. 99.9% uptime cho phép downtime bao nhiêu mỗi tháng?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ về đường nóng redirect được tách khỏi đường ghi analytics nhờ eventual; còn 99.9% thì lấy 0,1% của số phút một tháng.
 > 1. Vì nó cho phép xử lý click **async** (qua queue) → redirect không phải đợi ghi analytics → giữ được latency N1 < 50ms.
 > 2. 99.9% = 0.1% downtime = 0.001 × 30 ngày × 24 × 60 ≈ **43.2 phút/tháng**.
 > </details>
@@ -265,6 +267,8 @@ Mỗi entry cache (code → url) ≈ 100 byte (key 8 + value 200 + overhead). V�
 > 1. Với 7 ký tự base62, có bao nhiêu mã khả dĩ?
 > 2. Cache 20% URL bắt được bao nhiêu % traffic, theo Pareto?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tính lũy thừa 62 mũ 7 cho không gian mã; còn cache thì áp quy tắc Pareto 80/20.
 > 1. `62^7 ≈ 3,5 nghìn tỉ`.
 > 2. ~80% traffic.
 > </details>
@@ -497,7 +501,15 @@ redirect(code):
 
 > ⚠ **Lỗi thường gặp.** Gọi `INSERT INTO clicks` đồng bộ trong redirect. Khi Postgres tải nặng, mỗi insert 20–50ms → redirect p99 vọt lên, vi phạm N1, và nếu Postgres ghi sập thì **redirect cũng sập** (dù chỉ là để đếm click!). Đúng: tách hẳn — redirect không phụ thuộc đường ghi analytics.
 
-> 🔁 **Thực hành.** Cache hit thì redirect chạm những hệ thống nào? <details><summary>Đáp án</summary>Chỉ Redis (đọc url) + Queue (publish click). KHÔNG chạm Postgres. Đó là vì sao nó nhanh.</details>
+> 🔁 **Thực hành.** Cache hit thì redirect chạm những hệ thống nào? 
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Lần theo đường đi của một request cache-hit: chạm hệ nào, né được hệ nào — vì sao nó nhanh?
+>
+> Chỉ Redis (đọc url) + Queue (publish click). KHÔNG chạm Postgres. Đó là vì sao nó nhanh.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 9.** Read path = cache-aside (Redis trước, Postgres khi miss rồi populate) + emit click async (publish queue, không block). Hit path chỉ chạm Redis + Queue.
 
@@ -602,6 +614,8 @@ Worker đọc batch event, UPSERT vào `click_daily` (`INSERT ... ON CONFLICT DO
 > 1. Trong các failure mode trên, cái nào làm **redirect** (đọc) ngừng hẳn?
 > 2. Vì sao "queue backlog" chỉ ảnh hưởng analytics mà không ảnh hưởng redirect?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Soát từng failure mode theo trục đọc/ghi: redirect còn fallback nào khi Redis hoặc queue gặp sự cố?
 > 1. Không cái nào làm redirect ngừng hoàn toàn cho URL **nóng**: Redis down → fallback Postgres; Postgres down → cache hit vẫn redirect được (chỉ cache miss mới fail). Redirect chỉ thực sự fail khi **cả Redis lẫn Postgres** đều không trả được url.
 > 2. Vì redirect chỉ **publish** event vào queue rồi trả 302; nó không đọc/đợi gì từ queue. Backlog chỉ làm việc *consume* (Worker → aggregate) trễ, tức số liệu stats cập nhật chậm — đúng tinh thần "analytics eventual" (N5).
 > </details>

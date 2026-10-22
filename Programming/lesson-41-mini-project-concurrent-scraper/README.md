@@ -507,6 +507,8 @@ defer stop()
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Xét channel jobs có buffer với sức chứa đã biết trước so với tổng số URL — phép gửi thuần có thể block vĩnh viễn không?
+>
 > Vì channel `jobs` được tạo `make(chan string, len(urls))` — buffered đủ chứa toàn bộ URL. Enqueue không bao giờ block → không cần select. Nếu channel unbuffered, mới cần `select { case jobs <- url: case <-ctx.Done(): return }` để tránh kẹt khi ctx cancel.
 >
 > </details>

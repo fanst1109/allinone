@@ -66,6 +66,8 @@ Trong 8 tiếng, **chỉ ~2 tiếng gõ code mới**. Còn lại là **suy nghĩ
 > **🔁 Thực hành mục 1**
 > <details><summary>Câu 1: Trong 8 tiếng của một dev, khoảng bao nhiêu tiếng dành để gõ code mới?</summary>
 >
+> **Hướng dẫn**: Nhớ lại tỷ lệ thời gian ở mục 1: gõ code mới chỉ là phần nhỏ trong ngày — đọc code, debug, giao tiếp chiếm phần lớn.
+>
 > Khoảng 2 tiếng. Phần lớn còn lại là đọc code/tài liệu, debug, giao tiếp, review. Đây là tỷ lệ thật, không phải bị cường điệu.
 > </details>
 >
@@ -315,6 +317,8 @@ Nhưng chạy thật ra 6. Tại sao?
 > **🔁 Thực hành mục 2**
 > <details><summary>Câu 1: Trong 4 pattern ở mục 2.2, "đếm số phần tử thỏa điều kiện" thuộc pattern nào?</summary>
 >
+> **Hướng dẫn**: Đối chiếu đề với định nghĩa 4 pattern ở mục 2.2 — "đếm phần tử thỏa điều kiện" là duyệt kèm điều kiện cộng dồn.
+>
 > Thuộc **Aggregate** — gom list thành 1 giá trị (con số đếm). Có thể coi là biến thể của reduce: bắt đầu count = 0, mỗi phần tử thỏa điều kiện thì +1.
 > </details>
 >
@@ -473,6 +477,8 @@ func matKhauManh(mk string) bool {
 > **🔁 Thực hành mục 3**
 > <details><summary>Câu 1: Vì sao tách suy nghĩ logic ra khỏi syntax giúp code nhanh hơn?</summary>
 >
+> **Hướng dẫn**: Nghĩ về giới hạn bộ nhớ làm việc của não: làm 2 việc khó cùng lúc (logic + syntax) thì cả hai đều chậm và dễ sai.
+>
 > Vì khi nghĩ logic và nghĩ syntax cùng lúc, não phải "context switch" liên tục. Mỗi lỗi syntax (thiếu dấu \`;\`, sai tên biến) làm bạn quên mạch logic đang chạy trong đầu. Pseudocode khoá mạch logic xong rồi mới chuyển sang lo syntax.
 > </details>
 
@@ -574,6 +580,8 @@ Cả 6 đều pass. **Xong.**
 > **🔁 Thực hành mục 4**
 > <details><summary>Câu hỏi: Trong 6 bước, bước nào quan trọng nhất với bài toán bạn chưa từng gặp?</summary>
 >
+> **Hướng dẫn**: Xét bước nào tạo ra hiểu biết mới khi chưa có lời giải mẫu — các bước sau chỉ là triển khai điều đã hiểu.
+>
 > **Bước 1 (hiểu đề) và Bước 2 (ví dụ cụ thể)**. Nếu hiểu sai đề thì 4 bước sau dù đẹp đến đâu cũng sai. Ví dụ cụ thể là cách kiểm tra "tôi có hiểu đề không" — nếu nghĩ không ra ví dụ, có nghĩa chưa hiểu.
 > </details>
 
@@ -662,6 +670,8 @@ Khi đã trả lời 3 câu, bug thường tự lộ ra. Đây là **debug có h
 
 > **🔁 Thực hành mục 5**
 > <details><summary>Câu hỏi: Antipattern nào gây hậu quả nặng nhất về dài hạn?</summary>
+>
+> **Hướng dẫn**: So hậu quả tích lũy dài hạn: lỗi nào âm thầm phình to theo thời gian thay vì lộ ra ngay.
 >
 > **#3 (copy không hiểu)** — vì nó tích lũy nợ kỹ thuật âm thầm. Mỗi lần copy không hiểu là một "vùng đen" trong codebase mà bạn không thể debug. Khi bug xảy ra ở đó (chắc chắn sẽ có), bạn không có vũ khí gì.
 > </details>

@@ -87,6 +87,8 @@ Content-Type: application/json
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ nguyên tắc GraphQL: server trả ĐÚNG những field client hỏi — miễn schema đã khai posts.title thì không cần đổi version.
+>
 > Server thêm vào `data.user` field `posts` là mảng object `{ title: "..." }`. Shape response luôn **khớp 1-1 với shape query** — đây là tính chất đặc trưng của GraphQL.
 > </details>
 

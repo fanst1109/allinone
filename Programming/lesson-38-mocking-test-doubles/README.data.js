@@ -169,6 +169,8 @@ func (s *InMemoryUserStore) Save(u *User) error {
 >
 > 1. Bạn test một hàm \`CalculateTax(price float64, taxRate TaxRateProvider) float64\`. \`taxRate.GetRate()\` luôn trả 0.1. Bạn dùng loại double nào cho \`taxRate\`?
 >    <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt theo mục đích: stub chỉ TRẢ giá trị cố định, mock còn VERIFY lời gọi — ở đây có cần kiểm tra GetRate được gọi mấy lần không?
 >    Stub. Bạn chỉ cần nó trả \`0.1\` cố định, không cần verify có gọi hay không (vì verify behavior thật là \`CalculateTax(100, ...) == 110\`).
 >    </details>
 > 2. Bạn test \`SendNotifications\` — nó gọi \`emailSender.Send\` cho mỗi user trong list. Cần verify gọi đúng số lần (= số user). Loại nào?

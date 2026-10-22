@@ -299,6 +299,8 @@ Lưu ý: down chạy **ngược thứ tự** up (tạo index sau → drop index 
 
 > 🔁 **Thực hành.** Up của bạn là \`CREATE INDEX idx ON t(c); ALTER TABLE t ADD COLUMN c2 INT;\`. Down đúng phải là gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Down phải đảo ngược up theo thứ tự NGƯỢC (vào sau ra trước), như bóc ngược từng lớp.
 > Đảo ngược thứ tự: <code>ALTER TABLE t DROP COLUMN c2; DROP INDEX idx;</code>. Drop cột trước (vì nó tạo sau), drop index sau. Thực tế thứ tự index/cột ở đây độc lập nên không bắt buộc, nhưng nguyên tắc "down đảo ngược up theo thứ tự ngược" luôn an toàn.
 > </details>
 
@@ -375,6 +377,8 @@ CREATE INDEX CONCURRENTLY idx_users_email ON users (email);
 
 > 🔁 **Thực hành.** Bạn cần thêm cột \`created_at TIMESTAMP NOT NULL DEFAULT now()\` vào bảng \`orders\` 50 triệu row trên Postgres 13. An toàn không?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Xét 2 yếu tố: PG 11+ không rewrite bảng khi DEFAULT là hằng; còn now() tại thời điểm ALTER được xử lý thế nào?
 > Khá an toàn. PG 11+ tối ưu DEFAULT hằng (không rewrite bảng). Nhưng <code>now()</code> là <strong>biểu thức động</strong>, không phải hằng → PG vẫn phải rewrite để điền giá trị thật cho từng row → lock lâu trên 50M row. An toàn hơn: add nullable → backfill <code>created_at</code> theo batch → set DEFAULT + NOT NULL.
 > </details>
 
@@ -543,6 +547,8 @@ Sáu cái bẫy kinh điển làm sập production:
 
 > 🔁 **Thực hành.** Migration của bạn là \`CREATE TABLE sessions (...)\`. Tại sao nó **không idempotent**, và sửa thế nào?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Thử chạy migration 2 lần trong đầu: CREATE TABLE lần hai đụng bảng đã tồn tại thì sao, và mệnh đề nào né được?
 > Chạy lần 2 (vd sau khi lần 1 lỗi giữa chừng để lại dirty, rồi <code>force</code> và chạy lại) sẽ báo <code>relation "sessions" already exists</code>. Sửa: <code>CREATE TABLE IF NOT EXISTS sessions (...)</code>. Tổng quát hơn: tin vào version tracking + giữ migration chạy trong transaction để lỗi thì rollback sạch.
 > </details>
 

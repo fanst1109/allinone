@@ -93,6 +93,8 @@ Xem mục 3.
 > 🔁 **Thực hành**: Năm 2024 có 366 ngày (nhuận). Dùng `time.Date` viết hàm `isLeap(year int) bool` không dùng phép `%`.
 > 
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Dùng tính tự chuẩn hóa của time.Date: truyền ngày 29/2 của năm cần kiểm rồi xem tháng trả về còn là February không.
 > 
 > ```go
 > func isLeap(year int) bool {
@@ -300,6 +302,8 @@ Sự kiện: máy chủ ghi log một crash lúc instant Unix `1705314600`.
 > 🔁 **Thực hành**: User VN bảo "tôi tạo task lúc 8:00 sáng ngày 26/5/2024". DB lưu UTC. Lưu gì?
 > 
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ nguyên tắc: lưu UTC (thời điểm tuyệt đối), kèm timezone của user nếu cần dựng lại giờ địa phương.
 > 
 > ```go
 > vn, _ := time.LoadLocation("Asia/Ho_Chi_Minh")

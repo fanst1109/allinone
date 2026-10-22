@@ -76,6 +76,8 @@ Còn chi phí đổi policy: tăng timeout \`1s → 2s\` cho toàn hệ. Tự vi
 > 2. Đổi timeout toàn hệ: tự-viết cần bao nhiêu lần build/deploy, mesh cần bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ về ranh giới của library: nó gắn với một runtime — đổi policy chung thì bao nhiêu service phải rebuild?
 > 1. Library gắn với một runtime/ngôn ngữ — Python không import được package Go, Java không dùng được module Python. Mỗi ngôn ngữ phải có bản riêng, khó giữ hành vi khớp nhau.
 > 2. Tự-viết: 15 lần build + 15 lần rollout (mỗi service một lần). Mesh: 0 build, 1 lần \`kubectl apply\` (config push, không restart pod).
 > </details>
@@ -175,6 +177,8 @@ Cơ chế (walk-through cụ thể):
 > 2. Bạn \`kubectl apply\` một VirtualService mới (đổi route). Thành phần nào nhận và xử lý?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân vai 2 plane: data plane chuyển request thật, control plane chỉ phát config xuống — lệnh apply đi đường nào?
 > 1. **Data plane** (các Envoy). Request thật luôn đi qua proxy, không bao giờ qua Istiod.
 > 2. **Control plane** (Istiod) nhận YAML, dịch thành config Envoy, rồi **đẩy xuống** các Envoy liên quan. Sau đó data plane áp dụng route mới cho request tiếp theo.
 > </details>
@@ -536,6 +540,8 @@ Xu hướng mới: **sidecar-less mesh** (Istio Ambient mode, Cilium) — bỏ p
 > 2. Sau khi bật mesh, p99 latency của một API tăng từ 30ms lên 34ms. Có hợp lý không, do đâu?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cân chi phí mesh (thêm 2 hop proxy vào latency, vận hành phức tạp) với nhu cầu thật: mTLS bắt buộc, đa ngôn ngữ.
 > 1. **Không.** Ít service + team nhỏ + cùng ngôn ngữ → library (gRPC interceptor) đủ; mesh chỉ thêm gánh nặng vận hành.
 > 2. **Hợp lý.** API này có ~2 hop, mỗi hop +1–2ms qua cặp Envoy → +2–4ms tổng. 30→34ms khớp với overhead sidecar mong đợi, không phải bug.
 > </details>

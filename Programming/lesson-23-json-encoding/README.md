@@ -196,6 +196,8 @@ type Config struct {
 > 3. Field Go `UserID`, JSON key cần là `user_id`. Viết tag.
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ 2 giá trị tag đặc biệt: json:"-" ẩn hẳn field, hậu tố ,omitempty bỏ field khi mang zero value.
+>
 > 1. `` `json:"-"` ``
 > 2. `` `json:"retry_count,omitempty"` ``
 > 3. `` `json:"user_id"` ``

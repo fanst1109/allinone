@@ -62,7 +62,13 @@ Tốc độ ánh sáng là trần cứng. Hà Nội ↔ Mỹ một vòng (round-
 > - *"Khi nào KHÔNG nên distributed?"* — Khi 1 máy còn dư sức. Distributed thêm độ phức tạp khổng lồ; đừng trả giá đó nếu chưa cần. "You don't have a big-data problem" là câu nói kinh điển.
 
 > 🔁 **Thực hành.** Một startup có 200 user, 1 server chạy ổn. Có nên tách thành 5 microservice phân tán không?
-> <details><summary>Đáp án</summary>Không. 200 user thì 1 máy thừa sức. Phân tán lúc này chỉ thêm độ phức tạp (network failure, consistency, deploy phối hợp) mà không được lợi gì về scale/availability tương xứng. Distributed là công cụ giải quyết vấn đề scale/availability *đã thực sự xuất hiện*, không phải mặc định.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cân lợi ích phân tán với chi phí phức tạp (network failure, debug khó) ở quy mô chỉ 200 user.
+>
+> Không. 200 user thì 1 máy thừa sức. Phân tán lúc này chỉ thêm độ phức tạp (network failure, consistency, deploy phối hợp) mà không được lợi gì về scale/availability tương xứng. Distributed là công cụ giải quyết vấn đề scale/availability *đã thực sự xuất hiện*, không phải mặc định.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 1.** (1) Chỉ có 3 lý do để distributed: scale, availability, geo. (2) Scale out = thêm máy thường thay vì máy thần thánh. (3) Availability cao cần failure domain *độc lập*. (4) Đừng phân tán khi 1 máy còn dư.
 
@@ -88,7 +94,13 @@ Năm 1994, L. Peter Deutsch (và sau bổ sung) liệt kê những **giả đị
 > ⚠ **Lỗi thường gặp #1 (và là gốc của hầu hết bug).** Tin vào fallacy #1 "network reliable". Code kiểu \`resp := callPaymentService(req)\` mà không xử lý trường hợp request đã *gửi đi nhưng không nhận được response* — chính là nguồn gốc của double-charge, mất đơn hàng. Xem mục 9 (idempotency) để xử lý đúng.
 
 > 🔁 **Thực hành.** Code: \`for _, id := range userIDs { user := db.Get(id) }\` với 500 id, DB ở máy khác (round-trip 1 ms). Vi phạm fallacy nào, tốn bao lâu?
-> <details><summary>Đáp án</summary>Vi phạm #2 (latency zero). 500 × 1 ms = 500 ms chỉ riêng độ trễ mạng, tuần tự. Sửa: batch query \`db.GetMany(userIDs)\` 1 round-trip = 1 ms. Đây chính là vấn đề N+1 query.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhân số round-trip với latency: 500 lần × 1 ms chạy tuần tự — rồi nghĩ cách gộp thành 1 chuyến.
+>
+> Vi phạm #2 (latency zero). 500 × 1 ms = 500 ms chỉ riêng độ trễ mạng, tuần tự. Sửa: batch query \`db.GetMany(userIDs)\` 1 round-trip = 1 ms. Đây chính là vấn đề N+1 query.
+>
+> </details>
 
 ### 2.1 Bốn ví dụ bug thật quy về fallacy
 
@@ -137,7 +149,13 @@ Cách nói "chọn 2 trong 3" gây hiểu lầm. Sự thật:
 > ❓ **Câu hỏi tự nhiên.** *"Sao Postgres lại là CP? Tôi thấy nó luôn online mà."* — Vì cấu hình *synchronous replication*. Khi primary mất liên lạc với replica cần thiết, nó *chặn* write (hy sinh A) thay vì commit một mình (rủi ro mất dữ liệu nếu primary chết). Với async replication, hành vi lại khác — chứng tỏ CAP là *thuộc tính cấu hình*, không phải nhãn dán cố định lên sản phẩm.
 
 > 🔁 **Thực hành.** Hệ "đếm lượt like" của một bài post mạng xã hội nên CP hay AP?
-> <details><summary>Đáp án</summary>AP. Hiển thị 1.001 like thay vì 1.002 trong vài giây không ai chết. Ưu tiên *luôn hiển thị được* (availability) hơn là số đếm chính xác tuyệt đối tức thời. Ngược lại, số dư tài khoản ngân hàng phải CP.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp CAP theo nghiệp vụ: con số sai lệch vài giây có gây thiệt hại không, hay bắt buộc chính xác tuyệt đối?
+>
+> AP. Hiển thị 1.001 like thay vì 1.002 trong vài giây không ai chết. Ưu tiên *luôn hiển thị được* (availability) hơn là số đếm chính xác tuyệt đối tức thời. Ngược lại, số dư tài khoản ngân hàng phải CP.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 3.** (1) P không phải lựa chọn — mạng sẽ đứt. (2) CAP thực chất = "khi partition, chọn C hay A". (3) CP: từ chối để giữ đúng. AP: trả lời để giữ sống. (4) Lúc mạng bình thường, không có trade-off. (5) CP/AP là thuộc tính cấu hình, không phải nhãn sản phẩm.
 
@@ -242,7 +260,13 @@ Với hệ phục vụ 100.000 read/giây, 5 ms thêm mỗi read không "miễn 
 > ⚠ **Lỗi thường gặp.** Mặc định dùng strong consistency "cho chắc". Hậu quả: mọi đọc đều qua quorum → latency tăng, throughput giảm, hệ dễ sập khi 1 node chậm. Hãy chọn mức *yếu nhất đủ dùng* cho từng loại dữ liệu.
 
 > 🔁 **Thực hành.** Một hệ chat: tin nhắn của tôi hiện ra với người khác *sau* tin tôi đang trả lời. Đang dùng model nào, sai chỗ nào?
-> <details><summary>Đáp án</summary>Đang dưới mức causal (eventual thuần). "Reply" có quan hệ nhân quả với "câu gốc" mà lại hiện trước → vi phạm causality. Cần ít nhất causal consistency để đảm bảo thứ tự nhân quả của tin nhắn trong cùng cuộc hội thoại.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Xét quan hệ nhân quả giữa reply và câu gốc — mức consistency nào bảo toàn thứ tự nhân quả?
+>
+> Đang dưới mức causal (eventual thuần). "Reply" có quan hệ nhân quả với "câu gốc" mà lại hiện trước → vi phạm causality. Cần ít nhất causal consistency để đảm bảo thứ tự nhân quả của tin nhắn trong cùng cuộc hội thoại.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 5.** Consistency là phổ: strong → sequential → causal → eventual, mạnh dần xuống yếu. Mạnh dễ code nhưng chậm/đắt. Quy tắc: chọn mức *yếu nhất đủ đúng* cho từng dữ liệu, không mặc định strong toàn bộ.
 
@@ -343,7 +367,13 @@ Với N node, mỗi node giữ vector \`V\` độ dài N (khởi tạo toàn 0):
 > ❓ **Câu hỏi tự nhiên.** *"Vector clock có nhược điểm gì?"* — Kích thước vector tăng theo số node. Với hàng nghìn node (hoặc client) thì vector phình to. Giải pháp thực tế: dotted version vector, hoặc giới hạn ở số node ổn định (replica), không phải mọi client.
 
 > 🔁 **Thực hành.** Va=\`[2,1,0]\`, Vb=\`[1,2,0]\`. Quan hệ?
-> <details><summary>Đáp án</summary>Va[0]=2>1=Vb[0] nhưng Va[1]=1<2=Vb[1]. Mỗi cái lớn hơn ở một vị trí → **concurrent** (\`Va || Vb\`). Đây là xung đột thật, cần resolve (LWW/CRDT/logic).</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: So từng phần tử vector: một bên lớn hơn hoặc bằng ở MỌI vị trí mới là happens-before; mỗi bên hơn một vị trí là concurrent.
+>
+> Va[0]=2>1=Vb[0] nhưng Va[1]=1<2=Vb[1]. Mỗi cái lớn hơn ở một vị trí → **concurrent** (\`Va || Vb\`). Đây là xung đột thật, cần resolve (LWW/CRDT/logic).
+>
+> </details>
 
 ### 8.3 Bốn ví dụ so sánh nhanh (luyện tay)
 
@@ -511,7 +541,13 @@ Kết hợp: dùng phần wall-clock (để timestamp *gần* thời gian thật
 > ❓ **Câu hỏi tự nhiên.** *"Sao không luôn W=R=N cho chắc?"* — Vì W=N nghĩa là *một* node chết là không ghi được nữa (mất availability). Quorum cho phép cân bằng: W=R=⌈(N+1)/2⌉ là điểm cân bằng phổ biến (N=3→2, N=5→3), chịu được ⌊(N-1)/2⌋ node chết mà vẫn strong.
 
 > 🔁 **Thực hành.** N=4, muốn strong consistency và chịu lỗi tốt nhất, chọn W, R?
-> <details><summary>Đáp án</summary>Cần R+W>4. Cân bằng: W=3, R=2 (hoặc W=2,R=3). Với W=3 chịu được 1 node chết khi ghi; R=2 chịu được 2 node chết khi đọc. Lưu ý N chẵn kém hơn N lẻ về tỷ lệ chịu lỗi — đó là vì sao quorum thường dùng số lẻ (3,5,7).</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp bất đẳng thức R + W > N rồi cân chi phí giữa đọc và ghi cho từng lựa chọn.
+>
+> Cần R+W>4. Cân bằng: W=3, R=2 (hoặc W=2,R=3). Với W=3 chịu được 1 node chết khi ghi; R=2 chịu được 2 node chết khi đọc. Lưu ý N chẵn kém hơn N lẻ về tỷ lệ chịu lỗi — đó là vì sao quorum thường dùng số lẻ (3,5,7).
+>
+> </details>
 
 > 📝 **Tóm tắt mục 12.** Quorum: R+W>N đảm bảo tập đọc & ghi giao nhau → strong consistency mà không cần hỏi tất cả. Kèm W>N/2 chống write conflict. Dùng số node lẻ. Chỉnh W,R để đánh đổi tốc độ đọc vs ghi vs khả năng chịu lỗi.
 
@@ -550,7 +586,13 @@ L1 là "zombie leader" nhưng write của nó bị fence vì token cũ. Không c
 > ⚠ **Lỗi thường gặp.** Dùng số node *chẵn* cho cụm consensus → khi chia đôi không phe nào có majority → toàn cụm kẹt. Luôn dùng 3, 5, 7 node.
 
 > 🔁 **Thực hành.** Cụm 3 node, 1 node bị cô lập khỏi 2 node kia. Node cô lập có được tiếp tục làm leader không?
-> <details><summary>Đáp án</summary>Không. Nó chỉ có 1/3 < majority (cần ≥2). Nó phải lùi xuống follower / ngừng nhận write. Hai node còn lại (2/3, là majority) bầu hoặc giữ leader và tiếp tục. Đúng một leader → không split-brain.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đếm majority: node cô lập nắm mấy phiếu trên tổng 3, có đạt ngưỡng ⌊N/2⌋+1 không?
+>
+> Không. Nó chỉ có 1/3 < majority (cần ≥2). Nó phải lùi xuống follower / ngừng nhận write. Hai node còn lại (2/3, là majority) bầu hoặc giữ leader và tiếp tục. Đúng một leader → không split-brain.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 13.** Split-brain = partition khiến nhiều nửa cùng tưởng mình là leader, ghi mâu thuẫn. Chặn bằng: (1) **quorum** — chỉ phe majority (>N/2) được làm leader, dùng số node lẻ; (2) **fencing token** — số tăng đơn điệu để storage từ chối leader cũ zombie.
 

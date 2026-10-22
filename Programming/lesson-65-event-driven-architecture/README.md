@@ -111,6 +111,8 @@ Ba loại "thông điệp" này hay bị lẫn lộn. Phân biệt sai dẫn t�
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Áp định nghĩa: event là chuyện ĐÃ xảy ra (động từ quá khứ), command là mệnh lệnh, query là câu hỏi.
+>
 > - `ShipmentDelivered` → **Event** (quá khứ, sự thật).
 > - `SendEmail` → **Command** (mệnh lệnh, một handler thực hiện).
 > - `GetUserProfile` → **Query** (đọc dữ liệu).
@@ -272,6 +274,8 @@ Orchestrator: `gửi ChargePayment` → chờ `PaymentCharged` → `gửi Reserv
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Đếm số bước và nhu cầu theo dõi tiến trình: luồng dài, cần biết đang kẹt ở đâu thì ai điều phối tốt hơn?
+>
 > **Choreography**. Các bước độc lập, không cần rollback, không có điều kiện phức tạp, và rất dễ thêm consumer mới (vd "gửi SMS"). Chỉ cần phát `UserRegistered` và mỗi service tự subscribe.
 > </details>
 
@@ -369,6 +373,8 @@ App: INSERT order + INSERT outbox (1 transaction)
 > Vì sao ghi `outbox` trong cùng transaction lại an toàn hơn gọi `broker.Publish`?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: So 2 failure mode: ghi DB xong nhưng publish fail thì sao — outbox gom cả hai vào MỘT transaction để được gì?
 >
 > Vì `outbox` là một **bảng trong cùng database** với `orders`, nên cả hai `INSERT` nằm trong **một transaction DB** — DB đảm bảo chúng cùng commit hoặc cùng rollback (atomic). `broker.Publish` gọi tới **hệ thống khác** (Kafka), không nằm trong transaction DB, nên không có đảm bảo atomic với việc ghi order.
 > </details>

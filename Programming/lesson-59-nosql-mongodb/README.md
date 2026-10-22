@@ -96,6 +96,8 @@ Mỗi họ **đánh đổi** một thứ để mạnh ở thứ khác:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ trục scale của mỗi loại: SQL scale dọc (máy to hơn), NoSQL scale ngang (thêm máy); eventual = các bản sao HỘI TỤ sau một khoảng.
+>
 > 1. SQL: vertical (nâng cấp một máy). NoSQL: horizontal (thêm nhiều máy).
 > 2. Sau khi ghi, các bản sao **cuối cùng** sẽ đồng bộ; trong khoảng ngắn có thể đọc được giá trị cũ.
 > </details>
@@ -258,6 +260,8 @@ NoSQL (document) tỏa sáng khi gặp các đặc điểm sau:
 > 2. Giới hạn kích thước 1 document MongoDB là bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp quy tắc embed vs reference: quan hệ một-rất-nhiều tăng không giới hạn thì reference; nhớ trần kích thước mỗi document.
 >
 > 1. Reference — vì 1-to-squillions, embed sẽ vượt 16MB. (Bài thường, ít comment thì embed được.)
 > 2. 16MB.
@@ -445,7 +449,13 @@ GROUP BY author ORDER BY count DESC;
 > ⚠ **Lỗi thường gặp.** Lạm dụng `$lookup` để mô phỏng cả schema SQL nhiều JOIN. `$lookup` **không có index trên foreignField được dùng tối ưu như JOIN của RDBMS** trong nhiều phiên bản, và nặng khi dữ liệu lớn. Nếu thấy mình `$lookup` 4-5 collection liên tục → dấu hiệu dữ liệu này vốn hợp SQL hơn (xem mục 5).
 
 > 🔁 **Thực hành.** Stage nào tương đương `WHERE`? Stage nào tương đương `GROUP BY`?
-> <details><summary>Đáp án</summary>`$match` ↔ `WHERE`; `$group` ↔ `GROUP BY`.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Dịch từng stage của aggregation pipeline sang mệnh đề SQL quen thuộc.
+>
+> `$match` ↔ `WHERE`; `$group` ↔ `GROUP BY`.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 9.**
 > - Pipeline = chuỗi stage, output stage trước → input stage sau.

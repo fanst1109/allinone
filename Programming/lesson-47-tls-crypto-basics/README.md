@@ -129,6 +129,8 @@ Tất cả là **AEAD** (Authenticated Encryption with Associated Data) — mã 
 > 🔁 **Thực hành.**
 > *Server bạn đang chạy hiện nay tối thiểu phải support TLS version nào?*
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ mốc deprecated: TLS 1.0/1.1 bị khai tử từ 2020 — baseline bắt buộc hiện nay là phiên bản nào?
 > TLS 1.2 (bắt buộc) + TLS 1.3 (khuyến nghị). Phải **tắt 1.0/1.1**. Trong Go:
 > `tls.Config{MinVersion: tls.VersionTLS12}`.
 > </details>
@@ -213,6 +215,8 @@ chắn server support), nếu server không thích thì có thể HelloRetryRequ
 > *Trong TLS 1.3, traffic bị ghi lại 5 năm. Sau 5 năm private key của server bị lộ. Kẻ tấn công có
 > đọc được nội dung cũ không?*
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ forward secrecy của ECDHE: session key sinh tạm mỗi phiên rồi vứt — private key server không derive lại được.
 > **Không**. TLS 1.3 buộc dùng ECDHE → session_key derive từ <code>shared</code> chỉ tồn tại trong RAM
 > hai bên một lần, vứt sau session. Private key chỉ dùng ký <code>CertVerify</code>, không dùng để mã
 > hoá traffic. Đây là forward secrecy.
@@ -367,6 +371,8 @@ log.Fatal(server.ListenAndServeTLS("", ""))       // empty = lấy từ autocert
 > 🔁 **Thực hành.**
 > *Self-signed cert + dùng cho production user-facing — vì sao là antipattern?*
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nghĩ theo 2 phía: user thấy cảnh báo đỏ thì mất gì, và thói quen click "Proceed anyway" dạy họ điều gì.
 > 1) User thấy cảnh báo đỏ → mất niềm tin. 2) User học thói quen click "Proceed anyway" → ngày nào đó
 > bấm đúng vào trang phishing thật. 3) HSTS sẽ không hoạt động (browser từ chối store HSTS từ trang
 > warning). Giải pháp: Let's Encrypt, free.

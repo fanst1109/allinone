@@ -722,6 +722,8 @@ nums = append(nums, toAdd...)
 
 <details><summary>Q1: Cú pháp Go cho "lặp x từ 0 đến hết slice xs, in từng phần tử"?</summary>
 
+**Hướng dẫn**: Nhớ dạng chuẩn for i, x := range xs; không cần index thì thay bằng dấu gạch dưới.
+
 \`\`\`go
 for _, x := range xs {
     fmt.Println(x)

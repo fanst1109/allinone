@@ -51,6 +51,8 @@ Câu nói nổi tiếng của Werner Vogels (CTO Amazon): **"Everything fails al
 <details>
 <summary>Vì sao "100% uptime" là mục tiêu sai?</summary>
 
+**Hướng dẫn**: Xét 2 trục: khả thi vật lý (phần cứng, mạng đều hỏng được) và chi phí biên khi tiến sát 100%.
+
 (1) Bất khả thi về vật lý — phần cứng, mạng, điện đều có thể hỏng. (2) Chi phí tiến tới vô hạn khi tiến gần 100% (mỗi "số 9" thêm vào đắt gấp ~10 lần). (3) Ngay cả khi service của bạn 100%, dependency (DNS, CDN, ISP của khách) vẫn fail. Mục tiêu đúng là một SLO *đủ tốt cho nhu cầu kinh doanh* (mục 2).
 </details>
 
@@ -166,6 +168,8 @@ Bảng tổng hợp (tháng 30 ngày = 43200 phút; năm = 525600 phút):
 <details>
 <summary>SLA của bạn là 99.9%. Nên đặt SLO nội bộ bằng bao nhiêu, vì sao?</summary>
 
+**Hướng dẫn**: Nhớ quan hệ SLO–SLA: SLO nội bộ phải CHẶT hơn SLA để còn vùng đệm phát hiện và xử lý trước khi vi phạm cam kết.
+
 Cao hơn SLA, ví dụ 99.95%. Lý do: cần "vùng đệm" để đội phát hiện và xử lý vấn đề *trước khi* khách bị ảnh hưởng tới ngưỡng vi phạm hợp đồng. Nếu đặt SLO = SLA = 99.9%, thì lúc bạn biết mình thủng SLO cũng là lúc đã vi phạm SLA → mất tiền + mất uy tín cùng lúc.
 </details>
 
@@ -228,6 +232,8 @@ Cao hơn SLA, ví dụ 99.95%. Lý do: cần "vùng đệm" để đội phát h
 <details>
 <summary>Đội đã cạn error budget tháng này. Quản lý vẫn muốn ship feature mới gấp. Bạn nói gì?</summary>
 
+**Hướng dẫn**: Dùng ngôn ngữ error budget: budget đã âm nghĩa là độ tin cậy đang dưới cam kết — trả lời bằng dữ kiện, không cảm tính.
+
 Đưa con số ra: budget đã âm nghĩa là độ tin cậy *đang* dưới cam kết — ship thêm feature (thêm rủi ro) lúc này làm tình hình tệ hơn, có thể dẫn tới vi phạm SLA (mất tiền). Đề xuất: hoãn feature, dùng thời gian này trả nợ reliability; hoặc nếu feature *thực sự* cấp thiết về kinh doanh thì đó là quyết định có ý thức của lãnh đạo (đánh đổi rõ ràng), không phải lén lút. Error budget biến tranh luận thành quyết định minh bạch.
 </details>
 
@@ -285,6 +291,8 @@ Cao hơn SLA, ví dụ 99.95%. Lý do: cần "vùng đệm" để đội phát h
 
 <details>
 <summary>Alert "CPU > 90%" có nên page người trực dậy lúc 3h sáng không?</summary>
+
+**Hướng dẫn**: Áp tiêu chí page: alert phải gắn với TÁC ĐỘNG tới user đang diễn ra, không phải chỉ số tài nguyên của máy.
 
 Thường là KHÔNG, nếu nó không kèm tác động tới user. CPU cao 1 phút rồi tự về không cần ai dậy. Đúng hơn: alert dựa trên *triệu chứng người dùng thấy* (latency, error rate) — đó là **symptom-based alerting**. CPU/memory là *nguyên nhân tiềm năng*, dùng để chẩn đoán *sau khi* đã bị page bởi alert symptom, chứ không page trực tiếp.
 </details>
@@ -346,6 +354,8 @@ Detect  →  Triage  →  Mitigate  →  Resolve  →  Postmortem
 
 <details>
 <summary>Trang thanh toán lỗi 2% giao dịch. SEV mấy?</summary>
+
+**Hướng dẫn**: Đo bằng tác động kinh doanh: 2% giao dịch THANH TOÁN là tiền thật đang mất, không phải lỗi trang tĩnh.
 
 Tùy *tác động kinh doanh*. 2% giao dịch thanh toán = tiền thật mất + mất niềm tin → thường SEV1 hoặc SEV2, dù "chỉ 2%". Một feature *phụ* lỗi 2% có thể là SEV3. Bài học: severity gắn với *tác động*, không gắn với *tỷ lệ % thô*.
 </details>
@@ -417,6 +427,8 @@ Khi incident lớn (SEV1/SEV2), hỗn loạn nếu ai cũng làm mọi thứ. M�
 
 <details>
 <summary>Deploy mới gây lỗi. Nên (a) rollback ngay hay (b) tìm bug rồi hotfix?</summary>
+
+**Hướng dẫn**: So mitigation (đảo ngược nhanh, phục hồi user trước) với diagnosis (tìm nguyên nhân, làm sau khi hệ đã ổn).
 
 (a) Rollback ngay — đó là mitigation nhanh nhất, đảo ngược được, đưa user về trạng thái tốt đã biết. Tìm bug + hotfix mất nhiều thời gian và *bản hotfix cũng có thể sai*. Chỉ fix-forward khi rollback bất khả thi (migration không đảo ngược, dữ liệu đã ghi sai...).
 </details>
@@ -518,6 +530,8 @@ Phân tích 5 Whys / contributing factors (mục 10).
 
 <details>
 <summary>Vì sao "đổ lỗi cá nhân" lại làm hệ thống KÉM tin cậy hơn theo thời gian?</summary>
+
+**Hướng dẫn**: Lần theo chuỗi nhân quả: blame sinh sợ hãi, sợ thì giấu lỗi và near-miss, hệ mất dữ liệu để học.
 
 Vì blame tạo *sợ hãi* → người ta che giấu sai sót và "near-miss" (suýt lỗi). Mất dữ liệu đó, tổ chức không thấy được các lỗ hổng hệ thống đang tích tụ → cùng lớp lỗi tái diễn, ngày càng nặng. Blameless tạo *an toàn tâm lý* → thông tin chảy → hệ thống được vá liên tục → ngày càng bền.
 </details>
@@ -724,6 +738,8 @@ So sánh hai chiến lược cải thiện (giữ nguyên 4 incident/tháng):
 
 <details>
 <summary>Hai đội: đội A fail 10 lần/tháng nhưng recover trong 1 phút; đội B fail 1 lần/tháng nhưng mất 3 giờ recover. Đội nào availability cao hơn?</summary>
+
+**Hướng dẫn**: Tính downtime thực tế mỗi đội: số lần fail nhân thời gian recover mỗi lần, rồi quy ra availability.
 
 Đội A. Downtime A = 10 × 1 = 10 phút/tháng (≈99.977%). Downtime B = 1 × 180 = 180 phút/tháng (≈99.58%). Recover nhanh (MTTR thấp) thắng việc hiếm fail (MTBF cao) khi mỗi fail kéo dài. Đây là lý do đầu tư vào MTTR.
 </details>

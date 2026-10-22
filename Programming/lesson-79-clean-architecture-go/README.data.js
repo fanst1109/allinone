@@ -136,6 +136,8 @@ Mũi tên dependency: \`cmd → adapter → usecase → domain\`. Không bao gi�
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Áp dependency rule: domain không import gì hướng ra ngoài (kể cả net/http); mũi tên phụ thuộc luôn trỏ VÀO trong.
+>
 > 1. **Không.** \`net/http\` là tầng ngoài (adapter/framework). Domain import nó = vi phạm Dependency Rule, lõi dính chi tiết kỹ thuật. Nếu thấy domain import http/sql → đỏ cờ ngay.
 > 2. \`adapter/memory\` **import** \`usecase\` (để thỏa interface \`UserRepository\`) và \`domain\`. Tức mũi tên trỏ **vào trong**: \`memory → usecase → domain\`. \`usecase\` hoàn toàn không biết package \`memory\` tồn tại.
 > </details>
@@ -222,6 +224,8 @@ Dòng này không tạo biến (gán vào \`_\`), chỉ để **trình biên d�
 
 > 🔁 **Thực hành.** Nếu bỏ dòng \`var _ usecase.UserRepository = (*UserRepo)(nil)\` đi, code còn compile không? Lợi ích của việc giữ nó là gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ trick compile-time assertion: dòng var _ Iface = (*T)(nil) chỉ để compiler kiểm tra sớm — bỏ đi thì structural typing vẫn lo phần khớp.
 > Vẫn compile (Go là structural typing — \`*UserRepo\` tự động khớp interface khi được dùng làm tham số). Nhưng nếu một ngày bạn lỡ đổi signature method trong port mà quên sửa adapter, lỗi sẽ chỉ lộ ra ở chỗ **dùng** (composition root), thông báo khó hiểu. Giữ dòng assert → lỗi báo **ngay tại adapter**, rõ ràng: "*UserRepo does not implement UserRepository (missing method X)".
 > </details>
 
@@ -399,6 +403,8 @@ Clean architecture **không miễn phí**. Cái giá: nhiều file hơn, nhiều
 
 > 🔁 **Thực hành.** Một dịch vụ "rút gọn URL" (nhận URL dài, trả URL ngắn, redirect) — nên clean arch full hay không?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cân độ phức tạp nghiệp vụ với số tầng kiến trúc: logic chỉ là sinh mã + lưu + tra thì đáng mấy tầng?
 > Tùy quy mô, nhưng thường **làm nhẹ**: logic chính chỉ là "sinh mã ngắn + lưu + tra cứu", gần như CRUD. Đủ để tách *một* port \`Store\` (để đổi RAM ↔ Redis ↔ DB) là hợp lý, nhưng không cần tách entity/usecase/adapter thành 4 tầng đầy đủ. Tách port lưu trữ: lợi ích rõ (đổi backend). Tách thêm tầng usecase rỗng: chi phí > lợi ích.
 > </details>
 

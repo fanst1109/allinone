@@ -269,6 +269,8 @@ func main() {
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Áp quy tắc escape: giá trị sống lâu hơn frame của hàm (return con trỏ, bị interface/closure giữ lại) thì lên heap — đoán xong verify bằng cờ -m.
+>
 > 1. x **escape** (return &x).
 > 2. x **không escape** (p không thoát ra).
 > 3. s **escape** vì `string(s)` tạo copy + `fmt.Println` box thành `any`.

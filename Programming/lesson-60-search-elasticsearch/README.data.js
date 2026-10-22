@@ -112,6 +112,8 @@ Posting list được lưu trong cấu trúc tra cứu nhanh (hash map hoặc c�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách doc4 thành từng term rồi thêm doc4 vào posting list của MỖI term xuất hiện trong nó.
+
 \`go → [doc1, doc3, doc4]\`, \`fast → [doc1, doc4]\`. Cả 2 list đều thêm doc4. Vị trí term trong doc4: \`fast\`@0, \`go\`@1 — nếu lưu position thì biết doc4 có cụm "fast go" chứ không phải "go fast".
 </details>
 
@@ -253,6 +255,8 @@ Cả hai cùng quy về \`{run, dog}\` → **khớp**, dù chữ gốc khác h�
 🔁 **Thực hành.** \`"Cats are Sleeping"\` qua pipeline (lowercase + stop word \`are\` + stem) cho ra gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Chạy pipeline đúng thứ tự: tokenize → lowercase → bỏ stop word → stem từng token còn lại.
 
 \`["cat", "sleep"]\`. Tokenize → \`["Cats","are","Sleeping"]\` → lowercase → bỏ stop word \`are\` → stem \`cats→cat\`, \`sleeping→sleep\`.
 </details>

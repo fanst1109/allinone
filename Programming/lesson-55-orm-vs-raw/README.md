@@ -139,6 +139,8 @@ _, err := db.NamedExec(
 
 > 🔁 **Thực hành.** `sqlx` có viết SQL hộ bạn không?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân định phạm vi sqlx: nó chỉ bỏ boilerplate scan kết quả và map named param — phần SQL vẫn do ai viết?
 > **Không.** `sqlx` chỉ tự động hoá phần *scan kết quả vào struct* và *map named param*. SQL vẫn do bạn viết tay 100%. Đây là lý do nó được gọi là "thin wrapper" — control gần như raw, chỉ bớt boilerplate scan.
 > </details>
 
@@ -227,6 +229,8 @@ Bạn **không viết** hàm này — nó được sinh. Nhưng vì biết quy t
 
 > 🔁 **Thực hành.** Từ `-- name: CountUsers :one\nSELECT COUNT(*) FROM users;` — `sqlc` sinh hàm signature gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đọc annotation của sqlc: :one cộng với kiểu của cột quyết định signature hàm được sinh.
 > `:one` + 1 cột số → `func (q *Queries) CountUsers(ctx context.Context) (int64, error)`. Không có param vì không có `$1`. Trả về `int64` vì `COUNT(*)` là số nguyên.
 > </details>
 
@@ -337,6 +341,8 @@ Hooks (`BeforeCreate`, `AfterUpdate`...) chạy ngầm. Tiện, nhưng lại th�
 
 > 🔁 **Thực hành.** `db.Where("name LIKE ?", "A%").Find(&users)` sinh SQL gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Dịch từng method chain của GORM sang mệnh đề SQL tương ứng: Where thành WHERE, Find thành SELECT.
 > `SELECT * FROM users WHERE name LIKE 'A%'` (nếu model có soft delete thì thêm `AND deleted_at IS NULL`). `Find` = nhiều row, không có `LIMIT`.
 > </details>
 
@@ -437,6 +443,8 @@ for _, u := range users {
 
 > 🔁 **Thực hành.** Lấy 50 user kèm post, không Preload thì bao nhiêu query? Có Preload?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đếm theo pattern N+1: không Preload là 1 + 50 query; Preload gộp mỗi quan hệ về 1 query IN.
 > Không Preload: **51** query (1 + 50). Có Preload: **2** query (1 lấy user + 1 lấy post `WHERE user_id IN (...50 id...)`). Đây là khác biệt 51 → 2 — lý do N+1 nguy hiểm khi N lớn.
 > </details>
 

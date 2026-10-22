@@ -128,6 +128,8 @@ Không. Dùng \`var x int\` khi muốn nhấn mạnh "tôi sẽ gán ở dòng s
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Soát từng dòng theo bảng cú pháp khai báo: var có/không kiểu, := suy kiểu; chú ý var và := không bao giờ đi cùng nhau.
+
 1. \`(a)\`, \`(b)\`, \`(c)\` hợp lệ. \`(d)\` SAI — không có cú pháp \`var d := 5\`.
 2. KHÔNG — \`x := 10\` không dùng được ở package level. Đổi thành \`var x = 10\`.
 
@@ -213,6 +215,8 @@ fmt.Println(s == nil, m == nil, len(s), len(m))
 \`\`\`
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ zero value: slice và map chưa khởi tạo đều là nil, và len() trên nil luôn an toàn.
 
 \`true true 0 0\` — cả slice và map đều nil; \`len()\` của nil slice/map an toàn = 0.
 
@@ -367,6 +371,8 @@ fmt.Println(a + b)
 \`\`\`
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: uint8 chỉ giữ 0–255: tính 200+100 rồi lấy mod 256 (wrap-around).
 
 \`44\` — vì \`200 + 100 = 300\`, mod 256 = 44.
 
@@ -572,6 +578,8 @@ var y float64 = x + 0.5
 \`\`\`
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Go không ép kiểu ngầm: cộng int với float64 phải convert tường minh một vế trước.
 
 \`var y float64 = float64(x) + 0.5\` — phải ép \`x\` sang float64 trước.
 
@@ -788,6 +796,8 @@ fmt.Println(A, B, C)
 \`\`\`
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: iota đếm 0, 1, 2 theo dòng trong khối const; áp công thức khai ở dòng đầu cho từng giá trị.
 
 \`0 2 4\` — \`iota\` lần lượt 0, 1, 2 → nhân 2 → 0, 2, 4.
 

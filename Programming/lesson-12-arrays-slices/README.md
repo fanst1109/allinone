@@ -253,6 +253,8 @@ Hỏi: `len(t)`, `cap(t)`, `t[0]` là gì?
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Vẽ slice header (ptr, len, cap): t = s[1:3] chia sẻ mảng ngầm với s; len = 3−1, cap = cap gốc trừ vị trí bắt đầu.
+
 - `len(t) = 3 - 1 = 2`.
 - `cap(t) = cap(s) - 1 = 9` (từ vị trí start mới `1` tới hết cap của s).
 - `t[0] = s[1] = 0` (zero value vì `s[1]` chưa được gán).

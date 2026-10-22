@@ -172,6 +172,8 @@ Nhưng ≥ 4 giá trị thường là dấu hiệu nên đóng gói thành **str
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Xét mọi cặp (before, after) có thể trả về khi tìm thấy và không tìm thấy — có cặp nào trùng nhau giữa 2 trường hợp không?
+>
 > Vì \`before\` có thể là chuỗi rỗng \`""\` ngay cả khi \`sep\` được tìm thấy (vd \`Cut("=x", "=")\` → before=\`""\`, after=\`"x"\`, found=\`true\`). Không có \`found\`, ta không phân biệt được "không tìm thấy" và "tìm thấy ở vị trí 0".
 > </details>
 
@@ -521,6 +523,8 @@ for _, f := range funcs {
 > f(); g(); g(); f()
 > \`\`\`
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Hai closure cùng bắt (capture) MỘT biến x — g() đổi x thì lần gọi f() sau đó đọc thấy giá trị mới.
 >
 > \`1\` rồi \`3\`. Lần \`f()\` đầu: x = 1. \`g()\` chạy 2 lần: x = 3. \`f()\` cuối: x = 3. Cả \`f\` và \`g\` capture cùng biến \`x\`, không copy.
 > </details>

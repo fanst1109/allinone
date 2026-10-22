@@ -65,6 +65,8 @@ Vì sao mở 100 000 goroutine không sập máy, nhưng 100 000 OS thread thì 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: So chi phí mỗi đơn vị: goroutine stack ~2KB co giãn do runtime quản, OS thread ~1MB do kernel cấp — rồi nhân với 100.000.
+
 OS thread mỗi thread cần ~1 MB stack do kernel cấp, total ~100 GB → không có máy nào đủ RAM. Goroutine ban đầu chỉ 2 KB do Go runtime cấp ở heap, total ~200 MB → bình thường. Cộng thêm OS thread bị limit bởi kernel (`ulimit -u`), goroutine không bị limit nào ngoài RAM.
 </details>
 

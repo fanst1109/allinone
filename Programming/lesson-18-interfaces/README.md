@@ -135,6 +135,8 @@ var b Bird = Dog{}     // Lỗi: Dog does not implement Bird (missing Fly method
 > var g Greeter = Cat{}    // <- chỗ này
 > ```
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp quy tắc method set: value Cat chỉ có method value-receiver; method pointer-receiver đòi *Cat.
 > Không. `Greet` có pointer receiver `*Cat`. Method set của `Cat` (value) KHÔNG bao gồm method có pointer receiver. Phải viết `var g Greeter = &Cat{}`. Sẽ học rõ ở §4.
 > </details>
 
@@ -247,6 +249,8 @@ fmt.Println(c.n)        // 7 — vẫn mutate c qua pointer trong interface
 > **🔁 Thực hành**
 > Tại sao `fmt.Println` chấp nhận cả `time.Time{}` (value) lẫn `&time.Time{}` (pointer)?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Xét receiver của String() trên time.Time: value receiver thì cả value lẫn pointer đều có method đó.
 > Method `String() string` của `time.Time` có **value receiver**: `func (t Time) String() string`. Nên cả `Time` lẫn `*Time` đều satisfy `fmt.Stringer`.
 > </details>
 
@@ -420,6 +424,8 @@ func find(id int) error {
 > var e error = (*MyError)(nil)
 > ```
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ interface chỉ nil khi CẢ type lẫn value đều nil; gán pointer nil vào interface → type khác nil → interface không nil.
 >
 > - (a) nil — chưa gán.
 > - (b) not nil — type word = `*MyError`.

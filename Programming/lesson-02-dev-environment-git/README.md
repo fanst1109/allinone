@@ -205,6 +205,8 @@ Quan trọng khi gặp lỗi version: máy cài 2 bản Go, gõ `go version` kh�
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Tách từng lệnh: mv đổi tên/di chuyển (mất bản gốc), cp nhân bản; cd - quay về thư mục đứng TRƯỚC ĐÓ; -f thêm force (không hỏi, bỏ qua file không tồn tại).
+>
 > 1. `mv` đổi tên (a.txt biến mất, chỉ còn b.txt). `cp` copy (cả 2 file đều có).
 > 2. `/tmp` (quay lại nơi vừa rời).
 > 3. `-f` = force, không hỏi xác nhận, không kêu khi file không tồn tại.
@@ -843,6 +845,8 @@ $ git cherry-pick 8f3a2c1
 > 3. Khác nhau giữa `git checkout -- file.go` và `git checkout file.go`?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhớ 2 công cụ cứu hộ: git commit --amend sửa commit cuối; git reflog ghi mọi vị trí HEAD từng đứng — commit "biến mất" vẫn nằm đó.
 >
 > 1. `git commit --amend -m "message mới"` (đơn giản nhất) hoặc `git reset --soft HEAD~1` rồi commit lại.
 > 2. `git reflog`, tìm hash trước reset, `git reset --hard <hash>`.

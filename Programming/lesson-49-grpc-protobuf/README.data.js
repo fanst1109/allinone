@@ -267,6 +267,8 @@ Viết proto mới sao cho **không break** client cũ.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp quy tắc tiến hóa proto: số field đã xoá không được tái sử dụng (dùng reserved); field mới phải lấy số mới.
+
 \`\`\`proto
 message Product {
   reserved 3;                 // stock đã xoá

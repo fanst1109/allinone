@@ -229,6 +229,8 @@ grep "TODO" **/*.go            # tìm TODO trong mọi file .go, đệ quy (zsh 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách chuỗi 9 ký tự thành 3 cụm u/g/o, mỗi cụm cộng điểm r=4, w=2, x=1.
+
 - u: rwx = 7
 - g: r-x = 5
 - o: --- = 0
@@ -371,6 +373,8 @@ Câu hỏi: bạn có file `data.csv` 3 cột. Viết 1 pipe in tổng giá tr�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Ghép pipe 2 khúc: lấy cột 2 bằng awk -F, rồi cộng dồn bằng {s+=$1} END{print s}.
+
 ```bash
 cat data.csv | awk -F, '{sum += $2} END {print sum}'
 ```
@@ -487,6 +491,8 @@ rg "func.*Handler" -A 5      # regex + 5 dòng after
 Viết lệnh tìm dòng có **email** trong mọi file `.txt` (đệ quy, kèm số dòng).
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ bộ cờ grep: -r đệ quy, -n in số dòng, --include giới hạn loại file; pattern email cần ký tự @ ở giữa.
 
 ```bash
 grep -rnE "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" --include="*.txt" .

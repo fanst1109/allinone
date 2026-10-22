@@ -118,6 +118,8 @@ Bốn thứ cấu thành **request**:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Phân biệt theo nguyên nhân từ chối: 409 = xung đột với TRẠNG THÁI đang tồn tại; 422 = cú pháp đúng nhưng ngữ nghĩa dữ liệu sai.
+>
 > \`422\` — input có cú pháp đúng nhưng giá trị sai luật nghiệp vụ (vd email format hợp lệ nhưng \`age = -5\`).
 > \`409\` — request hợp lệ về cú pháp **và** giá trị, nhưng xung đột với state hiện tại (vd \`POST /users\` với
 > username đã tồn tại, hoặc \`PUT\` với \`If-Match\` ETag không khớp).
@@ -575,6 +577,8 @@ limit, _ := strconv.Atoi(q.Get("limit"))
 > 🔁 **Thực hành.** Trong URL \`/search?empty=&missing\`, \`q.Get("empty")\` vs \`q.Has("empty")\` vs \`q.Get("missing")\` trả gì?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt "key có mặt nhưng rỗng" với "key vắng mặt": Get trả chuỗi rỗng cho cả hai, chỉ Has mới tách được.
 >
 > \`q.Get("empty") == ""\`, \`q.Has("empty") == true\` (Go 1.17+), \`q.Get("missing") == ""\`. Dùng \`Has\` để phân biệt "có nhưng rỗng" với "không có".
 >

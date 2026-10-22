@@ -169,6 +169,8 @@ len(m)  // số phần tử hiện tại
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Nhớ map trả zero value khi key vắng mặt; muốn phân biệt "có key giá trị 0" với "không có key" phải dùng comma-ok.
+>
 > Cả 2 đều trả `0`. Phân biệt bằng comma-ok: `_, ok := m["a"]` → `ok=true`, còn `_, ok := m["b"]` → `ok=false`.
 >
 > </details>

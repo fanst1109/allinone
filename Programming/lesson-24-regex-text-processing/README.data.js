@@ -829,6 +829,8 @@ Với hầu hết task (validate, extract, replace), workaround chỉ là vài d
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Chú ý dấu chấm trong regex là ký tự đại diện (khớp MỌI ký tự) — chưa escape thì X cũng khớp chỗ dấu chấm.
+>
 > Cả hai đều match! Vì \`.\` trong pattern KHÔNG được escape, nó là "any char" → \`X\` cũng match. Sửa: \`^\\w+@example\\.com$\`.
 >
 > </details>

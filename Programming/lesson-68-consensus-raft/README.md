@@ -58,6 +58,8 @@ Một giao thức consensus đúng phải bảo đảm các tính chất:
 
 > 🔁 **Thực hành.** Trong 3 ví dụ trên, cái nào là "đồng ý **một** giá trị", cái nào là "đồng ý **chuỗi** giá trị"?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân biệt 2 bài toán: chốt MỘT giá trị tại một thời điểm, với chốt cả CHUỖI giá trị nối tiếp nhau (log).
 > "Ai là leader" và "khóa do ai giữ" là đồng ý **một** giá trị (tại một thời điểm). "Thứ tự log" là đồng ý **một chuỗi** giá trị có thứ tự. Raft giải bài toán chuỗi (replicated log) — và bài toán một-giá-trị chỉ là trường hợp riêng (log có đúng 1 entry quan trọng).
 > </details>
 
@@ -224,6 +226,8 @@ Quy tắc dùng term:
 
 > 🔁 **Thực hành.** Node X có `currentTerm=5`, nhận `AppendEntries(term=3)` từ một node tự xưng leader. X làm gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp quy tắc term của Raft: nhận message mang term NHỎ hơn mình thì từ chối và gửi kèm term hiện tại.
 > X **từ chối** (trả `success=false`, kèm `term=5`). Node gửi là leader **lỗi thời** (term 3 < 5) — có thể nó vừa hồi sinh sau partition. Khi nhận reply chứa term=5, node đó thấy `3 < 5` → tụt về Follower và cập nhật term lên 5. Đây là cách Raft "phế truất" leader cũ mà không cần ai ra lệnh.
 > </details>
 
@@ -301,6 +305,8 @@ Tiếp nối 7.2 (A là leader term 1). Bây giờ **A crash**:
 > 2. Vì sao timeout cố định gây kẹt mà timeout ngẫu nhiên thì không?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Quorum là ⌊N/2⌋+1; còn timeout ngẫu nhiên để phá thế mọi node cùng hết giờ, cùng ứng cử mãi không ai thắng.
 >
 > 1. `5/2 + 1 = 3` phiếu (tính cả phiếu tự bầu).
 > 2. Cố định → mọi node timeout đồng loạt → mỗi node tự bầu mình → phiếu xé đều → không ai đạt 3. Ngẫu nhiên → một node thường timeout trước, lên Candidate và thắng trước khi node khác kịp timeout.
@@ -391,6 +397,8 @@ Entry #7 đã commit trên majority {A,B,C} (3 node, đều có #7). Node D bị
 
 > 🔁 **Thực hành.** Vì sao "hai majority luôn giao nhau" lại bảo đảm entry đã commit không mất?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Dựng lập luận giao nhau: 2 majority của cùng N node luôn chung ít nhất 1 node — node chung đó biết gì?
 > Entry commit nằm trên một majority M1. Candidate muốn thắng cần một majority phiếu M2. Trong N node, |M1|+|M2| = (N/2+1)·2 = N+2 > N → M1 và M2 **bắt buộc** chia sẻ ≥ 1 node chung. Node chung đó **có** entry đã commit, nên (theo election restriction) nó **chỉ** bầu cho candidate có log ≥ của nó → leader mới chắc chắn cũng có entry đó.
 > </details>
 
@@ -460,6 +468,8 @@ Ví dụ số cụ thể (N=5, hai majority bất kỳ giao nhau):
 
 > 🔁 **Thực hành.** Cluster N=6 thì quorum bao nhiêu, chịu mấy fail? So với N=5 hơn kém gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tính quorum cho N=6 rồi so số node được phép chết với N=5 — thêm máy có thêm sức chịu lỗi không?
 > N=6: quorum = `⌊6/2⌋+1 = 4`, chịu fail = `6−4 = 2`. **Y hệt N=5** (cũng chịu 2) nhưng tốn thêm 1 máy và đợi 4 ack thay vì 3 → chậm hơn. Đó là lý do không ai chọn số chẵn.
 > </details>
 

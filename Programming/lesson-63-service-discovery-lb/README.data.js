@@ -170,6 +170,8 @@ Có hai kiến trúc lớn để trả lời "B ở đâu".
 > 2. Vì sao server-side dễ cho hệ polyglot (nhiều ngôn ngữ) hơn?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Xác định ai giữ danh sách server và ra quyết định chọn đích — client tự chọn hay proxy đứng giữa chọn hộ.
 > 1. Chính client (qua library như Ribbon, hoặc gRPC built-in LB). 2. Vì client chỉ cần biết nói HTTP/gRPC tới một địa chỉ cố định; toàn bộ logic discovery + LB nằm ở LB phía server, không phải viết lại cho từng ngôn ngữ.
 > </details>
 
@@ -307,6 +309,8 @@ Thực tế thường **kết hợp cả hai**: active để chủ động dọn
 > 2. Vì sao không nên cho liveness probe ping DB?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Phân vai 2 probe: readiness điều khiển traffic (gỡ khỏi LB), liveness điều khiển restart — rồi xét hệ quả khi DB chậm lan vào liveness.
 > 1. Gỡ khỏi LB (ngừng gửi request), KHÔNG restart. 2. Vì DB chậm tạm thời sẽ làm mọi instance fail liveness đồng loạt → restart hàng loạt vô ích, tạo thundering herd. Dependency để readiness xử lý.
 > </details>
 
@@ -472,6 +476,8 @@ Chỉ **k2** đổi (nó nằm trong cung 100→170 mà D vừa chen vào). 3/4 
 > 2. Virtual nodes giải quyết vấn đề gì?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp công thức consistent hashing: thêm 1 node remap khoảng K/N key; virtual node sinh ra để giải bài phân bố không đều.
 > 1. Khoảng 1/10 = 10% (K/N). 2. Phân phối tải đều hơn — mỗi node vật lý trải nhiều điểm trên ring nên không ai "ôm" cung quá lớn.
 > </details>
 

@@ -181,7 +181,13 @@ func NewServer(opts ...Option) (*Server, error) {
 Dùng khi option có invariant cần check sớm.
 
 > 🔁 **Thực hành.** *Đoán output:* \`NewServer(WithPort(9090), WithPort(3000), WithReadTimeout(10*time.Second))\`?
-> <details><summary>Đáp án</summary>port=3000, readTimeout=10s — option sau ghi đè option trước.</details>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Options áp theo thứ tự truyền vào — option đứng sau ghi đè option trước trên cùng một field.
+>
+> port=3000, readTimeout=10s — option sau ghi đè option trước.
+>
+> </details>
 
 > 📝 **Tóm tắt mục 2.** FO = mỗi tham số tuỳ chọn là một function \`func(*T)\`. Constructor nhận \`...Option\`. Lợi: tự documenting, extensible, default tốt. Dùng khi > 3 tuỳ chọn hoặc cần ổn định API.
 

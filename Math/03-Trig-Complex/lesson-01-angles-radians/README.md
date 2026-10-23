@@ -13,80 +13,9 @@
 
 ---
 
-## 1. Vì sao cần đơn vị mới?
+## 1. Định nghĩa radian
 
-💡 **Câu hỏi**: Độ đã quen, vì sao phải học radian?
-
-**Câu trả lời ngắn**: Độ là quy ước **tùy ý** (người Babylon chia vòng tròn thành 360 vì lịch họ ~360 ngày). Radian là đơn vị **tự nhiên của toán học** — định nghĩa trực tiếp từ hình học, không "chế" ra.
-
-**Hệ quả thực tế**:
-- Đạo hàm $(\sin x)' = \cos x$ CHỈ đúng khi x tính bằng radian. Nếu dùng độ, công thức thành $(\sin x^\circ)' = \frac{\pi}{180}\cdot\cos x^\circ$ — xấu, có hằng số thừa.
-- Khai triển Taylor $\sin x = x - \frac{x^3}{6} + \ldots$ CHỈ đúng với radian.
-- Trong vật lý: vận tốc góc $\omega$ rad/s, không bao giờ độ/s.
-
-⟶ **Radian = ngôn ngữ chuẩn từ Calculus trở lên**.
-
-### 1.1. Walk-through: vì sao Taylor đẹp với radian
-
-Với $x$ ở **radian**, khai triển Taylor (học kỹ ở Calculus) cho:
-
-$$\sin x = x - \frac{x^3}{6} + \frac{x^5}{120} - \cdots$$
-
-Thử $x = 0.1$ rad từng bước:
-
-$$\begin{aligned}
-\sin(0.1) \text{ (máy tính)} &\approx 0.0998334 \\
-\text{Xấp xỉ } x - \tfrac{x^3}{6} &= 0.1 - \frac{0.001}{6} = 0.1 - 0.0001667 \approx 0.0998333 \quad \checkmark
-\end{aligned}$$
-
-Khít tới 6 chữ số. Với góc nhỏ, $\sin x \approx x$ **chỉ đúng khi $x$ là radian** — đây chính là lý do radian được gọi là "tự nhiên": ở tỉ lệ 1:1 với chính nó khi góc nhỏ. Nếu dùng độ thì $\sin(0.1^\circ) \approx 0.001745 \ne 0.1$.
-
-### 1.2. Walk-through: lỗi đơn vị trong code
-
-Mọi thư viện (`math.Sin` của Go, `numpy.sin`, `Math.sin` của JS) nhận **radian**. Gọi `sin(30)` mong $\sin 30^\circ = 0.5$ sẽ ra số "lạ":
-
-$$\begin{aligned}
-30 \text{ rad} \bmod 2\pi &= 30 - 4\cdot 2\pi = 30 - 25.133 \approx 4.867 \text{ rad} \\
-4.867 \text{ rad} &\approx 278.9^\circ \\
-\sin(278.9^\circ) &\approx -0.988 \quad (\ne 0.5!)
-\end{aligned}$$
-
-Đúng phải đổi sang radian trước: `sin(30 * Pi / 180)` $= \sin(\frac{\pi}{6}) = 0.5$ ✓. Sai đơn vị độ↔radian là **lỗi #1** khi mới lập trình toán/ML.
-
-❓ **Câu hỏi tự nhiên của người đọc**
-
-- *"Radian nhỏ hơn hay lớn hơn độ?"* $1$ rad $\approx 57.3^\circ$, nên $1$ rad **lớn hơn** $1^\circ$. Cả vòng $360^\circ = 2\pi \approx 6.28$ rad → một số rad nhỏ "ôm" được một góc lớn.
-- *"Máy tính bỏ túi của tôi để chế độ DEG, có sai không?"* Khi chỉ tính $\sin 30^\circ$ thì DEG tiện. Nhưng làm Calculus (đạo hàm, Taylor) bắt buộc RAD. Nhập $\sin(1)$ ở chế độ RAD ra $0.841$, ở DEG ra $0.0175$ — khác hẳn. Đây là lỗi #1 khi tính toán.
-- *"Vậy độ có bị 'bỏ' hoàn toàn không?"* Không. Kỹ thuật, đo đạc, đời thường vẫn dùng độ vì trực quan. Radian chỉ thống trị **toán giải tích và vật lý lý thuyết**.
-- *"Radian liên quan gì tới AI/ML?"* Rất nhiều. Cosine similarity (góc giữa 2 vector embedding), position encoding của Transformer $\sin(\frac{\text{pos}}{10000^{\ldots}})$, RoPE (xoay embedding theo góc), Fourier transform (tần số góc $\omega$) — **mọi đối số đưa vào `sin`/`cos` đều ngầm hiểu là radian**. Hiểu sai đơn vị → embedding/scene sai hoàn toàn.
-
-⚠ **Lỗi thường gặp — để máy tính sai chế độ DEG/RAD**. Phản ví dụ bằng số: muốn tính $\sin(\frac{\pi}{6}) = 0.5$ nhưng máy đang ở DEG, bạn gõ $\sin(0.5236)$ → máy hiểu là $\sin(0.5236^\circ) = 0.00914$, sai hoàn toàn so với $0.5$. Luôn kiểm tra biểu tượng DEG/RAD trên màn hình trước khi tính.
-
-🔁 **Thực hành**
-
-1. 1 vòng tròn bằng bao nhiêu rad? Nửa vòng?
-2. Góc 2 rad lớn hơn hay nhỏ hơn $90^\circ$?
-
-<details><summary>Đáp án</summary>
-
-**Hướng dẫn**: nhớ mốc neo: cả vòng $2\pi$, nửa vòng $\pi$; so 2 rad với $\pi/2 \approx 1.57$.
-
-1. Cả vòng $= 2\pi$ rad $\approx 6.28$; nửa vòng $= \pi$ rad $\approx 3.14$ ($= 180^\circ$).
-2. $90^\circ = \frac{\pi}{2} \approx 1.57$ rad. Vì $2 > 1.57$ nên **2 rad lớn hơn** $90^\circ$ (cụ thể 2 rad $\approx 114.6^\circ$).
-
-</details>
-
-### 📝 Tóm tắt mục 1
-
-- Độ là quy ước tùy ý (Babylon, 360 ≈ số ngày/năm); radian là đơn vị **tự nhiên** từ hình học.
-- Radian bắt buộc từ Calculus trở lên: $(\sin x)' = \cos x$ và Taylor chỉ đúng với rad.
-- $1$ rad $\approx 57.3^\circ$; cả vòng $= 2\pi$ rad; luôn kiểm tra chế độ DEG/RAD trên máy tính.
-
----
-
-## 2. Định nghĩa radian
-
-### 2.1. Định nghĩa hình học
+### 1.1. Định nghĩa hình học
 
 💡 **Trực giác trước định nghĩa — "số bán kính cuộn quanh cung"**: tưởng tượng bạn lấy chính cây thước bán kính $r$ rồi **uốn cong nó đặt áp vào cung tròn**. Mỗi lần cây thước "cuộn" hết một đoạn cung dài đúng $r$, bạn đã quét được **1 radian**. Vậy radian đo "**cây thước bán kính cuộn được mấy lần quanh cung**". Cuộn được 2 lần → 2 rad, cuộn được nửa lần → 0.5 rad. Số radian = chiều dài cung tính theo "đơn vị bán kính".
 
@@ -145,7 +74,7 @@ $$\theta = \frac{s}{r} \qquad \Longleftrightarrow \qquad s = r\cdot\theta$$
 >
 > **(c) Ví dụ số**: $\pi$ rad $= 180^\circ$ (nửa vòng). $\frac{\pi}{2}$ rad $= 90^\circ$ (góc vuông). $\frac{\pi}{4} = 45^\circ$. $2\pi = 360^\circ$ (1 vòng). $1$ rad $= \frac{180}{\pi} \approx 57.3^\circ$. Cung tròn $r = 10$, góc 2 rad: độ dài cung $= r\cdot\theta = 10\cdot 2 = $ **20**. Diện tích quạt tròn: $\frac{1}{2}\cdot r^2\cdot\theta = \frac{1}{2}\cdot 100\cdot 2 = $ **100**.
 
-### 2.2. Công thức quy đổi
+### 1.2. Công thức quy đổi
 
 $$180^\circ = \pi \text{ rad}$$
 
@@ -182,7 +111,7 @@ $$\frac{\pi}{6} \to \frac{180}{6} = 30^\circ, \quad \frac{\pi}{4} \to \frac{180}
 
 Khi tử có hệ số (vd $\frac{2\pi}{3}$): tính như $\frac{2\cdot 180}{3} = 120^\circ$.
 
-### 2.3. Bảng các góc phổ biến
+### 1.3. Bảng các góc phổ biến
 
 | Độ | 0 | 30 | 45 | 60 | 90 | 120 | 135 | 150 | 180 | 270 | 360 |
 |----|---|----|----|----|----|-----|-----|-----|-----|-----|-----|
@@ -213,7 +142,7 @@ Khi tử có hệ số (vd $\frac{2\pi}{3}$): tính như $\frac{2\cdot 180}{3} =
 
 </details>
 
-### 2.4. Phút và giây góc (giới thiệu)
+### 1.4. Phút và giây góc (giới thiệu)
 
 Để đo chính xác hơn $1^\circ$ (thiên văn, hàng hải), người ta chia tiếp $1^\circ$ thành 60 **phút góc** ($'$), mỗi phút thành 60 **giây góc** ($''$):
 
@@ -230,12 +159,87 @@ $$\begin{aligned}
 
 Khóa học này dùng **độ thập phân** ($12.5822^\circ$), không dùng phút/giây — mục này chỉ để bạn nhận ra khi đọc tài liệu chuyên ngành.
 
-### 📝 Tóm tắt mục 2
+### 📝 Tóm tắt mục 1
 
 - $180^\circ = \pi$ rad là gốc quy đổi; mọi công thức suy từ đây.
 - Định nghĩa nền: $\theta = \frac{s}{r}$ (radian không thứ nguyên, không phụ thuộc bán kính).
 - Độ→rad: $\times\frac{\pi}{180}$; rad→độ: $\times\frac{180}{\pi}$ (hai phép nghịch đảo nhau).
 - Thuộc bảng góc đặc biệt ($\frac{\pi}{6}, \frac{\pi}{4}, \frac{\pi}{3}, \frac{\pi}{2}, \pi$) — dùng liên tục về sau.
+
+---
+
+## 2. Vì sao toán cấp cao bỏ độ, dùng radian?
+
+💡 **Câu hỏi**: Độ đã quen, vì sao phải học radian?
+
+**Câu trả lời ngắn**: Độ là quy ước **tùy ý** (người Babylon chia vòng tròn thành 360 vì lịch họ ~360 ngày). Radian là đơn vị **tự nhiên của toán học** — định nghĩa trực tiếp từ hình học, không "chế" ra.
+
+Lợi ích đầu tiên bạn đã thấy ở mục 1: nhờ định nghĩa $\theta = \frac{s}{r}$, công thức cung/quạt gọn tối đa ($\ell = r\theta$, không hằng số thừa). Lợi ích lớn hơn nằm ở toán cấp cao:
+
+**Hệ quả thực tế** *(ba gạch đầu dòng dưới dùng khái niệm của Calculus — Tier 4. Lần đọc đầu chỉ cần nhớ kết luận, quay lại khi học tới)*:
+- Đạo hàm $(\sin x)' = \cos x$ CHỈ đúng khi x tính bằng radian. Nếu dùng độ, công thức thành $(\sin x^\circ)' = \frac{\pi}{180}\cdot\cos x^\circ$ — xấu, có hằng số thừa.
+- Khai triển Taylor $\sin x = x - \frac{x^3}{6} + \ldots$ CHỈ đúng với radian.
+- Trong vật lý: vận tốc góc $\omega$ rad/s, không bao giờ độ/s.
+
+⟶ **Radian = ngôn ngữ chuẩn từ Calculus trở lên**.
+
+### 2.1. Walk-through: vì sao Taylor đẹp với radian
+
+*(Preview nâng cao — dùng khai triển Taylor của Calculus. Lần đọc đầu có thể bỏ qua; chỉ cần nhớ kết luận: với góc nhỏ, $\sin x \approx x$ khi $x$ tính bằng radian.)*
+
+Với $x$ ở **radian**, khai triển Taylor (học kỹ ở Calculus) cho:
+
+$$\sin x = x - \frac{x^3}{6} + \frac{x^5}{120} - \cdots$$
+
+Thử $x = 0.1$ rad từng bước:
+
+$$\begin{aligned}
+\sin(0.1) \text{ (máy tính)} &\approx 0.0998334 \\
+\text{Xấp xỉ } x - \tfrac{x^3}{6} &= 0.1 - \frac{0.001}{6} = 0.1 - 0.0001667 \approx 0.0998333 \quad \checkmark
+\end{aligned}$$
+
+Khít tới 6 chữ số. Với góc nhỏ, $\sin x \approx x$ **chỉ đúng khi $x$ là radian** — đây chính là lý do radian được gọi là "tự nhiên": ở tỉ lệ 1:1 với chính nó khi góc nhỏ. Nếu dùng độ thì $\sin(0.1^\circ) \approx 0.001745 \ne 0.1$.
+
+### 2.2. Walk-through: lỗi đơn vị trong code
+
+Mọi thư viện (`math.Sin` của Go, `numpy.sin`, `Math.sin` của JS) nhận **radian**. Gọi `sin(30)` mong $\sin 30^\circ = 0.5$ sẽ ra số "lạ":
+
+$$\begin{aligned}
+30 \text{ rad} \bmod 2\pi &= 30 - 4\cdot 2\pi = 30 - 25.133 \approx 4.867 \text{ rad} \\
+4.867 \text{ rad} &\approx 278.9^\circ \\
+\sin(278.9^\circ) &\approx -0.988 \quad (\ne 0.5!)
+\end{aligned}$$
+
+Đúng phải đổi sang radian trước: `sin(30 * Pi / 180)` $= \sin(\frac{\pi}{6}) = 0.5$ ✓. Sai đơn vị độ↔radian là **lỗi #1** khi mới lập trình toán/ML.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Radian nhỏ hơn hay lớn hơn độ?"* $1$ rad $\approx 57.3^\circ$, nên $1$ rad **lớn hơn** $1^\circ$. Cả vòng $360^\circ = 2\pi \approx 6.28$ rad → một số rad nhỏ "ôm" được một góc lớn.
+- *"Máy tính bỏ túi của tôi để chế độ DEG, có sai không?"* Khi chỉ tính $\sin 30^\circ$ thì DEG tiện. Nhưng làm Calculus (đạo hàm, Taylor) bắt buộc RAD. Nhập $\sin(1)$ ở chế độ RAD ra $0.841$, ở DEG ra $0.0175$ — khác hẳn. Đây là lỗi #1 khi tính toán.
+- *"Vậy độ có bị 'bỏ' hoàn toàn không?"* Không. Kỹ thuật, đo đạc, đời thường vẫn dùng độ vì trực quan. Radian chỉ thống trị **toán giải tích và vật lý lý thuyết**.
+- *"Radian liên quan gì tới AI/ML?"* Rất nhiều. Cosine similarity (góc giữa 2 vector embedding), position encoding của Transformer $\sin(\frac{\text{pos}}{10000^{\ldots}})$, RoPE (xoay embedding theo góc), Fourier transform (tần số góc $\omega$) — **mọi đối số đưa vào `sin`/`cos` đều ngầm hiểu là radian**. Hiểu sai đơn vị → embedding/scene sai hoàn toàn.
+
+⚠ **Lỗi thường gặp — để máy tính sai chế độ DEG/RAD**. Phản ví dụ bằng số: muốn tính $\sin(\frac{\pi}{6}) = 0.5$ nhưng máy đang ở DEG, bạn gõ $\sin(0.5236)$ → máy hiểu là $\sin(0.5236^\circ) = 0.00914$, sai hoàn toàn so với $0.5$. Luôn kiểm tra biểu tượng DEG/RAD trên màn hình trước khi tính.
+
+🔁 **Thực hành**
+
+1. 1 vòng tròn bằng bao nhiêu rad? Nửa vòng?
+2. Góc 2 rad lớn hơn hay nhỏ hơn $90^\circ$?
+
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nhớ mốc neo: cả vòng $2\pi$, nửa vòng $\pi$; so 2 rad với $\pi/2 \approx 1.57$.
+
+1. Cả vòng $= 2\pi$ rad $\approx 6.28$; nửa vòng $= \pi$ rad $\approx 3.14$ ($= 180^\circ$).
+2. $90^\circ = \frac{\pi}{2} \approx 1.57$ rad. Vì $2 > 1.57$ nên **2 rad lớn hơn** $90^\circ$ (cụ thể 2 rad $\approx 114.6^\circ$).
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Độ là quy ước tùy ý (Babylon, 360 ≈ số ngày/năm); radian là đơn vị **tự nhiên** từ hình học.
+- Radian bắt buộc từ Calculus trở lên: $(\sin x)' = \cos x$ và Taylor chỉ đúng với rad.
+- $1$ rad $\approx 57.3^\circ$; cả vòng $= 2\pi$ rad; luôn kiểm tra chế độ DEG/RAD trên máy tính.
 
 ---
 
@@ -348,7 +352,6 @@ Khóa học này dùng **độ thập phân** ($12.5822^\circ$), không dùng ph
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"$450^\circ$ và $90^\circ$ cùng vị trí — vậy chúng có là 'cùng một góc' không?"* Cùng **vị trí điểm** trên đường tròn (nên sin/cos bằng nhau), nhưng **khác góc** ($450^\circ = 90^\circ + $ 1 vòng). Khi chỉ quan tâm sin/cos thì coi như nhau; khi quan tâm "đã quay mấy vòng" thì khác.
 - *"Làm sao đưa một góc to như $1000^\circ$ về khoảng $[0^\circ, 360^\circ)$?"* Trừ bội của 360 cho tới khi lọt khoảng: $1000 - 2\cdot 360 = 1000 - 720 = 280^\circ$.
 - *"Góc âm $-30^\circ$ tương đương góc dương nào?"* Cộng 360: $-30 + 360 = 330^\circ$. Cùng vị trí.
 
@@ -504,7 +507,6 @@ $$S = \frac{1}{2}\cdot 10^2\cdot 2 = \frac{1}{2}\cdot 100\cdot 2 = 100$$
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Tại sao diện tích quạt có ½ mà độ dài cung thì không?"* Vì quạt là "tam giác cong": diện tích ~ ½·đáy·cao, ở đây đóng vai như $\frac{1}{2}\cdot$(cung)$\cdot$(bán kính) $= \frac{1}{2}\cdot(r\theta)\cdot r = \frac{1}{2}r^2\theta$. Hệ số ½ là dấu vết của diện tích tam giác.
 - *"Cung và dây cung khác nhau không?"* Khác. **Cung** = phần đường tròn (cong), dài $r\theta$. **Dây cung** = đoạn thẳng nối 2 đầu (thẳng), dài $2r\cdot\sin(\frac{\theta}{2})$. Với $\theta$ nhỏ hai cái xấp xỉ nhau.
 
 🔁 **Thực hành**
@@ -521,7 +523,7 @@ $$S = \frac{1}{2}\cdot 10^2\cdot 2 = \frac{1}{2}\cdot 100\cdot 2 = 100$$
 
 </details>
 
-### 5.5. Vận tốc góc (angular velocity) — giới thiệu
+### 5.1. Vận tốc góc (angular velocity) — giới thiệu
 
 💡 **Trực giác**: vận tốc thường đo "quãng đường đi được mỗi giây"; **vận tốc góc** $\omega$ (omega) đo "**góc quét được mỗi giây**". Cùng triết lý, đổi "khoảng cách" thành "góc".
 

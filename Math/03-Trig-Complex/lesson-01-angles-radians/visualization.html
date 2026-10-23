@@ -14,6 +14,8 @@
   .stat { display: inline-block; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
   .stat strong { color: #15803d; }
   .result { padding: 14px; background: #f1f5f9; border-radius: 8px; margin-top: 12px; }
+  button { background: #15803d; color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #166534; }
   svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 500px; height: 500px; background: #f8fafc; border-radius: 8px; }
 </style>
 </head>
@@ -35,9 +37,103 @@
 
 <h1>Lesson 01 (T3) — Góc &amp; Radian</h1>
 
-<h2>1. Đường tròn lượng giác đơn vị</h2>
+<h2>1. Radian là gì — quấn bán kính lên cung</h2>
 <div class="card">
-  <p style="margin-top:0">Kéo θ — điểm đỏ chạy trên đường tròn đơn vị, cung đỏ = góc; gióng tím = cos (hoành độ), lam = sin (tung độ). <strong>Thử:</strong> θ = 90° — cos về 0, sin = 1; kéo quá 360° để thấy góc quay nhiều vòng nhưng vị trí lặp lại.</p>
+  <p style="margin-top:0"><strong>1 radian = góc chắn một cung dài đúng bằng bán kính.</strong> Kéo slider để "quấn" từng đoạn dài r lên đường tròn — mỗi đoạn quấn được là thêm 1 rad. <strong>Thử:</strong> bấm <em>π</em> — nửa vòng tròn vừa khít 3,14 bán kính; kéo tới hết thang (6,28) — trọn vòng tròn = 2π bán kính, vì chu vi = 2πr.</p>
+  <div class="row">
+    <label>Số bán kính quấn lên cung:</label>
+    <input type="range" id="wrapK" min="0" max="6.2832" step="0.001" value="1" oninput="wrap()">
+    <span class="stat">θ = <strong id="wrapVal">1.00</strong> rad</span>
+  </div>
+  <div class="row">
+    <button type="button" onclick="setWrap(1)">1 rad</button>
+    <button type="button" onclick="setWrap(Math.PI/2)">π/2</button>
+    <button type="button" onclick="setWrap(Math.PI)">π</button>
+    <button type="button" onclick="setWrap(2*Math.PI)">2π (trọn vòng)</button>
+  </div>
+  <svg class="scene" id="wrapSvg" viewBox="-250 -250 500 500" style="max-width:420px; height:420px"></svg>
+  <div class="result" id="wrapRes"></div>
+</div>
+
+<script>
+function setWrap(v) {
+  document.getElementById("wrapK").value = v;
+  wrap();
+}
+function wrap() {
+  const k = parseFloat(document.getElementById("wrapK").value);
+  document.getElementById("wrapVal").textContent = k.toFixed(2);
+  const svg = document.getElementById("wrapSvg");
+  svg.innerHTML = "";
+  const NS = "http://www.w3.org/2000/svg";
+  const R = 200;
+
+  // Đường tròn nền
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", 0); c.setAttribute("cy", 0); c.setAttribute("r", R);
+  c.setAttribute("fill", "none"); c.setAttribute("stroke", "#cbd5e0"); c.setAttribute("stroke-width", 1.5);
+  svg.appendChild(c);
+
+  // Bán kính mẫu (đoạn thẳng dài r, mốc so sánh)
+  const rl = document.createElementNS(NS, "line");
+  rl.setAttribute("x1", 0); rl.setAttribute("y1", 0); rl.setAttribute("x2", R); rl.setAttribute("y2", 0);
+  rl.setAttribute("stroke", "#15803d"); rl.setAttribute("stroke-width", 3);
+  svg.appendChild(rl);
+  const rt = document.createElementNS(NS, "text");
+  rt.setAttribute("x", R/2); rt.setAttribute("y", 20);
+  rt.setAttribute("text-anchor", "middle"); rt.setAttribute("font-size", "14");
+  rt.setAttribute("font-weight", "700"); rt.setAttribute("fill", "#15803d");
+  rt.textContent = "r";
+  svg.appendChild(rt);
+
+  // Quấn từng đoạn dài r lên cung: đoạn thứ i chạy từ i rad tới i+1 rad, màu xen kẽ
+  const colors = ["#dc2626", "#f59e0b"];
+  const nFull = Math.floor(k);
+  for (let i = 0; i < Math.ceil(k); i++) {
+    const a0 = i, a1 = Math.min(i + 1, k);
+    const x0 = R * Math.cos(a0), y0 = -R * Math.sin(a0);
+    const x1 = R * Math.cos(a1), y1 = -R * Math.sin(a1);
+    const seg = document.createElementNS(NS, "path");
+    seg.setAttribute("d", `M ${x0},${y0} A ${R},${R} 0 0,0 ${x1},${y1}`);
+    seg.setAttribute("fill", "none"); seg.setAttribute("stroke", colors[i % 2]); seg.setAttribute("stroke-width", 6);
+    svg.appendChild(seg);
+    // Nhãn số đoạn (chỉ đoạn trọn)
+    if (a1 - a0 > 0.5) {
+      const mid = (a0 + a1) / 2;
+      const tx = document.createElementNS(NS, "text");
+      tx.setAttribute("x", (R + 22) * Math.cos(mid)); tx.setAttribute("y", -(R + 22) * Math.sin(mid) + 5);
+      tx.setAttribute("text-anchor", "middle"); tx.setAttribute("font-size", "14");
+      tx.setAttribute("font-weight", "700"); tx.setAttribute("fill", colors[i % 2]);
+      tx.textContent = i + 1;
+      svg.appendChild(tx);
+    }
+  }
+  // Điểm cuối cung
+  const pt = document.createElementNS(NS, "circle");
+  pt.setAttribute("cx", R * Math.cos(k)); pt.setAttribute("cy", -R * Math.sin(k)); pt.setAttribute("r", 6);
+  pt.setAttribute("fill", "#dc2626");
+  svg.appendChild(pt);
+
+  const degEq = k * 180 / Math.PI;
+  const rest = k - nFull;
+  const doneNote = Math.abs(k - 2 * Math.PI) < 0.02
+    ? `<div style="margin-top:8px; font-size:13px; color:#15803d"><strong>Vừa khít trọn vòng!</strong> Chu vi = 2πr → quấn được đúng 2π ≈ 6,283 bán kính → góc đầy = 2π rad = 360°.</div>`
+    : `<div style="margin-top:8px; font-size:13px; color:#64748b">Đã quấn ${nFull} đoạn trọn${rest > 0.01 ? ` + ${rest.toFixed(2)} đoạn dở` : ""}. Trọn vòng cần 2π ≈ 6,283 đoạn.</div>`;
+  document.getElementById("wrapRes").innerHTML = `
+    <div class="row">
+      <span class="stat">Cung đã quấn: s = ${k.toFixed(2)} × r</span>
+      <span class="stat">θ = s / r = <strong>${k.toFixed(2)} rad</strong></span>
+      <span class="stat">= ${degEq.toFixed(1)}°</span>
+    </div>
+    ${doneNote}
+  `;
+}
+wrap();
+</script>
+
+<h2>2. Đường tròn lượng giác đơn vị</h2>
+<div class="card">
+  <p style="margin-top:0">Kéo θ — điểm đỏ M chạy trên đường tròn bán kính 1. Đoạn <strong style="color:#7c3aed">tím</strong> trên trục ngang = cos θ (hoành độ M), đoạn <strong style="color:#1d4ed8">lam</strong> trên trục dọc = sin θ (tung độ M), cung đỏ = góc θ. <strong>Thử:</strong> θ = 90° — M lên đỉnh (0, 1): cos về 0, sin = 1; kéo quá 360° — M quay vòng mới nhưng lặp đúng vị trí cũ (góc đồng cuối).</p>
   <div class="row">
     <label>Góc (độ):</label>
     <input type="range" id="ang" min="-360" max="720" step="5" value="60" oninput="draw()">
@@ -94,13 +190,14 @@ function draw() {
   const arcR = 50;
   const startAng = 0;
   const endAng = -rad; // SVG y inverts
-  const largeArc = Math.abs(deg) > 180 && Math.abs(deg) < 360 ? 1 : (Math.abs(deg) >= 360 ? 1 : 0);
   // For multiple revolutions, just show effective arc
   const effDeg = ((deg % 360) + 360) % 360;
   const effRad = effDeg * Math.PI / 180;
   const ax2 = arcR * Math.cos(-effRad);
   const ay2 = arcR * Math.sin(-effRad);
-  const la = effDeg > 180 ? 1 : 0;
+  // Độ dài cung thật sự được vẽ: deg dương đi ngược chiều kim (= effDeg), deg âm đi xuôi chiều kim (= 360 − effDeg)
+  const arcSpan = deg >= 0 ? effDeg : (360 - effDeg) % 360;
+  const la = arcSpan > 180 ? 1 : 0;
   const arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
   arc.setAttribute("d", `M ${arcR},0 A ${arcR},${arcR} 0 ${la},${deg < 0 ? 1 : 0} ${ax2},${ay2}`);
   arc.setAttribute("fill", "none"); arc.setAttribute("stroke", "#dc2626"); arc.setAttribute("stroke-width", 2.5);
@@ -124,6 +221,43 @@ function draw() {
   sl.setAttribute("x1", 0); sl.setAttribute("y1", py); sl.setAttribute("x2", px); sl.setAttribute("y2", py);
   sl.setAttribute("stroke", "#1d4ed8"); sl.setAttribute("stroke-width", 2); sl.setAttribute("stroke-dasharray", "5,3");
   svg.appendChild(sl);
+  // Đoạn cos đậm trên trục x (từ gốc tới chân gióng) + nhãn
+  const cosSeg = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  cosSeg.setAttribute("x1", 0); cosSeg.setAttribute("y1", 0); cosSeg.setAttribute("x2", px); cosSeg.setAttribute("y2", 0);
+  cosSeg.setAttribute("stroke", "#7c3aed"); cosSeg.setAttribute("stroke-width", 4);
+  svg.appendChild(cosSeg);
+  if (Math.abs(px) > 30) {
+    const ct = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    ct.setAttribute("x", px / 2); ct.setAttribute("y", py >= 0 ? 20 : -10);
+    ct.setAttribute("text-anchor", "middle"); ct.setAttribute("font-size", "13");
+    ct.setAttribute("font-weight", "700"); ct.setAttribute("fill", "#7c3aed");
+    ct.textContent = "cos θ";
+    svg.appendChild(ct);
+  }
+  // Đoạn sin đậm trên trục y + nhãn
+  const sinSeg = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  sinSeg.setAttribute("x1", 0); sinSeg.setAttribute("y1", 0); sinSeg.setAttribute("x2", 0); sinSeg.setAttribute("y2", py);
+  sinSeg.setAttribute("stroke", "#1d4ed8"); sinSeg.setAttribute("stroke-width", 4);
+  svg.appendChild(sinSeg);
+  if (Math.abs(py) > 30) {
+    const st = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    st.setAttribute("x", px >= 0 ? -8 : 8); st.setAttribute("y", py / 2 + 4);
+    st.setAttribute("text-anchor", px >= 0 ? "end" : "start"); st.setAttribute("font-size", "13");
+    st.setAttribute("font-weight", "700"); st.setAttribute("fill", "#1d4ed8");
+    st.textContent = "sin θ";
+    svg.appendChild(st);
+  }
+  // Nhãn θ cạnh cung đỏ
+  if (effDeg > 15) {
+    // Giữa cung thật: deg dương đi ngược chiều kim từ 0 tới effRad; deg âm đi xuôi chiều kim tới effRad − 2π
+    const midA = deg >= 0 ? effRad / 2 : (effRad - 2 * Math.PI) / 2;
+    const tht = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    tht.setAttribute("x", (arcR + 18) * Math.cos(midA)); tht.setAttribute("y", -(arcR + 18) * Math.sin(midA) + 5);
+    tht.setAttribute("text-anchor", "middle"); tht.setAttribute("font-size", "15");
+    tht.setAttribute("font-weight", "700"); tht.setAttribute("fill", "#dc2626");
+    tht.textContent = "θ";
+    svg.appendChild(tht);
+  }
   // Point
   const pt = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   pt.setAttribute("cx", px); pt.setAttribute("cy", py); pt.setAttribute("r", 6);
@@ -155,30 +289,33 @@ function draw() {
     svg.appendChild(m);
   });
 
-  // Arc length (within unit circle, ℓ = θ for r=1)
+  // Arc length (within unit circle, ℓ = r·θ, here r=1)
   const arcLength = Math.abs(rad);
   const sector = 0.5 * 1 * 1 * Math.abs(rad);
   document.getElementById("res").innerHTML = `
     <div class="row">
-      <span style="font-family:monospace; font-size:14px">① Giá trị:</span>
-      <span class="stat">cos θ = <strong>${Math.cos(rad).toFixed(4)}</strong></span>
-      <span class="stat">sin θ = <strong>${Math.sin(rad).toFixed(4)}</strong></span>
-      <span class="stat">tan θ = <strong>${Math.abs(Math.cos(rad)) < 1e-9 ? "∞" : Math.tan(rad).toFixed(4)}</strong></span>
+      <span style="font-family:monospace; font-size:14px">① Quy đổi:</span>
+      <span class="stat">θ = ${deg}° × π/180 = <strong>${label}</strong>${label.includes("π") ? ` ≈ ${rad.toFixed(4)}` : ""} rad</span>
     </div>
     <div class="row">
-      <span style="font-family:monospace; font-size:14px">② Cung &amp; quạt:</span>
-      <span class="stat">Độ dài cung (r=1): ℓ = θ = <strong>${arcLength.toFixed(4)} rad</strong></span>
-      <span class="stat">S quạt (r=1): <strong>${sector.toFixed(4)}</strong></span>
+      <span style="font-family:monospace; font-size:14px">② Tọa độ M:</span>
+      <span class="stat">cos θ (hoành độ) = <strong>${Math.cos(rad).toFixed(4)}</strong></span>
+      <span class="stat">sin θ (tung độ) = <strong>${Math.sin(rad).toFixed(4)}</strong></span>
     </div>
-    <div style="margin-top:8px; font-size:13px; color:#64748b">③ Số vòng quay: ${totalRev}, góc tương đương: ${effDeg}° = ${(effRad/Math.PI).toFixed(3)}π rad</div>
+    <div class="row">
+      <span style="font-family:monospace; font-size:14px">③ Cung &amp; quạt (r = 1):</span>
+      <span class="stat">ℓ = r·θ = 1 × ${arcLength.toFixed(4)} = <strong>${arcLength.toFixed(4)}</strong></span>
+      <span class="stat">S = ½·r²·θ = <strong>${sector.toFixed(4)}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#64748b">④ Số vòng quay trọn: ${totalRev} · góc đồng cuối (coterminal) trong [0°, 360°): ${effDeg}° = ${(effRad/Math.PI).toFixed(3)}π rad — cùng vị trí M với θ.</div>
   `;
 }
 draw();
 </script>
 
-<h2>2. 🌍 Đời sống thực tế</h2>
+<h2>3. 🌍 Đời sống thực tế</h2>
 <div class="card">
-  <p style="margin-top:0; color:#475569">Radian không phải khái niệm "trên giấy" — nó là đơn vị tự nhiên cho <strong>mọi thứ quay</strong>: bánh xe, động cơ, đĩa cứng, kim đồng hồ. Hai máy tính dưới đây dùng đúng góc thật ngoài đời.</p>
+  <p style="margin-top:0; color:#475569">Radian không phải khái niệm "trên giấy" — nó là đơn vị tự nhiên cho <strong>mọi thứ quay</strong>: bánh xe, động cơ, đĩa cứng, kim đồng hồ. Tốc độ góc ω đo bằng rad/s chính là "mỗi giây quét thêm bao nhiêu bán kính lên cung" như mục 1. Hai máy tính dưới đây dùng đúng góc thật ngoài đời.</p>
 
   <h3 style="margin-bottom:6px">① Vòng tua máy → tốc độ góc → tốc độ dài</h3>
   <p style="margin-top:0; font-size:13px; color:#64748b">Vòng/phút (RPM) là cách đời thường đo tốc độ quay (đồng hồ tua máy xe, máy giặt vắt, mũi khoan). Muốn biết một điểm trên vành đi nhanh bao nhiêu m/s, phải đổi qua radian: <code>ω = RPM · 2π / 60</code> rad/s, rồi <code>v = ω · r</code>.</p>

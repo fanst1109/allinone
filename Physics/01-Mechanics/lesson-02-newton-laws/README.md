@@ -70,6 +70,8 @@ Sau bài này bạn sẽ:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Cộng lực theo dấu trên một trục: cùng chiều thì cộng, ngược chiều thì trừ; rồi F = ma.
+
 1. Cùng chiều: $80 + 80 = $ **160 N**. Ngược chiều (bằng nhau): $80 - 80 = $ **0 N** (thùng không gia tốc).
 2. $F = m\cdot a = 3\cdot 4 = $ **12 N**. Vì 10 N ≈ trọng lượng 1 kg gạo $\to$ 12 N ≈ trọng lượng **1,2 kg gạo**.
 
@@ -121,6 +123,8 @@ Sau bài này bạn sẽ:
 2. Phi thuyền trong không gian sâu tắt động cơ. Nó sẽ dừng lại, chậm dần, hay tiếp tục chạy đều?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Phân biệt "tổng lực bằng 0" với "không có lực": định luật I chỉ đòi hợp lực 0, từng lực vẫn tồn tại.
 
 1. Tổng lực = **0** (nên sách đứng yên, định luật I). Nhưng vẫn **có lực**: trọng lực kéo xuống và phản lực bàn đẩy lên — chúng triệt tiêu.
 2. **Tiếp tục chạy đều** — không ma sát, không lực cản → quán tính giữ nguyên vận tốc (như Voyager).
@@ -209,6 +213,8 @@ Khi tổng các lực $= 0 \to a = 0 \to$ vật đứng yên hoặc chuyển đ�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tính hợp lực trước (kéo trừ ma sát) rồi chia khối lượng; trọng lượng W = mg đổi theo g từng thiên thể.
+
 1. Hợp lực $= 30 - 6 = 24$ N. $a = \frac{F}{m} = \frac{24}{4} = $ **6 m/s²**.
 2. Trái Đất: $W = 50\cdot 9{,}8 = $ **490 N**. Sao Hỏa: $W = 50\cdot 3{,}7 = $ **185 N**. Khối lượng vẫn 50 kg ở cả hai.
 
@@ -274,6 +280,8 @@ Nếu 2 lực cùng tác dụng lên CÙNG 1 vật, đó **KHÔNG** phải cặp
 2. Quả táo ($m = 0{,}1$ kg) rơi, Trái Đất hút nó với $F = 0{,}98$ N. Táo hút Trái Đất với lực bao nhiêu? Gia tốc của Trái Đất do lực này ($m_{TĐ} \approx 6\times 10^{24}$ kg)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp định luật III: phản lực luôn BẰNG độ lớn, NGƯỢC chiều, đặt lên vật kia — kể cả giữa táo và Trái Đất.
 
 1. **200 N**, hướng **ngược lại** (từ tường ra phía bạn). Đó là lý do tay bạn cảm thấy áp lực.
 2. Cũng **0,98 N** (cặp định luật III). $a$ của Trái Đất $= \frac{0{,}98}{6\times 10^{24}} \approx$ **1,6×10⁻²⁵ m/s²** — nhỏ đến mức không đo nổi, nên ta coi Trái Đất "đứng yên".
@@ -376,6 +384,8 @@ Phân tích W theo trục song song và vuông góc mặt nghiêng:
 2. Vật 3 kg trên mặt nghiêng 30° không ma sát. Thành phần trọng lực kéo vật xuống dốc bằng bao nhiêu? Gia tốc trượt?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Vẽ FBD: liệt kê đủ lực chạm vào vật; trên mặt nghiêng, tách trọng lực thành mg·sinθ (dọc dốc) và mg·cosθ (ép mặt).
 
 1. Hai lực: trọng lực $W = 2\cdot 9{,}8 = 19{,}6$ N (xuống) và phản lực N (lên). Vật yên $\to N = W = $ **19,6 N**.
 2. $mg\cdot\sin\theta = 3\cdot 9{,}8\cdot\sin 30^\circ = 3\cdot 9{,}8\cdot 0{,}5 = $ **14,7 N**. Gia tốc $a = g\cdot\sin\theta = 9{,}8\cdot 0{,}5 = $ **4,9 m/s²** (xuống dốc).

@@ -63,6 +63,8 @@ Hướng: rời khỏi $Q$ nếu $Q > 0$, vào $Q$ nếu $Q < 0$.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng E = kQ/r² cho điện tích điểm; lực lên điện tích thử F = qE — q ÂM thì lực NGƯỢC chiều E.
+
 1. $E = \\frac{kQ}{r^2} = 9 \\times 10^9 \\cdot 10^{-6} / (0{,}2)^2 = 9 \\times 10^3 / 0{,}04 =$ **$2{,}25 \\times 10^5 \\text{ V/m}$**.
 2. $F = |q| \\cdot E = 2 \\times 10^{-6} \\cdot 500 =$ **$10^{-3} \\text{ N}$**, hướng **trái** (ngược $E$ vì $q$ âm).
 
@@ -127,6 +129,8 @@ $$V = \\frac{k \\cdot Q}{r}$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân biệt 2 công thức: công W = qU; điện thế điểm V = kQ/r.
+
 1. $W = q \\cdot U = 2 \\cdot 9 =$ **$18 \\text{ J}$**.
 2. $V = \\frac{kQ}{r} = 9 \\times 10^9 \\cdot 3 \\times 10^{-6} / 0{,}3 = 27 \\times 10^3 / 0{,}3 =$ **$9 \\times 10^4 \\text{ V} = 90 \\text{ kV}$**.
 
@@ -190,6 +194,8 @@ $$W = \\frac{1}{2} \\cdot C \\cdot U^2 = \\frac{1}{2} \\cdot \\frac{Q^2}{C}$$
 2. Cùng tụ đó, tính năng lượng tích trữ.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ cặp công thức tụ: Q = CU và năng lượng E = ½CU².
 
 1. $Q = C \\cdot U = 200 \\times 10^{-6} \\cdot 5 =$ **$10^{-3} \\text{ C} = 1 \\text{ mC}$**.
 2. $W = \\frac{1}{2}CU^2 = 0{,}5 \\cdot 200 \\times 10^{-6} \\cdot 25 =$ **$2{,}5 \\times 10^{-3} \\text{ J} = 2{,}5 \\text{ mJ}$**.

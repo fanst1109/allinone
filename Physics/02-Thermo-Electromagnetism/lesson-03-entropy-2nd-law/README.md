@@ -67,6 +67,8 @@ Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ)
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Đếm số cách sắp xếp W bằng tổ hợp C(n, k); entropy tăng khi số cách sắp xếp tăng.
+
 1. $W = C(4,1) = 4$ cách (chọn 1 trong 4 phân tử sang ngăn phải). So với "2 trái + 2 phải" có $W = 6$ (nhiều hơn → entropy cao hơn).
 2. Tăng — hơi nước hoa khuếch tán khắp phòng (nhiều cấu hình hơn). Không bao giờ tự thu lại vào chai.
 
@@ -119,6 +121,8 @@ Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (kh
 2. Vì sao một video quay cảnh khói tự thu lại vào điếu thuốc trông "sai"?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Đối chiếu máy với 2 phát biểu: Kelvin cấm biến nhiệt 100% thành công, Clausius cấm nhiệt tự chảy từ lạnh sang nóng.
 
 1. Phát biểu Kelvin — không thể lấy nhiệt từ 1 nguồn và biến hoàn toàn thành công mà không thải nhiệt ra nguồn lạnh hơn.
 2. Vì đó là quá trình giảm entropy (khói tập trung lại có $W$ nhỏ hơn khói lan tỏa). Vi phạm định luật II → mắt ta nhận ra "thời gian chạy ngược".
@@ -210,6 +214,8 @@ $$\eta_{\text{Carnot}} = 1 - \frac{T_c}{T_h}$$
 2. Máy nhận 2000 J từ nguồn nóng, sinh 700 J công. $Q_c$ thải ra và $\eta$ thực bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp η Carnot = 1 − T_c/T_h (nhớ dùng Kelvin); máy thật: Q_c = Q_h − W.
 
 1. $\eta_{\text{Carnot}} = 1 - T_c/T_h = 1 - 300/600 = $ **0,5 = 50%**.
 2. $Q_c = Q_h - W = 2000 - 700 = $ **1300 J**. $\eta = W/Q_h = 700/2000 = $ **35%**.

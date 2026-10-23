@@ -91,6 +91,8 @@ Ví dụ: cọ thanh nhựa vào tóc → một số electron chuyển từ tóc
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Chia điện tích cho e = 1,6×10⁻¹⁹ C; dấu âm nghĩa là THỪA electron — điện tích bảo toàn: bên này nhận thì bên kia mất.
+
 1. $q = -3{,}2 \\times 10^{-19} / (-1{,}6 \\times 10^{-19}) = $ thừa **2 electron** (dấu âm → thừa electron).
 2. Tóc **mất** electron → mang điện **dương** (+). Tổng (bóng + tóc) vẫn trung hòa.
 
@@ -161,6 +163,8 @@ Hướng: theo đường nối 2 điện tích. Đẩy nếu cùng dấu, hút n
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp Coulomb F ∝ 1/r²: khoảng cách gấp đôi thì lực giảm 4 lần; thay số nhớ đổi μC và cm về SI.
+
 1. $r$ gấp đôi → $F$ giảm 4 lần → còn **2 N** ($F \\propto 1/r^2$).
 2. $F = 9 \\times 10^9 \\cdot (2 \\times 10^{-6})^2/(0{,}1)^2 = 9 \\times 10^9 \\cdot 4 \\times 10^{-12}/0{,}01 = 0{,}036/0{,}01 = $ **3,6 N** (đẩy nhau, cùng dấu).
 
@@ -210,6 +214,8 @@ $$\\vec{F}_{\\text{tổng}} = \\vec{F}_1 + \\vec{F}_2 + \\vec{F}_3 + \\dots$$
 2. 2 điện tích +q đặt 2 bên cách đều một điện tích thử. Lực tổng lên điện tích thử bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Cộng lực như VECTOR: vuông góc dùng Pythagore; đối xứng hai bên thì xét triệt tiêu từng cặp.
 
 1. $F = \\sqrt{4^2 + 3^2} = \\sqrt{25} = $ **5 N** (Pythagore cho 2 lực vuông góc).
 2. **0** — 2 lực đẩy ngược chiều, cùng độ lớn (đối xứng) → triệt tiêu.
@@ -261,6 +267,8 @@ $$\\vec{F}_{\\text{tổng}} = \\vec{F}_1 + \\vec{F}_2 + \\vec{F}_3 + \\dots$$
 2. Gỗ khô và gỗ ướt, cái nào dẫn điện tốt hơn?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ tính chất vật dẫn: điện tích dồn ra bề mặt ngoài; dẫn điện cần hạt mang điện tự do (nước ẩm có ion).
 
 1. Phân bố đều trên **bề mặt ngoài** (electron tự do đẩy nhau ra xa nhất); bên trong không có điện tích dư, điện trường bên trong = 0.
 2. Gỗ ướt — nước có ion làm tăng khả năng dẫn. Gỗ khô là chất cách điện khá tốt.

@@ -55,6 +55,8 @@ Sau bài này bạn sẽ:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhìn đồ thị E_lk/nucleon: đỉnh ở Fe-56; phản ứng đi VỀ PHÍA đỉnh (nhẹ ghép lại, nặng vỡ ra) đều tỏa năng lượng.
+
 1. **Fe-56**, ở ĐỈNH đồ thị ($\\sim 8{,}8\\ \\text{MeV/nucleon}$) — nucleon được giữ chặt nhất.
 2. **Tỏa** năng lượng. He-4 ($\\sim 7\\ \\text{MeV/nucleon}$) bền hơn H-2 ($\\sim 1{,}1\\ \\text{MeV/nucleon}$) → tiến gần Fe → tăng $E_\\text{lk}$/nucleon → nhả năng lượng ra.
 
@@ -122,6 +124,8 @@ Mỗi phân hạch sinh ra trung bình 2-3 neutron. Nếu mỗi neutron mới g�
 2. Trong lò, để giảm tốc độ phản ứng nên đẩy thanh điều khiển VÀO hay RÚT RA?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Cân bằng phản ứng bằng 2 định luật bảo toàn: tổng A và tổng Z hai vế phải bằng nhau.
 
 1. Bảo toàn số khối: $235 + 1 = 141 + 92 + x \\to 236 = 233 + x \\to x = 3$ neutron. (Bảo toàn $Z$: $92 = 56 + 36$ ✓.)
 2. Đẩy thanh điều khiển **VÀO** → hấp thụ nhiều neutron hơn → ít phản ứng kế tiếp → chậm lại.
@@ -191,6 +195,8 @@ Tại nhiệt độ này, không có vật liệu nào "chứa" được plasma.
 2. Mặt Trời tỏa năng lượng nhờ fission hay fusion?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Cân bằng A và Z để tìm hạt thiếu; fusion trong sao cần nhiệt độ/áp suất cực lớn để thắng lực đẩy Coulomb.
 
 1. Bảo toàn $A$: $2+3 = 4 + x \\to x$ có $A = 1$. Bảo toàn $Z$: $1+1 = 2 + y \\to y$ có $Z = 0$. → hạt $A=1$, $Z=0$ = **neutron (n)**. Đầy đủ: $^{2}\\text{H} + {}^{3}\\text{H} \\to {}^{4}\\text{He} + n + 17{,}6\\ \\text{MeV}$.
 2. **Fusion** (ghép 4 hạt nhân H thành He, tỏa 26.7 MeV mỗi chu trình).

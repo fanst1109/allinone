@@ -85,6 +85,8 @@ Bạn đi từ nhà (vị trí x = 0) ra cửa hàng cách 200 m (x = +200 m), r
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân biệt 2 đại lượng: Δx = x cuối − x đầu (có dấu), còn s cộng dồn độ dài từng chặng (luôn dương).
+
 1. $\\Delta x = -5 - 2 = $ **−7 m** (đi theo chiều âm). Quãng đường $s = |-7| = $ **7 m** (đoạn này đi thẳng nên $|\\Delta x| = s$).
 2. Đoạn 2 dài $|1 - (-5)| = 6$ m $\\to$ tổng $s = 7 + 6 = $ **13 m**. Tổng độ dịch chuyển = vị trí cuối − đầu $= 1 - 2 = $ **−1 m**. Thấy ngay $s$ (13) $> |\\Delta x|$ (1) vì có quay lại.
 
@@ -166,6 +168,8 @@ b) **Tốc độ trung bình** (quãng đường ÷ thời gian):
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Đổi km/h ra m/s bằng cách chia 3,6; vận tốc trung bình dùng Δx tổng (có dấu), tốc độ trung bình dùng s tổng.
+
 1. $90\\ \\text{km/h} = \\frac{90}{3{,}6} = $ **25 m/s**.
 2. $\\Delta x = 60 - 60 = 0$ km $\\to$ vận tốc tb $= \\frac{0}{3} = $ **0 km/h**. Quãng đường $s = 120$ km, thời gian 3 h $\\to$ tốc độ tb $= \\frac{120}{3} = $ **40 km/h**. Hai con số khác hẳn vì xe quay lại.
 
@@ -244,6 +248,8 @@ a(t) &= \\frac{dv}{dt} \\quad &&\\text{(gia tốc tức thời = đạo hàm v�
 2. Xe đạp tăng từ 4 m/s lên 10 m/s trong 3 giây. Tính gia tốc.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: So DẤU của a và v: cùng dấu là nhanh lên, ngược dấu là chậm đi; gia tốc trung bình = Δv/Δt.
 
 1. $a$ và $v$ **cùng dấu** (cùng âm = cùng chiều) $\\to$ xe **nhanh lên** (theo chiều âm). Sau 1 s, $v = -15$ m/s (độ lớn tăng).
 2. $a = \\frac{\\Delta v}{\\Delta t} = \\frac{10 - 4}{3} = $ **2 m/s²**.
@@ -338,6 +344,8 @@ Hoặc dạng đồ thị:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ cách đọc đồ thị: diện tích dưới đường v-t là Δx, độ dốc v-t là a; độ dốc x-t là v.
+
 1. Diện tích (hình chữ nhật) $= 6 \\times 5 = $ **30 m** $= \\Delta x$. Đường nằm ngang $\\to$ độ dốc $= 0 \\to$ **a = 0**.
 2. Đường thẳng **đi xuống** $\\to$ độ dốc âm $\\to$ **v < 0** (vật lùi). Đường thẳng $\\to$ độ dốc không đổi $\\to$ **a = 0**.
 
@@ -421,6 +429,8 @@ c) Khi $v = 20$ m/s, xe đã đi được bao xa?
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Chọn phương trình theo ẩn: thiếu x dùng v = v₀ + at, thiếu t dùng v² = v₀² + 2aΔx, thiếu v dùng x = x₀ + v₀t + ½at².
+
 1. (1): $30 = 0 + 2t \\to t = $ **15 s**. (2): $x = 0 + 0 + \\frac{1}{2}\\cdot 2\\cdot 15^2 = $ **225 m** (hoặc dùng (3): $30^2 = 2\\cdot 2\\cdot x \\to x = 225$ m).
 2. Không hỏi $t \\to$ dùng (3): $0^2 = 40^2 + 2\\cdot (-8)\\cdot \\Delta x \\to \\Delta x = \\frac{1600}{16} = $ **100 m**.
 
@@ -483,6 +493,8 @@ c) Cùng độ cao 20 m, nếu ném xuống với $v_0 = 5$ m/s thì thời gian
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Rơi tự do là chuyển động đều gia tốc với a = −g: thả rơi dùng h = ½gt²; ném lên thì tại đỉnh v = 0.
+
 1. $h = \\frac{1}{2}gt^2 \\to 5 = \\frac{1}{2}\\cdot 9{,}8\\cdot t^2 \\to t^2 = 1{,}02 \\to t \\approx$ **1,01 s**.
 2. Tại điểm cao nhất $v = 0$. (1) với $a = -9{,}8$: $0 = 19{,}6 + (-9{,}8)t \\to t = $ **2 s**.
 
@@ -539,6 +551,8 @@ c) **Tốc độ chạm đất** (cả 2 thành phần):
 2. Hai viên bi từ cùng độ cao: A thả rơi, B bắn ngang 30 m/s. Viên nào chạm đất trước?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Tách 2 trục độc lập: trục ngang đi đều (x = v₀t), trục dọc rơi tự do (y = ½gt²) — thời gian rơi chỉ do trục dọc quyết định.
 
 1. Trục dọc: $20 = \\frac{1}{2}\\cdot 9{,}8\\cdot t^2 \\to t^2 = 4{,}08 \\to t \\approx$ **2,02 s**. Trục ngang: $x = 8 \\times 2{,}02 \\approx$ **16,2 m**.
 2. **Cùng lúc** — thời gian rơi chỉ phụ thuộc độ cao, không phụ thuộc vận tốc ngang.

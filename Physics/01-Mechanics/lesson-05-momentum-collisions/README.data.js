@@ -79,6 +79,8 @@ $$p = m \\cdot v$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp p = mv theo từng vật, giữ DẤU theo chiều; tổng động lượng hệ là tổng đại số.
+
 1. $p = m \\cdot v = 1000 \\cdot 25 = $ **25,000 kg·m/s**.
 2. $p_{tổng} = 3 \\cdot 4 + 2 \\cdot (-6) = 12 - 12 = $ **0 kg·m/s** (triệt tiêu vì ngược chiều).
 
@@ -143,6 +145,8 @@ b) **Có túi khí** (dừng trong 0.3 s do túi khí phồng và xẹp dần):
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tính Δp = m(v cuối − v đầu) — chú ý dội ngược thì v cuối đổi dấu; lực trung bình = Δp/Δt.
+
 1. $\\Delta p = m \\cdot (v_{cuối} - v_{đầu}) = 0{,}2 \\cdot (-12 - 15) = 0{,}2 \\cdot (-27) = $ **−5.4 kg·m/s**.
 2. $F = \\frac{\\Delta p}{\\Delta t} = \\frac{-5{,}4}{0{,}02} = $ **−270 N** (hướng ngược chiều bóng tới, tức đẩy ra).
 
@@ -196,6 +200,8 @@ Không cần "đẩy vào không khí" — tên lửa hoạt động cả trong 
 2. Người 60 kg đứng yên trên ván trượt (không ma sát), ném quả bóng 2 kg về trước với 5 m/s. Người chuyển động thế nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Hệ ban đầu đứng yên thì tổng p = 0 mãi: phần bắn đi bao nhiêu, phần còn lại giật ngược bấy nhiêu.
 
 1. Bảo toàn p: $0 = 0{,}01 \\cdot 500 + 4 \\cdot v \\to v = -\\frac{5}{4} = $ **−1.25 m/s** (giật ngược).
 2. Trước: $p = 0$. Sau: bóng có $p = 2 \\cdot 5 = +10 \\to$ người phải có $p = -10 \\to v = \\frac{-10}{60} \\approx$ **−0.17 m/s** (lùi về sau).
@@ -285,6 +291,8 @@ v_{chung} &= \\frac{m_1 v_1 + m_2 v_2}{m_1 + m_2}
 2. Trong va chạm đàn hồi, A (1 kg, 8 m/s) đụng B (1 kg, đứng yên). Vận tốc của A và B sau va chạm?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Va chạm mềm dính nhau: v chung = tổng p chia tổng m; đàn hồi cùng khối lượng thì hai vật TRAO ĐỔI vận tốc.
 
 1. $v_{chung} = \\frac{m_A \\cdot v_A + m_B \\cdot v_B}{m_A + m_B} = \\frac{2 \\cdot 6 + 4 \\cdot 0}{6} = \\frac{12}{6} = $ **2 m/s**.
 2. Cùng khối lượng, đàn hồi → đổi vận tốc: A dừng (**0 m/s**), B chạy (**8 m/s**).

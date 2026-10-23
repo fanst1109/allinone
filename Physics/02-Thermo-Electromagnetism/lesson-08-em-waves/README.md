@@ -57,6 +57,8 @@ $$c = \frac{1}{\sqrt{\mu_0 \cdot \varepsilon_0}} \approx 3 \times 10^8 \text{ m/
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Gắn từng phát biểu với phương trình Maxwell tương ứng: ∇·B = 0 là "không từ tích"; c sinh từ μ₀ và ε₀.
+
 1. Phương trình 2: $\nabla \cdot \vec{B} = 0$ (định luật Gauss cho từ) — đường sức từ khép kín, không có monopole.
 2. $c = \frac{1}{\sqrt{\mu_0 \varepsilon_0}}$ — từ hằng số từ $\mu_0$ và hằng số điện $\varepsilon_0$, cho ra $\approx 3 \times 10^8 \text{ m/s}$.
 
@@ -110,6 +112,8 @@ Sóng EM mang năng lượng (qua công thức Poynting) **và** động lượn
 2. Sóng EM có $f = 6 \times 10^{14} \text{ Hz}$. Tính bước sóng $\lambda$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ MỌI sóng EM trong chân không cùng tốc độ c; λ = c/f.
 
 1. **Bằng nhau** — cả hai cùng $v = c = 3 \times 10^8 \text{ m/s}$ trong chân không. Chỉ khác $\lambda$ và $f$.
 2. $\lambda = c/f = 3 \times 10^8 / 6 \times 10^{14} =$ **$5 \times 10^{-7} \text{ m} = 500 \text{ nm}$** (ánh sáng nhìn thấy, màu xanh lục).
@@ -177,6 +181,8 @@ Vì Mặt Trời phát ra ánh sáng tập trung mạnh nhất ở dải nhìn t
 2. Photon ánh sáng tím $f = 7{,}5 \times 10^{14} \text{ Hz}$ có năng lượng bao nhiêu ($h = 6{,}63 \times 10^{-34} \text{ J·s}$)?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp E = hf: tần số càng cao photon càng mạnh — xếp UV, IR theo thang tần số.
 
 1. **UV** — tần số cao hơn IR → photon mạnh hơn (đó là lý do UV gây cháy nắng, IR chỉ làm ấm).
 2. $E = h \cdot f = 6{,}63 \times 10^{-34} \cdot 7{,}5 \times 10^{14} =$ **$4{,}97 \times 10^{-19} \text{ J}$** ($\approx 3{,}1 \text{ eV}$).

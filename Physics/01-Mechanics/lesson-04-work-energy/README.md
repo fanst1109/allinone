@@ -84,6 +84,8 @@ trong đó:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp W = F·d·cosθ — chỉ thành phần lực DỌC theo chuyển động mới sinh công; vuông góc thì công bằng 0.
+
 1. $W = 40\cdot 6\cdot\cos 0^\circ = $ **240 J**.
 2. $W = 50\cdot 10\cdot\cos 60^\circ = 50\cdot 10\cdot 0{,}5 = $ **250 J** (chỉ thành phần ngang của lực sinh công).
 
@@ -152,6 +154,8 @@ Vế trái = công $W$. Vế phải = thay đổi của "đại lượng" $\frac
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ KE = ½mv² tỉ lệ BÌNH PHƯƠNG vận tốc; định lý công–động năng: W tổng = ΔKE.
+
 1. $KE = \frac{1}{2}\cdot 1200\cdot 100 = $ **60 000 J = 60 kJ**. $v$ gấp 3 $\to$ KE gấp $3^2 = $ **9 lần** ($= 540$ kJ).
 2. $W = F\cdot d = 100\cdot 4 = 400$ J $= \frac{1}{2}\cdot 5\cdot v^2 \to v^2 = 160 \to v = $ **12,6 m/s**.
 
@@ -212,6 +216,8 @@ $$PE_{đh} = \frac{1}{2} \cdot k \cdot x^2$$
 2. Lò xo $k = 400$ N/m nén 0,05 m. Thế năng đàn hồi?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Chọn đúng công thức thế năng: hấp dẫn mgh, đàn hồi ½kx².
 
 1. $\Delta PE = mgh = 3\cdot 9{,}8\cdot 2 = $ **58,8 J**.
 2. $PE_{đh} = \frac{1}{2}kx^2 = \frac{1}{2}\cdot 400\cdot 0{,}05^2 = \frac{1}{2}\cdot 400\cdot 0{,}0025 = $ **0,5 J**.
@@ -281,6 +287,8 @@ trong đó $Q = |W_{\text{ma sát}}| = f_k \times d$.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Viết phương trình bảo toàn: KE đầu + PE đầu = KE cuối + PE cuối (+ phần mất vì ma sát nếu có).
+
 1. $mgh = \frac{1}{2}mv^2 \to v = \sqrt{2gh} = \sqrt{2\cdot 9{,}8\cdot 5} = \sqrt{98} \approx$ **9,9 m/s** (độc lập $m$).
 2. Có ma sát $\to$ một phần PE thành nhiệt $\to$ KE ở đáy nhỏ hơn $\to$ tốc độ **giảm** so với trường hợp không ma sát. (Không ma sát: $KE = mgh = 4\cdot 9{,}8\cdot 2 = 78{,}4$ J; có ma sát: $KE = 78{,}4 - 30 = 48{,}4$ J $\to v$ nhỏ hơn.)
 
@@ -343,6 +351,8 @@ Một thang máy nâng vật 500 kg lên 20 m trong 10 giây. Tính công suất
 2. Xe kéo với lực 2000 N chạy đều 15 m/s. Công suất động cơ?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Phân biệt công và công suất: P = W/t hoặc P = F·v khi chạy đều; 1 HP ≈ 745,7 W.
 
 1. $P = \frac{W}{t} = \frac{6000}{3} = $ **2000 W**. Đổi: $\frac{2000}{745{,}7} \approx$ **2,68 HP**.
 2. $P = F\cdot v = 2000\cdot 15 = $ **30 000 W = 30 kW**.

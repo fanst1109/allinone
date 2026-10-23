@@ -47,6 +47,8 @@ Einstein (1905) đặt ra 2 tiền đề đơn giản nhưng cách mạng:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp tiên đề 2: tốc độ ánh sáng đo được luôn là c, bất kể nguồn hay người quan sát chuyển động.
+
 1. Đúng **$c$** ($3 \times 10^8\ \text{m/s}$) — KHÔNG phải $1{,}6c$. Tốc độ ánh sáng bất biến với mọi quan sát viên.
 2. (1) Định luật vật lý giống nhau trong mọi hệ quán tính; (2) Tốc độ ánh sáng $c$ bất biến với mọi quan sát viên.
 
@@ -107,6 +109,8 @@ trong đó $\gamma = \frac{1}{\sqrt{1 - v^2/c^2}}$ = **hệ số Lorentz**.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tính γ = 1/√(1 − v²/c²) rồi nhân: thời gian Trái Đất = γ × thời gian đồng hồ riêng (đồng hồ bay chạy chậm).
+
 1. $\gamma = \frac{1}{\sqrt{1 - 0{,}36}} = \frac{1}{\sqrt{0{,}64}} = \frac{1}{0{,}8} = 1{,}25$. Trái Đất: $8 \times 1{,}25 = 10$ năm.
 2. Người **bay nhanh** già chậm hơn (đồng hồ chuyển động chạy chậm).
 
@@ -149,6 +153,8 @@ $$L = L_0 \cdot \sqrt{1 - v^2/c^2} = \frac{L_0}{\gamma}$$
 2. Một quả cầu bay nhanh — người đứng yên thấy nó thành hình gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp co chiều dài L = L₀/γ — chỉ co theo PHƯƠNG chuyển động, phương vuông góc giữ nguyên.
 
 1. $L = L_0/\gamma = 100/1{,}667 \approx 60\ \text{m}$.
 2. Hình **dẹt** (ellipsoid) — co theo chiều chuyển động, giữ nguyên hai chiều vuông góc.
@@ -200,6 +206,8 @@ trong đó $m$ là **khối lượng nghỉ**. $E$ là năng lượng tổng (kh
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng E = mc² — khối lượng nhỏ nhân c² khổng lồ; hạt nhân đổi Δm lớn hơn hóa học hàng triệu lần.
+
 1. $E = mc^2 = 0{,}002 \times (3 \times 10^8)^2 = 0{,}002 \times 9 \times 10^{16} = 1{,}8 \times 10^{14}\ \text{J}$.
 2. Vì độ hụt khối $\Delta m$ trong phản ứng hạt nhân (~0.1% khối lượng) lớn hơn hóa học ($\sim 10^{-9}$) khoảng triệu lần. Nhân với $c^2$ khổng lồ → năng lượng lớn hơn triệu lần.
 
@@ -245,6 +253,8 @@ trong đó $m$ là **khối lượng nghỉ**. $E$ là năng lượng tổng (kh
 2. Vì sao ta không cảm nhận hiệu ứng tương đối khi đi máy bay?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Tính γ để quyết định: γ gần 1 thì Newton đủ, γ lệch xa 1 phải dùng Einstein; máy bay có v/c ~ 10⁻⁶.
 
 1. $\gamma = \frac{1}{\sqrt{1 - 0{,}9801}} = \frac{1}{\sqrt{0{,}0199}} \approx 7{,}09$ → lệch xa 1 → **bắt buộc Einstein**.
 2. $v$ máy bay ~280 m/s, $v/c \approx 10^{-6}$ → $\gamma \approx 1$ tới $\sim 10^{-12}$ → hiệu ứng nhỏ hơn mọi khả năng cảm nhận; Newton chính xác.

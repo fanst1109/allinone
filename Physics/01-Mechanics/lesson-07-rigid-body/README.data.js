@@ -51,6 +51,8 @@ Chất điểm là **xấp xỉ tốt** khi kích thước vật nhỏ so với 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Hỏi: chuyển động quay có mang năng lượng đáng kể không — có quay thì phải coi là vật rắn.
+
 1. **Vật rắn** — vì viên bi **quay** khi lăn, một phần năng lượng đi vào chuyển động quay. Coi là chất điểm sẽ tính sai gia tốc (xem yo-yo, bài lăn không trượt).
 2. Không. "Rắn" chỉ nghĩa **không biến dạng** (giữ nguyên hình dạng), không liên quan độ cứng vật liệu hay khối lượng.
 
@@ -125,6 +127,8 @@ $$\\tau = F \\cdot d$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp τ = r·F·sinθ — chỉ thành phần lực VUÔNG GÓC với cánh tay đòn mới quay được vật.
+
 1. $\\tau = r \\cdot F \\cdot \\sin 90^\\circ = 0{,}6 \\cdot 25 \\cdot 1 = $ **15 N·m**.
 2. $\\tau = 0{,}6 \\cdot 25 \\cdot \\sin 30^\\circ = 0{,}6 \\cdot 25 \\cdot 0{,}5 = $ **7.5 N·m** (giảm một nửa vì $\\sin 30^\\circ = 0{,}5$).
 
@@ -191,6 +195,8 @@ Lý do: **momen động lượng $L = I \\cdot \\omega$ được bảo toàn** (
 2. Một vòng tròn cùng m = 2 kg, r = 0.5 m. I của nó lớn hay nhỏ hơn đĩa, gấp mấy lần?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Tra bảng momen quán tính theo HÌNH DẠNG: đĩa đặc ½mr², vòng mr² — khối lượng càng xa trục I càng lớn.
 
 1. $I = \\frac{1}{2}m \\cdot r^2 = \\frac{1}{2} \\cdot 2 \\cdot 0{,}25 = $ **0.25 kg·m²**.
 2. Vòng tròn: $I = m \\cdot r^2 = 2 \\cdot 0{,}25 = $ **0.5 kg·m²** — **gấp đôi** đĩa đặc (vì khối lượng dồn ở mép).
@@ -264,6 +270,8 @@ Tịnh tiến: $m \\cdot g - \\frac{1}{2} \\cdot m \\cdot a = m \\cdot a \\to g 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng bản sao quay của định luật II: α = τ/I; vật I lớn hơn (vòng) lăn/rơi chậm hơn.
+
 1. $\\alpha = \\frac{\\tau}{I} = \\frac{10}{0{,}5} = $ **20 rad/s²**.
 2. **Nhỏ hơn** — I lớn hơn nghĩa là nhiều năng lượng/lực vào quay hơn, ít vào tịnh tiến → rơi chậm hơn. (Tính ra $a = \\frac{1}{2}g$ cho vòng tròn, nhỏ hơn $\\frac{2}{3}g$ của đĩa.)
 
@@ -323,6 +331,8 @@ Cho người thứ hai 40 kg.
 2. Một thanh chịu hai lực 10 N bằng nhau, ngược chiều, ở hai đầu (cách nhau). ΣF có bằng 0 không? Thanh có cân bằng tĩnh không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Cân bằng quay: tổng momen quanh điểm tựa bằng 0 — m₁d₁ = m₂d₂; cặp lực ngược chiều lệch trục tạo ngẫu lực.
 
 1. Cân bằng momen: $20 \\cdot 1 = 5 \\cdot d \\to d = \\frac{20}{5} = $ **4 m** (vật nhẹ ngồi xa hơn).
 2. $\\sum F = 10 - 10 = $ **0** (không tịnh tiến). Nhưng $\\sum \\tau \\neq 0$ (ngẫu lực) → thanh **quay** → KHÔNG cân bằng tĩnh.

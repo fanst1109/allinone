@@ -61,6 +61,8 @@ $$I = \\frac{\\Delta Q}{\\Delta t} \\quad (\\text{đơn vị: Ampere} = \\text{A
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp định nghĩa dòng điện I = ΔQ/Δt — đảo lại ΔQ = I·Δt.
+
 1. $I = \\frac{\\Delta Q}{\\Delta t} = 6/3 =$ **$2 \\text{ A}$**.
 2. $\\Delta Q = I \\cdot t = 2 \\cdot 10 =$ **$20 \\text{ C}$**.
 
@@ -125,6 +127,8 @@ $$P = U \\cdot I = I^2 \\cdot R = \\frac{U^2}{R} \\quad (\\text{đơn vị: Watt
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng bộ Ohm + công suất: U = IR, P = UI = I²R = U²/R — chọn dạng theo dữ kiện có sẵn.
+
 1. $U = I \\cdot R = 3 \\cdot 10 =$ **$30 \\text{ V}$**. $P = I^2R = 9 \\cdot 10 =$ **$90 \\text{ W}$** (hoặc $P = UI = 30 \\cdot 3 = 90 \\text{ W}$ ✓).
 2. $I = U/R = 220/110 =$ **$2 \\text{ A}$**. $P = U^2/R = 220^2/110 = 48400/110 =$ **$440 \\text{ W}$**.
 
@@ -179,6 +183,8 @@ $$\\frac{1}{R_{tổng}} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3} + \\l
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ 2 quy tắc ghép: nối tiếp cộng thẳng R; song song cộng nghịch đảo (kết quả NHỎ hơn R nhỏ nhất).
+
 1. Nối tiếp: $R = 6 + 3 =$ **$9 \\text{ } \\Omega$**.
 2. Song song: $R = \\frac{6 \\cdot 3}{6+3} = 18/9 =$ **$2 \\text{ } \\Omega$** (nhỏ hơn cả $3 \\text{ } \\Omega$).
 
@@ -231,6 +237,8 @@ Pin $12 \\text{ V}$, $R_1 = 4 \\text{ } \\Omega$, $R_2 = 6 \\text{ } \\Omega$ n�
 2. Pin $12 \\text{ V}$ nối $R_1 = 2 \\text{ } \\Omega$ và $R_2 = 4 \\text{ } \\Omega$ song song. Tính $I$ tổng từ pin.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp Kirchhoff: tổng dòng vào nút = tổng dòng ra; tổng độ giảm thế quanh vòng = EMF.
 
 1. Tổng vào $= 4 + 3 = 7 \\text{ A}$. Đã ra $5 \\text{ A}$ → nhánh còn lại ra $7 - 5 =$ **$2 \\text{ A}$ (đi ra)** (KCL: vào = ra).
 2. $R_{tổng} = \\frac{2 \\cdot 4}{2+4} = 8/6 = 1{,}33 \\text{ } \\Omega$. $I = 12/1{,}33 =$ **$9 \\text{ A}$** (kiểm: $I_{R1} = 6 \\text{ A}$, $I_{R2} = 3 \\text{ A}$, tổng $9 \\text{ A}$ ✓).

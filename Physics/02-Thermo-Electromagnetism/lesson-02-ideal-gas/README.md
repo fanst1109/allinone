@@ -51,6 +51,8 @@ Sau bài này bạn sẽ:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Soát từng giả định khí lý tưởng với điều kiện đề: nén cực mạnh thì kích thước phân tử hết "không đáng kể".
+
 1. Giả định "phân tử là điểm chất, kích thước không đáng kể" — khi nén mạnh, khoảng cách giảm tới cỡ kích thước phân tử nên không còn bỏ qua được.
 2. Có, rất gần — He là khí đơn nguyên, lực hút giữa phân tử cực yếu, ở điều kiện thường nó là một trong những khí gần lý tưởng nhất.
 
@@ -124,6 +126,8 @@ Gộp lại → $P \cdot V/T = $ const $= n \cdot R$ cho mọi khí lý tưởng
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp PV = nRT với đơn vị SI (Pa, m³, K) — mol chuẩn 0°C 1 atm chiếm 22,4 L.
+
 1. $V = nRT/P = 1 \cdot 8{,}314 \cdot 273{,}15/101325 \approx 0{,}0224 \text{ m}^3 = $ **22,4 L** (thể tích mol ở STP).
 2. $P = nRT/V = 3 \cdot 8{,}314 \cdot 300/0{,}01$ — cẩn thận: $3 \cdot 8{,}314 \cdot 300 = 7482{,}6$, chia $0{,}01 = $ **748 260 Pa ≈ 7,4 atm**.
 
@@ -183,6 +187,8 @@ $V$ không đổi $\to P/T = $ const $\to$ **$P_1/T_1 = P_2/T_2$**.
 2. Bình kín ở 300 K, $P = 2 \text{ atm}$, đốt lên 600 K. $P$ mới?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Cô lập đại lượng không đổi rồi dùng định luật tương ứng: T hằng → P₁V₁ = P₂V₂; V hằng → P/T hằng.
 
 1. Boyle: $P_1 V_1 = P_2 V_2 \to P_2 = 1 \cdot 4/1 = $ **4 atm** ($V$ giảm 4 lần → $P$ tăng 4 lần).
 2. Gay-Lussac: $P/T$ const $\to P_2 = 2 \cdot (600/300) = $ **4 atm** ($T$ gấp đôi → $P$ gấp đôi).
@@ -244,6 +250,8 @@ $$U = \tfrac{3}{2} \cdot n \cdot R \cdot T$$
 2. Tính KE trung bình của 1 phân tử khí ở 300 K ($k_B = 1{,}38 \times 10^{-23} \text{ J/K}$).
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ KE trung bình = (3/2)k_B·T chỉ phụ thuộc T — cùng T, phân tử nhẹ hơn phải bay nhanh hơn.
 
 1. He — vì cùng $KE = \tfrac{3}{2} k_B \cdot T$ nhưng $m$ nhỏ hơn → $v_{\text{rms}} = \sqrt{3 k_B \cdot T/m}$ lớn hơn.
 2. $KE = \tfrac{3}{2} \cdot 1{,}38 \times 10^{-23} \cdot 300 = $ **6,21 × 10⁻²¹ J** (mỗi phân tử, ở 300 K).

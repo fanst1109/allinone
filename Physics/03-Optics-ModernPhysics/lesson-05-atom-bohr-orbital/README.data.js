@@ -91,6 +91,8 @@ Ví dụ: electron nhảy từ $n=3$ xuống $n=2$ (vạch H$\\alpha$ đỏ tron
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp Eₙ = −13,6/n² eV; photon phát ra mang đúng HIỆU hai mức, rồi λ = hc/E.
+
 1. $E_3 = -\\frac{13{,}6}{3^2} = -\\frac{13{,}6}{9} = -1{,}51\\ \\text{eV}$.
 2. $\\Delta E = E_2 - E_1 = -3{,}4 - (-13{,}6) = 10{,}2\\ \\text{eV}$. $\\lambda = \\frac{1240}{10{,}2} \\approx 122\\ \\text{nm}$ (UV — vạch Lyman-$\\alpha$).
 
@@ -135,6 +137,8 @@ Dãy Balmer đặc biệt quan trọng — nó cho ánh sáng nhìn thấy, là 
 2. Cú rơi n=5→3 thuộc dãy nào, vùng phổ nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Phân dãy theo mức ĐÁP XUỐNG: về n=1 là Lyman (UV), n=2 là Balmer (nhìn thấy), n=3 là Paschen (IR).
 
 1. Rơi về n=2 → dãy **Balmer** → vùng **nhìn thấy** (Hα đỏ, 656 nm).
 2. Rơi về n=3 → dãy **Paschen** → vùng **hồng ngoại**.
@@ -192,6 +196,8 @@ $$\\Delta x \\cdot \\Delta p \\geq \\frac{\\hbar}{2}$$
 2. Orbital s có hình dạng gì?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Tách 2 phần di sản Bohr: mức năng lượng rời rạc (giữ) với quỹ đạo tròn cụ thể (bỏ — thay bằng orbital xác suất).
 
 1. ĐÚNG: mức năng lượng rời rạc, $E_n = -\\frac{13{,}6}{n^2}$ cho H. SAI: hình ảnh electron chạy trên quỹ đạo tròn cố định (thực tế là đám mây xác suất).
 2. Hình **cầu** (đối xứng quanh hạt nhân).

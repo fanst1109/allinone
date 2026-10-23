@@ -66,6 +66,8 @@ $$KE_{\text{trung bình}} \propto k_B \cdot T \quad (k_B = \text{hằng số Bol
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách 2 khái niệm: T đo mức nóng (trung bình mỗi phân tử), năng lượng nhiệt là TỔNG — phụ thuộc cả khối lượng.
+
 1. T cao hơn: cốc 1 g ($90^\circ\text{C}$). Năng lượng nhiệt nhiều hơn: cốc 1 kg — vì $Q \propto m \cdot T$, mà m gấp 1000 lần bù thừa cho T chỉ thấp hơn $\approx 1{,}8$ lần.
 2. Không. Nhiệt độ là cường độ, không cộng dồn. Trộn 2 cốc cùng $40^\circ\text{C}$ → vẫn $40^\circ\text{C}$ (chỉ tổng Q tăng gấp đôi).
 
@@ -127,6 +129,8 @@ K &= {}^\circ\text{C} + 273{,}15 \\
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ bộ đổi: K = °C + 273,15; °F = (9/5)°C + 32; riêng ΔT thì °C và K bằng nhau.
+
 1. $K = 37 + 273{,}15 = $ **310,15 K**. ${}^\circ\text{F} = \tfrac{9}{5} \cdot 37 + 32 = 66{,}6 + 32 = $ **98,6°F**.
 2. $\Delta T = 50 - 20 = 30^\circ\text{C} = $ **30 K** (chênh lệch bằng nhau ở 2 thang).
 
@@ -187,6 +191,8 @@ trong đó:
 2. Bơm xe đạp nén nhanh (gần như không kịp thoát nhiệt, $Q \approx 0$), bạn làm công 50 J vào khí. Nội năng và nhiệt độ khí thay đổi thế nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp quy ước dấu định luật I: ΔU = Q + W, nhận nhiệt Q > 0, bị nén W > 0 (cả hai nạp vào hệ).
 
 1. $\Delta U = Q + W = 800 + 300 = $ **1100 J** (cả hai đều nạp năng lượng vào hệ).
 2. $Q \approx 0$, $W = +50 \text{ J} \to \Delta U = +50 \text{ J} \to$ nội năng tăng $\to T$ tăng (ống bơm nóng lên). Đây là nén đoạn nhiệt.
@@ -273,6 +279,8 @@ trong đó:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng Q = mcΔT; cùng Q thì vật có c NHỎ nóng lên nhiều hơn.
+
 1. $Q = m \cdot c \cdot \Delta T = 0{,}5 \cdot 4186 \cdot (100 - 20) = 0{,}5 \cdot 4186 \cdot 80 = $ **167 440 J ≈ 167 kJ**.
 2. Sắt nóng nhanh hơn $\approx 9{,}3$ lần ($c$ sắt nhỏ hơn $\approx 9{,}3$ lần) → cùng $Q$, sắt có $\Delta T$ lớn hơn. Vd $Q = 4490 \text{ J}$: sắt tăng 10 K, nước chỉ tăng $\approx 1{,}07 \text{ K}$.
 
@@ -329,6 +337,8 @@ trong đó $L$ = **nhiệt ẩn (latent heat)**:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Chuyển pha dùng Q = mL (không có ΔT) — trong lúc chuyển pha nhiệt độ ĐỨNG YÊN.
+
 1. $Q = m \cdot L_f = 2 \cdot 334\,000 = $ **668 000 J = 668 kJ** ($T$ không đổi, vẫn 0°C).
 2. Không, chừng nào còn nước lỏng. Nhiệt cấp thêm dùng để hóa hơi ($m \cdot L_v$), $T$ giữ 100°C cho đến khi hết nước.
 
@@ -380,6 +390,8 @@ Ví dụ: Mặt Trời sưởi ấm Trái Đất qua 150 triệu km chân không
 2. Ngồi gần đống lửa thấy ấm mặt dù không khí giữa lửa và mặt vẫn mát — cơ chế nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhận diện 3 cơ chế: đối lưu cần dòng chất lưu chuyển động, bức xạ truyền qua chân không/không khí không cần tiếp xúc.
 
 1. Đối lưu — khí nóng nhẹ hơn nên bay lên, mang theo nhiệt và khói.
 2. Bức xạ — hồng ngoại từ lửa truyền thẳng tới mặt qua không khí mà không làm nóng nhiều không khí trung gian.

@@ -52,6 +52,8 @@ Khi ánh sáng gặp bề mặt phản xạ (gương phẳng), tia tới và tia
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy mọi góc về PHÁP TUYẾN trước (góc với mặt gương phải đổi: 90° − góc mặt); phản xạ khuếch tán giải thích vì sao thấy vật.
+
 1. Góc tới so pháp tuyến = $90^\\circ - 25^\\circ = 65^\\circ$. Theo định luật phản xạ, góc phản xạ = $65^\\circ$.
 2. Mắt chỉ "thấy" vật khi có ánh sáng từ vật (phản xạ hoặc tự phát) tới mắt. Phòng tối không có nguồn sáng → không có tia nào để vật phản xạ → mắt không nhận tín hiệu → không thấy gì.
 
@@ -125,6 +127,8 @@ Vì tốc độ ánh sáng khác nhau trong các môi trường. Khi sóng EM g�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp Snell n₁·sinθ₁ = n₂·sinθ₂: sang môi trường loãng hơn thì tia bẻ XA pháp tuyến; trong môi trường n, bước sóng co lại λ/n.
+
 1. Đi ra môi trường LOÃNG hơn (n giảm) → bẻ XA pháp tuyến → góc khúc xạ **lớn hơn** $20^\\circ$. Cụ thể: $1{,}5 \\cdot \\sin 20^\\circ = 1 \\cdot \\sin\\theta_2 \\to \\sin\\theta_2 = 1{,}5 \\cdot 0{,}342 = 0{,}513 \\to \\theta_2 \\approx 30{,}9^\\circ$.
 2. $\\lambda$ trong môi trường = $\\lambda_{\\text{chân không}} / n = 700/1{,}5 \\approx 467 \\text{ nm}$. (Tần số không đổi, chỉ bước sóng co lại theo n.)
 
@@ -174,6 +178,8 @@ Cáp quang = sợi thủy tinh mỏng. Ánh sáng đi vào 1 đầu, do **phản
 2. Một thợ lặn dưới nước ($n = 1{,}33$) chiếu đèn lên với góc $50^\\circ$ so pháp tuyến. Ánh sáng có thoát ra không khí được không? ($\\theta_c$ của nước $\\approx 48{,}6^\\circ$.)
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng sinθ_c = n₂/n₁ (chỉ tồn tại khi đi từ đặc sang loãng); so góc tới với θ_c để biết có phản xạ toàn phần không.
 
 1. $\\sin\\theta_c = 1/2{,}42 = 0{,}413 \\to \\theta_c \\approx 24{,}4^\\circ$. Góc tới hạn rất nhỏ → kim cương dễ "giữ" ánh sáng bên trong, tạo độ lấp lánh.
 2. $50^\\circ > 48{,}6^\\circ = \\theta_c$ → vượt góc tới hạn → **phản xạ toàn phần** → ánh sáng KHÔNG thoát ra, bị hắt ngược xuống nước.

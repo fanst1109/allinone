@@ -63,6 +63,8 @@ Tại điểm P bất kỳ, hiệu đường đi từ 2 khe đến P $= \Delta l
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Chia hiệu quang lộ cho λ: ra số nguyên là vân sáng (cùng pha), ra nửa lẻ là vân tối (ngược pha).
+
 1. $\Delta l/\lambda = 1500/600 = 2{,}5 = (2 + \frac{1}{2})$ → nửa lẻ → ngược pha → vân **TỐI**.
 2. $1800/600 = 3$ → nguyên lần → cùng pha → vân **SÁNG**.
 
@@ -121,6 +123,8 @@ Nếu d quá lớn → $\Delta y$ quá nhỏ → vân quá sát nhau, không ph�
 2. Đo được 6 vân sáng liên tiếp trải dài 10 mm. Mỗi $\Delta y$ bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp Δy = λL/d; đo nhiều vân liên tiếp thì số KHOẢNG = số vân − 1.
 
 1. $\Delta y = (4 \times 10^{-7} \times 1{,}5)/(1 \times 10^{-4}) = 6 \times 10^{-7}/10^{-4} = 6 \times 10^{-3} \text{ m} = 6 \text{ mm}$.
 2. 6 vân = **5 khoảng** → $\Delta y = 10 \text{ mm} / 5 = 2 \text{ mm}$.
@@ -181,6 +185,8 @@ $$\sin\theta = \frac{\lambda}{a}$$
 2. Vì sao radio ($\lambda \sim$ vài trăm m) thu được tín hiệu dù có núi/nhà che, còn ánh sáng thì không "vòng" qua được?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng sinθ = λ/a cho vân tối đầu; nhiễu xạ mạnh khi λ cỡ vật cản — radio λ hàng trăm mét vòng qua nhà dễ dàng.
 
 1. $\sin\theta = \frac{\lambda}{a} = (500 \times 10^{-9})/(1 \times 10^{-6}) = 0{,}5 \to \theta = 30^\circ$. Khe cỡ $2\lambda$ → tỏa khá rộng.
 2. $\lambda$ sóng radio cỡ hàng chục–trăm mét, tương đương hoặc lớn hơn kích thước núi/nhà → nhiễu xạ vòng qua dễ. $\lambda$ ánh sáng ($\sim 500 \text{ nm}$) bé hơn vật cản hàng triệu lần → không nhiễu xạ đáng kể → đi thẳng, bị chặn.

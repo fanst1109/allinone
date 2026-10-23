@@ -74,6 +74,8 @@ $$v = \\omega \\cdot r$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ bộ liên hệ quay: ω = 2π/T, f = 1/T, v = ωr.
+
 1. $\\omega = \\frac{2\\pi}{T} = \\frac{2\\pi}{0{,}5} = $ **$4\\pi \\approx 12{,}57$ rad/s**. $f = \\frac{1}{T} = \\frac{1}{0{,}5} = $ **2 Hz**.
 2. $v = \\omega \\cdot r = 10 \\cdot 0{,}2 = $ **2 m/s**.
 
@@ -132,6 +134,8 @@ $\\to \\Delta v = v \\cdot \\frac{v \\cdot \\Delta t}{r} \\to a = \\frac{\\Delta
 2. Nếu xe đó tăng tốc lên 24 m/s (gấp đôi) trên cùng cua, a_c thay đổi thế nào?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp a_c = v²/r — tỉ lệ BÌNH PHƯƠNG v: v gấp đôi thì a_c gấp 4.
 
 1. $a_c = \\frac{v^2}{r} = \\frac{12^2}{40} = \\frac{144}{40} = $ **3.6 m/s²** (hướng vào tâm cua).
 2. v gấp đôi → $a_c$ gấp **4 lần** $= \\frac{24^2}{40} = \\frac{576}{40} = $ **14.4 m/s²**.
@@ -195,6 +199,8 @@ $$\\frac{G \\cdot M_T \\cdot m}{r^2} = \\frac{m \\cdot v^2}{r}$$
 2. Ô tô 1000 kg vào cua r = 50 m với v = 10 m/s. Lực ma sát cần để giữ xe trên cua?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Lực hướng tâm không phải lực mới — nó là lực thật (căng dây, ma sát) đóng vai F_c = mv²/r.
 
 1. $F_c = \\frac{m \\cdot v^2}{r} = \\frac{0{,}5 \\cdot 16}{1} = $ **8 N**.
 2. $F_c = \\frac{m \\cdot v^2}{r} = \\frac{1000 \\cdot 100}{50} = $ **2000 N** (ma sát phải cung cấp ít nhất 2000 N, nếu không xe trượt ra).
@@ -270,6 +276,8 @@ Cho hành tinh m quay tròn (xấp xỉ ellipse) quanh Mặt Trời M:
 2. Hai hành tinh quay quanh cùng một sao. Hành tinh xa gấp 4 lần có chu kỳ gấp mấy lần?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng Kepler III với đơn vị năm/AU: T = r^(3/2); so chu kỳ 2 hành tinh bằng tỉ số r³.
 
 1. $T = r^{3/2} = 1{,}52^{1{,}5} \\approx$ **1.87 năm** (khớp giá trị thật 1.88).
 2. $T^2 \\propto r^3 \\to r$ gấp 4 $\\to T^2$ gấp $4^3 = 64 \\to T$ gấp $\\sqrt{64} = $ **8 lần**.

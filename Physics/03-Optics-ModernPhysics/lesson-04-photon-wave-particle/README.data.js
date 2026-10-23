@@ -43,6 +43,8 @@ Trước 1900, lý thuyết sóng cổ điển dự đoán: vật đen ở nhi�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ hằng số nền tảng: h = 6,626×10⁻³⁴ J·s và ý tưởng Planck — năng lượng phát xạ theo GÓI rời rạc E = hf.
+
 1. $h = 6{,}626 \\times 10^{-34} \\text{ J·s}$.
 2. **Rời rạc** — chỉ là bội nguyên của $hf$ ($E = nhf$).
 
@@ -104,6 +106,8 @@ Einstein đoạt **Nobel 1921** cho phát hiện này (không phải tương đ�
 2. Kim loại có công thoát $\\Phi = 2 \\text{ eV}$. Photon $\\lambda = 400 \\text{ nm}$ ($E \\approx 3{,}1 \\text{ eV}$) có bứt được electron không? Nếu có, động năng cực đại bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp E = hf rồi đổi eV (chia 1,6×10⁻¹⁹); quang điện: so năng lượng photon với công thoát Φ, phần dư thành KE electron.
 
 1. $E = hf = (6{,}63 \\times 10^{-34})(3 \\times 10^{18}) = 1{,}99 \\times 10^{-15} \\text{ J}$. Đổi eV: $1{,}99 \\times 10^{-15} / 1{,}6 \\times 10^{-19} \\approx 12\\,400 \\text{ eV} \\approx 12{,}4 \\text{ keV}$.
 2. $E = 3{,}1 \\text{ eV} > \\Phi = 2 \\text{ eV}$ → CÓ bứt. $KE_{\\max} = hf - \\Phi = 3{,}1 - 2 = 1{,}1 \\text{ eV}$.
@@ -181,6 +185,8 @@ Mọi thứ trong vũ trụ vừa là sóng vừa là hạt. Tùy thí nghiệm 
 2. Vì sao máy "kính hiển vi điện tử" nhìn được vật nhỏ hơn kính hiển vi quang học?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng λ = h/(mv) — de Broglie; λ electron nhỏ hơn ánh sáng hàng nghìn lần nên soi được chi tiết nhỏ hơn.
 
 1. $\\lambda = (6{,}63 \\times 10^{-34})/(1{,}67 \\times 10^{-27} \\times 2000) = 6{,}63 \\times 10^{-34}/3{,}34 \\times 10^{-24} \\approx 2{,}0 \\times 10^{-10} \\text{ m} = 0{,}2 \\text{ nm}$. Cỡ khoảng cách nguyên tử → neutron dùng để nhiễu xạ tinh thể.
 2. Độ phân giải giới hạn bởi bước sóng. Electron tăng tốc có $\\lambda$ de Broglie nhỏ hơn ánh sáng nhìn thấy ($\\sim 500 \\text{ nm}$) hàng nghìn lần → "nhìn" được chi tiết nhỏ hơn nhiều.

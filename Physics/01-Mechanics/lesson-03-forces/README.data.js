@@ -104,6 +104,8 @@ F_g &= \\frac{G \\cdot M_T \\cdot m}{R_T^2} \\\\
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách m và W: khối lượng không đổi theo nơi chốn, trọng lượng W = mg đổi theo g; lực hấp dẫn tỉ lệ 1/r².
+
 1. Khối lượng $m = \\frac{W}{g} = \\frac{100}{9{,}8} \\approx 10{,}2$ kg (không đổi). Trọng lượng Mặt Trăng $= m\\cdot g_{\\text{Moon}} = 10{,}2\\cdot 1{,}62 \\approx$ **16,5 N** (≈ 1/6).
 2. $F \\propto \\frac{1}{r^2}$. $r$ gấp đôi $\\to F$ giảm còn **1/4** (vì $2^2 = 4$).
 
@@ -159,6 +161,8 @@ N **KHÔNG** phải hằng số — nó **tự điều chỉnh** để giữ v�
 2. Người 70 kg trong thang máy gia tốc lên $a = 3\\ \\text{m/s}^2$. Phản lực sàn N bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ N không phải lúc nào cũng bằng mg: mặt nghiêng cho N = mg·cosθ, thang máy gia tốc cho N = m(g + a).
 
 1. $N = m\\cdot g\\cdot\\cos\\theta = 10\\cdot 9{,}8\\cdot\\cos 60^\\circ = 10\\cdot 9{,}8\\cdot 0{,}5 = $ **49 N** (nhỏ hơn trọng lượng 98 N).
 2. $N = m(g+a) = 70\\cdot(9{,}8+3) = 70\\cdot 12{,}8 = $ **896 N** (lớn hơn trọng lượng 686 N).
@@ -251,6 +255,8 @@ $$f_k = \\mu_k \\cdot N$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân biệt ma sát tĩnh (tự điều chỉnh bằng lực đẩy, có trần μₛN) với ma sát động (cố định μₖN).
+
 1. Hộp chưa trượt $\\to f_s = $ lực đẩy $= $ **20 N** (cân bằng). $f_{s,\\max} = \\mu_s\\cdot N = 0{,}6\\cdot 5\\cdot 9{,}8 = $ **29,4 N** $\\to$ cần đẩy hơn 29,4 N để trượt.
 2. $f_k = \\mu_k\\cdot N = 0{,}4\\cdot 5\\cdot 9{,}8 = $ **19,6 N** (nhỏ hơn $f_{s,\\max}$).
 
@@ -309,6 +315,8 @@ trong đó:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp định luật Hooke F = kx — nhớ đổi cm ra m trước; treo cân bằng thì kx = mg.
+
 1. $x = 8$ cm $= 0{,}08$ m. $F = k\\cdot x = 150\\cdot 0{,}08 = $ **12 N**.
 2. Cân bằng: $k\\cdot x = m\\cdot g \\to k = \\frac{m\\cdot g}{x} = \\frac{1\\cdot 9{,}8}{0{,}04} = $ **245 N/m**.
 
@@ -361,6 +369,8 @@ Hai vật $m_1 = 3$ kg, $m_2 = 5$ kg treo qua một ròng rọc, nối bằng d�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Vật đứng yên thì lực căng cân với trọng lượng; hệ Atwood lấy (m₂ − m₁)g chia tổng khối lượng.
+
 1. Đứng yên $\\to T = $ trọng lượng $= m\\cdot g = 5\\cdot 9{,}8 = $ **49 N**.
 2. $a = \\frac{(m_2-m_1)\\cdot g}{m_1+m_2} = \\frac{(8-2)\\cdot 9{,}8}{2+8} = \\frac{6\\cdot 9{,}8}{10} = $ **5,88 m/s²**.
 
@@ -411,6 +421,8 @@ Nếu không có ma sát ($\\mu = 0$): $a = g\\cdot\\sin\\theta = 4{,}9\\ \\text
 2. Vật 4 kg trên dốc 30°, $\\mu_k = 0{,}1$, đang trượt xuống. Tính gia tốc. ($g=9{,}8$)
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: So tanθ với μₛ để biết vật tự trượt không; khi trượt, hợp lực dọc dốc = mg·sinθ − μₖ·mg·cosθ.
 
 1. $\\tan\\theta = 0{,}75 > \\mu_s = 0{,}5 \\to mg\\cdot\\sin\\theta > \\mu_s\\cdot mg\\cdot\\cos\\theta \\to$ **vật tự trượt**.
 2. $mg\\cdot\\sin\\theta = 4\\cdot 9{,}8\\cdot 0{,}5 = 19{,}6$ N; $N = 4\\cdot 9{,}8\\cdot\\cos 30^\\circ = 33{,}95$ N; $f_k = 0{,}1\\cdot 33{,}95 = 3{,}4$ N. $a = \\frac{19{,}6-3{,}4}{4} = $ **4,05 m/s²**.

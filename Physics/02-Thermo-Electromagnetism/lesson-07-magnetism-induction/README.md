@@ -69,6 +69,8 @@ Hướng: theo **quy tắc bàn tay phải** (cho điện tích dương, bàn ta
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp F = qvB·sinθ — v song song B cho sinθ = 0; vuông góc cho F = qvB làm hạt quay tròn.
+
 1. **0** — $\vec{v}$ song song $\vec{B}$ → $\theta = 0$ → $\sin(0) = 0$ → $F = 0$.
 2. $F = qvB \cdot \sin(90^\circ) = 1{,}6 \times 10^{-19} \cdot 2 \times 10^6 \cdot 0{,}5 \cdot 1 =$ **$1{,}6 \times 10^{-13} \text{ N}$**.
 
@@ -128,6 +130,8 @@ $$B = \mu_0 \cdot n \cdot I$$
 2. Solenoid 500 vòng/m, dòng $4 \text{ A}$. Tính $B$ trong lòng ($\mu_0 = 4\pi \times 10^{-7}$).
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ: không có từ đơn cực (cắt mãi vẫn đủ N–S); solenoid B = μ₀·n·I với n là số vòng trên mét.
 
 1. Mỗi nửa có **đủ 2 cực N và S** — không tách được cực đơn (không có monopole).
 2. $B = \mu_0 nI = 4\pi \times 10^{-7} \cdot 500 \cdot 4 = 4\pi \times 10^{-7} \cdot 2000 \approx$ **$2{,}51 \times 10^{-3} \text{ T}$**.
@@ -195,6 +199,8 @@ Cuộn dây $N$ vòng, diện tích $A$, quay với vận tốc góc $\omega$ tr
 2. Cuộn 200 vòng, $A = 0{,}01 \text{ m}^2$, $B = 0{,}2 \text{ T}$, quay với $\omega = 50 \text{ rad/s}$. Tính $\varepsilon_{max}$.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp Faraday: cần Φ BIẾN THIÊN mới có cảm ứng; cuộn quay cho EMF cực đại = NBAω.
 
 1. **Không** — $\Phi$ không đổi ($\frac{d\Phi}{dt} = 0$) → $\varepsilon = 0$. Phải có chuyển động/biến thiên mới sinh dòng.
 2. $\varepsilon_{max} = B \cdot A \cdot \omega \cdot N = 0{,}2 \cdot 0{,}01 \cdot 50 \cdot 200 =$ **$20 \text{ V}$**.

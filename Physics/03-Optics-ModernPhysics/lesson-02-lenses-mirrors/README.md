@@ -88,6 +88,8 @@ $$m = \frac{h_i}{h_o} = -\frac{d_i}{d_o}$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp công thức thấu kính 1/f = 1/d_o + 1/d_i với quy ước dấu: f âm cho phân kỳ, d_i âm là ảnh ảo; m = −d_i/d_o.
+
 1. $\frac{1}{d_i} = \frac{1}{12} - \frac{1}{24} = \frac{2}{24} - \frac{1}{24} = \frac{1}{24} \to d_i = 24 \text{ cm}$ ($>0$ → **ảnh thật**). $m = -24/24 = -1$ → ảnh ngược chiều, cùng kích thước. (Vật ở đúng 2f → ảnh ở 2f, bằng vật, lộn ngược.)
 2. $\frac{1}{d_i} = \frac{1}{-15} - \frac{1}{30} = -\frac{2}{30} - \frac{1}{30} = -\frac{3}{30} = -\frac{1}{10} \to d_i = -10 \text{ cm}$. **Âm** → ảnh ảo (thấu kính phân kỳ luôn cho ảnh ảo với vật thật).
 
@@ -136,6 +138,8 @@ Phương trình tương tự thấu kính: **$\frac{1}{f} = \frac{1}{d_o} + \fra
 2. Gương chiếu hậu xe là loại gương cầu gì, và vì sao?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ f = R/2 cho gương cầu; gương lồi cho ảnh ảo nhỏ nhưng góc nhìn rộng.
 
 1. $f = R/2 = 30/2 = 15 \text{ cm}$ (dương vì gương lõm hội tụ).
 2. Gương **cầu lồi** ($f < 0$). Lý do: cho ảnh ảo thu nhỏ → trường nhìn rộng hơn, tài xế quan sát được nhiều làn đường phía sau.
@@ -198,6 +202,8 @@ Tương tự kính hiển vi nhưng cho vật rất xa.
 2. Kính viễn vọng có $f_{\text{vật}} = 80 \text{ cm}$, $f_{\text{thị}} = 4 \text{ cm}$. Độ phóng đại?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Chẩn đoán tật theo khoảng nhìn mờ: gần mờ là viễn thị (kính hội tụ), xa mờ là cận thị (kính phân kỳ); kính viễn vọng phóng đại f_vật/f_thị.
 
 1. Nhìn gần mờ = **viễn thị (hyperopia)** → đeo kính **hội tụ** ($f > 0$).
 2. $M = f_{\text{vật}}/f_{\text{thị}} = 80/4 = 20\times$.

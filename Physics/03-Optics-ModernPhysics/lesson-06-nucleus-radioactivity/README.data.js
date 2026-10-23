@@ -66,6 +66,8 @@ Phần "hụt khối" này biến thành **năng lượng liên kết** theo Ein
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Đọc ký hiệu hạt nhân: Z là số proton (dưới), A là số khối (trên), N = A − Z; năng lượng liên kết E = Δm·c² (1 u ↔ 931,5 MeV).
+
 1. $Z = 6$ → 6 proton; $A = 14$ → $N = 14 - 6 = 8$ neutron.
 2. $E_\\text{lk} = 0{,}05 \\times 931{,}5 = 46{,}6\\ \\text{MeV}$.
 
@@ -139,6 +141,8 @@ Phát ra khi hạt nhân từ trạng thái kích thích về trạng thái cơ 
 2. Để che chắn nguồn γ mạnh, dùng tờ giấy, tấm nhôm hay khối chì? Vì sao?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp luật dịch chuyển: phát α thì A giảm 4, Z giảm 2; xếp sức xuyên α < β < γ để chọn vật chắn.
 
 1. α làm $A$ giảm 4 ($226 \\to 222$), $Z$ giảm 2 ($88 \\to 86$ = Rn). Sản phẩm: **$^{222}_{86}\\text{Rn}$** (radon). Phản ứng: $^{226}_{88}\\text{Ra} \\to {}^{222}_{86}\\text{Rn} + {}^{4}_{2}\\text{He}$.
 2. Khối **chì** dày (hoặc bê tông). γ xuyên qua giấy và nhôm dễ dàng; chỉ vật liệu đặc, nguyên tử số cao như chì mới hấp thụ đáng kể.
@@ -215,6 +219,8 @@ Một mẫu xương có lượng C-14 còn lại 25% so với cây sống.
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Đếm số chu kỳ bán rã n = thời gian/t½, còn lại (1/2)ⁿ; biết phần còn lại thì đảo ngược ra n rồi nhân t½.
+
 1. 24 ngày / 8 = 3 chu kỳ → còn $\\left(\\frac{1}{2}\\right)^3 = \\frac{1}{8}$ → $80 \\times \\frac{1}{8} = 10\\ \\text{mg}$.
 2. $6{,}25\\% = \\left(\\frac{1}{2}\\right)^4$ → 4 chu kỳ → $t = 4 \\times 5730 = 22\\,920$ năm.
 
@@ -264,6 +270,8 @@ Phóng xạ cao → đột biến DNA → ung thư, sảy thai. Liều an toàn 
 2. Liều an toàn hằng năm cho người là bao nhiêu, và 1 lần chụp X-quang chiếm bao nhiêu phần trăm?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Chọn đồng hồ phóng xạ có t½ CÙNG CỠ với tuổi mẫu: tỷ năm dùng U-Pb, nghìn-vạn năm dùng C-14.
 
 1. Dùng **U-Pb** (t½ hàng tỷ năm). C-14 (t½ 5730 năm) đã phân rã hết từ lâu ở thang tỷ năm → không đo được.
 2. < 1 mSv/năm (giới hạn nhân tạo); 1 lần X-quang ≈ 0.1 mSv → khoảng 10% giới hạn đó.

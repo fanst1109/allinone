@@ -88,6 +88,8 @@ Năng lượng dao động giữa KE và PE, nhưng **tổng không đổi**:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ bộ liên hệ dao động: T = 2π/ω, f = 1/T; vận tốc cực đại ở CÂN BẰNG, gia tốc cực đại ở BIÊN.
+
 1. $T = \frac{2\pi}{\omega} = \frac{2\pi}{5} \approx$ **1.26 s**. $f = \frac{1}{T} = \frac{\omega}{2\pi} = \frac{5}{2\pi} \approx$ **0.80 Hz**.
 2. Vận tốc lớn nhất ở **vị trí cân bằng** ($x = 0$); gia tốc lớn nhất ở **biên** ($x = \pm A$, vì $a = -\omega^2 x$).
 
@@ -137,6 +139,8 @@ $$m \cdot \omega^2 = k \to \omega = \sqrt{\frac{k}{m}} \to T = 2\pi \cdot \sqrt{
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp T = 2π·√(m/k) — chu kỳ tỉ lệ √m: m gấp 4 thì T gấp 2.
+
 1. $T = 2\pi\sqrt{\frac{m}{k}} = 2\pi\sqrt{\frac{1}{100}} = 2\pi \cdot 0{,}1 = $ **0.628 s**.
 2. m gấp 4 → T gấp $\sqrt{4} = $ **2 lần** = 1.257 s.
 
@@ -184,6 +188,8 @@ $$T = 2\pi \cdot \sqrt{\frac{L}{g}}$$
 2. Cùng con lắc đó nhưng treo vật nặng gấp đôi. Chu kỳ thay đổi không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp T = 2π·√(L/g) — chu kỳ con lắc đơn KHÔNG phụ thuộc khối lượng vật treo.
 
 1. $T = 2\pi\sqrt{\frac{L}{g}} = 2\pi\sqrt{\frac{2}{9{,}8}} = 2\pi\sqrt{0{,}204} = 2\pi \cdot 0{,}452 \approx$ **2.84 s**.
 2. **Không đổi** — T không phụ thuộc khối lượng, chỉ phụ thuộc L và g.
@@ -257,6 +263,8 @@ $$v = \lambda \cdot f$$
 2. Sóng âm 256 Hz truyền trong không khí (v = 343 m/s). Bước sóng bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng v = λf — một công thức cho cả hai câu, giải ra đại lượng còn thiếu.
 
 1. $v = \lambda \cdot f = 0{,}5 \cdot 680 = $ **340 m/s** (xấp xỉ tốc độ âm thanh — đây là sóng âm).
 2. $\lambda = \frac{v}{f} = \frac{343}{256} \approx$ **1.34 m**.

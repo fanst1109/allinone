@@ -99,6 +99,9 @@ Ví dụ số:
 <details>
 <summary>Một PIN gồm 4 chữ số (0–9), cho phép lặp. Có bao nhiêu PIN? Nếu KHÔNG cho lặp thì sao?</summary>
 
+**Hướng dẫn**: Mỗi chữ số là một bước chọn liên tiếp → quy tắc nhân. Cho lặp: số lựa chọn giữ nguyên 10 ở mỗi bước; không lặp: giảm dần mỗi bước một.
+
+
 - Cho lặp: mỗi vị trí 10 lựa chọn → $10^4 = 10{,}000$ (đúng, từ 0000 tới 9999).
 - Không lặp: $10 \\cdot 9 \\cdot 8 \\cdot 7 = 5040$ — đây là $P(10,4)$ (hoán vị, mục 3).
 </details>
@@ -152,6 +155,9 @@ Diễn giải quy tắc nhân: chỗ 1 có 5 cách, chỗ 2 còn 4, chỗ 3 còn
 
 <details>
 <summary>Có 8 cuốn sách, xếp 3 cuốn lên kệ theo thứ tự trái→phải. Bao nhiêu cách?</summary>
+
+**Hướng dẫn**: Thứ tự trái→phải làm kết quả khác nhau → hoán vị $P(8,3)$ = tích 3 thừa số giảm dần bắt đầu từ 8.
+
 
 Thứ tự quan trọng (vị trí trên kệ khác nhau) → hoán vị:
 $P(8,3) = 8 \\cdot 7 \\cdot 6 = 336$ cách. Kiểm tra $\\frac{8!}{5!} = \\frac{40320}{120} = 336$ ✓.
@@ -208,6 +214,9 @@ $$\\{1,2\\},\\{1,3\\},\\{1,4\\},\\{1,5\\},\\{2,3\\},\\{2,4\\},\\{2,5\\},\\{3,4\\
 
 <details>
 <summary>Lớp 30 học sinh, chọn 1 ban cán sự gồm 3 bạn (vai trò như nhau). Bao nhiêu cách? Nếu cần lớp trưởng + lớp phó + thủ quỹ (3 vai khác nhau) thì sao?</summary>
+
+**Hướng dẫn**: Hỏi 'đổi chỗ 3 bạn có ra kết quả khác không?'. Vai như nhau → tổ hợp $C(30,3)$; vai khác nhau → hoán vị $P(30,3)$; hai đáp số lệch nhau đúng $3!$ lần.
+
 
 - Vai như nhau (không thứ tự) → tổ hợp: $C(30,3) = \\frac{30 \\cdot 29 \\cdot 28}{6} = \\frac{24360}{6} = 4060$.
 - Vai khác nhau (có thứ tự) → hoán vị: $P(30,3) = 30 \\cdot 29 \\cdot 28 = 24360$ — đúng gấp $3! = 6$ lần.
@@ -283,6 +292,9 @@ $$\\sum_{k=0}^{n} C(n,k) = 2^n.$$
 
 <details>
 <summary>Không tra bảng, tính hàng n=7 của tam giác Pascal.</summary>
+
+**Hướng dẫn**: Dùng hệ thức Pascal: mỗi ô hàng mới = tổng 2 ô kề nhau của hàng trên; kiểm tra lại bằng tổng cả hàng phải bằng $2^n$.
+
 
 Từ hàng $n=6$ = \`[1,6,15,20,15,6,1]\`, cộng từng cặp kề:
 $1, (1{+}6){=}7, (6{+}15){=}21, (15{+}20){=}35, (20{+}15){=}35, (15{+}6){=}21, (6{+}1){=}7, 1$
@@ -362,6 +374,9 @@ Lấy bất kỳ 13 số nguyên, chia cho 12 → có ≥ 2 số cùng số dư 
 <details>
 <summary>Một lớp 30 học sinh sinh trong cùng một năm. Có chắc chắn 2 bạn sinh cùng tháng không?</summary>
 
+**Hướng dẫn**: Pigeonhole: vật = học sinh, hộp = 12 tháng. So $m$ với $n$, rồi áp cận $\\lceil m/n \\rceil$ cho hộp đông nhất.
+
+
 Có. 30 học sinh (vật) vào 12 tháng (hộp), $30 > 12$ → pigeonhole đảm bảo ít nhất một tháng có ≥ $\\lceil 30/12 \\rceil = 3$ bạn. Vậy chắc chắn (thậm chí ≥ 3 bạn) trùng tháng.
 </details>
 
@@ -406,6 +421,9 @@ $$|A\\cup B\\cup C| = 50 + 33 + 20 - 16 - 10 - 6 + 3 = 74.$$
 
 <details>
 <summary>40 học sinh: 25 học Toán, 20 học Lý, 10 học cả hai. Bao nhiêu em học ít nhất một môn? Bao nhiêu em không học môn nào?</summary>
+
+**Hướng dẫn**: Bao hàm–loại trừ 2 tập: $|T \\cup L| = |T| + |L| - |T \\cap L|$; số em 'không học môn nào' = tổng sĩ số trừ phần hợp.
+
 
 $|T \\cup L| = 25 + 20 - 10 = 35$ em học ít nhất một môn. Không học môn nào: $40 - 35 = 5$ em.
 </details>

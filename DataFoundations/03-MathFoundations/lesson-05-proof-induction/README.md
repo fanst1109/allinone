@@ -134,6 +134,9 @@ $$2^4 - 1 = 15 = 3 \times 5 \quad (\text{không nguyên tố})$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: bác mệnh đề dạng 'mọi...' chỉ cần MỘT phản ví dụ cụ thể. Câu 2: contrapositive của $p \to q$ là $\lnot q \to \lnot p$ — phủ định cả hai vế rồi đảo chiều; chú ý phủ định của $>$ là $\le$.
+
+
 1. Đưa **một** phản ví dụ: $9 = 3 \times 3$ là số lẻ nhưng không nguyên tố. Xong.
 2. "Nếu $x^2 \le 4$ thì $x \le 2$." (Phủ định kết luận → phủ định giả thiết; nhớ $>$ phủ định thành $\le$.)
 </details>
@@ -282,6 +285,9 @@ Vậy $(n+1)^3 - (n+1) = 6q + 6t = 6(q + t)$ chia hết cho 6. → $P(n+1)$ đú
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhìn mục tiêu của phép cộng phân số: hai số hạng phải CÙNG mẫu — biến số hạng nguyên $(n+1)$ thành phân số mẫu 2 rồi mới cộng tử số.
+
+
 Để **quy đồng mẫu số** về 2, nhằm cộng hai phân số. $(n+1) = \frac{(n+1)\cdot 2}{2}$. Sau đó cộng tử số: $n(n+1) + 2(n+1)$, rồi đặt nhân tử chung $(n+1)$ ra ngoài → $(n+1)(n+2)$.
 </details>
 
@@ -412,6 +418,9 @@ Lỗi tinh vi: trong bước nối, dùng luôn $P(n+1)$ để "chứng minh" $P
 🔁 **Thực hành.** Trong "chứng minh" ngựa cùng màu, nếu ai đó vá bằng cách **thêm base $n=2$** ("hai con bất kỳ cùng màu"), chứng minh có cứu được không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Kiểm tra chính base case mới: mệnh đề $P(2)$ có đúng trong thực tế không? Base sai thì cả chứng minh sập, bất kể bước nối đúng hay không.
+
 
 Không. $P(2)$ ("mọi 2 con ngựa cùng màu") **bản thân nó đã sai** trong thực tế (có ngựa nâu và ngựa trắng). Bạn không thể lấy một base case sai. Lỗi gốc là mệnh đề sai, không chỉ là kỹ thuật chứng minh.
 </details>

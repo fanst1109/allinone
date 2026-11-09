@@ -53,6 +53,9 @@ Câu trả lời ngắn: **thêm bit dư thừa (redundancy)**. Ta gửi nhiều
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân biệt theo lượng thông tin bit dư phải mang: detection chỉ trả lời 'có lỗi không' (yes/no), correction phải trỏ được lỗi nằm ở VỊ TRÍ nào trong n vị trí.
+
+
 Detection chỉ báo "có lỗi" (cần ít bit dư, thường yêu cầu gửi lại). Correction định vị và sửa bit sai (cần nhiều bit dư hơn — phải đủ thông tin để chỉ ra *vị trí* lỗi, không chỉ *sự tồn tại* của lỗi).
 
 </details>
@@ -119,6 +122,9 @@ Bên nhận XOR tất cả = 0  →  ✅ "có vẻ đúng" — nhưng SAI! Bỏ 
 🔁 **Thực hành**: Dữ liệu `1101`. Even parity bit là gì? Nếu bit đầu lật, bên nhận có phát hiện không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Even parity: $p$ = XOR mọi bit dữ liệu (để tổng số bit 1 thành chẵn). Phía nhận XOR cả 5 bit nhận được — kết quả khác 0 nghĩa là có lỗi lẻ-bit.
+
 
 `1⊕1⊕0⊕1 = 1` → `p = 1`, gửi `11011` (4 số `1`, chẵn). Lật bit đầu → `01011` (3 số `1`, lẻ) → XOR = 1 → **phát hiện được** (lỗi 1 bit là lỗi lẻ-bit).
 
@@ -189,6 +195,9 @@ Bù trừ: [0x15, 0x1B]  sum = 0x30   ← cùng checksum, KHÔNG phát hiện
 🔁 **Thực hành**: Tính checksum đơn giản (mod 256) của `[0x80, 0x80]`. Nếu cả hai từ cùng lật bit cao nhất thành `0x00`, checksum có bắt được không?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Cộng các từ rồi giữ byte thấp (mod 256). Muốn biết có bắt được không: tính checksum của dữ liệu SAU lỗi rồi so với checksum cũ — trùng nhau là mù.
+
 
 `0x80 + 0x80 = 0x100 → 0x00`. Nếu cả hai thành `0x00`: tổng `= 0x00` → **cùng checksum** → **không bắt được** (lỗi 2 bit bù trừ, giống ví dụ parity bị mù).
 
@@ -318,6 +327,9 @@ Generator được chọn theo lý thuyết đại số (không phải tùy ti�
 🔁 **Thực hành**: Với `G = 10011` (bậc 4), CRC sẽ dài bao nhiêu bit? Trước khi chia, data được nối thêm bao nhiêu số `0`?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: CRC dài đúng bằng bậc của generator $G$ (số bit của $G$ trừ 1); data được nối thêm đúng số bit 0 bằng bậc đó trước khi chia.
+
 
 Bậc `G` = 4 → CRC dài **4 bit**, và data được nối thêm **4 số `0`** vào cuối trước khi chia.
 
@@ -456,6 +468,9 @@ syndrome = s4 s2 s1 = 0 1 0 = 2  → lỗi ở vị trí 2, sửa → 0011001 �
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Tính 3 bit syndrome bằng 3 phép XOR theo nhóm vị trí: $s_1 = c_1{\oplus}c_3{\oplus}c_5{\oplus}c_7$, $s_2 = c_2{\oplus}c_3{\oplus}c_6{\oplus}c_7$, $s_4 = c_4{\oplus}c_5{\oplus}c_6{\oplus}c_7$; đọc $s_4 s_2 s_1$ thành số thập phân = vị trí bit lỗi (0 = sạch), lật bit đó rồi rút dữ liệu ở vị trí 3, 5, 6, 7.
+
+
 `c = 1 1 0 0 1 0 0`. `s1 = c1⊕c3⊕c5⊕c7 = 1⊕0⊕1⊕0 = 0`; `s2 = c2⊕c3⊕c6⊕c7 = 1⊕0⊕0⊕0 = 1`; `s4 = c4⊕c5⊕c6⊕c7 = 0⊕1⊕0⊕0 = 1`. Syndrome `= s4 s2 s1 = 110 = 6` → lỗi vị trí 6, lật `0→1` → `1100110`. Dữ liệu (vị trí 3,5,6,7) = `0,1,1,0` = `0110`. (Đúng — đây là codeword của `0110` ở bảng trên.)
 
 </details>
@@ -514,6 +529,9 @@ $$\boxed{\text{Phát hiện được tới } d_{\min}-1 \text{ bit lỗi} \qquad
 🔁 **Thực hành**: Một bộ mã có `d_min = 4`. Nó phát hiện được tối đa mấy bit? Sửa được mấy bit?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp thẳng 2 công thức từ $d_{min}$: phát hiện tối đa $d_{min} - 1$ bit, sửa được $\lfloor (d_{min}-1)/2 \rfloor$ bit.
+
 
 Phát hiện `4−1 = 3` bit; sửa `⌊(4−1)/2⌋ = ⌊1.5⌋ = 1` bit. (Đây chính là SECDED: sửa 1, phát hiện 2 — "phát hiện 3" là cận lý thuyết khi không cố sửa.)
 

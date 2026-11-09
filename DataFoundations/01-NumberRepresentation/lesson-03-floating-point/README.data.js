@@ -313,6 +313,9 @@ Trình biên dịch **không được** reorder floating-point operations tùy �
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách 32 bit thành sign (bit 31) | exponent 8 bit | mantissa 23 bit, rồi áp công thức $(-1)^s \\times 1.\\text{mantissa} \\times 2^{E-127}$.
+
+
 Bit 31 = 1 → âm. E = \`01111111₂\` = 127 → exponent = 0. Mantissa = 0.
 Value = −1.0 × 2⁰ = **−1.0**
 

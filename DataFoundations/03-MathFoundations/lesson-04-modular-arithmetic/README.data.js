@@ -116,6 +116,9 @@ $$a \\equiv b \\pmod{m} \\iff m \\mid (a - b),$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: viết $-13 = q \\cdot 4 + r$ với $0 \\le r < 4$ (chấp nhận $q$ âm), rồi so với quy ước giữ-dấu-số-bị-chia của \`%\` trong Go. Câu 2: $a \\equiv b \\pmod m \\Leftrightarrow m \\mid (a-b)$ — xét các ước của $42$.
+
+
 1. Toán học: $-13 = (-4)\\cdot4 + 3$ → $-13 \\bmod 4 = 3$. Go: \`-13 % 4 == -1\` (giữ dấu số bị chia). Hai kết quả khác nhau — đúng như cảnh báo ⚠.
 2. Cần $m \\mid (50 - 8) = 42$. Ước của $42$ trong tập: $6$ ($42=7\\cdot6$ ✓), $7$ ($42=6\\cdot7$ ✓), $14$ ($42=3\\cdot14$ ✓), $21$ ($42=2\\cdot21$ ✓). → Cả bốn đều đúng.
 </details>
@@ -165,6 +168,9 @@ $$a^k \\bmod m = \\big((a \\bmod m)^k\\big) \\bmod m.$$
 
 🔁 **Thực hành.** Tính $123 \\cdot 456 \\bmod 7$ bằng cách mod sớm.
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Mod từng thừa số TRƯỚC rồi mới nhân: $(123 \\bmod 7) \\cdot (456 \\bmod 7) \\bmod 7$; kiểm chứng bằng cách nhân thẳng rồi chia 7.
+
 
 $123 \\bmod 7 = 4$ ($123=17\\cdot7+4$); $456 \\bmod 7 = 1$ ($456=65\\cdot7+1$). $(4\\cdot1)\\bmod 7 = 4$. (Kiểm tra thẳng: $123\\cdot456 = 56088 = 8012\\cdot7 + 4$ ✓.)
 </details>
@@ -236,6 +242,9 @@ func gcd(a, b int) int {
 
 🔁 **Thực hành.** Chạy Euclid cho $\\gcd(1071, 462)$.
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Lặp $\\gcd(a,b) = \\gcd(b, a \\bmod b)$ cho tới khi số sau bằng 0; số đứng trước lúc đó là đáp số.
+
 
 $1071 \\bmod 462 = 147$ → $\\gcd(462, 147)$; $462 \\bmod 147 = 21$ → $\\gcd(147, 21)$; $147 \\bmod 21 = 0$ → $\\gcd(21, 0) = \\mathbf{21}$.
 </details>
@@ -321,6 +330,9 @@ Nếu $m = p$ nguyên tố, thì với mọi $a \\in \\{1, 2, \\ldots, p-1\\}$ t
 🔁 **Thực hành.** Tìm $5^{-1} \\bmod 11$.
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Cần tìm $x$ sao cho $5x \\equiv 1 \\pmod{11}$ — modulus nhỏ nên thử lần lượt $5 \\cdot 1, 5 \\cdot 2, \\dots$ tới khi dư 1 (bài lớn hơn thì dùng Extended Euclid).
+
+
 Cần $5x\\equiv1\\pmod{11}$. $5\\cdot9=45=4\\cdot11+1\\equiv1$ → $x=9$. Vậy $5^{-1}\\equiv9\\pmod{11}$.
 </details>
 
@@ -375,6 +387,9 @@ func powMod(a, b, m int) int {
 🔁 **Thực hành.** Tính $2^{10} \\bmod 1000$ bằng square-and-multiply.
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: Viết mũ $10 = 1010_2$; bình phương base qua từng bit từ thấp lên, chỉ nhân vào result tại các bit 1, mod 1000 sau mỗi phép nhân.
+
+
 $10=1010_2$. base: $2\\to4\\to16\\to256$; result nhân tại bit 1 ($i=1$, base 4 → result 4) và bit 3 ($i=3$, base 256 → $4\\cdot256=1024\\equiv24$). → $2^{10}=1024\\equiv\\mathbf{24}\\pmod{1000}$ ✓.
 </details>
 
@@ -411,6 +426,9 @@ Nếu tìm được $a$ với $a^{n-1} \\not\\equiv 1 \\pmod n$ thì $n$ **chắ
 
 🔁 **Thực hành.** Dùng Fermat tính $4^{-1} \\bmod 13$.
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: Fermat cho công thức $a^{-1} \\equiv a^{p-2} \\pmod p$ → tính $4^{11} \\bmod 13$ bằng square-and-multiply (hoặc thử nhanh $4x \\equiv 1$ vì modulus nhỏ).
+
 
 $4^{-1}\\equiv4^{11}\\pmod{13}$. Nhanh hơn: thử trực tiếp $4\\cdot10=40=3\\cdot13+1\\equiv1$ → $4^{-1}=10$. (Kiểm $4^{11}$ qua fast-exp cũng ra $10$.)
 </details>

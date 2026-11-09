@@ -216,6 +216,9 @@ Bảng:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Load factor $\alpha = n/m$ (số phần tử / số slot). Tính xong đối chiếu ngưỡng: open addressing chết cứng khi $\alpha = 1$, chaining vẫn chạy nhưng chậm dần.
+
+
 α = 7/7 = 1.0. Nếu dùng open addressing: bảng đầy, không insert được. Phải resize trước khi đạt 1.0. Nếu dùng chaining: vẫn hoạt động nhưng trung bình ~1 phép so sánh/chain → còn chấp nhận được nhưng nên resize.
 
 </details>

@@ -59,6 +59,9 @@ Mở bài bằng một câu hỏi cụ thể:
 🔁 **Thực hành**:
 <details><summary>Vì sao text lặp nhiều thì nén tốt, còn file ngẫu nhiên thì không?</summary>
 
+**Hướng dẫn**: Xuất phát từ định nghĩa nén = viết gọn phần dễ đoán. Hỏi ngược lại: file ngẫu nhiên có ký tự nào xuất hiện trội hơn không, có cụm nào lặp không?
+
+
 Nén khai thác **tính dễ đoán (redundancy)**: ký tự/cụm nào xuất hiện nhiều thì gán mã ngắn, cụm lặp thì tham chiếu. File ngẫu nhiên không có ký tự nào "phổ biến hơn" và không có cụm lặp → không có gì để rút gọn. Đo lường chính xác "độ khó đoán" này là **entropy** (mục 2).
 </details>
 
@@ -134,6 +137,9 @@ Tổng cận dưới cho cả chuỗi: $7 \\times 1.379 \\approx 9.65$ bit. Mã 
 🔁 **Thực hành**:
 <details><summary>Một chuỗi chỉ gồm một ký tự lặp lại 1000 lần (vd "aaaa...a") có entropy bao nhiêu?</summary>
 
+**Hướng dẫn**: Áp công thức $H = -\\sum p_i \\log_2 p_i$ với phân bố chỉ có MỘT ký hiệu ($p = 1$); nhớ $\\log_2 1 = 0$.
+
+
 $p_a = 1$, nên $H = -1\\cdot\\log_2 1 = -1\\cdot 0 = 0$ bit/ký hiệu. Hoàn toàn đoán được → không cần bit nào để mô tả "ký hiệu tiếp theo là gì" (chỉ cần lưu "lặp a 1000 lần"). Đây đúng là điều RLE khai thác (mục 3).
 </details>
 
@@ -182,6 +188,9 @@ Kết quả: \`"4A3B2C"\` — 6 ký tự thay vì 9. Tỉ lệ nén 9/6 = 1.5×.
 
 🔁 **Thực hành**:
 <details><summary>RLE chuỗi "MMMMMNN" và tính tỉ lệ nén.</summary>
+
+**Hướng dẫn**: Đếm từng run (đoạn ký tự lặp liên tiếp), thay bằng \`count + ký_tự\`; tỉ lệ nén = độ dài gốc / độ dài sau nén.
+
 
 \`MMMMM\` = \`5M\`, \`NN\` = \`2N\` → \`"5M2N"\`. Gốc 7 ký tự, nén 4 ký tự, tỉ lệ 7/4 = 1.75×.
 </details>
@@ -352,6 +361,9 @@ Huffman ở đây **chạm gần đúng entropy** (đây là một trường h�
 🔁 **Thực hành**:
 <details><summary>Với bảng A=45,...,F=5 ở trên, mã của ký hiệu D là gì và dài mấy bit?</summary>
 
+**Hướng dẫn**: Lần theo đường đi từ gốc tới lá D trên cây Huffman mục 4.2: rẽ trái ghi 0, rẽ phải ghi 1; độ dài mã = số cạnh đã đi.
+
+
 D nằm ở nhánh phải-phải-phải từ gốc → mã \`111\`, dài 3 bit. (Đi: gốc→phải=[CBFED], →phải=[FED], →phải=D.)
 </details>
 
@@ -406,6 +418,9 @@ Bảng: \`A=0, C=100, B=101, F=1100, E=1101, D=111\`.
 🔁 **Thực hành**:
 <details><summary>Giải mã chuỗi 111101 bằng bảng mục 4.2.</summary>
 
+**Hướng dẫn**: Đi từ gốc cây theo từng bit (0 trái, 1 phải); chạm lá thì ghi ký hiệu rồi quay về gốc đọc tiếp — prefix-free đảm bảo chỉ có một cách cắt.
+
+
 \`1,1,1\` → **D**. Còn \`101\`. \`1,0,1\` → **B**. Hết → **\`DB\`**.
 </details>
 
@@ -455,6 +470,9 @@ LZ78 không dùng cửa sổ; nó **xây một từ điển** các cụm đã th
 
 🔁 **Thực hành**:
 <details><summary>Vì sao DEFLATE chạy LZ77 TRƯỚC rồi Huffman, không phải ngược lại?</summary>
+
+**Hướng dẫn**: So sánh 'nguyên liệu' mỗi tầng khai thác: LZ77 bắt cụm lặp, Huffman bắt tần suất ký hiệu đơn. Xét xem nếu đảo thứ tự thì tầng nào không còn gì để làm.
+
 
 LZ77 thay cụm lặp bằng bộ ba offset/length → sinh ra một luồng token (literal + offset + length). Huffman sau đó gán mã ngắn cho token hay gặp. Nếu Huffman chạy trước, nó chỉ thấy ký tự đơn, bỏ lỡ cụm lặp; chạy LZ77 trước "trích" được sự lặp cấp cụm rồi Huffman tối ưu phần còn lại — hai tầng bổ sung cho nhau.
 </details>

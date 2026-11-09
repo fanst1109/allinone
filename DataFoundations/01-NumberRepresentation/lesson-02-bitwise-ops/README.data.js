@@ -939,6 +939,8 @@ ElasticSearch / Lucene tìm "apple AND banana": load posting list (bitmap doc-id
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Câu 1 so sánh chi phí bộ nhớ: bool mỗi flag tốn 1 byte vs bitmap 1 bit/flag. Câu 2 muốn BẬT một bit thì OR với mask \`1 << vị_trí\` (bit thực thi của group là bit 3). Câu 3 viết \`size-1\` ra nhị phân: power of 2 trừ 1 là chuỗi toàn bit 1 — AND với chuỗi đó chính là lấy phần dư.
+>
 > 1. RAM cartridge GBA có ~32 KB. 8 badge × 1 byte bool = 8 byte; 8 badge × 1 bit bitmap = 1 byte. Khi cần 100 flag, tiết kiệm trở thành sống còn.
 > 2. \`permission | (1 << 3)\` (bit 3 = GroupExecute). Kết quả: \`0o644 | 0o010 = 0o654\`. Trên CLI: \`chmod g+x file\`.
 > 3. Vì \`size - 1\` cho power of 2 (vd 1024 → 1023 = \`0b1111111111\`) là 1 chuỗi bit 1 liên tiếp — AND giữ lại đúng \`log2(size)\` bit thấp = phần dư của \`head / size\`. Với \`size = 1000\`, \`999 = 0b1111100111\` không phải chuỗi bit 1 → AND cho kết quả vô nghĩa.

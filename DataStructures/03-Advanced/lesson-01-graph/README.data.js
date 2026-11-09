@@ -163,11 +163,22 @@ Quy tắc thực hành: nếu $E \\ll V^2/2$ (đa số trường hợp thực t�
 ### 3.5. 🔁 Thực hành
 
 1. Mạng xã hội có $V = 10^6$ người, trung bình mỗi người 200 bạn ($E \\approx 10^8$). Chọn matrix hay list? Tính bộ nhớ.
-   <details><summary>Đáp án</summary>**List**. Matrix cần $V^2 = 10^{12}$ ô × 4B = **4 TB** — bất khả thi. List cần $V + 2E = 10^6 + 2\\times 10^8 \\approx 2\\times 10^8$ ô × 4B = **~800 MB** — chứa được. Đồ thị thực tế gần như luôn thưa ($E \\ll V^2$) → list.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Tính 2 con số rồi so: matrix cần $V^2$ ô, list cần $V + 2E$ ô (mỗi cạnh vô hướng xuất hiện ở 2 danh sách), nhân 4 byte mỗi ô.
+
+   **List**. Matrix cần $V^2 = 10^{12}$ ô × 4B = **4 TB** — bất khả thi. List cần $V + 2E = 10^6 + 2\\times 10^8 \\approx 2\\times 10^8$ ô × 4B = **~800 MB** — chứa được. Đồ thị thực tế gần như luôn thưa ($E \\ll V^2$) → list.
+   </details>
 2. Với cùng đồ thị, thao tác "A và B có phải bạn không?" (kiểm tra 1 cạnh) làm trên list tốn bao lâu? Cách nào tăng tốc mà vẫn dùng list?
-   <details><summary>Đáp án</summary>List thường: $O(\\deg(A)) = O(200)$ (duyệt danh sách bạn của A). Tăng tốc: đổi \`adj[A]\` từ \`[]int\` sang \`map[int]bool\` (hoặc set) → kiểm tra cạnh $O(1)$ trung bình, đổi lại tốn thêm bộ nhớ hash. Đây là biến thể "hybrid".</details>
+   <details><summary>Đáp án</summary>
+
+   List thường: $O(\\deg(A)) = O(200)$ (duyệt danh sách bạn của A). Tăng tốc: đổi \`adj[A]\` từ \`[]int\` sang \`map[int]bool\` (hoặc set) → kiểm tra cạnh $O(1)$ trung bình, đổi lại tốn thêm bộ nhớ hash. Đây là biến thể "hybrid".
+   </details>
 3. Khi nào ma trận kề thực sự thắng list?
-   <details><summary>Đáp án</summary>Khi đồ thị **dày** ($E \\approx V^2/2$) **và** $V$ nhỏ (vài nghìn, để $V^2$ vừa RAM) **và** thao tác chính là kiểm tra cạnh $O(1)$ (vd Floyd-Warshall trên $V \\leq 500$). Lúc đó bộ nhớ hai cách tương đương, matrix có lợi thế truy cập $O(1)$.</details>
+   <details><summary>Đáp án</summary>
+
+   Khi đồ thị **dày** ($E \\approx V^2/2$) **và** $V$ nhỏ (vài nghìn, để $V^2$ vừa RAM) **và** thao tác chính là kiểm tra cạnh $O(1)$ (vd Floyd-Warshall trên $V \\leq 500$). Lúc đó bộ nhớ hai cách tương đương, matrix có lợi thế truy cập $O(1)$.
+   </details>
 
 ## 4. Duyệt đồ thị
 
@@ -295,11 +306,22 @@ Thứ tự DFS: **0, 1, 2, 3, 5, 6, 4** — đi sâu xuống cuối nhánh rồi
 ### 4.6. 🔁 Thực hành
 
 1. Với đồ thị mục 4.3, BFS từ \`4\` cho thứ tự thăm nào?
-   <details><summary>Đáp án</summary>\`4, 2, 1, 3, 0, 5, 6\`. Từ 4 → hàng xóm {2} → từ 2 thêm {1,3} → từ 1 thêm {0} → từ 3 thêm {5,6}.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Chạy queue trên giấy: thăm node, đẩy các hàng xóm CHƯA thăm theo thứ tự danh sách kề, lấy ra theo FIFO.
+
+   \`4, 2, 1, 3, 0, 5, 6\`. Từ 4 → hàng xóm {2} → từ 2 thêm {1,3} → từ 1 thêm {0} → từ 3 thêm {5,6}.
+   </details>
 2. DFS có thể dùng để tìm đường ngắn nhất (số cạnh) không?
-   <details><summary>Đáp án</summary>**Không tin cậy**. DFS đi sâu vào nhánh đầu tiên, đường đầu tiên tìm được không chắc là ngắn nhất. BFS mới đảm bảo ngắn nhất (xem lesson 04, mục 6.3).</details>
+   <details><summary>Đáp án</summary>
+
+   **Không tin cậy**. DFS đi sâu vào nhánh đầu tiên, đường đầu tiên tìm được không chắc là ngắn nhất. BFS mới đảm bảo ngắn nhất (xem lesson 04, mục 6.3).
+   </details>
 3. Trong DFS đệ quy, nếu đánh dấu visited **sau** khi đệ quy vào con thay vì trước, chuyện gì xảy ra?
-   <details><summary>Đáp án</summary>Cùng một node có thể được enter từ nhiều bố mẹ trước khi đánh dấu → đệ quy lặp, output trùng. Lỗi tương tự BFS "đánh dấu lúc dequeue".</details>
+   <details><summary>Đáp án</summary>
+
+   Cùng một node có thể được enter từ nhiều bố mẹ trước khi đánh dấu → đệ quy lặp, output trùng. Lỗi tương tự BFS "đánh dấu lúc dequeue".
+   </details>
 
 ### 4.7. 📝 Tóm tắt mục 4
 
@@ -491,11 +513,22 @@ func hasCycle(adj map[string][]string, nodes []string) bool {
 
 > 🔁 **Thực hành**
 > 1. \`topoSort\` trả \`nil\` khi nào? Điều đó tương ứng lỗi gì trong \`make\`/\`npm\`?
->    <details><summary>Đáp án</summary>Khi \`len(order) != len(nodes)\` — còn task có bậc vào > 0 mãi, nghĩa là có **chu trình dependency**. \`make\`/\`npm\` báo "circular dependency": A cần B, B cần A → không có thứ tự build hợp lệ.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Nhìn điều kiện của Kahn: node chỉ vào \`order\` khi bậc vào về 0 — hỏi khi nào tồn tại node không bao giờ về 0.
+>
+>    Khi \`len(order) != len(nodes)\` — còn task có bậc vào > 0 mãi, nghĩa là có **chu trình dependency**. \`make\`/\`npm\` báo "circular dependency": A cần B, B cần A → không có thứ tự build hợp lệ.
+>    </details>
 > 2. Vì sao không thể dùng BFS để tìm đường ngắn nhất theo **phút di chuyển** giữa các thành phố?
->    <details><summary>Đáp án</summary>BFS đếm <b>số cạnh</b>, coi mọi cạnh bằng nhau. Đường "ít chặng" có thể tổng phút lớn hơn đường "nhiều chặng nhưng mỗi chặng nhanh". Cần Dijkstra để cộng dồn trọng số.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    BFS đếm <b>số cạnh</b>, coi mọi cạnh bằng nhau. Đường "ít chặng" có thể tổng phút lớn hơn đường "nhiều chặng nhưng mỗi chặng nhanh". Cần Dijkstra để cộng dồn trọng số.
+>    </details>
 > 3. Trong \`hasCycle\`, gặp cạnh tới node màu **đen** có phải chu trình không?
->    <details><summary>Đáp án</summary>Không. Đen = đã xử lý xong, không còn trong stack đệ quy hiện tại. Chỉ cạnh tới node <b>xám</b> (đang trong stack) mới là back edge = chu trình.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Không. Đen = đã xử lý xong, không còn trong stack đệ quy hiện tại. Chỉ cạnh tới node <b>xám</b> (đang trong stack) mới là back edge = chu trình.
+>    </details>
 
 ### 8.5. 📝 Tóm tắt mục 8
 

@@ -257,11 +257,22 @@ Mẹo: snapshot \`size\` **trước** khi xử lý tầng. Trong vòng \`for\`, 
 ### 6.7. 🔁 Thực hành
 
 1. BFS trên cây nhị phân từ root tương đương với cách duyệt nào đã học ở lesson 6?
-   <details><summary>Đáp án</summary>**Level-order traversal**. Cây là đồ thị đặc biệt (không chu trình, mỗi node có 1 bố mẹ trừ root), nên không cần \`visited\`.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: BFS thăm theo từng 'vòng khoảng cách' từ nguồn — đối chiếu với cách duyệt cây đi hết tầng này mới sang tầng kế.
+
+   **Level-order traversal**. Cây là đồ thị đặc biệt (không chu trình, mỗi node có 1 bố mẹ trừ root), nên không cần \`visited\`.
+   </details>
 2. Nếu thay queue bằng **priority queue** (lấy node có dist nhỏ nhất trước), thuật toán biến thành gì?
-   <details><summary>Đáp án</summary>**Dijkstra**. Trên đồ thị không trọng số, Dijkstra suy biến về BFS vì mọi cạnh \`w=1\` → "dist nhỏ nhất tiếp theo" trùng với "tầng tiếp theo".</details>
+   <details><summary>Đáp án</summary>
+
+   **Dijkstra**. Trên đồ thị không trọng số, Dijkstra suy biến về BFS vì mọi cạnh \`w=1\` → "dist nhỏ nhất tiếp theo" trùng với "tầng tiếp theo".
+   </details>
 3. Cho đồ thị ở mục 6.2, BFS từ \`D\` ra thứ tự thăm nào?
-   <details><summary>Đáp án</summary>\`D, B, A, E, C, F\`. (D có 1 hàng xóm B; B có {A,D,E} mới = {A,E}; A có {B,C} mới = {C}; E có {B,C,F} mới = {F}; ...)</details>
+   <details><summary>Đáp án</summary>
+
+   \`D, B, A, E, C, F\`. (D có 1 hàng xóm B; B có {A,D,E} mới = {A,E}; A có {B,C} mới = {C}; E có {B,C,F} mới = {F}; ...)
+   </details>
 
 ### 6.8. 📝 Tóm tắt mục 6
 
@@ -361,11 +372,22 @@ Bộ nhớ cố định $O(n)$ bất kể đẩy bao nhiêu — không cấp ph�
 ### 7.4. 🔁 Thực hành
 
 > 1. Rate limiter: vì sao phải dequeue timestamp cũ TRƯỚC khi đếm?
->    <details><summary>Đáp án</summary>Các request cũ hơn \`now-window\` đã rời cửa sổ thời gian → không còn tính vào limit. Không bỏ chúng → đếm dư → chặn nhầm request hợp lệ.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Xét điều kiện 'request nằm trong cửa sổ \`[now-window, now]\`': timestamp cũ hơn mốc đó mà còn nằm trong queue thì phép đếm bị lệch thế nào?
+>
+>    Các request cũ hơn \`now-window\` đã rời cửa sổ thời gian → không còn tính vào limit. Không bỏ chúng → đếm dư → chặn nhầm request hợp lệ.
+>    </details>
 > 2. Vì sao channel Go phù hợp làm job queue hơn slice?
->    <details><summary>Đáp án</summary>Channel <b>thread-safe</b> sẵn: nhiều goroutine producer/consumer cùng dùng không cần tự khóa. Slice cần mutex thủ công. Channel còn block/đợi tự nhiên khi rỗng/đầy.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Channel <b>thread-safe</b> sẵn: nhiều goroutine producer/consumer cùng dùng không cần tự khóa. Slice cần mutex thủ công. Channel còn block/đợi tự nhiên khi rỗng/đầy.
+>    </details>
 > 3. Ring buffer khác queue thường ở điểm nào?
->    <details><summary>Đáp án</summary>Ring buffer <b>cố định kích thước</b>, đầy thì ghi đè cái cũ nhất (mất dữ liệu cũ có chủ đích). Queue thường lớn vô hạn (cấp thêm bộ nhớ). Ring hợp khi chỉ cần "N cái gần nhất".</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Ring buffer <b>cố định kích thước</b>, đầy thì ghi đè cái cũ nhất (mất dữ liệu cũ có chủ đích). Queue thường lớn vô hạn (cấp thêm bộ nhớ). Ring hợp khi chỉ cần "N cái gần nhất".
+>    </details>
 
 ### 7.5. 📝 Tóm tắt mục 7
 

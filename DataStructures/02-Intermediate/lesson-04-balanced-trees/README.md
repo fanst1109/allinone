@@ -657,11 +657,22 @@ BF tất cả node đều trong $[-1, 1]$ → không rotation cần thiết. ✓
 ### 2.11. 🔁 Thực hành
 
 1. Cho cây AVL chỉ chứa `50, 30, 70, 20, 40, 10`. Sau khi insert `5`, có rotation nào xảy ra không? Tại node nào?
-   <details><summary>Đáp án</summary>Sau insert 5: 5 là con trái của 10. BF(10)=1, BF(20)=2 → mất cân bằng tại 20. Con trái của 20 là 10 (BF=1) → cùng dấu → LL → rotate right tại 20. Kết quả: 10 lên thay vị trí 20, con trái = 5, con phải = 20.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Vẽ cây sau insert, tính balance factor từ node mới ngược lên tới khi gặp $|BF| = 2$; xác định dạng (LL/LR/RL/RR) theo phía con nặng của node mất cân bằng và của con nó.
+
+   Sau insert 5: 5 là con trái của 10. BF(10)=1, BF(20)=2 → mất cân bằng tại 20. Con trái của 20 là 10 (BF=1) → cùng dấu → LL → rotate right tại 20. Kết quả: 10 lên thay vị trí 20, con trái = 5, con phải = 20.
+   </details>
 2. Vì sao một rotation không làm thay đổi thứ tự in-order của cây?
-   <details><summary>Đáp án</summary>Vì rotation chỉ thay đổi cha-con giữa `z`, `y`, và subtree trung gian `T3` — nhưng vị trí của `T3` relative tới `y` và `z` trong thứ tự in-order (`y < T3 < z`) được bảo toàn: trước rotate `T3` là con phải của `y`, sau rotate `T3` là con trái của `z` — cùng nằm giữa hai node đó trong in-order.</details>
+   <details><summary>Đáp án</summary>
+
+   Vì rotation chỉ thay đổi cha-con giữa `z`, `y`, và subtree trung gian `T3` — nhưng vị trí của `T3` relative tới `y` và `z` trong thứ tự in-order (`y < T3 < z`) được bảo toàn: trước rotate `T3` là con phải của `y`, sau rotate `T3` là con trái của `z` — cùng nằm giữa hai node đó trong in-order.
+   </details>
 3. Một AVL có 7 node, hãy đoán chiều cao tối đa và tối thiểu có thể.
-   <details><summary>Đáp án</summary>Tối thiểu: cây hoàn chỉnh chiều cao 2 (tầng 0,1,2 đủ 1+2+4=7 node). Tối đa: cây Fibonacci AVL chiều cao 3 (số node Fibonacci-AVL với h=3 là 7 = F(5)-1). Vậy h ∈ {2, 3}.</details>
+   <details><summary>Đáp án</summary>
+
+   Tối thiểu: cây hoàn chỉnh chiều cao 2 (tầng 0,1,2 đủ 1+2+4=7 node). Tối đa: cây Fibonacci AVL chiều cao 3 (số node Fibonacci-AVL với h=3 là 7 = F(5)-1). Vậy h ∈ {2, 3}.
+   </details>
 
 ### 2.12. 📝 Tóm tắt mục 2 (phần walk-through)
 
@@ -773,9 +784,17 @@ Tất cả cho phép **floor/ceiling, range, duyệt theo thứ tự khóa** tro
 ### 7.5. 🔁 Thực hành
 
 1. Một index B-tree mỗi node chứa ~256 khóa. Với 1 tỉ ($10^9$) dòng, cây cao khoảng mấy tầng? So với cây nhị phân cân bằng thì sao?
-   <details><summary>Đáp án</summary>B-tree: $\log_{256}(10^9) = \frac{\ln 10^9}{\ln 256} \approx \frac{20{,}7}{5{,}5} \approx 3{,}7$ → **~4 tầng** (4 lần đọc đĩa). Cây nhị phân: $\log_2(10^9) \approx 30$ tầng → 30 lần đọc đĩa. B-tree nhanh hơn ~8 lần về số lần truy cập đĩa.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Chiều cao $\approx \log_{256}(10^9)$ — đổi cơ số: $\ln 10^9 / \ln 256$; so với $\log_2(10^9)$ của cây nhị phân.
+
+   B-tree: $\log_{256}(10^9) = \frac{\ln 10^9}{\ln 256} \approx \frac{20{,}7}{5{,}5} \approx 3{,}7$ → **~4 tầng** (4 lần đọc đĩa). Cây nhị phân: $\log_2(10^9) \approx 30$ tầng → 30 lần đọc đĩa. B-tree nhanh hơn ~8 lần về số lần truy cập đĩa.
+   </details>
 2. Vì sao Linux CFS chọn Red-Black thay vì AVL, dù AVL search nhanh hơn chút?
-   <details><summary>Đáp án</summary>Scheduler **ghi liên tục** (mỗi lần tiến trình chạy xong một lát, vruntime đổi → phải xóa+chèn lại). Red-Black ít rotation hơn AVL khi insert/delete → chi phí ghi thấp hơn. Lợi thế search nhỏ của AVL không bù được chi phí ghi cao trong workload này.</details>
+   <details><summary>Đáp án</summary>
+
+   Scheduler **ghi liên tục** (mỗi lần tiến trình chạy xong một lát, vruntime đổi → phải xóa+chèn lại). Red-Black ít rotation hơn AVL khi insert/delete → chi phí ghi thấp hơn. Lợi thế search nhỏ của AVL không bù được chi phí ghi cao trong workload này.
+   </details>
 
 ## 8. Thực hành: dùng trong code thật
 
@@ -875,11 +894,22 @@ tr.AscendGreaterOrEqual(btree.Int(1500), func(it btree.Item) bool {
 
 > 🔁 **Thực hành**
 > 1. Vì sao leaderboard thật dùng Redis ZSet thay vì `SELECT ... ORDER BY score`?
->    <details><summary>Đáp án</summary>ZSet giữ dữ liệu <b>luôn ở trạng thái đã sắp</b> (cây cân bằng/skip list) → `ZREVRANK`/top-N là $O(\log n)$, in-memory, chia sẻ nhiều server. `ORDER BY` phải sort lại mỗi lần + đụng DB → chậm khi cập nhật dồn dập.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: So 'giữ sẵn thứ tự khi update' với 'sort lại mỗi query': ZSet duy trì cấu trúc đã sắp sau mỗi cập nhật, còn `ORDER BY` phải làm gì mỗi lần gọi?
+>
+>    ZSet giữ dữ liệu <b>luôn ở trạng thái đã sắp</b> (cây cân bằng/skip list) → `ZREVRANK`/top-N là $O(\log n)$, in-memory, chia sẻ nhiều server. `ORDER BY` phải sort lại mỗi lần + đụng DB → chậm khi cập nhật dồn dập.
+>    </details>
 > 2. Trong `EXPLAIN`, `type: ALL` và `type: range` khác nhau thế nào?
->    <details><summary>Đáp án</summary>`ALL` = full table scan $O(n)$, chưa có/không dùng index. `range` = đi xuống B+ tree index tới biên dưới rồi duyệt tuần tự khoảng khớp — đúng range query của cây, chỉ đọc dòng cần.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    `ALL` = full table scan $O(n)$, chưa có/không dùng index. `range` = đi xuống B+ tree index tới biên dưới rồi duyệt tuần tự khoảng khớp — đúng range query của cây, chỉ đọc dòng cần.
+>    </details>
 > 3. Khi nào nên **tự cài** AVL/Red-Black trong code production?
->    <details><summary>Đáp án</summary>Gần như không bao giờ. Dùng `TreeMap`/`std::map`/`google/btree`/Redis ZSet có sẵn — đã tối ưu + test kỹ. Tự cài chỉ khi học hoặc viết thư viện cấu trúc dữ liệu nền tảng.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Gần như không bao giờ. Dùng `TreeMap`/`std::map`/`google/btree`/Redis ZSet có sẵn — đã tối ưu + test kỹ. Tự cài chỉ khi học hoặc viết thư viện cấu trúc dữ liệu nền tảng.
+>    </details>
 
 ### 8.6. 📝 Tóm tắt mục 8
 

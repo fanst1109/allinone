@@ -412,11 +412,22 @@ Trả về `["cat", "car", "card", "care"]`. Để ý nhánh `d → o → g` ("d
 ### 7.3. 🔁 Thực hành
 
 1. Vẽ trie sau khi insert `"to", "tea", "ted", "ten", "i", "in", "inn"` (ví dụ kinh điển). Có bao nhiêu node? Bao nhiêu node có `isEnd=true`?
-   <details><summary>Đáp án</summary>11 node (root + t, o, e, a, d, n, i, n, n) + isEnd ở 7 vị trí (to, tea, ted, ten, i, in, inn). Lưu ý node 'i' và 'in' và 'inn' đều có isEnd.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Insert từng từ, mỗi ký tự một cạnh; các từ trùng prefix dùng chung node. Đếm node = đếm đường đi phân biệt; `isEnd` bật tại node cuối MỖI từ (kể cả từ là prefix của từ khác).
+
+   11 node (root + t, o, e, a, d, n, i, n, n) + isEnd ở 7 vị trí (to, tea, ted, ten, i, in, inn). Lưu ý node 'i' và 'in' và 'inn' đều có isEnd.
+   </details>
 2. Cho trie chứa `{"app", "apple", "apply"}`. `search("app")` trả gì? `startsWith("app")` trả gì? `search("appl")` trả gì?
-   <details><summary>Đáp án</summary>search("app")=true (vì có isEnd ở node 'p' thứ hai). startsWith("app")=true. search("appl")=false (vì "appl" không phải từ, dù là prefix). startsWith("appl")=true.</details>
+   <details><summary>Đáp án</summary>
+
+   search("app")=true (vì có isEnd ở node 'p' thứ hai). startsWith("app")=true. search("appl")=false (vì "appl" không phải từ, dù là prefix). startsWith("appl")=true.
+   </details>
 3. Trie có 1 triệu node, dùng mảng 26 con/node. Tính dung lượng bộ nhớ (ước lượng) trên máy 64-bit.
-   <details><summary>Đáp án</summary>1 node ≈ 26 × 8 + 1 + padding ≈ 216 byte. Tổng ≈ 216 MB. Trong đó tỷ lệ pointer NULL: nếu trung bình mỗi node có 3 con thực → 23/26 ≈ 88% pointer là null, tốn ~190 MB cho NULL.</details>
+   <details><summary>Đáp án</summary>
+
+   1 node ≈ 26 × 8 + 1 + padding ≈ 216 byte. Tổng ≈ 216 MB. Trong đó tỷ lệ pointer NULL: nếu trung bình mỗi node có 3 con thực → 23/26 ≈ 88% pointer là null, tốn ~190 MB cho NULL.
+   </details>
 
 ### 7.4. 📝 Tóm tắt toàn lesson
 
@@ -646,11 +657,22 @@ Thay vì thử $3^L$ tổ hợp chữ rồi tra từng cái, trie **cắt ngay**
 
 > 🔁 **Thực hành**
 > 1. Trong autocomplete §8.1, vì sao phải `for _, c := range word` thay vì `word[i]`?
->    <details><summary>Đáp án</summary>`word[i]` lặp theo <b>byte</b>. Ký tự tiếng Việt/Unicode chiếm nhiều byte trong UTF-8 → tách sai ký tự. `range` lặp theo <b>rune</b> (code point), đúng từng ký tự.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Nhớ chuỗi Go là dãy byte UTF-8: so `word[i]` (truy cập theo byte) với `range` (lặp theo rune) khi gặp ký tự chiếm nhiều byte.
+>
+>    `word[i]` lặp theo <b>byte</b>. Ký tự tiếng Việt/Unicode chiếm nhiều byte trong UTF-8 → tách sai ký tự. `range` lặp theo <b>rune</b> (code point), đúng từng ký tự.
+>    </details>
 > 2. Router §8.2: hai route `10.0.0.0/8 → A` và `10.1.0.0/16 → B`. Gói tới `10.1.2.3` đi đâu? Vì sao?
->    <details><summary>Đáp án</summary>Đi <b>B</b>. Cả hai prefix đều khớp, nhưng `/16` dài hơn `/8` → longest-prefix match chọn route cụ thể hơn. Trong code: đi xuống sâu hơn gặp `isEnd` của B sau, ghi đè `best`.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Đi <b>B</b>. Cả hai prefix đều khớp, nhưng `/16` dài hơn `/8` → longest-prefix match chọn route cụ thể hơn. Trong code: đi xuống sâu hơn gặp `isEnd` của B sau, ghi đè `best`.
+>    </details>
 > 3. T9 §8.4: vì sao duyệt trie nhanh hơn "sinh mọi tổ hợp chữ rồi tra"?
->    <details><summary>Đáp án</summary>Sinh tổ hợp = $3^L$–$4^L$ chuỗi, đa số không phải từ thật. Trie chỉ rẽ vào nhánh <b>tồn tại</b> → cắt sạch tổ hợp vô nghĩa ngay từ ký tự đầu không khớp.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Sinh tổ hợp = $3^L$–$4^L$ chuỗi, đa số không phải từ thật. Trie chỉ rẽ vào nhánh <b>tồn tại</b> → cắt sạch tổ hợp vô nghĩa ngay từ ký tự đầu không khớp.
+>    </details>
 
 ### 8.6. 📝 Tóm tắt mục 8
 

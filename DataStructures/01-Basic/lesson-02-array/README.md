@@ -208,11 +208,22 @@ arr[i][j]  ↔  arr_phang[i * n + j]
 ### 7.2. 🔁 Thực hành
 
 1. Cho `arr = [5, 2, 8, 1, 9]`. Sau khi `append(arr, 7)`, capacity (giả sử ban đầu = 5) là bao nhiêu? Có copy không?
-   <details><summary>Đáp án</summary>`size = 5, capacity = 5` → đã đầy → **resize lên 10** (nhân đôi) → copy 5 phần tử cũ + ghi `7` → mảng mới `[5,2,8,1,9,7]` với `size=6, capacity=10`. Lần này tốn $O(n)$.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: So `size` với `capacity` trước khi append: bảng đầy thì nhân đôi capacity, cấp mảng mới và copy toàn bộ phần tử cũ sang.
+
+   `size = 5, capacity = 5` → đã đầy → **resize lên 10** (nhân đôi) → copy 5 phần tử cũ + ghi `7` → mảng mới `[5,2,8,1,9,7]` với `size=6, capacity=10`. Lần này tốn $O(n)$.
+   </details>
 2. Vì sao binary search cần mảng đã sort, mà linear search thì không?
-   <details><summary>Đáp án</summary>Binary search dựa vào tính chất: "nếu `arr[mid] < target`, mọi phần tử `≤ mid` đều `< target`" — chỉ đúng khi mảng đã sort. Linear search duyệt tuần tự nên không cần thứ tự gì.</details>
+   <details><summary>Đáp án</summary>
+
+   Binary search dựa vào tính chất: "nếu `arr[mid] < target`, mọi phần tử `≤ mid` đều `< target`" — chỉ đúng khi mảng đã sort. Linear search duyệt tuần tự nên không cần thứ tự gì.
+   </details>
 3. Đoạn `for i := 0; i <= len(arr); i++ { print(arr[i]) }` có lỗi gì?
-   <details><summary>Đáp án</summary>**Off-by-one**: khi `i = len(arr)`, `arr[i]` nằm ngoài mảng → crash. Sửa thành `i < len(arr)`.</details>
+   <details><summary>Đáp án</summary>
+
+   **Off-by-one**: khi `i = len(arr)`, `arr[i]` nằm ngoài mảng → crash. Sửa thành `i < len(arr)`.
+   </details>
 
 ### 7.3. 📝 Tóm tắt mục — Array
 
@@ -306,11 +317,22 @@ func maxSumWindow(a []int, k int) int {
 ### 8.4. 🔁 Thực hành
 
 > 1. `b := a[:2]; b = append(b, 99)` — vì sao `a` có thể bị đổi?
->    <details><summary>Đáp án</summary>`b` chia sẻ mảng nền với `a` và còn `cap` dư. `append` ghi vào index 2 của mảng nền (đang là `a[2]`) thay vì cấp mảng mới → `a[2]` bị ghi đè. Tránh bằng copy hoặc full-slice `a[:2:2]`.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Vẽ mảng nền chung: xét `len` và `cap` của `b` sau khi cắt `a[:2]` — `append` còn chỗ (`cap` dư) thì ghi đè tại chỗ trên mảng nền, hết chỗ mới cấp mảng mới.
+>
+>    `b` chia sẻ mảng nền với `a` và còn `cap` dư. `append` ghi vào index 2 của mảng nền (đang là `a[2]`) thay vì cấp mảng mới → `a[2]` bị ghi đè. Tránh bằng copy hoặc full-slice `a[:2:2]`.
+>    </details>
 > 2. Vì sao `twoSumSorted` chạy $O(n)$ còn two-sum bằng 2 vòng lặp là $O(n^2)$?
->    <details><summary>Đáp án</summary>Mảng đã sort → mỗi bước loại được 1 đầu: tổng nhỏ quá thì `i++`, lớn quá thì `j--`. Hai con trỏ chỉ đi tổng cộng $n$ bước. Hai vòng lặp lồng thử mọi cặp = $n^2$.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Mảng đã sort → mỗi bước loại được 1 đầu: tổng nhỏ quá thì `i++`, lớn quá thì `j--`. Hai con trỏ chỉ đi tổng cộng $n$ bước. Hai vòng lặp lồng thử mọi cặp = $n^2$.
+>    </details>
 > 3. Sliding window: vì sao cập nhật `sum += a[i] - a[i-k]` mà không cộng lại cả cửa sổ?
->    <details><summary>Đáp án</summary>Cửa sổ mới chỉ khác cửa sổ cũ ở 2 phần tử: thêm `a[i]` (vào bên phải), bỏ `a[i-k]` (rời bên trái). Tận dụng tổng cũ → mỗi bước $O(1)$ thay vì $O(k)$.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Cửa sổ mới chỉ khác cửa sổ cũ ở 2 phần tử: thêm `a[i]` (vào bên phải), bỏ `a[i-k]` (rời bên trái). Tận dụng tổng cũ → mỗi bước $O(1)$ thay vì $O(k)$.
+>    </details>
 
 ### 8.5. 📝 Tóm tắt mục 8
 

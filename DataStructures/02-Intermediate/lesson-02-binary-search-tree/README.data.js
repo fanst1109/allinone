@@ -356,13 +356,27 @@ Cùng tập \`{1, 2, 3, 4, 5}\`, 4 thứ tự khác nhau:
 ### 5.3. 🔁 Thực hành
 
 1. Cho cây BST: root=10, trái=5 (con trái=2, con phải=7), phải=15. Inorder traversal cho ra dãy nào?
-   <details><summary>Đáp án</summary>\`2, 5, 7, 10, 15\`. Áp dụng "trái-gốc-phải" đệ quy.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Inorder = trái → gốc → phải, áp đệ quy từ root; với BST kết quả luôn là dãy tăng dần — dùng làm kiểm chứng.
+
+   \`2, 5, 7, 10, 15\`. Áp dụng "trái-gốc-phải" đệ quy.
+   </details>
 2. Insert lần lượt \`4, 2, 6, 1, 3, 5, 7\` vào BST rỗng. Cây kết quả có chiều cao bao nhiêu?
-   <details><summary>Đáp án</summary>Chiều cao **2** (root=4, level 1 có 2 và 6, level 2 có 1,3,5,7). Cây cân bằng hoàn hảo cho 7 node.</details>
+   <details><summary>Đáp án</summary>
+
+   Chiều cao **2** (root=4, level 1 có 2 và 6, level 2 có 1,3,5,7). Cây cân bằng hoàn hảo cho 7 node.
+   </details>
 3. Cho cây ở câu 1, xoá node 10. Cây mới có root là gì?
-   <details><summary>Đáp án</summary>**15** (successor của 10 = min subtree phải = 15, vì 15 không có con). Cây mới: root=15, trái=5 (5 có con 2, 7).</details>
+   <details><summary>Đáp án</summary>
+
+   **15** (successor của 10 = min subtree phải = 15, vì 15 không có con). Cây mới: root=15, trái=5 (5 có con 2, 7).
+   </details>
 4. Vì sao cây sau khi chèn \`1,2,3,...,n\` theo thứ tự có chiều cao $n-1$ mà không phải $\\log n$?
-   <details><summary>Đáp án</summary>Mỗi key mới đều > mọi key đã có → luôn đi sang phải, không bao giờ rẽ trái. Cây thành chuỗi phải dài $n-1$. Đây là worst case của BST không cân bằng.</details>
+   <details><summary>Đáp án</summary>
+
+   Mỗi key mới đều > mọi key đã có → luôn đi sang phải, không bao giờ rẽ trái. Cây thành chuỗi phải dài $n-1$. Đây là worst case của BST không cân bằng.
+   </details>
 
 ### 5.4. 📝 Tóm tắt mục 1-5
 
@@ -654,11 +668,22 @@ Cùng một thuật toán "trái nhỏ phải lớn", chỉ khác cú pháp. Hi�
 
 > 🔁 **Thực hành**
 > 1. Vì sao với time-series chỉ **append cuối** (timestamp tăng dần) + query nhiều, sorted slice thắng \`google/btree\`?
->    <details><summary>Đáp án</summary>Append cuối = $O(1)$ amortized, không phải chèn giữa. Query = \`sort.Search\` $O(\\log n)$ trên mảng liền mạch (cache-friendly, không pointer-chasing). B-tree thêm overhead node/pointer mà không lợi gì khi không chèn giữa.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: So chi phí từng thao tác của workload: append cuối trên slice là gì, có bao giờ chèn giữa không, query bằng \`sort.Search\` tốn bao nhiêu — rồi xét overhead mà B-tree trả thêm cho khả năng không dùng tới.
+>
+>    Append cuối = $O(1)$ amortized, không phải chèn giữa. Query = \`sort.Search\` $O(\\log n)$ trên mảng liền mạch (cache-friendly, không pointer-chasing). B-tree thêm overhead node/pointer mà không lợi gì khi không chèn giữa.
+>    </details>
 > 2. \`sort.Search(n, f)\` trả về gì khi không phần tử nào thỏa \`f\`? Code §9.2 xử lý sao?
->    <details><summary>Đáp án</summary>Trả về \`n\` (vị trí "cuối mảng"). Trong \`PriceAt\`, nếu mọi \`ts ≤ t\` thì \`i = len\`, ta lấy \`ticks[i-1]\` = phần tử cuối = floor đúng. Nếu mọi \`ts > t\` thì \`i = 0\` → trả \`false\` (không có floor).</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Trả về \`n\` (vị trí "cuối mảng"). Trong \`PriceAt\`, nếu mọi \`ts ≤ t\` thì \`i = len\`, ta lấy \`ticks[i-1]\` = phần tử cuối = floor đúng. Nếu mọi \`ts > t\` thì \`i = 0\` → trả \`false\` (không có floor).
+>    </details>
 > 3. Vì sao \`btree.New(32)\` không suy biến khi chèn dữ liệu đã sort, còn BST thường thì có?
->    <details><summary>Đáp án</summary>B-tree <b>tự cân bằng</b>: node đầy thì tách (split), chiều cao luôn $O(\\log n)$ bất kể thứ tự chèn. BST thường chèn dãy tăng → đi phải mãi → cao $n-1$ (Bài 5). Cân bằng là điều L04 sẽ học kỹ.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    B-tree <b>tự cân bằng</b>: node đầy thì tách (split), chiều cao luôn $O(\\log n)$ bất kể thứ tự chèn. BST thường chèn dãy tăng → đi phải mãi → cao $n-1$ (Bài 5). Cân bằng là điều L04 sẽ học kỹ.
+>    </details>
 
 ### 9.6. 📝 Tóm tắt mục 9
 

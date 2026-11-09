@@ -268,11 +268,22 @@ Tổng: $1 + n + n^2 + 1 = n^2 + n + 2$ → **$O(n^2)$**.
 ### 5.12. 🔁 Thực hành
 
 1. Đoạn `for i := 1; i < n; i *= 2 { ... }` chạy bao nhiêu lần?
-   <details><summary>Đáp án</summary>$i$ đi qua dãy $1, 2, 4, 8, \ldots, n$ → khoảng $\log_2 n$ lần → $O(\log n)$.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Đếm số lần nhân đôi để $i$ đi từ 1 vượt $n$: dãy giá trị của $i$ là $1, 2, 4, 8, \ldots$ — hỏi cần bao nhiêu bước để $2^k \ge n$.
+
+   $i$ đi qua dãy $1, 2, 4, 8, \ldots, n$ → khoảng $\log_2 n$ lần → $O(\log n)$.
+   </details>
 2. $O(n^2 + 1000n)$ rút gọn thành gì? Với $n = 10$, $n^2$ và $1000n$ cái nào lớn hơn?
-   <details><summary>Đáp án</summary>Rút gọn = $O(n^2)$ (chỉ giữ bậc cao). Với $n = 10$: $n^2 = 100$, $1000n = 10000$ → $1000n$ lớn hơn. Đây là minh hoạ "Big-O chỉ đúng khi $n$ ĐỦ LỚN" — với $n$ nhỏ, hằng số ẩn có thể lấn át bậc.</details>
+   <details><summary>Đáp án</summary>
+
+   Rút gọn = $O(n^2)$ (chỉ giữ bậc cao). Với $n = 10$: $n^2 = 100$, $1000n = 10000$ → $1000n$ lớn hơn. Đây là minh hoạ "Big-O chỉ đúng khi $n$ ĐỦ LỚN" — với $n$ nhỏ, hằng số ẩn có thể lấn át bậc.
+   </details>
 3. Hai thuật toán cùng $O(n \log n)$ thì chạy cùng tốc độ?
-   <details><summary>Đáp án</summary>Không nhất thiết. Big-O chỉ đảm bảo "cùng lớp tăng"; hằng số ẩn có thể khác. Vd merge sort và heap sort đều $O(n \log n)$ nhưng quick sort (cũng $O(n \log n)$ trung bình) thường nhanh hơn trên thực tế vì hằng số nhỏ + cache locality tốt.</details>
+   <details><summary>Đáp án</summary>
+
+   Không nhất thiết. Big-O chỉ đảm bảo "cùng lớp tăng"; hằng số ẩn có thể khác. Vd merge sort và heap sort đều $O(n \log n)$ nhưng quick sort (cũng $O(n \log n)$ trung bình) thường nhanh hơn trên thực tế vì hằng số nhỏ + cache locality tốt.
+   </details>
 
 ### 5.13. 📝 Tóm tắt mục 5
 

@@ -276,11 +276,22 @@ $O(L)$ với $L$ = độ dài chuỗi (~20 ký tự cho username) → vài chụ
 ### 6.1. 🔁 Thực hành
 
 1. Hash function trả về cùng kết quả cho 2 key khác nhau gọi là gì? Có làm hash table sai không?
-   <details><summary>Đáp án</summary>**Collision (xung đột)**. Không làm sai — bảng vẫn lưu cả hai (chaining cho vào cùng list, open addressing tìm ô kế). Chỉ chậm hơn nếu collision nhiều.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Nhớ định nghĩa: hai key khác nhau cho cùng giá trị hash. Xét tiếp cơ chế xử lý (chaining / open addressing) để trả lời vế 'có sai không'.
+
+   **Collision (xung đột)**. Không làm sai — bảng vẫn lưu cả hai (chaining cho vào cùng list, open addressing tìm ô kế). Chỉ chậm hơn nếu collision nhiều.
+   </details>
 2. Cho \`m = 7\` và hash \`(tổng ASCII) mod m\`. Tính hash cho \`"ab"\`.
-   <details><summary>Đáp án</summary>\`'a'\`=97, \`'b'\`=98, tổng=195. \`195 mod 7 = 6\` (vì \`7·27=189\`, \`195-189=6\`). → **6**.</details>
+   <details><summary>Đáp án</summary>
+
+   \`'a'\`=97, \`'b'\`=98, tổng=195. \`195 mod 7 = 6\` (vì \`7·27=189\`, \`195-189=6\`). → **6**.
+   </details>
 3. Vì sao build set ban đầu ~400 ms trong khi mỗi query chỉ ~100 ns? Phải chăng có gì sai?
-   <details><summary>Đáp án</summary>Không sai. 400 ms = 1.000.000 × ~400 ns/insert (hash + cấp bộ nhớ + có thể resize). Mỗi query ~100 ns là **chỉ hash + đọc 1 ô**. Build trả phí một lần, query nhanh mọi lần sau.</details>
+   <details><summary>Đáp án</summary>
+
+   Không sai. 400 ms = 1.000.000 × ~400 ns/insert (hash + cấp bộ nhớ + có thể resize). Mỗi query ~100 ns là **chỉ hash + đọc 1 ô**. Build trả phí một lần, query nhanh mọi lần sau.
+   </details>
 
 ### 6.2. 📝 Tóm tắt mục 3-6
 
@@ -332,9 +343,17 @@ Một lần insert đó tốn $O(n)$. Nhưng giữa các lần resize, có **~n 
 ### 9.2. 🔁 Thực hành
 
 1. Cho $n = 100, m = 128$. Tính $\\alpha$.
-   <details><summary>Đáp án</summary>$\\alpha = 100/128 \\approx 0,78$. Vượt 0,75 → resize ở insert tiếp theo.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Load factor $\\alpha = n/m$; tính xong so với ngưỡng resize 0,75.
+
+   $\\alpha = 100/128 \\approx 0,78$. Vượt 0,75 → resize ở insert tiếp theo.
+   </details>
 2. Vì sao amortized insert vẫn $O(1)$ dù có lần insert tốn $O(n)$?
-   <details><summary>Đáp án</summary>Resize gấp đôi. Tổng chi phí n insert ≈ $n\\cdot c + (1+2+4+...+n) = n\\cdot c + 2n = O(n)$. Chia trung bình mỗi insert $O(1)$.</details>
+   <details><summary>Đáp án</summary>
+
+   Resize gấp đôi. Tổng chi phí n insert ≈ $n\\cdot c + (1+2+4+...+n) = n\\cdot c + 2n = O(n)$. Chia trung bình mỗi insert $O(1)$.
+   </details>
 
 ## 10. Bảng độ phức tạp
 
@@ -436,11 +455,22 @@ Mẹo: **chọn khóa chuẩn hóa** sao cho các phần tử "cùng nhóm" ra c
 ### 11.4. 🔁 Thực hành
 
 > 1. Vì sao \`server = hash(key) % N\` hỏng khi thêm/bớt server?
->    <details><summary>Đáp án</summary>$N$ đổi → số dư \`% N\` đổi cho gần như mọi key → đa số key ánh xạ sang server khác → cache miss hàng loạt, phải di chuyển dữ liệu ồ ạt. Consistent hashing chỉ remap các key lân cận server thay đổi.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Xét một key cố định khi $N$ đổi (vd 4 → 5): số dư \`hash % N\` có giữ nguyên không? Từ đó suy ra tỉ lệ key bị chuyển sang server khác.
+>
+>    $N$ đổi → số dư \`% N\` đổi cho gần như mọi key → đa số key ánh xạ sang server khác → cache miss hàng loạt, phải di chuyển dữ liệu ồ ạt. Consistent hashing chỉ remap các key lân cận server thay đổi.
+>    </details>
 > 2. Memoization biến \`fib\` từ độ phức tạp nào sang nào?
->    <details><summary>Đáp án</summary>Từ $O(2^n)$ (cây đệ quy tính lại vô số lần) sang $O(n)$ (mỗi \`n\` tính đúng 1 lần, lần sau lấy từ cache $O(1)$).</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Từ $O(2^n)$ (cây đệ quy tính lại vô số lần) sang $O(n)$ (mỗi \`n\` tính đúng 1 lần, lần sau lấy từ cache $O(1)$).
+>    </details>
 > 3. Trong group anagrams, vì sao sort ký tự làm khóa?
->    <details><summary>Đáp án</summary>Hai anagram có cùng đa tập ký tự → sort xong ra cùng chuỗi → cùng khóa map → vào cùng nhóm. "eat" và "tea" đều thành "aet".</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Hai anagram có cùng đa tập ký tự → sort xong ra cùng chuỗi → cùng khóa map → vào cùng nhóm. "eat" và "tea" đều thành "aet".
+>    </details>
 
 ### 11.5. 📝 Tóm tắt mục 11
 

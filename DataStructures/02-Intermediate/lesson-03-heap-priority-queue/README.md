@@ -244,11 +244,22 @@ Wait — để node `1` ở idx 0, con phải ở idx 2, con phải tiếp ở i
 ### 2.6. 🔁 Thực hành
 
 1. Heap `[10, 20, 15, 30, 40, 25, 50]` (0-based). Cha của idx 5 là ai? Con trái của idx 2 là ai?
-   <details><summary>Đáp án</summary>Cha của idx 5: $(5-1)/2 = 2$ → giá trị `15`. Con trái của idx 2: $2\cdot 2+1 = 5$ → giá trị `25`.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Áp công thức heap 0-based: cha của $i$ là $\lfloor (i-1)/2 \rfloor$, con trái của $i$ là $2i + 1$.
+
+   Cha của idx 5: $(5-1)/2 = 2$ → giá trị `15`. Con trái của idx 2: $2\cdot 2+1 = 5$ → giá trị `25`.
+   </details>
 2. Cây nhị phân 1000 node nhưng skewed (mỗi node chỉ rẽ phải). Array-based 0-based tốn bao nhiêu slot?
-   <details><summary>Đáp án</summary>Node sâu nhất ở idx $2^{999} - 1 \approx 10^{300}$. Không khả thi. Đây là lý do array-based chỉ hợp với complete tree.</details>
+   <details><summary>Đáp án</summary>
+
+   Node sâu nhất ở idx $2^{999} - 1 \approx 10^{300}$. Không khả thi. Đây là lý do array-based chỉ hợp với complete tree.
+   </details>
 3. Trong heap $n$ phần tử (0-based), số leaf chính xác là bao nhiêu?
-   <details><summary>Đáp án</summary>Các index từ $\lfloor n/2 \rfloor$ tới $n-1$ là leaf → có $\lceil n/2 \rceil$ leaf. Đây là lý do `buildHeap` chỉ chạy `siftDown` từ $n/2 - 1$ xuống (các node trước đó không phải leaf).</details>
+   <details><summary>Đáp án</summary>
+
+   Các index từ $\lfloor n/2 \rfloor$ tới $n-1$ là leaf → có $\lceil n/2 \rceil$ leaf. Đây là lý do `buildHeap` chỉ chạy `siftDown` từ $n/2 - 1$ xuống (các node trước đó không phải leaf).
+   </details>
 
 ### 2.7. 📝 Tóm tắt mục 2
 
@@ -585,11 +596,22 @@ $O(N \log K)$ với $N$ = tổng phần tử. Đây là **merge step** của ext
 
 > 🔁 **Thực hành**
 > 1. Trong `container/heap`, vì sao gọi `h.Pop()` (method của bạn) thay vì `heap.Pop(h)` lại sai?
->    <details><summary>Đáp án</summary>Method `Pop` của bạn chỉ cắt phần tử <b>cuối slice</b> — không phải min. `heap.Pop(h)` của package mới đổi root xuống cuối, cắt nó ra, rồi sift-down để khôi phục heap property. Phải gọi bản package-level.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Đọc lại hợp đồng interface `container/heap`: method `Pop` bạn viết chỉ là 'cắt phần tử cuối slice' cho package gọi; việc swap root–cuối rồi sift-down nằm trong `heap.Pop` bản package-level.
+>
+>    Method `Pop` của bạn chỉ cắt phần tử <b>cuối slice</b> — không phải min. `heap.Pop(h)` của package mới đổi root xuống cuối, cắt nó ra, rồi sift-down để khôi phục heap property. Phải gọi bản package-level.
+>    </details>
 > 2. Trong Dijkstra §7.3, vì sao không cần xóa bản `(v, dist cũ)` khỏi heap?
->    <details><summary>Đáp án</summary>Lazy deletion: khi `Pop` lấy ra bản cũ, `cur.dist > dist[cur.node]` đúng (vì `dist[v]` đã được cập nhật nhỏ hơn) → `continue` bỏ qua. Bản cũ vô hại, chỉ tốn chút bộ nhớ.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Lazy deletion: khi `Pop` lấy ra bản cũ, `cur.dist > dist[cur.node]` đúng (vì `dist[v]` đã được cập nhật nhỏ hơn) → `continue` bỏ qua. Bản cũ vô hại, chỉ tốn chút bộ nhớ.
+>    </details>
 > 3. Top-K §7.4 dùng min-heap hay max-heap để tìm K phần tử LỚN nhất? Vì sao?
->    <details><summary>Đáp án</summary><b>Min-heap</b> size K. Gốc = phần tử nhỏ nhất trong K hiện giữ = "người gác cửa". Ứng viên mới chỉ vào nếu lớn hơn gốc. Dùng max-heap thì gốc là lớn nhất — không giúp loại phần tử nhỏ.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    <b>Min-heap</b> size K. Gốc = phần tử nhỏ nhất trong K hiện giữ = "người gác cửa". Ứng viên mới chỉ vào nếu lớn hơn gốc. Dùng max-heap thì gốc là lớn nhất — không giúp loại phần tử nhỏ.
+>    </details>
 
 ### 7.8. 📝 Tóm tắt mục 7
 

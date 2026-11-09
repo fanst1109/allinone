@@ -233,16 +233,27 @@ Dùng 3 con trỏ: \`prev\` (đã đảo), \`cur\` (đang xét), \`nxt\` (lưu t
 ### 7.3. 🔁 Thực hành
 
 1. Cho list \`A → B → C → D\`. Muốn xóa node \`C\` (biết trước con trỏ tới \`C\`), trong **singly** list cần làm gì?
-   <details><summary>Đáp án</summary>Phải tìm node trước (\`B\`) bằng cách duyệt từ \`head\` → tốn $O(n)$. Rồi \`B.next = C.next\` (tức \`D\`). Mẹo: nếu C **không phải node cuối**, có thể "copy-then-skip" — gán \`C.value = D.value; C.next = D.next\`, hiệu quả $O(1)$ nhưng làm thay đổi node nội dung.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Muốn gỡ node khỏi singly list phải sửa \`next\` của node ĐỨNG TRƯỚC nó — tự hỏi: đứng ở \`C\` có với ngược về \`B\` được không, và tìm \`B\` tốn bao nhiêu.
+
+   Phải tìm node trước (\`B\`) bằng cách duyệt từ \`head\` → tốn $O(n)$. Rồi \`B.next = C.next\` (tức \`D\`). Mẹo: nếu C **không phải node cuối**, có thể "copy-then-skip" — gán \`C.value = D.value; C.next = D.next\`, hiệu quả $O(1)$ nhưng làm thay đổi node nội dung.
+   </details>
 2. Đoạn code sau có lỗi gì?
    \`\`\`go
    func deleteHead(head *Node) {
        head = head.next
    }
    \`\`\`
-   <details><summary>Đáp án</summary>**Tham trị**: gán \`head = head.next\` chỉ thay đổi biến local, không ảnh hưởng caller. Caller vẫn giữ \`head\` cũ. Sửa: trả về \`*Node\` mới \`return head.next\` để caller gán lại, hoặc nhận \`**Node\` (con trỏ-tới-con-trỏ).</details>
+   <details><summary>Đáp án</summary>
+
+   **Tham trị**: gán \`head = head.next\` chỉ thay đổi biến local, không ảnh hưởng caller. Caller vẫn giữ \`head\` cũ. Sửa: trả về \`*Node\` mới \`return head.next\` để caller gán lại, hoặc nhận \`**Node\` (con trỏ-tới-con-trỏ).
+   </details>
 3. Tại sao chèn vào **đầu** doubly list lại không nhanh hơn singly list, dù doubly có thêm \`prev\`?
-   <details><summary>Đáp án</summary>Cả hai đều $O(1)$ ở đầu. Doubly chỉ tốn thêm 1 phép gán \`prev\` so với singly — vẫn $O(1)$. Doubly thắng ở **xóa node biết trước** (không cần tìm \`prev\` bằng cách duyệt).</details>
+   <details><summary>Đáp án</summary>
+
+   Cả hai đều $O(1)$ ở đầu. Doubly chỉ tốn thêm 1 phép gán \`prev\` so với singly — vẫn $O(1)$. Doubly thắng ở **xóa node biết trước** (không cần tìm \`prev\` bằng cách duyệt).
+   </details>
 
 ### 7.4. 📝 Tóm tắt mục — Linked List
 
@@ -339,11 +350,22 @@ Nhưng cho LRU production, đa số tự cài struct như §8.1 (kiểm soát t�
 ### 8.3. 🔁 Thực hành
 
 > 1. Vì sao LRU cache cần **doubly**-linked, singly không đủ?
->    <details><summary>Đáp án</summary>Evict node cuối + move node giữa lên đầu cần xóa node trong $O(1)$ — phải biết node <b>trước</b> nó. Singly không có \`prev\` → muốn xóa phải duyệt tìm node trước = $O(n)$. Doubly có \`prev\` → $O(1)$.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Liệt kê các thao tác LRU cần chạy $O(1)$: gỡ node giữa list, gỡ node cuối. Gỡ một node cần con trỏ tới node trước nó — xét singly có sẵn thứ đó không.
+>
+>    Evict node cuối + move node giữa lên đầu cần xóa node trong $O(1)$ — phải biết node <b>trước</b> nó. Singly không có \`prev\` → muốn xóa phải duyệt tìm node trước = $O(n)$. Doubly có \`prev\` → $O(1)$.
+>    </details>
 > 2. Vai trò của map trong LRU là gì? Bỏ map đi thì sao?
->    <details><summary>Đáp án</summary>Map \`key→node\` cho \`Get\` tìm node $O(1)$. Bỏ map → phải duyệt list tìm key = $O(n)$, mất cả ý nghĩa "cache nhanh". LRU = map (tìm nhanh) + list (thứ tự dùng).</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Map \`key→node\` cho \`Get\` tìm node $O(1)$. Bỏ map → phải duyệt list tìm key = $O(n)$, mất cả ý nghĩa "cache nhanh". LRU = map (tìm nhanh) + list (thứ tự dùng).
+>    </details>
 > 3. Khi nào nên dùng slice thay vì linked list?
->    <details><summary>Đáp án</summary>Gần như luôn, trừ khi cần xóa/chèn giữa $O(1)$ với con trỏ sẵn (như LRU). Slice cache-friendly, truy cập index $O(1)$, ít overhead bộ nhớ (§5). Linked list chỉ thắng ở splice/move node.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Gần như luôn, trừ khi cần xóa/chèn giữa $O(1)$ với con trỏ sẵn (như LRU). Slice cache-friendly, truy cập index $O(1)$, ít overhead bộ nhớ (§5). Linked list chỉ thắng ở splice/move node.
+>    </details>
 
 ### 8.4. 📝 Tóm tắt mục 8
 

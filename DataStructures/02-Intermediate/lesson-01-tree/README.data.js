@@ -381,9 +381,17 @@ Trong đó **chỉ 20 byte chứa dữ liệu thật (\`value\`)**. 100 byte cò
 ### 8.7. 🔁 Thực hành
 
 1. Một cây có 1 triệu node, pointer-based trên máy 64-bit, dữ liệu là \`int32\`. Tốn bao nhiêu MB chỉ để LƯU?
-   <details><summary>Đáp án</summary>$10^6 \\times 24$ byte $= 24$ MB. Chỉ 4 MB là \`value\`, 20 MB là metadata.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Tính size một node pointer-based trên máy 64-bit: \`value\` int32 (+ padding) cộng 2 con trỏ 8 byte = 24 byte, rồi nhân $10^6$.
+
+   $10^6 \\times 24$ byte $= 24$ MB. Chỉ 4 MB là \`value\`, 20 MB là metadata.
+   </details>
 2. Vì sao đi từ root xuống node độ sâu $h$ thực sự có thể chậm hơn $O(h)$ ở mức "phép toán thuần"?
-   <details><summary>Đáp án</summary>Mỗi node có thể nằm ở vùng RAM khác → cache miss. CPU đọc RAM ~100 ns vs cache L1 ~1 ns. Big-O bỏ qua hằng số này nhưng thực tế quan trọng.</details>
+   <details><summary>Đáp án</summary>
+
+   Mỗi node có thể nằm ở vùng RAM khác → cache miss. CPU đọc RAM ~100 ns vs cache L1 ~1 ns. Big-O bỏ qua hằng số này nhưng thực tế quan trọng.
+   </details>
 
 ### 8.8. 📝 Tóm tắt mục 8
 
@@ -645,9 +653,17 @@ Nhắc lại [mục 6](#6-cây-tổng-quát-n-ary-tree) — khi mỗi node có *
 ### 9.7. 🔁 Thực hành
 
 1. Dựng cây biểu thức cho \`2 * (3 + 5)\` rồi tính bằng postorder. Kết quả là bao nhiêu?
-   <details><summary>Đáp án</summary>Cây: gốc \`*\`, con trái \`2\`, con phải \`+\` (với con \`3\`, \`5\`). Postorder: thăm \`2\`, \`3\`, \`5\`, rồi \`+\` → \`3+5=8\`, rồi \`*\` → \`2*8=16\`. Kết quả **16**.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Toán tử ưu tiên thấp nhất (ngoài ngoặc) nằm ở GỐC cây; postorder = tính xong 2 con rồi mới áp toán tử tại node.
+
+   Cây: gốc \`*\`, con trái \`2\`, con phải \`+\` (với con \`3\`, \`5\`). Postorder: thăm \`2\`, \`3\`, \`5\`, rồi \`+\` → \`3+5=8\`, rồi \`*\` → \`2*8=16\`. Kết quả **16**.
+   </details>
 2. Trong mã Huffman ở §9.2, vì sao không ký tự nào có mã là **tiền tố** của ký tự khác (vd không có \`A=0\` và \`X=01\`)?
-   <details><summary>Đáp án</summary>Vì mọi ký tự nằm ở **lá**, không ký tự nào nằm trên đường đi xuống ký tự khác. Tính chất "không tiền tố" (prefix-free) này cho phép giải mã chuỗi bit mà không cần dấu phân cách: cứ đi từ gốc, gặp lá thì xuất ký tự rồi quay lại gốc.</details>
+   <details><summary>Đáp án</summary>
+
+   Vì mọi ký tự nằm ở **lá**, không ký tự nào nằm trên đường đi xuống ký tự khác. Tính chất "không tiền tố" (prefix-free) này cho phép giải mã chuỗi bit mà không cần dấu phân cách: cứ đi từ gốc, gặp lá thì xuất ký tự rồi quay lại gốc.
+   </details>
 
 ## 10. Thực hành: dùng trong code thật
 
@@ -826,11 +842,22 @@ func main() {
 
 > 🔁 **Thực hành**
 > 1. Vì sao cây biểu thức cho \`10 - 2 * 3\` ra \`4\`, không phải \`24\`?
->    <details><summary>Đáp án</summary>Grammar đặt \`*\` trong \`term\` (sâu hơn), \`-\` trong \`expr\` (gần gốc). Cây: gốc \`-\`, con trái \`10\`, con phải là node \`*\`(2,3). Postorder tính \`2*3=6\` trước, rồi \`10-6=4\`. Hình dạng cây mã hóa độ ưu tiên.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Nhìn grammar: \`*\` sinh ra ở tầng \`term\` sâu hơn \`-\` ở tầng \`expr\` → \`*\` nằm xa gốc hơn, bị postorder tính trước.
+>
+>    Grammar đặt \`*\` trong \`term\` (sâu hơn), \`-\` trong \`expr\` (gần gốc). Cây: gốc \`-\`, con trái \`10\`, con phải là node \`*\`(2,3). Postorder tính \`2*3=6\` trước, rồi \`10-6=4\`. Hình dạng cây mã hóa độ ưu tiên.
+>    </details>
 > 2. \`filepath.WalkDir\` duyệt theo thứ tự pre/in/post-order nào? Trả \`filepath.SkipDir\` làm gì?
->    <details><summary>Đáp án</summary><b>Preorder</b> (thăm thư mục cha trước nội dung). \`SkipDir\` <b>cắt nhánh</b> — bỏ qua toàn bộ subtree (thư mục con) đang đứng, giống prune ở range-query BST.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    <b>Preorder</b> (thăm thư mục cha trước nội dung). \`SkipDir\` <b>cắt nhánh</b> — bỏ qua toàn bộ subtree (thư mục con) đang đứng, giống prune ở range-query BST.
+>    </details>
 > 3. Trong hàm \`walk\` JSON §10.3, đâu là "node trong", đâu là "lá"?
->    <details><summary>Đáp án</summary>Node trong = \`map[string]any\` (object) và \`[]any\` (array) → có con, phải đệ quy xuống. Lá = số/chuỗi/bool/null (case \`default\`) → không có con, in ra ngay.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Node trong = \`map[string]any\` (object) và \`[]any\` (array) → có con, phải đệ quy xuống. Lá = số/chuỗi/bool/null (case \`default\`) → không có con, in ra ngay.
+>    </details>
 
 ### 10.5. 📝 Tóm tắt mục 10
 

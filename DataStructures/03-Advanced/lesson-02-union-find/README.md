@@ -379,11 +379,22 @@ MST = `{(0,1,1), (1,2,2), (1,3,4), (3,4,5)}`, tổng trọng số $= 1+2+4+5 = 1
 ### 7.2. 🔁 Thực hành
 
 1. Sau chuỗi `union(0,1), union(2,3), union(1,2)` với union by rank trên 5 phần tử, `find(3)` ra gì?
-   <details><summary>Đáp án</summary>Sau `union(0,1)`: rank `[1,0,0,0,0]`, `parent[1]=0`. Sau `union(2,3)`: rank `[1,0,1,0,0]`, `parent[3]=2`. `union(1,2)`: `find(1)=0`, `find(2)=2`, `rank[0]==rank[2]==1` → `parent[2]=0`, `rank[0]=2`. Vậy `find(3)`: `3 → 2 → 0`, trả về `0`.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Trace từng `union`: tìm root hai bên, so `rank`; bằng nhau thì root bên kia treo dưới root bên này và rank root nhận tăng 1. Cuối cùng lần `find(3)` theo chuỗi `parent`.
+
+   Sau `union(0,1)`: rank `[1,0,0,0,0]`, `parent[1]=0`. Sau `union(2,3)`: rank `[1,0,1,0,0]`, `parent[3]=2`. `union(1,2)`: `find(1)=0`, `find(2)=2`, `rank[0]==rank[2]==1` → `parent[2]=0`, `rank[0]=2`. Vậy `find(3)`: `3 → 2 → 0`, trả về `0`.
+   </details>
 2. Nếu lưu `size` thay vì `rank` (`union by size`), kết quả cuối có giống không?
-   <details><summary>Đáp án</summary>Cùng đạt $O(\alpha)$ amortized. Lựa chọn cụ thể (kích thước nhóm vs chiều cao) thường giống nhau khi cây thấp, nhưng size có lợi thế: trả lời được "nhóm a có bao nhiêu người" trong $O(\alpha)$.</details>
+   <details><summary>Đáp án</summary>
+
+   Cùng đạt $O(\alpha)$ amortized. Lựa chọn cụ thể (kích thước nhóm vs chiều cao) thường giống nhau khi cây thấp, nhưng size có lợi thế: trả lời được "nhóm a có bao nhiêu người" trong $O(\alpha)$.
+   </details>
 3. UF có dùng được cho **tính số đảo** trong mảng (LeetCode 493 — Reverse Pairs) không?
-   <details><summary>Đáp án</summary>Không phù hợp. Đảo cần thứ tự tổng, UF chỉ quản lý quan hệ tương đương. Dùng merge sort hoặc BIT (lesson 13).</details>
+   <details><summary>Đáp án</summary>
+
+   Không phù hợp. Đảo cần thứ tự tổng, UF chỉ quản lý quan hệ tương đương. Dùng merge sort hoặc BIT (lesson 13).
+   </details>
 
 ## 8. Thực hành: dùng trong code thật
 
@@ -489,11 +500,22 @@ Khác với DFS/BFS đếm thành phần liên thông ($O(V+E)$ **mỗi lần** 
 
 > 🔁 **Thực hành**
 > 1. Trong Kruskal, vì sao chỉ nhận cạnh khi `Union` trả `true`?
->    <details><summary>Đáp án</summary>`true` = hai đầu cạnh thuộc <b>hai nhóm khác nhau</b> → nối chúng làm liên thông thêm, không tạo chu trình. `false` = đã cùng nhóm → cạnh này tạo vòng, bỏ đi.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Nghĩa của giá trị `Union` trả về: hai đầu cạnh đang cùng cây hay khác cây — nối hai node vốn đã cùng cây thì sinh ra gì?
+>
+>    `true` = hai đầu cạnh thuộc <b>hai nhóm khác nhau</b> → nối chúng làm liên thông thêm, không tạo chu trình. `false` = đã cùng nhóm → cạnh này tạo vòng, bỏ đi.
+>    </details>
 > 2. Vì sao bài "liên thông động" (cạnh đến dần) dùng Union-Find thay vì DFS?
->    <details><summary>Đáp án</summary>DFS đếm lại thành phần $O(V+E)$ <b>mỗi lần</b> thêm cạnh rồi hỏi. UF xử lý online: mỗi `Union`/`Connected` ~$O(\alpha(n))$ ≈ hằng số, `count` luôn cập nhật sẵn.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    DFS đếm lại thành phần $O(V+E)$ <b>mỗi lần</b> thêm cạnh rồi hỏi. UF xử lý online: mỗi `Union`/`Connected` ~$O(\alpha(n))$ ≈ hằng số, `count` luôn cập nhật sẵn.
+>    </details>
 > 3. Muốn **xóa** một quan hệ bạn bè (tách nhóm), Union-Find làm được không?
->    <details><summary>Đáp án</summary>Không trực tiếp — UF chỉ gộp. Phải dùng cấu trúc khác (link-cut tree) hoặc dựng lại UF từ đầu với tập cạnh mới.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Không trực tiếp — UF chỉ gộp. Phải dùng cấu trúc khác (link-cut tree) hoặc dựng lại UF từ đầu với tập cạnh mới.
+>    </details>
 
 ### 8.5. 📝 Tóm tắt mục 8
 

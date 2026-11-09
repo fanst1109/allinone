@@ -193,11 +193,22 @@ Ngược lại, với `"([)]"`:
 ### 5.2. 🔁 Thực hành
 
 1. Dãy thao tác `push(1), push(2), pop, push(3), pop, pop`. Stack cuối cùng có gì? Pop ra lần lượt giá trị nào?
-   <details><summary>Đáp án</summary>Trace: `[]` → `[1]` → `[1,2]` → `[1]` (pop=2) → `[1,3]` → `[1]` (pop=3) → `[]` (pop=1). Stack cuối rỗng. Thứ tự pop: **2, 3, 1**.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Trace từng thao tác trên giấy, ghi trạng thái stack sau mỗi bước; pop luôn lấy phần tử TRÊN CÙNG (vào sau ra trước).
+
+   Trace: `[]` → `[1]` → `[1,2]` → `[1]` (pop=2) → `[1,3]` → `[1]` (pop=3) → `[]` (pop=1). Stack cuối rỗng. Thứ tự pop: **2, 3, 1**.
+   </details>
 2. Chuỗi `"({[}])"` có hợp lệ không? Trace bằng stack.
-   <details><summary>Đáp án</summary>`(` push → `[(]`. `{` push → `[(, {]`. `[` push → `[(, {, []`. Gặp `}` → pop đỉnh `[`, so với `pairs[}] = {` → **không khớp** → `false`. Chuỗi không hợp lệ vì các ngoặc lồng chéo nhau.</details>
+   <details><summary>Đáp án</summary>
+
+   `(` push → `[(]`. `{` push → `[(, {]`. `[` push → `[(, {, []`. Gặp `}` → pop đỉnh `[`, so với `pairs[}] = {` → **không khớp** → `false`. Chuỗi không hợp lệ vì các ngoặc lồng chéo nhau.
+   </details>
 3. Vì sao đệ quy fibonacci `fib(n) = fib(n-1) + fib(n-2)` với $n = 10000$ gây stack overflow, trong khi vòng for tính được dễ dàng?
-   <details><summary>Đáp án</summary>Mỗi lần gọi đệ quy đẩy 1 frame vào **call stack** của runtime. Với $n = 10000$, độ sâu đệ quy ~10000 frame, vượt giới hạn call stack (~10000 trong Java/Go, ~1000 trong Python). Vòng for chỉ dùng 1 frame + vài biến local → không phụ thuộc $n$.</details>
+   <details><summary>Đáp án</summary>
+
+   Mỗi lần gọi đệ quy đẩy 1 frame vào **call stack** của runtime. Với $n = 10000$, độ sâu đệ quy ~10000 frame, vượt giới hạn call stack (~10000 trong Java/Go, ~1000 trong Python). Vòng for chỉ dùng 1 frame + vài biến local → không phụ thuộc $n$.
+   </details>
 
 ### 5.3. 📝 Tóm tắt mục — Stack
 
@@ -301,11 +312,22 @@ Lợi: không giới hạn bởi stack đệ quy của runtime (Go goroutine sta
 ### 6.4. 🔁 Thực hành
 
 > 1. `validBrackets("([)]")` trả `false` ở bước nào?
->    <details><summary>Đáp án</summary>Khi gặp `)`: đỉnh stack là `[` (mở gần nhất), nhưng `)` cần khớp `(`. `st[top] != pairs[')']` → `false`. Stack bắt đúng lỗi lồng chéo.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Trace stack theo từng ký tự: gặp ngoặc mở thì push, gặp ngoặc đóng thì so với ĐỈNH stack — lệch là trả `false` ngay tại đó.
+>
+>    Khi gặp `)`: đỉnh stack là `[` (mở gần nhất), nhưng `)` cần khớp `(`. `st[top] != pairs[')']` → `false`. Stack bắt đúng lỗi lồng chéo.
+>    </details>
 > 2. Vì sao `Type` phải set `redo = nil`?
->    <details><summary>Đáp án</summary>Sau undo vài bước, redo chứa các trạng thái "tương lai cũ". Gõ thứ mới = tạo nhánh lịch sử khác → các trạng thái redo cũ không còn nối tiếp hợp lệ. Không xóa → Redo ra trạng thái sai.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Sau undo vài bước, redo chứa các trạng thái "tương lai cũ". Gõ thứ mới = tạo nhánh lịch sử khác → các trạng thái redo cũ không còn nối tiếp hợp lệ. Không xóa → Redo ra trạng thái sai.
+>    </details>
 > 3. Khi nào nên khử đệ quy thành stack lặp?
->    <details><summary>Đáp án</summary>Khi độ sâu đệ quy có thể rất lớn (cây/đồ thị sâu, danh sách dài) → nguy cơ stack overflow. Stack tường minh dùng heap, không bị giới hạn call-stack của runtime.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Khi độ sâu đệ quy có thể rất lớn (cây/đồ thị sâu, danh sách dài) → nguy cơ stack overflow. Stack tường minh dùng heap, không bị giới hạn call-stack của runtime.
+>    </details>
 
 ### 6.5. 📝 Tóm tắt mục 6
 

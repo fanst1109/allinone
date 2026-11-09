@@ -431,11 +431,22 @@ Vd $n = 8$:
 ### 7.1. 🔁 Thực hành tổng hợp
 
 1. Trên mảng \`[1, 3, 5, 7, 9, 11]\` (segtree build sẵn ở mục 2.5), tính \`query(0, 3)\`.
-   <details><summary>Đáp án</summary>\`a[0]+a[1]+a[2]+a[3] = 1+3+5+7 = 16\`. Đi node 1[0,5]→node 2[0,2] nằm trọn (=9)→node 3[3,5]→node 6[3,4]→node 12[3,3] nằm trọn (=7), node 13[4,4] không giao. Tổng \`9 + 7 = 16\` ✓.</details>
+   <details><summary>Đáp án</summary>
+
+   **Hướng dẫn**: Đi từ node gốc, mỗi node phân 3 trường hợp: đoạn node nằm trọn trong $[l, r]$ → lấy luôn giá trị; không giao → bỏ; giao một phần → đệ quy xuống 2 con. Cộng các node 'nằm trọn'.
+
+   \`a[0]+a[1]+a[2]+a[3] = 1+3+5+7 = 16\`. Đi node 1[0,5]→node 2[0,2] nằm trọn (=9)→node 3[3,5]→node 6[3,4]→node 12[3,3] nằm trọn (=7), node 13[4,4] không giao. Tổng \`9 + 7 = 16\` ✓.
+   </details>
 2. Sau \`update(a[4], +5)\` trên mảng \`[1,3,5,7,9,11]\`, các node nào thay đổi giá trị?
-   <details><summary>Đáp án</summary>Node 13 [4,4]: 9 → 14. Node 6 [3,4]: 16 → 21. Node 3 [3,5]: 27 → 32. Node 1 [0,5]: 36 → 41. Đúng 4 node trên đường từ lá lên gốc, chiều cao $\\log_2 6 \\approx 3$.</details>
+   <details><summary>Đáp án</summary>
+
+   Node 13 [4,4]: 9 → 14. Node 6 [3,4]: 16 → 21. Node 3 [3,5]: 27 → 32. Node 1 [0,5]: 36 → 41. Đúng 4 node trên đường từ lá lên gốc, chiều cao $\\log_2 6 \\approx 3$.
+   </details>
 3. Lazy propagation cho phép range max query + range assign không?
-   <details><summary>Đáp án</summary>Có. \`tree[node]\` lưu max của đoạn, \`lazy[node]\` lưu giá trị gán (cộng flag \`has_lazy\`). Khi pushDown, ép con max = lazy. Khi merge từ con, \`tree[node] = max(left, right)\`.</details>
+   <details><summary>Đáp án</summary>
+
+   Có. \`tree[node]\` lưu max của đoạn, \`lazy[node]\` lưu giá trị gán (cộng flag \`has_lazy\`). Khi pushDown, ép con max = lazy. Khi merge từ con, \`tree[node] = max(left, right)\`.
+   </details>
 
 ### 7.2. 📝 Tóm tắt cuối lesson
 
@@ -541,11 +552,22 @@ Dùng nhiều cho: **đếm nghịch thế** (Bài 4), rank động trong leader
 ### 8.4. 🔁 Thực hành
 
 > 1. Mảng giá tĩnh, chỉ hỏi "tổng [l,r]" nhiều lần, không bao giờ sửa. Dùng gì?
->    <details><summary>Đáp án</summary><b>Prefix-sum array</b>: <code>pre[i]=a[0]+...+a[i-1]</code>, query <code>pre[r+1]-pre[l]</code> = $O(1)$. Segment tree thừa vì không có update.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    **Hướng dẫn**: Workload tĩnh, không bao giờ update → tự hỏi: có cần cấu trúc hỗ trợ update $O(\\log n)$ không, hay tiền xử lý một lần rồi mỗi query $O(1)$?
+>
+>    <b>Prefix-sum array</b>: <code>pre[i]=a[0]+...+a[i-1]</code>, query <code>pre[r+1]-pre[l]</code> = $O(1)$. Segment tree thừa vì không có update.
+>    </details>
 > 2. Cần range **min** + point update. BIT đủ không?
->    <details><summary>Đáp án</summary>Không trực tiếp — BIT chuẩn chỉ làm cộng/trừ (có nghịch đảo). Min không có nghịch đảo → dùng <b>segment tree</b> (tổng quát cho min/max/gcd).</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Không trực tiếp — BIT chuẩn chỉ làm cộng/trừ (có nghịch đảo). Min không có nghịch đảo → dùng <b>segment tree</b> (tổng quát cho min/max/gcd).
+>    </details>
 > 3. Vì sao \`Query\` trong segtree dừng ngay khi đoạn node nằm trọn trong [ql,qr]?
->    <details><summary>Đáp án</summary>Node đó đã lưu sẵn tổng cả đoạn (tính lúc build/update) → lấy luôn, khỏi đi sâu. Đây là lý do query chỉ $O(\\log n)$ thay vì $O(n)$.</details>
+>    <details><summary>Đáp án</summary>
+>
+>    Node đó đã lưu sẵn tổng cả đoạn (tính lúc build/update) → lấy luôn, khỏi đi sâu. Đây là lý do query chỉ $O(\\log n)$ thay vì $O(n)$.
+>    </details>
 
 ### 8.5. 📝 Tóm tắt mục 8
 

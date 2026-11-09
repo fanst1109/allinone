@@ -216,6 +216,8 @@ $$\\begin{aligned}
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: tính tích có hướng theo quy tắc định thức từng thành phần, nhớ vòng tuần hoàn $x \\times y = z$; độ lớn $|u \\times v|$ chính là diện tích hình bình hành.
+
 1. $(1\\cdot1-0\\cdot0,\\ 0\\cdot0-0\\cdot1,\\ 0\\cdot0-1\\cdot0) = $ **(1, 0, 0)** (trục x — đúng vòng y×z = x).
 2. $u\\times v = (0,0,6) \\to$ diện tích $= |(0,0,6)| = $ **6** (= 2 × 3, đúng hình chữ nhật) .
 
@@ -498,6 +500,8 @@ So sánh $d$ (khoảng cách từ tâm I tới mặt phẳng) với $R$:
 2. Cho $x^2+y^2+z^2 - 4x + 2y - 4 = 0$. Tìm tâm và bán kính.
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: áp mẫu $(x-a)^2+(y-b)^2+(z-c)^2=R^2$; dạng khai triển thì nhóm bình phương từng biến (completing the square) rồi đọc tâm và $R$.
 
 1. $(x-2)^2+(y+1)^2+z^2 = 16$.
 2. $-2a=-4\\to a=2$; $-2b=2\\to b=-1$; $c=0$; $d=-4$. Tâm $(2,-1,0)$; $R=\\sqrt{a^2+b^2+c^2-d}=\\sqrt{4+1+0+4}=\\sqrt{9}=$ **3**.

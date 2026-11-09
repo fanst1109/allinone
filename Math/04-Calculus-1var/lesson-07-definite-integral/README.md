@@ -452,7 +452,7 @@ $$\int_a^b f(g(x)) \cdot g'(x)\,dx = \int_{g(a)}^{g(b)} f(u)\,du$$
 
 ### Walk-through đổi biến từng bước — ba ví dụ
 
-Đổi biến chính là **chain rule chạy ngược** (xem [Lesson 04 — Chain rule](../lesson-04-chain-rule/)): nhận ra biểu thức trong tích phân có dạng $f(g(x))\cdot g'(x)$ rồi gom $g(x)$ thành $u$.
+Đổi biến chính là **chain rule chạy ngược** (xem [Lesson 04 — Chain rule](../lesson-04-derivative-rules/)): nhận ra biểu thức trong tích phân có dạng $f(g(x))\cdot g'(x)$ rồi gom $g(x)$ thành $u$.
 
 **Ví dụ A — $\int_1^2 2x\cdot e^{x^2}\,dx$ (đổi cận thực sự khác).**
 - Đặt $u = x^2 \Rightarrow du = 2x\,dx$.

@@ -148,7 +148,7 @@ Phần còn lại của bài "mổ xẻ" từng dòng trong bảng này bằng s
 
 ## 1. Hàm hằng & hàm bậc 1 — Đường ngang và đường thẳng
 
-### 1.0. Hàm hằng
+### 1.1. Hàm hằng
 
 $$y = c \quad (c \text{ là số cố định})$$
 
@@ -162,7 +162,7 @@ $$y = c \quad (c \text{ là số cố định})$$
 
 **Dùng ở đâu**: phí thuê bao cố định (50.000đ/tháng bất kể dùng bao nhiêu), gia tốc trọng trường $g \approx 9.8$ coi như hằng, đường tiệm cận ngang của hàm khác.
 
-### 1.1. Hàm bậc 1
+### 1.2. Hàm bậc 1
 
 $$y = ax + b$$
 

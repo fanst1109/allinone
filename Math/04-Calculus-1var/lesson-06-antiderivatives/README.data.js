@@ -120,6 +120,8 @@ Mỗi dòng là một câu hỏi ngược: "đạo hàm hàm nào ra được v�
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đoán $F$ bằng quy tắc đạo hàm chạy ngược (lũy thừa: bậc cộng 1 rồi chia bậc mới), xong ĐẠO HÀM LẠI để kiểm — và luôn cộng $C$.
+
 1. $F = x^4 + C$ (vì $(x^4)' = 4x^3$).
 2. $F = e^x + \\sin x + C$ (tách tổng; $(e^x)' = e^x$, $(\\sin x)' = \\cos x$).
 3. $F = 2\\ln\\lvert x\\rvert + C$ (rút hằng số 2 ra; $\\int\\frac{1}{x} = \\ln\\lvert x\\rvert$ — nhớ trị tuyệt đối).

@@ -385,7 +385,7 @@ $0 \le x \le 2$, $\mathbf{0 \le y \le x^2}$. $\iint_D f\,dA = \int_0^2 \int_0^{x
 
 </details>
 
-### 3.5. Đổi thứ tự tích phân
+### 3.1. Đổi thứ tự tích phân
 
 💡 **Trực giác / Hình dung**: cùng một khối, cắt lát **theo $x$** (dọc) hay **theo $y$** (ngang) đều ra cùng thể tích — nhưng cận hai cách **khác hẳn nhau**. Đổi thứ tự = mô tả lại **cùng miền $D$** từ góc nhìn biến kia. Quy trình: **(1)** vẽ miền $D$, **(2)** đọc lại cận theo biến mới (quét hàng thay vì cột, hoặc ngược lại), **(3)** tính.
 

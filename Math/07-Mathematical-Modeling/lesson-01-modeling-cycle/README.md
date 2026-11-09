@@ -107,6 +107,8 @@ Sáu bước:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: đối chiếu bài nộp với vòng 6 bước — thiếu bước KIỂM CHỨNG kết quả với dữ liệu thật; câu 3 chỉ cần thay $t=100$ vào $8\cdot e^{0.01t}$.
+
 1. Bỏ qua **bước 5 (kiểm chứng)** và có thể cả **bước 6 (tinh chỉnh)** — chưa so với dữ liệu thật nên không biết mô hình có dùng được không.
 2. **Bước 2 (giả định)** — bỏ qua càng nhiều yếu tố thì mô hình càng đơn giản (nhưng có thể kém chính xác).
 3. **Hướng dẫn**: thay $t = 1000$ vào công thức, rồi hỏi "con số này có hợp lý không?".
@@ -146,6 +148,8 @@ Các loại giả định thường gặp:
 2. Dùng mô hình rơi tự do $t = \sqrt{2h/g}$ để tính thời gian rơi từ 2 m. Tờ giấy thật rơi khoảng 2–3 giây — mô hình lệch bao nhiêu lần?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: soi giả định với vật thật: tờ giấy nhẹ, diện tích lớn — sức cản chiếm ưu thế; tính $t=\sqrt{2h/g}$ rồi so với 2–3 s thực tế để thấy độ lệch.
 
 1. **Không hợp lý.** Với tờ giấy, sức cản không khí *là yếu tố chính* (diện tích lớn, khối lượng nhỏ) — bỏ qua nó cho ra thời gian rơi sai hẳn. Với hòn đá thì giả định đó lại tốt.
 2. **Hướng dẫn**: thay $h = 2$ m, $g = 9.8$ m/s² vào công thức rồi so với thực tế.
@@ -363,6 +367,8 @@ Tìm $t$ khi $T = 60$°C:
 3. Với $P = 100$ triệu, $r = 6\%$/năm: tính $A(2)$. Nếu ngân hàng nâng lãi suất lên $7\%$, cái gì trong mô hình thay đổi?
 
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phân vai theo định nghĩa: biến độc lập là đầu vào chạy tự do ($t$), biến phụ thuộc là đầu ra ($A$), tham số là số cố định theo kịch bản ($P, r$), còn $e$ là hằng số toán học.
 
 1. **Biến độc lập** $t$ (thời gian); **biến phụ thuộc** $A$ (số tiền); **tham số** $P$ (vốn ban đầu) và $r$ (lãi suất) — cố định cho một khoản gửi, đổi giữa các khoản.
 2. **Hằng số** toán học ($e \approx 2.718$), không bao giờ hiệu chỉnh. Khác hẳn $k$ (tham số, hiệu chỉnh từ dữ liệu).

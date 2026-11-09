@@ -356,6 +356,8 @@ $3x - x = 7 + 5 \\to 2x = 12 \\to x = 6$. Thế lại: $3\\cdot 6-5 = 13$, $6+7 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: rút gọn hai vế rồi nhìn phần còn lại: ra mệnh đề sai (hằng = hằng khác) là vô nghiệm, ra đồng nhất thức là vô số nghiệm, còn lại là nghiệm duy nhất.
+
 (1) trừ $4x$ → $-1 = 3$ (sai) → **vô nghiệm**. (2) khai triển → $2x - 6 = 2x - 6$ → **vô số nghiệm** ($S = \\mathbb{R}$). (3) $5x = 15 \\to x = 3$ → **nghiệm duy nhất**.
 
 </details>
@@ -650,6 +652,8 @@ Cộng 2 PT: $2x = 6 \\to x = 3$. Thế: $y = 5 - 3 = 2$. → $(3, 2)$. Kiểm: 
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: so ba tỉ lệ $\\frac{a_1}{a_2}, \\frac{b_1}{b_2}, \\frac{c_1}{c_2}$: hai tỉ lệ hệ số bằng nhau nhưng khác tỉ lệ hằng số nghĩa là hai đường song song.
+
 Tỉ lệ hệ số: $\\dfrac{2}{4} = \\dfrac{-1}{-2} = \\dfrac{1}{2}$ nhưng $\\dfrac{1}{7} \\neq \\dfrac{1}{2}$ → **song song → vô nghiệm**. Kiểm: nhân (1) với 2 → $4x - 2y = 2$, mâu thuẫn với $4x - 2y = 7$.
 
 </details>
@@ -665,7 +669,7 @@ Tỉ lệ hệ số: $\\dfrac{2}{4} = \\dfrac{-1}{-2} = \\dfrac{1}{2}$ nhưng $\
 
 ## 4. Ứng dụng — Bài toán có lời văn (word problem)
 
-### 4.0. Quy trình 4 bước dịch lời văn → phương trình
+### 4.1. Quy trình 4 bước dịch lời văn → phương trình
 
 Đây là kỹ năng quan trọng nhất của chương: **dịch tiếng Việt sang ngôn ngữ phương trình**.
 

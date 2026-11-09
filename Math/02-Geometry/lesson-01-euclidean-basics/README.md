@@ -232,7 +232,7 @@ Ví dụ số trên mặt cầu: tam giác có 3 đỉnh là Bắc Cực + 2 đi
 
 💡 **Trực giác / Hình dung**: góc đo "độ mở" giữa 2 tia chung gốc — như độ mở của 2 cánh kéo hay 2 kim đồng hồ. Mở càng rộng → góc càng lớn. Đơn vị độ chia 1 vòng tròn đầy thành 360 phần bằng nhau ($1^\circ = \frac{1}{360}$ vòng). Kim phút quay từ 12 tới 3 quét đúng $90^\circ$ ($\frac{1}{4}$ vòng).
 
-### 3.0. Đo góc — đơn vị độ
+### 3.1. Đo góc — đơn vị độ
 
 💡 **Là gì + vì sao tồn tại + ví dụ số**: **số đo góc** (angle measure) là một con số nói "2 tia mở rộng bao nhiêu". Vì sao cần? Vì nói "góc to" / "góc nhỏ" thì mơ hồ — cần một thang đo chung để 2 người ở 2 nơi nói cùng một góc. Quy ước: chia một vòng tròn đầy thành **360 phần bằng nhau**, mỗi phần là $1^\circ$ (một độ). Vậy $1^\circ = \tfrac{1}{360}$ vòng.
 
@@ -275,7 +275,7 @@ $$\angle AOC = \angle AOB + \angle BOC \quad(\text{tính cộng góc}).$$
 
 Ví dụ số: $\angle AOB = 30^\circ$, $\angle BOC = 25^\circ$ → $\angle AOC = 55^\circ$. Ngược lại, biết $\angle AOC = 90^\circ$ và $\angle AOB = 35^\circ$ thì $\angle BOC = 90 - 35 = 55^\circ$ (dùng ở Bài 8). **Tia phân giác** là tia chia góc thành 2 nửa bằng nhau: nếu OB là phân giác của $\angle AOC = 80^\circ$ thì $\angle AOB = \angle BOC = 40^\circ$.
 
-### 3.1. Phân loại
+### 3.2. Phân loại
 
 | Tên | Số đo |
 |------|-------|
@@ -322,7 +322,7 @@ Hình dung cạnh thứ nhất nằm ngang, cạnh thứ hai mở dần lên:
 
 Mốc nhận biết nhanh: so với **góc vuông** $90^\circ$ (góc của tờ giấy, góc tường) — hẹp hơn là nhọn, rộng hơn (mà chưa thẳng) là tù, thẳng băng là bẹt.
 
-### 3.2. Quan hệ góc
+### 3.3. Quan hệ góc
 
 - **Hai góc bù nhau** (supplementary): tổng $= 180^\circ$.
 - **Hai góc phụ nhau** (complementary): tổng $= 90^\circ$.
@@ -384,7 +384,7 @@ $$\begin{aligned}
 \end{aligned}$$
 Verify số: nếu $\angle 1 = 65^\circ$ thì $\angle 2 = 180 - 65 = 115^\circ$, $\angle 3 = 180 - 115 = 65^\circ = \angle 1$ ✓.
 
-### 3.3. Khi 2 đường thẳng song song bị cắt bởi 1 đường thẳng
+### 3.4. Khi 2 đường thẳng song song bị cắt bởi 1 đường thẳng
 
 Một đường **cát tuyến** (transversal) cắt 2 đường song song $a \parallel b$ tạo ra **8 góc**, đặt tên 1–8:
 

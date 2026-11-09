@@ -397,6 +397,8 @@ $$(x - x_0)^2 + (y - y_0)^2 = R^2$$
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: áp mẫu $(x-a)^2 + (y-b)^2 = R^2$ — đọc tâm nhớ ĐỔI DẤU số trong ngoặc, bán kính là căn của vế phải.
+
 1. $x^2 + y^2 = 49$.
 2. Tâm $I(3, -1)$, bán kính $R = \\sqrt{36} = $ **6** (nhớ lấy căn vế phải).
 

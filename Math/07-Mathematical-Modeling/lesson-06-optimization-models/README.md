@@ -13,7 +13,7 @@
 - [Lesson 01 — Chu trình mô hình hóa](../lesson-01-modeling-cycle/).
 - [T6 L04 — Hàm nhiều biến, gradient, cực trị có ràng buộc](../../06-Advanced/lesson-04-multivariable-functions/).
 - [T1 — Hệ bất phương trình bậc nhất](../../01-Arithmetic-Algebra/lesson-05-inequalities/).
-- [T4 — Đạo hàm và cực trị một biến](../../04-Calculus-1var/lesson-05-applications-derivative/) (nền cho tối ưu không ràng buộc).
+- [T4 — Đạo hàm và cực trị một biến](../../04-Calculus-1var/lesson-05-derivative-applications/) (nền cho tối ưu không ràng buộc).
 
 ---
 
@@ -474,7 +474,7 @@ Phần này gom các **mô hình kinh điển** — mỗi mô hình chỉ rõ bi
 | A+C | 10 | 13 |
 | A+B | 11 | ✗ quá tải |
 
-→ Tối ưu **A+C** (cân 10, giá trị **13**). Đây là **0/1 knapsack** — bài tối ưu nguyên NP-khó kinh điển; với $n$ lớn dùng quy hoạch động (xem [Tier 5 — tổ hợp & thuật toán](../../05-NumberTheory-Combinatorics-Logic/lesson-08-algorithmic-thinking/) nếu muốn đi sâu).
+→ Tối ưu **A+C** (cân 10, giá trị **13**). Đây là **0/1 knapsack** — bài tối ưu nguyên NP-khó kinh điển; với $n$ lớn dùng quy hoạch động (xem [Algorithms — Knapsack family](../../../Algorithms/lesson-25-knapsack-family/) nếu muốn đi sâu).
 
 ### 📝 Tóm tắt mục 5
 

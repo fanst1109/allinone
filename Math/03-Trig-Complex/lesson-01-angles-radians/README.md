@@ -553,7 +553,7 @@ $$v = \omega\cdot r = 10\cdot 0.35 = 3.5 \text{ m/s} = 12.6 \text{ km/h}$$
 
 ⚠ **Lỗi thường gặp — ghi $\omega$ bằng độ/giây rồi dùng thẳng vào $v = \omega r$**. Công thức $v = \omega r$ chỉ đúng khi $\omega$ ở **rad/s**. Nếu $\omega$ ở $^\circ$/s phải đổi: $v = \omega^\circ\cdot r\cdot\frac{\pi}{180}$. Phản ví dụ: $\omega = 360^\circ/\text{s}$, $r = 1$ m. Cắm thẳng: $v = 360$ m/s (vô lý). Đúng: $360^\circ/\text{s} = 2\pi$ rad/s → $v = 2\pi\cdot 1 \approx 6.28$ m/s.
 
-> 📌 **Sẽ học sâu hơn**: định nghĩa chặt $\omega = \frac{d\theta}{dt}$ bằng đạo hàm và gia tốc góc $\alpha = \frac{d\omega}{dt}$ thuộc về Calculus (xem [Tier 4 — Calculus](../../04-Calculus/) khi học tới).
+> 📌 **Sẽ học sâu hơn**: định nghĩa chặt $\omega = \frac{d\theta}{dt}$ bằng đạo hàm và gia tốc góc $\alpha = \frac{d\omega}{dt}$ thuộc về Calculus (xem [Tier 4 — Calculus](../../04-Calculus-1var/) khi học tới).
 
 ### 📝 Tóm tắt mục 5
 

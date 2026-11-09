@@ -321,6 +321,8 @@ $(f\\circ g)(1) = f(4) = 8$; $(g\\circ f)(1) = g(2) = 5$. Khác nhau → $f\\cir
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: domain: đặt điều kiện cho biểu thức có nghĩa (trong căn $\\ge 0$); range: hỏi $3 - x^2$ chạy tới đâu khi $x^2 \\ge 0$.
+
 (1) $x^2 - 9 \\geq 0 \\Rightarrow x \\leq -3$ hoặc $x \\geq 3 \\Rightarrow$ **Domain $= (-\\infty, -3]\\cup[3, +\\infty)$**. (2) $x^2 \\geq 0 \\Rightarrow 3 - x^2 \\leq 3$; khi $x\\to\\pm\\infty$, $3 - x^2 \\to -\\infty \\Rightarrow$ **Range $= (-\\infty, 3]$**.
 
 </details>

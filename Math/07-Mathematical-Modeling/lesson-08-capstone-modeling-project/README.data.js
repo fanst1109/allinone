@@ -583,6 +583,8 @@ Liệt kê 3 đỉnh và tính $P$ tại mỗi đỉnh:
 
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: soi từng tiêu chí rubric vào dự án: tham số nào được 'đoán' mà không có dữ liệu đỡ, không thử độ nhạy — đó là chỗ yếu nhất.
+
 Yếu nhất ở **Giả định / Phản biện** liên quan $K$: $K = 10^6$ chỉ là *đoán*, và fit $r$ chỉ từ 3 điểm. Để lên "Tốt", phải thêm phân tích độ nhạy với $K$ và dùng ≥ 6 điểm có $R^2$ — đúng những gì callout phản biện mục 2 (Bước 7) đã chỉ ra.
 
 </details>

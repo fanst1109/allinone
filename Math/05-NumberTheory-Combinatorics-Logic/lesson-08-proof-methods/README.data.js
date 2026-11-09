@@ -455,7 +455,7 @@ Phổ biến dùng **phản chứng**: giả sử tồn tại → mâu thuẫn.
 
 ---
 
-## 6b. Phản ví dụ (Counterexample) — bác bỏ mệnh đề sai
+## 7. Phản ví dụ (Counterexample) — bác bỏ mệnh đề sai
 
 💡 **Trực giác / Hình dung**: để chứng minh một mệnh đề "**mọi** X đều có tính chất Y" là **sai**, không cần lý luận dài — chỉ cần **một** trường hợp X không có Y. Như bác bỏ "mọi con thiên nga đều trắng" bằng cách dắt ra **một** con thiên nga đen. Phản ví dụ là "vũ khí phá" mạnh nhất cho mệnh đề $\\forall$.
 
@@ -499,7 +499,7 @@ Vì $1681 = 41 \\times 41$ là hợp số → mệnh đề sai. $\\square$
 
 </details>
 
-### 📝 Tóm tắt mục 6b
+### 📝 Tóm tắt mục 7
 
 - Phản ví dụ bác mệnh đề $\\forall$: chỉ cần **một** trường hợp làm $P$ sai.
 - "Đúng cho nhiều ví dụ" $\\ne$ "đúng mọi trường hợp" ($n^2+n+41$ tại $n=40$).
@@ -507,9 +507,9 @@ Vì $1681 = 41 \\times 41$ là hợp số → mệnh đề sai. $\\square$
 
 ---
 
-## 6c. Vét cạn trường hợp & chứng minh duy nhất
+## 8. Vét cạn trường hợp & chứng minh duy nhất
 
-### 6c.1. Vét cạn trường hợp (Proof by cases / exhaustion)
+### 8.1. Vét cạn trường hợp (Proof by cases / exhaustion)
 
 💡 **Trực giác / Hình dung**: khi không có lối đi chung, ta **chia mệnh đề thành hữu hạn trường hợp**, chứng minh từng cái, rồi gộp. Như muốn chứng minh "ai trong phòng cũng cao dưới 3m": nếu chỉ có 5 người, đo từng người là xong. Điều kiện sống còn: các trường hợp phải **phủ kín** mọi khả năng.
 
@@ -538,7 +538,7 @@ Trong cả ba trường hợp có một thừa số chia hết 3 → tích chia 
 
 ⚠ **Lỗi thường gặp — các trường hợp KHÔNG phủ kín.** Nếu chia "$n$ chẵn" và "$n$ chia hết 3" rồi dừng, ta bỏ sót $n = 5$ (lẻ và không chia hết 3). Luôn kiểm hợp các trường hợp $= $ toàn miền.
 
-### 6c.2. Chứng minh tồn tại + duy nhất (Existence and uniqueness)
+### 8.2. Chứng minh tồn tại + duy nhất (Existence and uniqueness)
 
 💡 **Trực giác / Hình dung**: mệnh đề "tồn tại **duy nhất** $x$ thoả $P$" gồm **hai lời hứa**: (1) **có** ít nhất một $x$ (tồn tại), và (2) **không có hai** $x$ khác nhau cùng thoả (duy nhất). Phải chứng minh **cả hai**.
 
@@ -577,7 +577,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 
 </details>
 
-### 📝 Tóm tắt mục 6c
+### 📝 Tóm tắt mục 8
 
 - Vét cạn: chia thành hữu hạn TH **phủ kín**, chứng minh từng cái (chẵn/lẻ, $n \\bmod 3$…).
 - Lỗi chính: các trường hợp không phủ kín toàn miền.
@@ -585,7 +585,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 
 ---
 
-## 6d. Cấu trúc một chứng minh tốt
+## 9. Cấu trúc một chứng minh tốt
 
 💡 **Trực giác / Hình dung**: một chứng minh không chỉ cần **đúng** mà còn cần **đọc được**. Hình dung nó như một **lá thư gửi người đọc hoài nghi**: mỗi câu phải nói rõ "tôi đang giả sử gì", "bước này hợp lệ vì sao", "tôi đã tới đích chưa".
 
@@ -629,7 +629,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 
 </details>
 
-### 📝 Tóm tắt mục 6d
+### 📝 Tóm tắt mục 9
 
 - Chứng minh tốt = đúng **và** đọc được: nêu mệnh đề → tuyên bố phương pháp → giả định → từng bước có lý do → kết luận → $\\square$.
 - 7 lỗi logic: vòng tròn, ví dụ ≠ $\\forall$, phản ví dụ với $\\exists$, đảo ≠ phản đảo, TH không phủ kín, mất dấu/chia 0, phản chứng trá hình.
@@ -637,7 +637,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 
 ---
 
-## 7. So sánh các phương pháp
+## 10. So sánh các phương pháp
 
 | Phương pháp | Khi dùng | Ưu điểm |
 |-------------|----------|---------|
@@ -678,7 +678,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 
 </details>
 
-### 📝 Tóm tắt mục 7
+### 📝 Tóm tắt mục 10
 
 - Trực tiếp ($P \\to Q$ rõ), phản đảo ($\\neg Q \\to \\neg P$ dễ hơn), phản chứng (phủ định), phản ví dụ (bác $\\forall$), xây dựng ($\\exists$), quy nạp ($\\forall \\mathbb{N}$), vét cạn (hữu hạn TH), tồn tại+duy nhất.
 - Quy trình chọn: đọc **dạng mệnh đề** → bác $\\forall$? dựng $\\exists$? quy nạp $\\mathbb{N}$? → còn lại thử trực tiếp, khó thì phản đảo/phản chứng.
@@ -732,7 +732,7 @@ Hai nghiệm bất kỳ phải trùng nhau → nghiệm duy nhất. $\\square$
 - TH $n$ chẵn: $n = 2k$ → $n^2 + n = n(n+1) = 2k(n+1)$ → chẵn.
 - TH $n$ lẻ: $n + 1$ chẵn $= 2k$ → $n^2 + n = n\\cdot 2k$ → chẵn.
 
-Cả hai TH đều chẵn. $\\square$ (Hoặc gọn hơn: $n^2 + n = n(n+1)$ là tích hai số nguyên liên tiếp, luôn chẵn — xem mục 6c.1.)
+Cả hai TH đều chẵn. $\\square$ (Hoặc gọn hơn: $n^2 + n = n(n+1)$ là tích hai số nguyên liên tiếp, luôn chẵn — xem mục 8.1.)
 
 **Bài 8**: **Hai phần**.
 - *Tồn tại*: chọn $x_0 = 4$. Kiểm $3\\cdot 4 = 12$ ✓.
@@ -744,7 +744,7 @@ Vậy nghiệm tồn tại và duy nhất. $\\square$
 
 ---
 
-## 9. 🎉 HOÀN THÀNH TIER 5 (8/8)!
+## 11. 🎉 HOÀN THÀNH TIER 5 (8/8)!
 
 Tiếp theo: **Tier 6 — Advanced** (Đại số tuyến tính, Calculus đa biến, Xác suất, ODE).
 

@@ -150,6 +150,9 @@ A: Lý do toán học. Số orbital trong phân lớp $l$ $= 2l + 1$, với $l$ 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: lớp $n$ chứa các phân lớp từ s tới $l = n-1$; đếm số orbital 1/3/5 của từng phân lớp rồi nhân 2 electron mỗi orbital. Câu 2: xét điều kiện $l \\le n - 1$ với phân lớp d ($l = 2$).
+
+
 1. Lớp 3 có 3s + 3p + 3d = 1 + 3 + 5 = **9 orbital**. Tối đa **18 electron**.
 2. Vì $n = 2$ chỉ chứa được phân lớp đến $l = 1$ (tức p). Phân lớp d cần $l = 2$, đòi $n \\geq 3$.
 </details>
@@ -509,6 +512,9 @@ EA mạnh nhất ở **Cl** (348 kJ/mol) — không phải F. Vì F nhỏ quá �
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: cùng chu kỳ thì $Z$ tăng hút electron về gần hạt nhân → bán kính giảm dần sang phải. Câu 2: nhìn cấu hình lớp ngoài cùng của khí trơ — còn thiếu electron nào để phải nhận/nhường không?
+
 
 1. Cùng chu kỳ 3, Z tăng → bán kính giảm. Na (186 pm) > Mg (160 pm) > Cl (99 pm).
 2. Cấu hình lớp ngoài đầy ($ns^2\\,np^6$) → cực kỳ ổn định, không cần thêm/bớt e → không phản ứng.

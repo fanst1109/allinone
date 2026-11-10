@@ -73,6 +73,9 @@ A: Vì "oxy" được định danh bằng số proton trong hạt nhân ($Z = 8$
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: lấy tỉ lệ kích thước nguyên tử/hạt nhân (~100.000 lần) nhân với bán kính hạt đậu 0,5 cm. Câu 2: xét giới hạn công cụ thời đó — 'không chia được' bằng phản ứng hóa học có đồng nghĩa với không chia được bằng mọi phương tiện không?
+
+
 1. Khoảng cách = 0.5 × (đường kính nguyên tử / đường kính hạt nhân) = 0.5 × 100,000 = **50,000 cm = 500 m**. Tức là nửa cây số. Tỉ lệ "hạt đậu giữa sân Mỹ Đình" là chính xác về order of magnitude.
 2. Vì ông không có công cụ để chia nhỏ tiếp. Bằng phản ứng hóa học thì đúng là không chia được, nhưng bằng phương tiện vật lý (gia tốc hạt, phản ứng hạt nhân) thì nguyên tử chia thành proton, neutron, electron — và proton/neutron còn chia tiếp thành quark.
 </details>
@@ -159,6 +162,9 @@ A: Có. Proton = 2 up quark + 1 down quark; neutron = 1 up + 2 down. Quark là h
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: cộng khối lượng theo từng loại hạt (proton ≈ neutron ≈ 1 u, electron ≈ 1/1836 u). Câu 2: nhớ nguyên tố được ĐỊNH DANH bằng số proton $Z$ — đổi $Z$ là đổi nguyên tố.
+
 
 1. $\\approx 17 \\times 1{,}007 + 18 \\times 1{,}009 + 17 \\times 0{,}000549 = 17{,}119 + 18{,}162 + 0{,}0093 \\approx$ **35,29 u**. (Đây là Cl, có khối lượng đo thực tế 34,97 u — sai số là binding energy.)
 2. Không. Lấy 1 proton → $Z = 25$ → Mn (Mangan). Số proton xác định nguyên tố.
@@ -261,6 +267,9 @@ A: Hiện tại bảng tuần hoàn đến $Z = 118$ (Oganesson). Các nguyên t
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đọc ký hiệu $^{A}_{Z}\\text{X}$: proton = $Z$, neutron = $A - Z$; điện tích âm nghĩa là NHẬN thêm electron (electron = $Z$ + |điện tích|). Câu 2 làm ngược: từ số proton suy ra nguyên tố, so electron với $Z$ để biết ion hay trung hòa.
+
 
 1. Z = 15 → 15 proton; A = 31 → N = 31 − 15 = 16 neutron; điện tích −3 (anion nhận 3 e) → electron = 15 + 3 = **18 electron**.
 2. Z = 18 → Argon (Ar). N = 22 → A = 18 + 22 = 40. Electron = 18 = Z → trung hòa, không phải ion. Ký hiệu: $^{40}_{18}\\text{Ar}$. (Đây là đồng vị Ar-40, phổ biến nhất trong khí quyển.)
@@ -398,6 +407,9 @@ A: Vì đó là **trung bình theo tỉ lệ đồng vị**. Mỗi đồng vị 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: áp định nghĩa đồng vị = cùng $Z$, khác $A$. Câu 2: trung bình CÓ TRỌNG SỐ — nhân mỗi số khối với phần trăm (viết dạng thập phân) rồi cộng lại.
+
 
 1. Có. Cả 3 đều có Z = 8 → đều là oxy. Chỉ khác A → khác số neutron (8, 9, 10).
 2. $M = 24 \\times 0{,}7899 + 25 \\times 0{,}1000 + 26 \\times 0{,}1101 = 18{,}96 + 2{,}50 + 2{,}86 =$ **24,32 u**. (Bảng tuần hoàn: 24,31, sai số do dùng A tròn thay vì khối lượng chính xác của đồng vị.)

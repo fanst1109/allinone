@@ -245,6 +245,9 @@ Trigonal bipyramidal có 2 vị trí "đặc biệt" (axial) và 3 vị trí "th
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: SN = số nguyên tử liên kết + số lone pair của trung tâm (electron hóa trị của S trừ số electron đã dùng liên kết, chia 2). Câu 2: cùng SN = 4 nhưng so SỐ lone pair — lực đẩy lone pair mạnh hơn bonding pair nên ép góc hẹp lại.
+
+
 1. $\text{SF}_4$: S là trung tâm. Đếm cặp e ngoài cùng của S: 6 (S nhóm VIA). 4 e dùng làm liên kết với 4 F (4 bonding pair) → còn $6 - 4 = 2$ e = 1 lone pair. **SN = 4 + 1 = 5**. Hình học cặp e: trigonal bipyramidal. Có 1 lone pair → hình học phân tử: **see-saw**.
 
 2. Cả 2 đều SN = 4 (tetrahedral cặp e). $\text{CH}_4$ không lone pair → đối xứng đều → $109{,}5^\circ$. $\text{H}_2\text{O}$ có 2 lone pair → 2 cặp đẩy mạnh hơn bonding → 2 H bị "ép" lại → góc thu hẹp xuống $104{,}5^\circ$.

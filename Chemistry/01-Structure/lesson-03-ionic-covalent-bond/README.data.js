@@ -356,6 +356,9 @@ Số lone pair ảnh hưởng **hình học phân tử** — sẽ học chi ti�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy trình Lewis: đếm tổng electron hóa trị → đặt nguyên tử trung tâm → nối liên kết đơn trước → kiểm octet từng nguyên tử; nguyên tử thiếu octet thì chuyển lone pair của hàng xóm thành liên kết bội.
+
+
 1. Tổng e = 1 + 4 + 5 = 10 e. Trung tâm: C. Vẽ H−C−N (4 e). Còn 6 e. Nếu cho N 6 e (3 lone pair), N có 2 + 6 = 8 ✓. C chỉ có 2 + 2 = 4 → không đủ. Tạo liên kết ba C≡N: dời 2 cặp e từ N vào liên kết. Kết quả: \`H−C≡N:\` (N có 1 lone pair).
 
 2. CO: tổng e = 4 + 6 = 10. Tương tự HCN, phải tạo liên kết ba để C đạt octet. Kết quả: \`:C≡O:\` — liên kết ba.

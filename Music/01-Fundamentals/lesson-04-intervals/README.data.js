@@ -143,10 +143,10 @@ Biến đổi chất bằng cách thay đổi số nửa cung:
 
 **Walk-through tính cents từ tỷ lệ — verify 4 quãng:**
 
-1. **P5 (3:2):** \`cents = 1200·log₂(3/2) = 1200·log₂(1.5) = 1200·0.58496 = **701.96 cents**\`. Quãng 5 ET = 700 cents, lệch 1.96 cents ✓
-2. **M3 (5:4):** \`cents = 1200·log₂(5/4) = 1200·log₂(1.25) = 1200·0.32193 = **386.31 cents**\`. Quãng 3 trưởng ET = 400 cents, lệch 13.69 cents ✓
-3. **P4 (4:3):** \`cents = 1200·log₂(4/3) = 1200·log₂(1.3333) = 1200·0.41504 = **498.04 cents**\`. ET = 500 cents, lệch 1.96 cents ✓
-4. **m3 (6:5):** \`cents = 1200·log₂(6/5) = 1200·log₂(1.2) = 1200·0.26303 = **315.64 cents**\`. ET = 300 cents, lệch 15.64 cents ✓
+1. **P5 (3:2):** \`cents = 1200·log₂(3/2) = 1200·log₂(1.5) = 1200·0.58496\` = **701.96 cents**. Quãng 5 ET = 700 cents, lệch 1.96 cents ✓
+2. **M3 (5:4):** \`cents = 1200·log₂(5/4) = 1200·log₂(1.25) = 1200·0.32193\` = **386.31 cents**. Quãng 3 trưởng ET = 400 cents, lệch 13.69 cents ✓
+3. **P4 (4:3):** \`cents = 1200·log₂(4/3) = 1200·log₂(1.3333) = 1200·0.41504\` = **498.04 cents**. ET = 500 cents, lệch 1.96 cents ✓
+4. **m3 (6:5):** \`cents = 1200·log₂(6/5) = 1200·log₂(1.2) = 1200·0.26303\` = **315.64 cents**. ET = 300 cents, lệch 15.64 cents ✓
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Nếu ET "sai" so với just intonation, vì sao cả thế giới dùng ET?"* — Vì ET cho phép chơi bất kỳ bộ điệu (key) nào trên cùng một cây đàn mà độ lệch đều như nhau (xấp xỉ nhau). Just intonation "đúng" trong một key cụ thể nhưng nghe lạc trong các key khác. ET là sự thỏa hiệp thực dụng.
@@ -221,13 +221,13 @@ Tính nửa cung từ D đến A: D→D♯(1)→E(2)→F(3)→F♯(4)→G(5)→G
 Tra bảng: 5 chữ cái + 7 nửa cung → **P5 (Quãng 5 đúng)**. ✓
 
 **Bài 2.** P5 = 7 nửa cung. Từ A4 (n=0), n = +7.
-\`f = 440·2^(7/12) = 440·2^0.58333 = 440·1.49831 = **659.26 Hz\`**.
+\`f = 440·2^(7/12) = 440·2^0.58333 = 440·1.49831\` = **659.26 Hz**.
 Đây là nốt gì? \`midi = 69 + 7 = 76\`. 76 mod 12 = 4 = E; octave = floor(76/12)−1 = 5 → **E5**.
 Kiểm tra tỷ lệ: 659.26/440 = 1.4983 ≈ **1.5 = 3:2** ✓ (lệch 0.11% — ET xấp xỉ sát).
 
 **Bài 3.** \`cents = 1200·log₂(3/2)\`.
 \`log₂(1.5) = ln(1.5)/ln(2) = 0.40546/0.69315 = 0.58496\`.
-\`cents = 1200 × 0.58496 = **701.96 cents\`**.
+\`cents = 1200 × 0.58496\` = **701.96 cents**.
 So với ET = 700 cents: lệch **1.96 cents** — rất nhỏ, tai người khó phân biệt trong bối cảnh nhạc thực.
 
 **Bài 4.** m6 có số = 6, nửa cung = 8.

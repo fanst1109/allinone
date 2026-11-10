@@ -327,7 +327,7 @@ Công thức offset {0, 3, 5, 6, 7, 10} từ F:
 F blues: F – A♭ – B♭ – B♮ – C – E♭ – F.
 
 Blue note = B♮ (offset 6 nửa cung từ F4 = 349.23 Hz):
-`f = 349.23 × 2^(6/12) = 349.23 × 2^0.5 = 349.23 × 1.41421 = **494.00 Hz**`
+`f = 349.23 × 2^(6/12) = 349.23 × 2^0.5 = 349.23 × 1.41421` = **494.00 Hz**
 
 Verify: B♮ (H♮) gần B♭4 (466 Hz) và C5 (523 Hz) — nằm giữa hai nốt, xác nhận là tritone ✓.
 

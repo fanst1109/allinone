@@ -77,6 +77,9 @@ A: Không biến mất — nó **chuyển thành năng lượng hóa học** lư
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Trong tối cây chỉ còn hô hấp — xét khí nào bị tiêu thụ, khí nào thải ra. Câu 2: so trạng thái electron của C trong glucose với C trong CO₂ (giàu hay nghèo electron).
+
+
 1. **Giảm**. Trong tối, cây không quang hợp (không thải O₂) nhưng vẫn hô hấp (tiêu thụ O₂, thải CO₂). Nên O₂ giảm, CO₂ tăng.
 2. Carbon trong glucose ở trạng thái **khử** (giàu electron, giàu năng lượng) so với CO₂ (oxy hóa cao). Quang hợp đã khử CO₂ thành đường.
 </details>
@@ -133,6 +136,9 @@ A: Để **tối đa hóa diện tích bề mặt** bắt ánh sáng trong một
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Gắn sản phẩm với địa điểm: O₂ sinh từ quang phân ly nước ở đâu? Câu 2: nhớ Calvin 'ăn' ATP + NADPH do pha sáng cấp — nguồn cấp đứt thì sao.
+
 
 1. Ở **màng thylakoid** (pha sáng). O₂ là sản phẩm của quang phân ly nước, xảy ra tại hệ quang II gắn trên màng thylakoid.
 2. **Pha sáng** ngừng trước (vì màng thylakoid hỏng). Sau đó **chu trình Calvin cũng dừng theo** vì không còn ATP và NADPH — hai sản phẩm mà Calvin lấy từ pha sáng. Hai pha "khóa nhau".
@@ -214,6 +220,9 @@ A: Một photon "đá" electron lên một mức năng lượng, nhưng chưa đ
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng tỉ lệ quang phân ly: 2 H₂O → 1 O₂ + 4 e⁻ — nhân 5. Câu 2: đồng vị ¹⁸O là nhãn đánh dấu nguồn — O₂ thải ra mang nhãn của chất nào thì nguồn là chất đó.
+
+
 1. Mỗi O₂ cần 2 H₂O và cho 4 e⁻. 5 O₂ → tách **10 phân tử H₂O**, giải phóng **20 electron**.
 2. O₂ thải ra chứa **¹⁸O** (vì O₂ đến từ nước, mà nước được đánh dấu ¹⁸O). Kết luận: **O₂ của quang hợp có nguồn gốc từ nước**, không phải từ CO₂.
 </details>
@@ -291,6 +300,9 @@ A: Vì khi cố định 3 CO₂, chu trình tạo ra tổng cộng 6 phân tử 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Bộ số per glucose: 6 CO₂, 18 ATP, 12 NADPH, 6 vòng Calvin — nhân 4. Câu 2: 3 CO₂ → 1 G3P ròng; cứ 2 G3P ghép 1 glucose — chia và xét số dư.
+
+
 1. 4 glucose: CO₂ = 4×6 = **24**; ATP = 4×18 = **72**; NADPH = 4×12 = **48**; số vòng = 4×6 = **24 vòng**.
 2. 9 CO₂ → 9/3 = **3 G3P** ròng. Cứ 2 G3P → 1 glucose → 3 G3P ghép được **1 glucose**, **dư 1 G3P**. (Để hết dư cần số CO₂ là bội của 6.)
 </details>
@@ -358,6 +370,9 @@ A: Mùa thu cây ngừng tạo diệp lục (xanh lục) → diệp lục cũ ph
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Đối chiếu từng bước sóng với phổ hấp thụ của diệp lục — 550 nm nằm ở 'thung lũng'. Câu 2: màu ta thấy là ánh sáng bị PHẢN XẠ, không phải hấp thụ.
+
+
 1. Cây chiếu **đèn lục (550 nm)** quang hợp **yếu nhất**, vì 550 nm nằm trong thung lũng hấp thụ của diệp lục — phần lớn ánh lục bị phản xạ chứ không được hấp thụ làm năng lượng.
 2. Lá xanh lục nghĩa là nó **phản xạ ánh lục** (không hấp thụ) và **hấp thụ mạnh ánh xanh tím + đỏ**. Màu ta thấy là phần ánh sáng bị từ chối.
 </details>
@@ -420,6 +435,9 @@ A: Vì quang hợp phụ thuộc enzyme (đặc biệt RuBisCO). Nhiệt độ v
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Yếu tố giới hạn = yếu tố đang THIẾU: tăng thứ khác không đẩy tốc độ lên. Câu 2: nhiệt độ tác động qua enzyme (quá nóng → biến tính → tụt); ánh sáng chỉ bão hòa chứ không phá.
+
 
 1. **Ánh sáng** là yếu tố giới hạn. Vì đang thiếu ánh sáng (pha sáng không đủ ATP+NADPH), nên thêm CO₂ không giúp được — Calvin vẫn chờ "nhiên liệu" từ pha sáng.
 2. Nhiệt độ ảnh hưởng **enzyme**: tăng tới điểm tối ưu thì nhanh hơn, nhưng quá nóng làm enzyme **biến tính** → tụt (đổ đèo). Ánh sáng dư chỉ **bão hòa** (không có chỗ tiếp nhận thêm photon) chứ không phá hỏng bộ máy → nằm ngang.

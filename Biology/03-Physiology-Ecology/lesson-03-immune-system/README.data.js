@@ -137,6 +137,9 @@ Khi đại thực bào gặp vi khuẩn, chúng tiết cytokine (vd IL-1) → t�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Viêm khởi phát bởi TỔN THƯƠNG MÔ (mast cell tiết histamine) — không cần mầm bệnh. Câu 2: bổ thể chỉ là một vũ khí; điểm lại các lớp còn lại (thực bào, kháng thể, tế bào T).
+
+
 1. Bỏng làm tổn thương mô, các tế bào mast tại chỗ tiết histamine → mạch giãn (đỏ, nóng), thấm dịch (sưng), prostaglandin/bradykinin kích thích thần kinh (đau). Đây là **viêm vô trùng (sterile inflammation)** — phản ứng có thể xảy ra mà không cần kẻ địch sinh học, đủ tổn thương mô là khởi phát.
 2. Còn, nhưng yếu hơn rõ rệt. Thực bào và NK vẫn hoạt động, nhưng việc "opsonization" (đánh dấu vi khuẩn) bị mất → thực bào nhận diện kém → một số vi khuẩn có vỏ polysaccharide (vd Neisseria) gần như không bị diệt. Người thiếu bổ thể bẩm sinh dễ nhiễm khuẩn nặng.
 </details>
@@ -228,6 +231,9 @@ A: Tế bào B bắt kháng nguyên qua thụ thể bề mặt → nuốt vào, 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Chọn dòng vô tính: mỗi epitope chọn đúng dòng B có receptor khớp. Câu 2: IgM là isotype MẶC ĐỊNH lúc mới hoạt hóa; IgG chỉ có sau chuyển lớp.
+
+
 1. Lên tới **8 dòng tế bào B** khác nhau, mỗi dòng đặc hiệu cho 1 epitope. Trên thực tế có thể nhiều hơn nếu mỗi epitope kích hoạt nhiều dòng có ái lực khác nhau. Đây gọi là phản ứng *polyclonal*.
 2. Vì tế bào B mới hoạt hóa *mặc định* sản IgM trước (đây là isotype "khởi đầu" — vẫn dùng cùng vùng biến đổi nhưng ghép với vùng hằng định loại μ). Sau khi nhận tín hiệu từ tế bào T helper, tế bào B mới **chuyển lớp (class switching)** sang IgG/A/E. IgM có 10 đầu gắn → ngưng kết rất mạnh, bù lại độ đặc hiệu chưa được tối ưu hóa.
 </details>
@@ -303,6 +309,9 @@ A: Có — đậu mùa, sởi, quai bị, thủy đậu. Virus của các bệnh
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: So sơ cấp vs thứ cấp trên 3 trục: thời gian đạt đỉnh, độ cao đỉnh, loại Ig chiếm ưu thế. Câu 2: nhớ cả nhánh dịch thể lẫn nhánh tế bào đều để lại tế bào nhớ.
+
+
 1. (i) **Thời gian đạt đỉnh**: thứ cấp ~2–3 ngày vs sơ cấp ~5–10 ngày. (ii) **Độ cao đỉnh**: thứ cấp gấp 10–100 lần. (iii) **Loại kháng thể chiếm ưu thế**: thứ cấp chủ yếu IgG (ái lực cao sau affinity maturation), sơ cấp đầu là IgM rồi mới IgG.
 2. **Cả hai** — có cả **tế bào B nhớ** (memory B cell) và **tế bào T nhớ** (memory T cell, cả CD4⁺ và CD8⁺). Cả hai cùng góp phần vào đáp ứng thứ cấp nhanh.
 </details>
@@ -372,6 +381,9 @@ A: Vì tiêm vaccine khiến cơ thể *tự sản xuất* kháng thể và tế
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Mũi 2 đóng vai 'lần gặp thứ hai' → kích đáp ứng thứ cấp trên nền tế bào nhớ của mũi 1. Câu 2: vaccine SỐNG suy yếu vẫn nhân lên được — đặt vào cơ thể không còn khả năng kiềm chế.
+
 
 1. Vì mũi 1 chỉ kích hoạt được đáp ứng *sơ cấp* (chậm, nồng độ thấp, IgM chiếm phần lớn). Mũi 2 đóng vai trò "lần 2 gặp lại" → kích hoạt đáp ứng *thứ cấp* dùng tế bào nhớ từ mũi 1 → nồng độ IgG tăng vọt 10–100 lần và ái lực cao hơn (affinity maturation). 1 mũi đơn không đủ ngưỡng bảo vệ với phần lớn vaccine.
 2. **Không nên** dùng vaccine sống suy yếu — vì virus tuy đã suy yếu nhưng vẫn cần hệ miễn dịch khỏe để khống chế. Người suy giảm miễn dịch có thể bị virus suy yếu phát triển thành bệnh thật. Họ nên dùng vaccine bất hoạt, tiểu đơn vị hoặc mRNA.

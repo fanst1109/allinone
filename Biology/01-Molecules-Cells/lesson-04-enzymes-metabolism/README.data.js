@@ -62,6 +62,9 @@ A: Vì cơ thể vừa cần **năng lượng** (lấy từ dị hóa), vừa c�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân loại theo chiều xây/phá: nhỏ → lớn là đồng hóa (thu năng lượng, cần ATP); lớn → nhỏ là dị hóa (tỏa năng lượng).
+
+
 1. **Đồng hóa (anabolic)** — xây phân tử lớn (protein) từ phân tử nhỏ (amino acid). **Thu** năng lượng (endergonic), phải dùng ATP.
 2. **Dị hóa (catabolic)** — phân giải phân tử lớn (tinh bột) thành nhỏ (glucose) bằng thủy phân. Tỏa năng lượng (exergonic).
 </details>
@@ -99,11 +102,11 @@ Hình dung một viên đá nằm trong thung lũng, muốn lăn sang thung lũn
 
 Tốc độ phản ứng phụ thuộc Ea theo phương trình Arrhenius: tỉ lệ tăng tốc ≈ \`e^(ΔEa / RT)\`. Với \`R = 8.314 J/(mol·K)\`, ở \`T = 310 K\` (37°C, thân nhiệt người): \`RT ≈ 2577 J/mol ≈ 2.577 kJ/mol\`.
 
-**Ví dụ 1 — hạ Ea đi 10 kJ/mol**: tăng tốc ≈ \`e^(10000/2577) = e^3.88 ≈ **48 lần**\`.
+**Ví dụ 1 — hạ Ea đi 10 kJ/mol**: tăng tốc ≈ \`e^(10000/2577) = e^3.88\` ≈ **48 lần**.
 
-**Ví dụ 2 — hạ Ea đi 20 kJ/mol**: tăng tốc ≈ \`e^(20000/2577) = e^7.76 ≈ **2,350 lần**\`.
+**Ví dụ 2 — hạ Ea đi 20 kJ/mol**: tăng tốc ≈ \`e^(20000/2577) = e^7.76\` ≈ **2,350 lần**.
 
-**Ví dụ 3 — hạ Ea đi 30 kJ/mol**: tăng tốc ≈ \`e^(30000/2577) = e^11.64 ≈ **113,000 lần**\`. (Mỗi 10 kJ/mol hạ thêm nhân tốc độ lên ~48 lần — số mũ tăng nhanh khủng khiếp.)
+**Ví dụ 3 — hạ Ea đi 30 kJ/mol**: tăng tốc ≈ \`e^(30000/2577) = e^11.64\` ≈ **113,000 lần**. (Mỗi 10 kJ/mol hạ thêm nhân tốc độ lên ~48 lần — số mũ tăng nhanh khủng khiếp.)
 
 **Ví dụ 4 — catalase phân hủy H₂O₂**: phản ứng $2\\,\\text{H}_2\\text{O}_2 \\rightarrow 2\\,\\text{H}_2\\text{O} + \\text{O}_2$ không enzyme có Ea ≈ 75 kJ/mol; enzyme catalase hạ xuống ≈ 8 kJ/mol — hạ ~67 kJ/mol. Kết quả: catalase phân hủy tới ~**10⁶ phân tử H₂O₂/giây** trên mỗi phân tử enzyme (đây là **turnover number** — sẽ gặp lại ở §3 và §7). Đó là lý do bôi oxy già (H₂O₂) lên vết thương thấy sủi bọt: catalase trong mô giải phóng O₂ cực nhanh.
 
@@ -129,6 +132,9 @@ A: Vì protein (kể cả enzyme) **biến tính** khi nóng quá (§4). Đun c�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Tách bạch 2 đại lượng: enzyme chỉ hạ Ea (tốc độ), KHÔNG đụng ΔG (nhiệt động). Câu 2: hỏi enzyme catalase có mặt ở đâu — mô sống hay gỗ?
+
 
 1. (a) ΔG **vẫn = −50 kJ/mol** — enzyme không đổi ΔG. (b) **Nhanh hơn nhiều**, vì Ea hạ từ 80 xuống 30 kJ/mol (hạ 50 kJ/mol). Ước tính tăng tốc ≈ \`e^(50000/2577) ≈ e^19.4 ≈ 2.7×10⁸ lần\` ở 37°C.
 2. Mô sống chứa enzyme **catalase** phân hủy H₂O₂ thành H₂O + O₂ (khí → bọt) cực nhanh. Bàn gỗ không có catalase nên H₂O₂ phân hủy rất chậm (Ea cao), không thấy bọt.
@@ -200,6 +206,9 @@ A: Không — enzyme tái sử dụng nguyên vẹn. Một phân tử lactase c�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: đặc hiệu đến từ hình dạng + hóa tính của active site, do cấu trúc bậc 3 quyết định. Câu 2: so 'hình cố định sẵn' với 'biến dạng ôm lấy cơ chất'.
+
+
 1. Vì **hình dạng và tính chất hóa học của active site** chỉ khớp với một cơ chất (hoặc nhóm rất giống). Hình dạng này do cấu trúc 3 bậc của protein quyết định — đổi vài amino acid ở active site là đổi cả tính đặc hiệu.
 2. Khóa–chìa: active site có hình **cố định** sẵn. Khớp cảm ứng: active site **đổi hình ôm khít** cơ chất khi cơ chất tới — sự ôm khít này còn giúp kéo căng liên kết để hạ Ea.
 </details>
@@ -250,13 +259,13 @@ Enzyme như **vận động viên**: có một "vùng phong độ đỉnh cao" �
 
 Dùng mô hình Michaelis–Menten đơn giản: $v = \\dfrac{V_{max} \\cdot [S]}{K_m + [S]}$. Giả sử $V_{max} = 100$ đơn vị/giây, $K_m = 5$ mM ($K_m$ = nồng độ cơ chất cho tốc độ bằng nửa Vmax).
 
-**Ví dụ 1 — [S] = 5 mM (= Km)**: \`v = 100 × 5/(5+5) = 100 × 0.5 = **50**\` (đúng nửa Vmax — định nghĩa của Km).
+**Ví dụ 1 — [S] = 5 mM (= Km)**: \`v = 100 × 5/(5+5) = 100 × 0.5\` = **50** (đúng nửa Vmax — định nghĩa của Km).
 
-**Ví dụ 2 — [S] = 1 mM (thấp)**: \`v = 100 × 1/(5+1) = 100 × 0.167 = **16.7**\` (vùng gần tuyến tính, còn nhiều active site rỗi).
+**Ví dụ 2 — [S] = 1 mM (thấp)**: \`v = 100 × 1/(5+1) = 100 × 0.167\` = **16.7** (vùng gần tuyến tính, còn nhiều active site rỗi).
 
-**Ví dụ 3 — [S] = 20 mM (cao)**: \`v = 100 × 20/(5+20) = 100 × 0.8 = **80**\` (đã gần bão hòa).
+**Ví dụ 3 — [S] = 20 mM (cao)**: \`v = 100 × 20/(5+20) = 100 × 0.8\` = **80** (đã gần bão hòa).
 
-**Ví dụ 4 — [S] = 100 mM (rất cao)**: \`v = 100 × 100/(5+100) = 100 × 0.952 = **95.2**\` (gần Vmax = 100; tăng [S] thêm nữa cũng chỉ tiệm cận 100, không vượt được — đó là bão hòa).
+**Ví dụ 4 — [S] = 100 mM (rất cao)**: \`v = 100 × 100/(5+100) = 100 × 0.952\` = **95.2** (gần Vmax = 100; tăng [S] thêm nữa cũng chỉ tiệm cận 100, không vượt được — đó là bão hòa).
 
 ### ⚠ Lỗi thường gặp
 
@@ -280,7 +289,10 @@ A: Vì mỗi cơ quan có môi trường pH khác nhau (dạ dày acid để di�
 <details>
 <summary>Đáp án</summary>
 
-1. [S] = 4 mM (= Km): \`v = 60 × 4/(4+4) = 60 × 0.5 = **30**\` (nửa Vmax). [S] = 36 mM: \`v = 60 × 36/(4+36) = 60 × 0.9 = **54**\` (90% Vmax — gần bão hòa).
+**Hướng dẫn**: Câu 1: thay số vào Michaelis–Menten, nhớ mốc [S] = Km thì v = Vmax/2. Câu 2: biến tính do nhiệt là BẤT thuận nghịch — hạ nhiệt không cuộn lại được.
+
+
+1. [S] = 4 mM (= Km): \`v = 60 × 4/(4+4) = 60 × 0.5\` = **30** (nửa Vmax). [S] = 36 mM: \`v = 60 × 36/(4+36) = 60 × 0.9\` = **54** (90% Vmax — gần bão hòa).
 2. Ở 70°C enzyme đã **biến tính** — liên kết hydrogen và tương tác giữ hình bậc 2–3 bị phá vĩnh viễn, chuỗi cuộn rối và kết tụ. Biến tính này **không thuận nghịch**: hạ nhiệt không tự gập lại đúng hình ban đầu → active site không phục hồi → hoạt tính = 0.
 </details>
 
@@ -346,6 +358,9 @@ A: Không. Cơ thể dùng ức chế để **điều hòa** chuyển hóa — v
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Phép thử chẩn đoán: tăng [S] mà v phục hồi → inhibitor tranh active site (cạnh tranh); gắn chỗ khác thì tăng [S] vô ích → Vmax giảm (không cạnh tranh).
+
+
 1. **Ức chế cạnh tranh** — vì tăng cơ chất phục hồi được tốc độ (cơ chất đè inhibitor ở active site).
 2. **Ức chế không cạnh tranh** — vì nó gắn chỗ khác, đổi hình enzyme, làm một phần enzyme **vĩnh viễn** không hoạt động bất kể bao nhiêu cơ chất → tốc độ tối đa khả dĩ giảm → Vmax giảm.
 </details>
@@ -392,13 +407,13 @@ $$\\begin{aligned}
 
 Lấy mốc 1 ATP thủy phân ≈ **7.3 kcal/mol**.
 
-**Ví dụ 1 — 1 ATP**: \`1 × 7.3 = **7.3 kcal/mol**\`.
+**Ví dụ 1 — 1 ATP**: \`1 × 7.3\` = **7.3 kcal/mol**.
 
-**Ví dụ 2 — 2 ATP** (vd giai đoạn đầu đường phân tiêu 2 ATP): \`2 × 7.3 = **14.6 kcal/mol**\`.
+**Ví dụ 2 — 2 ATP** (vd giai đoạn đầu đường phân tiêu 2 ATP): \`2 × 7.3\` = **14.6 kcal/mol**.
 
-**Ví dụ 3 — 10 ATP**: \`10 × 7.3 = **73 kcal/mol**\`.
+**Ví dụ 3 — 10 ATP**: \`10 × 7.3\` = **73 kcal/mol**.
 
-**Ví dụ 4 — 38 ATP** (sản lượng tối đa lý thuyết từ 1 glucose qua hô hấp hiếu khí — Lesson 05): \`38 × 7.3 = **277.4 kcal/mol**\`.
+**Ví dụ 4 — 38 ATP** (sản lượng tối đa lý thuyết từ 1 glucose qua hô hấp hiếu khí — Lesson 05): \`38 × 7.3\` = **277.4 kcal/mol**.
 
 > So sánh: đốt hoàn toàn 1 mol glucose giải phóng ~686 kcal/mol. Tế bào "gói" được 277/686 ≈ **40%** vào ATP; phần còn lại thoát ra dưới dạng nhiệt (giữ ấm cơ thể). Hiệu suất 40% này tốt hơn nhiều động cơ xăng (~25%).
 
@@ -424,8 +439,11 @@ A: Đó là giá trị **chuẩn (ΔG°′)** ở điều kiện chuẩn. Trong 
 <details>
 <summary>Đáp án</summary>
 
-1. (a) \`4 × 7.3 = **29.2 kcal/mol**\`. (b) \`30 × 7.3 = **219 kcal/mol**\`.
-2. Hiệu suất = \`277/686 × 100% ≈ **40.4%**\`. Phần còn lại (~60%, ~409 kcal/mol) thoát ra dưới dạng **nhiệt** — góp phần giữ ấm cơ thể (động vật đẳng nhiệt).
+**Hướng dẫn**: Mỗi ATP ~7,3 kcal/mol — nhân số ATP. Câu 2: hiệu suất = năng lượng vào ATP / 686; phần hụt biến thành dạng năng lượng nào?
+
+
+1. (a) \`4 × 7.3\` = **29.2 kcal/mol**. (b) \`30 × 7.3\` = **219 kcal/mol**.
+2. Hiệu suất = \`277/686 × 100%\` ≈ **40.4%**. Phần còn lại (~60%, ~409 kcal/mol) thoát ra dưới dạng **nhiệt** — góp phần giữ ấm cơ thể (động vật đẳng nhiệt).
 </details>
 
 ### 📝 Tóm tắt mục 6
@@ -482,20 +500,20 @@ A: Đó là giá trị **chuẩn (ΔG°′)** ở điều kiện chuẩn. Trong 
 
 **Bài 2**:
 - (a) ΔG **vẫn = −40 kJ/mol**. Enzyme không bao giờ đổi ΔG — chỉ đổi Ea.
-- (b) **Nhanh hơn**, vì Ea hạ từ 90 → 35 kJ/mol (hạ ΔEa = 55 kJ/mol = 55000 J/mol). Tăng tốc ≈ \`e^(55000/2577) = e^21.34 ≈ **1.9×10⁹ lần**\` (gần 2 tỉ lần).
+- (b) **Nhanh hơn**, vì Ea hạ từ 90 → 35 kJ/mol (hạ ΔEa = 55 kJ/mol = 55000 J/mol). Tăng tốc ≈ \`e^(55000/2577) = e^21.34\` ≈ **1.9×10⁹ lần** (gần 2 tỉ lần).
 - (c) **Không** — enzyme tăng tốc cả chiều thuận lẫn nghịch như nhau, nên điểm cân bằng giữ nguyên (liên hệ kinetics: catalyst không dịch cân bằng).
 
 **Bài 3**:
-- (a) [S] = 8 mM (= Km): \`v = 120 × 8/(8+8) = 120 × 0.5 = **60**\` (đúng nửa Vmax).
-- (b) [S] = 2 mM: \`v = 120 × 2/(8+2) = 120 × 0.2 = **24**\` (vùng thấp, gần tuyến tính).
-- (c) [S] = 72 mM: \`v = 120 × 72/(8+72) = 120 × 0.9 = **108**\` (90% Vmax, gần bão hòa).
+- (a) [S] = 8 mM (= Km): \`v = 120 × 8/(8+8) = 120 × 0.5\` = **60** (đúng nửa Vmax).
+- (b) [S] = 2 mM: \`v = 120 × 2/(8+2) = 120 × 0.2\` = **24** (vùng thấp, gần tuyến tính).
+- (c) [S] = 72 mM: \`v = 120 × 72/(8+72) = 120 × 0.9\` = **108** (90% Vmax, gần bão hòa).
 - (d) **Không thể vượt 120** (= Vmax). Khi [S] → ∞, \`v → Vmax = 120\` (tiệm cận, không vượt) vì mọi active site đã bận — đó là bão hòa. Muốn nâng trần phải tăng **nồng độ enzyme**.
 
 **Bài 4**:
-- (a) \`1 × 7.3 = **7.3 kcal/mol**\`.
-- (b) \`2 × 7.3 = **14.6 kcal/mol**\`.
-- (c) \`10 × 7.3 = **73 kcal/mol**\`.
-- (d) \`38 × 7.3 = **277.4 kcal/mol**\`.
+- (a) \`1 × 7.3\` = **7.3 kcal/mol**.
+- (b) \`2 × 7.3\` = **14.6 kcal/mol**.
+- (c) \`10 × 7.3\` = **73 kcal/mol**.
+- (d) \`38 × 7.3\` = **277.4 kcal/mol**.
 
 **Bài 5**:
 - (a) **Ức chế không cạnh tranh (noncompetitive / allosteric)** — vì tăng cơ chất rất nhiều mà tốc độ **không** phục hồi. Inhibitor gắn chỗ khác active site, đổi hình enzyme, không thể "đè" được bằng cơ chất.
@@ -503,7 +521,7 @@ A: Đó là giá trị **chuẩn (ΔG°′)** ở điều kiện chuẩn. Trong 
 - (c) Với ức chế **cạnh tranh**, tăng [S] đủ cao sẽ **phục hồi** tốc độ về gần Vmax. Vậy phép thử là: tăng [S] mạnh — nếu phục hồi → cạnh tranh; nếu không (như đề) → không cạnh tranh.
 
 **Bài 6**:
-- (a) 1 phút = 60 giây → \`10⁶ × 60 = 6×10⁷ = **60 triệu phân tử H₂O₂/phút**\` trên mỗi phân tử catalase.
+- (a) 1 phút = 60 giây → \`10⁶ × 60 = 6×10⁷\` = **60 triệu phân tử H₂O₂/phút** trên mỗi phân tử catalase.
 - (b) \`5×10¹² × 10⁶ = 5×10¹⁸ phân tử H₂O₂/giây\` tổng cộng. (Đây là lý do oxy già sủi bọt gần như tức thì khi gặp mô sống.)
 
 **Bài 7**:

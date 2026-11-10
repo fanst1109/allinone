@@ -120,6 +120,9 @@ Kết quả: ở trạng thái nghỉ, **trong neuron ≈ −70 mV so với ngo�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: mỗi ATP đẩy 3 Na⁺ — nhân thẳng. Câu 2: thay nồng độ mới vào phương trình Nernst $E_K = 61 \\cdot \\log_{10}([K]_{ngoài}/[K]_{trong})$ rồi so với giá trị cũ.
+
+
 1. Mỗi ATP bơm 3 Na⁺ → 2 × 10⁶ ATP/s × 3 = **6 × 10⁶ Na⁺/giây**.
 2. $E_K = 61 \\cdot \\log_{10}(10/140) = 61 \\cdot \\log_{10}(0.0714) = 61 \\cdot (-1.146) \\approx -70$ mV (từ −94 mV trước đó). $E_K$ **bớt âm** đi. Điện thế nghỉ cũng bớt âm (depolarize một phần) → neuron dễ phát AP hơn → kích thích quá mức, đó là cơ chế gây co giật khi tổn thương mô làm K⁺ ngoại bào tăng.
 </details>
@@ -195,6 +198,9 @@ A: Vì kênh Na⁺ chỉ mở thoáng qua (~0.5 ms) rồi tự đóng, đồng t
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Hai chốt của AP: ngưỡng −55 mV (chưa chạm = không nổ, all-or-none) và giai đoạn trơ tuyệt đối ~1 ms sau mỗi AP (kênh Na⁺ khóa).
+
 
 1. **Không**. −60 mV vẫn dưới ngưỡng −55 mV → kênh Na⁺ phụ thuộc điện áp không mở đủ → không có "cơn bão" Na⁺ vào → màng tự về −70.
 2. **Không**. Cái đầu tiên gây AP đã đẩy neuron vào giai đoạn trơ tuyệt đối ~1 ms. Cái thứ hai (0.5 ms sau) gặp kênh Na⁺ vẫn khóa cứng → không phát. Phải chờ ≥1 ms thì kích thích thứ hai mới có cơ hội.
@@ -323,6 +329,9 @@ A: Phần lớn ở **bước dọn dẹp (5–6)**. Cocain chặn protein tái 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Cộng đại số: điện thế nghỉ + tổng EPSP + tổng IPSP, rồi so với ngưỡng −55 mV. Câu 2: chặn kênh Na⁺ phụ thuộc điện áp = chặn AP = tín hiệu đau không lên não.
+
 
 1. Tổng EPSP = 8 × 2 = +16 mV; tổng IPSP = 2 × (−3) = −6 mV. Tổng thực = +10 mV. Soma đẩy từ −70 lên −60 mV. Ngưỡng −55 → **chưa đến** → **không phát AP**.
 2. Novocain bám vào kênh Na⁺ phụ thuộc điện áp ở axon cảm giác, giữ chúng đóng. Khi mô bị kích thích, không có Na⁺ ào vào → không có AP → không có tín hiệu đau truyền lên não. Tế bào vẫn sống, vẫn duy trì điện thế nghỉ (do bơm + kênh K⁺), chỉ là không phát AP được trong vài giờ.

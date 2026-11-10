@@ -111,6 +111,9 @@ Giống lúa kháng sâu trung bình đẻ 200 hạt/cây; giống thường đ�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Chuẩn hóa theo kiểu gen tốt nhất: w = số con / số con của kiểu gen max; s = 1 − w. Chết trước tuổi sinh sản nghĩa là để lại 0 con.
+
+
 1. W\_max = 100 (Bb). w(BB) = 80/100 = **0.8**, s(BB) = **0.2**. w(Bb) = **1**, s(Bb) = **0**. w(bb) = 60/100 = **0.6**, s(bb) = **0.4**. Lưu ý: Bb có fitness cao nhất → lợi thế dị hợp.
 2. Chết trước tuổi sinh sản → để lại 0 con → w(aa) = **0**, s(aa) = **1**.
 </details>
@@ -246,6 +249,9 @@ Vùng giữa phân bố bị bất lợi; hai đầu được ưu ái → phân 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhận diện kiểu chọn lọc qua CHUYỂN ĐỘNG của phân bố kiểu hình: dịch nguyên khối về 1 phía = định hướng; tách thành 2 đỉnh = phân hóa; co về giữa = ổn định.
+
+
 1. **Định hướng** — kiểu hình "kháng" được ưu ái, kiểu hình "không kháng" bị loại; trung bình phân bố dịch về phía "kháng nhiều".
 2. **Phân hóa (disruptive)** — vùng giữa (miệng vừa) bất lợi; 2 đầu (nhỏ và to) được ưu ái; phân bố tách thành 2 đỉnh.
 </details>
@@ -306,6 +312,9 @@ A: Quần thể lớn (bỏ qua drift), không di-nhập (bỏ qua gene flow), b
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: thay số vào $q_{n+1} \approx q_n - s \cdot p_n \cdot q_n^2$. Câu 2: cân bằng đột biến–chọn lọc $q = \sqrt{\mu/s}$.
+
 
 1. $q^2 = 0{,}09$, $p = 0{,}7$. $q_1 \approx 0{,}3 - 0{,}2 \cdot 0{,}7 \cdot 0{,}09 = 0{,}3 - 0{,}0126 =$ **0,2874**.
 2. $q_\text{cân bằng} = \sqrt{10^{-6}/0{,}01} = \sqrt{10^{-4}} =$ **0,01** (1%).

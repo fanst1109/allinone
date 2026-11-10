@@ -74,6 +74,9 @@ A: Có sự sống → là sinh vật → thuộc quần xã. "Vô sinh (abiotic
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Đếm cấp tổ chức: nhiều loài = quần xã; thêm thành phần VÔ SINH (nước, ánh sáng) = hệ sinh thái. Câu 2: năng lượng đi MỘT CHIỀU và thoát dạng nhiệt — không tái chế được như vật chất.
+
+
 1. Có nhiều loài (cá + rong + ốc + vi khuẩn) → ít nhất là **quần xã**. Có thêm môi trường vô sinh (nước + đèn UV cung cấp ánh sáng) → **hệ sinh thái**. Không thể là "quần thể" vì có nhiều loài.
 2. Vì dòng năng lượng đi 1 chiều: Mặt Trời → sinh vật → cuối cùng thoát ra nhiệt. Nếu cắt nguồn, năng lượng sẵn có bị tiêu thụ dần (qua hô hấp → nhiệt → bức xạ ra ngoài), không thể tái sử dụng. Sinh vật sản xuất không có ánh sáng để quang hợp → chuỗi đứt → cả hệ chết. (Vật chất thì khác — có thể tái sử dụng, nhưng không có năng lượng thì các phản ứng sinh hóa cũng không chạy.)
 
@@ -148,6 +151,9 @@ A: Tuỳ bữa. Trung bình người ăn tạp ở mức **bậc 2.2** (tính th
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đánh số bậc theo ĐƯỜNG ĂN cụ thể, sinh vật sản xuất = bậc 1; cùng một con vật có thể ở bậc khác nhau tùy chuỗi nó đang ăn.
+
 
 1. Lúa mì = sinh vật sản xuất (bậc 1). Người ăn lúa mì = tiêu thụ bậc 1 = **bậc 2**.
 2. Cỏ (1) → Thỏ (2) → Cáo (3): cáo ở **bậc 3** (tiêu thụ bậc 2).
@@ -298,6 +304,9 @@ A: Đó là vấn đề triết học/đạo đức ngoài phạm vi sinh thái.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy tắc 10%: mỗi bậc lên chia 10 — nhân liên tiếp từ bậc 1. Câu 2: so tổng NPP và hiệu suất truyền của hệ thủy sinh (phù du bị ăn gần hết, không có gỗ khó tiêu).
+
+
 1. Bậc 1: 50,000 → Bậc 2: 5,000 → Bậc 3: 500 → Bậc 4: **50 kJ/m²/năm**.
 2. Vì NPP (năng suất sơ cấp tinh) của tảo và vi khuẩn lam ở đại dương tuy thấp/m² nhưng phân bố cực rộng (~70% mặt Trái Đất); hệ thủy sinh có hiệu suất chuyển hoá cao hơn (~15–20%) vì gần như mọi tế bào phù du đều bị ăn (không có "lá rụng không bị ăn"). Hai yếu tố cộng lại đủ năng lượng duy trì 5 bậc.
 
@@ -424,6 +433,9 @@ A: Có và rất đáng kể. Cố định đạm tự nhiên (vi khuẩn + sét
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Tìm dòng carbon rút từ bể 'khóa' địa chất hàng trăm triệu năm đưa thẳng lên khí quyển. Câu 2: cây họ đậu mang nốt sần chứa vi khuẩn cố định N₂ — nguồn đạm tự nhiên cho đất.
+
 
 1. **Đốt nhiên liệu hóa thạch** (~10 Gt C/năm). Bình thường, sản phẩm phân giải C từ sinh khối được thực vật mới hấp thụ → cân bằng. Đốt nhiên liệu lấy C từ bể "khóa" hàng trăm triệu năm (than, dầu) đưa lại khí quyển trong vài thế kỷ — quá nhanh để cây/đại dương hấp thụ kịp.
 2. Cây họ đậu có **nốt sần (nodule)** chứa vi khuẩn Rhizobium cộng sinh, có enzyme nitrogenase cố định N₂ thành NH₄⁺. Một phần N này được chính cây dùng; một phần đi vào đất khi rễ chết / lá rụng → làm giàu N cho đất. Người Việt từ xưa đã có câu *"đậu xanh tốt cho đất"* mà không biết cơ chế vi sinh.

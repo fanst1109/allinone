@@ -82,6 +82,9 @@ A: Có. Hình thành loài là **quá trình liên tục**, không phải sự k
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp định nghĩa loài SINH HỌC: tiêu chí là cách ly sinh sản, không phải ngoại hình. Câu 2: kiểm tra 2 điều kiện của loài mới — tự sinh sản được VÀ cách ly sinh sản với dạng bố mẹ.
+
+
 1. **Có khả năng là 2 loài khác nhau** — đây có thể là "loài anh em sinh đôi" (sibling species). Cần kiểm tra: (a) đem giao phối thử trong điều kiện kiểm soát, xem có sinh con hữu sinh không; (b) so sánh DNA; (c) quan sát có rào cản hành vi (tiếng hót khác → không nhận diện nhau làm bạn tình). Nếu giao phối không thành / con lai vô sinh → 2 loài khác nhau.
 2. **Có** — đây là hình thành loài cùng khu (sympatric) qua đa bội hóa (xem §3.2). Dạng 4n = 28 cách ly sinh sản với cả hai bố mẹ 2n = 14 (lai ra 3n vô sinh) → một loài mới. Thực tế, lúa mì bánh mì hiện đại (6n = 42) được hình thành theo chuỗi đa bội như vậy.
 </details>
@@ -163,6 +166,9 @@ A: Vùng địa lý nơi 2 loài chớm phát sinh vẫn còn giao phối đư�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Hỏi trước: rào cản chặn TRƯỚC hay SAU khi hợp tử hình thành? Rồi mới xếp loại con: tín hiệu bạn tình = hành vi (trước); phôi chết = hybrid inviability (sau).
+
 
 1. **Hành vi (behavioral)** — tiếng kêu là tín hiệu nhận diện bạn tình, "không đúng giọng" thì không phản ứng → trước hợp tử, loại 3.
 2. **Hybrid inviability** — hợp tử đã tạo nhưng phôi không sống được → sau hợp tử, loại (a).
@@ -254,6 +260,9 @@ A: Có thật, nhưng phải chứng minh chặt: bằng chứng địa lý + ph
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Con lai 3n có số bộ LẺ — giảm phân không chia đều 3 bộ cho 2 cực → giao tử loạn số. Câu 2: loài allopolyploid = cộng 2 bộ đơn bội (n_P + n_Q) rồi nhân đôi.
+
 
 1. Con 3n có 3 bộ NST. Khi giảm phân, các NST không chia đều thành 2 nhóm vì 3 không chia hết cho 2 → giao tử có số NST loạn (vd 50, 51, 49 thay vì đều 50) → không sống được. Vậy cá 4n không lai được với 2n (con 3n chết / vô sinh) → **cá 4n cách ly sinh sản với 2n** → đúng, đó là loài mới (qua tự đa bội).
 2. P (2n_P = 18, n_P = 9). Q (2n_Q = 12, n_Q = 6). Con lai = n_P + n_Q = 9 + 6 = 15 NST, vô sinh (NST không bắt cặp). Đa bội hóa: 2 × (n_P + n_Q) = 2 × 15 = **30 NST**. Loài mới: 2n = 30 = 4n (xét theo bộ gốc) → hữu sinh.
@@ -390,6 +399,9 @@ A: Có nhiều phương pháp: (1) **Maximum parsimony** (cây nào ít thay đ�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đồng hồ phân tử: $t = \dfrac{\text{khác biệt}}{2\mu}$ — chia 2 vì cả 2 nhánh cùng tích lũy đột biến. Câu 2: MRCA = nút chung SÂU nhất chứa cả 2 loài; clade = 1 nút + TOÀN BỘ hậu duệ của nó.
+
 
 1. $t = \dfrac{0{,}024}{2 \times 10^{-9}} = 1{,}2 \times 10^7 =$ **12 triệu năm**.
 2. MRCA(D,E) là nút chia 2 nhánh D và E (nút sâu nhất chứa cả 2). MRCA(A,E) là **gốc cả cây** (nút chia ((A,B)) và ((C,(D,E)))). Nhóm {C, D, E} là **clade** đơn nguyên vì C là chị em với clade (D,E), tổ tiên chung của 3 con này tồn tại và đủ cả 3 hậu duệ.

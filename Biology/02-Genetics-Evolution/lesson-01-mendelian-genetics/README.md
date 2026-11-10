@@ -117,6 +117,9 @@ Hình dung mỗi gene như một **ô trên thẻ căn cước** — vd "ô màu
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Con trắng aa nhận 1 allele a từ MỖI bố mẹ → suy ngược kiểu gen; tỉ lệ con 1:1 là dấu hiệu của phép lai Aa × aa. Câu 2: mỗi gene có 3 kiểu gen khả dĩ → nhân theo số gene.
+
+
 1. Cây hoa trắng chắc chắn `aa` (lặn chỉ biểu hiện khi đồng hợp). Cây hoa tím cho 50% con trắng → phải truyền được `a` cho con với xác suất 50% → cây tím phải là **`Aa`** (dị hợp). Nếu là `AA` thì 100% con tím. Vậy bố/mẹ: **`Aa` × `aa`**.
 2. Mỗi gene có 3 kiểu gen (AA, Aa, aa) → 2 gene → 3 × 3 = **9 kiểu gen** ở con: AABB, AABb, AAbb, AaBB, AaBb, Aabb, aaBB, aaBb, aabb.
 </details>
@@ -209,6 +212,9 @@ A: Đúng. Khi trội không hoàn toàn (red × white → pink), F2 cho **1:2:1
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Aa × Aa cho tỉ lệ kiểu gen 1:2:1 — chia 240 thành 4 phần. Câu 2: mỗi lần sinh con là biến cố ĐỘC LẬP, giao tử không 'nhớ' lần trước.
+
+
 1. Tỉ lệ kỳ vọng 1:2:1 → 240/4 = 60. `AA` ≈ **60**, `Aa` ≈ **120**, `aa` ≈ **60**. (Thực tế có thể lệch ±vài chục.)
 2. P(bệnh) = P(aa) = **1/4 = 25%**. Mỗi lần sinh con là một **biến cố độc lập** — giao tử tạo ra ngẫu nhiên mỗi lần, không nhớ lần trước. Vì vậy xác suất con thứ 2 bị bệnh **vẫn là 1/4**, không thay đổi vì đã có 1 con bệnh trước đó. Đây là sai lầm phổ biến (gambler's fallacy) trong di truyền.
 </details>
@@ -283,6 +289,9 @@ Lai `AA × Aa`. Vẽ Punnett. Tỉ lệ kiểu gen và kiểu hình ở F1 là g
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Vẽ Punnett 1×2: cây AA chỉ cho 1 loại giao tử. Kiểu hình đọc theo allele trội — ô nào có A là trội.
+
 
 Đã làm ở ví dụ 4: bảng 1×2 → 1 `AA` : 1 `Aa`. Kiểu gen 1:1. **Kiểu hình 100% trội** (cả AA lẫn Aa đều trội).
 </details>
@@ -384,6 +393,9 @@ A: `aabb` chỉ cho 1 loại giao tử `ab`. `AaBb` cho 4 loại (AB, Ab, aB, ab
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Số loại giao tử = 2^(số cặp DỊ hợp) — cặp đồng hợp chỉ cho 1 loại. Câu 2: xác suất AaBb từ AaBb × AaBb = (1/2)(1/2) = 1/4 (hoặc đếm ô trong khung 4×4), nhân với 800.
+
+
 1. Chỉ có 2 cặp dị hợp (`Aa` và `Bb`); `CC` đồng hợp nên chỉ cho 1 loại allele cho gene C. Số loại giao tử = 2 × 2 × 1 = **4** loại: ABC, AbC, aBC, abC.
 2. Trong khung 4×4, `AaBb` xuất hiện ở 4 ô (xem bảng §5.2). Tỉ lệ = 4/16 = 1/4. → 800 × 1/4 = **200 con `AaBb`**. (Để so sánh: tổng số con vàng-trơn = 800 × 9/16 = 450; trong đó 200 là `AaBb`, 100 là `AaBB`, 100 là `AABb`, 50 là `AABB`.)
 </details>
@@ -443,6 +455,9 @@ Một cây đậu hoa tím lai phân tích cho 56 con: 28 tím + 28 trắng. Ki�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Lai phân tích đọc tỉ lệ con: ~1:1 → cây đem lai dị hợp; 100% trội → đồng hợp. Độ tin đánh giá bằng xác suất (1/2)ⁿ nếu giả định dị hợp.
+
 
 - 28:28 ≈ 1:1 → bố là **`Aa`** (dị hợp).
 - 56:0 → bố là **`AA`** (đồng hợp trội). Cỡ 56 đủ để xác nhận: nếu bố là `Aa`, xác suất 56 con đều trội = (1/2)⁵⁶ ≈ 10⁻¹⁷ — gần như không thể.

@@ -59,6 +59,9 @@ A: Nhỏ nhất: vi khuẩn *Mycoplasma* ~0.1–0.3 µm. Lớn nhất quen thu�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Soi từng luận điểm theo học thuyết tế bào ('tế bào chỉ sinh ra từ tế bào có trước'); phân biệt VẬT LIỆU với SỰ SỐNG. Câu 2: đối chiếu virus với các tiêu chí của một tế bào (màng, trao đổi chất, tự sinh sản).
+
+
 1. Sai ở luận điểm 3. Tế bào chỉ sinh ra từ tế bào có trước. Hạt đã chứa sẵn tế bào phôi sống; đất chỉ cung cấp nước và khoáng chất (vật liệu), không "biến thành" tế bào. Không có chuyện vật chất không sống tự tổ chức thành tế bào.
 2. Vì virus không có màng sinh chất sống riêng, không tự trao đổi chất, không tự sinh sản độc lập (phải ký sinh trong tế bào chủ). Nó thiếu mọi tiêu chí của "đơn vị chức năng cơ bản".
 </details>
@@ -125,6 +128,9 @@ A: Tách DNA khỏi tế bào chất cho phép **phiên mã (transcription) và 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: đối chiếu 3 dấu hiệu với bảng nhân sơ/nhân thực. Câu 2: nghĩ lợi ích của việc tách nơi CHỨA DNA khỏi nơi dịch mã protein.
+
 
 1. **Nhân sơ** (vi khuẩn). Cả 3 dấu hiệu — không màng nhân, ribosome 70S, thành peptidoglycan — đều là đặc trưng nhân sơ.
 2. Vì tách DNA khỏi nơi tổng hợp protein cho phép điều hòa gen phức tạp, bảo vệ vật chất di truyền, và chứa được nhiều DNA hơn. Nhờ đó tế bào có thể chuyên hóa, hợp tác → tiến tới sinh vật đa bào.
@@ -211,6 +217,9 @@ A: Vì enzyme được **nhốt trong màng lysosome** và chỉ hoạt động 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: lần theo con đường protein xuất khẩu (ribosome → ER hạt → Golgi) và nguồn ATP cho nó. Câu 2: gắn nhu cầu năng lượng của từng mô với số lượng ti thể.
+
+
 1. Giàu **ribosome + ER hạt + Golgi** (con đường tổng hợp và đóng gói protein xuất khẩu, xem §3.2), và **ti thể** (vì sản xuất + xuất khẩu protein tốn nhiều ATP). Tế bào tuyến tụy tiết enzyme tiêu hóa là ví dụ điển hình.
 2. Vì cơ và gan tiêu tốn nhiều năng lượng (co cơ, chuyển hóa) → cần nhiều ATP → nhiều "nhà máy điện" ti thể. Tế bào da chết gần như không trao đổi chất → rất ít hoặc không ti thể hoạt động.
 </details>
@@ -273,6 +282,9 @@ A: Khi mất nước, không bào xẹp → mất áp suất trương → tế b
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đối chiếu đặc điểm quan sát với bảng phân biệt: thành + lục lạp + không bào trung tâm lớn (thực vật) vs không thành + lysosome + trung thể (động vật).
+
 
 1. **Thực vật**. Cả 3 đặc điểm (thành tế bào, lục lạp, không bào trung tâm lớn) là dấu hiệu thực vật.
 2. **Động vật**. Không có thành + hình mềm + lysosome + trung thể nổi bật → đặc trưng tế bào động vật.
@@ -359,6 +371,9 @@ A: Không. Tế bào của voi và của chuột **gần như cùng kích thư�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng SA = 6s², V = s³, SA/V = 6/s — cạnh càng nhỏ tỉ lệ càng lớn. Câu 3: nghĩ theo hướng tăng diện tích bề mặt mà gần như không tăng thể tích.
+
+
 1. SA = 6×5² = 6×25 = **150**; V = 5³ = **125**; SA/V = 150/125 = **1.2**. Verify: 6/s = 6/5 = 1.2 ✓.
 2. Cạnh 4 µm: SA/V = 6/4 = 1.5. Cạnh 8 µm: SA/V = 6/8 = 0.75. **Tế bào cạnh 4 µm hiệu quả hơn** (SA/V lớn hơn). Chênh: 1.5 / 0.75 = **2 lần**.
 3. Vì vi nhung mao **tăng diện tích bề mặt hấp thụ** (SA) lên rất nhiều mà gần như không tăng thể tích → tăng mạnh SA/V → hấp thụ dinh dưỡng nhanh hơn. Ống trơn có SA nhỏ → hấp thụ kém.
@@ -415,6 +430,9 @@ A: Vì nếu ti thể chỉ là một nếp gấp của màng tế bào chủ (g
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: nhớ 3 nhóm bằng chứng nội cộng sinh (vật chất di truyền riêng, ribosome kiểu gì, mấy lớp màng). Câu 2: suy thẳng từ nguồn gốc vi khuẩn của ti thể.
+
 
 1. (1) Ti thể/lục lạp có **DNA vòng riêng**; (2) có **ribosome 70S** kiểu vi khuẩn; (3) có **màng kép** (vết tích của lần bị nuốt). (Bổ sung: tự phân đôi như vi khuẩn, kích thước cỡ vi khuẩn.)
 2. Vì ti thể có nguồn gốc là vi khuẩn (nhân sơ), mà ribosome của nhân sơ là loại 70S. Ti thể giữ lại bộ máy dịch mã "kiểu vi khuẩn" của tổ tiên nó, khác với ribosome 80S do nhân tế bào nhân thực tạo ra.

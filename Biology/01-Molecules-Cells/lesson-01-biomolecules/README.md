@@ -122,6 +122,9 @@ $$\text{monomer–monomer} + \text{H}_2\text{O} \rightarrow \text{monomer–OH} 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Trùng ngưng: mỗi liên kết hình thành tách đúng 1 nước — chuỗi N đơn phân có N−1 liên kết. Thủy phân thì ngược lại: cộng 1 nước cho mỗi liên kết bị cắt, rồi đếm C/H/O hai vế để kiểm.
+
+
 1. 250 − 1 = **249 phân tử nước**.
 2. Cần **1 phân tử nước**. Kiểm tra: $\text{C}_{12}\text{H}_{22}\text{O}_{11} + \text{H}_2\text{O} \rightarrow 2\,\text{C}_6\text{H}_{12}\text{O}_6$. Vế trái: C12, H 22+2=24, O 11+1=12. Vế phải: C 2×6=12, H 2×12=24, O 2×6=12. Cân bằng ✓.
 </details>
@@ -230,6 +233,9 @@ A: Vì sức mạnh nằm ở **tổ hợp và độ dài**. Giống 26 chữ c�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: áp N−1 liên kết cho TỪNG chuỗi riêng (các chuỗi bậc 4 không nối nhau bằng peptide). Câu 2: nghĩ về biến tính — loại liên kết nào giữ bậc 2–3 và vì sao phá xong chuỗi không tự cuộn lại.
+
 
 1. Mỗi chuỗi 150 amino acid → 149 liên kết peptide. Hai chuỗi → 2 × 149 = **298 liên kết peptide** (các chuỗi bậc 4 nối nhau không bằng liên kết peptide).
 2. Vì biến tính do nhiệt phá vỡ vĩnh viễn các liên kết hydrogen và tương tác giữ hình dạng bậc 2-3; các chuỗi đã cuộn rối và kết tụ vào nhau, không thể tự gập lại đúng hình ban đầu. Đây là quá trình không thuận nghịch.
@@ -341,6 +347,9 @@ A: Bài này chỉ giới thiệu nucleic acid là **1 trong 4 nhóm phân tử*
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: dùng Chargaff A=T, G=C và tổng 4 loại = 100%. Câu 2: từ G suy C, phần nucleotide còn lại chia đôi cho A=T; đếm số cặp G–C (3 liên kết H) và A–T (2 liên kết H) rồi cộng.
+
 
 1. C = 17% → G = 17%. G+C = 34% → A+T = 66% → A = T = **33%** mỗi loại.
 2. G = 350 → C = 350 (cặp G–C, mỗi cặp 3 liên kết H). Còn lại 1000 − 700 = 300 nucleotide là A và T → 150 cặp A–T (mỗi cặp 2 liên kết H). Tổng liên kết H = 350×3 + 150×2 = 1050 + 300 = **1350 liên kết hydrogen**. (Lưu ý: 1000 nucleotide = 500 cặp base; G+C cặp = 350, A+T cặp = 150 ✓.)

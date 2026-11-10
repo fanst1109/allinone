@@ -102,6 +102,9 @@ A: Có — một số virus (vd parvovirus, phage M13) có genome DNA mạch đ�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: viết mạch bổ sung đối song (A–T, G–C) rồi ĐẢO đầu để ghi theo quy ước 5'→3'. Câu 2: đổi % thành số lượng từng loại base, đếm cặp A–T (×2) và G–C (×3).
+
+
 1. Mạch khuôn 5'– \`G A T T A C A\` –3'. Bổ sung theo chiều đối song 3'– \`C T A A T G T\` –5'. Đảo lại để viết 5'→3' (quy ước chuẩn): 5'– \`T G T A A T C\` –3'.
 2. 1500 bp = 1500 cặp base = 3000 nucleotide tổng. A=25% trên 3000 nucleotide → A=750. T=750 (Chargaff). G=C → G+C = 1500 → G=C=750. Số cặp A–T = 750 (mỗi A đi với 1 T); số cặp G–C = 750. Tổng H = 750×2 + 750×3 = 1500 + 2250 = **3750 liên kết hydrogen**.
 </details>
@@ -186,6 +189,9 @@ A: Không trực tiếp. Meselson–Stahl chỉ chứng minh **cơ chế phân c
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Bán bảo toàn: 2 mạch gốc nằm trong đúng 2 phân tử 'lai' bất kể số chu kỳ; tổng = 2ⁿ. Câu 2: mỗi cơ chế (bán bảo toàn / bảo toàn / phân tán) dự đoán vị trí băng chu kỳ 1 khác nhau — khớp dữ kiện với cơ chế nào.
+
+
 1. Sau 6 chu kỳ: 2⁶ = **64 DNA con**. Lai = 2; nhẹ = 62. % lai = 2/64 = **3.125%**.
 2. Nếu chu kỳ 1 cho 2 băng tách bạch (1 nặng nguyên gốc + 1 nhẹ hoàn toàn) → cơ chế là **bảo toàn (conservative)**, vì DNA mẹ giữ nguyên còn DNA con mới hoàn toàn. Bán bảo toàn không thể cho kết quả này (cả 2 con đều phải "lai" ở chu kỳ 1).
 </details>
@@ -262,6 +268,9 @@ A: 5'-phosphate là "đầu chết" của mạch đang được tổng hợp. N�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Polymerase đọc khuôn 3'→5' và tổng hợp 5'→3' — khuôn đã cho sẵn chiều 3'→5' thì bắt cặp viết thẳng. Câu 2: nhớ polymerase chỉ KÉO DÀI từ đầu 3'-OH có sẵn.
+
 
 1. Mạch khuôn 3'– \`T T A C C G\` –5'. Đọc theo chiều 3'→5', mạch mới tổng hợp 5'→3': bắt cặp T→A, T→A, A→T, C→G, C→G, G→C. Mạch mới 5'– \`A A T G G C\` –3'.
 2. Vì polymerase chỉ kéo dài *đã có sẵn* một đoạn mạch (cần đầu 3'-OH). Để khởi đầu từ con số không, cần một mạch ngắn "khởi tạo" — đó là **primer**. Primer được tạo bởi **primase**, làm bằng RNA (vì RNA polymerase không cần đầu 3'-OH có sẵn). Sau đó primer RNA được thay bằng DNA (DNA pol I) và đoạn được ligase nối.
@@ -378,6 +387,9 @@ A: Đây là **vấn đề end-replication**: sau khi primer cuối cùng đư�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Mạch dẫn đầu cần 1 primer; mạch trễ cần 1 primer cho MỖI đoạn Okazaki — chia chiều dài phần mạch trễ cho cỡ đoạn.
+
+
 1. Hai mạch khuôn ngược chiều, mỗi mạch cần ít nhất 1 primer riêng để polymerase III bám vào. Mạch dẫn đầu cần 1 primer (vĩnh viễn dùng được cho cả mạch); mạch trễ cần nhiều primer (1 cho mỗi đoạn Okazaki). Vậy mỗi chạc tối thiểu 2 primer (1 dẫn đầu + 1 Okazaki đầu tiên).
 2. 1 origin → 2 chạc đi ngược nhau. Mỗi chạc tổng hợp ~2500 bp. Đoạn Okazaki 500 nt → mỗi chạc cần ~2500/500 = **5 primer** cho mạch trễ. (Mạch dẫn đầu cần thêm 1 primer riêng.)
 </details>
@@ -446,6 +458,9 @@ A: Vì (1) phần lớn lỗi rơi vào vùng không mã hóa (intron, vùng gi�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhân đôi tỏa 2 hướng từ origin: $t = \\dfrac{\\text{genome}}{2k \\times v}$ — câu 1 giải cho $t$ (k = 1), câu 2 giải ngược cho $k$.
+
 
 1. t = 100,000 / (2 × 500) = 100 giây = **1 phút 40 giây**.
 2. T = 4h = 14,400 s. k ≥ 6×10⁹ / (2 × 50 × 14,400) = 6×10⁹ / 1,440,000 ≈ **4167 origin**. Tối thiểu khoảng 4200 origin.

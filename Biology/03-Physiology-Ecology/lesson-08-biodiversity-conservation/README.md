@@ -173,6 +173,9 @@ $H = -1 \times \ln(1) = 0$. $D = 1 - 1^2 = 0$. Đa dạng bằng 0 — đơn lo�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Thay tỉ lệ vào $H = -\sum p_i \ln p_i$ và $D = 1 - \sum p_i^2$; độ đều = H/ln(S). Chia đều tuyệt đối thì H đạt cực đại = ln(S).
+
+
 1. $H = -2 \times 0{,}5 \times \ln(0{,}5) = -1 \times (-0{,}693) = \mathbf{0{,}693}$ **nats**. $D = 1 - 2 \times 0{,}25 = \mathbf{0{,}5}$. Độ đều = $0{,}693 / \ln(2) = 0{,}693 / 0{,}693 = \mathbf{1{,}0}$ (hoàn toàn đều — không thể đều hơn).
 2. $H = \ln(5) = \mathbf{1{,}609}$ **nats**. $D = 1 - 5 \times (1/5)^2 = 1 - 1/5 = \mathbf{0{,}8}$. Đây là giá trị tối đa cho 5 loài.
 
@@ -280,6 +283,9 @@ Quy tắc kinh điển bảo tồn: **50/500** — cần ≥50 cá thể sinh s�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Tốc độ nền × tổng số loài → số loài mất/năm, nhân số năm. Kịch bản gia tốc: nhân thêm hệ số 500 vào tốc độ nền.
+
 
 1. Tốc độ nền: $1/1\,000\,000 \times 8\,700\,000 = 8{,}7$ loài/năm. Trong 100 năm: $8{,}7 \times 100 = \mathbf{870}$ **loài**.
 2. Nhanh gấp 500: $8{,}7 \times 500 = 4\,350$ loài/năm. Trong 100 năm: $4\,350 \times 100 = \mathbf{435\,000}$ **loài** — hơn nửa triệu loài mất trong 1 thế kỷ.

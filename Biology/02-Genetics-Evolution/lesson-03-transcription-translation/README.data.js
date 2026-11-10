@@ -186,6 +186,9 @@ A: Intron không phải "rác". (1) Cho phép **alternative splicing** — 1 gen
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: bắt cặp phiên mã A→U, T→A, G→C, C→G; mRNA viết 5'→3' ngược chiều mạch khuôn. Câu 2: mRNA trưởng thành = TỔNG exon; intron = chiều dài gene − tổng exon.
+
+
 1. mRNA bổ sung với khuôn, viết theo chiều 5'→3', A↔U, C↔G:
    - Khuôn 3'→5': A C G T T A C G G C A T
    - mRNA 5'→3': **\`5'- U G C A A U G C C G U A -3'\`** (mỗi base: A→U, C→G, G→C, T→A).
@@ -291,6 +294,9 @@ A: Mã thoái hoá thường thoái hoá ở **vị trí thứ 3 của codon** (
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Số amino acid = ORF/3 − 1 (trừ codon stop). Câu 2–3: cắt từng bộ 3 từ điểm bắt đầu rồi tra bảng; đọc lệch khung thì cắt lại từ vị trí mới và xem có stop không.
+
 
 1. 1500 / 3 = 500 codon, trừ 1 stop → **499 amino acid**.
 2. AUG → Met, GCU → Ala, UCG → Ser, UAA → STOP. Peptide = **Met–Ala–Ser** (3 amino acid).
@@ -398,6 +404,9 @@ A: Tế bào có cơ chế kiểm soát chất lượng:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Chiều ngược: (số aa + 1 codon stop) × 3 nucleotide. Câu 3: nhân số codon khả dĩ của từng vị trí (Met 1 × Trp 1 × stop 3).
+
+
 1. 100 codon mã hoá + 1 codon stop = 101 codon × 3 = **303 nucleotide**.
 2. AUG → Met, UUC → Phe, GGC → Gly, UAG → STOP. Peptide = **Met–Phe–Gly** (3 aa).
 3. Met (1) × Trp (1) × Stop (3) = **3 kiểu mRNA** khác nhau (\`AUG-UGG-UAA\`, \`AUG-UGG-UAG\`, \`AUG-UGG-UGA\`).
@@ -461,6 +470,9 @@ A: Xếp thường (không tuyệt đối): **frameshift ≈ nonsense > missense
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: So codon trước/sau trên bảng mã: cùng aa = silent, đổi aa = missense, thành stop = nonsense. Chèn/xóa không chia hết cho 3 = frameshift — viết lại toàn bộ khung sau điểm chèn.
+
 
 1. UCA → UCG: tra bảng, cả 2 đều là Ser → **silent (đồng nghĩa)**.
 2. CAA (Gln) → UAA: UAA là codon STOP → **nonsense (vô nghĩa)**. Hậu quả: peptide bị cắt ngắn tại đây, thường mất chức năng.

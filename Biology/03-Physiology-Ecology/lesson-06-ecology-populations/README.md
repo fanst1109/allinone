@@ -129,6 +129,9 @@ A: Không. r > 0 → tăng (đường J/S đi lên). r = 0 → ổn định. r <
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Mật độ D = N/S. Câu 2: ΔN = B − D + I − E — cẩn thận chiều: nhập cư cộng, xuất cư trừ.
+
+
 1. D = 500 / 100 = **5 chuột/m²**.
 2. ΔN = B − D + I − E = 200 − 80 + 10 − 30 = **+100** (quần thể tăng 100 con).
 
@@ -201,6 +204,9 @@ Một quần thể nấm men có r = 0.4/giờ, N₀ = 50. Tính N sau 5 giờ v
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Thay vào $N(t) = N_0 \cdot e^{rt}$. Tỉ số $N(t+\Delta)/N(t) = e^{r\Delta}$ — chỉ phụ thuộc khoảng cách thời gian, đó là dấu vân tay của tăng trưởng mũ.
+
 
 - $N(5) = 50 \cdot e^{0{,}4 \cdot 5} = 50 \cdot e^2 = 50 \cdot 7{,}389 \approx$ **369**.
 - $N(10) = 50 \cdot e^{0{,}4 \cdot 10} = 50 \cdot e^4 = 50 \cdot 54{,}60 \approx$ **2.730**.
@@ -305,6 +311,9 @@ Hồ cá rô có K = 4,000 con, r = 0.2/năm.
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Thay số vào logistic $\frac{dN}{dt} = rN(1 - N/K)$. Câu 2: tốc độ tăng cực đại tại N = K/2, giá trị bằng rK/4 — đó chính là mức thu hoạch bền vững tối đa.
+
 
 1. dN/dt = 0.2 · 800 · (1 − 800/4000) = 0.2 · 800 · 0.8 = **128 con/năm**.
 2. dN/dt_max = rK/4 = 0.2 · 4000 / 4 = **200 con/năm**, đạt khi N = K/2 = **2,000 con**.
@@ -438,7 +447,7 @@ Lấy a = 0.5/năm, b = 0.02/(thỏ·năm), c = 0.1, d = 0.3/năm:
   - N(3) = 50 · e^(2.1) = 50 · 8.166 ≈ **408**.
   - N(6) = 50 · e^(4.2) = 50 · 66.69 ≈ **3,335**.
   - N(12) = 50 · e^(8.4) = 50 · 4,447 ≈ **222,300**.
-- (c) `t_double = ln 2 / r = 0.693 / 0.7 ≈ **0.99 giờ**` (khoảng 59 phút).
+- (c) `t_double = ln 2 / r = 0.693 / 0.7` ≈ **0.99 giờ** (khoảng 59 phút).
 
 **Bài 3** (K = 8,000, r = 0.4):
 - Tại N = 2,000: dN/dt = 0.4 · 2,000 · (1 − 2,000/8,000) = 0.4 · 2,000 · 0.75 = **600 con/năm**.

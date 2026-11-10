@@ -64,6 +64,9 @@ A: Cả hai, tùy nhiệt độ — nó là "bộ điều hòa". Khi **ấm**, c
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Xét tính phân cực: đuôi hydrocarbon kỵ nước phải trốn nước, đầu phosphate ưa nước hướng ra 2 mặt nước. Câu 2: glycoprotein gắn chức năng NHẬN DIỆN — mặt nào tiếp xúc tế bào khác?
+
+
 1. Đuôi acid béo là chuỗi C–H **kỵ nước (hydrophobic)** — "ghét" nước. Bên trong và bên ngoài tế bào đều là môi trường nước, nên đuôi tự giấu vào lõi giữa hai lớp để tránh tiếp xúc nước; đầu phosphate ưa nước thì quay ra hai mặt nước. Đây chính là động lực tự lắp thành lớp kép.
 2. Glycoprotein nằm ở **mặt ngoài** màng (phần carbohydrate luôn quay ra ngoài tế bào). Vai trò: "thẻ nhận dạng" — giúp tế bào nhận diện nhau, nhận tín hiệu, phân biệt "ta" và "lạ" (ví dụ nhóm máu A/B/O chính là khác biệt ở carbohydrate bề mặt hồng cầu).
 </details>
@@ -121,6 +124,9 @@ A: **Bán thấm (semipermeable)** trong vật lý/hóa thường nghĩa "cho n�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Xếp theo 2 tiêu chí: kích thước và phân cực/điện tích — nhỏ + không phân cực qua dễ nhất, mang điện khó nhất (cần kênh).
+
 
 1. **CO₂ > glucose > Cl⁻**. CO₂ nhỏ, không phân cực → qua trực tiếp. Glucose lớn và phân cực → cần protein mang nhưng vẫn "trung tính điện". Cl⁻ tích điện → khó nhất, cần kênh ion.
 2. CO₂ là phân tử **nhỏ và không phân cực** → tan được trong lõi kỵ nước của màng nên khuếch tán đơn giản trực tiếp qua lớp kép, xuôi từ nơi nồng độ cao (trong tế bào đang hô hấp) sang nơi thấp (máu). Không cần protein, không tốn ATP.
@@ -193,6 +199,9 @@ A: Không — chúng vẫn qua lại liên tục, nhưng **tốc độ hai chi�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Câu 1: so nồng độ chất tan 2 bên — nước thẩm thấu về phía ĐẶC hơn. Câu 2: hỏi glucose đi xuôi hay ngược gradient; xuôi qua protein mang = thụ động, không ATP.
+
 
 1. Trong túi đặc hơn (10%) so với ngoài (2%) → nước đi **vào túi** (từ loãng ngoài → đặc trong) → túi **phồng** lên. Nhớ "nước chảy về nơi mặn/đặc".
 2. **Thụ động** (khuếch tán có hỗ trợ — facilitated diffusion). Glucose đi xuôi gradient (ngoài nhiều, trong ít) qua protein mang GLUT, **không tốn ATP**. Protein chỉ làm cửa, không bơm.
@@ -268,6 +277,9 @@ A: Muối/đường tạo môi trường **ưu trương** quanh vi khuẩn → n
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: so 5% với 0,9% nội bào → xác định ưu/nhược trương rồi suy hướng nước đi. Câu 2: khác biệt then chốt giữa 2 loại tế bào là VÁCH tế bào.
+
+
 1. NaCl 5% > nội bào 0.9% → môi trường **ưu trương (hypertonic)** → nước đi **ra** khỏi hồng cầu → hồng cầu mất nước, **teo và nhăn (crenation)**. Độ chênh 5 − 0.9 = 4.1 rất lớn nên co mạnh.
 2. **Không vỡ**. Tế bào thực vật có **vách tế bào (cell wall)** cứng cáp. Trong nước cất (nhược trương) nước vào làm tế bào trương, nhưng vách chịu áp lực và đẩy lại → tế bào đạt trạng thái **căng nước (turgid)** ổn định, không vỡ. Áp lực này (turgor pressure) giúp cây đứng thẳng.
 </details>
@@ -338,6 +350,9 @@ A: Rất nhiều — ước tính bơm này tiêu tốn **~20–25% ATP** lúc n
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Dùng tỉ lệ cố định mỗi chu kỳ bơm: 3 Na⁺ ra : 2 K⁺ vào : 1 ATP — nhân hoặc chia theo tỉ lệ này.
+
+
 1. 25 chu kỳ × tỉ lệ 3:2:1 → **75 Na⁺ ra** (25×3), **50 K⁺ vào** (25×2), dùng **25 ATP** (1/chu kỳ).
 2. 60 K⁺ vào → số chu kỳ = 60 ÷ 2 = 30 chu kỳ → Na⁺ ra = 30 × 3 = **90 Na⁺**. (Kiểm tra tỉ lệ 90:60 = 3:2 ✓.)
 </details>
@@ -384,6 +399,9 @@ A: Bơm vận chuyển **từng phân tử/ion** qua protein xuyên màng. Nhậ
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Vật quá lớn so với protein màng: đi VÀO = nhập bào (hạt rắn → thực bào), đi RA = xuất bào; cả hai đều biến dạng màng nên tốn ATP.
+
 
 1. **Thực bào (phagocytosis)** — màng bạch cầu bọc vi khuẩn thành túi và nuốt vào. **Có tốn ATP** vì cần biến dạng màng.
 2. **Xuất bào (exocytosis)** — túi chứa chất dẫn truyền hòa vào màng và thải nội dung ra ngoài synapse. Tốn ATP.

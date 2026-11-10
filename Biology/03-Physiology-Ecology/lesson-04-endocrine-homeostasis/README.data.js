@@ -66,6 +66,9 @@ A: Mỗi sinh vật có **điểm đặt riêng** do enzyme của nó tối ưu 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Enzyme giữ hình dạng nhờ liên kết yếu nhạy pH → suy ra khoảng sống hẹp. Câu 2: phân biệt điểm đặt bị DỊCH CÓ KIỂM SOÁT (vận động, sốt) với rối loạn bệnh lý.
+
+
 1. pH máu phải nằm trong khoảng ~7.0–7.7; bình thường 7.35–7.45. Enzyme có cấu trúc 3D phụ thuộc tương tác ion và liên kết hydrogen — pH lệch sẽ proton hóa/khử proton các nhóm chức, phá vỡ hình dạng → enzyme mất chức năng (xem [\`lesson-04-enzymes-metabolism\`](../../01-Molecules-Cells/lesson-04-enzymes-metabolism/)).
 2. Không bệnh — đây là **dao động bình thường** trong vận động cường độ cao. Cơ tạo nhiệt rất nhanh, hệ làm mát (đổ mồ hôi, giãn mạch) bị "chạy theo". Khi nghỉ vài phút, thân nhiệt sẽ trở về 37°C. Chỉ nguy hiểm nếu duy trì > 40°C kéo dài.
 </details>
@@ -186,6 +189,9 @@ Cơ chế nằm ở **tính tan**:
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: So cơ chế 2 nhóm: steroid vào nhân BẬT GEN (sống nhờ phiên mã), peptide kích protein CÓ SẴN qua second messenger. Câu 2: hormone đủ mà không đáp ứng → nhìn sang RECEPTOR ở tế bào đích.
+
 
 1. **Hormone steroid** bị ảnh hưởng nhiều hơn. Cơ chế steroid là vào nhân, gắn receptor, bật gen → phiên mã → tạo protein mới. Nếu chặn phiên mã, toàn bộ chuỗi tác động đứt. Hormone peptide kích hoạt protein có sẵn qua second messenger (không cần phiên mã ngay) nên ít ảnh hưởng hơn.
 2. Lỗi không ở tuyến tiết (testosterone bình thường) → lỗi ở **receptor**. Có thể receptor testosterone bị đột biến / mất chức năng. Đây thực sự là bệnh **Hội chứng kháng androgen (Androgen Insensitivity Syndrome)** — minh chứng "có hormone nhưng không có receptor đúng = không tác động".
@@ -354,6 +360,9 @@ Phản hồi dương luôn có **điểm dừng** (sinh xong, mạch khâu kín,
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Điền đúng 4 vai: đại lượng được điều hòa — cảm biến — trung tâm so sánh — bộ hiệu ứng. Câu 2: phản hồi dương dừng khi 'nhiên liệu' cạn (kênh Na⁺ bất hoạt, gradient xẹp).
+
 
 1. Bốn thành phần:
    - **Đại lượng được điều hòa**: thân nhiệt (đang giảm vì trời lạnh).

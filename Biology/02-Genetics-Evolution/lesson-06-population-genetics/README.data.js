@@ -129,6 +129,9 @@ Vì mỗi cá thể AA đóng góp 2 allele A, mỗi cá thể Aa đóng góp 1 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Cách 1: đếm allele — mỗi cá thể AA góp 2 A, Aa góp 1 A, chia tổng 2N. Cách 2: p = D + H/2 với D, H là tần số kiểu gen. Hai cách phải trùng.
+
+
 1. Tổng allele = 1000. Số A = $2 \\times 180 + 240 = 360 + 240 = 600$. Số a = $2 \\times 80 + 240 = 160 + 240 = 400$. $p = 600/1000 = \\textbf{0,6}$; $q = \\textbf{0,4}$.
 2. $D = 180/500 = 0{,}36$, $H = 240/500 = 0{,}48$, $R = 80/500 = 0{,}16$. $p = 0{,}36 + 0{,}48/2 = \\textbf{0,6}$ ✓. Hai cách phải luôn ra cùng kết quả, vì chúng chỉ là 2 cách viết của cùng một phép đếm.
 </details>
@@ -226,6 +229,9 @@ A: Nếu xuất phát từ quần thể **chưa cân bằng** (vd kiểu gen ban
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Thay p, q vào bộ ba p², 2pq, q² rồi kiểm tổng = 1. Câu 2: chính là phát biểu của định luật Hardy–Weinberg.
+
+
 1. p² = 0.49, 2pq = 2 × 0.7 × 0.3 = 0.42, q² = 0.09. Kiểm tra 0.49 + 0.42 + 0.09 = 1 ✓.
 2. Không. Đó chính là nội dung của định luật HW: tần số allele **giữ nguyên** qua mọi thế hệ khi đủ 5 điều kiện.
 </details>
@@ -313,6 +319,9 @@ Khi q nhỏ (bệnh hiếm), tỉ lệ carrier/người-bệnh = 2pq / q² = **2
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Đi từ tần số bệnh: q² = 1/2500 → q = căn bậc hai → p = 1 − q → carrier = 2pq.
+
+
 1. q² = 1/2500 = 0.0004 → q = √0.0004 = 0.02. p = 0.98. 2pq = 2 × 0.98 × 0.02 = **0.0392** → ~3.92% (1/25.5) dân số là carrier.
 2. q² = 0.16 → q = 0.4 → p = 0.6. p² = 0.36, 2pq = 2 × 0.6 × 0.4 = 0.48. Kiểm tra: 0.36 + 0.48 + 0.16 = 1 ✓.
 </details>
@@ -391,6 +400,9 @@ Một quần thể 1000 cá thể: 250 AA, 500 Aa, 250 aa. Tính p, q, dự đo�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tính p, q từ số liệu (đếm allele), rồi so kiểu gen QUAN SÁT với kỳ vọng p²·N, 2pq·N, q²·N.
+
+
 p = (500 + 500)/2000 = 0.5. q = 0.5. Dự đoán HW: p²×1000 = 250 AA, 2pq×1000 = 500 Aa, q²×1000 = 250 aa. **Khớp hoàn toàn** — quần thể này đang ở HW.
 </details>
 
@@ -466,6 +478,9 @@ Khởi đầu q = 0.4, s = 1 (aa chết trước sinh sản). Tính q sau 2 th�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Chọn lọc hoàn toàn chống aa (s = 1): dùng công thức lặp $q_{t+1} = \\dfrac{q_t}{1+q_t}$ — áp 2 lần liên tiếp.
+
 
 Thế hệ 1: q = 0.4 / (1 + 0.4) = 0.4 / 1.4 ≈ **0.2857**.
 Thế hệ 2: q = 0.2857 / (1 + 0.2857) = 0.2857 / 1.2857 ≈ **0.2222** (= 2/9 chính xác).

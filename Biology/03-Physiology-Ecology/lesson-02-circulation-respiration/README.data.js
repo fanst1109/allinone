@@ -108,6 +108,9 @@ Trong 1 chu kỳ 0.8 giây (nhịp 75/phút): tâm trương ~0.5 s, tâm thu ~0.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Van nhĩ–thất đóng khi tâm thất CO (tâm thu) — lúc đó máu thoát qua van bán nguyệt đang mở. Câu 2: so quãng đường và kháng lực của vòng lớn vs vòng phổi.
+
+
 1. Van mitral đóng = **tâm thu**. Máu từ tâm thất trái đang được tống vào **động mạch chủ** (qua van bán nguyệt chủ đang mở). Cùng lúc bên phải, máu từ tâm thất phải đi vào động mạch phổi.
 2. Tâm thất trái bơm máu đi **toàn thân** (vòng lớn) — quãng đường dài, kháng lực lớn, cần áp suất rất cao (~120 mmHg lúc tâm thu). Tâm thất phải chỉ bơm máu **lên phổi** ngay gần đó (vòng nhỏ) — kháng lực thấp hơn ~6 lần, chỉ cần ~25 mmHg. Thành dày = cơ tim mạnh hơn = sinh áp suất cao hơn.
 </details>
@@ -201,6 +204,9 @@ A: Mao mạch chỉ có **1 lớp tế bào nội mô**, đường kính ~5–10
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Lần theo sơ đồ 2 vòng: tim phải → phổi → tim trái → cơ thể, gọi tên van theo thứ tự đi qua. Câu 2: cùng lưu lượng, vận tốc tỉ lệ nghịch với TỔNG tiết diện cắt ngang.
+
+
 1. Tâm nhĩ phải → van tricuspid → tâm thất phải → van bán nguyệt phổi → động mạch phổi → mao mạch phổi (gắn O₂, nhả CO₂) → tĩnh mạch phổi → tâm nhĩ trái → van mitral → tâm thất trái → van bán nguyệt chủ → động mạch chủ → động mạch cánh tay → tiểu động mạch → **mao mạch ở bắp tay** (nhả O₂, nhận CO₂).
 2. Định luật bảo toàn dòng: lưu lượng Q = vận tốc × tiết diện = const. Mao mạch có cực nhiều ống song song nên **tổng tiết diện** ~4500 cm² (gấp ~1500 lần động mạch chủ 3 cm²). Tổng tiết diện tăng ~1500 lần → vận tốc giảm ~1500 lần (xấp xỉ 1000 lần do làm tròn). Thiết kế này có chủ đích — chậm để khuếch tán đủ thời gian.
 </details>
@@ -275,6 +281,9 @@ Trong đó:
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: CO = HR × SV, nhớ đổi mL → L. Câu 2: tính CO mới rồi chia cho CO nghỉ.
+
 
 1. CO = 80 × 75 = 6000 mL/phút = **6 L/phút**.
 2. CO mới = 140 × 100 = 14,000 mL/phút = **14 L/phút**. Tỉ lệ = 14 / 6 ≈ **2.33 lần** lúc nghỉ.
@@ -363,6 +372,9 @@ A: Khói thuốc kích hoạt enzyme phá vỡ vách phế nang → 300 triệu 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Gradient khuếch tán = PO₂ phế nang − PO₂ máu tĩnh mạch đến phổi (~40 mmHg). Câu 2: nhớ cơ hoành đảm nhận ~70% thể tích hít vào lúc nghỉ.
+
+
 1. Gradient = PO₂ phế nang − PO₂ máu đến = 55 − 40 = **15 mmHg** (so với 64 ở mức biển — chỉ còn ~23%). Vẫn cho khuếch tán nhưng chậm hơn rất nhiều; máu khó bão hòa hoàn toàn trong 0.25 s. Cơ thể bù bằng cách tăng hồng cầu (sản EPO từ thận).
 2. Cơ hoành phụ trách ~70% thể tích hít vào ở nghỉ. Cơ liên sườn chỉ bổ sung khi gắng sức. Liệt cơ hoành (vd tổn thương cột sống C3-C5) → ngừng thở; liệt cơ liên sườn vẫn còn thở được.
 </details>
@@ -432,6 +444,9 @@ A: Hb thai (HbF) có 2 chuỗi γ thay 2 chuỗi β → **ái lực với O₂ c
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Sức chở tối đa = số Hb × 4 O₂; nhân với phần trăm bão hòa ở từng nơi, hiệu hai con số là lượng O₂ nhả cho mô.
+
 
 1. Tổng chỗ chở = 280 × 10⁶ × 4 = 1.12 × 10⁹ phân tử O₂. Bão hòa 98% → chở **~1.0976 × 10⁹ ≈ 1.1 tỉ phân tử O₂**.
 2. Bão hòa 25% → còn chở 1.12 × 10⁹ × 0.25 = 2.8 × 10⁸ ≈ **280 triệu phân tử O₂**. Nhả ra = 1.0976 × 10⁹ − 2.8 × 10⁸ ≈ **820 triệu phân tử O₂** cho mô. (Lúc nghỉ chỉ nhả ~260 triệu → vận động nhả gấp ~3 lần.)

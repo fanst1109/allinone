@@ -80,6 +80,9 @@ A: Đúng. Thân và lá không cần "kiểm soát" vì nước trong xylem đ�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Rễ cần O₂ để hô hấp lấy ATP bơm ion tạo gradient hút nước — đất nén thiếu khí thì chuỗi này đứt ở đâu? Câu 2: đai Caspary ép mọi dòng chất phải chui qua MÀNG tế bào nội bì — màng có chọn lọc.
+
+
 1. Đất tơi xốp có nhiều khoảng trống chứa **không khí** → rễ và lông hút hô hấp tốt → có **ATP** để bơm ion và duy trì áp suất rễ. Đất nén chặt → thiếu O₂ → rễ ngạt thở, không bơm được ion, dẫn tới hút nước kém (mất gradient thế nước). Đây là lý do cây úng nước lâu bị chết: không phải vì thừa nước, mà vì thiếu O₂ ở rễ.
 2. **Có thể chặn được** nếu Cd²⁺ đi theo apoplast (bị đai Caspary chặn lại); nhưng nếu Cd²⁺ "lừa" được kênh ion (vd kênh Ca²⁺ vì kích thước tương đương) thì có thể vào symplast và lọt vào mạch gỗ. Đó là lý do cây hấp thụ kim loại nặng — vấn đề an toàn thực phẩm thực tế.
 </details>
@@ -223,6 +226,9 @@ A: Rất ít. Chúng đóng khí khổng ban ngày, mở ban đêm (cơ chế CA
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Nước leo trong xylem nhờ lực kéo thoát hơi (cohesion–tension) từ lá. Câu 2: ứa giọt là áp suất RỄ đẩy khi khí khổng đóng và thoát hơi ngừng — điều kiện đó xảy ra lúc nào trong ngày?
+
+
 1. **Xylem (mạch gỗ)** dẫn mực. Lực kéo là **tension từ thoát hơi nước** ở lá (gió + nắng làm bay hơi → tạo lực hút âm trong xylem → kéo cột chất lỏng có mực lên ngọn). Đây là thí nghiệm kinh điển chứng minh thuyết cohesion-tension.
 
 2. **Ban đêm + rạng đông**: khí khổng **đóng** → không thoát hơi nước → không có tension kéo. Nhưng **áp suất rễ vẫn dương** (ion vẫn bơm vào mạch gỗ) → đẩy nước thừa qua lỗ thủy khổng (hydathode) ra mép lá → tạo giọt. **Trưa nắng**: thoát hơi nước rất mạnh → tension âm rất lớn → nước trong cây bị "kéo căng", không có dư để rỉ ra → không có ứa giọt. Đồng thời sương buổi sáng có thể nhầm với guttation, nhưng sương là hơi nước trong không khí ngưng tụ, còn guttation là nước từ bên trong cây ra.
@@ -300,6 +306,9 @@ A: Rất nhanh — chỉ vài phút sau khi rễ khô là ABA đã tăng và kh�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Lần theo chuỗi ABA → khí khổng → turgor: héo và hồi đều là chuyện áp suất trương + thẩm thấu. Câu 2: xét chiến lược khí khổng của thực vật CAM (mở đêm, đóng ngày) — CO₂ vào lúc nào, bao nhiêu.
+
 
 1. Khi đất khô, ABA tăng → khí khổng đóng → tế bào lá mất nước → áp suất trương (turgor) giảm → lá mềm, héo (rủ). Khi tưới nước: rễ hấp thụ nước → nước qua xylem lên lá → tế bào trương lại → ABA giảm → khí khổng mở → áp suất trương phục hồi → lá cứng lại. Toàn bộ cơ chế là **thẩm thấu + hormone**, không có cơ bắp hay vận động chủ động.
 
@@ -389,6 +398,9 @@ A: Tủ lạnh ức chế tổng hợp ethylene (enzyme cần nhiệt độ ấm
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Auxin dồn về phía DƯỚI do trọng lực, nhưng rễ và thân đáp ứng NGƯỢC nhau với cùng nồng độ (rễ bị ức chế, thân được kích thích). Câu 2: nước kích hoạt gibberellin phá trạng thái ngủ của hạt.
+
 
 1. Trọng lực kéo auxin về phía **dưới** của cả rễ và thân (do amyloplast trong tế bào lắng xuống → tín hiệu phân bố auxin theo trọng lực). Ở **rễ**: phía dưới có nhiều auxin → ức chế kéo dài (vì rễ rất nhạy auxin) → phía trên dài hơn → rễ cong xuống. Ở **thân**: phía dưới có nhiều auxin → kích thích kéo dài (vì thân ít nhạy auxin hơn) → phía dưới dài hơn → thân cong lên. Cùng auxin, hai mô đáp ứng ngược nhau.
 

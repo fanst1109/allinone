@@ -77,6 +77,9 @@ A: Chúng được tạo ra ở đường phân và Krebs khi glucose **bị oxy
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Hỏi 'ai mất electron, ai nhận': chất cho e bị oxy hóa, chất nhận e bị khử. Câu 2: nhân 32 × 7,3 rồi lấy 686 trừ đi — phần chênh đi đâu?
+
+
 1. **Glucose bị oxy hóa** (mất electron, carbon từ số oxy hóa ~0 lên +4 trong CO₂); **O₂ bị khử** (nhận electron, O từ 0 xuống −2 trong H₂O).
 2. Năng lượng lưu vào ATP = 32 × 7.3 ≈ **234 kcal**. Phần còn lại 686 − 234 ≈ **452 kcal tỏa ra dưới dạng nhiệt** (giữ ấm cơ thể). Hiệu suất ≈ 234/686 ≈ 34% (xem mục 6).
 </details>
@@ -141,6 +144,9 @@ A: **Không**. Đây là điểm cực kỳ quan trọng: đường phân chạy
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ bộ số per glucose của đường phân (2 ATP ròng, 2 NADH, 2 pyruvate) rồi nhân 4. Câu 2: xét nơi diễn ra (bào tương) và có cần O₂/ti thể không.
+
 
 1. 4 × 2 = **8 ATP ròng**; 4 × 2 = **8 NADH**; 4 × 2 = **8 pyruvate**.
 2. Vì nó diễn ra trong bào tương, **không cần ti thể, không cần O₂** — nên cả vi khuẩn kỵ khí, nấm men, lẫn tế bào người đều dùng được. Nó là bước chung cho cả hô hấp hiếu khí và lên men.
@@ -226,6 +232,9 @@ A: Chính từ bước **pyruvate → acetyl-CoA** và **chu trình Krebs**. M�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Cộng dồn 3 giai đoạn per glucose: đường phân + oxy hóa pyruvate + Krebs = 10 NADH, 2 FADH₂, 4 ATP, 6 CO₂. Câu 2: chia tổng CO₂ cho 6.
+
+
 1. **NADH** = 2 (đường phân) + 2 (chuyển tiếp) + 6 (Krebs) = **10**; **FADH₂** = **2**; **ATP trực tiếp** = 2 (đường phân) + 2 (Krebs) = **4**; **CO₂** = **6**.
 2. Mỗi glucose thải 6 CO₂ → 30 / 6 = **5 glucose**.
 </details>
@@ -296,6 +305,9 @@ A: FADH₂ đưa electron vào chuỗi ở **một bậc thấp hơn** NADH (b�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Quy đổi hiện đại: 2,5 ATP/NADH và 1,5 ATP/FADH₂. Câu 2: O₂ là chất nhận electron CUỐI chuỗi — chặn giữa chuỗi thì electron và ATP ra sao dù phổi vẫn thở?
+
 
 1. 10 × 2.5 + 2 × 1.5 = 25 + 3 = **28 ATP**.
 2. Vì hít thở chỉ đưa O₂ vào máu, nhưng nếu chuỗi truyền electron bị chặn thì O₂ **không nhận được electron** → chuỗi tắc → không tạo ATP. Tế bào "chết đói năng lượng" dù xung quanh đầy O₂.
@@ -378,6 +390,9 @@ A: Vì **~28 ATP còn lại đến từ chuỗi truyền electron** — nơi 10 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Bộ số per glucose: 32 ATP (hiện đại), 6 CO₂, 6 O₂ — nhân 3. Câu 2: áp cả 2 bộ hệ số (2,5/1,5 hiện đại vs 3/2 cũ) cho cùng dữ liệu.
+
+
 1. ATP = 3 × 32 = **96 ATP**; CO₂ = 3 × 6 = **18**; O₂ = 3 × 6 = **18**.
 2. Hiện đại: 4 + 10×2.5 + 2×1.5 = 4 + 25 + 3 = **32 ATP**. Cũ: 4 + 10×3 + 2×2 = 4 + 30 + 4 = **38 ATP**.
 </details>
@@ -429,6 +444,9 @@ A: Không. So với động cơ nhiệt (~25%) và bóng đèn sợi đốt (~5%
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Hiệu suất = số ATP × 7,3 / 686. Câu 2: lên men chỉ giữ 2 ATP của đường phân — thay vào cùng công thức.
+
 
 1. 30 × 7.3 / 686 = 219 / 686 ≈ **32%**.
 2. Lên men chỉ 2 ATP → hiệu suất ≈ 2 × 7.3 / 686 ≈ **2.1%**. Số ATP giảm từ 32 xuống 2, tức **giảm 16 lần** (xem mục 7).
@@ -499,6 +517,9 @@ A: Nấm men lên men rượu, thải **CO₂**. Bọt CO₂ bị mắc trong m�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: So 2 kịch bản per glucose: hiếu khí 32 ATP vs lên men 2 ATP — nhân 50 rồi chia nhau. Câu 2: giá trị thật của lên men là tái tạo NAD⁺ để đường phân không tắc.
+
 
 1. Hiếu khí: 50 × 32 = **1600 ATP**. Lên men: 50 × 2 = **100 ATP**. Hiếu khí gấp 1600 / 100 = **16 lần**.
 2. Vì khi thiếu O₂, lên men là **lựa chọn duy nhất** để giữ đường phân chạy (tái tạo NAD⁺) → vẫn có 2 ATP cấp cứu, còn hơn 0 ATP và chết ngay. "Phí" nhưng cứu mạng tạm thời.

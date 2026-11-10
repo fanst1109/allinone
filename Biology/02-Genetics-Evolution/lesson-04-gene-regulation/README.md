@@ -68,6 +68,9 @@ A: Đột biến (mutation) thay đổi **trình tự DNA** — vĩnh viễn, di
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách 2 câu hỏi: bộ GENE trong DNA (giống nhau) vs bộ gene ĐANG BIỂU HIỆN (khác nhau). Câu 2: nghĩ chi phí tổng hợp protein vô ích khi môi trường đổi liên tục.
+
+
 1. **Cùng số gen** trong DNA (~20.000 ở người). **Khác số gen biểu hiện**: tế bào da mở các gen như keratin, melanin; tế bào gan mở các gen enzyme giải độc, albumin. Chỉ phần "đang đọc" khác.
 2. Vì môi trường vi khuẩn thay đổi liên tục (lúc có lactose, lúc có glucose, lúc đói, lúc no, lúc nhiệt độ cao). Tổng hợp đủ enzyme cho mọi tình huống cùng lúc là phá sản năng lượng. Chọn lọc tự nhiên thưởng cho các chủng vi khuẩn biết "tắt khi không cần".
 </details>
@@ -212,6 +215,9 @@ A: Hầu như **không**. Eukaryote phiên mã từng gen riêng (mRNA đơn cis
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Mất lacI → không repressor → operator luôn trống → luôn phiên mã. Nhưng mức MẠNH/YẾU còn do tầng CAP–cAMP (glucose cao → cAMP thấp) — xét đủ 4 tổ hợp môi trường.
+
+
 1. lacI mất chức năng → không có repressor → operator luôn trống → phiên mã BẬT bất kể lactose. Nhưng mức cao thấp vẫn phụ thuộc CAP:
    - Không glucose → cAMP cao → CAP hỗ trợ → BẬT MẠNH (dù không có lactose).
    - Có glucose → cAMP thấp → BẬT YẾU.
@@ -302,6 +308,9 @@ A: Có — **attenuation** (làm suy giảm). Đây là cơ chế thứ 2 dùng 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Operon Trp kiểu đồng hóa: sản phẩm cuối DƯ THỪA kích hoạt repressor → tắt để khỏi tự tổng hợp. Mất trpR là mất công tắc tắt — suy hậu quả về năng lượng.
+
+
 1. Trp cao → TrpR active → operator bị chặn → operon TẮT. Tổng hợp Trp nội tại ở mức **thấp** (chỉ ~5% mức tối đa). Tế bào "vay" Trp từ môi trường thay vì tự làm.
 2. Mất TrpR → operon luôn BẬT bất chấp Trp dư thừa → tế bào liên tục tổng hợp enzyme và Trp → lãng phí năng lượng, cạnh tranh thua các chủng wild-type về sinh trưởng. Bằng chứng cho thấy điều hòa là yếu tố sinh tồn, không phải "trang trí".
 </details>
@@ -391,6 +400,9 @@ A: Đúng. Đây là lý do bộ gen người chỉ có ~20.000 gen mã hóa pro
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Xếp 5 cấp điều hòa theo trục thời gian: sửa đổi protein có sẵn (nhanh nhất, giây) ↔ chromatin/biểu sinh (bền nhất, qua thế hệ tế bào). Câu 2: mỗi exon 2 lựa chọn giữ/bỏ → lũy thừa 2.
+
+
 1. **Nhanh nhất**: cấp 5 (sau dịch mã) — phosphoryl hóa/dephosphoryl hóa protein xảy ra trong **mili giây đến giây**. **Dài hạn nhất**: cấp 1 (chromatin / biểu sinh) — methylation có thể duy trì qua nhiều thế hệ tế bào, thậm chí thế hệ cơ thể.
 2. Với 5 exon, mỗi exon "có/không" → tối đa $2^5 =$ **32** tổ hợp. Trừ trường hợp tất cả đều bỏ (không còn mRNA) → 31. Trên thực tế bị giới hạn bởi các trình tự nhận biết splice site, nên không bao giờ đạt mức tối đa lý thuyết, nhưng vẫn tạo được hàng chục biến thể.
 </details>
@@ -475,6 +487,9 @@ A: Có. **5-azacytidine** (DNMT inhibitor) và **vorinostat** (HDAC inhibitor) l
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Cùng DNA, khác PATTERN biểu sinh (methyl hóa, histone) được duy trì qua phân bào. Câu 2: thay M = 60 vào công thức mũ của Ví dụ 2, dùng điểm chuẩn M = 25 → 50% để suy hằng số k.
+
 
 1. Vì pattern biểu sinh (methylation DNA, sửa đổi histone) khác nhau → các gen "tế bào gan" mở ở tế bào gan và đóng ở tế bào thần kinh, ngược lại. Pattern này được thiết lập trong phát triển phôi và duy trì qua phân chia tế bào.
 2. Dùng $\text{Expression} = e^{-k \cdot M}$. Từ ví dụ: M=25% → 50%, suy ra $k \approx \ln(2)/25 \approx 0{,}0277$. Ở M=60%: $e^{-0{,}0277 \times 60} = e^{-1{,}66} \approx 0{,}19$ → biểu hiện ~**19%** mức gốc. (Đây là mô hình đơn giản hóa; thực tế phụ thuộc từng gen.)

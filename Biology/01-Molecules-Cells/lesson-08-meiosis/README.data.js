@@ -72,6 +72,9 @@ A: Khác hẳn. **2 NST tương đồng** là 2 NST riêng biệt (một của b
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Giao tử đơn bội: n = 2n/2. Câu 2: viết phép cộng hợp tử = giao tử + giao tử qua vài thế hệ nếu giao tử không giảm nửa bộ.
+
+
 1. Giao tử là n = 24 / 2 = **12 NST**.
 2. Thụ tinh = gộp 2 tế bào. Nếu cả 2 tế bào đều giữ nguyên 2n thì hợp tử thành 2n + 2n = **4n**, đời sau lại nhân đôi tiếp → bộ NST gấp đôi mỗi thế hệ, không ổn định. Giảm phân đưa giao tử về n để thụ tinh khôi phục đúng 2n.
 </details>
@@ -160,6 +163,9 @@ A: Vì \`n\` đếm **số bộ NST**, không đếm chromatid. 2 chromatid ch�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Đếm NST theo tâm động qua 4 mốc: pha S không đổi số NST (chỉ thêm chromatid); kết thúc giảm phân I đã về n.
+
+
 1. Trước S: **8** · Sau S: **8** (16 chromatid) · Cuối giảm phân I: **4** · Cuối giảm phân II: **4**.
 2. Cuối giảm phân I là n. Vậy n = 10 → **2n = 20**.
 </details>
@@ -222,6 +228,9 @@ A: Không (trong điều kiện bình thường). Trao đổi xảy ra giữa **
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tetrad = 1 cặp tương đồng ĐÃ nhân đôi: 2 NST × 2 chromatid = 4 chromatid. Câu 2: kỳ sau I tách NST tương đồng; chromatid chị em để dành cho kỳ sau II.
+
+
 1. Tetrad = 1 cặp tương đồng đã nhân đôi → **4 chromatid**, **2 NST**, **2 tâm động** (mỗi NST 1 tâm động giữ 2 chromatid của nó).
 2. **NST tương đồng** tách về 2 cực; chromatid chị em vẫn dính nhau (chúng chỉ tách ở kỳ sau II).
 </details>
@@ -268,6 +277,9 @@ A: Về nguyên tắc 4, nhưng ở người **nữ**, phân chia tế bào ch�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Vào giảm phân II đã là n (mỗi NST 2 chromatid), ra vẫn n (1 chromatid). So sánh thứ bị tách: tương đồng (I) vs chromatid chị em (II).
+
 
 1. Vào giảm phân II là **n** (mỗi NST 2 chromatid); ra cũng **n** (mỗi NST 1 chromatid). Số NST không đổi.
 2. Kỳ sau **I**: tách **NST tương đồng**. Kỳ sau **II**: tách **nhiễm sắc tử chị em**.
@@ -336,6 +348,9 @@ A: Vì sinh đôi cùng trứng đến từ **1 hợp tử duy nhất** (đã th
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân ly độc lập cho 2ⁿ kiểu giao tử (n = số cặp). Thụ tinh: nhân số kiểu giao tử bố × mẹ = 2ⁿ × 2ⁿ.
+
+
 1. 2n = 10 → n = 5 → 2⁵ = **32** kiểu giao tử.
 2. 2⁵ × 2⁵ = 2¹⁰ = **1.024** tổ hợp hợp tử.
 </details>
@@ -391,6 +406,9 @@ A: Nguyên phân để **xây và duy trì** cơ thể (từ 1 hợp tử thành
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng bảng tiêu chí: số tế bào con (2 vs 4), bộ NST (2n vs n), có trao đổi chéo không. Câu 2: nhớ giảm phân chỉ xảy ra ở tế bào sinh dục.
+
 
 1. **Giảm phân** (4 tế bào, đơn bội n, có trao đổi chéo — cả 3 dấu hiệu đều của giảm phân).
 2. Nguyên phân: tế bào con **2n = 46** (giống hệt). Giảm phân không xảy ra ở tế bào da (chỉ tế bào sinh dục); nếu xét tế bào sinh dục thì giao tử **n = 23**.

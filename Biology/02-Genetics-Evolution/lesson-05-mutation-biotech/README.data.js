@@ -70,6 +70,9 @@ A: Đột biến *ngẫu nhiên*, không có nhãn tốt/xấu. Đa số trung t
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Phân biệt đột biến soma (chỉ truyền trong cơ thể, gây ung thư cục bộ) với đột biến dòng sinh dục (mới di truyền cho con) — UV chạm được tới đâu? Câu 2: nhân tỉ lệ lỗi × kích thước bộ gen.
+
+
 1. UV chỉ thâm nhập lớp ngoài da → ảnh hưởng tế bào soma (da), không tới được tế bào sinh dục ở tinh hoàn/buồng trứng. Đột biến soma chỉ truyền cho các tế bào con trong cùng cá thể (gây ung thư cục bộ), không truyền cho thế hệ sau.
 2. 3×10⁹ × 10⁻⁹ = **3 đột biến mới** trung bình mỗi lần nhân đôi.
 </details>
@@ -176,6 +179,9 @@ A: Gần như luôn xấu *cho cá thể đó*. Nhưng đôi khi tạo ra protei
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Câu 1: thay lần lượt U/A/G vào vị trí 3, tra bảng mã rồi phân loại theo hệ quả amino acid. Câu 2: chèn 1 base → khung đọc trượt — viết lại từng bộ 3 sau điểm chèn.
+
+
 1. Vị trí 3 của UUC có thể đổi sang U, A, G:
    - UUC → UUU: Phe → Phe = **silent**.
    - UUC → UUA: Phe → Leu = **missense**.
@@ -254,6 +260,9 @@ A: NST 21 là NST **nhỏ nhất** ở người, chứa ít gene → mất cân 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đột biến SỐ LƯỢNG nhìn karyotype (45,X = thiếu 1 NST giới = monosomy). Đột biến CẤU TRÚC so trật tự đoạn gene trước/sau: đoạn quay ngược = đảo đoạn.
+
 
 1. **Đột biến số lượng — monosomy X**. Hội chứng **Turner**. Người này có 1 NST X duy nhất, không có NST giới tính thứ hai (không X thứ hai, cũng không Y).
 2. **Đảo đoạn (inversion)** của đoạn C-D → D-C. Tất cả gene vẫn còn, chỉ đoạn giữa quay 180°.
@@ -341,6 +350,9 @@ A: Sau ~30-35 chu kỳ, các thành phần (dNTP, mồi, enzyme) cạn dần và
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: PCR nhân đôi mỗi chu kỳ: số bản = N₀ × 2ⁿ. Câu 2: giải 2ⁿ ≥ 10⁹ bằng log₂ (log₂10 ≈ 3,32).
+
+
 1. $3 \\times 2^{25} = 3 \\times 33{,}554{,}432 =$ **100.663.296 bản sao** (~10⁸).
 2. Cần $2^n \\geq 10^9$ → $n \\geq \\log_2(10^9) \\approx 9 \\times \\log_2(10) \\approx 9 \\times 3{,}32 = 29{,}9$ → **30 chu kỳ** (giả định hiệu suất 100%).
 </details>
@@ -421,6 +433,9 @@ A: Về kỹ thuật được (vụ He Jiankui ở Trung Quốc 2018 đã làm v
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: NHEJ vá ẩu gây frameshift ngẫu nhiên (phá gene), HDR sửa theo template (thay chính xác) — muốn TẮT gene chọn cái phá. Câu 2: so 4²⁰ với cỡ bộ gen người, cộng chuyện Cas9 chịu được vài mismatch.
+
 
 1. **NHEJ**. Vì NHEJ thường gây thêm/bớt nucleotide ngẫu nhiên → frameshift → protein cụt → gene mất chức năng. NHEJ dễ thực hiện (không cần template, hoạt động ở mọi giai đoạn chu kỳ tế bào) và hiệu quả cao để tắt gene.
 2. $4^{20} \\approx 1{,}1 \\times 10^{12}$ trình tự khả dĩ. Trong khi đó bộ gen người chỉ ~3×10⁹ bp → về lý thuyết mỗi 20-mer là duy nhất. Tuy nhiên thực tế Cas9 chấp nhận 1-3 nucleotide mismatch (nhất là ở đầu 5' xa PAM), nên có thể có nhiều vị trí gần giống đích → off-target. Mặt khác, bộ gen có nhiều vùng lặp lại (repeat) → 20-mer ở các vùng đó không hề duy nhất.

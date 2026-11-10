@@ -72,6 +72,9 @@ A: Không. Nhiều tế bào trưởng thành (neuron, tế bào cơ tim) rời 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Kỳ trung gian = tổng chu kỳ − pha M. Câu 2: suy hậu quả — DNA chưa nhân đôi thì mỗi NST không đủ 2 chromatid để chia đều cho 2 tế bào con.
+
+
 1. Kỳ trung gian = G1 + S + G2 = tổng − pha M = 20 − 2 = **18 giờ** → 18/20 = **90%** (đúng tỉ lệ điển hình ~90%).
 2. Tế bào không nhân đôi được DNA → kẹt giữa G1 và G2, **không thể vào nguyên phân** (vì mỗi NST chưa có đủ 2 chromatid để chia đều). Nếu cố chia, 2 tế bào con sẽ thiếu DNA. Đây là cơ chế của nhiều thuốc hóa trị: chặn S để tế bào ung thư (chia nhanh) không nhân đôi được.
 </details>
@@ -133,6 +136,9 @@ A: 2 chromatid chị em là 2 bản sao **y hệt** (do nhân đôi từ cùng 1
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Đếm NST theo TÂM ĐỘNG: pha S nhân đôi chromatid nhưng KHÔNG đổi số NST; ở kỳ sau mỗi chromatid tách rời tự thành 1 NST.
+
+
 1. G2 đã qua pha S: số NST = **8** (không đổi), mỗi NST 2 chromatid → 8 × 2 = **16 chromatid**.
 2. Khi 16 chromatid tách rời, mỗi chromatid thành 1 NST độc lập → tạm thời **16 NST** trong 1 tế bào (mỗi cực 8). Sau khi tế bào chia, mỗi tế bào con về lại 8 NST.
 </details>
@@ -189,6 +195,9 @@ A: KHÔNG. DNA đã nhân đôi **trước đó, ở pha S** của kỳ trung gi
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Nhớ trật tự PMAT (prophase–metaphase–anaphase–telophase); màng nhân tiêu ở kỳ đầu để thoi tiếp cận NST, tái lập ở kỳ cuối.
+
 
 1. Kỳ đầu (prophase) → kỳ giữa (metaphase) → kỳ sau (anaphase) → kỳ cuối (telophase). Nhớ **PMAT**.
 2. Màng nhân **tiêu biến ở kỳ đầu (prophase)** (để thoi phân bào tiếp cận NST); **tái lập ở kỳ cuối (telophase)** (bao quanh 2 cụm NST thành 2 nhân mới).
@@ -262,6 +271,9 @@ A: Không, vì **mỗi lần chia có 1 pha S nhân đôi DNA trước đó**. M
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Sau n lần nguyên phân số tế bào nhân 2ⁿ: tìm n nhỏ nhất để 2ⁿ vượt 1.000. Câu 2: mỗi tế bào ban đầu × 2⁴, rồi nhân số tế bào ban đầu.
+
+
 1. 2⁹ = 512 (chưa đủ), 2¹⁰ = 1.024 (đã hơn 1.000). Vậy cần **10 lần** nguyên phân.
 2. Mỗi tế bào ban đầu → 2⁴ = 16 tế bào con. Có 5 tế bào ban đầu → 5 × 16 = **80 tế bào**.
 </details>
@@ -321,6 +333,9 @@ A: Thường KHÔNG. Ung thư thường cần **nhiều đột biến tích lũy
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Gắn mỗi checkpoint với câu hỏi nó kiểm: G1/S (trước nhân đôi), G2/M (DNA nhân đôi xong và đúng chưa), spindle (NST xếp hàng chưa). Câu 2: không thoi → NST không tách được ở kỳ sau.
+
 
 1. Checkpoint **G2/M** (cuối G2, trước khi vào pha M) kiểm tra DNA đã nhân đôi xong và không lỗi. (G1/S kiểm tra trước khi nhân đôi; spindle checkpoint kiểm tra NST xếp hàng.)
 2. Không có thoi phân bào → NST không thể tách và đi về 2 cực ở kỳ sau → tế bào kẹt ở kỳ giữa, không hoàn thành nguyên phân → không chia được. Spindle checkpoint cũng giữ tế bào lại, dẫn tới apoptosis.

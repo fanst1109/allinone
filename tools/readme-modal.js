@@ -682,7 +682,13 @@
         }
         if (current === lastActive) return; // không đổi → không chạm DOM
         if (lastActive && links[lastActive]) links[lastActive].classList.remove('rm-active');
-        if (current && links[current]) links[current].classList.add('rm-active');
+        if (current && links[current]) {
+          links[current].classList.add('rm-active');
+          // Cuộn TOC theo mục active — block:'nearest' chỉ cuộn container
+          // .rm-toc (overflow-y: auto), không đụng content/window. Bỏ qua khi
+          // con trỏ đang nằm trong TOC để không giành cuộn với user.
+          if (!tocEl.matches(':hover')) links[current].scrollIntoView({ block: 'nearest' });
+        }
         lastActive = current;
       }
       contentEl.addEventListener('scroll', function () {

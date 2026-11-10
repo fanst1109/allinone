@@ -200,9 +200,30 @@
     btn.style.bottom = `calc(${btnBottom}px + env(safe-area-inset-bottom, 0px))`;
     panel.style.bottom = `calc(${panelBottom}px + env(safe-area-inset-bottom, 0px))`;
 
+    // Cuộn list của panel sao cho mục active nằm trong vùng thấy.
+    // Tự tính scrollTop trên .vt-list thay vì scrollIntoView để chắc chắn
+    // không cuộn lây sang window (panel position: fixed).
+    function scrollActiveIntoView(center) {
+      const list = panel.querySelector('.vt-list');
+      const act = panel.querySelector('a.vt-active');
+      if (!list || !act) return;
+      const aTop = act.offsetTop - list.offsetTop;
+      const aBot = aTop + act.offsetHeight;
+      if (center) {
+        list.scrollTop = aTop - list.clientHeight / 2 + act.offsetHeight / 2;
+      } else if (aTop < list.scrollTop) {
+        list.scrollTop = aTop;
+      } else if (aBot > list.scrollTop + list.clientHeight) {
+        list.scrollTop = aBot - list.clientHeight;
+      }
+    }
+
     function open() {
       panel.classList.add('vt-open');
       btn.classList.add('vt-hidden');
+      // Mở panel: đưa mục đang đọc vào giữa list (panel chỉ ẩn bằng opacity
+      // nên layout/offsetTop luôn sẵn, tính được ngay).
+      scrollActiveIntoView(true);
     }
     function close() {
       panel.classList.remove('vt-open');
@@ -239,32 +260,50 @@
       if (e.key === 'Escape' && panel.classList.contains('vt-open')) close();
     });
 
-    // Highlight section đang xem dựa trên scroll
-    if ('IntersectionObserver' in window) {
+    // Highlight section đang xem — tính số học trên scrollY (cùng kỹ thuật
+    // scroll-spy của readme-modal). Trước đây dùng IntersectionObserver với
+    // band hẹp (rootMargin -15%/-70%): cuộn nhanh / jump làm heading vượt qua
+    // band giữa 2 frame → observer không fire → active kẹt ở mục cũ.
+    // Cache offset các heading một lần; mỗi scroll chỉ so sánh số học,
+    // tự dựng lại cache khi chiều cao trang đổi (ảnh/font load xong, resize).
+    {
       const links = new Map();
       panel.querySelectorAll('a').forEach(a => links.set(a.dataset.id, a));
-
-      const observer = new IntersectionObserver(
-        entries => {
-          // Chọn entry visible cao nhất (smallest top)
-          let topMost = null;
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              if (!topMost || entry.boundingClientRect.top < topMost.boundingClientRect.top) {
-                topMost = entry;
-              }
-            }
-          }
-          if (topMost) {
-            const id = topMost.target.id;
-            links.forEach(a => a.classList.remove('vt-active'));
-            const active = links.get(id);
-            if (active) active.classList.add('vt-active');
-          }
-        },
-        { rootMargin: '-15% 0px -70% 0px', threshold: 0 }
-      );
-      headings.forEach(h => observer.observe(h.el));
+      let offsets = null, cachedH = -1, spyScheduled = false, lastActive = null;
+      function buildOffsets() {
+        offsets = headings.map(h => ({
+          id: h.id,
+          top: h.el.getBoundingClientRect().top + window.scrollY,
+        }));
+        cachedH = document.body.scrollHeight;
+      }
+      function updateSpy() {
+        spyScheduled = false;
+        if (offsets === null || document.body.scrollHeight !== cachedH) buildOffsets();
+        // Mốc active: heading đã đi qua 1/4 màn trên
+        const y = window.scrollY + window.innerHeight * 0.25;
+        let current = null;
+        for (const o of offsets) {
+          if (o.top <= y) current = o.id;
+          else break;
+        }
+        if (current === lastActive) return; // không đổi → không chạm DOM
+        if (lastActive && links.get(lastActive)) links.get(lastActive).classList.remove('vt-active');
+        if (current && links.get(current)) {
+          links.get(current).classList.add('vt-active');
+          // Panel đang mở → giữ mục active trong vùng thấy của list
+          if (panel.classList.contains('vt-open')) scrollActiveIntoView(false);
+        }
+        lastActive = current;
+      }
+      window.addEventListener('scroll', () => {
+        if (!spyScheduled) {
+          spyScheduled = true;
+          requestAnimationFrame(updateSpy);
+        }
+      }, { passive: true });
+      window.addEventListener('resize', () => { offsets = null; });
+      updateSpy();
     }
   }
 

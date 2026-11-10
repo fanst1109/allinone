@@ -82,6 +82,9 @@ Vậy $x = 2$ là nghiệm. **"Giải phương trình"** = tìm tất cả các 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tiêu chí: có dấu '=' hay không. Nghiệm = giá trị thay vào làm hai vế BẰNG nhau — thử trực tiếp.
+
+
 - $3y - 4$: **biểu thức** (không có dấu $=$).
 - $3y - 4 = 11$: **phương trình** ẩn $y$.
 - Thử $y = 5$: $3 \cdot 5 - 4 = 11$ → đúng → $y = 5$ **là nghiệm**.
@@ -196,6 +199,9 @@ Kiểm tra: $\dfrac{1}{2} + \dfrac{1}{3} = \dfrac{3}{6} + \dfrac{2}{6} = \dfrac{
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: So với dạng chuẩn $ax + b = 0$: xác định $a$, $b$ rồi áp $x = -b/a$; thay ngược để kiểm.
+
 
 Có. $a = -4$ (khác 0), $b = 12$. Nghiệm $x = -\dfrac{b}{a} = \dfrac{-12}{-4} = 3$. Kiểm tra: $-4 \cdot 3 + 12 = 0$ ✓.
 </details>
@@ -510,6 +516,9 @@ Kiểm tra: $2 \cdot 7 - 5 = 14 - 5 = 9$ ✓.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy tắc cân: làm CÙNG một thao tác với CẢ hai vế — mỗi bước ghi rõ thao tác và kết quả hai vế.
+
+
 - Bước 1: **trừ $x$ cả 2 vế** (tháo 1 hộp khỏi mỗi đĩa) → $3x - 3 = 9$.
 - Bước 2: **cộng 3 cả 2 vế** (thêm 3 quả táo mỗi đĩa) → $3x = 12$.
 - Bước 3: **chia 3 cả 2 vế** → $x = 4$.
@@ -663,6 +672,9 @@ Kiểm tra: VT $= \dfrac{-1/3 + 1}{2} = \dfrac{2/3}{2} = \dfrac{1}{3}$. VP $= \d
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Chuyển vế đổi dấu (cộng ↔ trừ), chuyển nhân ↔ chia; xong thay nghiệm vào kiểm tra.
+
+
 $$\begin{aligned}
 -3x + 8 &= 2 \\
 -3x &= 2 - 8 &&\text{(chuyển } +8 \text{ sang phải → } -8) \\
@@ -808,6 +820,9 @@ $$\begin{aligned}
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Dồn ẩn về một vế rồi nhìn kết cục: ra mệnh đề sai → vô nghiệm; ra đồng nhất thức → vô số nghiệm; ra $x$ = hằng → duy nhất.
+
 
 1. Trừ $4x$ cả 2 vế → $-1 = 3$ (sai) → **vô nghiệm**.
 2. Khai triển vế trái → $2x - 6 = 2x - 6$ → hai vế giống nhau → **vô số nghiệm**.
@@ -979,6 +994,9 @@ Sau khi có $n = 75$, thay vào pt đầu: $75 \cdot (200000 - p) = 4000000$ →
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Quy trình 4 bước: đặt ẩn ($x$ = số năm) → biểu diễn tuổi hai người sau $x$ năm → dịch 'gấp 3 lần' thành phương trình → giải và thử lại.
+
 
 **Đặt ẩn:** $x$ là số năm cần tìm ($x \geq 0$).
 

@@ -163,6 +163,9 @@ Sai. Góc âm hoàn toàn hợp lệ, chỉ đơn giản nghĩa là "quay ngư�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy ước dấu: dương = quay NGƯỢC kim đồng hồ từ trục Ox dương, âm = thuận kim. Vẽ ra để thấy phép đối xứng.
+
+
 1. $+45^\\circ$ ở góc phần tư I (đông-bắc), $-45^\\circ$ ở góc phần tư IV (đông-nam). Chúng đối xứng qua trục $Ox$.
 2. 12 → 9 theo chiều ngược kim đồng hồ: đi qua 11, 10, 9 = đi ngược 1/4 vòng $= +90^\\circ$. (Nếu đi thuận kim 12 → 1 → 2 → ... → 9 thì là $-270^\\circ$ hoặc tương đương $+90^\\circ$ mod $360^\\circ$.)
 3. $-90^\\circ$.
@@ -264,6 +267,9 @@ Vì Go (và mọi thư viện toán) hiểu \`30\` là **30 radian**, không ph�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Một vòng = 360° — chia đều theo số phần; phút cung: $1' = 1/60$ độ.
+
 
 1. $\\frac{360^\\circ}{12} = 30^\\circ$.
 2. $\\frac{360^\\circ}{8} = 45^\\circ$.
@@ -400,6 +406,9 @@ Vì:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Định nghĩa radian: $\\theta = s/r$ (cung chia bán kính); chiều ngược $s = r\\theta$. Câu 3: chu vi $= 2\\pi r$ → trọn vòng $= 2\\pi$ rad.
+
+
 1. $\\theta = \\frac{6}{3} = 2$ rad. Đổi sang độ: $2 \\cdot \\frac{180}{\\pi} \\approx 114.59^\\circ$.
 2. $s = r \\cdot \\theta = 2 \\cdot \\frac{\\pi}{4} = \\frac{\\pi}{2} \\approx 1.5708$.
 3. Vì chu vi đường tròn bán kính $r$ là $2\\pi r$ (định nghĩa của $\\pi$). Khi đi trọn vòng, cung dài = chu vi $= 2\\pi r$, nên $\\theta = \\frac{2\\pi r}{r} = 2\\pi$. Không liên quan đến lựa chọn tùy ý, đây là hệ quả trực tiếp của $\\pi$.
@@ -527,6 +536,9 @@ Bạn dùng **nhầm công thức**: $\\theta_\\text{deg} \\to \\theta_\\text{ra
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Cầu nối $180° = \\pi$ rad: độ → rad nhân $\\pi/180$; rad → độ nhân $180/\\pi$.
+
 
 1. $15^\\circ = 15 \\cdot \\frac{\\pi}{180} = \\frac{15\\pi}{180} = \\frac{\\pi}{12} \\approx 0.2618$ rad.
 2. $\\frac{5\\pi}{4} \\cdot \\frac{180}{\\pi} = \\frac{5 \\cdot 180}{4} = \\frac{900}{4} = 225^\\circ$.
@@ -669,6 +681,9 @@ Nếu $\\theta$ ở độ, phải nhân hệ số $\\frac{\\pi}{180}$ vào mọi
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Hàm lượng giác trong code nhận RADIAN — đổi độ sang rad trước khi gọi; gõ \`Cos(180)\` nghĩa là 180 rad, không phải 180°.
+
+
 1. Đổi \`x\` sang radian trước khi gọi \`Sin\`:
    \`\`\`go
    x := 30.0 * math.Pi / 180   // hoặc dùng hàm deg2rad
@@ -789,6 +804,9 @@ Tuy nhiên, **với góc rất lớn** (như $10^{10}$), việc quy gọn nội 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Cộng/trừ bội của 360° (hoặc $2\\pi$) cho tới khi rơi vào dải chuẩn; chọn dạng âm hay dương theo ngữ cảnh sử dụng.
+
+
 1. $-450^\\circ + 720^\\circ = 270^\\circ$ (cộng 2 vòng để vào dương rồi vào dải). Hoặc trực tiếp: $-450 \\bmod 360 = -90$, cộng 360 $\\to 270^\\circ$.
 2. $\\frac{7\\pi}{3} = \\frac{6\\pi}{3} + \\frac{\\pi}{3} = 2\\pi + \\frac{\\pi}{3}$. Quy gọn: $\\frac{\\pi}{3}$. (Trừ đi 1 vòng $2\\pi$.)
 3. Dùng $-\\frac{\\pi}{2}$ khi muốn nhấn mạnh "quay xuôi 1/4 vòng" (vd trong cơ học, hướng quay quan trọng). Dùng $\\frac{3\\pi}{2}$ khi đã quy gọn về $[0, 2\\pi)$ (vd để tra \`sin\`, \`cos\`). Hai cách viết cùng vị trí cuối.
@@ -867,6 +885,9 @@ Lại "phụ thu" hệ số như mục 5. Vận tốc góc luôn ghi bằng rad/
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: $\\omega$ = góc quét mỗi giây: đổi vòng/phút → rad/s (nhân $2\\pi$, chia 60); $v = \\omega r$, rồi m/s → km/h nhân 3,6.
+
 
 1. 60 vòng/phút = 1 vòng/giây $= 2\\pi$ rad/s $\\approx 6.283$ rad/s.
 2. $v = \\omega \\cdot r = 30 \\cdot 0.3 = 9$ m/s $= 32.4$ km/h.

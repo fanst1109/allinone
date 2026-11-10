@@ -70,6 +70,9 @@ $\\mathbb{N}$ **đóng** dưới phép cộng và nhân: cộng hai số tự nh
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Đối chiếu từng số với định nghĩa $\\mathbb{N}$ (nguyên, không âm) — rút gọn trước khi phán ($\\sqrt{9} = 3$). Câu 2: 'đóng' nghĩa là kết quả luôn Ở LẠI trong tập — xét dạng tổng quát $a^b$.
+
+
 1. $7 \\in \\mathbb{N}$, $0 \\in \\mathbb{N}$, $\\sqrt{9} = 3 \\in \\mathbb{N}$. $-2 \\notin \\mathbb{N}$ (âm), $3.14 \\notin \\mathbb{N}$ (thập phân), $0.5 \\notin \\mathbb{N}$.
 2. Có (với quy ước $0^0 = 1$): với mọi $a, b \\in \\mathbb{N}$, $a^b \\in \\mathbb{N}$. Vd $2^3 = 8$, $5^0 = 1$, $0^5 = 0$.
 </details>
@@ -129,6 +132,9 @@ Tính: $(-4) \\times (-5) + (-2) \\times 3 - (-1)$.
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp quy tắc dấu: âm × âm = dương, âm × dương = âm; trừ một số âm = cộng.
+
 
 $= 20 + (-6) - (-1) = 20 - 6 + 1 = 15$. Kết quả $15 \\in \\mathbb{Z}$ (như mong đợi).
 </details>
@@ -223,6 +229,9 @@ Nên $\\mathbb{Q}$ **đóng** dưới 4 phép toán cơ bản (trừ chia cho 0)
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Hữu tỉ ⇔ viết được dạng $p/q$ — thập phân dừng thì nhân mẫu $10^k$ rồi tối giản. Câu 2: chia tay $1/11$ vài bước để thấy chu kỳ. Câu 3: hỏi mẫu số 0 có được phép không.
+
+
 1. Có. $0.625 = \\frac{625}{1000} = \\frac{5}{8}$ (chia cả tử mẫu cho 125). Mẫu $8 = 2^3$, không có thừa số khác 2/5 → thập phân dừng (đúng như ta thấy).
 2. $\\frac{1}{11} = 0.090909\\ldots$ — tuần hoàn "09". Vẫn là hữu tỉ.
 3. Không thuộc tập số nào — không phải số. Mẫu = 0 bị cấm.
@@ -300,6 +309,9 @@ Hệ quả thực tế: $\\pi$ siêu việt → không thể "vẽ hình vuông 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Rút gọn từng số trước ($\\sqrt{9} = 3$, $0/\\pi = 0$); nhớ: hữu tỉ ± vô tỉ = vô tỉ. Câu 2: giả sử $a + b$ hữu tỉ rồi trừ $a$ xem có mâu thuẫn không.
+
+
 1. $\\sqrt{9} = 3$ hữu tỉ. $\\sqrt{10}$ vô tỉ (10 không chính phương). $\\pi - 3$ vô tỉ (hữu tỉ trừ vô tỉ = vô tỉ). $1.414$ hữu tỉ (thập phân dừng). $e^2$ vô tỉ ($e$ siêu việt nên $e^2$ cũng vô tỉ). $\\frac{0}{\\pi} = 0$ hữu tỉ (tử là 0).
 2. Vô tỉ. Phản chứng: giả sử $a + b = r$ hữu tỉ. Thì $b = r - a$, hiệu hai hữu tỉ, là hữu tỉ. Mâu thuẫn với $b$ vô tỉ.
 </details>
@@ -360,6 +372,9 @@ Tập $\\{x \\in \\mathbb{Q} : x^2 < 3\\}$ có cận trên đúng (sup) thuộc 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Tìm chặn trên NHỎ NHẤT của tập — chính là $\\sqrt{3}$; rồi hỏi $\\sqrt{3}$ thuộc $\\mathbb{Q}$ hay $\\mathbb{R}$ (tính đầy đủ của $\\mathbb{R}$).
+
 
 $\\sup = \\sqrt{3}$. $\\sqrt{3} \\notin \\mathbb{Q}$ (vô tỉ, bài tập 4). $\\sqrt{3} \\in \\mathbb{R}$. Đây là ví dụ tiêu biểu cho thấy $\\mathbb{Q}$ **không đầy đủ** còn $\\mathbb{R}$ thì đầy đủ.
 </details>
@@ -555,6 +570,9 @@ Giải bất phương trình $-3x + 5 > 11$.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Biến đổi như phương trình nhưng nhớ: nhân/chia hai vế cho số ÂM thì ĐỔI CHIỀU bất đẳng thức; kiểm lại bằng một giá trị thử.
+
+
 $-3x + 5 > 11 \\Rightarrow -3x > 6$ (trừ 5 hai vế, không đổi chiều) $\\Rightarrow x < -2$ (chia cho $-3$, **ĐỔI CHIỀU**).
 Kiểm tra: lấy $x = -3$ (thỏa $x < -2$), thay vào: $-3 \\cdot (-3) + 5 = 9 + 5 = 14 > 11$. ✓
 </details>
@@ -745,6 +763,9 @@ Walk-through:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tính biểu thức BÊN TRONG dấu trị tuyệt đối trước. Câu 2: đọc $\\lvert x - a \\rvert < r$ là 'khoảng cách từ $x$ tới $a$ nhỏ hơn $r$' → khoảng $(a-r, a+r)$.
+
+
 1. $\\sqrt{2} \\cdot \\sqrt{2} = 2$. $\\lvert 3 - 2 \\rvert = \\lvert 1 \\rvert = 1$.
 2. Khoảng cách từ $x$ tới $5$ nhỏ hơn 2 ⇒ $x$ nằm trong khoảng $(3, 7)$. Tức $3 < x < 7$.
 </details>
@@ -832,6 +853,9 @@ Tại sao chứng minh trên KHÔNG hoạt động cho $\\sqrt{4}$? (Tức nếu
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Chạy lại từng bước của chứng minh $\\sqrt{2}$ với số 4: tìm bước suy luận nào gãy ('$p^2$ chia hết cho 4 có suy ra $p$ chia hết cho 4 kiểu quyết định được $q$ không?').
+
 
 Bước 3 sẽ ra $p^2 = 4q^2$, nói rằng $p^2$ chia hết cho 4. Suy ra $p$ chia hết cho 2, viết $p = 2k$. Thay vào: $4k^2 = 4q^2 \\Rightarrow k^2 = q^2$. Đây **không** suy ra $q$ chia hết cho 2 — $q$ có thể là bất kỳ số nào. Vậy không có mâu thuẫn. Đúng — vì $\\sqrt{4} = 2 = \\frac{2}{1}$ thật sự là hữu tỉ.
 </details>
@@ -1047,6 +1071,9 @@ Rất nhiều. Loss function của bạn được tính bằng float, gradient �
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Hỏi từng số hạng: biểu diễn nhị phân có hữu hạn không (phân số mẫu lũy thừa của 2?) — 0.5/0.25/0.75 thì có, 0.1/0.3 thì không.
+
 
 1. \`true\`. Vì $0.5$, $0.25$, $0.75$ đều có biểu diễn nhị phân chính xác (đều là phân số mẫu lũy thừa của 2).
 2. \`false\`. $0.1$ không chính xác → cộng 3 lần ra $0.30000000000000004$, không bằng $0.3$ (cũng không chính xác).

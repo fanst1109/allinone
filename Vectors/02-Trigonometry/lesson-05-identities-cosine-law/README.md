@@ -73,6 +73,9 @@ Một biểu thức nhìn rối, dùng identity 2-3 bước ra $1$. Đó là s�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Identity = đúng với MỌI giá trị của biến; phương trình chỉ đúng với một số giá trị — thử 2 giá trị khác nhau là phân biệt được.
+
+
 1. Identity (đúng với mọi $x, y$).
 2. Phương trình (chỉ đúng khi $\theta = 45^\circ + k\cdot 180^\circ$).
 3. Identity (đúng với mọi $\theta$). Đây là công thức nhân đôi, sẽ học ở Mục 5.
@@ -170,6 +173,9 @@ $$\Rightarrow\ 1 + \cot^2\theta = \csc^2\theta \qquad (\bigstar \text{ biến th
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng Pythagorean identity $\sin^2 + \cos^2 = 1$ (và biến thể $1 + \tan^2 = \sec^2$); chọn dấu căn theo quadrant.
+
 
 1. $\sin^2\theta = 1 - \cos^2\theta = 1 - 0.36 = 0.64 \to \sin\theta = 0.8$ (chọn dấu dương vì quadrant I).
 2. $\sec^2\theta = 1 + \tan^2\theta = 1 + 9/16 = 25/16 \to \sec\theta = 5/4$ (dương vì quadrant I).
@@ -376,6 +382,9 @@ Hai lý do:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Tách góc lạ thành tổng/hiệu hai góc đặc biệt ($105° = 60° + 45°$) rồi áp công thức cộng; câu 2 thay thẳng vào $\cos(\alpha - \beta) = \cos\alpha\cos\beta + \sin\alpha\sin\beta$.
+
+
 1. $\cos 105^\circ = \cos(60^\circ + 45^\circ) = \cos 60^\circ\cos 45^\circ - \sin 60^\circ\sin 45^\circ = \frac{1}{2}\cdot\frac{\sqrt{2}}{2} - \frac{\sqrt{3}}{2}\cdot\frac{\sqrt{2}}{2} = \frac{\sqrt{2} - \sqrt{6}}{4} \approx -0.2588$. (Âm vì $105^\circ$ ở quadrant II.)
 2. $\cos(\alpha - \beta) = \cos\alpha\cos\beta + \sin\alpha\sin\beta = \frac{3}{5}\cdot\frac{12}{13} + \frac{4}{5}\cdot\frac{5}{13} = \frac{36}{65} + \frac{20}{65} = \frac{56}{65} \approx 0.862$.
 
@@ -470,6 +479,9 @@ Kiểm $\cos 120^\circ = \cos^2 60^\circ - \sin^2 60^\circ$:
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Thay số vào công thức nhân đôi: $\sin 2\theta = 2\sin\theta\cos\theta$, $\cos 2\theta = \cos^2\theta - \sin^2\theta$; kiểm bằng $\sin^2 + \cos^2 = 1$.
+
 
 - $\sin 2\theta = 2 \cdot \frac{3}{5} \cdot \frac{4}{5} = \frac{24}{25} = 0.96$.
 - $\cos 2\theta = \cos^2\theta - \sin^2\theta = \frac{16}{25} - \frac{9}{25} = \frac{7}{25} = 0.28$.
@@ -776,6 +788,9 @@ $\cos C$ phải $\in [-1, 1]$ → vô lý → tam giác không tồn tại. Đ�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Law of cosines: $c^2 = a^2 + b^2 - 2ab\cos C$; $\cos 120°$ ÂM nên hạng tử cuối đổi thành cộng — đối chiếu: góc tù thì $c$ phải dài hơn trường hợp vuông.
+
+
 $c^2 = 36 + 64 - 2\cdot 6\cdot 8\cdot\cos 120^\circ = 100 - 96\cdot(-1/2) = 100 + 48 = 148$.
 $c = \sqrt{148} \approx 12.166$.
 
@@ -1026,6 +1041,9 @@ func cosineSimilarity(u, v []float64) float64 {
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: $\cos\theta = \dfrac{\mathbf{u} \cdot \mathbf{v}}{\lVert u \rVert \lVert v \rVert}$: tính dot product và hai norm riêng rồi chia.
+
 
 - $\mathbf{u} \cdot \mathbf{v} = 1\cdot 1 + 1\cdot 0 + 1\cdot 0 = 1$.
 - $|\mathbf{u}| = \sqrt{1+1+1} = \sqrt{3}$.

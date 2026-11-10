@@ -130,6 +130,9 @@ Cho $f(x) = x^2$, $g(u) = u + 1$. Composition: $y = x^2 + 1$.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Hai đường cùng đích: hợp hàm xong đạo hàm thẳng, so với chain rule $(g \\circ f)'(x) = g'(f(x)) \\cdot f'(x)$ — phải ra cùng một số.
+
+
 Trực tiếp: $(g \\circ f)(x) = g(2x + 3) = 5(2x + 3) = 10x + 15$. Đạo hàm $= 10$.
 
 Chain rule: $f'(x) = 2$, $g'(u) = 5$. $(g \\circ f)'(x) = g'(f(x)) \\cdot f'(x) = 5 \\cdot 2 = 10$. ✓ Khớp.
@@ -328,6 +331,9 @@ Tại $x = 1$: $v = 1$, $u = \\sin 1 \\approx 0.8415$, $y = e^{0.8415} \\approx 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đặt $u$ = hàm trong, đạo hàm hàm ngoài theo $u$ nhân đạo hàm hàm trong theo $x$; căn viết thành $u^{1/2}$.
+
 
 $u = 3x + 5$, $y = \\cos u$. $\\frac{dy}{du} = -\\sin u$, $\\frac{du}{dx} = 3$. $\\to \\frac{dy}{dx} = -3 \\sin(3x + 5)$.
 </details>
@@ -660,6 +666,9 @@ Vẫn là chain rule — chỉ thay $\\cdot$ (scalar) bằng phép ma trận (ou
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Backprop = chain rule chuỗi dài: forward tính lần lượt $z_1 \\to a_1 \\to z_2 \\to L$, backward nhân dần các đạo hàm địa phương từ $L$ ngược về $W_1$ (nhớ $\\sigma' = \\sigma(1-\\sigma)$).
+
 
 Forward:
 - $z_1 = 1 \\cdot 1 + 0 = 1$

@@ -233,6 +233,8 @@ Ta sẽ tính chi tiết ở mục 8. Hãy ghi nhớ con số này — nó là m
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Vẽ không gian mẫu SAU điều kiện: liệt kê các outcome còn sống sót rồi đếm trên đó. Câu 2: $P(A \\mid B)$ và $P(B \\mid A)$ có MẪU SỐ khác nhau (thu hẹp theo B vs theo A).
+>
 > 1. Vì "ít nhất 1 trai" gộp 3 outcome (BB, BG, GB) có xác suất bằng nhau. Trong 3 outcome đó, chỉ 1 (BB) thỏa "cả 2 trai" → $\\frac{1}{3}$. Nếu nghĩ $\\frac{1}{2}$ là đang ngầm coi BB tương đương với "$BG \\cup GB$" — sai vì BG và GB là 2 outcome riêng.
 >
 > 2. Vì các mẫu số khác nhau: $P(A \\mid B)$ chia cho $P(B) = \\frac{6}{52}$; $P(B \\mid A)$ chia cho $P(A) = \\frac{12}{52}$. Tử số $P(A \\cap B) = \\frac{6}{52}$ thì giống nhau, nhưng mẫu khác nhau → tỷ số khác.

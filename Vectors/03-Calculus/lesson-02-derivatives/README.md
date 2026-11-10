@@ -142,6 +142,8 @@ Vẽ trong đầu (hoặc xem viz):
 > Cho $f(x) = x^2$ tại $a = 5$. Tính slope cát tuyến với $h = 0.01$. Dự đoán $f'(5)$ bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Slope cát tuyến $= \dfrac{f(a+h) - f(a)}{h}$ với $h$ nhỏ; đạo hàm là giá trị mà dãy slope này tiến tới khi $h \to 0$.
+>
 > - $f(5) = 25$. $f(5.01) = 25.1001$. Slope cát tuyến $= \frac{25.1001 - 25}{0.01} = 10.01$.
 > - Dự đoán $f'(5) = 10$. (Phù hợp với công thức tổng quát ta sẽ chứng minh: $(x^2)' = 2x$, nên $f'(5) = 10$.)
 > </details>
@@ -252,6 +254,8 @@ Vậy $(x^2)' = 2x$. Đây là đẳng thức giữa **2 hàm số**, không ph�
 > 🔁 **Thực hành.**  
 > Dùng định nghĩa để chứng minh $(x^2)' = 2x$ rồi suy ra $f'(3) = 6$ và $f'(5) = 10$. Khớp với 2 số ta tính riêng ở mục 3.2 và 3.3?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Khai triển $(x+h)^2$ trong định nghĩa $\lim_{h \to 0} \dfrac{f(x+h) - f(x)}{h}$, rút gọn $h$ rồi cho $h \to 0$; thay $x = 3, 5$ vào kết quả.
 > Khớp. $f'(3) = 2 \cdot 3 = 6$. $f'(5) = 2 \cdot 5 = 10$.
 > </details>
 
@@ -544,6 +548,8 @@ $$(\ln x)' = \frac{1}{x}$$
 > d) $(e^x + \ln x)'$ tại $x = 1$ = ? (gợi ý: đạo hàm tổng = tổng đạo hàm — sẽ chứng minh chính thức ở Lesson 03, nhưng tin trước được)  
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Tra bảng đạo hàm cơ bản ($x^n$, $1/x$, $\sin$, $e^x$, $\ln x$) rồi thay số; đạo hàm của tổng = tổng các đạo hàm.
+>
 > a) $7x^6$  
 > b) $-1/9$  
 > c) $\cos \pi = -1$  
@@ -596,6 +602,8 @@ Một **định lý nền tảng**: nếu f không liên tục tại $a$, thì f
 > a) Hàm $f(x) = |x - 3|$ có khả vi tại $x = 3$ không?  
 > b) Hàm $f(x) = x \cdot \sin(1/x)$ (với $f(0) = 0$) có liên tục tại 0 không? Khả vi tại 0 không?  
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Khả vi tại điểm ⇔ giới hạn $\dfrac{f(a+h) - f(a)}{h}$ TỒN TẠI: góc nhọn (trái ≠ phải) hay dao động không lắng đều phá; liên tục thì kiểm bằng định lý kẹp.
 >
 > a) Không. Góc nhọn tại $x = 3$.  
 > b) Liên tục vì $-|x| \leq x \sin(1/x) \leq |x|$ → kẹp về 0 (Squeeze). Không khả vi vì $\frac{f(h) - 0}{h} = \sin(1/h)$ dao động ±1 vô hạn khi $h \to 0$, không có giới hạn.

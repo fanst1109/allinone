@@ -233,6 +233,8 @@ Bạn có thể nhận ra: bước $t$ ta luôn nhân với hệ số $(1 - 2\et
 > 1. Với $f(x) = x^2$, $x_0 = 10$, $\eta = 0.05$, sau 2 bước $x = ?$
 >    <details><summary>Đáp</summary>
 >
+> **Hướng dẫn**: Lặp công thức $x \leftarrow x - \eta f'(x)$ với $f' = 2x$; để ý mỗi bước $x$ bị nhân với $(1 - 2\eta)$ — hệ số này quyết định hội tụ.
+>
 >    $x_1 = 10 - 0.05 \cdot 20 = 9$. $x_2 = 9 - 0.05 \cdot 18 = 8.1$. Mỗi bước nhân với $0.9$.
 >    </details>
 >
@@ -309,6 +311,8 @@ Sau 7 bước, y đã gần 0 (0.14), x còn ~1.05. **Chiều y hội tụ nhanh
 > Với $f(x,y) = x^2 + 9y^2$, $(x_0, y_0) = (1, 1)$, $\eta = 0.1$, tìm $(x_1, y_1)$.
 >
 > <details><summary>Đáp</summary>
+>
+> **Hướng dẫn**: Gradient từng thành phần: $\nabla f = (2x, 18y)$; cập nhật ĐỒNG THỜI cả hai tọa độ với cùng $\eta$ — quan sát trục có đạo hàm lớn phản ứng thế nào.
 >
 > $\nabla f = (2x, 18y) = (2, 18)$. $x_1 = 1 - 0.1 \cdot 2 = 0.8$. $y_1 = 1 - 0.1 \cdot 18 = -0.8$.
 >

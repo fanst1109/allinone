@@ -236,6 +236,8 @@ Riemann sum giúp ta **định nghĩa** tích phân, và giúp tính bằng số
 > **🔁 Thực hành.**
 > 1. Cho $f(x) = 2x$ trên $[0, 3]$ với $n = 3$, điểm phải. Tính $S_3$ và so sánh với diện tích tam giác.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Riemann sum: $\\Delta x = (b-a)/n$, lấy $f$ tại mút phải mỗi đoạn, cộng $f(x_i)\\Delta x$; so với diện tích hình học chính xác để thấy over/under-estimate theo chiều tăng của $f$.
 > $\\Delta x = 1$. $x_i^* = 1, 2, 3$. $f(x_i^*) = 2, 4, 6$. $S_3 = (2 + 4 + 6) \\cdot 1 = 12$. Diện tích thật của tam giác đáy 3, cao 6 $= \\frac{3 \\cdot 6}{2} = 9$. Right Riemann overestimate vì $f$ tăng.
 > </details>
 >

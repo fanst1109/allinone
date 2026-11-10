@@ -116,6 +116,8 @@ Nghĩa là: nếu trung bình mỗi phút có $\\lambda = 2$ sự kiện, thì t
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: $E[X] = \\sum x \\cdot p(x)$ — phân phối đều thì thành trung bình cộng; Bernoulli cho thẳng $E = p$.
+>
 > 1. $E[X] = (1+2+3+4)/4 = 2.5$.
 > 2. $E[X] = 0.7$.
 >
@@ -185,6 +187,8 @@ E[\\text{Lương}] &= 10 + 0.05 \\cdot 200 = 10 + 10 = 20 \\text{ triệu}
 > 🔁 **Thực hành.** Cho $X \\sim \\text{Uniform}(0, 10)$, $Y = 3X + 5$. Tính $E[Y]$.
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tuyến tính của kỳ vọng: $E[aX + b] = aE[X] + b$ — tính $E[X]$ của Uniform (điểm giữa đoạn) rồi thế vào.
 >
 > $E[X] = 5$. Theo tuyến tính: $E[Y] = 3 \\cdot 5 + 5 = 20$.
 >

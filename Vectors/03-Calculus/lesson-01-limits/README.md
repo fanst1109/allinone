@@ -143,6 +143,9 @@ A: Có. Hàm $f(x) = \sin(1/x)$ khi $x \to 0$ dao động giữa $-1$ và $+1$ v
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Hàm liên tục: thay số trực tiếp. Hàm có bước nhảy: tính giới hạn TRÁI và PHẢI riêng — khác nhau là DNE; giới hạn không quan tâm giá trị $f(a)$.
+
+
 1. $8$ (thay số trực tiếp; hàm liên tục).
 2. $|x|/x = -1$ nếu $x < 0$, $+1$ nếu $x > 0$. Nên $\lim_{x \to 0^-} = -1$, $\lim_{x \to 0^+} = +1$. Hai phía khác → $\lim_{x \to 0}$ **DNE**.
 3. $5$ — giới hạn không quan tâm tới giá trị "lạ" tại đúng điểm 5; xung quanh 5 thì $f(x) = x \to 5$.
@@ -266,6 +269,9 @@ May mắn là trong thực hành — và trong cả phần còn lại của Tầ
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Mẫu ε–δ: biến đổi $\lvert f(x) - L \rvert$ về dạng $k \cdot \lvert x - a \rvert$ rồi chọn $\delta = \epsilon/k$; bác một công thức δ chỉ cần MỘT ε cụ thể làm hỏng.
+
 
 1. $|(2x + 1) - 7| = |2x - 6| = 2|x - 3|$. Muốn $< \epsilon$, cần $|x - 3| < \epsilon/2$. Chọn $\delta = \epsilon/2$.
 2. **Sai**. Với ε = 1, δ = 0.5 → $x \in (1.5, 2.5)$, $x^2 \in (2.25, 6.25)$, $|x^2 - 4|$ max $\approx 2.25$ không nhỏ hơn 1. Hàm $x^2$ không tuyến tính nên cần $\delta$ phụ thuộc cả "khoảng kiểm soát" lẫn ε; cần $\delta = \min(1, \epsilon/5)$ như đã chứng minh.
@@ -492,6 +498,9 @@ A: Có thể là dạng $0/0$ "ẩn" cần biến đổi khác (đặt biến m�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Dạng 0/0: khử bằng phân tích nhân tử, nhân liên hợp (với căn), hoặc đưa về giới hạn mẫu $\sin(u)/u \to 1$.
+
 
 1. $\frac{(x - 5)(x + 5)}{x - 5} = x + 5 \to 10$.
 2. $3 \cdot \lim_{u \to 0} \frac{\sin(u)}{u} = 3 \cdot 1 = 3$.

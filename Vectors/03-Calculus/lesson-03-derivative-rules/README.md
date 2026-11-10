@@ -99,6 +99,8 @@ $$f'(x) = \frac{1}{2} \cdot 4x^3 + 7 \cdot e^x = 2x^3 + 7e^x$$
 
 > 🔁 **Thực hành**: Tính $f'(x)$ cho $f(x) = 5x^3 - 4 \sin x$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đạo hàm từng hạng tử: hằng số nhân giữ nguyên, $(x^n)' = nx^{n-1}$, $(\sin x)' = \cos x$.
 > $15x^2 - 4 \cos x$.
 > </details>
 
@@ -210,6 +212,8 @@ Lấy $f = x^2$, $g = x^3$, vậy $f \cdot g = x^5$.
 
 > 🔁 **Thực hành**: Tính $(x \cdot \cos x)'$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Product rule: $(uv)' = u'v + uv'$ — đặt tên $u$, $v$ rõ ràng rồi thế vào.
 > $u = x$, $v = \cos x$. $f'(x) = 1 \cdot \cos x + x \cdot (-\sin x) = \cos x - x \sin x$.
 > </details>
 
@@ -287,6 +291,8 @@ f'(x) &= \frac{e^x \cdot (x^2+1) - e^x \cdot 2x}{(x^2+1)^2} \\[4pt]
 
 > 🔁 **Thực hành**: Tính $(1/x)'$ bằng quotient rule.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Quotient rule: $(u/v)' = \dfrac{u'v - uv'}{v^2}$; đối chiếu kết quả với power rule mũ âm để kiểm.
 > $u = 1$, $u' = 0$, $v = x$, $v' = 1$. $(1/x)' = \frac{0 \cdot x - 1 \cdot 1}{x^2} = -\frac{1}{x^2}$. Khớp với power rule mở rộng (mục 6): $(x^{-1})' = -1 \cdot x^{-2} = -\frac{1}{x^2}$. ✓
 > </details>
 
@@ -351,6 +357,8 @@ Số mũ không cần là số nguyên hay phân số — công thức vẫn đ�
 
 > 🔁 **Thực hành**: Tính $(1/\sqrt{x})'$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Viết căn về lũy thừa: $1/\sqrt{x} = x^{-1/2}$ rồi áp power rule mở rộng cho mũ thực.
 > $(x^{-1/2})' = -\frac{1}{2} \cdot x^{-3/2} = -\frac{1}{2 \cdot x^{3/2}} = -\frac{1}{2x\sqrt{x}}$.
 > </details>
 
@@ -401,6 +409,8 @@ $$(\log_b x)' = \frac{1}{\ln b} \cdot (\ln x)' = \frac{1}{x \cdot \ln b}$$
 
 > 🔁 **Thực hành**: Đạo hàm của $3^x$ tại $x = 0$ là bao nhiêu?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: $(a^x)' = a^x \ln a$ — khác $e^x$ đúng ở hệ số $\ln a$; thay $x = 0$.
 > $(3^x)' = 3^x \cdot \ln 3$. Tại $x=0$: $3^0 \cdot \ln 3 = \ln 3 \approx 1.0986$.
 > </details>
 
@@ -514,6 +524,8 @@ Hay: $(\arctan x)' = \frac{1}{1 + x^2}$.
 
 > 🔁 **Thực hành**: Tính $(\arctan x)'$ tại $x = 1$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tra công thức $(\arctan x)' = \dfrac{1}{1 + x^2}$ rồi thay số.
 > $\frac{1}{1 + 1^2} = \frac{1}{2}$.
 > </details>
 

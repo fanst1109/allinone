@@ -134,6 +134,8 @@ Vector này nằm trên đường tròn đơn vị — sẽ gặp lại ở mụ
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: L2 = căn của tổng bình phương; câu 3 nhớ liên hệ $\\lVert v \\rVert_2^2 = v \\cdot v$.
+>
 > 1. $\\sqrt{0+0+25} = 5$.
 > 2. $\\sqrt{1+1} = \\sqrt{2} \\approx 1.414$.
 > 3. $v \\cdot v$.
@@ -199,6 +201,8 @@ Vector này nằm trên "hình thoi đơn vị" của L1 (sẽ thấy ở mục 
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: L1 = tổng trị tuyệt đối các thành phần; so L1 với L2 trong trường hợp chỉ MỘT thành phần khác 0.
+>
 > 1. $0 + 0 + 5 = 5$. (Tình cờ bằng L2 vì chỉ có 1 thành phần khác 0.)
 > 2. Vector có dạng $(0, \\ldots, 0, a, 0, \\ldots, 0)$ — chỉ 1 thành phần khác 0. Khi đó $\\lVert v \\rVert_1 = \\lvert a \\rvert$, $\\lVert v \\rVert_2 = \\sqrt{a^2} = \\lvert a \\rvert$.
 > </details>
@@ -261,6 +265,8 @@ $$\\lVert v \\rVert_\\infty = 7$$
 >
 > <details>
 > <summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Tính cả ba theo định nghĩa: tổng $\\lvert \\cdot \\rvert$ (L1), căn tổng bình phương (L2), max $\\lvert \\cdot \\rvert$ (L∞); kiểm bất đẳng thức $L_\\infty \\le L_2 \\le L_1$.
 >
 > - L1 $= 6 + 8 + 0 = 14$.
 > - L2 $= \\sqrt{36 + 64 + 0} = \\sqrt{100} = 10$.
@@ -448,6 +454,8 @@ Hàm $d$ thỏa 3 tính chất này gọi là **metric** trong toán. Khi đó $
 >
 > <details>
 > <summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Khoảng cách = norm của HIỆU: tính $u - v$ trước rồi áp cả ba norm lên cùng vector hiệu đó.
 >
 > $u - v = (-3, 4)$.
 > - $d_1 = 3 + 4 = 7$
@@ -698,6 +706,8 @@ So sánh 3 unit ball trên cùng hệ trục:
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Unit ball: tính từng norm của $v$ rồi so với 1 — mỗi norm cho một hình khác nhau (thoi / tròn / vuông).
+>
 > - $\\lVert v \\rVert_1 = 0.7 + 0.7 = 1.4 > 1$ → **ngoài** L1.
 > - $\\lVert v \\rVert_2 = \\sqrt{0.49 + 0.49} = \\sqrt{0.98} \\approx 0.99 < 1$ → **trong** L2.
 > - $\\lVert v \\rVert_\\infty = \\max(0.7, 0.7) = 0.7 < 1$ → **trong** L∞.
@@ -810,6 +820,8 @@ $$\\begin{aligned}
 >
 > <details>
 > <summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Normalize: chia vector cho L2 norm của chính nó; kiểm norm của kết quả phải bằng 1.
 >
 > $\\lVert v \\rVert_2 = \\sqrt{36+64} = 10$. $\\hat{v} = (0.6, 0.8)$. Kiểm: $\\lVert \\hat{v} \\rVert = \\sqrt{0.36+0.64} = 1$ ✓
 > </details>

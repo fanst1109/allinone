@@ -220,7 +220,13 @@ Hãy nhìn lại bảng giá trị: $\sin(\frac{\pi}{3}) = \sin(\frac{2\pi}{3}) 
 
 > 🔁 **Thực hành**:
 > - $\sin(\frac{7\pi}{6}) = ?$
->   <details><summary>Đáp</summary>$-\frac{1}{2}$. Vì $\frac{7\pi}{6} = \pi + \frac{\pi}{6}$, và $\sin(\pi + a) = -\sin(a) = -\frac{1}{2}$.</details>
+>
+> <details><summary>Đáp</summary>
+>
+> **Hướng dẫn**: Tách góc về dạng $\pi + a$ rồi dùng $\sin(\pi + a) = -\sin a$; đếm nghiệm theo số chu kỳ $2\pi$ chứa trong khoảng.
+>
+> $-\frac{1}{2}$. Vì $\frac{7\pi}{6} = \pi + \frac{\pi}{6}$, và $\sin(\pi + a) = -\sin(a) = -\frac{1}{2}$.
+> </details>
 > - $\sin x = 1$ có bao nhiêu nghiệm trong $[0, 4\pi]$?
 >   <details><summary>Đáp</summary>2 nghiệm: $x = \frac{\pi}{2}$ và $x = \frac{\pi}{2} + 2\pi = \frac{5\pi}{2}$.</details>
 > - Đồ thị $y = \sin x$ cắt trục Ox tại bao nhiêu điểm trong $[-2\pi, 2\pi]$?
@@ -344,7 +350,13 @@ Tất cả khớp. Đó là vì sao đồ thị $\cos$ trông giống $\sin$ ch�
 
 > 🔁 **Thực hành**:
 > - $\cos(-\pi) = ?$
->   <details><summary>Đáp</summary>$-1$. Hàm chẵn nên $\cos(-\pi) = \cos(\pi) = -1$.</details>
+>
+> <details><summary>Đáp</summary>
+>
+> **Hướng dẫn**: $\cos$ là hàm CHẴN: $\cos(-x) = \cos x$. Câu 2: đặt $\sin x = \cos x \Rightarrow \tan x = 1$, giải trong một chu kỳ rồi cộng $k\pi$.
+>
+> $-1$. Hàm chẵn nên $\cos(-\pi) = \cos(\pi) = -1$.
+> </details>
 > - Đồ thị $\cos$ và $\sin$ có cắt nhau không? Tại đâu trong $[0, 2\pi]$?
 >   <details><summary>Đáp</summary>Có. $\sin x = \cos x \iff \tan x = 1 \iff x = \frac{\pi}{4} + k\pi$. Trong $[0, 2\pi]$: $x = \frac{\pi}{4}$ (cả hai $= \frac{\sqrt{2}}{2}$) và $x = \frac{5\pi}{4}$ (cả hai $= -\frac{\sqrt{2}}{2}$).</details>
 
@@ -451,7 +463,13 @@ $\cos x = 0$ tại các điểm $x = \frac{\pi}{2} + k\pi$, tức $\ldots, -\fra
 
 > 🔁 **Thực hành**:
 > - $\tan(\frac{\pi}{4}) + \tan(\frac{3\pi}{4}) = ?$
->   <details><summary>Đáp</summary>$1 + (-1) = 0$.</details>
+>
+> <details><summary>Đáp</summary>
+>
+> **Hướng dẫn**: $\tan$ tuần hoàn chu kỳ $\pi$ (không phải $2\pi$) — tính từng giá trị bằng góc tham chiếu, đếm nghiệm theo số chu kỳ $\pi$ trong khoảng.
+>
+> $1 + (-1) = 0$.
+> </details>
 > - $\tan x = 1$ có bao nhiêu nghiệm trong $[0, 4\pi]$?
 >   <details><summary>Đáp</summary>4 nghiệm: $\frac{\pi}{4}, \frac{5\pi}{4}, \frac{9\pi}{4}, \frac{13\pi}{4}$ (vì chu kỳ $\pi$).</details>
 
@@ -670,7 +688,13 @@ Sai lầm phổ biến: tưởng dịch trái $\pi$ (theo $C$). Đúng là $\fra
 
 > 🔁 **Thực hành**:
 > - $y = \sin(4x - \pi)$ dịch ngang bao nhiêu?
->   <details><summary>Đáp</summary>$C = -\pi$, $B = 4$. $\frac{C}{B} = -\frac{\pi}{4}$. Dịch sang **phải** $\frac{\pi}{4}$.</details>
+>
+> <details><summary>Đáp</summary>
+>
+> **Hướng dẫn**: Đưa về dạng chuẩn $\sin(B(x - \varphi))$: độ dịch ngang $\varphi = -C/B$ (kết quả âm = dịch phải); đổi $\cos$ về $\sin$ bằng $\cos x = \sin(x + \pi/2)$.
+>
+> $C = -\pi$, $B = 4$. $\frac{C}{B} = -\frac{\pi}{4}$. Dịch sang **phải** $\frac{\pi}{4}$.
+> </details>
 > - $y = \cos x$ viết được dưới dạng $\sin(x + C)$ với $C = ?$
 >   <details><summary>Đáp</summary>$C = \frac{\pi}{2}$. Vì $\cos x = \sin(x + \frac{\pi}{2})$.</details>
 

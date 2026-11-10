@@ -171,6 +171,9 @@ Tính nhẩm các giá trị sau (không nhìn đáp án):
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Nhớ 3 quy ước: $a^0 = 1$; mũ âm = nghịch đảo ($a^{-n} = 1/a^n$); cơ số âm với mũ chẵn ra dương.
+
+
 1. $1$ (bất kỳ số nào khác 0 mũ 0 đều bằng 1).
 2. $1$ (cơ số âm + mũ chẵn = dương; cụ thể $(-1)^{\\text{chẵn}} = 1$).
 3. $1/9 \\approx 0.111$.
@@ -270,6 +273,9 @@ Dãy hội tụ. Ta định nghĩa $2^\\pi$ chính là giới hạn này. Quy lu
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Mũ $1/n$ = căn bậc $n$; mũ $m/n$ = (căn bậc $n$) mũ $m$ — làm căn TRƯỚC cho số nhỏ; căn bậc LẺ của số âm hợp lệ.
+
 
 1. $3$ (vì $3^3 = 27$).
 2. $3$ (vì $3^4 = 81$).
@@ -391,6 +397,9 @@ Rút gọn (không tính ra số cuối) hoặc tính nhanh:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Áp 5 quy luật mũ: nhân cùng cơ số → cộng mũ; chia → trừ mũ; lũy thừa của lũy thừa → nhân mũ; mũ của tích/thương → phân phối.
+
+
 1. $2^{7+3} = 2^{10} = 1024$.
 2. $5^{10-7} = 5^3 = 125$.
 3. $3^{2 \\cdot 4} = 3^8 = 6561$.
@@ -476,6 +485,9 @@ Tương tự $\\sqrt{48} = \\sqrt{16 \\cdot 3} = 4\\sqrt{3}$, $\\sqrt{50} = \\sq
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Căn phân phối qua NHÂN/CHIA, KHÔNG qua cộng/trừ; đơn giản hóa bằng tách thừa số chính phương; $\\sqrt{a^2} = \\lvert a \\rvert$.
+
 
 1. $\\sqrt{400} = 20$. (Hoặc $\\sqrt{16} \\cdot \\sqrt{25} = 4 \\cdot 5 = 20$.)
 2. Cả hai bằng $7$ (vì cộng với $0$ không thay đổi). Đây là trường hợp đặc biệt khi quy tắc sai "tình cờ đúng" — đừng tổng quát hóa!
@@ -715,6 +727,9 @@ Xuất hiện trong: thuật toán \`Union-Find\` với inverse Ackermann $\\app
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Dịch log về câu hỏi mũ: $\\log_b(x)$ hỏi '$b$ mũ mấy thì ra $x$?'; không tròn thì chặn giữa 2 lũy thừa liền kề.
+
+
 1. $4$ (vì $3^4 = 81$).
 2. $-4$ (vì $0.0001 = 10^{-4}$).
 3. $0$ (mọi log của 1 đều bằng 0).
@@ -922,6 +937,9 @@ $$\\begin{aligned}
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Áp 3 luật log: cộng log → log của tích; trừ → log của thương; hệ số nhân → đưa lên mũ; đổi cơ số: $\\log_2 x = \\log_{10} x / \\log_{10} 2$.
+
 
 1. $\\log_{10}(50 \\cdot 2) = \\log_{10}(100) = 2$.
 2. $\\log_2(96/3) = \\log_2(32) = 5$.

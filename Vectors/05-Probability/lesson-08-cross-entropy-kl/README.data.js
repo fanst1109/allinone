@@ -167,6 +167,8 @@ $A=0, B=10, C=110, D=111$ cho độ dài trung bình đúng 1.75 bit/ký tự �
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: $H = -\\sum p_i \\log_2 p_i$ — tính từng hạng tử rồi cộng; entropy đạt max khi phân phối ĐỀU, giá trị $\\log_2(\\text{số outcome})$.
+>
 > 1. $$\\begin{aligned}
 >    H &= -(0.7 \\log_2 0.7 + 0.2 \\log_2 0.2 + 0.1 \\log_2 0.1) \\\\
 >      &= -(0.7 \\cdot (-0.515) + 0.2 \\cdot (-2.322) + 0.1 \\cdot (-3.322)) \\\\
@@ -406,6 +408,8 @@ Dấu bằng ở **mỗi** $x$ ⇔ $q(x)/p(x) = 1$, tức $q = p$. □
 > 2. Tính $D_{KL}(q \\parallel p)$ cùng cặp. So sánh.
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: $D_{KL}(p \\parallel q) = \\sum p_i \\log_2(p_i/q_i)$ — phân phối ĐỨNG TRƯỚC làm trọng số; tính cả hai chiều để thấy KL không đối xứng.
 >
 > 1. $$\\begin{aligned}
 >    D_{KL}(p \\parallel q) &= 0.5 \\log_2(0.5/0.25) + 0.5 \\log_2(0.5/0.75) \\\\

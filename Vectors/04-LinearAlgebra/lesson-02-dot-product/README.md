@@ -153,6 +153,8 @@ Lấy $\mathbf{u} = (1, 1, 1)$ và $\mathbf{v} = (1, 1, 1)$:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Đại số: nhân từng cặp thành phần rồi cộng. Kết quả bằng 0 thì đọc theo hình học: $\cos\theta = 0$ → vuông góc, khỏi tính norm.
+>
 > Đại số: $2 \cdot 1 + (-3) \cdot 2 + 1 \cdot 4 = 2 - 6 + 4 = 0$.
 >
 > Hình học: dot product = 0 → $\cos\theta = 0$ → $\theta = 90°$. Hai vector vuông góc trong $\mathbb{R}^3$. Ta không cần tính norm và $\cos\theta$ ngược lại — đại số đã cho đáp án 0 trực tiếp.
@@ -279,6 +281,8 @@ $$\operatorname{cos\_sim}(\mathbf{u}, \mathbf{v}) = \mathbf{u} \cdot \mathbf{v}$
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: $\operatorname{cos\_sim} = \dfrac{\mathbf{u} \cdot \mathbf{v}}{\lVert u \rVert \lVert v \rVert}$; bằng 1 nghĩa là trùng hướng — thử xem $\mathbf{v}$ có phải bội DƯƠNG của $\mathbf{u}$.
+>
 > - $\mathbf{u} \cdot \mathbf{v} = 18 + 32 = 50$.
 > - $\lVert u \rVert = 5$, $\lVert v \rVert = 10$. $\operatorname{cos\_sim} = 50/50 = 1$.
 > - **Có**, hoàn toàn cùng hướng ($\mathbf{v} = 2\mathbf{u}$, scalar dương).
@@ -378,6 +382,8 @@ e_n = \begin{bmatrix} 0 \\ 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}$$
 > Tìm một vector $\mathbf{w} \in \mathbb{R}^3$ vuông góc với cả $\mathbf{u} = (1, 0, 0)$ và $\mathbf{v} = (0, 1, 0)$.
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Đặt $\mathbf{w} = (a, b, c)$, viết 2 điều kiện $\mathbf{w} \cdot \mathbf{u} = 0$ và $\mathbf{w} \cdot \mathbf{v} = 0$ rồi giải — bậc tự do còn lại cho vô số đáp án.
 >
 > $\mathbf{w} = (0, 0, c)$ với $c \neq 0$ bất kỳ. Vd $(0, 0, 1)$ hoặc $(0, 0, -7)$. Đây chính là phép **cross product** trong $\mathbb{R}^3$, sẽ thấy ở các bài sau.
 > </details>

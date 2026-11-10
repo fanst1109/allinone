@@ -258,6 +258,8 @@ Projection có **$\\det = 0$** (bóp dẹt mặt phẳng thành đường thẳn
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Đọc ma trận qua ảnh của basis: cột 1 = ảnh của $(1,0)$, cột 2 = ảnh của $(0,1)$ — từ đó nhận dạng scale / rotate / project.
+>
 > 1. Scaling đều gấp đôi. Mọi vector dài gấp 2.
 > 2. Rotation $R(-90°)$ (xoay 90° theo chiều kim đồng hồ). $(1, 0) \\to (0, -1)$.
 > 3. $(5, 0)$ — chiếu xuống trục x.
@@ -511,6 +513,8 @@ Cho $A$ kích thước $m \\times n$:
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Rank = số hàng độc lập tuyến tính (hàng lặp chỉ đếm 1); nullity = số cột − rank (định lý hạng).
+>
 > Hàng 2 = hàng 1 ⇒ rank = 1. nullity = 3 - 1 = 2. (Kernel: $x + y + z = 0$ ⇒ span của $(-1, 1, 0)$ và $(-1, 0, 1)$.)
 > </details>
 
@@ -590,6 +594,8 @@ $$\\begin{aligned}
 > 3. Rotation luôn có det bằng bao nhiêu?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: $\\det$ 2×2 $= ad - bc$; $\\det = 0$ ⇔ không khả nghịch (biến đổi nén mất chiều); rotation bảo toàn diện tích — nhớ $\\cos^2 + \\sin^2 = 1$.
 >
 > 1. $3 \\cdot 2 - 4 \\cdot 1 = 2$.
 > 2. $\\det = 2 \\cdot 2 - 1 \\cdot 4 = 0$. Không invertible.

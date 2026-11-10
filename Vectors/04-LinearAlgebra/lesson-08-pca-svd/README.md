@@ -126,6 +126,8 @@ Vì hai trục **không** vuông góc → có phần trùng nhau → thông tin 
 > <details>
 > <summary>Đáp án</summary>
 >
+> **Hướng dẫn**: PC1 = hướng có PHƯƠNG SAI lớn nhất sau khi center dữ liệu — nhìn xem dữ liệu trải dọc trục nào; PC2 vuông góc với PC1 (phương sai còn lại).
+>
 > Sau center (trừ mean $(0, 3)$): $(0, -2), (0, -1), (0, 0), (0, 1), (0, 2)$. Tất cả điểm nằm trên trục y → **PC1 $= (0, 1)$** (trục y). **PC2 $= (1, 0)$** (trục x), nhưng phương sai trên PC2 = 0 (vô dụng — chỉ tồn tại để hoàn thiện basis).
 > </details>
 
@@ -370,6 +372,9 @@ Cho 4 điểm: $(1, 0), (0, 1), (-1, 0), (0, -1)$. Tính tay PC1 và $\lambda_1$
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Quy trình PCA tay: center (trừ mean) → ma trận hiệp phương sai $S = \tilde{X}^\top \tilde{X}$ → eigenvalue/eigenvector của $S$; $S$ chéo thì đọc ngay kết quả trên đường chéo.
+
 
 Mean $= (0, 0)$ → đã center sẵn.
 

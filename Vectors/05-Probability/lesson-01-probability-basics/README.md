@@ -131,6 +131,9 @@ $$\Omega = [-10, 50] \quad (\mathbb{R}, \text{khoảng số thực})$$
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: $\Omega$ = tập MỌI kết quả có thể; đếm bằng công cụ phù hợp: cặp không thứ tự → $C(n, 2)$, xu phân biệt → $2^n$.
+
+
 1. $\Omega$ = tập tất cả các cặp không thứ tự $\{x, y\}$ với $x, y$ là lá bài khác nhau. $|\Omega| = C(52, 2) = \frac{52 \cdot 51}{2} = 1326$.
 2. $|\Omega| = 2^5 = 32$.
 
@@ -199,6 +202,9 @@ Tung 1 xúc xắc. Liệt kê các biến cố:
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Dịch mô tả chữ thành TẬP CON của $\Omega = \{1, \dots, 6\}$; biến cố giao = phần tử chung của hai tập.
+
 
 1. $C = \{2, 3, 5\}$ (2, 3, 5 là nguyên tố trong $\{1, \dots, 6\}$; 1 không phải nguyên tố).
 2. $D = \{1, 3, 5\}$.
@@ -358,6 +364,9 @@ Trong một lớp 30 học sinh:
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Inclusion–exclusion: $P(M \cup P) = P(M) + P(P) - P(M \cap P)$; 'không cái nào' = phần bù $1 - P(\text{hợp})$.
+
 
 1. $P(M \cup P) = P(M) + P(P) - P(M \cap P) = \frac{18}{30} + \frac{12}{30} - \frac{7}{30} = \frac{23}{30} \approx 0{,}767$.
 2. $P((M \cup P)^c) = 1 - \frac{23}{30} = \frac{7}{30} \approx 0{,}233$.
@@ -552,6 +561,9 @@ Hỏi 4 câu để chọn đúng công thức:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Chọn công cụ đếm theo câu hỏi: xếp hết một hàng → $n!$; chọn $k$ CÓ thứ tự → $P(n,k)$; chọn $k$ KHÔNG thứ tự → $C(n,k)$.
+
+
 1. $6! = 720$.
 2. $P(52, 4) = 52 \cdot 51 \cdot 50 \cdot 49 = 6\ 497\ 400$.
 3. $C(20, 3) = \dfrac{20 \cdot 19 \cdot 18}{6} = 1140$.
@@ -651,6 +663,9 @@ $$P = \frac{624}{C(52,5)} = \frac{624}{2\ 598\ 960} \approx 0{,}000240 = \frac{1
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Xác suất cổ điển = số outcome thuận lợi / $\lvert \Omega \rvert$: đếm tử số bằng liệt kê hoặc $C(n,k)$, mẫu số là 36 hoặc $2^n$.
+
+
 1. Chỉ 1 outcome $(1,1)$ → $P = \frac{1}{36} \approx 0{,}028$.
 2. $\dfrac{C(4, 2)}{2^4} = \dfrac{6}{16} = \dfrac{3}{8} = 0{,}375$.
 
@@ -729,6 +744,9 @@ $A$ = "xúc xắc ra số chia hết cho 3" $= \{3, 6\}$. $B$ = "xúc xắc ra s
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Kiểm độc lập bằng ĐÚNG định nghĩa: so $P(A \cap B)$ với $P(A) \cdot P(B)$ — bằng nhau mới độc lập, không đoán bằng cảm giác.
+
 
 $P(A) = \frac{2}{6} = \frac{1}{3}$, $P(B) = \frac{2}{6} = \frac{1}{3}$, $A \cap B = \{6\}$, $P(A \cap B) = \frac{1}{6}$.
 

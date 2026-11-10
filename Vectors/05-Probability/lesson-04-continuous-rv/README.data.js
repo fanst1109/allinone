@@ -151,6 +151,9 @@ Cho $f(x) = c \\cdot x^2$ trên $[0, 3]$, $f(x) = 0$ ngoài. Tìm $c$ và tính 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: PDF hợp lệ ⇔ tích phân trên toàn miền bằng 1 → giải ra $c$; xác suất của khoảng = tích phân PDF trên khoảng đó.
+
+
 1. Yêu cầu $\\int_0^3 c \\cdot x^2\\,dx = 1$ → $c \\cdot \\left[\\frac{x^3}{3}\\right]_0^3 = c \\cdot 9 = 1$ → $c = \\frac{1}{9}$.
 2. $P(1 \\leq X \\leq 2) = \\int_1^2 \\frac{1}{9} \\cdot x^2\\,dx = \\frac{1}{9} \\cdot \\left[\\frac{x^3}{3}\\right]_1^2 = \\frac{1}{9} \\cdot \\left(\\frac{8}{3} - \\frac{1}{3}\\right) = \\frac{1}{9} \\cdot \\frac{7}{3} = \\frac{7}{27} \\approx 0.259$.
 </details>
@@ -225,6 +228,9 @@ Cho $f(x) = 3x^2$ trên $[0, 1]$. Tìm $F(x)$ và $P(X \\leq 0.5)$.
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: CDF = tích phân PDF từ cận dưới miền tới $x$; $P(X \\le a) = F(a)$.
+
 
 $F(x) = \\int_0^x 3t^2\\,dt = x^3$ cho $x \\in [0,1]$. $P(X \\leq 0.5) = 0.125$.
 </details>
@@ -374,6 +380,9 @@ Một website nhận trung bình 3 request/giây. Giả sử thời gian giữa 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Exponential: dùng hàm sống sót $P(X > t) = e^{-\\lambda t}$ — thay $\\lambda$ và $t$.
+
+
 $P(X > 2) = e^{-3 \\cdot 2} = e^{-6} \\approx 0.00248$ ≈ 0.25%.
 </details>
 
@@ -469,6 +478,9 @@ $X \\sim \\text{Exp}(1)$, đặt $Y = 2X + 3$. Tìm $f_Y(y)$.
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đổi biến PDF: $f_Y(y) = f_X(g^{-1}(y)) \\cdot \\lvert \\frac{d}{dy} g^{-1}(y) \\rvert$ — tìm hàm ngược, đạo hàm của nó, và nhớ đổi cả miền xác định.
+
 
 $g(x) = 2x + 3$, $g^{-1}(y) = \\frac{y-3}{2}$, $|dg^{-1}/dy| = \\frac{1}{2}$.
 

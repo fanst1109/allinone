@@ -106,6 +106,9 @@ $$E_\lambda = \{ \mathbf{v} \in \mathbb{R}^n : A \mathbf{v} = \lambda \mathbf{v}
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Bám định nghĩa $A\mathbf{v} = \lambda\mathbf{v}$ với ràng buộc $\mathbf{v} \neq 0$. Câu 2: dùng tính tuyến tính $A(c\mathbf{v}) = c \cdot A\mathbf{v}$ — bội của eigenvector vẫn là eigenvector cùng $\lambda$.
+
+
 1. Không. Theo định nghĩa eigenvector phải khác $0$. Tuy nhiên $0$ **thuộc** mọi eigenspace $E_\lambda$.
 2. $A(3\mathbf{v}) = 3 \cdot A\mathbf{v} = 3 \cdot (5\mathbf{v}) = 15\mathbf{v} = 5 \cdot (3\mathbf{v})$ → $3\mathbf{v}$ cũng là eigenvector cùng $\lambda = 5$. (Đây là lý do eigenspace là không gian con — đóng dưới scalar multiplication.)
 
@@ -193,6 +196,9 @@ $$p_A(\lambda) = \lambda^2 + 1 = 0 \to \lambda = \pm i$$
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Ma trận 2×2: đa thức đặc trưng $\lambda^2 - (\operatorname{trace})\lambda + \det$. Ma trận chéo/tam giác: eigenvalue nằm ngay trên đường chéo chính.
+
 
 1. $T = 7$, $D = 5 \cdot 2 - 2 \cdot (-1) = 12$. $p_A(\lambda) = \lambda^2 - 7\lambda + 12 = (\lambda-3)(\lambda-4)$ → $\lambda = 3, 4$.
 2. Ma trận chéo → eigenvalue là chính các phần tử đường chéo: $7, 3, -1$.
@@ -315,6 +321,9 @@ So với khai triển $\det(\lambda I - A)$: hệ số của $\lambda^{n-1}$ là
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Hai bất biến: $\sum \lambda_i = \operatorname{trace}(A)$ và $\prod \lambda_i = \det(A)$ — thay số trực tiếp.
+
 
 $\operatorname{trace} = 2 + 3 + (-1) = 4$; $\det = 2 \cdot 3 \cdot (-1) = -6$.
 

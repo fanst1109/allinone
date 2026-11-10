@@ -178,6 +178,9 @@ Với $N(2, 3^2)$, tính $f(2)$ và $f(5)$. Kết quả $f(5)$ bằng bao nhiêu
 <details>
 <summary>Lời giải</summary>
 
+**Hướng dẫn**: Thay vào PDF Gaussian: hệ số $\\frac{1}{\\sigma\\sqrt{2\\pi}}$, phần mũ $-\\frac{(x-\\mu)^2}{2\\sigma^2}$; tại $x = \\mu$ phần mũ bằng 0.
+
+
 $\\mu = 2$, $\\sigma = 3$, hệ số $\\frac{1}{3\\sqrt{2\\pi}} \\approx 0.1330$.
 
 - $f(2) = 0.1330 \\cdot \\exp(0) =$ **0.1330**.
@@ -251,6 +254,9 @@ Cho $X \\sim N(50, 10^2)$. Tính $Z$ ứng với $x = 65$, $x = 30$, $x = 50$.
 
 <details>
 <summary>Lời giải</summary>
+
+**Hướng dẫn**: Chuẩn hóa $Z = \\dfrac{x - \\mu}{\\sigma}$ — đọc là '$x$ cách mean mấy sigma'.
+
 
 - $x = 65$: $Z = \\frac{65 - 50}{10} = 1.5$.
 - $x = 30$: $Z = \\frac{30 - 50}{10} = -2$.
@@ -329,6 +335,9 @@ Nếu nhà máy muốn giảm phế phẩm xuống dưới 0.3%, phải mở r�
 
 <details>
 <summary>Lời giải</summary>
+
+**Hướng dẫn**: Nhận dạng khoảng dạng $\\mu \\pm k\\sigma$ để dùng quy tắc 68–95–99.7; ngoài mốc đẹp thì chuẩn hóa $Z$ rồi tra $\\Phi$.
+
 
 (a) $[60, 80] = [70 - 10, 70 + 10] = [\\mu - \\sigma, \\mu + \\sigma]$ → $P \\approx$ **68.27%**.
 
@@ -541,6 +550,9 @@ Một cuộc thăm dò: hỏi 400 người "có dùng smartphone không?". Tỉ 
 
 <details>
 <summary>Lời giải</summary>
+
+**Hướng dẫn**: Đếm nhị thức → xấp xỉ Gaussian: $\\mu = np$, $\\sigma^2 = np(1-p)$; rồi chuẩn hóa $Z$ và tra $\\Phi$.
+
 
 (a) $S_{400} \\sim \\text{Binomial}(400, 0.7)$.
 

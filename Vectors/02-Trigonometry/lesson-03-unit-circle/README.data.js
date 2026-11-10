@@ -241,6 +241,9 @@ Khớp. Mục 3 sẽ chứng minh chi tiết.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Bám định nghĩa gốc: $P = (\\cos\\theta, \\sin\\theta)$ trên đường tròn bán kính 1 → phương trình $x^2 + y^2 = 1$; $\\tan = \\sin/\\cos$ (mẫu 0 thì không xác định).
+
+
 1. $P = (1, 0)$ — quay đúng 1 vòng trở về vị trí ban đầu (giống $\\theta = 0^\\circ$).
 2. $x^2 + y^2 = 1$.
 3. Không xác định, vì $\\tan 90^\\circ = \\frac{\\sin 90^\\circ}{\\cos 90^\\circ} = \\frac{1}{0}$. Chia cho 0 không có nghĩa.
@@ -512,6 +515,9 @@ Tra bảng: $\\sin 120^\\circ = \\frac{\\sqrt{3}}{2}$. Hoặc dùng quy gọn �
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy về góc tham chiếu rồi tra bảng giá trị đặc biệt; đổi rad ↔ độ cho quen mắt và gắn dấu theo quadrant.
+
+
 1. $-\\frac{1}{2}$. Tra bảng.
 2. $\\frac{5\\pi}{6} = 150^\\circ$, $\\sin 150^\\circ = \\frac{1}{2}$.
 3. $225^\\circ$ ở QIII, $\\tan 225^\\circ = \\frac{\\sin}{\\cos} = \\frac{-\\sqrt{2}/2}{-\\sqrt{2}/2} = 1$.
@@ -668,6 +674,9 @@ Khi quá quen, bạn sẽ không cần mnemonic nữa — trực giác đường
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Dùng ASTC (All–Sin–Tan–Cos dương lần lượt QI→QIV): xác định quadrant từ khoảng độ rồi suy dấu từng hàm.
+
 
 1. $100^\\circ \\in (90^\\circ, 180^\\circ)$ → QII → chỉ Sin dương → $\\cos 100^\\circ < 0$.
 2. $280^\\circ \\in (270^\\circ, 360^\\circ)$ → QIV → chỉ Cos dương → $\\tan 280^\\circ < 0$.
@@ -1051,6 +1060,9 @@ Tính bằng quy trình 3 bước:
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: Quy trình 3 bước: xác định quadrant → tính góc tham chiếu $\\alpha$ (so với trục ngang) → lấy giá trị của $\\alpha$ và gắn dấu theo quadrant.
+
+
 1. $240^\\circ \\in$ QIII → $\\sin-$. $\\alpha = 240^\\circ - 180^\\circ = 60^\\circ$. $\\sin 60^\\circ = \\frac{\\sqrt{3}}{2}$. → $\\sin 240^\\circ = -\\frac{\\sqrt{3}}{2}$.
 2. $300^\\circ \\in$ QIV → $\\cos+$. $\\alpha = 360^\\circ - 300^\\circ = 60^\\circ$. $\\cos 60^\\circ = \\frac{1}{2}$. → $\\cos 300^\\circ = \\frac{1}{2}$.
 3. $135^\\circ \\in$ QII → $\\tan-$. $\\alpha = 180^\\circ - 135^\\circ = 45^\\circ$. $\\tan 45^\\circ = 1$. → $\\tan 135^\\circ = -1$.
@@ -1139,6 +1151,9 @@ Hai điểm khác nhau, cùng $\\tan$. Đây là vì sao $\\tan$ có **chu kỳ 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Trừ bội 360° để về góc đồng kết trong $[0°, 360°)$ rồi tính như thường — giá trị lượng giác không đổi qua mỗi vòng quay.
+
 
 1. $45^\\circ + 360^\\circ = 405^\\circ$ (nằm trong $(360^\\circ, 720^\\circ)$).
 2. $1110^\\circ = 3 \\cdot 360^\\circ + 30^\\circ = 1080^\\circ + 30^\\circ$. $\\cos 1110^\\circ = \\cos 30^\\circ = \\frac{\\sqrt{3}}{2}$.

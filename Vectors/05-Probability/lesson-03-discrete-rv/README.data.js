@@ -118,6 +118,9 @@ Tung 1 xúc xắc, gọi Y = (mặt xúc xắc) mod 2. Liệt kê toàn bộ án
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: RV là HÀM $\\Omega \\to \\mathbb{R}$: tính $Y(\\omega)$ cho từng $\\omega$ rồi GOM các $\\omega$ cho cùng giá trị để ra xác suất.
+
+
 Y(1)=1, Y(2)=0, Y(3)=1, Y(4)=0, Y(5)=1, Y(6)=0.
 
 \`P(Y = 0) = P({2, 4, 6}) = 3/6 = 1/2\`. \`P(Y = 1) = 1/2\`. Vậy Y ~ Bernoulli(0.5).
@@ -254,6 +257,9 @@ Cho RV X có PMF: p(1) = 0.1, p(2) = 0.2, p(3) = c, p(4) = 0.3. Tìm c và tính
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: PMF phải cộng đúng bằng 1 → giải ra $c$; xác suất của khoảng = cộng các $p(x)$ liên quan.
+
+
 Vì \`0.1 + 0.2 + c + 0.3 = 1\` → c = 0.4.
 
 \`P(X ≤ 2) = p(1) + p(2) = 0.1 + 0.2 = 0.3\`.
@@ -319,6 +325,9 @@ Một email có xác suất 0.02 bị mark spam. Gọi X = 1 nếu spam, 0 nếu
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Biến chỉ có 2 kết cục → Bernoulli($p$): $p(1) = p$, $p(0) = 1 - p$.
+
 
 X ~ Bernoulli(0.02). p(1) = 0.02, p(0) = 0.98.
 
@@ -421,6 +430,9 @@ Câu hỏi 1: Một đồng xu lệch ngửa với xác suất 0.6. Tung 5 lần
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: $n$ lần độc lập, đếm số thành công → Binomial: $P(X = k) = C(n,k) p^k (1-p)^{n-k}$; 'ít nhất 1' thì tính phần bù $1 - P(X = 0)$.
+
+
 X ~ Bin(5, 0.6). \`P(X = 3) = C(5,3) · 0.6^3 · 0.4^2 = 10 · 0.216 · 0.16 = 0.3456\`.
 
 </details>
@@ -518,6 +530,9 @@ Một quảng cáo Facebook có CTR = 5%. Bạn show liên tục cho người d�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đợi thành công ĐẦU TIÊN → Geometric: $P(X = k) = (1-p)^{k-1} p$ — $k-1$ lần trượt rồi một lần trúng.
+
 
 X ~ Geo(0.05). \`P(X = 10) = 0.95^9 · 0.05 ≈ 0.6302 · 0.05 ≈ 0.0315\`.
 
@@ -628,6 +643,9 @@ Một website trung bình 5 lỗi 500 mỗi giờ. Tính P(trong 1 giờ tới c
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: Đếm số sự kiện trong khoảng cố định với tốc độ trung bình $\\lambda$ → Poisson: $P(X = k) = e^{-\\lambda} \\lambda^k / k!$.
+
 
 X ~ Poi(5). \`P(X = 0) = e^-5 · 5^0 / 0! = e^-5 ≈ 0.00674\` ≈ 0.67%.
 
@@ -777,6 +795,9 @@ X ~ Bin(5, 0.5). Tính F(3) = P(X ≤ 3).
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: CDF rời rạc: $F(k) = $ cộng dồn PMF từ 0 tới $k$ — tính từng $p(i)$ rồi cộng lại.
+
 
 p(0) = C(5,0)·0.5^5 = 1/32
 p(1) = C(5,1)·0.5^5 = 5/32

@@ -356,6 +356,8 @@ f(1) &= 1 - 2 = -1
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Quy trình: giải $f'(x) = 0$ tìm điểm dừng → xét dấu $f''$ tại từng điểm ($f'' > 0$ cực tiểu, $< 0$ cực đại) → tính giá trị $f$ tại đó.
+>
 > $f'(x) = 4x^3 - 4 = 0 \\implies x^3 = 1 \\implies x = 1$ (chỉ 1 nghiệm thực, vì $x^3 = 1 \\iff x = 1$; còn hai nghiệm phức bỏ qua).
 >
 > $f''(x) = 12x^2$. $f''(1) = 12 > 0$ → cực tiểu địa phương tại $x = 1$.

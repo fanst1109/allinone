@@ -132,6 +132,8 @@ $$\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \neq \begin{bmatrix} 1 & 2 \\ 3 &
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Cấp = hàng × cột ($m$ trước, $n$ sau); chỉ số $a_{ij}$ đọc là hàng $i$, cột $j$.
+>
 > Cấp $3 \times 5$. $a_{34}$ ở **hàng 3, cột 4**. Vì hàng có 3 (tối đa $i \in \{1,2,3\}$) và cột có 5 ($j \in \{1,2,3,4,5\}$), vị trí này tồn tại.
 > </details>
 
@@ -204,6 +206,8 @@ $$B + A = \begin{bmatrix} 5+1 & 6+2 \\ 7+3 & 8+4 \end{bmatrix} = \begin{bmatrix}
 > $$A = \begin{bmatrix} 2 & -1 \\ 5 & 0 \end{bmatrix} \qquad B = \begin{bmatrix} -3 & 4 \\ 1 & -2 \end{bmatrix}$$
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cộng từng ô cùng vị trí; hai ma trận phải cùng cấp.
 >
 > $$A + B = \begin{bmatrix} 2+(-3) & -1+4 \\ 5+1 & 0+(-2) \end{bmatrix} = \begin{bmatrix} -1 & 3 \\ 6 & -2 \end{bmatrix}$$
 > </details>
@@ -408,6 +412,8 @@ $$AB = \begin{bmatrix} -3 & -3 & -3 \\ 14 & 19 & 24 \end{bmatrix}$$
 > **🔁 Thực hành**: Cho $A = \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}$ và $B = \begin{bmatrix} 1 & 4 \\ 5 & 2 \end{bmatrix}$. Tính $AB$.
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Từng ô $c_{ij}$ = hàng $i$ của $A$ chấm cột $j$ của $B$ — tính đủ 4 ô, kiểm cấp kết quả trước.
 >
 > Cấp: $(2 \times 2) \cdot (2 \times 2) = (2 \times 2)$.
 >

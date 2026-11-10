@@ -243,6 +243,8 @@ $$\mathbb{R}^n = \{ (x_1, x_2, \ldots, x_n) \mid x_i \in \mathbb{R} \text{ với
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Đếm số thành phần → đó là số chiều $n$; giá trị các thành phần (kể cả bằng nhau hết) không ảnh hưởng chiều.
+>
 > 1. $n = 4$ vì có 4 thành phần.
 > 2. 2 thành phần → $\mathbb{R}^2$. (Đây là **vector 0** trong $\mathbb{R}^2$ — mục 7 sẽ nói.)
 > 3. 7 thành phần → $\mathbb{R}^7$. (Tất cả thành phần bằng 7 không đổi chiều của vector.)
@@ -388,6 +390,8 @@ $$\mathbf{u} + \mathbf{v} = (1, 1, 1, 1, 1)$$
 
 > **🔁 Thực hành:** Tính $(3, -2, 5) + (-1, 4, -5)$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cộng từng thành phần cùng vị trí; chỉ cộng được hai vector CÙNG chiều.
 > $(3 + (-1), -2 + 4, 5 + (-5)) = (2, 2, 0)$.
 > </details>
 
@@ -531,6 +535,8 @@ Tức **scalar multiplication với số nguyên dương = cộng nhiều lần*
 
 > **🔁 Thực hành:** Tính $(-2) \cdot (3, -4, 0, 5)$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhân scalar vào TỪNG thành phần, cẩn thận dấu.
 > $(-2 \cdot 3, -2 \cdot (-4), -2 \cdot 0, -2 \cdot 5) = (-6, 8, 0, -10)$.
 > </details>
 
@@ -654,6 +660,8 @@ $$-\mathbf{v} = (-v_1, \ -v_2, \ \ldots, \ -v_n)$$
 > **🔁 Thực hành:** Cho $\mathbf{v} = (5, -3, 0, 2)$. Tính $-\mathbf{v}$ và $\mathbf{v} + (-\mathbf{v})$.
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Vector đối: đảo dấu mọi thành phần; tổng với vector đối phải ra vector $\mathbf{0}$ — dùng làm phép kiểm.
+>
 > - $-\mathbf{v} = (-5, 3, 0, -2)$.
 > - $\mathbf{v} + (-\mathbf{v}) = (5 + (-5), -3 + 3, 0 + 0, 2 + (-2)) = (0, 0, 0, 0) = \mathbf{0}$. ✓
 > </details>
@@ -749,6 +757,8 @@ Trong hình bình hành với cạnh $\mathbf{u}$, $\mathbf{v}$ đặt tại g�
 > **🔁 Thực hành:** Cho $A = (3, 4)$ và $B = (7, 1)$ là 2 điểm. Tính vector tịnh tiến từ A sang B.
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Vector tịnh tiến từ A sang B = ĐÍCH trừ GỐC: $B - A$, trừ từng tọa độ.
+>
 > $B - A = (7-3, 1-4) = (4, -3)$. Tức "đi 4 đơn vị sang phải, 3 đơn vị xuống" từ A sẽ tới B. ✓
 > </details>
 
@@ -795,6 +805,8 @@ Với mọi $(a, b, c) \in \mathbb{R}^3$ ta có $(a, b, c) = a \cdot \mathbf{e}_
 
 > **🔁 Thực hành:** Cho $\mathbf{v}_1 = (1, 1)$, $\mathbf{v}_2 = (1, -1)$. Tính $2 \cdot \mathbf{v}_1 + 3 \cdot \mathbf{v}_2$.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Nhân scalar vào từng vector trước, rồi cộng từng thành phần.
 >
 > $2 \cdot (1,1) + 3 \cdot (1,-1) = (2,2) + (3,-3) = (5, -1)$.
 > </details>

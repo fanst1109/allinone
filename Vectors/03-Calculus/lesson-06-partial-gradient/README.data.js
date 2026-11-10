@@ -322,6 +322,8 @@ Hàm hợp $e^u$ với $u = x + y^2$.
 >
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Đạo hàm riêng theo $x$: coi $y$ là HẰNG SỐ rồi đạo hàm như hàm một biến (và ngược lại); gặp hàm hợp thì kèm chain rule.
+>
 > 1. $3x^2 + 2y$.
 > 2. $\\frac{\\partial}{\\partial y}\\ln(u) = \\frac{1}{u} \\cdot \\frac{\\partial u}{\\partial y}$ với $u = x^2 + y^2$. $\\frac{\\partial u}{\\partial y} = 2y$. Vậy $\\frac{\\partial f}{\\partial y} = \\frac{2y}{x^2 + y^2}$.
 > 3. $\\frac{\\partial f}{\\partial x} = e^y + y \\, e^x$. $\\frac{\\partial f}{\\partial y} = x \\, e^y + e^x$.
@@ -634,6 +636,8 @@ Tính đạo hàm hướng theo các hướng khác nhau:
 > 2. Tại sao theo hướng vuông góc với gradient, hàm không thay đổi?
 >
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Gradient = vector các đạo hàm riêng; $\\lvert \\nabla f \\rvert$ tính theo Pythagoras; đạo hàm hướng $D_{\\hat{u}} f = \\nabla f \\cdot \\hat{u}$ — hướng vuông góc cho tích vô hướng bằng 0.
 >
 > 1. $\\nabla f = (3, 4)$, $|\\nabla f| = 5$. $D_{(1,0)} f = 3$. (Vì f tuyến tính, gradient không phụ thuộc điểm.)
 > 2. Vì $\\cos(\\pi/2) = 0$ ⟹ $D_{\\hat{u}} f = |\\nabla f| \\cdot 0 = 0$. Hình học: đó là tiếp tuyến với đường mức, mà trên đường mức f không đổi.

@@ -128,6 +128,9 @@ Không, $2$ và $3$ ở đây là **hằng số cụ thể đã viết ra rồi*
 <details>
 <summary>1. Trong câu "tổng ba số liên tiếp bằng 30, tìm số nhỏ nhất", nếu đặt số nhỏ nhất là $x$ thì ba số là gì? Vai trò của $x$?</summary>
 
+**Hướng dẫn**: Phân vai ký hiệu theo VAI TRÒ trong bài toán (cần tìm / cho trước / hằng), không theo tên chữ cái.
+
+
 Ba số là $x, x+1, x+2$. $x$ ở đây là **biến chưa biết (cần tìm)** — sẽ ra $x = 9$ (vì $x + (x+1) + (x+2) = 3x + 3 = 30$).
 </details>
 
@@ -270,6 +273,9 @@ Dạng tốt phụ thuộc câu hỏi đang đặt.
 <details>
 <summary>1. Liệt kê các hạng tử và hệ số của $-2x^3 + x^2 - x + 7$.</summary>
 
+**Hướng dẫn**: Hạng tử = các khối nối nhau bằng +/−; hệ số = phần số đứng trước biến (mang theo dấu); đồng dạng ⇔ cùng phần biến cùng số mũ.
+
+
 | Hạng tử | Hệ số | Biến |
 |---------|-------|------|
 | $-2x^3$ | $-2$ | $x^3$ |
@@ -379,6 +385,9 @@ Cả hai cách phải ra cùng kết quả — nếu khác là sai. Cách A nhan
 <details>
 <summary>1. Tính $f(x) = 5 - x^2 + 3x$ tại $x = -3$.</summary>
 
+**Hướng dẫn**: Thay số CÓ NGOẶC: $(-3)^2$ khác $-3^2$; theo thứ tự PEMDAS, cộng trừ cùng cấp thì đi trái → phải.
+
+
 $f(-3) = 5 - (-3)^2 + 3 \cdot (-3) = 5 - 9 - 9 = -13$. (Chú ý $(-3)^2 = 9$ chứ không phải $-9$.)
 </details>
 
@@ -460,6 +469,9 @@ Không (vì khác lũy thừa). Nhưng **đặt nhân tử chung** được: $3x
 
 <details>
 <summary>1. Rút gọn $4x - 2y + 3x + y - 5x$.</summary>
+
+**Hướng dẫn**: Gom hạng tử đồng dạng: cộng hệ số, giữ nguyên phần biến — nhóm riêng từng loại ($x$ một nhóm, $y$ một nhóm).
+
 
 $x$: $4x + 3x - 5x = 2x$. $y$: $-2y + y = -y$. Kết quả: $2x - y$.
 </details>
@@ -629,6 +641,9 @@ Hai hạng tử giữa triệt tiêu → ra $a^2 - b^2$. Đây là **hằng đ�
 
 <details>
 <summary>1. Khai triển $-2(3x - 5)$.</summary>
+
+**Hướng dẫn**: Phân phối từng cặp hạng tử (FOIL với 2 ngoặc); dấu trừ phải nhân vào CẢ hạng tử phía sau.
+
 
 $-2 \cdot 3x + (-2) \cdot (-5) = -6x + 10$. (Lưu ý dấu trừ áp dụng cho cả $-5$.)
 </details>
@@ -916,6 +931,9 @@ Vd $x^2 + x + 1$: $\Delta = 1 - 4 = -3 < 0$ → bất khả quy.
 <details>
 <summary>1. Phân tích $x^2 + 10x + 24$.</summary>
 
+**Hướng dẫn**: Tìm 2 số có TÍCH = hằng số tự do và TỔNG = hệ số giữa; tổng âm + tích dương → cả hai cùng âm.
+
+
 Cặp tích 24, tổng 10: $(4, 6)$. → $(x+4)(x+6)$.
 </details>
 
@@ -1008,6 +1026,9 @@ Toán giả định mỗi chữ cái là một biến riêng → $xy$ = hai bi�
 
 <details>
 <summary>1. Tính $-x^2$ và $(-x)^2$ tại $x = 4$.</summary>
+
+**Hướng dẫn**: Câu 1: lũy thừa bám chặt hơn dấu trừ — $-x^2 = -(x^2)$. Câu 2: code không có phép nhân ngầm — viết rõ `*` ở mọi chỗ.
+
 
 $-x^2 = -(4^2) = -16$. $(-x)^2 = (-4)^2 = 16$. Hai cái khác dấu — $-$ trước $^2$ quan trọng.
 </details>

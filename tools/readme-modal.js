@@ -594,10 +594,20 @@
     // TOC được BẬT lại (toggle / mở panel) phải gọi lại hàm này.
     // block: 'nearest' khi theo spy (dịch tối thiểu), 'center' khi vừa bật
     // TOC (đưa mục đang đọc ra giữa cho dễ thấy).
-    function scrollTocToActive(block) {
+    // Tự tính scrollTop trên .rm-toc thay vì scrollIntoView — scrollIntoView
+    // block:'center' có thể cuộn lây các scroller tổ tiên (window/content),
+    // còn gán scrollTop thì chỉ đụng đúng container TOC.
+    function scrollTocToActive() {
       if (tocEl.classList.contains('rm-hidden')) return;
       var act = tocEl.querySelector('a.rm-active');
-      if (act) act.scrollIntoView({ block: block || 'nearest' });
+      if (!act) return;
+      // Rect-based (không dùng offsetTop vì offsetParent của link khác nhau
+      // giữa TOC sidebar tĩnh và TOC overlay absolute trên mobile)
+      var aR = act.getBoundingClientRect();
+      var tR = tocEl.getBoundingClientRect();
+      var top = (aR.top - tR.top) + tocEl.scrollTop - tocEl.clientHeight / 2 + aR.height / 2;
+      if (tocEl.scrollTo) tocEl.scrollTo({ top: top, behavior: 'smooth' });
+      else tocEl.scrollTop = top;
     }
 
     function slugify(text) {
@@ -695,9 +705,11 @@
         if (lastActive && links[lastActive]) links[lastActive].classList.remove('rm-active');
         if (current && links[current]) {
           links[current].classList.add('rm-active');
-          // Cuộn TOC theo mục active — bỏ qua khi con trỏ đang nằm trong TOC
-          // để không giành cuộn với user.
-          if (!tocEl.matches(':hover')) scrollTocToActive('nearest');
+          // Cuộn TOC theo mục active — luôn căn GIỮA để TOC thấy rõ là đang
+          // "chạy theo" content ('nearest' chỉ nhích khi chạm mép → TOC ngắn
+          // gần như đứng yên, nhìn như không follow). Bỏ qua khi con trỏ đang
+          // nằm trong TOC để không giành cuộn với user.
+          if (!tocEl.matches(':hover')) scrollTocToActive('center');
         }
         lastActive = current;
       }

@@ -456,6 +456,19 @@
     var hasMarked = typeof window.marked !== 'undefined' && typeof window.marked.parse === 'function';
     var hasReadme = typeof window.README_MD === 'string';
 
+    // marked GFM mặc định coi ~text~ (MỘT dấu ngã mỗi bên) là gạch ngang.
+    // README dùng "~" nghĩa "xấp xỉ" rất nhiều ("~3×10⁹ bp", "~10 µm") → hai
+    // dấu ~ trên cùng dòng bị ghép thành <del>, nuốt ký tự ~ và phá cả
+    // **bold** kẹt ở giữa. Giới hạn del về đúng cú pháp ~~text~~; dấu ~ đơn
+    // trở thành văn bản thường. Code span không ảnh hưởng (tokenize trước).
+    if (hasMarked && typeof window.marked.use === 'function') {
+      window.marked.use({ tokenizer: { del: function (src) {
+        var m = /^~~(?=\S)([\s\S]*?\S)~~/.exec(src);
+        if (m) return { type: 'del', raw: m[0], text: m[1], tokens: this.lexer.inlineTokens(m[1]) };
+        return undefined;
+      } } });
+    }
+
     if (!hasMarked) {
       console.warn('[readme-modal] marked chưa load. Kiểm tra <script src="../../tools/marked.min.js"> đứng TRƯỚC readme-modal.js.');
       showToast('Lỗi: marked.min.js chưa load (xem console).');

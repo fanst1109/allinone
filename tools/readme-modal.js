@@ -589,6 +589,17 @@
     var tocToggle = panel.querySelector('#rm-toc-toggle');
     var contentEl = panel.querySelector('.rm-content');
 
+    // Cuộn TOC tới mục đang active. scrollIntoView trên element ẩn
+    // (display:none) là no-op → chỉ gọi khi TOC đang hiện; vì vậy mỗi lần
+    // TOC được BẬT lại (toggle / mở panel) phải gọi lại hàm này.
+    // block: 'nearest' khi theo spy (dịch tối thiểu), 'center' khi vừa bật
+    // TOC (đưa mục đang đọc ra giữa cho dễ thấy).
+    function scrollTocToActive(block) {
+      if (tocEl.classList.contains('rm-hidden')) return;
+      var act = tocEl.querySelector('a.rm-active');
+      if (act) act.scrollIntoView({ block: block || 'nearest' });
+    }
+
     function slugify(text) {
       return text
         .toLowerCase()
@@ -684,10 +695,9 @@
         if (lastActive && links[lastActive]) links[lastActive].classList.remove('rm-active');
         if (current && links[current]) {
           links[current].classList.add('rm-active');
-          // Cuộn TOC theo mục active — block:'nearest' chỉ cuộn container
-          // .rm-toc (overflow-y: auto), không đụng content/window. Bỏ qua khi
-          // con trỏ đang nằm trong TOC để không giành cuộn với user.
-          if (!tocEl.matches(':hover')) links[current].scrollIntoView({ block: 'nearest' });
+          // Cuộn TOC theo mục active — bỏ qua khi con trỏ đang nằm trong TOC
+          // để không giành cuộn với user.
+          if (!tocEl.matches(':hover')) scrollTocToActive('nearest');
         }
         lastActive = current;
       }
@@ -908,6 +918,8 @@
     tocToggle.addEventListener('click', function () {
       tocVisible = !tocVisible;
       applyTocVisibility();
+      // Vừa bật TOC → đưa mục đang đọc ra giữa (lúc ẩn spy không cuộn được)
+      if (tocVisible) scrollTocToActive('center');
     });
 
     // ── open / close ──
@@ -941,6 +953,8 @@
 
       applyMode(currentMode);
       applyTocVisibility();
+      // Mở lại panel khi content còn giữ vị trí đọc cũ → TOC nhảy tới mục đó
+      scrollTocToActive('center');
       panel.classList.add('rm-open');
       panel.setAttribute('aria-hidden', 'false');
       btn.classList.add('rm-hidden');

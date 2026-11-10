@@ -199,6 +199,8 @@ Ví dụ (two-sided, $\\alpha=0{,}05$): $p < 0{,}05 \\Leftrightarrow |z| > 1{,}9
 > 1. $n=25$, $\\bar{x}=48$, $s=8$, $H_0: \\mu=50$, $H_1: \\mu<50$, $\\alpha=0{,}05$. Tính $t$ và kết luận.
 > 2. Với dữ liệu trên, tại sao ta dùng t-test thay z-test?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Câu 1: tính $\\text{SE} = s/\\sqrt{n}$ rồi $t = (\\bar{x} - \\mu_0)/\\text{SE}$; so với $t^*$ MỘT phía bên trái (df $= n-1$) theo chiều của $H_1$. Câu 2: tự hỏi mình biết $\\sigma$ thật hay chỉ có $s$ ước lượng.
 > 1. $\\text{SE} = \\dfrac{8}{5} = 1{,}6$. $t = \\dfrac{48-50}{1{,}6} = -1{,}25$. df$=24$. $t^*(24,\\ \\text{one-sided left},\\ 0{,}05) = -1{,}711$. Vì $t = -1{,}25 > -1{,}711 \\to$ Fail to reject $H_0$. $p \\approx 0{,}112 > 0{,}05$.
 > 2. Dùng $t$ vì $\\sigma$ không biết, ta dùng $s=8$ thay. Với $n=25$, $t^* \\neq z^*$ ($t^*(24)=1{,}711 > z^*=1{,}645$) — không thể dùng $z^*$.
 > </details>

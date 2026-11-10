@@ -98,6 +98,8 @@ Tham số thường **không biết được chính xác** (sẽ cần đo cả 
 > 🔁 **Thực hành**:
 > 1. Công ty X chạy khảo sát hài lòng, nhận được 800 phản hồi từ tổng số 12 000 nhân viên. $\\bar{x} = 7{,}3/10$. Phân biệt population, sample, parameter, statistic.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Gắn 4 khái niệm theo cặp: population–parameter (toàn bộ, thường không biết được), sample–statistic (phần đo được). Với mỗi con số, hỏi 'nó tính từ toàn bộ hay từ mẫu?'.
 > Population: 12 000 nhân viên. Sample: 800 người trả lời. Parameter $\\mu$: điểm hài lòng trung bình thật của cả 12 000 người (unknown). Statistic $\\bar{x}$: $7{,}3/10$ (tính từ 800 phản hồi).
 > </details>
 >
@@ -235,6 +237,8 @@ NOIR là từ viết tắt của **N**ominal, **O**rdinal, **I**nterval, **R**at
 > 🔁 **Thực hành**:
 > 1. Dataset có biến "Mức độ hài lòng" với giá trị 1/2/3/4/5. Bạn muốn báo cáo "giá trị điển hình". Nên dùng mean hay median? Vì sao?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Câu 1: xác định thang đo của biến trước (ordinal → khoảng cách giữa các mức không đảm bảo đều) rồi mới chọn thước đo. Câu 2: câu 'gấp bao nhiêu lần' đòi thang ratio — °C có điểm 0 tuyệt đối không?
 > Median an toàn hơn — đây là biến Ordinal. Median không giả định khoảng cách đều giữa 1, 2, 3, 4, 5. Nếu phân phối lệch (nhiều người chọn 5, ít người chọn 1), median = 4 mô tả trung tâm chính xác hơn mean = 3.8 vẻ "giữa".
 > </details>
 >

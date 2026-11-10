@@ -252,6 +252,8 @@ $\#\text{concordant} = 5$, $\#\text{discordant} = 1$, total = 6. $\tau = \dfrac{
 > 🔁 **Thực hành**:
 > 1. Cho data (1, 10), (2, 8), (3, 3), (4, 5), (5, 1). Tính rank của y và xác định ρ Spearman dấu gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Gán rank cho $y$ (nhỏ nhất = 1), xếp lại theo thứ tự $x$ rồi nhìn chiều biến thiên của dãy rank: $x$ tăng mà rank $y$ giảm đều → $\rho$ âm. Câu 2: nhớ $r$ chỉ đo quan hệ TUYẾN TÍNH.
 > 
 > Rank y (từ nhỏ tới lớn): $y=1 \to 1$, $y=3 \to 2$, $y=5 \to 3$, $y=8 \to 4$, $y=10 \to 5$.  
 > Theo thứ tự X: $\text{rank}_Y = [5, 4, 2, 3, 1]$.  

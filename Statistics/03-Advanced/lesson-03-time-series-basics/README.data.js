@@ -206,6 +206,8 @@ Series gốc tăng dần (non-stationary). Sau sai phân: các giá trị dao đ
 > 🔁 **Thực hành**:
 > 1. Series y = [2, 4, 6, 8, 10, 12] — có stationary không? Sau first difference là gì?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Kiểm tra mean có phụ thuộc $t$ không (chuỗi tăng đều → mean đổi theo $t$ → không stationary); rồi tính first difference $\\nabla y_t = y_t - y_{t-1}$ và nhìn lại chuỗi mới.
 > Không stationary: $E[y_t] = 2t$ (tăng theo $t$). First difference: $\\nabla y = [2, 2, 2, 2, 2]$ — hoàn toàn constant → stationary (variance = 0, special case). Đây là perfect linear trend, $d=1$ đủ.
 > </details>
 

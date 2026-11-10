@@ -108,6 +108,8 @@ Trong đó $s$ là standard deviation của mẫu.
 > 2. Muốn SE giảm một nửa, cần tăng $n$ bao nhiêu lần?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Câu 1: $\text{SE} = \sigma/\sqrt{n}$. Câu 2: SE tỉ lệ nghịch với $\sqrt{n}$ — muốn SE giảm $k$ lần thì $n$ phải tăng $k^2$ lần.
+>
 > 1. $\text{SE} = \dfrac{20}{\sqrt{25}} = \dfrac{20}{5} = \mathbf{4}$
 > 2. $\text{SE}' = \dfrac{\sigma}{\sqrt{4n}} = \dfrac{1}{2}\dfrac{\sigma}{\sqrt{n}} \to$ cần tăng $n$ lên **4 lần** (nhân bốn $n$).
 > </details>

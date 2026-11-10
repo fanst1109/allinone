@@ -138,6 +138,8 @@ Giả sử ta có một đồng xu, không biết xác suất ra mặt ngửa $\
 > 🔁 **Thực hành**:
 > 1. Prior Beta(3, 3), quan sát 5 heads 5 tails. Posterior là phân phối gì? Posterior mean bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Conjugate: prior Beta + likelihood binomial → posterior $= \\text{Beta}(\\alpha + \\text{heads},\\ \\beta + \\text{tails})$; posterior mean $= \\alpha'/(\\alpha'+\\beta')$.
 > Posterior $= \\text{Beta}(3+5, 3+5) = \\text{Beta}(8, 8)$. Posterior mean $= \\dfrac{8}{8+8} = 0{,}5$. Hợp lý: data cân bằng + prior cân bằng = posterior cân bằng.
 > </details>
 
@@ -200,6 +202,8 @@ Prior: $\\text{Beta}(2, 2)$, quan sát 7H, 3T → Posterior: $\\text{Beta}(9, 5)
 > 🔁 **Thực hành**:
 > 1. Một đồng xu mới ra lò, ta không biết gì → dùng prior Beta(1, 1). Tung 20 lần: 14 heads, 6 tails. Tính posterior mean và 95% credible interval (dùng công thức xấp xỉ mean ± 2SD).
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Cập nhật posterior $\\text{Beta}(1+14,\\ 1+6)$; mean $= \\alpha'/(\\alpha'+\\beta')$; variance Beta $= \\dfrac{\\alpha'\\beta'}{(\\alpha'+\\beta')^2(\\alpha'+\\beta'+1)}$ rồi CI ≈ mean ± 2·SD.
 > Posterior: $\\text{Beta}(1+14, 1+6) = \\text{Beta}(15, 7)$. Mean $= \\dfrac{15}{22} \\approx 0{,}682$. Var $= \\dfrac{15 \\times 7}{22^2 \\times 23} = \\dfrac{105}{11132} \\approx 0{,}00943$. SD $\\approx 0{,}097$. CI xấp xỉ $[0{,}682 - 2 \\times 0{,}097, 0{,}682 + 2 \\times 0{,}097] = [0{,}488, 0{,}876]$. (Lưu ý: đây là xấp xỉ normal; CI chính xác từ Beta quantile sẽ khác đôi chút.)
 > </details>
 

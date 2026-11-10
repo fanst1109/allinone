@@ -154,6 +154,8 @@ Lấy sample 2 phần tử: $\\{1, 5\\}$. $\\bar{x} = 3$.
 > 🔁 **Thực hành**:
 > 1. Dataset: \`[3, 5, 5, 7]\`. Tính sample variance s² và sample SD s từng bước.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Theo 4 bước: tính $\\bar{x}$ → bình phương sai lệch từng điểm → cộng lại → chia $n-1$ (sample dùng hiệu chỉnh Bessel); $s$ = căn của $s^2$. Câu 2: so sánh chia $n$ với chia $n-1$ khi $n$ rất lớn.
 > $\\bar{x} = \\dfrac{3+5+5+7}{4} = \\dfrac{20}{4} = 5$. Sai lệch: $(3-5)^2=4$, $(5-5)^2=0$, $(5-5)^2=0$, $(7-5)^2=4$. Tổng = 8. $s^2 = \\dfrac{8}{4-1} = \\dfrac{8}{3} \\approx 2{,}67$. $s = \\sqrt{8/3} \\approx 1{,}63$.
 > </details>
 >

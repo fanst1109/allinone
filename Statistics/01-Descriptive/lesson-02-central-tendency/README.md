@@ -107,21 +107,21 @@ $$\text{Median} = \begin{cases} x_{((n+1)/2)} & \text{nếu } n \text{ lẻ} \\[
 
 **Ví dụ 1 — n lẻ:**
 Dataset: `[3, 1, 7, 4, 9]`
-- Sắp xếp: `[1, 3, **4**, 7, 9]`
+- Sắp xếp: `[1, 3, 4, 7, 9]` — phần tử giữa là **4**
 - $n = 5$, vị trí giữa $= \dfrac{5+1}{2} = 3$
 - Median $= x_{(3)} = \mathbf{4}$
 - Verify: 2 phần tử nhỏ hơn (1, 3), 2 phần tử lớn hơn (7, 9).
 
 **Ví dụ 2 — n chẵn:**
 Dataset: `[2, 5, 8, 11]`
-- Đã sắp xếp: `[2, **5**, **8**, 11]`
+- Đã sắp xếp: `[2, 5, 8, 11]` — hai phần tử giữa là **5** và **8**
 - $n = 4$, hai phần tử giữa: $x_{(2)} = 5$ và $x_{(3)} = 8$
 - Median $= \dfrac{5 + 8}{2} = \mathbf{6{,}5}$
 - Verify: $6{,}5$ không có trong dataset — điều này bình thường.
 
 **Ví dụ 3 — Lương với outlier (so sánh vs mean):**
 Dataset lương: `[12M, 13M, 11M, 14M, 12M, 150M]`
-- Sắp xếp: `[11, 12, **12**, **13**, 14, 150]` (M)
+- Sắp xếp: `[11, 12, 12, 13, 14, 150]` (M) — hai phần tử giữa là **12** và **13**
 - $n = 6$ (chẵn), hai phần tử giữa: 12 và 13
 - Median $= \dfrac{12 + 13}{2} = \mathbf{12{,}5M}$
 - So sánh: Mean $= 35{,}3M$ vs Median $= 12{,}5M$. Median phản ánh đúng hơn mức lương của "nhân viên điển hình".
@@ -138,6 +138,8 @@ Dataset lương: `[12M, 13M, 11M, 14M, 12M, 150M]`
 > 🔁 **Thực hành**:
 > 1. Dataset: `[15, 3, 20, 7, 11]`. Tính mean và median.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Mean = tổng / $n$. Median: sắp xếp tăng dần rồi lấy phần tử chính giữa ($n$ lẻ). Câu 2: để ý 200M là outlier — thước đo nào bị outlier kéo theo?
 > Mean $= \dfrac{15+3+20+7+11}{5} = \dfrac{56}{5} = 11{,}2$. Sắp xếp: $[3, 7, 11, 15, 20]$, Median $= 11$ (vị trí 3). Mean và median gần nhau — dataset khá đối xứng.
 > </details>
 >
@@ -271,6 +273,8 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 > 🔁 **Thực hành**:
 > 1. Dataset: `[2, 3, 5, 7, 8, 9, 1000]`. Tính mean và median. Thước đo nào phản ánh "trung tâm" của 6 giá trị đầu tốt hơn?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Câu 1: tính cả hai rồi so với 'vùng' của 6 giá trị đầu — outlier 1000 kéo thước đo nào ra ngoài vùng đó? Câu 2: mode = giá trị xuất hiện nhiều nhất; median ở vị trí $(n+1)/2$ với $n = 9$.
 > Mean $= \dfrac{2+3+5+7+8+9+1000}{7} = \dfrac{1034}{7} \approx 147{,}7$. Median: sắp xếp [2, 3, 5, 7, 8, 9, 1000], median = 7 (vị trí 4). Median (7) phản ánh tốt hơn — nó nằm trong phạm vi 6 giá trị thực tế, còn mean ($147{,}7$) bị kéo xa bởi 1000.
 > </details>
 >

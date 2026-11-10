@@ -134,6 +134,8 @@ $$p = \sigma(0.6) = \dfrac{1}{1 + e^{-0.6}} = \dfrac{1}{1 + 0.5488} \approx \mat
 > 1. Tính $\sigma(-3)$ (làm tròn 3 chữ số).
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Câu 1: $\sigma(z) = \dfrac{1}{1+e^{-z}}$ — với $z$ âm thì $e^{-z} = e^{|z|}$ là số lớn. Câu 2: tính $z = \beta_0 + \beta_1 x$ trước rồi mới đưa qua sigmoid.
+>
 > $e^{3} \approx 20.09$. $\sigma(-3) = \dfrac{1}{1 + 20.09} = \dfrac{1}{21.09} \approx \mathbf{0.047}$.
 > </details>
 >
@@ -242,6 +244,8 @@ $$e^{0.8} \approx 2.2255$$
 > 🔁 **Thực hành**:
 > 1. Một mô hình có $\beta_1 = 1.1$. Diễn giải odds ratio.
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Câu 1: odds ratio $= e^{\beta_1}$, diễn giải theo phép NHÂN odds mỗi khi $x$ tăng 1 đơn vị. Câu 2: odds $= p/(1-p)$, logit $= \ln(\text{odds})$.
 >
 > $e^{1.1} \approx 3.0$. Mỗi đơn vị $x$ tăng, odds nhân ≈ 3 lần.
 > </details>
@@ -353,6 +357,8 @@ Công thức tổng quát: ranh giới tại $x^* = -\dfrac{\beta_0}{\beta_1}$.
 
 > 🔁 **Thực hành**: Mô hình $z = -4 + x$. Ranh giới ở đâu? Sinh viên $x = 4.5$ dự đoán lớp nào?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Ranh giới nằm tại $z = 0$ → giải $x^* = -\beta_0/\beta_1$; điểm cần phân loại thì xét DẤU của $z$ tại điểm đó.
 >
 > Ranh giới: $x^* = -(-4)/1 = 4$. Với $x = 4.5 > 4 \to z = 0.5 > 0 \to p > 0.5 \to$ **lớp 1**.
 > </details>

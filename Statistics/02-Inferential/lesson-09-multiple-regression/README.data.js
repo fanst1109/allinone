@@ -112,6 +112,8 @@ Với mô hình căn hộ ở trên:
 > 1. Mô hình $\\hat{y} = 3 + 2x_1 - 4x_2$. Dự báo tại $x_1 = 5, x_2 = 1$?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Câu 1: thay từng $x_j$ vào mô hình. Câu 2: giữ biến khác cố định thì $\\Delta\\hat{y} = \\beta_2 \\cdot \\Delta x_2$ — không cần tính lại cả phương trình.
+>
 > $\\hat{y} = 3 + 2(5) - 4(1) = 3 + 10 - 4 = \\mathbf{9}$.
 > </details>
 >
@@ -202,6 +204,8 @@ $$\\beta = (X^\\top X)^{-1} X^\\top y = \\begin{bmatrix} 14/6 & -1 \\\\ -1 & 1/2
 > 🔁 **Thực hành**: Tại sao cột đầu của $X$ toàn số 1?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Viết một hàng của $X\\beta$ ra giấy: phần tử nào của hàng nhân với $\\beta_0$? Nếu cột đó không toàn 1 thì intercept biến đi đâu?
+>
 > Để $\\beta_0$ (intercept) được "nhân với 1" trong mỗi hàng: hàng $i$ cho $\\beta_0 \\cdot 1 + \\beta_1 x_{i1} + \\dots$. Không có cột 1 thì mô hình bị ép đi qua gốc toạ độ ($\\beta_0 = 0$).
 > </details>
 
@@ -269,6 +273,8 @@ Khác biệt then chốt: mẫu số $n - p - 1$ **co lại** khi $p$ tăng → 
 > 🔁 **Thực hành**: $n = 10$, $p = 1$, $R^2 = 0{,}64$. Tính adjusted.
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Áp thẳng $R^2_{\\text{adj}} = 1 - (1-R^2)\\dfrac{n-1}{n-p-1}$ với $n = 10$, $p = 1$ — cẩn thận phân số $9/8$.
+>
 > $R^2_{\\text{adj}} = 1 - (1-0{,}64)\\frac{10-1}{10-1-1} = 1 - 0{,}36 \\cdot \\frac{9}{8} = 1 - 0{,}405 = \\mathbf{0{,}595}$.
 > </details>
 
@@ -328,6 +334,8 @@ $$\\text{VIF}_j = \\dfrac{1}{1 - R^2_j}$$
 
 > 🔁 **Thực hành**: Hồi quy phụ của $x_3$ theo các biến khác cho $R^2_3 = 0{,}9$. VIF bằng bao nhiêu, có đáng lo không?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: $\\text{VIF}_j = \\dfrac{1}{1-R^2_j}$ với $R^2_j$ từ hồi quy phụ; so kết quả với ngưỡng 5 (lưu ý) và 10 (nghiêm trọng).
 >
 > $\\text{VIF}_3 = \\frac{1}{1-0{,}9} = \\mathbf{10}$ — đúng ngưỡng nghiêm trọng, nên xem xét bỏ/gộp biến.
 > </details>
@@ -394,6 +402,8 @@ Cột $d_{\\text{cc}} + d_{\\text{phố}} + d_{\\text{bt}} = [1,1,1]^\\top = $ c
 
 > 🔁 **Thực hành**: Biến "thành phố" có 5 mức. Cần bao nhiêu biến giả nếu mô hình có intercept?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Quy tắc: biến phân loại $k$ mức → $k-1$ biến giả khi mô hình có intercept. Nghĩ xem nếu dùng đủ $k$ cột thì cột nào là tổ hợp tuyến tính của các cột còn lại.
 >
 > $5 - 1 = \\mathbf{4}$ biến giả (một thành phố làm tham chiếu). Dùng cả 5 sẽ dính bẫy biến giả.
 > </details>

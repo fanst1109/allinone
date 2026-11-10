@@ -192,6 +192,8 @@ $$n = \dfrac{(1{,}96+0{,}842)^2}{0{,}0986^2} \approx \dfrac{7{,}849}{0{,}00972} 
 > 🔁 **Thực hành**:
 > 1. $d=0{,}5$, $\alpha=0{,}05$. Nếu muốn tăng power từ 0,80 lên 0,90, $n$ thay đổi thế nào?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Áp $n = \dfrac{2(z_{\alpha/2} + z_{\text{power}})^2}{d^2}$: giữ $z_{\alpha/2} = 1{,}96$, chỉ đổi $z$ của power ($0{,}80 \to 0{,}842$; $0{,}90 \to 1{,}282$) rồi so hai kết quả $n$.
 > Power$=0{,}90$: $n = \dfrac{2 (1{,}96+1{,}282)^2}{0{,}25} = \dfrac{2 \times 10{,}509}{0{,}25} \approx 84$ mỗi nhóm.
 > Power$=0{,}80$: $n \approx 64$ mỗi nhóm.
 > Tăng power từ 80% lên 90% cần tăng $n$ từ 64 lên 84 — khoảng 31%.

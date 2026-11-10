@@ -110,6 +110,8 @@ $\varepsilon_i = y_i - \hat{y}_i$ là **phần dư** — khoảng cách dọc t�
 > Mô hình $\hat{y} = 1{,}2 + 0{,}03x$. Dự đoán giá căn 120 m²? Căn 200 m² thì có nên tin không?
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Phần tính: thay $x$ vào phương trình. Phần 'có nên tin': so $x$ với VÙNG dữ liệu mà mô hình được fit — ngoài vùng là ngoại suy.
+>
 > Căn 120 m²: $\hat{y} = 1{,}2 + 0{,}03 \times 120 = 1{,}2 + 3{,}6 = \mathbf{4{,}8}$ tỉ.
 > Căn 200 m²: $\hat{y} = 1{,}2 + 6 = 7{,}2$ tỉ — nhưng 200 m² **ngoài vùng dữ liệu** [50, 130]. Đây là ngoại suy (extrapolation), **không đáng tin**: quan hệ có thể không còn tuyến tính ở căn rất to.
 > </details>
@@ -211,6 +213,8 @@ Có một góc nhìn đẹp hơn từ [Vectors/04 LinearAlgebra](../../../Vector
 > Cho 3 điểm (1, 1), (2, 3), (3, 2). Tính $\beta_1, \beta_0$.
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: Tính $\bar{x}, \bar{y}$ trước; $\beta_1 = \dfrac{\sum(x-\bar{x})(y-\bar{y})}{\sum(x-\bar{x})^2}$, rồi $\beta_0 = \bar{y} - \beta_1\bar{x}$.
+>
 > $\bar{x} = 2$, $\bar{y} = 2$. Lệch x: −1, 0, 1; lệch y: −1, 1, 0.
 > Tích: $(-1)(-1)=1$, $0\cdot1=0$, $1\cdot0=0$ → $\sum = 1$. $\sum(x-\bar{x})^2 = 1+0+1 = 2$.
 > $\beta_1 = 1/2 = \mathbf{0{,}5}$. $\beta_0 = 2 - 0{,}5\times2 = \mathbf{1}$. Đường: $\hat{y} = 1 + 0{,}5x$.
@@ -280,6 +284,8 @@ Trong hồi quy **một biến**, $R^2$ đúng bằng bình phương Pearson r:
 > Một mô hình có SST = 200, SSE = 50. Tính $R^2$ và Pearson r.
 > <details><summary>Đáp án</summary>
 >
+> **Hướng dẫn**: $R^2 = 1 - \text{SSE}/\text{SST}$; hồi quy đơn biến thì $|r| = \sqrt{R^2}$, dấu lấy theo dấu của slope.
+>
 > $R^2 = 1 - 50/200 = 1 - 0{,}25 = \mathbf{0{,}75}$. Đơn biến nên $r = \pm\sqrt{0{,}75} \approx \pm 0{,}866$ (dấu theo dấu của slope).
 > </details>
 
@@ -318,6 +324,8 @@ Vẽ $e_i$ (trục tung) theo $\hat{y}_i$ hoặc $x_i$ (trục hoành). Đọc h
 > 🔁 **Thực hành**:
 > Residual plot cho hình chữ U rõ rệt. Mô hình tuyến tính có phù hợp không?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Mô hình đúng thì phần dư phải ngẫu nhiên quanh 0 — residual plot có PATTERN (hình chữ U) đang nói gì về dạng quan hệ thật?
 >
 > KHÔNG. Hình U nghĩa là quan hệ thật là cong (vd parabol). Đường thẳng bỏ sót độ cong → phần dư có pattern. Nên thêm số hạng $x^2$ (vẫn là "linear regression" theo hệ số) hoặc đổi mô hình.
 > </details>

@@ -89,6 +89,8 @@ Số ngày sinh nhật (1-31) của 100 người → histogram phẳng đều nh
 > 🔁 **Thực hành**:
 > 1. Histogram có đỉnh ở bên phải và đuôi dài bên trái — phân phối lệch trái hay phải?
 > <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: Câu 1: tên chiều lệch đặt theo phía ĐUÔI dài, không phải phía đỉnh. Câu 2: Sturges $k = \lceil \log_2 n \rceil + 1$ — $n = 64$ là lũy thừa của 2 nên log ra số tròn.
 > Lệch TRÁI (left-skewed / negatively skewed). Đuôi dài bên trái kéo mean sang trái. Ví dụ: điểm thi dễ — hầu hết đạt cao, vài người trượt thấp.
 > </details>
 >

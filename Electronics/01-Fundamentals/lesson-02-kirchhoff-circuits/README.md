@@ -96,6 +96,9 @@ Ba điện trở $R_1 = 10$ Ω, $R_2 = 20$ Ω, $R_3 = 30$ Ω nối tiếp với 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: nối tiếp: $R_{\text{tđ}}$ = tổng các R, dòng chung $I = V/R_{\text{tđ}}$, rồi $V_i = I \cdot R_i$; kiểm tra tổng các $V_i$ bằng nguồn (KVL).
+
+
 $R_{\text{tđ}} = 10 + 20 + 30 = 60$ Ω. $I = 12/60 = 0.2$ A = 200 mA.
 $V_1 = 0.2 \times 10 = 2$ V; $V_2 = 0.2 \times 20 = 4$ V; $V_3 = 0.2 \times 30 = 6$ V. Kiểm tra: $2+4+6 = 12$ V ✓.
 
@@ -165,6 +168,9 @@ $R_1 = 30$ Ω và $R_2 = ?$ mắc song song để $R_{\text{tđ}} = 20$ Ω. Tìm
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: dùng công thức 2 trở song song $R_{\text{tđ}} = R_1 R_2/(R_1+R_2)$ — thay số đã biết rồi giải phương trình bậc nhất theo $R_2$.
+
 
 Dùng công thức 2 trở: $R_{\text{tđ}} = R_1 R_2/(R_1+R_2)$ → $20 = 30 \cdot R_2/(30+R_2)$.
 $20(30+R_2) = 30 \cdot R_2$ → $600 + 20 R_2 = 30 R_2$ → $600 = 10 R_2$ → **R₂ = 60 Ω**.
@@ -269,6 +275,9 @@ Vòng kín: nguồn 9 V, $R_1 = 30$ Ω, $R_2 = 60$ Ω. Tính $I$ và $V_{R_1}$, 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: viết KVL quanh vòng kín: $V = I(R_1 + R_2)$, giải ra $I$ rồi nhân lại từng R để có điện áp rơi.
+
 
 KVL: $9 - I \cdot 30 - I \cdot 60 = 0$ → $9 = 90I$ → $I = 0.1$ A = 100 mA.
 $V_{R_1} = 0.1 \times 30 = 3$ V; $V_{R_2} = 0.1 \times 60 = 6$ V. Kiểm tra: $3 + 6 = 9$ V ✓.

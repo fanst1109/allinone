@@ -102,6 +102,9 @@ Tỉ lệ: 5/7 × giá trị tối đa (111 → −8.75 V → biểu diễn 7 m�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: mạch cộng đảo: $V_{\text{out}} = -R_f(V_1/R_1 + V_2/R_2)$ — tính từng dòng nhánh đổ vào đất ảo rồi nhân $-R_f$.
+
+
 $$V_{\text{out}} = -10\,\text{k}\Omega \times \left(\frac{1}{5\,\text{k}\Omega} + \frac{2}{5\,\text{k}\Omega}\right) = -10\,\text{k}\Omega \times (0.2\,\text{mA} + 0.4\,\text{mA}) = -10\,\text{k}\Omega \times 0.6\,\text{mA} = \textbf{-6 V}$$
 
 Hoặc: $V_{\text{out}} = -(R_f/R_1) \times V_1 + (-(R_f/R_2) \times V_2) = -2 \times 1 + (-2 \times 2) = -6\,\text{V}$.
@@ -181,6 +184,9 @@ Tín hiệu: 0.050 V = đúng ($V_{2,\text{signal}} - V_{1,\text{signal}} = 0.07
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: mạch trừ với các cặp trở bằng nhau: $V_{\text{out}} = (R_f/R_{\text{in}})(V_2 - V_1)$ — lấy hiệu hai đầu vào trước rồi nhân hệ số.
+
 
 $$V_{\text{out}} = \frac{20\,\text{k}\Omega}{5\,\text{k}\Omega} \times (3.5 - 3.0) = 4 \times 0.5 = \textbf{2 V}$$
 

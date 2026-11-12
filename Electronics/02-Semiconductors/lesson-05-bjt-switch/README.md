@@ -114,6 +114,9 @@ Cần $I_B$ tối thiểu bao nhiêu để đảm bảo bão hòa?
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: bão hòa: $I_C = (V_{CC} - V_{CE,\text{sat}})/R_{\text{tải}}$ với $V_{CE,\text{sat}} \approx 0.2$ V; rồi $I_{B,\min} = I_C/\beta$, thực tế nhân overdrive 2–5×.
+
+
 $I_C = (12 - 0.2) / 100 =$ **118 mA**.  
 $I_{B(\min)} = I_C / \beta = 118 / 100 =$ **1.18 mA**.  
 Để chắc bão hòa: $I_B \geq$ 1.18 mA (thực tế nhân overdrive 2–5×, vào khoảng 2.4–6 mA).

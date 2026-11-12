@@ -139,6 +139,9 @@ Kết quả 0 **chỉ** khi cả A = 0 và B = 0.
 Tính $\overline{A} \cdot B + C$ với A=0, B=1, C=0:
 <details><summary>Đáp án</summary>
 
+**Hướng dẫn**: thay giá trị rồi tính theo thứ tự ưu tiên: NOT trước, AND sau, OR cuối.
+
+
 Bước 1: $\overline{0} = 1$.
 Bước 2: $1 \cdot 1 = 1$.
 Bước 3: $1 + 0 = \mathbf{1}$.
@@ -233,6 +236,9 @@ Bước 3: $1 + 0 = \mathbf{1}$.
 🔁 **Thực hành:**
 Cổng nào cho Y=1 khi A=0, B=0?
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: duyệt bảng chân trị của từng cổng tại hàng A=0, B=0 — các cổng có đảo (NAND, NOR, XNOR) là ứng viên cho ra 1.
+
 
 NOT A (nếu A là duy nhất), NAND(0,0)=1, NOR(0,0)=1, XNOR(0,0)=1.
 Không cho Y=1 khi (0,0): AND, OR, XOR.
@@ -387,6 +393,9 @@ Kiểm tra:
 🔁 **Thực hành:**
 Rút gọn: $A \cdot B + A \cdot \overline{B}$
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đặt nhân tử chung A rồi áp định luật bù $B + \overline{B} = 1$.
+
 
 Bước 1: Đặt nhân tử chung A: $A \cdot (B + \overline{B})$.
 Bước 2: $B + \overline{B} = 1$ (định luật bù).

@@ -178,6 +178,9 @@ R &= \\frac{1}{2\\pi \\times f_c \\times C} = \\frac{1}{2\\pi \\times 1000 \\tim
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: tần số cắt mạch RC: $f_c = 1/(2\\pi RC)$ — đổi kΩ → Ω, nF → F trước khi thay số.
+
+
 $f_c = \\dfrac{1}{2\\pi \\times 2200 \\times 47 \\times 10^{-9}} = \\dfrac{1}{2\\pi \\times 1.034 \\times 10^{-4}} = \\dfrac{1}{6.497 \\times 10^{-4}} \\approx$ **1,539 Hz ≈ 1.54 kHz**.
 
 </details>
@@ -279,6 +282,9 @@ $$R = \\frac{1}{2\\pi \\times 500 \\times 22 \\times 10^{-9}} = \\frac{1}{6.912 
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: tính $f_c = 1/(2\\pi RC)$ trước; nếu tần số khảo sát $\\approx f_c$ thì $|H| = 1/\\sqrt{2}$, tức suy giảm −3 dB.
+
 
 $f_c = 1/(2\\pi \\times 33000 \\times 47 \\times 10^{-9}) = 1/(2\\pi \\times 1.551 \\times 10^{-3}) = 1/(9.745 \\times 10^{-3}) \\approx 102.6$ Hz.
 
@@ -464,6 +470,9 @@ Không. Đường gấp khúc chỉ là **phép xấp xỉ tuyến tính** (stra
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: LPF bậc 1: $|H| = 1/\\sqrt{1 + (f/f_c)^2}$ — thay $f/f_c = 10$ rồi đổi sang dB bằng $20\\log_{10}|H|$.
+
 
 $|H| = 1/\\sqrt{1 + 10^2} = 1/\\sqrt{101} \\approx 0.0995$. $A_{\\text{dB}} = 20 \\cdot \\log_{10}(0.0995) \\approx 20 \\cdot (-1.002) \\approx$ **−20 dB**.
 

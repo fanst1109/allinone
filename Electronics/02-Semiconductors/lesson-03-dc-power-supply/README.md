@@ -293,6 +293,9 @@ Mỗi bán kỳ của AC 50 Hz tạo ra một xung dương. 2 bán kỳ mỗi ch
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: $V_{\text{peak}} = V_{\text{rms}}\sqrt{2}$, trừ 2 sụt diode của cầu (2 × 0.7 = 1.4 V), rồi trung bình toàn kỳ $V_{dc} = 2V_{\text{peak}}/\pi$.
+
+
 - V_peak_BA = 9 × √2 = 12.73 V
 - V_peak_out = 12.73 − 1.4 = 11.33 V
 - V_dc = 2 × 11.33 / π = 22.66 / 3.1416 ≈ **7.21 V**
@@ -383,6 +386,9 @@ Tụ phải chịu ít nhất V_peak_out. Thực tế chọn điện áp danh đ
 🔁 **Thực hành**: Nguồn 5 V, tải 300 mA, ripple cho phép 0.3 V. Tính C tối thiểu.
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: $C \geq I/(f \times V_{\text{ripple}})$ với $f = 100$ Hz (chỉnh lưu toàn kỳ nhân đôi tần số lưới 50 Hz).
+
 
 C ≥ I / (f × V_ripple) = 0.3 / (100 × 0.3) = 0.01 F = **10,000 µF**
 

@@ -96,6 +96,9 @@ Giá trị $= (\\text{Vòng1} \\times 10 + \\text{Vòng2}) \\times \\text{Nhân}
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: tra bảng mã màu: 2 vạch đầu = 2 chữ số, vạch 3 = hệ số nhân ($\\times 10^n$), vạch 4 = dung sai.
+
 Lục = 5, Nâu = 1, Đỏ = ×100, Vàng kim = ±5%.
 Giá trị $= (5 \\times 10 + 1) \\times 100 =$ **5,100 Ω = 5.1 kΩ ±5%**. Có trong dãy E24.
 </details>
@@ -157,6 +160,9 @@ Khi dòng chạy qua điện trở, năng lượng điện biến thành **nhi�
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: tính $P = V^2/R$ rồi nhân safety margin 2× trước khi so với các mức chuẩn ¼ W / ½ W.
+
 $P = V^2 / R = 9^2 / 470 = 81 / 470 \\approx 0.172$ W.
 Safety margin 2×: $0.172 \\times 2 = 0.344$ W → chọn **½W (0.5 W)**. ¼W (0.25 W) không đủ ($0.172 > 0.125$ W).
 </details>
@@ -236,6 +242,9 @@ $$V_{\\text{out}} = V_{\\text{in}} \\times \\frac{R_2}{R_1 + R_2}$$
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: công thức phân áp $V_{\\text{out}} = V_{\\text{in}} \\cdot R_2/(R_1+R_2)$; kiểm chứng bằng cách tính dòng chung $I = V_{\\text{in}}/(R_1+R_2)$ rồi nhân từng R.
+
 $V_{\\text{out}} = 12 \\times 33{,}000 / (100{,}000 + 33{,}000) = 12 \\times 33{,}000 / 133{,}000 = 396{,}000 / 133{,}000 \\approx$ **2.977 V ≈ 3.0 V**.
 Kiểm tra: $I = 12 / 133{,}000 \\approx 90.2$ µA. $V_{R_1} = 90.2$ µA $\\times 100$ kΩ $= 9.02$ V. $V_{R_2} = 90.2$ µA $\\times 33$ kΩ $= 2.98$ V. Tổng $\\approx 12$ V ✓.
 </details>
@@ -331,6 +340,9 @@ Công thức chính xác hơn: sai số loading $= R_2 / (R_2 + R_L) \\times 100
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: tải mắc song song với $R_2$ → thay $R_2$ bằng $R_2 \\parallel R_L$ rồi mới áp công thức phân áp; so với giá trị không tải để thấy loading effect.
+
 $R_{2,\\text{eff}} = 22{,}000 \\times 44{,}000 / (22{,}000 + 44{,}000) = 968{,}000{,}000 / 66{,}000 \\approx 14{,}667$ Ω $\\approx 14.7$ kΩ.
 $V_{\\text{out}} = 3.3 \\times 14{,}667 / (22{,}000 + 14{,}667) = 3.3 \\times 14{,}667 / 36{,}667 \\approx 3.3 \\times 0.400 \\approx$ **1.32 V**.
 Không tải: $V_{\\text{out}} = 3.3 \\times 22{,}000 / 44{,}000 = 1.65$ V. Loading effect làm giảm từ 1.65 V → 1.32 V (giảm 20%).
@@ -412,6 +424,9 @@ $$I_2 = I_{\\text{tổng}} \\times \\frac{R_1}{R_1 + R_2}$$
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: quy tắc chia dòng: dòng qua nhánh này tỉ lệ với điện trở nhánh KIA — $I_1 = I \\cdot R_2/(R_1+R_2)$; kiểm tra tổng dòng và điện áp hai nhánh bằng nhau.
+
 $I_1 = 5 \\times 1{,}000 / (4{,}000 + 1{,}000) = 5 \\times 0.2 =$ **1 mA** (qua $R_1 = 4$ kΩ, lớn → dòng nhỏ).
 $I_2 = 5 \\times 4{,}000 / (4{,}000 + 1{,}000) = 5 \\times 0.8 =$ **4 mA** (qua $R_2 = 1$ kΩ, nhỏ → dòng lớn).
 Kiểm tra: $1 + 4 = 5$ mA ✓. $V = 1$ mA $\\times 4$ kΩ $= 4$ V $= 4$ mA $\\times 1$ kΩ $= 4$ V ✓.

@@ -127,6 +127,9 @@ Thêm nguyên tử **acceptor** (nhận electron) như Boron (B, nhóm III) ho�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: phân biệt "nhận electron" với "mang điện âm tổng thể" — đếm tổng proton và electron của cả tinh thể, nhớ rằng ion âm cố định luôn đi kèm lỗ trống di động.
+
+
 **Sai.** Bán dẫn P-type vẫn trung hòa điện tổng thể. "Acceptor" có nghĩa nguyên tử B sẵn sàng nhận thêm electron từ liên kết Si hàng xóm để hoàn thành 4 liên kết — nhưng nguyên tử B chỉ có 5 proton (thay vì 14 của Si), nên khi nhận thêm 1 electron, nó thành ion âm cố định. Lỗ trống xuất hiện ở chỗ khác trong mạng — hệ thống tổng thể vẫn trung hòa.
 </details>
 

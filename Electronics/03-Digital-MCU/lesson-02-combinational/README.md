@@ -213,6 +213,9 @@ Kết quả: Cout=1, Sum=0000 → 10000₂ = 16₁₀ ✓
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: cộng từng bit từ LSB sang, carry lan sang bit kế; kiểm chứng bằng cách đổi cả hai số sang thập phân.
+
+
 ```
 Bit 0: 1+1+0 = 0, C=1
 Bit 1: 0+1+1 = 0, C=1
@@ -383,6 +386,9 @@ Mỗi chữ số 0–9 cần bật/tắt 7 đoạn LED (a–g). Decoder BCD-to-7
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: decoder: đổi đầu vào nhị phân sang thập phân — đó chính là chỉ số ngõ ra duy nhất được kéo lên 1.
+
+
 $101_2 = 5$ → $Y_5 = 1$, tất cả Y còn lại = 0.
 $Y_5 = A_2 \cdot \overline{A_1} \cdot A_0 = 1 \cdot 1 \cdot 1 = 1$ ✓
 
@@ -498,6 +504,9 @@ Kết quả đúng hoàn toàn.
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: điền 4 minterm vào K-map rồi tìm ô kề để gộp; nếu không gộp được cặp nào, giữ SOP đầy đủ và thử nhận dạng pattern (ra 1 khi số bit 1 lẻ → XOR).
+
 
 Bảng giá trị:
 - m₀(A=0,B=0,C=0)=1, m₃(A=0,B=1,C=1)=1, m₅(A=1,B=0,C=1)=1, m₆(A=1,B=1,C=0)=1

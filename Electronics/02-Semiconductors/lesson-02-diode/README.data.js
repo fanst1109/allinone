@@ -164,6 +164,9 @@ V_s < 0.7 V → diode không dẫn → I = 0 mA, V_R = 0 V, V_D = 0.5 V (toàn b
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: diode Si dẫn sụt cố định 0.7 V → $I = (V_s - 0.7)/R$; rồi $V_R = I \\cdot R$, kiểm tra $V_R + 0.7 = V_s$.
+
+
 I = (12 − 0.7) / 560 = 11.3 / 560 ≈ **20.2 mA**
 
 V_R = 20.2 × 10⁻³ × 560 ≈ **11.3 V**
@@ -333,6 +336,9 @@ Chọn $R_s$ sao cho $I_Z$ tối thiểu $\\approx$ 5–10% $I_{Z,\\text{max}}$ 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: chọn $I_{Z,\\min}$ (~10 mA) → $I_R = I_{Z,\\min} + I_L$; $R_s = (V_{\\text{in}} - V_Z)/I_R$ rồi làm tròn theo dãy E12; $P_Z$ lớn nhất khi tải ngắt (toàn bộ $I_R$ dồn vào Zener).
+
+
 Chọn $I_{Z,\\text{min}} = 10$ mA → $I_R = 40$ mA.
 
 $R_s = (12 - 5.1) / 0.040 = 6.9 / 0.040 =$ **172.5 Ω** → chọn **180 Ω** (E12).
@@ -418,6 +424,9 @@ A: Có — LED thường chịu được tối đa 5 V ngược. Trong mạch AC
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: $R = (V_{\\text{nguồn}} - V_{\\text{LED}})/I$ mong muốn; làm tròn lên giá trị E12 gần nhất rồi tính lại dòng thực.
+
 
 R = (3.3 − 3.0) / 0.010 = 0.3 / 0.010 = **30 Ω** → chọn 33 Ω (E12, gần nhất).
 

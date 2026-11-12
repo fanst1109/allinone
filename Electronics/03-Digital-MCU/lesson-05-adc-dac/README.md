@@ -134,6 +134,9 @@ Khi $f_s \leq 2 \cdot f_{\text{max}}$, tín hiệu tần số cao bị "hóa tra
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: định lý lấy mẫu Nyquist: $f_s > 2 \times f_{\max}$.
+
+
 $f_s > 2 \times 150 = 300$ Hz. Trong thực tế, thiết bị ECG dùng $f_s = 500$ Hz hoặc 1000 Hz để có biên an toàn và dạng sóng sắc nét.
 
 </details>
@@ -252,6 +255,9 @@ Walk-through: DAC 10-bit, $V_{\text{ref}} = 5$ V, Code $= 512$:
 🔁 **Thực hành**: Arduino Uno đọc `analogRead(A0) = 614`. Điện áp tại chân A0 là bao nhiêu?
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: ADC 10-bit có thang 0–1023: $V_{\text{in}} = (\text{giá trị đọc}/1023) \times V_{\text{ref}}$ với $V_{\text{ref}} = 5$ V.
+
 
 ADC 10-bit, $V_{\text{ref}} = 5$ V:
 

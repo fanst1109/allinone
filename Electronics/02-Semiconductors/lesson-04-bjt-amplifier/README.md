@@ -109,6 +109,9 @@ Vì $\beta \gg 1$ nên $I_E \approx I_C$ (thường đúng trong tính toán th�
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: quan hệ khuếch đại dòng $I_B = I_C/\beta$; muốn tính thêm $R_B$ thì dùng $(V_{CC} - V_{BE})/I_B$ với $V_{BE} = 0.7$ V.
+
+
 $I_B = I_C / \beta = 5\ \text{mA} / 200 = 0.025\ \text{mA} = 25\ \text{µA}$.
 
 Điện trở base $R_B = (V_{CC} - V_{BE}) / I_B$, nếu $V_{CC} = 5$ V: $R_B = (5 - 0.7) / 0.000025 = 172\ \text{k}\Omega$. Chọn 150 kΩ để đảm bảo đủ $I_B$.
@@ -287,6 +290,9 @@ Hai điểm mút:
 🔁 **Thực hành**: Thay $R_C = 1$ kΩ vào mạch ví dụ, giữ nguyên phân cực. Điểm Q mới là gì?
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: cầu phân áp giữ $V_B$ (và do đó $I_C$) không đổi — chỉ $V_{CE} = V_{CC} - I_C(R_C + R_E)$ thay đổi; từ đó nhận xét điểm Q dịch về phía nào.
+
 
 $V_B$ và $V_E$ không đổi (cầu phân áp giữ $V_B = 2.105$ V). $I_C \approx 1.405$ mA (không đổi vì $R_E$ không đổi).
 

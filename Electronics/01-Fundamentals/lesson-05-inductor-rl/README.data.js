@@ -123,6 +123,9 @@ Câu hỏi: Cuộn cảm $L = 5$ mH có dòng tăng từ 0 lên 3 A trong 15 ms.
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: dùng $V_L = L \\cdot dI/dt$ — tính tốc độ biến thiên $dI/dt = \\Delta I / \\Delta t$ trước (đổi ms sang s).
+
+
 $\\dfrac{dI}{dt} = \\dfrac{3 - 0}{15 \\times 10^{-3}} = 200$ A/s.
 
 $V_L = L \\cdot \\dfrac{dI}{dt} = 5 \\times 10^{-3} \\times 200 =$ **1 V**.
@@ -277,6 +280,9 @@ Cho mạch RL với L = 5 mH, R = 50 Ω, $V_s = 5$ V. Tính $\\tau$, $I_{\\max}$
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: $\\tau = L/R$; xác lập cuộn cảm như dây dẫn nên $I_{\\max} = V_s/R$; dòng nạp $I(t) = I_{\\max}(1 - e^{-t/\\tau})$, thay $t = 2\\tau$.
+
 
 $\\tau = \\dfrac{L}{R} = \\dfrac{5 \\times 10^{-3}}{50} =$ **0.1 ms**.
 

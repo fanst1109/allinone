@@ -134,6 +134,9 @@ Ví dụ phản chứng thật sự sai: "$V_{\\text{peak}} = 311$ V, $R = 100$ 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: $V_{\\text{peak}} = V_{\\text{rms}} \\times \\sqrt{2}$ và $T = 1/f$ — hai công thức chuyển đổi cơ bản của sóng sin.
+
+
 - $V_{\\text{peak}} = 100 \\times \\sqrt{2} \\approx$ **141.4 V**.
 - $T = 1/50 =$ **20 ms** (cùng với Việt Nam).
 
@@ -368,6 +371,9 @@ Tính $f_0$ khi $L = 500$ µH và $C = 200$ pF. Mạch này hoạt động ở d
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: tần số cộng hưởng $f_0 = 1/(2\\pi\\sqrt{LC})$ — tính tích $LC$ rồi lấy căn, cuối cùng so $f_0$ với các dải sóng đã cho.
+
 
 - $LC = 500 \\times 10^{-6} \\times 200 \\times 10^{-12} = 10^{-13}$ H·F.
 - $\\sqrt{LC} = \\sqrt{10^{-13}} \\approx 3.162 \\times 10^{-7}$ s.

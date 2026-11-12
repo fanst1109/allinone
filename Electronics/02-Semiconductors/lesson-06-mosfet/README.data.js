@@ -130,6 +130,9 @@ IRF540N: $V_{th}$ = 2–4 V (tiêu chuẩn), $R_{DS(\\text{on})}$ = 44 mΩ tại
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: tổn hao dẫn $P = I^2 \\cdot R_{DS(\\text{on})}$ — đổi mΩ sang Ω trước; điện áp rơi $V_{DS} = I \\cdot R_{DS(\\text{on})}$.
+
+
 $$P = I^2 \\cdot R_{DS(\\text{on})} = (10)^2 \\times 0.044 = 100 \\times 0.044 = \\textbf{4.4 W}$$
 
 Điện áp rơi $V_{DS} = I \\cdot R_{DS(\\text{on})} = 10 \\times 0.044 =$ **0.44 V** (rất nhỏ).
@@ -272,6 +275,9 @@ Nguyên tắc:
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: MOSFET tính $P = I^2 R_{DS(\\text{on})}$, BJT tính $P = V_{CE(\\text{sat})} \\times I$; lập tỉ số hai kết quả để so sánh.
+
 
 MOSFET: $P = (5)^2 \\times 0.020 = 25 \\times 0.020 =$ **0.5 W**.
 BJT: $P = 1.2 \\times 5 =$ **6 W**.

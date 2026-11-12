@@ -146,6 +146,9 @@ $$I = \frac{V_{\text{supply}} - V_f}{R} = \frac{5 - 2}{220} = \frac{3}{220} \app
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: dòng qua LED: $I = (V_{\text{GPIO}} - V_f)/R$; so kết quả với ngưỡng an toàn 20 mA của chân GPIO.
+
+
 $I = (3.3 - 2.1) / 150 = 1.2 / 150 =$ **8 mA** — an toàn (< 20 mA).
 
 </details>
@@ -257,6 +260,9 @@ void loop() {
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: INPUT_PULLUP kéo chân lên HIGH khi thả nút; nhấn nút nối chân xuống GND → đọc LOW nghĩa là đang nhấn (logic đảo).
+
 
 ```c
 if (digitalRead(pin) == LOW) { /* nút đang nhấn */ }
@@ -443,6 +449,9 @@ void loop() {
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: duty cycle $D$ = giá trị/255; $V_{\text{avg}} = D \times V_{\text{supply}}$.
+
 
 $D = 191 / 255 \times 100\% \approx$ **74.9%**
 

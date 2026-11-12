@@ -164,6 +164,9 @@ Pin 9V (dạng khối vuông) thường có dung lượng 500 mAh. Arduino Nano 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: thời gian chạy = dung lượng (mAh) × hiệu suất ÷ dòng tiêu thụ (mA).
+
+
 $t = 500 \times 0.85 / 20 = 425 / 20 =$ **21.25 giờ** ≈ 21 giờ 15 phút. Thực tế ngắn hơn vì còn có tổn hao từ bộ chuyển đổi 9V→5V.
 </details>
 
@@ -320,6 +323,9 @@ Scope hiển thị: V/div = 2 V, time/div = 5 ms. Sóng sin chiếm 5 ô dọc (
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: $V_{\text{pp}}$ = số ô dọc × V/div; $T$ = số ô ngang × time/div; rồi $f = 1/T$, $A = V_{\text{pp}}/2$, $V_{\text{RMS}} = A/\sqrt{2}$.
+
 
 - $V_{\text{pp}} = 5 \times 2 =$ **10 V** → $A = 5$ V.
 - $T = 4 \times 5$ ms $=$ **20 ms** → $f = 1/20$ ms $=$ **50 Hz**.

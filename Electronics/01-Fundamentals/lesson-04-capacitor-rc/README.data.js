@@ -256,6 +256,9 @@ Cho R = 4.7 kΩ, C = 220 µF, $V_s = 5$ V. Tính: (a) $\\tau$, (b) $V_C$ sau 1τ
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: $\\tau = RC$ (Ω × F ra giây); sau 1τ tụ đạt 63.2% nguồn; quy ước nạp xong là $5\\tau$.
+
+
 (a) $\\tau = 4700 \\times 220 \\times 10^{-6} = 1.034$ s $\\approx 1.03$ s
 
 (b) $V_C(1\\tau) = 5 \\times 0.632 = 3.16$ V
@@ -341,6 +344,9 @@ Tụ 47 µF xả qua R = 22 kΩ từ $V_0 = 12$ V. Sau bao lâu thì còn 3 V?
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: phương trình xả $V(t) = V_0 e^{-t/\\tau}$ → đảo lại $t = \\tau \\ln(V_0/V)$; tính $\\tau = RC$ trước rồi thay tỉ số $12/3$.
+
 
 $\\tau = 22{,}000 \\times 47 \\times 10^{-6} = 1.034$ s
 

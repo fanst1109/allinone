@@ -166,6 +166,9 @@ Cho SR NOR latch đang ở Q=0. Áp dụng: S=1, R=0 trong một lúc, rồi chu
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: tra bảng SR: S=1, R=0 là Set; về S=0, R=0 là Hold — latch giữ nguyên trạng thái vừa set.
+
+
 **Q=1**. Lý do: S=1,R=0 Set latch về Q=1. Sau đó S=0,R=0 là trạng thái Hold — latch giữ nguyên Q=1. Hồi tiếp duy trì Q=1 mà không cần tín hiệu bên ngoài.
 
 </details>
@@ -313,6 +316,9 @@ D flip-flop (positive edge) đang Q=1. Clock có 3 cạnh lên. D lần lượt 
 <details>
 <summary>Đáp án</summary>
 
+**Hướng dẫn**: D flip-flop: tại mỗi cạnh lên, Q chép đúng giá trị D lúc đó — duyệt lần lượt từng cạnh.
+
+
 - Cạnh 1: D=0 → Q=**0**
 - Cạnh 2: D=0 → Q=**0**
 - Cạnh 3: D=1 → Q=**1**
@@ -412,6 +418,9 @@ T flip-flop, T=1 cố định, Q ban đầu = 0. Sau 5 cạnh lên clock, Q bằ
 
 <details>
 <summary>Đáp án</summary>
+
+**Hướng dẫn**: T=1 → Q đảo (toggle) tại mỗi cạnh clock; từ Q=0, đếm số lần đảo: số cạnh lẻ → Q=1.
+
 
 - Cạnh 1: Q=0 → 1
 - Cạnh 2: Q=1 → 0

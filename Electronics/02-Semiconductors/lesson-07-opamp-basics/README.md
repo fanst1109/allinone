@@ -155,6 +155,9 @@ Op-amp có hồi tiếp âm, $V_+$ = 3 V. Hỏi $V_-$ bằng bao nhiêu?
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: có hồi tiếp âm → áp quy tắc vàng 1: $V_- = V_+$ (đoản mạch ảo), không cần tính gì thêm.
+
+
 $V_- = V_+$ = **3 V** (quy tắc vàng 1 — đoản mạch ảo). Dòng vào ngõ $V_-$ bằng 0 (quy tắc vàng 2). Hai điều này là xuất phát điểm để phân tích mọi mạch op-amp hồi tiếp âm.
 
 </details>
@@ -403,6 +406,9 @@ Mạch đảo: $R_f$ = 30 kΩ, $R_{in}$ = 6 kΩ, $V_{in}$ = 1.5 V. Tính $V_{\te
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: mạch đảo: $A_v = -R_f/R_{\text{in}}$, rồi $V_{\text{out}} = A_v \times V_{\text{in}}$; kiểm chứng bằng đất ảo (dòng qua $R_{\text{in}}$ = dòng qua $R_f$).
+
 
 $A_v = -R_f/R_{in} = -30/6 =$ **−5**.
 $V_{\text{out}} = -5 \times 1.5 =$ **−7.5 V**.

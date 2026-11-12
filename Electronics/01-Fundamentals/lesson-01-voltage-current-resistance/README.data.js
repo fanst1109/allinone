@@ -65,6 +65,9 @@ $$I = \\frac{Q}{t}$$
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: dùng $Q = I \\times t$ — đổi 24 giờ sang giây ($\\times 3600$) và 15 mA sang A trước khi nhân.
+
+
 $t = 24 \\times 3600 = 86{,}400$ s
 
 $Q = I \\times t = 0.015 \\times 86{,}400 =$ **1,296 C**
@@ -128,6 +131,9 @@ $$V = \\frac{W}{Q}$$
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: từ định nghĩa $V = W/Q$, đảo lại $Q = W/V$ — chỉ cần chia năng lượng cho điện áp.
+
 
 $Q = W/V = 2/9 \\approx$ **0.222 C**
 
@@ -203,6 +209,9 @@ $$R = \\frac{\\rho \\, L}{A}$$
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: dùng $R = \\rho L / A$ với $\\rho_{\\text{đồng}} = 1.68 \\times 10^{-8}$ Ω·m; đổi tiết diện mm² sang m² ($\\times 10^{-6}$) trước khi thay số.
+
 
 $A = 2$ mm² $= 2 \\times 10^{-6}$ m²
 
@@ -308,6 +317,9 @@ $I = 5/2200 =$ **2.27 mA**. Kiểm tra: $V = I \\times R = 0.00227 \\times 2200 
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: định luật Ohm $I = V/R$ — đổi 4.7 kΩ sang Ω, tính ra A rồi nhân 1000 để có mA.
+
+
 $R = 4.7$ kΩ $= 4700$ Ω
 
 $I = \\dfrac{V}{R} = \\dfrac{3.3}{4700} = 0.000702 \\text{ A} =$ **0.702 mA**
@@ -378,6 +390,9 @@ $$P = V \\times I = 11 \\times 0.05 = \\textbf{0.55 W} \\;\\checkmark$$
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: dùng $P = V^2/R$ (biết V và R); so kết quả với 250 mW, rồi áp nguyên tắc derating 50% khi chọn công suất linh kiện.
+
 
 $P = \\dfrac{V^2}{R} = \\dfrac{9^2}{470} = \\dfrac{81}{470} =$ **0.172 W = 172 mW**
 

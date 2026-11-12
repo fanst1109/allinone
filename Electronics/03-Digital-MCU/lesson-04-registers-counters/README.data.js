@@ -255,6 +255,9 @@ Thanh ghi dịch 4 bit chứa 0110. Đưa bit **1** vào đầu (dịch phải).
 <details>
 <summary>Xem đáp án</summary>
 
+**Hướng dẫn**: dịch phải: bit mới vào vị trí MSB, cả hàng trượt 1 ô, LSB rơi ra ngoài — lặp cho từng xung clock.
+
+
 Clock 1: In=1 → [1, 0, 1, 1] (MSB = 1 mới vào, dịch sang phải)
 Clock 2: In=? (giả sử in=0) → [0, 1, 0, 1]
 
@@ -398,6 +401,9 @@ Ripple counter 3 bit, CLK = 100 kHz. Tần số tại $Q_2$ là bao nhiêu? Sau 
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: mỗi tầng FF chia đôi tần số → $Q_2$ = CLK$/2^3$; bộ đếm $n$ bit có $2^n$ trạng thái nên quay về 0 sau $2^n$ xung.
+
 
 $Q_2$ = chia $2^3 = 8$ → $100 \\text{ kHz} / 8 = \\mathbf{12.5 \\text{ kHz}}$.
 3 bit → $2^3 = 8$ trạng thái → sau **8 xung CLK** quay về 0.
@@ -583,6 +589,9 @@ Thiết kế bộ đếm mod-5. Cần bao nhiêu flip-flop? Nối bit nào vào 
 
 <details>
 <summary>Xem đáp án</summary>
+
+**Hướng dẫn**: chọn số FF nhỏ nhất sao cho $2^n \\geq N$; viết $N$ dạng nhị phân, nối các bit bằng 1 vào NAND để reset ngay khi đếm chạm $N$.
+
 
 $N=5 = 101_2$. Cần 3 bit (3 FF). Nối $Q_2$ và $Q_0$ vào NAND. Khi $Q_2=Q_0=1$ lần đầu (= $101 = 5$), NAND tích cực → reset về 000.
 </details>

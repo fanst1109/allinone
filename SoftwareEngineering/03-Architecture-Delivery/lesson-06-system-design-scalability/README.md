@@ -44,7 +44,13 @@
 > ⚠ **Lỗi thường gặp.** Tưởng scale out cho ×N máy = ×N hiệu năng. Thực tế luôn có overhead phối hợp (load balancer, đồng bộ dữ liệu, mạng), nên 10 máy hiếm khi cho đúng 10× — thường ~7–9×. Bỏ qua điều này dẫn tới ước lượng dung lượng sai.
 
 > 🔁 **Thực hành.** Một database PostgreSQL đang đầy CPU ở giờ cao điểm. Đội định "thêm 4 server PostgreSQL giống hệt để chia tải ghi". Vấn đề ở đâu?
-> <details><summary>Đáp án</summary>Database <b>ghi</b> có trạng thái (dữ liệu) — không thể chỉ "nhân bản máy" rồi chia tải ghi như service stateless, vì các bản sao sẽ ghi mâu thuẫn nhau. Mở rộng ghi của DB cần kỹ thuật riêng: <b>sharding</b> (chia dữ liệu) — xem mục 4. Bước đầu hợp lý thường là <b>scale up</b> máy DB hoặc thêm <b>read replica</b> để giảm tải đọc.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: phân biệt stateless với stateful: nhân bản máy chia tải GHI được không khi mỗi bản tự ghi dữ liệu riêng? Kỹ thuật đúng cho ghi là gì?
+>
+> Database <b>ghi</b> có trạng thái (dữ liệu) — không thể chỉ "nhân bản máy" rồi chia tải ghi như service stateless, vì các bản sao sẽ ghi mâu thuẫn nhau. Mở rộng ghi của DB cần kỹ thuật riêng: <b>sharding</b> (chia dữ liệu) — xem mục 4. Bước đầu hợp lý thường là <b>scale up</b> máy DB hoặc thêm <b>read replica</b> để giảm tải đọc.
+> </details>
 
 📝 **Tóm tắt mục 1.** Scale up = một máy khỏe hơn (đơn giản, có trần, là điểm chết đơn lẻ). Scale out = nhiều máy (gần như vô hạn, chịu lỗi tốt, nhưng cần stateless + load balancer). Thực dụng: scale up trước, scale out khi chạm giới hạn.
 
@@ -102,7 +108,13 @@ Vì sao quan trọng: với LB round-robin, request kế tiếp của cùng mộ
 > ❓ **"Nếu thêm server thứ 4 lúc đang chạy thì sao?"** Với service stateless + LB, chỉ cần đăng ký máy mới vào LB; LB bắt đầu gửi request tới nó ngay. Không cần migrate gì vì máy mới không phải "nhớ" trạng thái cũ — nó đọc mọi thứ từ DB/cache dùng chung. Đây chính là lý do stateless là điều kiện tiên quyết của scale out.
 
 > 🔁 **Thực hành.** Một API trả về danh sách đơn hàng của user. Để stateless hóa, thông tin "user là ai" nên đến từ đâu trong mỗi request?
-> <details><summary>Đáp án</summary>Từ chính request — thường là một <b>token</b> (vd JWT) trong header <code>Authorization</code>, server giải mã ra user-id. Server không cần "nhớ" ai đăng nhập trước đó; mỗi request tự mang đủ thông tin định danh. Nhờ vậy bất kỳ server nào cũng phục vụ được request đó.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: stateless nghĩa là mỗi request TỰ MANG đủ thông tin — định danh user nên nằm trong thành phần nào của request?
+>
+> Từ chính request — thường là một <b>token</b> (vd JWT) trong header <code>Authorization</code>, server giải mã ra user-id. Server không cần "nhớ" ai đăng nhập trước đó; mỗi request tự mang đủ thông tin định danh. Nhờ vậy bất kỳ server nào cũng phục vụ được request đó.
+> </details>
 
 📝 **Tóm tắt mục 2.** Load balancer phân phối request tới N server (round-robin, least-connections, weighted, IP hash). Để scale out, service phải **stateless** — đẩy session/trạng thái ra kho dùng chung; khi đó thêm/bớt server không ảnh hưởng người dùng.
 
@@ -157,7 +169,13 @@ Vài chiến lược cơ bản:
 > ❓ **"Tính hash cache key có đắt không, có làm chậm không?"** Không đáng kể: lấy/đặt một key trong Redis tốn dưới 1 ms kể cả tính hash key. Cái đắt là *cache miss* (phải vào DB) và *quản lý invalidation*, không phải bản thân thao tác cache. Vì thế cache gần như luôn đáng dùng cho dữ liệu đọc-nhiều-ghi-ít.
 
 > 🔁 **Thực hành.** Dữ liệu nào *không nên* cache lâu: (a) ảnh logo công ty, (b) số dư tài khoản ngân hàng đang giao dịch?
-> <details><summary>Đáp án</summary>(b) — số dư thay đổi liên tục và phải <b>chính xác tuyệt đối</b>; cache stale ở đây gây hậu quả nghiêm trọng (hiển thị sai tiền). (a) logo gần như không đổi → cache rất lâu (CDN) là lý tưởng. Quy tắc: cache hợp với dữ liệu <b>đọc nhiều, đổi ít, sai một chút không chết người</b>.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: áp 3 tiêu chí cache: đọc nhiều? đổi ít? sai một chút có chết người không? — chạy từng ứng viên qua đó.
+>
+> (b) — số dư thay đổi liên tục và phải <b>chính xác tuyệt đối</b>; cache stale ở đây gây hậu quả nghiêm trọng (hiển thị sai tiền). (a) logo gần như không đổi → cache rất lâu (CDN) là lý tưởng. Quy tắc: cache hợp với dữ liệu <b>đọc nhiều, đổi ít, sai một chút không chết người</b>.
+> </details>
 
 📝 **Tóm tắt mục 3.** Cache (RAM ~1 ms) nhanh hơn DB (~50 ms) hàng chục lần và giảm tải DB. Hit rate cao = nhanh + nhẹ DB. Khó nhất là **cache invalidation** (tránh dữ liệu stale) — đánh đổi qua TTL hoặc invalidate-on-write. CDN = cache đặt gần user, lý tưởng cho nội dung tĩnh.
 
@@ -255,7 +273,13 @@ Queue đóng vai **bộ giảm xóc**: hấp thụ đỉnh, để backend xử l
 > ⚠ **Lỗi thường gặp.** Dùng queue rồi tưởng "chắc chắn xử lý đúng một lần". Thực tế hầu hết queue đảm bảo *at-least-once* (ít nhất một lần) — một job có thể bị xử lý lặp nếu worker chết giữa chừng. Worker phải **idempotent** (chạy lại nhiều lần cho cùng kết quả), vd kiểm tra "vé này cấp chưa" trước khi cấp.
 
 > 🔁 **Thực hành.** Việc nào *nên* đẩy vào queue xử lý bất đồng bộ: (a) trả về kết quả tìm kiếm cho user đang chờ, (b) gửi email xác nhận đơn hàng?
-> <details><summary>Đáp án</summary>(b) — user không cần email tới <i>ngay lập tức</i> trong khi đợi response; đẩy vào queue, worker gửi sau vài giây là ổn, lại không chặn đường phản hồi. (a) là việc <b>đồng bộ</b> — user đang đợi kết quả ngay trên màn hình, không thể "xử lý sau".</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: tiêu chí đẩy vào queue: user có đang NGỒI CHỜ kết quả đó trên màn hình không?
+>
+> (b) — user không cần email tới <i>ngay lập tức</i> trong khi đợi response; đẩy vào queue, worker gửi sau vài giây là ổn, lại không chặn đường phản hồi. (a) là việc <b>đồng bộ</b> — user đang đợi kết quả ngay trên màn hình, không thể "xử lý sau".
+> </details>
 
 📝 **Tóm tắt mục 5.** Message queue tách *nhận* khỏi *xử lý* → API trả nhanh, worker tiêu hóa job ở nhịp ổn định, hấp thụ tải đỉnh như bộ giảm xóc. Hợp với việc không cần kết quả tức thì. Lưu ý: thường at-least-once → worker phải idempotent.
 
@@ -330,7 +354,13 @@ Bài kinh điển: thiết kế dịch vụ như bit.ly — nhận URL dài, tr�
 > ❓ **"Ước lượng sai vài lần thì sao, có chết không?"** Mục tiêu của back-of-envelope không phải số *chính xác* mà là *đúng bậc độ lớn* (order of magnitude) — biết hệ thống cần ~hàng trăm hay ~hàng chục nghìn QPS để chọn kiến trúc phù hợp. Sai gấp 2 lần không sao; sai gấp 100 lần (tưởng vài trăm QPS hóa ra vài chục nghìn) thì kiến trúc lệch hẳn. Vì thế luôn ước lượng *trước* khi vẽ.
 
 > 🔁 **Thực hành.** Trong dịch vụ rút gọn URL, vì sao đọc lại nhiều hơn ghi tới 100 lần, và điều đó gợi ý ưu tiên kỹ thuật mở rộng nào?
-> <details><summary>Đáp án</summary>Vì <b>tạo</b> URL ngắn 1 lần nhưng <b>mở</b> (redirect) nó có thể hàng trăm/nghìn lần (link được chia sẻ rộng). Đọc-trội gợi ý ưu tiên tối ưu <b>đường đọc</b>: cache mạnh + read replica, còn đường ghi (primary đơn) chưa cần sharding sớm. Đây là nguyên tắc "tối ưu thứ nóng nhất trước".</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: so tần suất tạo link với tần suất mở link → hệ đọc-trội thì dồn tiền vào đường nào (cache, read replica)?
+>
+> Vì <b>tạo</b> URL ngắn 1 lần nhưng <b>mở</b> (redirect) nó có thể hàng trăm/nghìn lần (link được chia sẻ rộng). Đọc-trội gợi ý ưu tiên tối ưu <b>đường đọc</b>: cache mạnh + read replica, còn đường ghi (primary đơn) chưa cần sharding sớm. Đây là nguyên tắc "tối ưu thứ nóng nhất trước".
+> </details>
 
 📝 **Tóm tắt mục 6.** Quy trình: (1) ước lượng tải back-of-envelope (DAU → QPS, dung lượng; đỉnh ≈ 2–3× trung bình), (2) vẽ thành phần, (3) tìm nút thắt, (4) áp scale out + cache + replica/shard + queue. Mục tiêu ước lượng là *đúng bậc độ lớn*, không cần chính xác tuyệt đối.
 

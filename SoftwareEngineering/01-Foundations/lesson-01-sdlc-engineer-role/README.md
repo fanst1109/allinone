@@ -52,7 +52,13 @@ Khác biệt cốt lõi giữa *code cá nhân* và *phần mềm kỹ thuật*:
 > ⚠ **Lỗi thường gặp.** Người mới hay nhảy thẳng từ giai đoạn 1 sang 3 ("nghe xong là code luôn"), bỏ qua **thiết kế** và xem nhẹ **yêu cầu**. Hậu quả: xây xong mới phát hiện hiểu sai nhu cầu, hoặc kiến trúc không mở rộng được → đập đi làm lại. Phần mềm thất bại phần lớn vì *làm sai thứ* (sai yêu cầu), không phải *làm sai cách* (bug code).
 
 > 🔁 **Thực hành.** Một bạn dev nhận yêu cầu "làm chức năng tìm kiếm sản phẩm" rồi code ngay trong 2 ngày. Tuần sau khách bảo "tôi cần tìm cả theo nhà cung cấp và lọc theo khoảng giá nữa". Giai đoạn nào đã bị làm hời hợt?
-> <details><summary>Đáp án</summary>Giai đoạn 1 — <b>Yêu cầu</b>. "Tìm kiếm" là mô tả mơ hồ; chưa làm rõ tìm theo trường nào, có lọc/sắp xếp không. Bỏ công làm rõ yêu cầu trước sẽ rẻ hơn nhiều so với code lại. Sẽ học kỹ ở <a href="../lesson-03-requirements-spec/">Lesson 03 — Yêu cầu & đặc tả</a>.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: soi lại 6 giai đoạn SDLC — triệu chứng 'khách bổ sung yêu cầu ngay tuần sau' trỏ về giai đoạn nào bị bỏ qua.
+>
+> Giai đoạn 1 — <b>Yêu cầu</b>. "Tìm kiếm" là mô tả mơ hồ; chưa làm rõ tìm theo trường nào, có lọc/sắp xếp không. Bỏ công làm rõ yêu cầu trước sẽ rẻ hơn nhiều so với code lại. Sẽ học kỹ ở <a href="../lesson-03-requirements-spec/">Lesson 03 — Yêu cầu & đặc tả</a>.
+> </details>
 
 📝 **Tóm tắt mục 2.** SDLC = 6 giai đoạn: Yêu cầu → Thiết kế → Hiện thực → Kiểm thử → Triển khai → Bảo trì. Các mô hình quy trình khác nhau ở *nhịp lặp* qua sáu giai đoạn này.
 
@@ -146,7 +152,13 @@ Yêu cầu ──► Thiết kế ──► Hiện thực ──► Kiểm thử
 > ⚠ **Lỗi thường gặp.** "Lặp" **không phải** là "chia code thành nhiều phần rồi cuối cùng mới ghép & test". Đặc trưng cốt lõi là mỗi vòng cho ra **một bản chạy được, giao được** — để lấy phản hồi sớm. Nếu cuối cùng mới có thứ chạy được thì đó vẫn là Waterfall trá hình.
 
 > 🔁 **Thực hành.** Vì sao mô hình lặp giảm rủi ro "làm sai thứ khách cần" so với Waterfall?
-> <details><summary>Đáp án</summary>Vì khách được thấy & dùng bản chạy thật <b>sau mỗi vòng ngắn</b>, nên hiểu lầm về yêu cầu lộ ra sớm — khi sửa còn rẻ. Waterfall chỉ cho khách thấy ở cuối, lúc sai thì sửa rất đắt (xem mục 5).</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: so sánh thời điểm khách hàng được NHÌN THẤY sản phẩm chạy ở hai mô hình, rồi nối với đường cong chi phí sửa lỗi.
+>
+> Vì khách được thấy & dùng bản chạy thật <b>sau mỗi vòng ngắn</b>, nên hiểu lầm về yêu cầu lộ ra sớm — khi sửa còn rẻ. Waterfall chỉ cho khách thấy ở cuối, lúc sai thì sửa rất đắt (xem mục 5).
+> </details>
 
 📝 **Tóm tắt mục 4.** Lặp & tăng dần = chia hệ thống thành các lát cắt nhỏ, mỗi vòng đi hết SDLC và **giao được một bản chạy**. Lấy phản hồi sớm → giảm rủi ro làm sai. Đây là nền của Agile.
 
@@ -176,7 +188,13 @@ Số liệu kinh điển (Boehm) — chi phí *tương đối* để sửa **cù
 > ⚠ **Lỗi thường gặp.** "Để sau hẵng test / hẵng làm rõ" nghe như tiết kiệm thời gian *bây giờ*, nhưng thực ra là **vay nợ với lãi cắt cổ** — chi phí dồn về cuối lớn hơn nhiều.
 
 > 🔁 **Thực hành.** Đội A bỏ 2 ngày viết test tự động trước khi release; đội B bỏ qua để release sớm 2 ngày, sau đó tốn 6 ngày sửa lỗi production rải rác trong tháng. Ai "nhanh" hơn?
-> <details><summary>Đáp án</summary>Đội A. B "nhanh" 2 ngày trước mắt nhưng tốn thêm 6 ngày sau + rủi ro uy tín — tổng đắt hơn. Đây chính là đường cong chi phí: lỗi bắt muộn (production) đắt hơn bắt sớm (trước release) nhiều lần.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: đừng so 2 ngày trước mắt — cộng tổng chi phí cả vòng đời (release sớm + thời gian sửa lỗi production) của từng đội rồi mới so.
+>
+> Đội A. B "nhanh" 2 ngày trước mắt nhưng tốn thêm 6 ngày sau + rủi ro uy tín — tổng đắt hơn. Đây chính là đường cong chi phí: lỗi bắt muộn (production) đắt hơn bắt sớm (trước release) nhiều lần.
+> </details>
 
 📝 **Tóm tắt mục 5.** Chi phí sửa cùng một lỗi tăng vọt theo giai đoạn phát hiện (1× → tới 30–100× ở production). Hệ quả thực hành: ưu tiên **phát hiện sớm** — làm rõ yêu cầu, review, test tự động — vì nó rẻ hơn nhiều so với sửa muộn.
 

@@ -45,7 +45,12 @@ Test phục vụ **hai mục đích** thường bị nhầm thành một:
 > - *"Test có chứng minh code đúng không?"* — Không. Test chỉ chứng minh code đúng *với những trường hợp bạn đã nghĩ ra*. Lỗi nằm ở case bạn quên thì test không bắt được (xem mục 6 về coverage).
 
 🔁 **Thực hành.** Đội bạn ngại refactor một module rối vì "sửa là sợ vỡ chỗ khác". Test giúp gì ở đây — bắt lỗi sớm hay cho phép thay đổi tự tin?
-<details><summary>Đáp án</summary>Chủ yếu là <b>cho phép thay đổi tự tin</b>. Nỗi sợ "sửa là vỡ" đến từ việc không biết mình có phá hành vi cũ không. Một bộ test phủ hành vi hiện tại biến refactor từ canh bạc thành thao tác an toàn: refactor xong chạy test, xanh hết = hành vi giữ nguyên. Đây chính là điều kiện để Lesson 05 (refactoring) khả thi trong thực tế.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: nỗi sợ 'sửa là vỡ' đến từ đâu — và bộ test phủ hành vi hiện tại biến refactor thành gì?
+
+Chủ yếu là <b>cho phép thay đổi tự tin</b>. Nỗi sợ "sửa là vỡ" đến từ việc không biết mình có phá hành vi cũ không. Một bộ test phủ hành vi hiện tại biến refactor từ canh bạc thành thao tác an toàn: refactor xong chạy test, xanh hết = hành vi giữ nguyên. Đây chính là điều kiện để Lesson 05 (refactoring) khả thi trong thực tế.
+</details>
 
 📝 **Tóm tắt mục 1.** Test có hai vai: (1) bắt lỗi sớm — kéo lỗi về phía rẻ trên đường cong chi phí; (2) cho phép thay đổi tự tin — lưới an toàn để refactor & thêm tính năng. Vai trò thứ hai là giá trị lâu dài lớn nhất. Test không chứng minh code đúng tuyệt đối, chỉ đúng với các case đã nghĩ tới.
 
@@ -74,7 +79,12 @@ Test phục vụ **hai mục đích** thường bị nhầm thành một:
 > - *"Mock nhiều thì unit test còn ý nghĩa gì?"* — Unit test kiểm *logic của bạn*, không kiểm phụ thuộc ngoài. Đó là lý do *cần thêm* integration/E2E để bắt lỗi ở chỗ ghép nối — không tầng nào thay được tầng nào.
 
 🔁 **Thực hành.** Một test khởi động server thật, gọi HTTP qua `localhost`, ghi vào Postgres thật. Đây là tầng nào, và đặc trưng tốc độ/độ giòn ra sao?
-<details><summary>Đáp án</summary>Đây là <b>integration</b> (có thể coi là E2E-API nếu đi qua nhiều service). Vì chạm mạng + DB thật nên chậm hơn unit nhiều lần và giòn hơn (port bận, DB chưa sẵn sàng, timing). Đổi lại nó bắt được lỗi mà unit test — vốn mock DB đi — không thể thấy: ví dụ câu SQL sai cú pháp.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: đếm số thành phần THẬT mà test chạm vào (mạng, DB) → suy ra tầng nào trong kim tự tháp, kèm hệ quả tốc độ/độ giòn.
+
+Đây là <b>integration</b> (có thể coi là E2E-API nếu đi qua nhiều service). Vì chạm mạng + DB thật nên chậm hơn unit nhiều lần và giòn hơn (port bận, DB chưa sẵn sàng, timing). Đổi lại nó bắt được lỗi mà unit test — vốn mock DB đi — không thể thấy: ví dụ câu SQL sai cú pháp.
+</details>
 
 📝 **Tóm tắt mục 2.** Ba tầng: **unit** (1 đơn vị, cô lập, mili-giây, ít giòn), **integration** (vài thành phần ghép thật, chậm hơn, giòn vừa), **E2E** (cả hệ thống qua UI, chậm nhất, giòn nhất). Càng lên cao càng giống thật nhưng càng chậm/giòn và càng khó định vị lỗi. Cần cả ba, mỗi tầng bắt loại lỗi khác nhau.
 
@@ -114,7 +124,12 @@ Cùng số hành vi được kiểm, nhưng phân bổ đảo ngược khiến b
 > - *"Hệ chủ yếu là tích hợp nhiều service thì sao?"* — Khi đó tầng integration có thể phình to hơn (đôi khi gọi là "testing trophy" — hình cúp). Nguyên tắc giữ nguyên: ưu tiên tầng *rẻ-nhanh-ổn định* nhất mà vẫn bắt được lớp lỗi tương ứng.
 
 🔁 **Thực hành.** Đội X có 2000 E2E chạy 4 tiếng, mọi người bắt đầu lờ test đỏ. Vấn đề tên gì, và sửa theo hướng nào?
-<details><summary>Đáp án</summary>Đây là <b>ice-cream cone</b> (kim tự tháp lộn ngược). Sửa bằng cách <i>đẩy việc kiểm xuống tầng rẻ hơn</i>: phần lớn logic đang test qua E2E thật ra kiểm được bằng unit test (nhanh, ổn định); chỉ giữ lại số ít E2E cho các luồng quan trọng nhất (happy path đặt hàng, đăng nhập). Kết quả: bộ test nhanh lại, ổn định lại, đội tin và chạy thường xuyên.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: hình dạng '2000 E2E, ít unit' là anti-pattern tên gì, và hướng sửa là đẩy việc kiểm về tầng nào?
+
+Đây là <b>ice-cream cone</b> (kim tự tháp lộn ngược). Sửa bằng cách <i>đẩy việc kiểm xuống tầng rẻ hơn</i>: phần lớn logic đang test qua E2E thật ra kiểm được bằng unit test (nhanh, ổn định); chỉ giữ lại số ít E2E cho các luồng quan trọng nhất (happy path đặt hàng, đăng nhập). Kết quả: bộ test nhanh lại, ổn định lại, đội tin và chạy thường xuyên.
+</details>
 
 📝 **Tóm tắt mục 3.** Test pyramid = nhiều unit (đáy), ít integration (giữa), rất ít E2E (đỉnh) — vì test đáy rẻ-nhanh-ổn định. Đảo ngược nó (ice-cream cone) làm bộ test chậm gấp hàng chục lần, giòn, không ai chạy → mất tác dụng. Mục tiêu không phải *nhiều test* mà là *bộ test chạy được thường xuyên và tin được*.
 
@@ -155,7 +170,12 @@ Sau 3 vòng, ta có hàm đúng *và* một bộ test phủ các case quan trọ
 > - *"Lợi ích thật của 'test trước' là gì?"* — (1) Ép bạn nghĩ "hàm này *nên* hành xử thế nào" trước khi sa đà vào cài đặt; (2) đảm bảo *mọi* dòng code đều có test đòi hỏi nó tồn tại → coverage tự nhiên cao; (3) test viết trước thường kiểm *hành vi*, ít bị "viết theo cài đặt".
 
 🔁 **Thực hành.** Trong vòng TDD, vì sao bước Refactor lại *an toàn* hơn nhiều so với refactor code không có TDD?
-<details><summary>Đáp án</summary>Vì ngay trước bước Refactor, bạn vừa có một bộ test <b>xanh</b> phủ hành vi vừa viết. Refactor xong chạy lại: vẫn xanh = hành vi giữ nguyên; đỏ = bạn vừa phá thứ gì đó, sửa ngay khi còn nhớ. Test đóng vai lưới an toàn của Lesson 05 — biến refactor từ canh bạc thành thao tác có phản hồi tức thì.</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: ngay trước bước Refactor trong vòng Red-Green-Refactor, bạn đang có sẵn thứ gì làm lưới an toàn?
+
+Vì ngay trước bước Refactor, bạn vừa có một bộ test <b>xanh</b> phủ hành vi vừa viết. Refactor xong chạy lại: vẫn xanh = hành vi giữ nguyên; đỏ = bạn vừa phá thứ gì đó, sửa ngay khi còn nhớ. Test đóng vai lưới an toàn của Lesson 05 — biến refactor từ canh bạc thành thao tác có phản hồi tức thì.
+</details>
 
 📝 **Tóm tắt mục 4.** TDD = viết test trước, theo vòng 🔴 Red (test đỏ cho hành vi chưa có) → 🟢 Green (code tối thiểu cho xanh) → 🔵 Refactor (dọn sạch, test vẫn xanh). Lợi ích: thiết kế từ góc người dùng, coverage cao tự nhiên, và lưới an toàn để refactor. Là kỷ luật hữu ích, không bắt buộc.
 
@@ -194,6 +214,9 @@ Mỗi dòng Given/When/Then được nối với một đoạn code ("step defin
 
 🔁 **Thực hành.** Viết một kịch bản Given/When/Then cho tiêu chí: *"Người dùng chưa đăng nhập không được xem trang quản trị, mà bị chuyển về trang đăng nhập."*
 <details><summary>Đáp án</summary>
+
+**Hướng dẫn**: tách tiêu chí thành 3 phần: Given = trạng thái ban đầu, When = hành động, Then = kết quả quan sát được.
+
 
 ```gherkin
 Scenario: Khách chưa đăng nhập bị chặn khỏi trang quản trị
@@ -250,7 +273,12 @@ Coverage báo **100%** — dòng `return a / b` đã được chạy. Nhưng cas
 > - *"Branch coverage có cứu được ví dụ chia-cho-0 không?"* — Hàm trên không có nhánh nên branch cũng 100%. Bài học sâu hơn: *không có loại coverage nào thay được việc nghĩ ra case*. Coverage chỉ ra chỗ *chưa* chạm; nó không nghĩ hộ bạn case `b == 0`.
 
 🔁 **Thực hành.** Đồng nghiệp khoe "module của tôi 100% coverage, không thể có bug". Phản biện trong một câu.
-<details><summary>Đáp án</summary>100% coverage chỉ nghĩa <b>mọi dòng đã được test chạy qua</b>, không nghĩa <b>mọi hành vi/case đã được kiểm đúng</b> — ví dụ một test chạy qua <code>return a/b</code> đạt 100% line nhưng vẫn bỏ sót case <code>b==0</code>. Coverage đo "đã chạm", không đo "đã kiểm đủ".</details>
+<details><summary>Đáp án</summary>
+
+**Hướng dẫn**: phân biệt 'dòng code ĐÃ CHẠY qua' với 'hành vi ĐÃ KIỂM đúng' — nghĩ ví dụ a/b với b=0.
+
+100% coverage chỉ nghĩa <b>mọi dòng đã được test chạy qua</b>, không nghĩa <b>mọi hành vi/case đã được kiểm đúng</b> — ví dụ một test chạy qua <code>return a/b</code> đạt 100% line nhưng vẫn bỏ sót case <code>b==0</code>. Coverage đo "đã chạm", không đo "đã kiểm đủ".
+</details>
 
 📝 **Tóm tắt mục 6.** Coverage đo % code *được test chạy qua* (line/branch/function), là *chỉ báo* tìm vùng chưa test — **không phải mục tiêu**. 100% coverage vẫn sót bug nếu thiếu case (vd chia cho 0). Test cho đáng = ưu tiên *rủi ro × tần suất*: logic nghiệp vụ cốt lõi, case biên, đường lỗi, code phức tạp — không chạy theo con số phần trăm.
 

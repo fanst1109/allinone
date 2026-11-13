@@ -42,7 +42,13 @@
 > ⚠ **Lỗi thường gặp.** Tưởng "CI/CD = một công cụ phải mua". Thực ra CI/CD là **một thực hành** (tích hợp & giao thường xuyên, tự động hóa) — công cụ (GitHub Actions, GitLab CI, Jenkins...) chỉ là phương tiện. Lắp công cụ mà vẫn merge 3 tuần/lần thì không phải đang làm CI.
 
 > 🔁 **Thực hành.** Vì sao "merge mỗi ngày" lại ít xung đột hơn "merge mỗi 3 tuần", dù tổng lượng code thay đổi là như nhau?
-> <details><summary>Đáp án</summary>Vì xung đột phát sinh khi <b>hai người sửa cùng vùng code trước khi thấy thay đổi của nhau</b>. Merge mỗi ngày → cửa sổ "chưa thấy nhau" chỉ 1 ngày, lượng code chồng lấn nhỏ, gỡ vài phút. Merge mỗi 3 tuần → cửa sổ 21 ngày, hai người đã sửa lệch nhau rất nhiều trên cùng file → gỡ cả ngày. Tích hợp sớm không giảm tổng công việc, nhưng <b>chia nhỏ</b> xung đột thành nhiều lần dễ xử lý thay vì một lần khổng lồ.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: xung đột sinh ra trong 'cửa sổ chưa thấy thay đổi của nhau' — so độ dài cửa sổ 1 ngày với 21 ngày.
+>
+> Vì xung đột phát sinh khi <b>hai người sửa cùng vùng code trước khi thấy thay đổi của nhau</b>. Merge mỗi ngày → cửa sổ "chưa thấy nhau" chỉ 1 ngày, lượng code chồng lấn nhỏ, gỡ vài phút. Merge mỗi 3 tuần → cửa sổ 21 ngày, hai người đã sửa lệch nhau rất nhiều trên cùng file → gỡ cả ngày. Tích hợp sớm không giảm tổng công việc, nhưng <b>chia nhỏ</b> xung đột thành nhiều lần dễ xử lý thay vì một lần khổng lồ.
+> </details>
 
 📝 **Tóm tắt mục 1.** Tích hợp muộn gây "merge hell" (xung đột dồn cục) và triển khai thủ công dễ "quên bước". CI/CD chữa cả hai bằng cách **ghép sớm + ghép thường xuyên** và **tự động hóa các bước lặp lại** → nhanh hơn mà ít lỗi hơn.
 
@@ -110,7 +116,13 @@ Tổng: lỗi bị bắt sau ~73 giây, *trước khi* lên nhánh chính. So v�
 > ⚠ **Lỗi thường gặp.** Để pipeline "đỏ" lâu ngày mà vẫn merge. Nguyên tắc vàng của CI: **nhánh chính phải luôn xanh**. Đỏ thì việc số một là làm nó xanh lại (sửa hoặc revert), không phải chồng thêm commit mới lên trên một nền đang hỏng.
 
 > 🔁 **Thực hành.** Vì sao xếp `lint` trước `test`, không phải ngược lại?
-> <details><summary>Đáp án</summary>Vì <b>fail fast</b> — chạy cái rẻ/nhanh trước. <code>lint</code> chỉ vài giây và bắt lỗi rõ ràng (style, biến không dùng); <code>test</code> tốn lâu hơn. Nếu code còn lỗi lint cơ bản thì không cần phí 45 giây chạy test — báo đỏ ngay từ stage rẻ nhất. Thứ tự: rẻ & nhanh → đắt & chậm.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: nguyên tắc fail fast: stage rẻ và nhanh đứng trước để làm gì khi code chắc chắn sẽ đỏ?
+>
+> Vì <b>fail fast</b> — chạy cái rẻ/nhanh trước. <code>lint</code> chỉ vài giây và bắt lỗi rõ ràng (style, biến không dùng); <code>test</code> tốn lâu hơn. Nếu code còn lỗi lint cơ bản thì không cần phí 45 giây chạy test — báo đỏ ngay từ stage rẻ nhất. Thứ tự: rẻ & nhanh → đắt & chậm.
+> </details>
 
 📝 **Tóm tắt mục 2.** CI = mỗi push/PR tự động chạy một **pipeline gồm các stage** (lint → build → test). Một stage hỏng → dừng (fail fast). Lỗi lộ trong vài phút, trước khi merge. Nguyên tắc: **nhánh chính luôn xanh**.
 
@@ -173,7 +185,13 @@ Mẹo nhớ: cả hai viết tắt là **CD**, khác nhau đúng một chữ —
 > ⚠ **Lỗi thường gặp.** Dùng lẫn lộn hai thuật ngữ rồi cãi nhau vô nghĩa. Hãy nhớ: **điểm phân biệt duy nhất là có hay không cú "bấm nút tay" trước khi vào production.** Có nút = Delivery. Không nút = Deployment.
 
 > 🔁 **Thực hành.** Một startup deploy 50 lần/ngày, mỗi merge xanh là tự lên production, không ai duyệt. Đó là Delivery hay Deployment?
-> <details><summary>Đáp án</summary><b>Continuous Deployment</b> — không có bước phê duyệt thủ công, pipeline tự đẩy lên production. (Nếu vẫn cần một người bấm "release" thì mới là Delivery.)</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: ranh giới Delivery/Deployment nằm ở một bước duy nhất: có người bấm nút phê duyệt trước production hay không?
+>
+> <b>Continuous Deployment</b> — không có bước phê duyệt thủ công, pipeline tự đẩy lên production. (Nếu vẫn cần một người bấm "release" thì mới là Delivery.)
+> </details>
 
 📝 **Tóm tắt mục 3.** Cả hai đưa bản build sẵn-sàng tới ngưỡng production. **Delivery** = dừng lại chờ **người bấm release**; **Deployment** = **tự động lên** production khi pipeline xanh. Deployment đòi hỏi lưới an toàn (test + canary + giám sát + rollback) dày hơn.
 
@@ -250,7 +268,13 @@ Mẹo nhớ: cả hai viết tắt là **CD**, khác nhau đúng một chữ —
 > ⚠ **Lỗi thường gặp.** Coi mọi stage là quality gate. Một số stage chỉ **thông tin** (vd báo cáo kích thước bundle); chỉ những stage **chặn được pipeline khi không đạt** mới là cổng chất lượng thật. Cổng = có quyền nói "không cho đi tiếp".
 
 > 🔁 **Thực hành.** Security scan tìm thấy 1 lỗ hổng mức "Medium", cổng đặt là "chặn nếu có High/Critical". Pipeline xanh hay đỏ?
-> <details><summary>Đáp án</summary><b>Xanh</b> — cổng chỉ chặn ở mức High/Critical, lỗ hổng Medium chỉ được ghi nhận (cảnh báo) chứ không vượt ngưỡng chặn. Lỗ hổng Medium vẫn nên xử lý, nhưng nó không làm dừng pipeline theo cấu hình cổng này.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: đọc lại điều kiện cổng (chặn High/Critical) rồi so với mức lỗ hổng tìm thấy (Medium) — vượt ngưỡng chưa?
+>
+> <b>Xanh</b> — cổng chỉ chặn ở mức High/Critical, lỗ hổng Medium chỉ được ghi nhận (cảnh báo) chứ không vượt ngưỡng chặn. Lỗ hổng Medium vẫn nên xử lý, nhưng nó không làm dừng pipeline theo cấu hình cổng này.
+> </details>
 
 📝 **Tóm tắt mục 4.** Pipeline trưởng thành = nhiều stage (lint → build → test → scan → deploy → smoke). **Cổng chất lượng** là điều kiện đo được chặn pipeline khi không đạt (coverage, lỗ hổng...). Cổng biến chuẩn chất lượng thành luật cứng — nhưng phải ngặt *vừa đủ*.
 
@@ -336,7 +360,13 @@ xong:        [v2][v2][v2][v2]
 > ⚠ **Lỗi thường gặp.** Quên rằng rolling/canary khiến **hai phiên bản chạy đồng thời**. Nếu v2 đổi schema DB theo cách v1 không đọc được → v1 gãy ngay khi v2 lên. Quy tắc: thay đổi schema phải **tương thích ngược** (backward compatible), tách "thêm cột" và "xóa cột cũ" thành hai release riêng.
 
 > 🔁 **Thực hành.** Bạn sắp release một thay đổi rủi ro cao (viết lại engine tính giá), có hệ thống giám sát lỗi/độ trễ realtime. Chiến lược nào hợp nhất và vì sao?
-> <details><summary>Đáp án</summary><b>Canary</b>. Thay đổi rủi ro cao → muốn lỗi (nếu có) chỉ chạm một phần nhỏ người dùng; có giám sát realtime → biết ngay khi chỉ số xấu để kéo % về 0. Canary giới hạn "blast radius" tốt nhất và tận dụng đúng năng lực giám sát. Blue-green chuyển 100% một nhịp nên thay đổi rủi ro cao sẽ chạm tất cả người dùng cùng lúc (dù lui được nhanh).</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: thay đổi rủi ro cao + có giám sát realtime → chiến lược nào giới hạn 'blast radius' và cho rút lui theo phần trăm?
+>
+> <b>Canary</b>. Thay đổi rủi ro cao → muốn lỗi (nếu có) chỉ chạm một phần nhỏ người dùng; có giám sát realtime → biết ngay khi chỉ số xấu để kéo % về 0. Canary giới hạn "blast radius" tốt nhất và tận dụng đúng năng lực giám sát. Blue-green chuyển 100% một nhịp nên thay đổi rủi ro cao sẽ chạm tất cả người dùng cùng lúc (dù lui được nhanh).
+> </details>
 
 📝 **Tóm tắt mục 5.** Ba chiến lược: **blue-green** (hai môi trường, đổi router → rollback tức thì, tốn gấp đôi), **canary** (mở dần theo % → blast radius nhỏ nhất, cần giám sát), **rolling** (thay từng instance → tiết kiệm, cần tương thích hai phiên bản). Tiêu chí chọn: tốc độ **rollback** và **phạm vi ảnh hưởng** khi lỗi.
 
@@ -384,7 +414,13 @@ Lỗi? → tắt cờ (không cần deploy) → mọi người về bản cũ t�
 Pipeline thường deploy lên **staging trước**, chạy smoke test, rồi mới (tự động hoặc qua cổng) lên **production**. Tách môi trường giúp lỗi bị bắt ở staging không chạm người dùng thật.
 
 > 🔁 **Thực hành.** Feature flag giúp gì khi muốn release một tính năng rủi ro nhưng *không* muốn tách thành nhiều bản deploy?
-> <details><summary>Đáp án</summary>Cho phép <b>deploy code lên production mà vẫn giấu tính năng sau cờ tắt</b>, rồi bật dần (vd 5% user) và tắt tức thì nếu lỗi — tất cả không cần deploy lại. Nó tách "đưa code lên" khỏi "cho người dùng thấy", và là một dạng rollback cực nhanh ở mức tính năng.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: feature flag tách 'đưa code lên' khỏi 'cho người dùng thấy' — nghĩ xem bật dần và tắt tức thì không cần deploy lại nghĩa là gì.
+>
+> Cho phép <b>deploy code lên production mà vẫn giấu tính năng sau cờ tắt</b>, rồi bật dần (vd 5% user) và tắt tức thì nếu lỗi — tất cả không cần deploy lại. Nó tách "đưa code lên" khỏi "cho người dùng thấy", và là một dạng rollback cực nhanh ở mức tính năng.
+> </details>
 
 📝 **Tóm tắt mục 6.** **Feature flag** tách deploy khỏi release, bật/tắt tính năng không cần deploy lại (hợp với trunk-based). **Secrets** không bao giờ hard-code — dùng secret manager + scan. **Môi trường** dev → staging → prod tăng dần độ giống thật, deploy qua staging trước để chặn lỗi sớm.
 

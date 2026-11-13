@@ -116,7 +116,13 @@ So sánh hai tầng kiến trúc:
 > ⚠ **Lỗi thường gặp.** Nghĩ "container an toàn bằng VM nên gom mọi tenant chung một host thoải mái". Vì container *chung kernel*, một lỗ hổng kernel có thể phá vỡ cô lập giữa các container. Với cách ly cứng (multi-tenant không tin nhau), người ta vẫn dùng VM hoặc microVM (Firecracker, gVisor). Container đánh đổi *một phần* cô lập để lấy nhẹ và nhanh.
 
 > 🔁 **Thực hành.** Vì sao một máy chủ chạy được hàng trăm container nhưng chỉ vài chục VM cùng cấu hình?
-> <details><summary>Đáp án</summary>Vì mỗi VM "gánh" một OS khách đầy đủ (kernel + dịch vụ hệ thống) chiếm hàng GB RAM/đĩa và thời gian boot. Container chia sẻ kernel máy chủ, chỉ thêm phần user-space của app (hàng chục MB) → tài nguyên trên mỗi instance nhỏ hơn nhiều lần, nên nhồi được nhiều hơn.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: so phần mỗi instance phải 'gánh': VM chứa nguyên OS khách (GB, boot phút) vs container chia sẻ kernel (MB, giây).
+>
+> Vì mỗi VM "gánh" một OS khách đầy đủ (kernel + dịch vụ hệ thống) chiếm hàng GB RAM/đĩa và thời gian boot. Container chia sẻ kernel máy chủ, chỉ thêm phần user-space của app (hàng chục MB) → tài nguyên trên mỗi instance nhỏ hơn nhiều lần, nên nhồi được nhiều hơn.
+> </details>
 
 📝 **Tóm tắt mục 2.** VM ảo hoá *phần cứng* (mỗi máy ảo có OS riêng); container ảo hoá *hệ điều hành* (chia sẻ kernel, chỉ đóng gói user-space). Container nhẹ, nhanh, dày đặc hơn; VM cô lập mạnh hơn. Chọn theo nhu cầu.
 
@@ -190,7 +196,13 @@ docker pull myorg/my-app:1.4.0          # kéo đúng phiên bản về chạy
 Tag (\`:1.4.0\`) cho phép cố định đúng phiên bản → môi trường nào cũng chạy *cùng một bit*. Pipeline [CD](../lesson-03-ci-cd/) thường: CI build & push image có tag = commit SHA → CD pull đúng tag đó để triển khai.
 
 > 🔁 **Thực hành.** Bạn build lại image sau khi chỉ đổi một dòng README (không phải code, không phải phụ thuộc). Layer \`RUN npm ci\` cache hit hay miss?
-> <details><summary>Đáp án</summary>Còn tuỳ Dockerfile. Với Dockerfile mẫu ở trên: README bị \`COPY . .\` (layer 5) bắt vào → layer 5 trở đi cache miss, nhưng layer \`RUN npm ci\` (layer 4, *trước* \`COPY . .\`) vẫn <b>cache hit</b> vì \`package*.json\` không đổi. Đó chính là lợi ích của việc tách copy phụ thuộc ra trước.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: lần theo thứ tự layer trong Dockerfile: README đổi thì layer COPY nào bắt vào, và npm ci nằm TRƯỚC hay SAU nó?
+>
+> Còn tuỳ Dockerfile. Với Dockerfile mẫu ở trên: README bị \`COPY . .\` (layer 5) bắt vào → layer 5 trở đi cache miss, nhưng layer \`RUN npm ci\` (layer 4, *trước* \`COPY . .\`) vẫn <b>cache hit</b> vì \`package*.json\` không đổi. Đó chính là lợi ích của việc tách copy phụ thuộc ra trước.
+> </details>
 
 📝 **Tóm tắt mục 3.** Image = ảnh chụp sẵn-sàng-chạy gồm nhiều layer; Dockerfile = công thức build; container = instance đang chạy. Sắp xếp lệnh để thứ ít đổi đứng trước → tận dụng cache, build nhanh. Registry là kho push/pull image có tag phiên bản.
 
@@ -220,7 +232,13 @@ Tag (\`:1.4.0\`) cho phép cố định đúng phiên bản → môi trường n
 > ❓ **"Dự án nhỏ có cần Kubernetes không?"** Thường là không. K8s mạnh nhưng phức tạp — chi phí vận hành đáng kể. App nhỏ một-hai container chạy tốt với \`docker compose\`, một PaaS (Render, Fly.io, Cloud Run) hoặc thậm chí một VM. Dùng K8s khi *quy mô và yêu cầu vận hành* (nhiều dịch vụ, scale động, độ sẵn sàng cao) thật sự đòi hỏi — đừng "đốt" K8s cho việc nhỏ.
 
 > 🔁 **Thực hành.** Một container web chết lúc nửa đêm. Trong cụm Kubernetes khai báo \`replicas: 3\`, điều gì xảy ra mà không cần con người?
-> <details><summary>Đáp án</summary>K8s phát hiện trạng thái thực (2 pod khoẻ) lệch trạng thái mong muốn (3 pod) → <b>self-healing</b>: scheduler tự dựng một pod mới thay thế, Service tự định tuyến lại lưu lượng sang các pod khoẻ. Không ai phải thức dậy.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: nhớ cơ chế khai báo trạng thái mong muốn (replicas: 3) — K8s làm gì khi trạng thái thực lệch đi?
+>
+> K8s phát hiện trạng thái thực (2 pod khoẻ) lệch trạng thái mong muốn (3 pod) → <b>self-healing</b>: scheduler tự dựng một pod mới thay thế, Service tự định tuyến lại lưu lượng sang các pod khoẻ. Không ai phải thức dậy.
+> </details>
 
 📝 **Tóm tắt mục 4.** Khi container nhiều và rải trên nhiều máy, cần orchestration tự động hoá: dựng lại khi chết (self-healing), scale theo tải, định vị dịch vụ (Service), lập lịch đặt pod. Kubernetes làm việc đó theo mô hình *khai báo trạng thái mong muốn*. Dự án nhỏ chưa cần K8s.
 
@@ -259,7 +277,13 @@ App **không tự quản lý file log**; nó *viết log ra \`stdout\`/\`stderr\
 > ❓ **"Còn 9 factor kia thì sao?"** Vẫn quan trọng (codebase một nguồn, khai báo phụ thuộc tường minh, dev/prod đồng nhất...). Ba yếu tố trên được chọn vì chúng *cộng hưởng trực tiếp* với mô hình container bất biến + nhân bản + vòng đời ngắn. Đọc đủ 12 yếu tố ở [12factor.net](https://12factor.net).
 
 > 🔁 **Thực hành.** Vì sao một app lưu session đăng nhập trong RAM cục bộ lại gây lỗi khi scale lên 3 bản chạy sau một load balancer?
-> <details><summary>Đáp án</summary>Vi phạm nguyên tắc <b>stateless</b>. Load balancer phân request của cùng một user sang các bản khác nhau; bản B không có session mà bản A đã tạo → user bị "đăng xuất" ngẫu nhiên. Sửa: đẩy session ra kho chung (Redis/DB) để mọi bản đều truy cập được.</details>
+>
+> <details><summary>Đáp án</summary>
+>
+> **Hướng dẫn**: load balancer phân request cùng user sang các bản KHÁC nhau — session nằm trong RAM cục bộ thì bản kia có thấy không?
+>
+> Vi phạm nguyên tắc <b>stateless</b>. Load balancer phân request của cùng một user sang các bản khác nhau; bản B không có session mà bản A đã tạo → user bị "đăng xuất" ngẫu nhiên. Sửa: đẩy session ra kho chung (Redis/DB) để mọi bản đều truy cập được.
+> </details>
 
 📝 **Tóm tắt mục 5.** Ba factor cốt lõi với container: **config qua env** (một image, nhiều môi trường), **stateless** (bản sao tương đương, scale/khởi động lại vô tư), **log là luồng stdout** (tồn tại ngoài container, gom tập trung). Chúng làm tính bất biến và nhân bản của container thực sự dùng được.
 
